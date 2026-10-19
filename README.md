@@ -99,7 +99,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.13 est préparée : **447 tests réussis** localement (244 métier/interface et 203 intégrations). Publication en cours ; résultats dans le [rapport 0.13](docs/VALIDATION-0.13.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.13 est publiée : **447 tests réussis** localement et sur GitHub (244 métier/interface et 203 intégrations). Manifeste exact 0.13.0 et 57 commandes privées refusées sans connexion, vérifiés en ligne. Preuves dans le [rapport 0.13](docs/VALIDATION-0.13.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 

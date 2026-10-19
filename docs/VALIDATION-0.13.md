@@ -52,7 +52,9 @@ Une réponse réseau incertaine doit être vérifiée dans la vente et les journ
 - Les 20 parcours partagés couvrent proposition privée, prix fixé, lot entier/partiel, séparation propriété/détention, retrait sans second paiement, interdiction d’usage avant retrait, deux acheteurs, double dépense, concurrence avec soin/annulation, échéance, comptes collectifs, confidentialité, révisions, réservations, dépassements, révocation, réattribution, panne avant commit, modules, hors combat, aperçu et accès anonymes.
 - Un parcours du gestionnaire HTTP réel utilise Auth et Firestore émulés : 20 caisses fictives, achat de 8 pour 40, solde 100 → 60, réception vendeur 40, stock conservé chez le vendeur jusqu’au retrait, réessais uniques et révocation prioritaire.
 - `npm run test:emulator` : **203 tests réussis**, aucun échec, annulation ou test ignoré, en environ 232 secondes avec Java 21. Total local : **244 + 203 = 447**.
-- Publication GitHub/Firebase en cours. Données synthétiques dans `demo-gn-engine` exclusivement ; aucune donnée de test créée en production.
+- Le parcours de retrait périmé a également été relancé isolément sur les émulateurs après la dernière adaptation de la projection des identités : 1 test réussi. Ce réessai ne s’ajoute pas au total de 447 tests distincts.
+- Le job GitHub `118220962502`, sur le commit source `c87faf50adf6439eb833ae5e2d4b89c1a488d93c`, termine avec succès : 244 tests métier/interface et 203 intégrations, soit **447 tests**, sans échec, annulation ou test ignoré. Les intégrations se terminent à **18:09:56 UTC** le 19 octobre 2026. Résultats lus dans le journal terminé. Node 22.23.3 ; compilation à 18:05:39 UTC et tests unitaires terminés à 18:05:46 UTC.
+- Données synthétiques dans `demo-gn-engine` exclusivement ; aucune donnée de test créée en production.
 
 ## Limites et recette restante
 
@@ -65,4 +67,12 @@ Une réponse réseau incertaine doit être vérifiée dans la vente et les journ
 
 ## Publication
 
-En attente des résultats du workflow et de la vérification en ligne.
+Le code applicatif publié est le commit `c87faf50adf6439eb833ae5e2d4b89c1a488d93c`. Le [workflow Firebase 39299591160](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39299591160) termine avec succès pour les jobs de vérification `118220962502` et de publication `118223259103`. Le journal de publication consigne le 19 octobre 2026 :
+
+- Fonction serveur `api` en Belgique : **ACTIVE** à **18:12:04 UTC**.
+- Firebase Hosting : **Deploy complete** à **18:12:16 UTC**.
+- Contrôle final à **18:12:28 UTC** : page HTTP 200, manifeste exact **0.13.0** et **57 commandes privées refusées en HTTP 401 / LOGIN_REQUIRED** sans authentification, dont les neuf nouvelles commandes de vente/retrait.
+
+Le navigateur confirme ensuite **GN Engine · 0.13**. La route `#/bag/verification` affiche uniquement la connexion, sans stock, vente, montant ou identité privée. La capture prouve la version visible et l’accès anonyme fermé ; elle ne constitue pas une recette authentifiée des ventes. Page finale : [GN Engine](https://gn-engine.web.app/).
+
+![Sac protégé — version 0.13](verification/gn-engine-0.13-1792433632794.jpg)

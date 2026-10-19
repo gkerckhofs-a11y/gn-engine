@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.13 préparée : ventes privées, paiement et propriété atomiques, retrait physique sans second paiement. 447 tests réussis localement (244 métier/interface et 203 intégrations) ; publication en cours. Rapport `VALIDATION-0.13.md` ; rapports 0.2 à 0.12 conservés. La recette avec comptes joueurs réels distincts et mobile reste à faire.
+19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.13 publiée : ventes privées, paiement et propriété atomiques, retrait physique sans second paiement. 447 tests réussis localement et sur GitHub (244 métier/interface et 203 intégrations) ; manifeste 0.13.0 et 57 refus anonymes vérifiés en ligne. Rapport `VALIDATION-0.13.md` ; rapports 0.2 à 0.12 conservés. La recette avec comptes joueurs réels distincts et mobile reste à faire.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
