@@ -81,11 +81,11 @@
       "sourceLine": 65,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
-      "coreWork": null,
-      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.4.md ; src/core/groups.mjs ; src/core/workflow.mjs ; test/support/groups-suite.mjs ; test/groups-ui.test.mjs ; test/integration",
-      "implementedScope": "Appartenances multiples publiques/secrètes, révélation et liste des membres distinctes ; droits séparés pour briefing, membres, réception et publication d’informations. Caisse, stock, annonces commerciales, départ et invitations entre joueurs restent à raccorder."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_12",
+      "coreWork": "Caisses intégrées au journal commun, droits readWallet/payWallet séparés",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.12.md ; src/core/collective-accounts.mjs ; src/core/economy-state.mjs ; src/core/groups.mjs ; web/collective-accounts.mjs ; test/support/collective-suite.mjs ; test/collective-ui.test.mjs ; test/integration",
+      "implementedScope": "Droits narratifs et financiers séparés par personnage membre. Consulter la caisse et payer avec elle sont indépendants ; appartenance active/révélée, publication et modules contrôlés. Révocation et baisse des permissions appliquées avant réessai. Droits de stock, annonces, départ et invitation restant."
     },
     {
       "id": "SES-03",
@@ -187,8 +187,8 @@
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_9",
       "coreWork": null,
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration ; docs/VALIDATION-0.11.md ; test/support/economy-suite.mjs",
-      "implementedScope": "Bibliothèques versionnées de compétences, classes et objets, duplication, profils et matériel initial copiés après comparaison et confirmation. Lots et sessions existants ne suivent pas automatiquement le catalogue. Bibliothèque transversale et migration collective restant. Monnaie et crédits de départ individuels également figés par version en 0.11, sans réécriture des soldes existants."
+      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration ; docs/VALIDATION-0.11.md ; test/support/economy-suite.mjs ; docs/VALIDATION-0.12.md",
+      "implementedScope": "Bibliothèques versionnées de compétences, classes et objets, duplication, profils et matériel initial copiés après comparaison et confirmation. Lots et sessions existants ne suivent pas automatiquement le catalogue. Bibliothèque transversale et migration collective restant. Monnaie et crédits de départ individuels également figés par version en 0.11, sans réécriture des soldes existants. Dotations de caisses également copiées par version en 0.12."
     },
     {
       "id": "EDI-04",
@@ -574,11 +574,11 @@
       "sourceLine": 189,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_11",
-      "coreWork": "economy.mjs : service intégré ; payments.mjs conservé comme prototype isolé",
-      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.11.md ; src/core/economy.mjs ; src/core/economy-state.mjs ; web/economy.mjs ; test/support/economy-suite.mjs ; test/economy-ui.test.mjs ; test/integration",
-      "implementedScope": "Monnaie fictive principale configurable (nom/unité), montants entiers sûrs, copie de version indépendante et unité de session figée. Portefeuilles individuels ; caisses de groupe/établissement et devises multiples non intégrées."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_12",
+      "coreWork": "Caisses intégrées au journal commun, droits readWallet/payWallet séparés",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.12.md ; src/core/collective-accounts.mjs ; src/core/economy-state.mjs ; src/core/groups.mjs ; web/collective-accounts.mjs ; test/support/collective-suite.mjs ; test/collective-ui.test.mjs ; test/integration",
+      "implementedScope": "Monnaie entière configurable, portefeuilles et une caisse par groupe ; total, réservé et disponible distingués. Dotations de scénario copiées, ouverture tardive à zéro, aucun découvert. Établissement représentable par groupe ; pas d’entité établissement dédiée ni devises multiples."
     },
     {
       "id": "ECO-02",
@@ -586,11 +586,11 @@
       "sourceLine": 191,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_11",
-      "coreWork": "economy.mjs : service intégré ; payments.mjs conservé comme prototype isolé",
-      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.11.md ; src/core/economy.mjs ; src/core/economy-state.mjs ; web/economy.mjs ; test/support/economy-suite.mjs ; test/economy-ui.test.mjs ; test/integration",
-      "implementedScope": "Paiement personnel confirmé vers un badge de la même session, identités publiques, montant, motif, référence et solde du payeur avant/après. Journal personnel sans solde adverse. Choix de caisses autorisées, lecteur caméra et autres contrats restant."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_12",
+      "coreWork": "Caisses intégrées au journal commun, droits readWallet/payWallet séparés",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.12.md ; src/core/collective-accounts.mjs ; src/core/economy-state.mjs ; src/core/groups.mjs ; web/collective-accounts.mjs ; test/support/collective-suite.mjs ; test/collective-ui.test.mjs ; test/integration",
+      "implementedScope": "Choix du compte personnel ou d’une caisse autorisée, paiement confirmé vers badge de personnage ou compte de la liste autorisée. Consultation et dépense indépendantes ; libellé de couverture et journal sans solde adverse. Paiements externes vers caisse sans appartenance, caméra et contrats restant."
     },
     {
       "id": "ECO-03",
@@ -598,11 +598,11 @@
       "sourceLine": 194,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_11",
-      "coreWork": "economy.mjs : service intégré ; payments.mjs conservé comme prototype isolé",
-      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.11.md ; src/core/economy.mjs ; src/core/economy-state.mjs ; web/economy.mjs ; test/support/economy-suite.mjs ; test/economy-ui.test.mjs ; test/integration",
-      "implementedScope": "Débit/crédit, journal et résultat atomiques sur Firestore. Idempotence, refus sans effet, deux paiements 80 sur 100, encaissements concurrents, solde réservé et panne avant commit testés. Recette multi-comptes et charge terrain restant."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_12",
+      "coreWork": "Caisses intégrées au journal commun, droits readWallet/payWallet séparés",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.12.md ; src/core/collective-accounts.mjs ; src/core/economy-state.mjs ; src/core/groups.mjs ; web/collective-accounts.mjs ; test/support/collective-suite.mjs ; test/collective-ui.test.mjs ; test/integration",
+      "implementedScope": "Débit/crédit, journal et résultat atomiques sur Firestore ; répétitions, deux caissiers concurrents, encaissements simultanés, réservations, révisions et panne avant commit contrôlés. Recette réelle et charge terrain restant."
     },
     {
       "id": "ECO-04",
@@ -610,11 +610,11 @@
       "sourceLine": 195,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_11",
-      "coreWork": "economy.mjs : service intégré ; payments.mjs conservé comme prototype isolé",
-      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.11.md ; src/core/economy.mjs ; src/core/economy-state.mjs ; web/economy.mjs ; test/support/economy-suite.mjs ; test/economy-ui.test.mjs ; test/integration",
-      "implementedScope": "Ajout/retrait MJ confirmé avec libellé joueur et motif privé ; nouvelle écriture conservant les précédentes. Confirmation périmée refusée. Annulation admissible et analyse des dépendances non intégrées."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_12",
+      "coreWork": "Caisses intégrées au journal commun, droits readWallet/payWallet séparés",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.12.md ; src/core/collective-accounts.mjs ; src/core/economy-state.mjs ; src/core/groups.mjs ; web/collective-accounts.mjs ; test/support/collective-suite.mjs ; test/collective-ui.test.mjs ; test/integration",
+      "implementedScope": "Ajouts/retraits MJ confirmés vers comptes personnels ou collectifs, libellé joueur et motif privé. Écriture nouvelle conservant les précédentes ; confirmation périmée refusée. Annulation et analyse des dépendances restant."
     },
     {
       "id": "ECO-05",

@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.11 : portefeuilles personnels, crédits de départ et paiements confirmés.**
+**Version 0.12 : caisses collectives, droits de consultation et de paiement séparés.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -64,7 +64,13 @@ Configurez le nom et l’unité entière de la monnaie, puis les crédits de dé
 
 Dans **Mon portefeuille**, le joueur consulte son solde total, réservé et disponible, puis prépare un paiement vers le badge public d’un autre personnage. Le récapitulatif indique les identités, le montant, le motif et son solde après paiement. La confirmation débite et crédite ensemble, une seule fois. Le MJ peut ajouter ou retirer des crédits avec un libellé joueur et un motif privé, après comparaison avant/après. Les écritures d’origine sont conservées. [Parcours et limites 0.11](docs/VALIDATION-0.11.md).
 
-Les paiements concernent les comptes personnels uniquement. Ils ne transfèrent pas d’objet ; les ventes atomiques, caisses collectives et contrats restent à intégrer.
+Les paiements ne transfèrent pas d’objet ; les ventes atomiques et contrats restent à intégrer. Les caisses collectives prolongent ce parcours en 0.12.
+
+## Caisses collectives
+
+Préparez la caisse d’un groupe dans le scénario avec son libellé de paiement et sa dotation, puis figez une version. En session, une nouvelle caisse s’ouvre à zéro ; les ajouts/retraits MJ passent par une confirmation motivée. Les droits **Consulter la caisse** et **Payer avec la caisse** sont indépendants, attribués aux personnages dans les appartenances du groupe.
+
+Depuis **Mes comptes et caisses**, le joueur choisit un compte autorisé. Il peut payer un personnage identifié par badge ou transférer vers une autre caisse de sa liste. Un caissier sans droit de consultation peut payer sans recevoir les champs de solde ni le journal. Les contreparties voient le libellé choisi par le MJ, pas le nom interne d’un groupe secret ni l’identité du caissier. Retirer les droits bloque immédiatement lectures, nouvelles commandes et réessais concernés. [Parcours et limites 0.12](docs/VALIDATION-0.12.md).
 
 ## Infrastructure configurée
 
@@ -87,7 +93,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.11 est publiée : **357 tests réussis** localement et dans les journaux GitHub (196 métier/interface/contrôle de publication et 161 intégrations). La version exacte 0.11.0 et le refus de 41 commandes privées anonymes sont vérifiés en ligne. Preuves dans le [rapport 0.11](docs/VALIDATION-0.11.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.12 passe **402 tests localement** : 220 métier/interface et 182 intégrations sur Auth et Firestore émulés. Compilation réussie ; vérification GitHub et publication en cours. Preuves dans le [rapport 0.12](docs/VALIDATION-0.12.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 
@@ -116,7 +122,7 @@ Le workflow vérifie les tests, compile puis publie la fonction `api` via Google
 
 ## Périmètre restant
 
-Ce premier parcours ne termine pas tout le lot A ni les 132 exigences : valeurs initiales de classe (PV, crédits, objets), compétences actives, permissions de caisse/stock/transport, invitations de groupe entre joueurs, autres modes de connexion, récupération sans Google, pièces jointes, import/export, terrain, suite de l’économie et vaisseaux restent à intégrer. Pas de démonstration de charge à 60/120 joueurs ni de recette complète des formulaires authentifiés en production.
+Ce premier parcours ne termine pas tout le lot A ni les 132 exigences : valeurs initiales de classe (PV, crédits, objets), compétences actives, permissions étendues de caisse/stock/transport, invitations de groupe entre joueurs, autres modes de connexion, récupération sans Google, pièces jointes, import/export, terrain, suite de l’économie et vaisseaux restent à intégrer. Pas de démonstration de charge à 60/120 joueurs ni de recette complète des formulaires authentifiés en production.
 
 Les versions et copies utilisent des transactions Firestore. Aucun plafond métier de casting ; les limites de taille des transactions devront être mesurées sur les contenus réels.
 

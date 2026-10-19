@@ -1,3 +1,4 @@
+import {collectiveSuite} from '../support/collective-suite.mjs';
 import {economySuite} from '../support/economy-suite.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -24,6 +25,7 @@ healthSuite(()=>firestoreStore(firestore),'PV et soins sur Firestore');
 inventorySuite(()=>firestoreStore(firestore),'Inventaire sur Firestore');
 transfersSuite(()=>firestoreStore(firestore),'Remises sur Firestore');
 economySuite(()=>firestoreStore(firestore),'Crédits sur Firestore');
+collectiveSuite(()=>firestoreStore(firestore),'Caisses sur Firestore');
 test('règles Firestore : un client non authentifié ne peut lire ni écrire les secrets',async()=>{
   const root=`http://${process.env.FIRESTORE_EMULATOR_HOST}/v1/projects/${projectId}/databases/(default)/documents`;
   await firestore.doc('private/test').set({secret:'invisible'});

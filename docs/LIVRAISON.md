@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.11 publiée : monnaie configurable, portefeuilles personnels, crédits de départ, paiements confirmés et corrections MJ tracées. 357 tests réussis localement et dans les journaux GitHub (196 métier/interface et 161 intégrations) ; manifeste 0.11.0 et 41 refus anonymes vérifiés en ligne. Rapport `VALIDATION-0.11.md` ; rapports 0.2 à 0.10 conservés. La recette complète avec comptes joueurs distincts et mobile reste à faire. Le découpage ne réduit pas le périmètre du cahier.
+19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.12 préparée : caisses de groupes, consultation et dépense séparées, libellés de couverture et paiements entre comptes autorisés. 402 tests réussis localement (220 métier/interface et 182 intégrations) et compilation 0.12.0 ; vérification GitHub et publication en cours. Rapport `VALIDATION-0.12.md` ; rapports 0.2 à 0.11 conservés. La recette avec comptes joueurs réels distincts et mobile reste à faire.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -47,6 +47,10 @@ Remise gratuite d’un lot entier ou d’une quantité entière : proposition ap
 ## Extension 0.11
 
 Une monnaie entière par session, dotations individuelles copiées de la version du scénario, comptes personnels et historique de leurs mouvements. Un paiement confirmé débite et crédite atomiquement ; double dépense, réessai et révocation sont contrôlés. Une intervention MJ ajoute une écriture sans effacer les précédentes. Caisses collectives, contrats, ventes, réservations commerciales et annulation avec analyse des dépendances restent à développer. Voir `VALIDATION-0.11.md`.
+
+## Extension 0.12
+
+Une caisse par groupe, préparée dans le scénario ou ouverte à zéro en session. Consultation et dépense sont attribuées séparément aux personnages membres. Le payeur choisit un compte autorisé ; le nom interne d’un groupe secret reste distinct du libellé montré aux contreparties. Droits, révisions et soldes sont revérifiés avant effet et réessai. Annuaire/QR public de caisse, ventes, contrats, restrictions financières fines et recette terrain restent à développer. Voir `VALIDATION-0.12.md`.
 
 ## Préparation réalisée
 

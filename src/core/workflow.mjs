@@ -1,5 +1,6 @@
+import {createCollectiveService,collectiveAction} from './collective-accounts.mjs';
 import {createEconomyService,economyAction} from './economy.mjs';
-import {seedWallets} from './economy-state.mjs';
+import {seedWallets,groupAccountId} from './economy-state.mjs';
 import {createHash, randomUUID} from 'node:crypto';
 import {requireThat, documentId, whole} from './validation.mjs';
 import {publicCharacter, participantCharacter} from './projections.mjs';
@@ -89,6 +90,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     return {s,c,g,m:memberFor(g,cid)};
   };
 
+  const collectiveService=createCollectiveService({store,signed,checkSession,checkScenario,now,uuid});
   const economyService=createEconomyService({store,signed,checkSession,checkScenario,now,uuid});
   const inventoryService=createInventoryService({store,signed,checkSession,checkScenario,now,uuid});
   const lotTransferService=createLotTransferService({store,signed,now,uuid});
@@ -98,6 +100,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(collectiveAction(action))return collectiveService(action,actor,input);
     if(economyAction(action))return economyService(action,actor,input);
     if(lotTransferAction(action))return lotTransferService(action,actor,input);
     if(inventoryAction(action))return inventoryService(action,actor,input);
@@ -159,7 +162,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       const preview=action==='previewGroup';
       const {s,c,g}=await groupContext(tx,actor,sid,input,preview);
       const detail=await groupDetail(tx,`sessions/${sid}`,g,c.id);detail.permissions.publishUpdates=detail.permissions.publishUpdates&&canGameAction(s,c,'publish');
-      return {session:publicSession(s),characterName:c.public.displayName,preview,group:detail};
+      return {session:publicSession(s),characterName:c.public.displayName,preview,group:detail,walletAccountId:s.economyRules?.enabled&&g.walletConfig&&(detail.permissions.readWallet||detail.permissions.payWallet)?groupAccountId(g.id):null};
     });
     if(action==='groupHistory') return store.runTransaction(async tx=>{
       let base;
@@ -317,7 +320,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         for(const k of skills)tx.set(`sessions/${newId}/skills/${k.id}`,k);
         for(const k of classes)tx.set(`sessions/${newId}/classes/${k.id}`,k);
         for(const k of items)tx.set(`sessions/${newId}/items/${k.id}`,k);
-        seedWallets(tx,s,chars,at,actor.uid);
+        seedWallets(tx,s,chars,at,actor.uid,groups);
         seedInventory(tx,newId,chars,at,actor.uid);
         seedKnowledge(tx,newId,knowledge,at);
         result={id:newId}; auditSid=newId;

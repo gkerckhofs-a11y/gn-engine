@@ -1,7 +1,7 @@
 import {documentId,requireThat,whole} from './validation.mjs';
 import {inventoryHash as hash} from './inventory-state.mjs';
 import {canGameAction,requireGameAction} from './health-state.mjs';
-import {accountId,amountInput,currencyView,economyRulesInput,moneyState,moneyText,openWallet,partyName,projectEntry,writeLedger} from './economy-state.mjs';
+import {administrativeWallet,accountId,amountInput,currencyView,economyRulesInput,moneyState,moneyText,openWallet,partyName,projectEntry,writeLedger} from './economy-state.mjs';
 const adminActions=new Set(['saveScenarioEconomy','saveSessionEconomy','prepareStartingCredits','setStartingCredits','prepareCreditAdjustment','applyCreditAdjustment','walletHistory']);
 export const economyAction=a=>adminActions.has(a)||['myWallet','previewWallet','preparePayment','payCredits'].includes(a);
 const identity=(c,r)=>hash(JSON.stringify([c.id,c.assignedUid,r.accessVersion,c.public.displayName]));
@@ -36,7 +36,7 @@ export function createEconomyService({store,signed,checkSession,checkScenario,no
     const scenario=['saveScenarioEconomy','prepareStartingCredits','setStartingCredits'].includes(action),id=documentId(scenario?input.scenarioId:input.sessionId),base=`${scenario?'scenarios':'sessions'}/${id}`;
     const parent=scenario?await checkScenario(tx,actor,id):await checkSession(tx,actor,id);
     if(action==='walletHistory'){
-      const a=await wallet(tx,id,documentId(input.characterId));return {currency:currencyView(parent.economyRules),account:moneyState(a),events:await tx.list(`${base}/accounts/${a.id}/history`,null,{orderBy:'at',direction:'desc',limit:30})};
+      const a=await administrativeWallet(tx,id,input);return {currency:currencyView(parent.economyRules),account:moneyState(a),events:await tx.list(`${base}/accounts/${a.id}/history`,null,{orderBy:'at',direction:'desc',limit:30})};
     }
     requireThat(parent.stage!=='ARCHIVED','SESSION_CLOSED');
     const preparing=action.startsWith('prepare');let op,fingerprint;
@@ -51,24 +51,26 @@ export function createEconomyService({store,signed,checkSession,checkScenario,no
       tx.set(base,{...parent,economyRules:rules,revision:parent.revision+1});result={enabled:rules.enabled};
       tx.set(`${base}/economyHistory/${newId}`,{id:newId,at,actorUid:actor.uid,reason,before:parent.economyRules??null,after:rules});
     }else{
-      requireThat(!!parent.economyRules,'ECONOMY_DISABLED');const c=await tx.get(`${base}/characters/${documentId(input.characterId)}`);requireThat(c,'NOT_FOUND');
+      requireThat(!!parent.economyRules,'ECONOMY_DISABLED');
+      const collective=!scenario&&!!input.groupId,c=collective?null:await tx.get(`${base}/characters/${documentId(input.characterId)}`);if(!collective)requireThat(c,'NOT_FOUND');
       if(scenario){
         const amount=whole(input.amount,'INVALID_AMOUNT'),before=c.startingCredits??{amount:0,revision:0},after={amount,revision:before.revision+1};
         const prepared={character:partyName(c),currency:currencyView(parent.economyRules),before,after,confirmation:hash(JSON.stringify([parent.revision,c.id,c.public.displayName,parent.economyRules,before,after]))};
         if(preparing)return prepared;requireThat(input.confirmation===prepared.confirmation,'STALE_REVISION');
         tx.set(`${base}/characters/${c.id}`,{...c,startingCredits:after});tx.set(`${base}/characters/${c.id}/creditHistory/${newId}`,{id:newId,at,actorUid:actor.uid,reason,before,after});result={id:c.id,amount};
       }else{
-        requireThat(parent.economyRules.enabled,'ECONOMY_DISABLED');const a=await wallet(tx,id,c.id),before=moneyState(a),amount=amountInput(input.amount),memo=moneyText(input.memo);
+        requireThat(parent.economyRules.enabled,'ECONOMY_DISABLED');const a=await administrativeWallet(tx,id,input),before=moneyState(a),amount=amountInput(input.amount),memo=moneyText(input.memo);
         requireThat(['CREDIT','DEBIT'].includes(input.mode),'INVALID_ECONOMY');const delta=input.mode==='CREDIT'?amount:-amount;
         requireThat(delta>0||before.available>=amount,'INSUFFICIENT_FUNDS');const balance=whole(a.balance+delta,'BALANCE_OVERFLOW'),next={...a,balance,revision:a.revision+1},after=moneyState(next);
-        const prepared={character:partyName(c),currency:currencyView(parent.economyRules),amount,delta,memo,before,after,confirmation:hash(JSON.stringify([parent.revision,c.id,c.public.displayName,before,after,memo,reason]))};
+        const subject=collective?{id:a.id,name:a.label}:partyName(c);
+        const prepared={character:subject,currency:currencyView(parent.economyRules),amount,delta,memo,before,after,confirmation:hash(JSON.stringify([parent.revision,subject,before,after,memo,reason]))};
         if(preparing)return prepared;requireThat(input.confirmation===prepared.confirmation,'STALE_REVISION');
         tx.set(`${base}/accounts/${a.id}`,next);
-        writeLedger(tx,id,{id:newId,kind:'GM_ADJUSTMENT',at,actorUid:actor.uid,memo,reason,createdCurrency:Math.max(0,delta),removedCurrency:Math.max(0,-delta),entries:[{accountId:a.id,characterId:c.id,delta,before,after}]});result={id:newId,account:after};
+        writeLedger(tx,id,{id:newId,kind:'GM_ADJUSTMENT',at,actorUid:actor.uid,memo,reason,createdCurrency:Math.max(0,delta),removedCurrency:Math.max(0,-delta),entries:[{accountId:a.id,characterId:a.characterId??null,groupId:a.groupId??null,delta,before,after}]});result={id:newId,account:after};
       }
       tx.set(base,{...parent,revision:parent.revision+1});
     }
-    if(!scenario)tx.set(`${base}/audit/${newId}`,{id:newId,action,at,actorUid:actor.uid,reason,characterId:input.characterId??null});
+    if(!scenario)tx.set(`${base}/audit/${newId}`,{id:newId,action,at,actorUid:actor.uid,reason,characterId:input.characterId??null,groupId:input.groupId??null});
     tx.set(op,{fingerprint,result,at});return result;
   }
   return async(action,actor,input)=>{

@@ -1,7 +1,8 @@
 import {inventoryHash as hash} from './inventory-state.mjs';
-import {requireThat,whole} from './validation.mjs';
+import {requireThat,whole,documentId} from './validation.mjs';
 export const currencyView=r=>({name:r.name,unit:r.unit});
 export const accountId=cid=>hash(`character:${cid}`);
+export const groupAccountId=gid=>hash(`group:${gid}`);
 export const moneyText=(v,max=500)=>{requireThat(typeof v==='string'&&v.trim()&&v.length<=max,'INVALID_ECONOMY');return v.trim();};
 export function economyRulesInput(v){
   requireThat(v&&typeof v.enabled==='boolean','INVALID_ECONOMY');
@@ -31,7 +32,18 @@ export function openWallet(tx,sid,c,amount,at,actorUid,kind='INITIAL'){
     entries:[{accountId:id,characterId:c.id,delta:amount,before:{balance:0,reserved:0,available:0,revision:0},after:moneyState(a)}]});
   return a;
 }
-export function seedWallets(tx,s,chars,at,actorUid){
+export function openGroupWallet(tx,sid,g,amount,at,actorUid,kind='INITIAL'){
+  whole(amount,'INVALID_AMOUNT');const id=groupAccountId(g.id),a={id,sessionId:sid,ownerType:'GROUP',groupId:g.id,label:g.walletConfig.label,balance:amount,reserved:0,status:'ACTIVE',revision:1,createdAt:at};
+  tx.set(`sessions/${sid}/accounts/${id}`,a);
+  writeLedger(tx,sid,{id:hash(`initial:group:${g.id}`),at,kind,actorUid,memo:kind==='INITIAL'?'Dotation de la caisse depuis la version de scénario':'Ouverture de la caisse sans crédits',reason:'Initialisation du compte collectif',createdCurrency:amount,removedCurrency:0,
+    entries:[{accountId:id,characterId:null,groupId:g.id,delta:amount,before:{balance:0,reserved:0,available:0,revision:0},after:moneyState(a)}]});return a;
+}
+export async function administrativeWallet(tx,sid,input){
+  const collective=!!input.groupId,cid=collective?documentId(input.groupId):documentId(input.characterId),a=await tx.get(`sessions/${sid}/accounts/${collective?groupAccountId(cid):accountId(cid)}`);
+  requireThat(a?.sessionId===sid&&(collective?a.ownerType==='GROUP'&&a.groupId===cid:a.ownerType==='CHARACTER'&&a.characterId===cid),'ACCOUNT_UNAVAILABLE');moneyState(a);return a;
+}
+export function seedWallets(tx,s,chars,at,actorUid,groups=[]){
   if(!s.economyRules)return;
   for(const c of chars)openWallet(tx,s.id,c,c.startingCredits?.amount??0,at,actorUid);
+  for(const g of groups)if(g.walletConfig)openGroupWallet(tx,s.id,g,g.walletConfig.amount,at,actorUid);
 }

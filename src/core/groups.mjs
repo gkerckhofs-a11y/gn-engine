@@ -1,6 +1,6 @@
 import {documentId,requireThat} from './validation.mjs';
 
-export const groupPermissions=['readBriefing','readMembers','readUpdates','publishUpdates'];
+export const groupPermissions=['readBriefing','readMembers','readUpdates','publishUpdates','readWallet','payWallet'];
 const text=(v,max,required=false)=>{
   requireThat(typeof v==='string' && v.length<=max && (!required||v.trim()),'INVALID_TEXT');return v.trim();
 };
@@ -18,7 +18,7 @@ export function groupInput(input,id,old={}) {
     return member;
   });
   requireThat(new Set(members.map(m=>m.characterId)).size===members.length,'DUPLICATE_MEMBER');
-  return {id,name:text(input.name,150,true),description:text(input.description??'',4000),
+  return {id,...(old.walletConfig?{walletConfig:old.walletConfig}:{}),name:text(input.name,150,true),description:text(input.description??'',4000),
     briefing:text(input.briefing??'',20000),gmNotes:text(input.gmNotes??'',20000),
     visibility:input.visibility,publicationState:input.publicationState,members,revision:(old.revision??0)+1};
 }

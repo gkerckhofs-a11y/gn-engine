@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "428e3adaea0c0f82298af367db9d010bcd939c01",
-  "requestedAt": "2026-10-19T17:00:33.991790+00:00",
-  "reason": "Publier la 0.11 : portefeuilles personnels, dotations, paiements confirmés atomiques et corrections MJ tracées.",
-  "version": "0.11.0"
+  "sourceCommit": "41175efc51eded2eaee40da2cdaf557128547785",
+  "requestedAt": "2026-10-19T17:36:01.337651+00:00",
+  "reason": "Publier la 0.12 : caisses collectives, consultation et dépense indépendantes, paiements entre comptes autorisés et libellés de couverture.",
+  "version": "0.12.0"
 }
