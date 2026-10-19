@@ -1,3 +1,4 @@
+import {listLotSales} from './sales.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {listLotTransfers} from './inventory-transfers.mjs';
 import {canGameAction} from './health-state.mjs';
@@ -37,9 +38,10 @@ export function createInventoryService({store,signed,checkSession,checkScenario,
         requireThat(c&&(preview||c.assignedUid===actor.uid),'FORBIDDEN');
         requireThat(['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s.stage),'BRIEFING_CLOSED');
         requireThat(c.publicationState==='PUBLISHED'&&c.public?.publicationState==='PUBLISHED','CONTENT_UNPUBLISHED');
-        const lots=await tx.list(`sessions/${sid}/inventory`,['holderId',c.id]);
+        const lots=await tx.list(`sessions/${sid}/inventory`,['holderId',c.id]),owned=await tx.list(`sessions/${sid}/inventory`,['ownerId',c.id]);
         return {session:{id:sid,stage:s.stage},healthEnabled:s.healthRules?.enabled===true,economyEnabled:s.economyRules?.enabled===true,preview,character:{id:c.id,name:c.public.displayName},lots:lots.filter(l=>personalLot(l,c.id)).map(publicLot),
-          canTransfer:!preview&&s.stage==='EN_JEU'&&canGameAction(s,c,'transfer'),transfers:await listLotTransfers(tx,s,c,preview)};
+          ownedElsewhere:owned.filter(l=>l.holderId!==c.id).map(publicLot),heldForOthers:lots.filter(l=>l.ownerId!==c.id).map(publicLot),sales:await listLotSales(tx,s,c,at,preview),
+          canSell:!preview&&s.stage==='EN_JEU'&&s.economyRules?.enabled===true&&canGameAction(s,c,'transfer'),canTransfer:!preview&&s.stage==='EN_JEU'&&canGameAction(s,c,'transfer'),transfers:await listLotTransfers(tx,s,c,preview)};
       }
       const {session,parent,base}=await context(tx,actor,input);
       if(action==='itemHistory'){

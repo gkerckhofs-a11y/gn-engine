@@ -526,11 +526,11 @@
       "sourceLine": 177,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_10",
-      "coreWork": null,
-      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.10.md ; src/core/inventory-transfers.mjs ; web/transfers.mjs ; test/support/transfers-suite.mjs ; test/transfers-ui.test.mjs ; test/integration",
-      "implementedScope": "Champs distincts propriétaire, détenteur, emplacement et disponibilité. Une remise gratuite acceptée déplace propriété et détention ensemble vers le sac du destinataire. Prêt, détention pour autrui, emplacements externes et transport restant."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_13_A_PUBLIER",
+      "coreWork": "Vente atomique et remise physique séparée",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.13.md ; src/core/sales.mjs ; src/core/inventory.mjs ; web/sales.mjs ; test/support/sales-suite.mjs ; test/sales-ui.test.mjs ; test/integration",
+      "implementedScope": "Propriétaire et détenteur distincts après vente : lot possédé par l’acheteur mais conservé chez le vendeur. Sac propre, biens à récupérer et détention pour autrui séparés. Emplacements externes, transport et droits de lieux restant."
     },
     {
       "id": "INV-03",
@@ -538,11 +538,11 @@
       "sourceLine": 180,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_10",
-      "coreWork": null,
-      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.10.md ; src/core/inventory-transfers.mjs ; web/transfers.mjs ; test/support/transfers-suite.mjs ; test/transfers-ui.test.mjs ; test/integration",
-      "implementedScope": "Remise partielle conservant somme des quantités, modèle copié, lot parent et racine de provenance. Référence stable conservée pour une remise complète. QR physique, contenant vide et fractionnement autonome restant."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_13_A_PUBLIER",
+      "coreWork": "Vente atomique et remise physique séparée",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.13.md ; src/core/sales.mjs ; src/core/inventory.mjs ; web/sales.mjs ; test/support/sales-suite.mjs ; test/sales-ui.test.mjs ; test/integration",
+      "implementedScope": "Fractionnement à la vente ou à la remise conservant quantités, modèles, parent et racine ; référence inchangée pour un lot entier. QR physique et contenants restant."
     },
     {
       "id": "INV-04",
@@ -550,11 +550,11 @@
       "sourceLine": 181,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_10",
-      "coreWork": null,
-      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.10.md ; src/core/inventory-transfers.mjs ; web/transfers.mjs ; test/support/transfers-suite.mjs ; test/transfers-ui.test.mjs ; test/integration",
-      "implementedScope": "Proposition gratuite après récapitulatif, acceptation explicite du destinataire avec déclaration de remise matérielle, refus/annulation et droits revérifiés. Aucun retrait avant acceptation. Transaction atomique et idempotente. Validation MJ, preuve technique de présence, vente à distance, prêt et capacité restant."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_13_A_PUBLIER",
+      "coreWork": "Vente atomique et remise physique séparée",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.13.md ; src/core/sales.mjs ; src/core/inventory.mjs ; web/sales.mjs ; test/support/sales-suite.mjs ; test/sales-ui.test.mjs ; test/integration",
+      "implementedScope": "Remises gratuites et vente à distance avec propriété transférée au paiement. Retrait ultérieur proposé par le vendeur et confirmé par le destinataire, sans nouveau paiement. Présence technique, validation MJ et transport restant."
     },
     {
       "id": "INV-05",
@@ -562,11 +562,11 @@
       "sourceLine": 184,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_9",
-      "coreWork": null,
-      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration",
-      "implementedScope": "Sac avec recherche, catégorie, disponibilité et consommation médicale contrôlée. Volume unitaire descriptif, sans limite de capacité. Soutes, entrepôts, réservations d’espace, équipement et vente restant."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_13_A_PUBLIER",
+      "coreWork": "Vente atomique et remise physique séparée",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.13.md ; src/core/sales.mjs ; src/core/inventory.mjs ; web/sales.mjs ; test/support/sales-suite.mjs ; test/sales-ui.test.mjs ; test/integration",
+      "implementedScope": "Sac filtrable, consommation médicale et vente d’un lot personnel disponible ; biens payés détenus pour autrui non consommables ou revendables avant retrait. Volume descriptif uniquement, capacités et entrepôts restant."
     },
     {
       "id": "ECO-01",
@@ -586,11 +586,11 @@
       "sourceLine": 191,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_12",
-      "coreWork": "Caisses intégrées au journal commun, droits readWallet/payWallet séparés",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_13_A_PUBLIER",
+      "coreWork": "Vente atomique et remise physique séparée",
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.12.md ; src/core/collective-accounts.mjs ; src/core/economy-state.mjs ; src/core/groups.mjs ; web/collective-accounts.mjs ; test/support/collective-suite.mjs ; test/collective-ui.test.mjs ; test/integration",
-      "implementedScope": "Choix du compte personnel ou d’une caisse autorisée, paiement confirmé vers badge de personnage ou compte de la liste autorisée. Consultation et dépense indépendantes ; libellé de couverture et journal sans solde adverse. Paiements externes vers caisse sans appartenance, caméra et contrats restant."
+      "evidence": "docs/VALIDATION-0.13.md ; src/core/sales.mjs ; src/core/inventory.mjs ; web/sales.mjs ; test/support/sales-suite.mjs ; test/sales-ui.test.mjs ; test/integration",
+      "implementedScope": "Choix du compte personnel ou collectif autorisé pour payer ou acheter, libellé de compte, prix et références paiement/vente/lot. Droits consultation/dépense séparés, journal sans solde adverse. Contrats et paiements collectifs externes restant."
     },
     {
       "id": "ECO-03",
@@ -598,11 +598,11 @@
       "sourceLine": 194,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_12",
-      "coreWork": "Caisses intégrées au journal commun, droits readWallet/payWallet séparés",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_13_A_PUBLIER",
+      "coreWork": "Vente atomique et remise physique séparée",
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.12.md ; src/core/collective-accounts.mjs ; src/core/economy-state.mjs ; src/core/groups.mjs ; web/collective-accounts.mjs ; test/support/collective-suite.mjs ; test/collective-ui.test.mjs ; test/integration",
-      "implementedScope": "Débit/crédit, journal et résultat atomiques sur Firestore ; répétitions, deux caissiers concurrents, encaissements simultanés, réservations, révisions et panne avant commit contrôlés. Recette réelle et charge terrain restant."
+      "evidence": "docs/VALIDATION-0.13.md ; src/core/sales.mjs ; src/core/inventory.mjs ; web/sales.mjs ; test/support/sales-suite.mjs ; test/sales-ui.test.mjs ; test/integration",
+      "implementedScope": "Paiement, propriété, fractionnement et journaux atomiques. Deux acheteurs sur le dernier lot ou deux achats sur le même solde ne réussissent pas ensemble. Retrait sans second paiement et idempotence contrôlés. Recette réelle et charge restant."
     },
     {
       "id": "ECO-04",
@@ -655,10 +655,11 @@
       "sourceLine": 206,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_13_A_PUBLIER",
+      "coreWork": "Vente atomique et remise physique séparée",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.13.md ; src/core/sales.mjs ; src/core/inventory.mjs ; web/sales.mjs ; test/support/sales-suite.mjs ; test/sales-ui.test.mjs ; test/integration",
+      "implementedScope": "Récapitulatif d’une vente privée : prix total fixé, frais nuls, compte autorisé, lieu et conditions. Confirmation contrôlée sans accepter un prix altéré. Marché public, paniers, frais configurables et cours restant."
     },
     {
       "id": "MAR-04",
@@ -677,10 +678,11 @@
       "sourceLine": 210,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_13_A_PUBLIER",
+      "coreWork": "Vente atomique et remise physique séparée",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.13.md ; src/core/sales.mjs ; src/core/inventory.mjs ; web/sales.mjs ; test/support/sales-suite.mjs ; test/sales-ui.test.mjs ; test/integration",
+      "implementedScope": "Vente immédiate privée transférant paiement et propriété sans changer détenteur/emplacement. Retrait séparé sans second paiement ; expiration de proposition sans réservations. Livraison sous séquestre, annonces publiques, remboursements et litiges formels restant."
     },
     {
       "id": "ANN-01",

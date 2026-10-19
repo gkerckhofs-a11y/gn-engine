@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.12 publiée : caisses de groupes, consultation et dépense séparées, libellés de couverture et paiements entre comptes autorisés. 402 tests réussis localement et dans les journaux GitHub (220 métier/interface et 182 intégrations) ; manifeste 0.12.0 et 48 refus anonymes vérifiés en ligne. Rapport `VALIDATION-0.12.md` ; rapports 0.2 à 0.11 conservés. La recette avec comptes joueurs réels distincts et mobile reste à faire.
+19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.13 préparée : ventes privées, paiement et propriété atomiques, retrait physique sans second paiement. 447 tests réussis localement (244 métier/interface et 203 intégrations) ; publication en cours. Rapport `VALIDATION-0.13.md` ; rapports 0.2 à 0.12 conservés. La recette avec comptes joueurs réels distincts et mobile reste à faire.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -51,6 +51,10 @@ Une monnaie entière par session, dotations individuelles copiées de la version
 ## Extension 0.12
 
 Une caisse par groupe, préparée dans le scénario ou ouverte à zéro en session. Consultation et dépense sont attribuées séparément aux personnages membres. Le payeur choisit un compte autorisé ; le nom interne d’un groupe secret reste distinct du libellé montré aux contreparties. Droits, révisions et soldes sont revérifiés avant effet et réessai. Annuaire/QR public de caisse, ventes, contrats, restrictions financières fines et recette terrain restent à développer. Voir `VALIDATION-0.12.md`.
+
+## Extension 0.13
+
+Vente privée non réservée avant acceptation, quantité et prix total explicites, durée, lieu et conditions de remise. Achat depuis un compte personnel ou collectif autorisé ; propriété transférée avec le paiement sans déplacement physique. Objets à récupérer et détention pour autrui visibles ; remise proposée par le vendeur puis réception confirmée sans second paiement. Concurrence, droits, réessais et journaux contrôlés. Marché public, annonces engageant du stock, négociation, missions/recrutement, contrats et remboursement restent à développer. Voir `VALIDATION-0.13.md`.
 
 ## Préparation réalisée
 

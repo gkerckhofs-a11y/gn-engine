@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.12 : caisses collectives, droits de consultation et de paiement séparés.**
+**Version 0.13 : ventes privées, paiement et propriété atomiques, retrait physique séparé.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -64,13 +64,19 @@ Configurez le nom et l’unité entière de la monnaie, puis les crédits de dé
 
 Dans **Mon portefeuille**, le joueur consulte son solde total, réservé et disponible, puis prépare un paiement vers le badge public d’un autre personnage. Le récapitulatif indique les identités, le montant, le motif et son solde après paiement. La confirmation débite et crédite ensemble, une seule fois. Le MJ peut ajouter ou retirer des crédits avec un libellé joueur et un motif privé, après comparaison avant/après. Les écritures d’origine sont conservées. [Parcours et limites 0.11](docs/VALIDATION-0.11.md).
 
-Les paiements ne transfèrent pas d’objet ; les ventes atomiques et contrats restent à intégrer. Les caisses collectives prolongent ce parcours en 0.12.
+Les paiements simples ne transfèrent pas d’objet. Les caisses collectives prolongent ce parcours en 0.12 et les ventes privées en 0.13 ; les contrats restent à intégrer.
 
 ## Caisses collectives
 
 Préparez la caisse d’un groupe dans le scénario avec son libellé de paiement et sa dotation, puis figez une version. En session, une nouvelle caisse s’ouvre à zéro ; les ajouts/retraits MJ passent par une confirmation motivée. Les droits **Consulter la caisse** et **Payer avec la caisse** sont indépendants, attribués aux personnages dans les appartenances du groupe.
 
 Depuis **Mes comptes et caisses**, le joueur choisit un compte autorisé. Il peut payer un personnage identifié par badge ou transférer vers une autre caisse de sa liste. Un caissier sans droit de consultation peut payer sans recevoir les champs de solde ni le journal. Les contreparties voient le libellé choisi par le MJ, pas le nom interne d’un groupe secret ni l’identité du caissier. Retirer les droits bloque immédiatement lectures, nouvelles commandes et réessais concernés. [Parcours et limites 0.12](docs/VALIDATION-0.12.md).
+
+## Ventes privées et retrait
+
+Depuis **Mon sac**, proposez un lot à un joueur identifié par badge : quantité, prix total, durée, lieu et conditions de remise. L’acheteur choisit son portefeuille ou une caisse autorisée, vérifie le récapitulatif puis paie. Le paiement et la propriété changent ensemble ; le lot reste chez le vendeur. Même financé par une caisse, le lot appartient au personnage acheteur.
+
+Les objets à récupérer et ceux détenus pour autrui apparaissent séparément. Le vendeur propose ensuite la remise et l’acheteur confirme la réception physique, sans second paiement. Les propositions ne réservent rien avant acceptation. Le marché public, la négociation et les contrats restent à développer. [Parcours et limites 0.13](docs/VALIDATION-0.13.md).
 
 ## Infrastructure configurée
 
@@ -93,7 +99,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.12 est publiée : **402 tests réussis** localement et dans les journaux GitHub (220 métier/interface et 182 intégrations). Le manifeste exact 0.12.0 et le refus de 48 commandes privées anonymes sont vérifiés en ligne. Preuves dans le [rapport 0.12](docs/VALIDATION-0.12.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.13 est préparée : **447 tests réussis** localement (244 métier/interface et 203 intégrations). Publication en cours ; résultats dans le [rapport 0.13](docs/VALIDATION-0.13.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 

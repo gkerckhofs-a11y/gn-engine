@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "41175efc51eded2eaee40da2cdaf557128547785",
-  "requestedAt": "2026-10-19T17:36:01.337651+00:00",
-  "reason": "Publier la 0.12 : caisses collectives, consultation et dépense indépendantes, paiements entre comptes autorisés et libellés de couverture.",
-  "version": "0.12.0"
+  "sourceCommit": "05174cf13eed775c4f7859a9e67d0650a63395ca",
+  "requestedAt": "2026-10-19T18:00:45.593673+00:00",
+  "reason": "Publier la 0.13 : vente privée, paiement et propriété atomiques, compte payeur autorisé et retrait physique sans second paiement.",
+  "version": "0.13.0"
 }

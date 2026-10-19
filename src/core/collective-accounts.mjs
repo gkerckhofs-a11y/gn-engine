@@ -8,20 +8,9 @@ export const collectiveAction=a=>actions.has(a);
 const published=c=>c?.publicationState==='PUBLISHED'&&c.public?.publicationState==='PUBLISHED';
 const identity=(c,r)=>hash(JSON.stringify([c.id,c.assignedUid,r?.accessVersion??null,c.public.displayName]));
 const metadata=x=>({id:x.a.id,kind:x.a.ownerType,name:x.name,canRead:x.read,canSpend:x.spend});
-const party=x=>({id:x.a.ownerType==='GROUP'?x.a.id:x.a.characterId,kind:x.a.ownerType,name:x.name});
-const entry=(a,delta,next)=>({accountId:a.id,characterId:a.characterId??null,groupId:a.groupId??null,delta,before:moneyState(a),after:moneyState(next)});
-export function createCollectiveService({store,signed,checkSession,checkScenario,now,uuid}){
-  async function context(tx,actor,input,preview=false){
-    const sid=documentId(input.sessionId),s=preview?await checkSession(tx,actor,sid):await tx.get(`sessions/${sid}`);
-    requireThat(s&&s.stage!=='ARCHIVED','FORBIDDEN');
-    const r=preview?null:await tx.get(`sessions/${sid}/registrations/${hash(actor.uid)}`);
-    if(!preview)requireThat(r?.status==='ACCEPTED'&&r.accessActive&&r.characterId&&actor.authTime>=r.minAuthTime,'FORBIDDEN');
-    const c=await tx.get(`sessions/${sid}/characters/${preview?documentId(input.characterId):r.characterId}`);
-    requireThat(c&&(preview||c.assignedUid===actor.uid),'FORBIDDEN');requireThat(published(c),'CONTENT_UNPUBLISHED');
-    requireThat(['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s.stage),'BRIEFING_CLOSED');requireThat(s.economyRules?.enabled,'ECONOMY_DISABLED');
-    return {s,c,r,guard:identity(c,r)};
-  }
-  async function access(tx,ctx,id){
+export const accountParty=x=>({id:x.a.ownerType==='GROUP'?x.a.id:x.a.characterId,kind:x.a.ownerType,name:x.name});
+export const accountEntry=(a,delta,next)=>({accountId:a.id,characterId:a.characterId??null,groupId:a.groupId??null,delta,before:moneyState(a),after:moneyState(next)});
+export async function accessAccount(tx,ctx,id){
     const {s,c,guard}=ctx,a=await tx.get(`sessions/${s.id}/accounts/${documentId(id)}`);
     requireThat(a?.sessionId===s.id,'FORBIDDEN');
     if(a.ownerType==='CHARACTER'){
@@ -34,6 +23,18 @@ export function createCollectiveService({store,signed,checkSession,checkScenario
     requireThat(read||spend,'FORBIDDEN');moneyState(a);requireThat(a.label===g.walletConfig.label,'INVALID_ACCOUNT');
     return {a,name:a.label,read,spend,guard:hash(JSON.stringify([guard,g.id,g.revision,m.permissions.readWallet===true,m.permissions.payWallet===true]))};
   }
+export function createCollectiveService({store,signed,checkSession,checkScenario,now,uuid}){
+  async function context(tx,actor,input,preview=false){
+    const sid=documentId(input.sessionId),s=preview?await checkSession(tx,actor,sid):await tx.get(`sessions/${sid}`);
+    requireThat(s&&s.stage!=='ARCHIVED','FORBIDDEN');
+    const r=preview?null:await tx.get(`sessions/${sid}/registrations/${hash(actor.uid)}`);
+    if(!preview)requireThat(r?.status==='ACCEPTED'&&r.accessActive&&r.characterId&&actor.authTime>=r.minAuthTime,'FORBIDDEN');
+    const c=await tx.get(`sessions/${sid}/characters/${preview?documentId(input.characterId):r.characterId}`);
+    requireThat(c&&(preview||c.assignedUid===actor.uid),'FORBIDDEN');requireThat(published(c),'CONTENT_UNPUBLISHED');
+    requireThat(['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s.stage),'BRIEFING_CLOSED');requireThat(s.economyRules?.enabled,'ECONOMY_DISABLED');
+    return {s,c,r,guard:identity(c,r)};
+  }
+  const access=accessAccount;
   async function available(tx,ctx){
     const result=[metadata(await access(tx,ctx,accountId(ctx.c.id)))];
     if(ctx.s.modules?.groups===true){
@@ -59,7 +60,7 @@ export function createCollectiveService({store,signed,checkSession,checkScenario
     const to=await recipient(tx,ctx,input);requireThat(from.a.id!==to.a.id,'INVALID_RECIPIENT');
     const amount=amountInput(input.amount),memo=moneyText(input.memo),before=moneyState(from.a);requireThat(before.available>=amount,'INSUFFICIENT_FUNDS');whole(to.a.balance+amount,'BALANCE_OVERFLOW');
     const after={...before,balance:before.balance-amount,available:before.available-amount,revision:before.revision+1};
-    const result={source:party(from),recipient:party(to),currency:currencyView(ctx.s.economyRules),amount,memo,...(from.read?{before,after}:{})};
+    const result={source:accountParty(from),recipient:accountParty(to),currency:currencyView(ctx.s.economyRules),amount,memo,...(from.read?{before,after}:{})};
     // For spend-only access the proof binds the account revision, not a hidden balance.
     return {to,result:{...result,confirmation:hash(JSON.stringify([ctx.s.id,from.guard,to.guard,from.a.revision,ctx.s.healthRules,result]))}};
   }
@@ -98,9 +99,9 @@ export function createCollectiveService({store,signed,checkSession,checkScenario
       const x=await payment(tx,ctx,from,input);requireThat(x.result.confirmation===input.confirmation,'STALE_REVISION');
       const amount=x.result.amount,a=from.a,b=x.to.a,fromNext={...a,balance:a.balance-amount,revision:a.revision+1},toNext={...b,balance:b.balance+amount,revision:b.revision+1};
       tx.set(`sessions/${s.id}/accounts/${a.id}`,fromNext);tx.set(`sessions/${s.id}/accounts/${b.id}`,toNext);
-      writeLedger(tx,s.id,{id,kind:'TRANSFER',at,actorUid:actor.uid,operatorCharacterId:c.id,memo:x.result.memo,reason:'Paiement confirmé par un titulaire autorisé',source:party(from),recipient:party(x.to),createdCurrency:0,removedCurrency:0,entries:[entry(a,-amount,fromNext),entry(b,amount,toNext)]});
+      writeLedger(tx,s.id,{id,kind:'TRANSFER',at,actorUid:actor.uid,operatorCharacterId:c.id,memo:x.result.memo,reason:'Paiement confirmé par un titulaire autorisé',source:accountParty(from),recipient:accountParty(x.to),createdCurrency:0,removedCurrency:0,entries:[accountEntry(a,-amount,fromNext),accountEntry(b,amount,toNext)]});
       tx.set(`sessions/${s.id}/audit/${id}`,{id,action,at,actorUid:actor.uid,operatorCharacterId:c.id,fromAccountId:a.id,toAccountId:b.id,amount});
-      const result={id,amount,source:party(from),recipient:party(x.to),currency:x.result.currency,...(from.read?{account:moneyState(fromNext)}:{})};
+      const result={id,amount,source:accountParty(from),recipient:accountParty(x.to),currency:x.result.currency,...(from.read?{account:moneyState(fromNext)}:{})};
       tx.set(op,{fingerprint,result,guard:from.guard,at});return result;
     });
   };

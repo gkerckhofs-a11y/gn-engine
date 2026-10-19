@@ -238,3 +238,32 @@ test('HTTP + Auth : caisse collective, lecture seule et paiement sans divulguer 
   const s=await session(),g=s.groups.find(g=>g.id===groupId);await command('saveSessionGroup',{...g,sessionId,groupId,revision:s.revision,members:g.members.map(m=>({...m,permissions:{readWallet:true,payWallet:false}})),reason:'Retrait du droit de payer'});assert.equal((await request('payFromAccount',confirmed,spender)).status,403);
   for(const action of ['prepareGroupWallet','setGroupWallet','myAccounts','readAccount','previewAccount','prepareAccountPayment','payFromAccount'])assert.equal((await request(action,{sessionId,requestId:randomUUID()})).status,401);
 });
+
+
+test('HTTP + Auth : vente privée payée une fois, propriété puis retrait physique distinct',async()=>{
+  const owner=await googleTestAccount('gkerckhofs@gmail.com'),seller=await googleTestAccount(`seller-${randomUUID()}@example.invalid`),buyer=await googleTestAccount(`buyer-${randomUUID()}@example.invalid`);
+  const command=async(action,input={},token=owner)=>{const r=await request(action,{requestId:randomUUID(),...input},token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};
+  const {id:scenarioId}=await command('createScenario',{title:'Ventes HTTP'}),scenario=async()=>(await request('scenario',{scenarioId},owner)).result,characters=[];
+  for(const displayName of ['Vendeur','Acheteur'])characters.push((await command('saveCharacter',{scenarioId,revision:(await scenario()).revision,displayName,publicationState:'PUBLISHED'})).id);
+  await command('saveScenarioEconomy',{scenarioId,revision:(await scenario()).revision,rules:{enabled:true,name:'Crédits de test',unit:'crédit'}});
+  const seed={scenarioId,revision:(await scenario()).revision,characterId:characters[1],amount:100},cp=await request('prepareStartingCredits',seed,owner);await command('setStartingCredits',{...seed,confirmation:cp.result.confirmation});
+  const {id:itemId}=await command('saveItem',{scenarioId,revision:(await scenario()).revision,name:'Caisses fictives',kind:'STACKABLE',consumable:false,publicationState:'PUBLISHED',gmNotes:'SECRET_VENTE_HTTP'});
+  const inventory={scenarioId,revision:(await scenario()).revision,characterId:characters[0],items:[{itemId,quantity:20}]},ip=await request('prepareStartingInventory',inventory,owner);await command('setStartingInventory',{...inventory,confirmation:ip.result.confirmation});
+  const {id:versionId}=await command('publishScenario',{scenarioId,revision:(await scenario()).revision}),{id:sessionId}=await command('createSession',{scenarioId,versionId,title:'Ventes test',capacity:2,privacy:'Fictif'}),session=async()=>(await request('session',{sessionId},owner)).result;
+  await command('setRegistrationOpen',{sessionId,revision:1,open:true});const uids=[];
+  for(const [i,token] of [seller,buyer].entries()){const uid=(await request('identity',{},token)).result.uid;uids.push(uid);await command('register',{sessionId,name:'Test'},token);await command('assign',{sessionId,uid,characterId:characters[i]});const invitation=randomBytes(32).toString('base64url');await command('issueInvitation',{sessionId,uid,tokenHash:hash(invitation),hours:1});assert.equal((await request('redeem',{sessionId,token:invitation},token)).status,200);}
+  for(const stage of ['BRIEFING','EN_JEU'])await command('setStage',{sessionId,revision:(await session()).revision,stage});
+  for(const action of ['prepareLotSale','proposeLotSale','lotSaleDetail','prepareLotPurchase','buyLot','declineLotSale','cancelLotSale','offerSalePickup','confirmSalePickup'])assert.equal((await request(action,{sessionId,requestId:randomUUID()})).status,401);
+  const bag=async token=>(await request('myInventory',{sessionId},token)).result,wallet=async token=>(await request('myWallet',{sessionId},token)).result,lot=(await bag(seller)).lots[0];
+  const proposal={sessionId,lotId:lot.id,buyerId:characters[1],quantity:8,amount:40,minutes:60,pickupPlace:'Quai fictif',conditions:'Remise physique'};
+  assert.equal((await request('prepareLotSale',{...proposal,buyerId:characters[0],uid:uids[0]},buyer)).status,403);
+  const p=await request('prepareLotSale',proposal,seller);assert.equal(p.status,200);const {id:saleId}=await command('proposeLotSale',{...proposal,confirmation:p.result.confirmation},seller);
+  const detail=async token=>(await request('lotSaleDetail',{sessionId,saleId},token)).result;assert.equal(JSON.stringify(await detail(buyer)).includes('SECRET_VENTE_HTTP'),false);assert.equal((await request('lotSaleDetail',{sessionId,saleId},owner)).status,403);
+  const input={sessionId,saleId,fromAccountId:(await request('myAccounts',{sessionId},buyer)).result.accounts[0].id},pp=await request('prepareLotPurchase',input,buyer);assert.equal(pp.status,200);
+  const confirmed={...input,confirmation:pp.result.confirmation,requestId:randomUUID()};assert.equal((await request('buyLot',confirmed,seller)).status,403);const paid=await request('buyLot',confirmed,buyer);assert.equal(paid.status,200);assert.deepEqual(await request('buyLot',confirmed,buyer),paid);
+  assert.equal((await wallet(buyer)).account.balance,60);assert.equal((await wallet(seller)).account.balance,40);const b=await bag(buyer);assert.equal(b.lots.length,0);assert.equal(b.ownedElsewhere[0].quantity,8);assert.equal(b.ownedElsewhere[0].holderId,characters[0]);assert.equal((await bag(seller)).lots[0].quantity,12);assert.equal((await bag(seller)).heldForOthers[0].quantity,8);
+  await command('offerSalePickup',{sessionId,saleId,confirmation:(await detail(seller)).pickupConfirmation},seller);
+  const pickup={sessionId,saleId,confirmation:(await detail(buyer)).pickupConfirmation,received:true,requestId:randomUUID()};assert.equal((await request('confirmSalePickup',{...pickup,received:false},buyer)).error,'HANDOVER_REQUIRED');const collected=await request('confirmSalePickup',pickup,buyer);assert.equal(collected.status,200);assert.deepEqual(await request('confirmSalePickup',pickup,buyer),collected);
+  assert.equal((await bag(buyer)).lots[0].quantity,8);assert.equal((await bag(buyer)).ownedElsewhere.length,0);assert.equal((await wallet(buyer)).account.balance,60);assert.equal((await wallet(buyer)).entries.filter(e=>e.kind==='SALE').length,1);
+  await command('revokeAccess',{sessionId,uid:uids[1]});assert.equal((await request('buyLot',confirmed,buyer)).status,403);assert.equal((await request('confirmSalePickup',pickup,buyer)).status,403);
+});

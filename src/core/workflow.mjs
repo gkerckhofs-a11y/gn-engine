@@ -1,3 +1,4 @@
+import {createSaleService,saleAction} from './sales.mjs';
 import {createCollectiveService,collectiveAction} from './collective-accounts.mjs';
 import {createEconomyService,economyAction} from './economy.mjs';
 import {seedWallets,groupAccountId} from './economy-state.mjs';
@@ -90,6 +91,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     return {s,c,g,m:memberFor(g,cid)};
   };
 
+  const saleService=createSaleService({store,signed,now,uuid});
   const collectiveService=createCollectiveService({store,signed,checkSession,checkScenario,now,uuid});
   const economyService=createEconomyService({store,signed,checkSession,checkScenario,now,uuid});
   const inventoryService=createInventoryService({store,signed,checkSession,checkScenario,now,uuid});
@@ -100,6 +102,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(saleAction(action))return saleService(action,actor,input);
     if(collectiveAction(action))return collectiveService(action,actor,input);
     if(economyAction(action))return economyService(action,actor,input);
     if(lotTransferAction(action))return lotTransferService(action,actor,input);
