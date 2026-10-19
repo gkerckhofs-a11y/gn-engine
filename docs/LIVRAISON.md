@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n'est encore validé. Version 0.6 publiée sur https://gn-engine.web.app/ : 87 tests métier/interface et 69 intégrations réussis sur GitHub, avec vérifications locales. L'accueil public, les écrans de carnet sans connexion et les contrôles HTTP sont vérifiés ; la recette complète avec des comptes joueurs distincts reste à faire. Voir `VALIDATION-0.6.md` et les rapports historiques 0.2/0.3/0.4/0.5. Le découpage ne réduit pas le périmètre du cahier.
+19 octobre 2026. Aucun lot complet n'est encore validé. Version 0.7 publiée sur https://gn-engine.web.app/ : 103 tests métier/interface et 83 intégrations réussis sur GitHub, avec vérifications locales. L’accueil public et les contrôles HTTP sont vérifiés ; la recette complète avec des comptes joueurs distincts reste à faire. Voir `VALIDATION-0.7.md` et les rapports historiques 0.2/0.3/0.4/0.5/0.6. Le découpage ne réduit pas le périmètre du cahier.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -30,7 +30,7 @@ Carnet privé par compte/session, notes classables, protection contre la réattr
 
 ## Extension 0.7
 
-Classes de compétences passives, duplication des modèles, profils attribués après comparaison avant/après et exceptions individuelles. Les découvertes QR peuvent exiger une expertise avec un niveau minimum, sans effacer les documents déjà acquis. 186 tests locaux réussis ; publication et limites suivies dans `VALIDATION-0.7.md`. Compétences actives et valeurs initiales PV/crédits/objets encore à développer.
+Classes de compétences passives, duplication des modèles, profils attribués après comparaison avant/après et exceptions individuelles. Les découvertes QR peuvent exiger une expertise avec un niveau minimum, sans effacer les documents déjà acquis. 186 tests réussis localement et sur GitHub ; version publiée avec manifeste 0.7.0 et refus anonymes vérifiés. Preuves et limites dans `VALIDATION-0.7.md`. Compétences actives et valeurs initiales PV/crédits/objets encore à développer.
 
 ## Préparation réalisée
 

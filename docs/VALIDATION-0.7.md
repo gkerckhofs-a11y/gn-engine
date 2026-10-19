@@ -55,7 +55,7 @@ Le profil, la fiche publiée, les historiques, le journal et le résultat idempo
 - Total local : 186 tests, aucun échec. Les tests couvrent profils, publication, copies, rôles, révocations, réattribution, historique, concurrence, seuils QR et compatibilité avec les anciennes données.
 - Le nouveau test HTTP emploie le véritable gestionnaire exporté, les jetons Auth et Firestore émulés : refus anonyme et joueur, préparation sans effet, attribution confirmée, puis découverte conditionnelle.
 - Tous les comptes et contenus de test sont synthétiques et confinés aux émulateurs. Aucun profil ni aucune règle de scénario n'a été créé en production.
-- Résultats GitHub et publication à consigner après le workflow.
+- GitHub : 103 tests métier/interface et 83 intégrations réussis, aucun échec, sur le commit `9627c94b34cb5a5186f5917d2d4b594a0dff3ff8` ([workflow 39273198972](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39273198972), 19 octobre 2026). Les jobs de vérification et de déploiement sont terminés avec succès.
 
 ## Limites
 
@@ -68,4 +68,10 @@ Le profil, la fiche publiée, les historiques, le journal et le résultat idempo
 
 ## Publication
 
-Publication et vérification du site à consigner après réussite du workflow GitHub/Firebase autorisé. Aucune donnée de test de jeu créée en production.
+Le [workflow 39273198972](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39273198972), exécuté sur le commit `9627c94b34cb5a5186f5917d2d4b594a0dff3ff8`, s'est terminé avec succès le 19 octobre 2026 à 14:58 UTC (16:58 à Bruxelles).
+
+- Fonction `api`, Hosting, règles et index Firestore publiés dans le projet `gn-engine` par le workflow autorisé.
+- Contrôles HTTP : accueil disponible, manifeste exact `0.7.0`, refus `401 LOGIN_REQUIRED` pour les commandes anonymes `dashboard`, `myNotes`, `noteDetail`, `shareNote`, `prepareAbilityProfile`, `setAbilityProfile` et `abilityHistory`.
+- Contrôle navigateur après publication sur [GN Engine](https://gn-engine.web.app/) : application chargée, accueil public et pied de page 0.7 visibles. [Capture de la version publiée](verification/gn-engine-0.7-1792421963658.jpg).
+- Cette capture vérifie l'accueil publié ; elle ne constitue pas une recette des formulaires authentifiés de classes et compétences. Les essais sur plusieurs comptes Google et mobile restent ouverts.
+- Aucun profil, contenu de scénario ou compte de test créé en production.
