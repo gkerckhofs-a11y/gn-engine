@@ -1,6 +1,6 @@
 # Architecture Firebase
 
-19 octobre 2026 — conception du moteur complet. Le premier parcours est implémenté dans `src/core/workflow.mjs`, `src/server/index.mjs` et `web/`. Firestore et Authentication sont configurés ; Functions et Hosting ne sont pas déployés. Voir `VALIDATION-0.2.md` pour les preuves et limites.
+19 octobre 2026 — conception du moteur complet. Le premier parcours est implémenté dans `src/core/workflow.mjs`, `src/server/index.mjs` et `web/`. Firestore et Authentication sont configurés ; Functions et Hosting sont publiés sur https://gn-engine.web.app/. Voir `VALIDATION-0.2.md` pour les preuves et limites.
 
 ## Répartition
 

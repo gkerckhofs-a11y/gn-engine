@@ -2,7 +2,9 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.2 : premier parcours développé et testé sur les émulateurs Firebase. Le service et l’interface ne sont pas encore déployés.**
+**Version 0.2 : premier parcours publié sur Firebase le 19 octobre 2026.**
+
+Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
 ## Premier parcours
 
@@ -22,9 +24,9 @@ L’accueil et le rythme de jeu sont indépendants. Le MJ peut éditer les fiche
 - Firebase `gn-engine`, numéro `936415509528`, application `GN Engine Web` enregistrée.
 - Firestore Standard `(default)` créé en `europe-west1` (Belgique), accès directs clients refusés.
 - Firebase Authentication : Google activé.
-- Cible de publication : Firebase Hosting et fonction HTTP `api` en Belgique, Node 22. **Publication restante.**
+- Firebase Hosting et fonction HTTP `api` publiés ; serveur en Belgique, Node 22.
 
-Cloud Shell a retourné « Site Unavailable » dans le navigateur de travail. Le terminal local n’est pas authentifié auprès de Firebase. Un script d’autorisation et un workflow GitHub sont préparés : les droits doivent encore être accordés par le propriétaire avec le script ci-dessous.
+L’autorisation Google a été configurée par le propriétaire et validée par un déploiement GitHub utilisant Workload Identity Federation. Aucune clé privée de compte de service n’est nécessaire. Le terminal local de Codex n’est pas connecté au compte personnel Google.
 
 ## Vérifier
 
@@ -41,7 +43,7 @@ npm run test:emulator
 
 ## Publier
 
-Une seule fois, le propriétaire exécute dans Google Cloud Shell :
+La configuration initiale est déjà effectuée pour `gn-engine`. Pour la reproduire, le propriétaire exécute une seule fois dans Google Cloud Shell :
 
 ```sh
 bash scripts/authorize-github-firebase.sh

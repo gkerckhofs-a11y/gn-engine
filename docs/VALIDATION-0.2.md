@@ -7,11 +7,20 @@
 - `npm run test:emulator` : 14/14 tests passent avec Firebase CLI 15.34, Auth Emulator, Firestore Emulator 1.22, Java Temurin 21.
 - Le véritable gestionnaire HTTP exporté pour Cloud Functions est monté dans Express pour les essais HTTP. L’émulateur Functions complet ne pouvait pas ouvrir son socket Unix local (EPERM) ; il n’est pas présenté comme validé localement.
 - Firestore créé en Belgique et fournisseur Google activé, vérifiés dans la console.
-- Aucun déploiement Functions/Hosting : Cloud Shell inaccessible, terminal non authentifié. La prévisualisation de fichier local a été refusée par la politique du navigateur ; aucune validation visuelle n’est revendiquée.
+- Autorisation GitHub/Google validée par Workload Identity Federation, après exécution du script par le propriétaire.
+- Fonction `api` (Node 22, `europe-west1`, compte runtime dédié), Firebase Hosting, règles et index publiés le 19 octobre 2026 : https://gn-engine.web.app/.
+- Contrôles de production : accueil HTTP 200 ; lecture `dashboard` anonyme refusée en HTTP 401 avec `LOGIN_REQUIRED`, via Hosting et directement via les adresses publiques du serveur.
+- Accueil public vérifié visuellement dans Chrome ; le bouton Google ouvre la page officielle de sélection de compte pour cette application. Aucune connexion complète ni création de données de jeu en production n’a été effectuée pendant cette vérification.
+- Le premier envoi omettait les manifestes racine à cause du filtre `*`. Filtre corrigé et archive réelle créée avec le SDK Google contrôlée : exactement neuf fichiers serveur, dont les deux manifestes et le point d’entrée.
+- Le contrôle immédiatement après la première publication avait reçu HTTP 404, puis HTTP 401 après propagation du routage. Le contrôle attend désormais les erreurs temporaires de disponibilité avec une limite de douze tentatives ; il n’accepte jamais HTTP 200 pour la lecture privée anonyme.
 
 GitHub Actions a réussi compilation, 28 tests métier et 14 intégrations sur le commit `5a44f87f0a27e7846d33a17d1b12cadc5eda4822` : https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39250124412
 
+Publication complète réussie sur le commit `b9bb80fbd8c266f7da70e72da6107c2ca725f020` : [workflow GitHub du 19 octobre 2026](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39254991010). Les deux jobs `verify` et `deploy` ont réussi, y compris compilation, 42 tests, publication de la fonction/Hosting/règles/index et contrôle HTTP final.
+
 ![Google Authentication activé dans Firebase](verification/firebase-auth.jpg)
+
+![Accueil GN Engine publié](verification/gn-engine-live-1792414215351.jpg)
 
 ## Cas testés sur Firestore
 

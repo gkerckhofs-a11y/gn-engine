@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n'est encore validé. Premier parcours A développé : 28 tests métier et 14 intégrations réussis. Firestore et Google Authentication configurés ; publication et recette navigateur restent à faire. Voir `VALIDATION-0.2.md`. Le découpage ne réduit pas le périmètre du cahier.
+19 octobre 2026. Aucun lot complet n'est encore validé. Premier parcours A développé et publié sur https://gn-engine.web.app/ : 28 tests métier et 14 intégrations réussis. L'accueil public et les contrôles HTTP sont vérifiés ; la recette complète avec des comptes joueurs distincts reste à faire. Voir `VALIDATION-0.2.md`. Le découpage ne réduit pas le périmètre du cahier.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -19,15 +19,16 @@ Les contrôles d'accès et la traçabilité sont requis dès A. Les imports et o
 - Source V0.1 conservée pour reprise des écrans et règles de terrain.
 - Audit des écarts et architecture de migration.
 - Noyau initial : horloge de jeu, projections, transfert atomique ; 16 tests locaux.
-- Projet Firebase identifié dans `.firebaserc` ; règles fermées préparées mais non déployées.
+- Projet Firebase configuré ; fonction `api`, Hosting, règles fermées et index Firestore publiés.
+- Déploiement GitHub autorisé par fédération d'identité, sans clé privée ; comptes de déploiement, compilation et exécution distincts.
 
 ## Intégration encore à réaliser
 
-1. Publier Functions et Hosting ; application web, Google Authentication et Firestore sont configurés. Storage attend le parcours médias.
+1. Intégrer Storage avec le parcours médias ; Functions, Hosting, Google Authentication et Firestore sont en place.
 2. Recetter dans des navigateurs avec des comptes réels distincts. Adaptateur, règles, jetons, inscriptions et attributions passent les essais sur émulateurs.
 3. Compléter le lot A : rôles délégués, groupes, permissions fines et éditeur étendu.
 4. Étendre les commandes et l'éditeur jusqu'au lot E, avec une preuve de recette par exigence.
-5. Configurer le déploiement GitHub vers Firebase avec des droits limités, puis publier et vérifier. Aucun jeton ni délégation de déploiement n'existe dans ce dépôt à ce stade.
+5. Compléter la recette d'exploitation et de restauration. La publication GitHub et les contrôles HTTP automatisés sont en place.
 
 ## Données Port-Brèche à finaliser
 

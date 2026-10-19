@@ -1,8 +1,10 @@
 # Autoriser GitHub à publier GN Engine
 
-État : mécanisme préparé, autorisation réelle et premier déploiement encore à effectuer.
+État au 19 octobre 2026 : autorisation configurée par le propriétaire, identité GitHub validée, fonction `api`, Hosting, règles et index Firestore publiés. Application : https://gn-engine.web.app/.
 
 ## Une seule intervention du propriétaire
+
+Déjà effectuée sur le projet `gn-engine` ; les étapes suivantes documentent sa reproduction.
 
 1. Ouvrir [Google Cloud Shell](https://shell.cloud.google.com/?project=gn-engine) avec le compte propriétaire du projet.
 2. Importer `scripts/authorize-github-firebase.sh` avec la commande d’importation de fichiers de Cloud Shell, dans le dossier d’accueil.
@@ -45,7 +47,7 @@ Le paquet de la fonction ne contient que `src/`, `package.json` et `package-lock
 
 L’identité est renouvelée entre le déploiement de la fonction et celui de Firebase, afin que la compilation distante ne consomme pas la courte durée de vie du jeton GitHub initial. Les jetons temporaires ne sont ni publiés ni conservés en artifacts. Un contrôle HTTP vérifie le site et le refus d’une lecture organisateur anonyme ; il ne constitue pas une recette complète en navigateur.
 
-Le premier démarrage IAM peut nécessiter quelques minutes de propagation. Une erreur d’organisation ou de permissions doit être lue dans le journal avant de modifier des droits. Le script et les vérifications locales ne prouvent pas que les autorisations ont été appliquées : seul un déploiement réussi depuis GitHub le confirmera.
+Le premier démarrage IAM peut nécessiter quelques minutes de propagation. Une erreur d’organisation ou de permissions doit être lue dans le journal avant de modifier des droits. Les autorisations de ce projet ont été confirmées par la publication réelle depuis GitHub ; les vérifications locales seules ne suffisent pas à les établir.
 
 Validation locale du 19 octobre 2026 : compilation réussie, 28 tests métier et 14 tests d’intégration Auth/Firestore réussis. Le serveur démarre aussi dans le véritable Functions Framework et refuse une lecture `dashboard` anonyme avec HTTP 401. Syntaxe Bash, YAML et cohérence du verrou npm vérifiées. Les chemins de création/réexécution, de projet incorrect, d’erreur Google et de fournisseur désactivé ont été simulés avec un faux `gcloud` ; aucun droit réel n’a été accordé pendant ces contrôles.
 
