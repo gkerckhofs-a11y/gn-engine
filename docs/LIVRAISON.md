@@ -20,6 +20,10 @@ Rôles MJ/Accueil par session, révocation vérifiée avant tout réessai, relat
 
 Groupes versionnés publics/secrets, appartenances multiples, révélation et visibilité distinctes, quatre droits de lecture/publication, affiliations publiques contrôlées, fil de groupe adressé aux personnages autorisés et historique MJ. 54 tests métier/interface et 39 intégrations réussis localement et sur GitHub ; version publiée. La recette complète du lot A et des cercles de REC-04 reste ouverte : voir `VALIDATION-0.4.md`.
 
+## Extension 0.5
+
+Connaissances textuelles et indices versionnés, reçus propres aux personnages, découverte QR conditionnelle, partage explicite par badge, lecture personnelle, aperçu MJ neutre et interventions tracées. Les documents uniques, pièces jointes, compétences et notes privées restent à intégrer. Le résultat des vérifications et du déploiement est consigné dans `VALIDATION-0.5.md`.
+
 ## Préparation réalisée
 
 - Cahier V1 conservé, texte consultable, matrice de 132 exigences.

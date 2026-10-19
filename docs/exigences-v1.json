@@ -159,11 +159,11 @@
       "sourceLine": 85,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_5",
       "coreWork": null,
-      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.4.md ; src/core/groups.mjs ; src/core/workflow.mjs ; test/support/groups-suite.mjs ; test/groups-ui.test.mjs ; test/integration",
-      "implementedScope": "Édition des personnages et groupes dans modèles/sessions, appartenance multiple et historique. Autres bibliothèques, duplication, médias et éditions par lot restent à intégrer."
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.5.md ; src/core/knowledge.mjs ; web/knowledge.mjs ; test/support/knowledge-suite.mjs ; test/integration",
+      "implementedScope": "Éditeur étendu aux connaissances textuelles, règles QR et destinataires initiaux en plus des fiches/groupes. Bibliothèques complètes et opérations par lot restant."
     },
     {
       "id": "EDI-02",
@@ -272,10 +272,11 @@
       "sourceLine": 119,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_5",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.5.md ; src/core/knowledge.mjs ; web/knowledge.mjs ; test/support/knowledge-suite.mjs ; test/integration",
+      "implementedScope": "Textes identifiables, origine, reçus de départ/MJ/QR/copie, accès et projections séparés. Pièces jointes et conditions mécaniques non livrées."
     },
     {
       "id": "CON-02",
@@ -283,10 +284,11 @@
       "sourceLine": 120,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_5",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.5.md ; src/core/knowledge.mjs ; web/knowledge.mjs ; test/support/knowledge-suite.mjs ; test/integration",
+      "implementedScope": "Vérité MJ séparée, copie conservant le texte appris et l’accès source, lecture montrée sur place. Document unique et version rédigée par le joueur non livrés."
     },
     {
       "id": "REL-01",
@@ -373,10 +375,11 @@
       "sourceLine": 150,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_5",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.5.md ; src/core/knowledge.mjs ; web/knowledge.mjs ; test/support/knowledge-suite.mjs ; test/integration",
+      "implementedScope": "Lien QR de découverte identifiant une cible sans contenu secret ; autorisation personnelle et conditions côté serveur. Objets/lieux/interactions mécaniques restant."
     },
     {
       "id": "QR-02",
@@ -384,10 +387,11 @@
       "sourceLine": 152,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_5",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.5.md ; src/core/knowledge.mjs ; web/knowledge.mjs ; test/support/knowledge-suite.mjs ; test/integration",
+      "implementedScope": "Interface annonce qu’un QR peut être photographié et ne prouve pas la présence. Validation de présence ou défi temporaire non livrés."
     },
     {
       "id": "ACT-01",
@@ -967,11 +971,11 @@
       "sourceLine": 281,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_5",
       "coreWork": null,
-      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.4.md ; src/core/groups.mjs ; src/core/workflow.mjs ; test/support/groups-suite.mjs ; test/groups-ui.test.mjs ; test/integration",
-      "implementedScope": "Fil des 30 dernières informations reçues par groupe, signé de l’identité de personnage et ordonné par date. Fil personnel unifié, filtres et suivi de lecture restent à intégrer."
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.5.md ; src/core/knowledge.mjs ; web/knowledge.mjs ; test/support/knowledge-suite.mjs ; test/integration",
+      "implementedScope": "Liste personnelle de connaissances/indices/documents, date, origine, filtres type/lu/non lu et confirmation explicite. Fil unifié avec messages/annonces et notifications restant."
     },
     {
       "id": "INF-02",
@@ -1014,10 +1018,11 @@
       "sourceLine": 289,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_5",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.5.md ; src/core/knowledge.mjs ; web/knowledge.mjs ; test/support/knowledge-suite.mjs ; test/integration",
+      "implementedScope": "Aucun label de vérité transmis ; origine fictionnelle et auteur sous nom de personnage. Annonces de primes non intégrées."
     },
     {
       "id": "VOT-01",
@@ -1048,11 +1053,11 @@
       "sourceLine": 296,
       "lot": "E",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_3",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_5",
       "coreWork": null,
-      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.3.md ; src/core/workflow.mjs ; src/core/staff.mjs ; src/core/narrative.mjs ; test/support/workflow-suite.mjs ; test/integration/http.test.mjs",
-      "implementedScope": "Édition de fiche avec motif, auteur et révisions avant/après. Autres interventions et corrections de jeu restent à intégrer."
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.5.md ; src/core/knowledge.mjs ; web/knowledge.mjs ; test/support/knowledge-suite.mjs ; test/integration",
+      "implementedScope": "Attribution/retrait ciblé d’une connaissance avec motif, auteur, date, avant/après et concurrence contrôlée. Autres types d’intervention et diffusion multiple restant."
     },
     {
       "id": "MJ-03",
@@ -1392,11 +1397,11 @@
       "sourceLine": 373,
       "lot": "E",
       "prototype": "NON_VERIFIE",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_5",
       "coreWork": null,
-      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.4.md ; src/core/groups.mjs ; src/core/workflow.mjs ; test/support/groups-suite.mjs ; test/groups-ui.test.mjs ; test/integration",
-      "implementedScope": "Contrôles de visibilité des affiliations secrètes et informations effectivement adressées aux membres testés sur Firestore. Scénario complet avec fragments, création de cercle, rencontres, pièces jointes et partage de connaissances non recetté."
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.5.md ; src/core/knowledge.mjs ; web/knowledge.mjs ; test/support/knowledge-suite.mjs ; test/integration",
+      "implementedScope": "Fragments privés distincts, copie explicite par badge sans annuaire, pas de vérité MJ ni accès implicite aux autres fragments. Création autonome de cercle et pièces jointes restant."
     },
     {
       "id": "REC-05",
@@ -1448,10 +1453,11 @@
       "sourceLine": 378,
       "lot": "E",
       "prototype": "NON_VERIFIE",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_5",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.5.md ; src/core/knowledge.mjs ; web/knowledge.mjs ; test/support/knowledge-suite.mjs ; test/integration",
+      "implementedScope": "Nouvelle session depuis une version sans les connaissances acquises, partages ni états de lecture de la partie précédente. Clôture des engagements et export restant."
     },
     {
       "id": "LIV-01",

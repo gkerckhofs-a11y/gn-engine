@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "4c16465588d540817a7fd0017e740b5f44d68037",
-  "requestedAt": "2026-10-19T13:29:04.785823+00:00",
-  "reason": "Publier la version 0.4 : groupes publics/secrets, droits narratifs et informations destinées aux membres ; 93 tests locaux réussis.",
-  "version": "0.4.0"
+  "sourceCommit": "ae924043dda50bab2acc4ad3536e24ffb3efd090",
+  "requestedAt": "2026-10-19T13:52:28.348601+00:00",
+  "reason": "Publier la version 0.5 : connaissances privées, découverte QR conditionnelle et copies explicites par badge ; 125 tests locaux réussis.",
+  "version": "0.5.0"
 }

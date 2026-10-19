@@ -55,6 +55,12 @@ Les groupes contiennent des appartenances rattachées aux personnages. Activatio
 
 Les contenus de groupe sont absents des projections Accueil. Les badges reçoivent uniquement les affiliations publiques explicitement autorisées. Les nouveaux membres ne reçoivent pas rétroactivement les messages : chaque publication crée les copies destinées aux seuls personnages alors autorisés. Chaque lecture vérifie à nouveau les droits, y compris après réattribution ou révocation. Les fils et historiques lisent les 30 derniers éléments ; pagination et charge restent à valider. Voir `VALIDATION-0.4.md`.
 
+### Implémentation 0.5
+
+Les connaissances ont leur bibliothèque de scénario/version/session et des reçus sous chaque personnage de session. Un reçu conserve les champs joueurs et la révision effectivement acquise, sans vérité MJ, liste de détenteurs ni conditions cachées. L'édition du catalogue ne remplace pas le texte reçu ; une attribution MJ explicite peut le faire avec motif et contrôle de révision. Dépublication et révocations ferment les lectures courantes.
+
+La découverte QR exige un personnage actif et les conditions configurées sur la cible. La copie exige un texte partageable et un autre personnage actif identifié par son badge public. Les droits sont relus avant le résultat idempotent ; reçu, journal et opération sont atomiques. Voir `VALIDATION-0.5.md`. Le carnet privé et Storage restent à développer.
+
 ## Commandes et concurrence
 
 Une commande contient session, référence unique, type, ressources ciblées et version attendue lorsqu'elle s'applique. L'acteur vient du jeton vérifié, jamais du corps de requête. Le service conserve une empreinte de la demande et son résultat dans la même transaction que ses effets.

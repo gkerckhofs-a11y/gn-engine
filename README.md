@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.4 : groupes publics/secrets et partage d’informations selon les droits de chaque personnage.**
+**Version 0.5 : connaissances privées, découverte par QR et copies explicites entre personnages.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -30,6 +30,10 @@ Le scénario et la session disposent d'un éditeur de groupes publics ou secrets
 
 Un membre peut être autorisé à lire le briefing, consulter les membres révélés, recevoir des informations et/ou en publier pendant le jeu. Un nouveau membre ne récupère pas automatiquement le passé du groupe. La désactivation des espaces ferme les lectures et publications joueurs sans effacer les données. [Parcours et limites de la version 0.4](docs/VALIDATION-0.4.md).
 
+## Connaissances et indices
+
+Le MJ crée des textes, choisit leurs destinataires de départ et configure une découverte QR éventuelle. Vérité MJ et présentation joueur restent séparées. Chaque personnage conserve la version reçue ; une copie explicite passe par le badge public du destinataire, sans annuaire privé. Le MJ peut attribuer ou retirer un accès avec un motif. L'espace **Mes informations** propose filtres et confirmation de lecture. [Parcours, garanties et limites 0.5](docs/VALIDATION-0.5.md).
+
 ## Infrastructure configurée
 
 - GitHub privé : `gkerckhofs-a11y/gn-engine`.
@@ -51,7 +55,7 @@ npm test
 npm run test:emulator
 ```
 
-54 tests métier/interface et 39 intégrations passent localement et sur GitHub. La version 0.4 est publiée sur Firebase. Voir [le rapport 0.4 et ses limites](docs/VALIDATION-0.4.md).
+La version 0.5 ajoute 15 parcours de connaissances exécutés en mémoire et sur Firestore, plus 2 tests d’interface. Les résultats et la preuve de déploiement sont consignés dans [le rapport 0.5](docs/VALIDATION-0.5.md).
 
 ## Publier
 
