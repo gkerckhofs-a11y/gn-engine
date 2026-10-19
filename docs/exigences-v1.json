@@ -57,10 +57,11 @@
       "sourceLine": 49,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.4.md ; src/core/groups.mjs ; src/core/workflow.mjs ; test/support/groups-suite.mjs ; test/groups-ui.test.mjs ; test/integration",
+      "implementedScope": "Espaces de groupe activables/désactivables par session, sans accès joueur ni affiliation publique lorsque désactivés. Les autres modules restent à intégrer."
     },
     {
       "id": "SES-01",
@@ -79,10 +80,11 @@
       "sourceLine": 65,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.4.md ; src/core/groups.mjs ; src/core/workflow.mjs ; test/support/groups-suite.mjs ; test/groups-ui.test.mjs ; test/integration",
+      "implementedScope": "Appartenances multiples publiques/secrètes, révélation et liste des membres distinctes ; droits séparés pour briefing, membres, réception et publication d’informations. Caisse, stock, annonces commerciales, départ et invitations entre joueurs restent à raccorder."
     },
     {
       "id": "SES-03",
@@ -157,10 +159,11 @@
       "sourceLine": 85,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.4.md ; src/core/groups.mjs ; src/core/workflow.mjs ; test/support/groups-suite.mjs ; test/groups-ui.test.mjs ; test/integration",
+      "implementedScope": "Édition des personnages et groupes dans modèles/sessions, appartenance multiple et historique. Autres bibliothèques, duplication, médias et éditions par lot restent à intégrer."
     },
     {
       "id": "EDI-02",
@@ -168,10 +171,11 @@
       "sourceLine": 87,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.4.md ; src/core/groups.mjs ; src/core/workflow.mjs ; test/support/groups-suite.mjs ; test/groups-ui.test.mjs ; test/integration",
+      "implementedScope": "Groupes et appartenances séparés du métier de fiction ; affiliations publique et secrète coexistantes. Classes et valeurs initiales restent à intégrer."
     },
     {
       "id": "EDI-03",
@@ -290,11 +294,11 @@
       "sourceLine": 123,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_3",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
       "coreWork": null,
       "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.3.md ; src/core/workflow.mjs ; src/core/staff.mjs ; src/core/narrative.mjs ; test/support/workflow-suite.mjs ; test/integration/http.test.mjs",
-      "implementedScope": "Relations orientées sur la fiche source ; cible technique et notes MJ absentes de la projection joueur. Groupes clandestins et révélations de leurs membres restent à intégrer."
+      "evidence": "docs/VALIDATION-0.4.md ; src/core/groups.mjs ; src/core/workflow.mjs ; test/support/groups-suite.mjs ; test/groups-ui.test.mjs ; test/integration",
+      "implementedScope": "Relations orientées et groupes secrets avec révélation explicite ; aucune liste automatique, droits de liste et visibilité de chaque membre distincts."
     },
     {
       "id": "MIS-01",
@@ -963,10 +967,11 @@
       "sourceLine": 281,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.4.md ; src/core/groups.mjs ; src/core/workflow.mjs ; test/support/groups-suite.mjs ; test/groups-ui.test.mjs ; test/integration",
+      "implementedScope": "Fil des 30 dernières informations reçues par groupe, signé de l’identité de personnage et ordonné par date. Fil personnel unifié, filtres et suivi de lecture restent à intégrer."
     },
     {
       "id": "INF-02",
@@ -974,10 +979,11 @@
       "sourceLine": 283,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.4.md ; src/core/groups.mjs ; src/core/workflow.mjs ; test/support/groups-suite.mjs ; test/groups-ui.test.mjs ; test/integration",
+      "implementedScope": "Publications de groupe destinées aux personnages autorisés à cet instant. Pas de remise rétroactive aux nouveaux membres. Publication MJ ciblée, programmation et autres conditions restent à intégrer."
     },
     {
       "id": "MSG-01",
@@ -996,10 +1002,11 @@
       "sourceLine": 287,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.4.md ; src/core/groups.mjs ; src/core/workflow.mjs ; test/support/groups-suite.mjs ; test/groups-ui.test.mjs ; test/integration",
+      "implementedScope": "Appartenances secrètes et informations partagées sans annuaire automatique ; révocation bloque les nouveaux accès et destinataires figés à la publication. Création autonome de cercle, invitations et conversations privées complètes restent à intégrer."
     },
     {
       "id": "INF-03",
@@ -1152,11 +1159,11 @@
       "sourceLine": 331,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_3",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
       "coreWork": null,
       "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.3.md ; src/core/workflow.mjs ; src/core/staff.mjs ; src/core/narrative.mjs ; test/support/workflow-suite.mjs ; test/integration/http.test.mjs",
-      "implementedScope": "Délégations MJ/Accueil par session, actions vérifiées et révocation avant réessai. Permissions par ressource et autres modules restent à intégrer."
+      "evidence": "docs/VALIDATION-0.4.md ; src/core/groups.mjs ; src/core/workflow.mjs ; test/support/groups-suite.mjs ; test/groups-ui.test.mjs ; test/integration",
+      "implementedScope": "Droits de session et de groupe vérifiés avant lectures, mutations et résultats mémorisés ; module, identité, attribution, publication, appartenance et permission contrôlés. Autres modules restent à raccorder."
     },
     {
       "id": "SEC-02",
@@ -1164,11 +1171,11 @@
       "sourceLine": 332,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_3",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
       "coreWork": "projections.mjs : listes blanches des champs ; fichiers et autres ressources à intégrer",
       "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.3.md ; src/core/workflow.mjs ; src/core/staff.mjs ; src/core/narrative.mjs ; test/support/workflow-suite.mjs ; test/integration/http.test.mjs",
-      "implementedScope": "Projections serveur séparées pour accueil, joueur et badge ; relations/objectifs filtrés. Pièces jointes, exports et autres modules restent à intégrer."
+      "evidence": "docs/VALIDATION-0.4.md ; src/core/groups.mjs ; src/core/workflow.mjs ; test/support/groups-suite.mjs ; test/groups-ui.test.mjs ; test/integration",
+      "implementedScope": "Projections serveur joueur/accueil/public séparées, aucun contenu de groupe pour Accueil ; badge limité aux affiliations explicitement publiques. Fichiers et exports restent à intégrer."
     },
     {
       "id": "SEC-03",
@@ -1385,10 +1392,11 @@
       "sourceLine": 373,
       "lot": "E",
       "prototype": "NON_VERIFIE",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.4.md ; src/core/groups.mjs ; src/core/workflow.mjs ; test/support/groups-suite.mjs ; test/groups-ui.test.mjs ; test/integration",
+      "implementedScope": "Contrôles de visibilité des affiliations secrètes et informations effectivement adressées aux membres testés sur Firestore. Scénario complet avec fragments, création de cercle, rencontres, pièces jointes et partage de connaissances non recetté."
     },
     {
       "id": "REC-05",

@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n'est encore validé. Version 0.3 publiée sur https://gn-engine.web.app/ : 37 tests métier et 24 intégrations réussis localement et sur GitHub. L'accueil public et les contrôles HTTP sont vérifiés ; la recette complète avec des comptes joueurs distincts reste à faire. Voir `VALIDATION-0.3.md` et le rapport historique `VALIDATION-0.2.md`. Le découpage ne réduit pas le périmètre du cahier.
+19 octobre 2026. Aucun lot complet n'est encore validé. Version 0.4 publiée sur https://gn-engine.web.app/ : 54 tests métier/interface et 39 intégrations réussis localement et sur GitHub. L'accueil public et les contrôles HTTP sont vérifiés ; la recette complète avec des comptes joueurs distincts reste à faire. Voir `VALIDATION-0.4.md` et les rapports historiques 0.2/0.3. Le découpage ne réduit pas le périmètre du cahier.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -18,7 +18,7 @@ Rôles MJ/Accueil par session, révocation vérifiée avant tout réessai, relat
 
 ## Extension 0.4
 
-Groupes versionnés publics/secrets, appartenances multiples, révélation et visibilité distinctes, quatre droits de lecture/publication, affiliations publiques contrôlées, fil de groupe adressé aux personnages autorisés et historique MJ. 54 tests métier/interface et 39 intégrations réussis localement. La recette complète du lot A et des cercles de REC-04 reste ouverte : voir `VALIDATION-0.4.md`.
+Groupes versionnés publics/secrets, appartenances multiples, révélation et visibilité distinctes, quatre droits de lecture/publication, affiliations publiques contrôlées, fil de groupe adressé aux personnages autorisés et historique MJ. 54 tests métier/interface et 39 intégrations réussis localement et sur GitHub ; version publiée. La recette complète du lot A et des cercles de REC-04 reste ouverte : voir `VALIDATION-0.4.md`.
 
 ## Préparation réalisée
 

@@ -51,7 +51,7 @@ npm test
 npm run test:emulator
 ```
 
-54 tests métier/interface et 39 intégrations passent localement. Voir [le rapport 0.4 et ses limites](docs/VALIDATION-0.4.md).
+54 tests métier/interface et 39 intégrations passent localement et sur GitHub. La version 0.4 est publiée sur Firebase. Voir [le rapport 0.4 et ses limites](docs/VALIDATION-0.4.md).
 
 ## Publier
 

@@ -25,7 +25,14 @@
 - Les nouveaux cas couvrent coexistence public/secret, permissions indépendantes, roster filtré, copies/versionnage, nouveau membre sans passé partagé, double publication concurrente/idempotence, révocation avant réessai, phases/module, autre session, références invalides, concurrence des éditions, historique et limite de 30 informations.
 - Toutes les données et identités de test sont synthétiques et utilisées dans les émulateurs. Aucun groupe, membre, message ou compte de test ajouté à la production.
 
-Les résultats de publication seront consignés après le workflow GitHub.
+## Publication vérifiée
+
+- Source déployée : `ccc15b737a2df06fa7f34d0cb9b59b38e8b00276`.
+- [Workflow GitHub Actions du 19 octobre 2026](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39260633229) : `verify` et `deploy` réussis, avec les 93 tests, la fonction en Belgique, Hosting, règles et index.
+- Contrôle final : manifeste `0.4.0`, accueil HTTP 200, lecture privée anonyme refusée en HTTP 401 (`LOGIN_REQUIRED`).
+- Accueil rechargé et vérifié dans Chrome sur https://gn-engine.web.app/, pied de page « GN Engine · 0.4 ». Les formulaires privés et parcours multicomptes n'ont pas été manipulés dans le navigateur de production pendant cette livraison.
+
+![Accueil 0.4 publié](verification/gn-engine-0.4-1792416819143.jpg)
 
 ## Stockage et garanties
 
