@@ -79,7 +79,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.10 ajoute les vérifications des propositions, des remises, des accès et des fractionnements. Résultats et preuves de publication dans [le rapport 0.10](docs/VALIDATION-0.10.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.10 est publiée : **312 tests réussis** localement et dans les journaux GitHub (172 métier/interface/contrôle de publication et 140 intégrations). La version exacte 0.10.0 et le refus de 30 commandes privées anonymes sont vérifiés en ligne. Résultats et preuves dans [le rapport 0.10](docs/VALIDATION-0.10.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 

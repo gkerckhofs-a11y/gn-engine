@@ -44,9 +44,10 @@ Les propositions en attente restent visibles. La liste des opérations terminée
 - `npm test` : **172 tests réussis**, sans échec, après ajout de 16 parcours de remises et 4 tests d’interface.
 - `npm run build` : interface compilée ; manifeste attendu 0.10.0.
 - `npm run test:emulator` : **140 tests réussis**, sans échec, annulation ou test ignoré sur Auth et Firestore de `demo-gn-engine`, avec Java 21. Durée relevée : environ 157 secondes.
-- Total local : **172 + 140 = 312 tests réussis**. Les contrôles GitHub sur le commit publié seront ajoutés ci-dessous.
+- Total local : **172 + 140 = 312 tests réussis**. Le même total est confirmé par les journaux GitHub sur le commit source.
 - Les 16 parcours sont exécutés sur le store en mémoire et sur Firestore : préparation sans effet, consentement, intégrité de la cible, confidentialité, remise complète, division, historique, idempotence, compétition avec un soin, acceptations concurrentes, annulation concurrente, changement de stock, révocation/réattribution, hors combat, pause/fin, archive et panne synthétique avant commit.
 - Le gestionnaire HTTP réel est testé avec des jetons Google synthétiques de l’émulateur Auth et Firestore : lot 20 → 12 + 8, accès refusés, répétition d’acceptation et révocation.
+- GitHub, commit `d2f37aba7b6d9f82620d4f15f74f703c3e1d0503` : **172 + 140 = 312 tests réussis** sur Node 22, sans échec, annulation ou test ignoré. Le [workflow 39286991974](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39286991974), job de vérification `118176480040`, compile à 16:38:11 UTC, termine les 172 tests à 16:38:15 UTC et les 140 intégrations à 16:41:01 UTC le 19 octobre 2026. Résultats tirés des journaux du job.
 - Tous les comptes, objets et scénarios de test restent dans les émulateurs. Aucune donnée de test n’est créée en production.
 
 ## Limites et recette restante
@@ -61,6 +62,16 @@ Les propositions en attente restent visibles. La liste des opérations terminée
 
 ## Publication
 
-Commit source, résultats GitHub, contrôle du manifeste exact et observation navigateur à consigner après publication.
+Le code applicatif publié est le commit `d2f37aba7b6d9f82620d4f15f74f703c3e1d0503`. Le [workflow Firebase 39286991974](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39286991974), job de publication `118178610649`, consigne le 19 octobre 2026 :
+
+- Fonction serveur `api` en Belgique : état **ACTIVE**, relevé à 16:42:48 UTC.
+- Firebase Hosting : **Deploy complete** à 16:42:58 UTC.
+- Contrôle final à **16:43:04 UTC** : page HTTP 200, manifeste exact **0.10.0**, puis **30 commandes privées refusées en HTTP 401 / LOGIN_REQUIRED** sans authentification.
+
+Les tests et la publication sont confirmés par les journaux des jobs, même lorsque les métadonnées de statut renvoyées par le connecteur sont en retard. Aucun défaut de propagation du manifeste n’est observé dans ce contrôle final.
+
+Le navigateur confirme ensuite **GN Engine · 0.10**. La route `#/bag/verification` affiche uniquement la connexion, sans stock ni proposition privée. Cette capture prouve la version visible et la fermeture de l’accès anonyme ; elle ne constitue pas une recette authentifiée des remises. Page finale : [GN Engine](https://gn-engine.web.app/).
+
+![Accès protégé au sac — version 0.10](verification/gn-engine-0.10-1792428246818.jpg)
 
 Le workflow de publication exécute le contrôle HTTP après Firebase Hosting. Le workflow séparé `verify-live.yml` devient une relance manuelle en lecture seule : le lancer à chaque changement du script le ferait partir avant que la nouvelle version soit publiée. Les assertions restent strictes : version exacte 0.10.0 et 30 commandes privées refusées en HTTP 401 / LOGIN_REQUIRED sans authentification.

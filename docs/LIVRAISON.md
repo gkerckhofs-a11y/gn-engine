@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.10 préparée : remises gratuites proposées puis acceptées, fractionnement atomique et suivi dans le sac. Vérifications et publication dans `VALIDATION-0.10.md` ; rapports 0.2 à 0.9 conservés. La recette complète avec comptes joueurs distincts et mobile reste à faire. Le découpage ne réduit pas le périmètre du cahier.
+19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.10 publiée : remises gratuites proposées puis acceptées, fractionnement atomique et suivi dans le sac. 312 tests réussis ; manifeste 0.10.0 et refus des accès anonymes vérifiés. Preuves dans `VALIDATION-0.10.md` ; rapports 0.2 à 0.9 conservés. La recette complète avec comptes joueurs distincts et mobile reste à faire. Le découpage ne réduit pas le périmètre du cahier.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
