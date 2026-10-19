@@ -12,6 +12,7 @@ export const sessionCommands = {
   saveSessionCharacter:'content',setStage:'rhythm',setRegistrationOpen:'reception',
   setRegistrationStatus:'reception',assign:'reception',issueInvitation:'reception',
   revokeAccess:'reception',setStaff:'staff',
+  saveSessionGroup:'content',setGroupModule:'content',
 };
 export function staffEmail(value) {
   requireThat(typeof value==='string' && value.length<=254,'INVALID_EMAIL');

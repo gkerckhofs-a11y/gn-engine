@@ -49,6 +49,12 @@ Les profils fixes OWNER, MJ et RECEPTION sont vérifiés côté serveur via `ses
 
 Les relations sont stockées uniquement sur leur personnage source. Leur projection ne contient ni référence technique vers la cible, ni notes MJ, ni éléments non publiés. Les publications sont conservées sous chaque fiche ; la confirmation de lecture mémorise sa révision. Voir `VALIDATION-0.3.md`.
 
+### Implémentation 0.4
+
+Les groupes contiennent des appartenances rattachées aux personnages. Activation, révélation, visibilité dans la liste autorisée et affiliation publique sont distinctes. `readBriefing`, `readMembers`, `readUpdates` et `publishUpdates` sont les seuls droits actuellement exposés pour ces espaces. Le modèle de droits économiques et logistiques reste à intégrer.
+
+Les contenus de groupe sont absents des projections Accueil. Les badges reçoivent uniquement les affiliations publiques explicitement autorisées. Les nouveaux membres ne reçoivent pas rétroactivement les messages : chaque publication crée les copies destinées aux seuls personnages alors autorisés. Chaque lecture vérifie à nouveau les droits, y compris après réattribution ou révocation. Les fils et historiques lisent les 30 derniers éléments ; pagination et charge restent à valider. Voir `VALIDATION-0.4.md`.
+
 ## Commandes et concurrence
 
 Une commande contient session, référence unique, type, ressources ciblées et version attendue lorsqu'elle s'applique. L'acteur vient du jeton vérifié, jamais du corps de requête. Le service conserve une empreinte de la demande et son résultat dans la même transaction que ses effets.

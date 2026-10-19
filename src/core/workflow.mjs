@@ -4,6 +4,7 @@ import {publicCharacter, participantCharacter} from './projections.mjs';
 import {createClock, pauseClock, resumeClock, gameTime} from './clock.mjs';
 import {staffPath,staffEmail,capabilities,sessionCommands,receptionCharacter} from './staff.mjs';
 import {narrativeInput,validateRelations,recordPublication} from './narrative.mjs';
+import {groupInput,validateGroupMembers,memberFor,groupVisible,groupSummary,groupDetail,publicAffiliations} from './groups.mjs';
 
 export const hash = value => createHash('sha256').update(value).digest('hex');
 const text = (value, max = 4000, required = false) => {
@@ -57,6 +58,26 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     requireThat(s && s.ownerUid === actor.uid,'FORBIDDEN'); return s;
   };
   const revision = (record, value) => requireThat(record.revision === value, 'STALE_REVISION');
+  const groupContext=async(tx,actor,sid,input,preview=false)=>{
+    signed(actor);
+    const s=preview?await checkSession(tx,actor,sid):await tx.get(`sessions/${sid}`);
+    requireThat(s && s.stage!=='ARCHIVED','FORBIDDEN');
+    let cid;
+    if(preview)cid=documentId(input.characterId);
+    else {
+      const r=await tx.get(regPath(sid,actor.uid));
+      requireThat(r?.status==='ACCEPTED' && r.accessActive && r.characterId && actor.authTime>=r.minAuthTime,'FORBIDDEN');
+      cid=r.characterId;
+    }
+    const c=await tx.get(charPath(sid,cid));
+    requireThat(c && (preview||c.assignedUid===actor.uid),'FORBIDDEN');
+    requireThat(['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s.stage),'BRIEFING_CLOSED');
+    requireThat(c.publicationState==='PUBLISHED' && c.public.publicationState==='PUBLISHED','CONTENT_UNPUBLISHED');
+    requireThat(s.modules?.groups===true,'MODULE_DISABLED');
+    const gid=documentId(input.groupId),g=await tx.get(`sessions/${sid}/groups/${gid}`);
+    requireThat(groupVisible(g,cid),'FORBIDDEN');
+    return {s,c,g,m:memberFor(g,cid)};
+  };
 
   async function dispatch(action,actor,input={}) {
     const at=now(); const sid=input.sessionId ? documentId(input.sessionId) : null;
@@ -88,20 +109,38 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       const cid=documentId(input.characterId);
       return store.runTransaction(async tx=>{
         const s=await tx.get(`sessions/${sid}`); const c=await tx.get(charPath(sid,cid));
-        requireThat(s && s.stage!=='ARCHIVED' && c,'NOT_FOUND'); return publicCharacter(c);
+        requireThat(s && s.stage!=='ARCHIVED' && c,'NOT_FOUND');
+        const character=publicCharacter(c);
+        const groups=s.modules?.groups===true ? await tx.list(`sessions/${sid}/groups`) : [];
+        return {...character,affiliations:publicAffiliations(groups,cid)};
       });
     }
     if(action==='scenario') return store.runTransaction(async tx=>{
       const id=documentId(input.scenarioId); const s=await checkScenario(tx,actor,id);
-      const [characters,versions]=await Promise.all([tx.list(`scenarios/${id}/characters`),tx.list(`scenarios/${id}/versions`)]);
-      return {...s,characters,versions};
+      const [characters,versions,groups]=await Promise.all([tx.list(`scenarios/${id}/characters`),tx.list(`scenarios/${id}/versions`),tx.list(`scenarios/${id}/groups`)]);
+      return {...s,characters,versions,groups};
     });
     if(action==='session') return store.runTransaction(async tx=>{
       const {s,role,permissions}=await sessionAccess(tx,actor,sid);
-      const [characters,registrations,audit,staff]=await Promise.all([tx.list(`sessions/${sid}/characters`),tx.list(`sessions/${sid}/registrations`),
-        permissions.content?tx.list(`sessions/${sid}/audit`):[],permissions.staff?tx.list('sessionStaff',['sessionId',sid]):[]]);
+      const [characters,registrations,audit,staff,groups]=await Promise.all([tx.list(`sessions/${sid}/characters`),tx.list(`sessions/${sid}/registrations`),
+        permissions.content?tx.list(`sessions/${sid}/audit`):[],permissions.staff?tx.list('sessionStaff',['sessionId',sid]):[],
+        permissions.content?tx.list(`sessions/${sid}/groups`):[]]);
       return {...privateSession(s),role,permissions,characters:permissions.content?characters:characters.map(receptionCharacter),registrations,
+        ...(permissions.content?{groups,groupsEnabled:s.modules?.groups===true}:{}),
         audit:audit.sort((a,b)=>b.at-a.at).slice(0,50),staff:staff.map(g=>({email:g.email,role:g.role,active:g.active,updatedAt:g.updatedAt}))};
+    });
+    if(action==='myGroup' || action==='previewGroup') return store.runTransaction(async tx=>{
+      const preview=action==='previewGroup';
+      const {s,c,g}=await groupContext(tx,actor,sid,input,preview);
+      return {session:publicSession(s),characterName:c.public.displayName,preview,
+        group:await groupDetail(tx,`sessions/${sid}`,g,c.id)};
+    });
+    if(action==='groupHistory') return store.runTransaction(async tx=>{
+      let base;
+      if(sid){await checkSession(tx,actor,sid);base=`sessions/${sid}`;}
+      else {const id=documentId(input.scenarioId);await checkScenario(tx,actor,id);base=`scenarios/${id}`;}
+      const gid=documentId(input.groupId);requireThat(await tx.get(`${base}/groups/${gid}`),'NOT_FOUND');
+      return {versions:await tx.list(`${base}/groups/${gid}/history`,null,{orderBy:'at',direction:'desc',limit:30})};
     });
     if(action==='characterHistory') return store.runTransaction(async tx=>{
       const cid=documentId(input.characterId);
@@ -127,7 +166,9 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         else if(c?.publicationState!=='PUBLISHED' || c?.public.publicationState!=='PUBLISHED') reason='CONTENT_UNPUBLISHED';
         else character=participantCharacter(c,{active:true,uid:actor.uid,characterId:cid,sessionId:sid},actor.uid);
       }
-      return {session:publicSession(s),registration:ownRegistration(r),character,reason,gameTimeMs:gameTime(s.clock,at)};
+      const groups=character && s.modules?.groups===true ? await tx.list(`sessions/${sid}/groups`) : [];
+      return {session:publicSession(s),registration:ownRegistration(r),character,reason,gameTimeMs:gameTime(s.clock,at),
+        groups:groups.filter(g=>groupVisible(g,cid)).map(g=>groupSummary(g,cid))};
     });
     signed(actor);
     // Invitation redemption deliberately refuses every second consumption.
@@ -153,6 +194,11 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     return store.runTransaction(async tx=>{
       // A revoked staff member must not recover cached results by replaying a command.
       if(sessionCommands[action]) await checkSession(tx,actor,sid,sessionCommands[action]);
+      let postingContext;
+      if(action==='publishGroupUpdate') {
+        postingContext=await groupContext(tx,actor,sid,input);
+        requireThat(postingContext.m.permissions.publishUpdates===true,'FORBIDDEN');
+      }
       const previous=await tx.get(operationPath);
       if(previous) { requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED'); return previous.result; }
       let result, auditSid=sid;
@@ -160,6 +206,36 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       if(action==='createScenario') {
         admin(actor); const s={id:newId,ownerUid:actor.uid,title:text(input.title,150,true),summary:optional(input.summary,4000),revision:1,createdAt:at};
         tx.set(`scenarios/${newId}`,s); result={id:newId};
+      } else if(action==='saveGroup' || action==='saveSessionGroup') {
+        const session=action==='saveSessionGroup';
+        const id=session ? sid : documentId(input.scenarioId);
+        const parent=session?await checkSession(tx,actor,sid):await checkScenario(tx,actor,id);
+        revision(parent,input.revision);if(session)requireThat(parent.stage!=='ARCHIVED','SESSION_CLOSED');
+        const base=`${session?'sessions':'scenarios'}/${id}`,gid=input.groupId?documentId(input.groupId):newId;
+        const old=input.groupId?await tx.get(`${base}/groups/${gid}`):null;
+        if(input.groupId)requireThat(old,'NOT_FOUND');
+        const next=groupInput(input,gid,old??{});await validateGroupMembers(tx,base,next);
+        const reason=session?text(input.reason,500,true):'Édition du scénario';
+        tx.set(`${base}/groups/${gid}`,next);
+        tx.set(`${base}/groups/${gid}/history/${newId}`,{id:newId,at,actorUid:actor.uid,actorEmail:actor.email,reason,before:old,after:next});
+        tx.set(base,{...parent,revision:parent.revision+1});
+        Object.assign(audit,{groupId:gid,reason,beforeRevision:old?.revision??0,afterRevision:next.revision});
+        result={id:gid};
+      } else if(action==='setGroupModule') {
+        const s=await checkSession(tx,actor,sid);revision(s,input.revision);requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
+        requireThat(typeof input.enabled==='boolean','INVALID_STATUS');const reason=text(input.reason,500,true);
+        tx.set(`sessions/${sid}`,{...s,modules:{...s.modules,groups:input.enabled},revision:s.revision+1});
+        Object.assign(audit,{reason,before:s.modules?.groups===true,after:input.enabled});result={enabled:input.enabled};
+      } else if(action==='publishGroupUpdate') {
+        const {s,c,g}=postingContext;requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');
+        const title=text(input.title,150,true),body=text(input.body,6000,true);
+        const recipients=g.members.filter(m=>m.active && m.revealed && m.permissions.readUpdates);
+        const update={id:newId,at,title,body,authorName:c.public.displayName};
+        tx.set(`sessions/${sid}/groups/${g.id}/updates/${newId}`,{...update,
+          authorUid:actor.uid,authorCharacterId:c.id,recipientIds:recipients.map(m=>m.characterId)});
+        // A member added later receives only future posts, not the group's past.
+        for(const m of recipients)tx.set(`sessions/${sid}/groups/${g.id}/inboxes/${m.characterId}/updates/${newId}`,update);
+        Object.assign(audit,{groupId:g.id,characterId:c.id,updateId:newId});result={id:newId};
       } else if(action==='saveSessionCharacter') {
         const s=await checkSession(tx,actor,sid);revision(s,input.revision);requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
         const cid=documentId(input.characterId),c=await tx.get(charPath(sid,cid));requireThat(c,'NOT_FOUND');
@@ -180,15 +256,16 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         tx.set(`scenarios/${id}`,{...s,revision:s.revision+1}); result={id:cid};
       } else if(action==='publishScenario') {
         const id=documentId(input.scenarioId),s=await checkScenario(tx,actor,id); revision(s,input.revision);
-        const chars=await tx.list(`scenarios/${id}/characters`); requireThat(chars.length>0,'EMPTY_SCENARIO');
-        const version={id:newId,title:s.title,summary:s.summary,sourceRevision:s.revision,createdAt:at,characterCount:chars.length};
+        const [chars,groups]=await Promise.all([tx.list(`scenarios/${id}/characters`),tx.list(`scenarios/${id}/groups`)]); requireThat(chars.length>0,'EMPTY_SCENARIO');
+        const version={id:newId,title:s.title,summary:s.summary,sourceRevision:s.revision,createdAt:at,characterCount:chars.length,groupCount:groups.length};
         tx.set(`scenarios/${id}/versions/${newId}`,version);
         for(const c of chars) tx.set(`scenarios/${id}/versions/${newId}/characters/${c.id}`,c);
+        for(const g of groups)tx.set(`scenarios/${id}/versions/${newId}/groups/${g.id}`,g);
         result={id:newId};
       } else if(action==='createSession') {
         const id=documentId(input.scenarioId), vid=documentId(input.versionId); await checkScenario(tx,actor,id);
         const v=await tx.get(`scenarios/${id}/versions/${vid}`); requireThat(v,'NOT_FOUND');
-        const chars=await tx.list(`scenarios/${id}/versions/${vid}/characters`);
+        const [chars,groups]=await Promise.all([tx.list(`scenarios/${id}/versions/${vid}/characters`),tx.list(`scenarios/${id}/versions/${vid}/groups`)]);
         const capacity=whole(input.capacity); requireThat(capacity>0,'INVALID_CAPACITY');
         const fields=Array.isArray(input.fields) ? input.fields : []; requireThat(fields.length<=20,'TOO_MANY_FIELDS');
         const cleanFields=fields.map(f=>({id:documentId(f.id),label:text(f.label,200,true),required:f.required===true}));
@@ -196,12 +273,16 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         const s={id:newId,ownerUid:actor.uid,scenarioId:id,versionId:vid,title:text(input.title,150,true),summary:v.summary,
           date:optional(input.date,40),time:optional(input.time,80),place:optional(input.place,500),practical:optional(input.practical,4000),
           privacy:text(input.privacy,4000,true),capacity,accepted:0,registrationOpen:false,stage:'PREPARATION',fields:cleanFields,
-          clock:createClock(),revision:1,createdAt:at};
+          clock:createClock(),revision:1,createdAt:at,modules:{groups:groups.length>0}};
         tx.set(`sessions/${newId}`,s);
         for(const c of chars) {
           const next={...c,sessionId:newId,publicCode:c.id,assignedUid:null,contentRevision:1,historyStarted:true};
           tx.set(charPath(newId,c.id),next);
           recordPublication(tx,`sessions/${newId}/characters`,null,next,{id:newId,at,actorUid:actor.uid,reason:'Création depuis la version de scénario',stage:'PREPARATION'});
+        }
+        for(const g of groups) {
+          const next={...g,revision:1};tx.set(`sessions/${newId}/groups/${g.id}`,next);
+          tx.set(`sessions/${newId}/groups/${g.id}/history/${newId}`,{id:newId,at,actorUid:actor.uid,actorEmail:actor.email,reason:'Création depuis la version de scénario',before:null,after:next});
         }
         result={id:newId}; auditSid=newId;
       } else if(action==='setStaff') {

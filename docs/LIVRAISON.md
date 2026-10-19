@@ -16,6 +16,10 @@ Les contrôles d'accès et la traçabilité sont requis dès A. Les imports et o
 
 Rôles MJ/Accueil par session, révocation vérifiée avant tout réessai, relations orientées, objectifs narratifs, historique des publications, suivi de lecture par révision et recherche de participants. 37 tests métier et 24 intégrations réussis localement et sur GitHub ; version publiée et recette navigateur authentifiée à poursuivre. Aucun lot complet déclaré terminé.
 
+## Extension 0.4
+
+Groupes versionnés publics/secrets, appartenances multiples, révélation et visibilité distinctes, quatre droits de lecture/publication, affiliations publiques contrôlées, fil de groupe adressé aux personnages autorisés et historique MJ. 54 tests métier/interface et 39 intégrations réussis localement. La recette complète du lot A et des cercles de REC-04 reste ouverte : voir `VALIDATION-0.4.md`.
+
 ## Préparation réalisée
 
 - Cahier V1 conservé, texte consultable, matrice de 132 exigences.
@@ -30,7 +34,7 @@ Rôles MJ/Accueil par session, révocation vérifiée avant tout réessai, relat
 
 1. Intégrer Storage avec le parcours médias ; Functions, Hosting, Google Authentication et Firestore sont en place.
 2. Recetter dans des navigateurs avec des comptes réels distincts. Adaptateur, règles, jetons, inscriptions et attributions passent les essais sur émulateurs.
-3. Compléter le lot A : groupes, permissions fines par ressource et éditeur étendu. Les rôles fixes MJ/Accueil et les fiches narratives sont développés en 0.3 ; voir `VALIDATION-0.3.md`.
+3. Compléter le lot A : classes, permissions de caisse/stock/transport et éditeur étendu. Les groupes avec droits narratifs sont développés en 0.4. Les rôles fixes MJ/Accueil et les fiches narratives sont développés en 0.3 ; voir `VALIDATION-0.3.md`.
 4. Étendre les commandes et l'éditeur jusqu'au lot E, avec une preuve de recette par exigence.
 5. Compléter la recette d'exploitation et de restauration. La publication GitHub et les contrôles HTTP automatisés sont en place.
 

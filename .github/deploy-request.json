@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "6290e736eecda138b36858002c5a4cb12a8047a9",
-  "requestedAt": "2026-10-19T13:09:02.412573+00:00",
-  "reason": "Publier la version 0.3 : équipe MJ/Accueil et fiches narratives ; 61 tests locaux réussis.",
-  "version": "0.3.0"
+  "sourceCommit": "4c16465588d540817a7fd0017e740b5f44d68037",
+  "requestedAt": "2026-10-19T13:29:04.785823+00:00",
+  "reason": "Publier la version 0.4 : groupes publics/secrets, droits narratifs et informations destinées aux membres ; 93 tests locaux réussis.",
+  "version": "0.4.0"
 }

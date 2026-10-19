@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.3 : équipe de session, relations, objectifs narratifs et historique des fiches.**
+**Version 0.4 : groupes publics/secrets et partage d’informations selon les droits de chaque personnage.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -23,6 +23,12 @@ L’accueil et le rythme de jeu sont indépendants. Le MJ peut éditer les fiche
 Dans une session, le propriétaire peut déléguer un accès **Accueil** ou **MJ** à une adresse Google. Accueil gère les participants sans recevoir leurs secrets de personnage ; MJ dispose aussi des fiches complètes et du pilotage du jeu. La délégation ne s’étend ni aux autres sessions ni au scénario.
 
 Les fiches proposent des relations orientées et des objectifs narratifs, publiables séparément. L’historique conserve les versions destinées au joueur. Une modification de session demande un motif et une nouvelle confirmation de lecture. Aucun calcul de mission ni récompense automatique à ce stade.
+
+## Groupes et partage
+
+Le scénario et la session disposent d'un éditeur de groupes publics ou secrets. Chaque personnage peut avoir plusieurs appartenances, avec révélation et permissions séparées. Le rôle Accueil ne reçoit aucun contenu de groupe. Seules les affiliations explicitement publiques apparaissent sur les badges.
+
+Un membre peut être autorisé à lire le briefing, consulter les membres révélés, recevoir des informations et/ou en publier pendant le jeu. Un nouveau membre ne récupère pas automatiquement le passé du groupe. La désactivation des espaces ferme les lectures et publications joueurs sans effacer les données. [Parcours et limites de la version 0.4](docs/VALIDATION-0.4.md).
 
 ## Infrastructure configurée
 
@@ -45,7 +51,7 @@ npm test
 npm run test:emulator
 ```
 
-37 tests métier et 24 tests d’intégration passent localement et sur GitHub. La version 0.3 est publiée sur Firebase. Voir [le rapport 0.3 et ses limites](docs/VALIDATION-0.3.md).
+54 tests métier/interface et 39 intégrations passent localement. Voir [le rapport 0.4 et ses limites](docs/VALIDATION-0.4.md).
 
 ## Publier
 
@@ -74,7 +80,7 @@ Le workflow vérifie les tests, compile puis publie la fonction `api` via Google
 
 ## Périmètre restant
 
-Ce premier parcours ne termine pas tout le lot A ni les 132 exigences : groupes et permissions fines, autres modes de connexion, récupération sans Google, pièces jointes, import/export, terrain, économie et vaisseaux restent à intégrer. Pas de démonstration de charge à 60/120 joueurs ni de recette navigateur en production.
+Ce premier parcours ne termine pas tout le lot A ni les 132 exigences : classes et permissions de caisse/stock/transport, invitations de groupe entre joueurs, autres modes de connexion, récupération sans Google, pièces jointes, import/export, terrain, économie et vaisseaux restent à intégrer. Pas de démonstration de charge à 60/120 joueurs ni de recette navigateur en production.
 
 Les versions et copies utilisent des transactions Firestore. Aucun plafond métier de casting ; les limites de taille des transactions devront être mesurées sur les contenus réels.
 
