@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "4dbbe5d6c7267b5e0d5056d0013de2a9393b99f5",
-  "requestedAt": "2026-10-19T14:27:58.422957+00:00",
-  "reason": "Publier la 0.6 : carnet privé par participant/session et copies explicitement confirmées ; 156 tests locaux réussis.",
+  "sourceCommit": "3e9a3ba3f497667b87bc9a157776a868bfc1af05",
+  "requestedAt": "2026-10-19T14:33:07.099200+00:00",
+  "reason": "Publier la 0.6 après correction du test de changement d’alias : sélectionner l’auteur par son identifiant, indépendamment de l’ordre Firestore.",
   "version": "0.6.0"
 }

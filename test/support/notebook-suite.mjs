@@ -107,7 +107,7 @@ export function notebookSuite(makeStore,prefix='carnet'){
   test(`${prefix} : version affichée et identité de l’auteur figées avant confirmation`,async()=>{
     const f=await fixture(),n=await f.save();await f.stage('EN_JEU');const p=await f.prepare(n.id);
     await f.save(f.alice,{noteId:n.id,revision:1,body:'VERSION_2'});await assert.rejects(f.share(p),err('STALE_REVISION'));assert.deepEqual((await f.session()).knowledge,[]);
-    const p2=await f.prepare(n.id),s=await f.session(),c=s.characters[0];
+    const p2=await f.prepare(n.id),s=await f.session(),c=s.characters.find(c=>c.id===f.characters[0]);
     await f.cmd('saveSessionCharacter',f.owner,{sessionId:f.sessionId,characterId:c.id,revision:s.revision,displayName:'Nouvel alias',publicationState:'PUBLISHED',reason:'Alias changé'});
     await assert.rejects(f.share(p2),err('STALE_REVISION'));
   });

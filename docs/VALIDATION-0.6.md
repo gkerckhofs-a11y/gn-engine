@@ -41,6 +41,7 @@ Le document partagé, les reçus, les journaux et le résultat idempotent sont �
 - Total : 156 tests réussis. Le nouveau test HTTP utilise la véritable fonction exportée et les jetons Auth de l'émulateur : accès de l'auteur, refus pour MJ/autre compte/anonyme, préparation sans effet puis copie confirmée.
 - Les parcours couvrent confidentialité des métadonnées, usurpation de paramètres, délégations, réattribution, nouvelles sessions, édition concurrente, classement/restauration, snapshots, double partage, confirmation périmée, changement de destinataire, révocation, phases et droit de retransmission.
 - Les tests d'interface vérifient l'échappement des contenus, les contrôles conditionnels, les filtres et les informations de confirmation. Ils ne remplacent pas une recette dans des navigateurs avec de vrais comptes distincts.
+- Premier passage GitHub bloqué par un test choisissant un personnage selon l’ordre des résultats Firestore. Correction : sélection explicite de l’auteur par son identifiant, puis nouvelle vérification ciblée et relance de la suite complète sur GitHub.
 - Aucune note, copie, identité ou donnée de jeu de test créée en production.
 
 ## Parcours joueur
