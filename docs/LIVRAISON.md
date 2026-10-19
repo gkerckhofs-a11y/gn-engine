@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n'est encore validé. Version 0.5 publiée sur https://gn-engine.web.app/ : 71 tests métier/interface et 54 intégrations réussis sur GitHub, avec vérifications locales. L'accueil public et les contrôles HTTP sont vérifiés ; la recette complète avec des comptes joueurs distincts reste à faire. Voir `VALIDATION-0.5.md` et les rapports historiques 0.2/0.3/0.4. Le découpage ne réduit pas le périmètre du cahier.
+19 octobre 2026. Aucun lot complet n'est encore validé. Version 0.6 publiée sur https://gn-engine.web.app/ : 87 tests métier/interface et 69 intégrations réussis sur GitHub, avec vérifications locales. L'accueil public, les écrans de carnet sans connexion et les contrôles HTTP sont vérifiés ; la recette complète avec des comptes joueurs distincts reste à faire. Voir `VALIDATION-0.6.md` et les rapports historiques 0.2/0.3/0.4/0.5. Le découpage ne réduit pas le périmètre du cahier.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -26,7 +26,7 @@ Connaissances textuelles et indices versionnés, reçus propres aux personnages,
 
 ## Extension 0.6
 
-Carnet privé par compte/session, notes classables, protection contre la réattribution et copies explicites vers un badge public. La confirmation indique le texte, les identités, le droit de retransmission et l'accès MJ à la copie partagée. 156 tests locaux réussis ; publication et limites suivies dans `VALIDATION-0.6.md`.
+Carnet privé par compte/session, notes classables, protection contre la réattribution et copies explicites vers un badge public. La confirmation indique le texte, les identités, le droit de retransmission et l'accès MJ à la copie partagée. 156 tests réussis localement et sur GitHub ; version publiée avec manifeste 0.6.0 et refus anonyme vérifiés. Preuves et limites dans `VALIDATION-0.6.md`.
 
 ## Préparation réalisée
 

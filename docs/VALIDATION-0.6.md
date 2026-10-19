@@ -33,7 +33,7 @@ Les sauvegardes comparent la révision du carnet : deux éditions simultanées n
 
 Le document partagé, les reçus, les journaux et le résultat idempotent sont écrits dans la même transaction. Les droits courants, retraits et dépublications sont vérifiés avant un résultat mémorisé. La clé de document distingue note, version, personnage/alias de l'auteur et mode de retransmission : plusieurs demandes identiques restent un seul document et un seul reçu par personnage.
 
-## Vérifications locales
+## Vérifications locales et GitHub
 
 - `npm run build` : compilation réussie.
 - `npm test` : 87 tests réussis, dont 14 parcours de carnet et 2 tests d'interface supplémentaires.
@@ -62,4 +62,11 @@ Le document partagé, les reçus, les journaux et le résultat idempotent sont �
 
 ## Publication
 
-La version est préparée pour le workflow GitHub/Firebase autorisé. La preuve du déploiement et le contrôle du site publié seront consignés après leur réussite.
+Le [workflow 39270014477](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39270014477), exécuté sur le commit `fd918a1f52a077548e896730acd7427971b38fea`, s'est terminé avec succès le 19 octobre 2026 à 14:37 UTC.
+
+- Vérification GitHub : 87 tests métier/interface et 69 intégrations réussis, aucun échec. La sélection du personnage par identifiant corrige le test instable du premier passage sans modifier son assertion ni le code métier.
+- Fonction `api`, Hosting, règles et index Firestore publiés dans le projet `gn-engine` par le workflow autorisé.
+- Contrôle HTTP du workflow : accueil disponible, manifeste `0.6.0` exact, appels anonymes `dashboard`, `myNotes`, `noteDetail` et `shareNote` refusés avec `401 LOGIN_REQUIRED`.
+- Contrôle navigateur après publication sur [GN Engine](https://gn-engine.web.app/) : pied de page 0.6 ; routes de carnet et de note avec identifiants fictifs affichant seulement la demande de connexion, sans données privées. Retour à l'accueil vérifié.
+- [Capture du carnet sans connexion](verification/gn-engine-0.6-1792420712276.jpg). Cette capture prouve l'écran protégé publié, pas une recette des formulaires privés authentifiés.
+- Aucune donnée de jeu créée pour ces contrôles en production. La recette sur comptes Google distincts et mobile reste ouverte.

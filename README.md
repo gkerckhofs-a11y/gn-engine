@@ -59,7 +59,7 @@ npm test
 npm run test:emulator
 ```
 
-**87 tests métier/interface et 69 intégrations** passent localement, soit 156 tests. La preuve du déploiement 0.6 et les limites sont consignées dans [le rapport 0.6](docs/VALIDATION-0.6.md).
+**87 tests métier/interface et 69 intégrations** passent localement et sur GitHub, soit 156 tests. La version 0.6 est publiée ; le manifeste et les refus d'accès anonymes sont vérifiés. La preuve du déploiement et les limites sont consignées dans [le rapport 0.6](docs/VALIDATION-0.6.md).
 
 ## Publier
 
