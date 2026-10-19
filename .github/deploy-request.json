@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "0e5317eec1695520ccea70aafff04850467282e1",
-  "requestedAt": "2026-10-19T14:53:38.260918+00:00",
-  "reason": "Publier la 0.7 : classes et compétences passives, profils confirmés et QR conditionnels ; 186 tests locaux réussis.",
-  "version": "0.7.0"
+  "sourceCommit": "522e9acff51ef2e54cf5086db0072787322091ac",
+  "requestedAt": "2026-10-19T15:19:01.127465+00:00",
+  "reason": "Publier la 0.8 : PV, dégâts et soins configurables, usages uniques et délai en temps de jeu.",
+  "version": "0.8.0"
 }

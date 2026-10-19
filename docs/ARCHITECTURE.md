@@ -69,7 +69,15 @@ Le carnet est rangé sous la session puis sous l'empreinte de l'UID authentifié
 
 Les compétences passives et classes sont conservées dans les bibliothèques de scénario, versions figées et sessions. Chaque personnage reçoit un profil copié et publié explicitement, avec ses exceptions individuelles. La projection joueur filtre les données réservées aux MJ ; le badge et le rôle Accueil ne reçoivent pas ce profil. Une confirmation lie le profil calculé à la révision du contexte et de la fiche. Les changements de catalogue ne réécrivent pas les profils attribués.
 
-Une découverte QR peut exiger un identifiant de compétence et un niveau minimum dans le profil publié du personnage authentifié. Ce contrôle précède le résultat mémorisé. Les reçus de connaissances restent distincts du savoir mécanique et demeurent lisibles selon leurs propres droits après le retrait de la compétence. Voir `VALIDATION-0.7.md` ; compétences actives, coûts et autres conditions restent à développer.
+Une découverte QR peut exiger un identifiant de compétence et un niveau minimum dans le profil publié du personnage authentifié. Ce contrôle précède le résultat mémorisé. Les reçus de connaissances restent distincts du savoir mécanique et demeurent lisibles selon leurs propres droits après le retrait de la compétence. Voir `VALIDATION-0.7.md` pour cette étape ; les soins actifs sont ajoutés en 0.8.
+
+### Implémentation 0.8
+
+Les règles facultatives `healthRules` sont copiées du scénario à la version puis à la session. Les personnages portent `hp`, `maxHp`, `outOfCombat` et `healthRevision`. Activer une session ancienne initialise seulement les personnages sans maximum ; les valeurs existantes ne sont jamais remises à zéro par une réactivation. Les PV ne constituent pas une nouvelle version du texte de briefing.
+
+Les profils de compétences acceptent les soins instantanés sur soi ou sur un autre personnage actif de la même session. Leurs paramètres sont copiés avec le profil attribué. La préparation lie le récapitulatif aux règles, au profil, aux droits courants, à l’état de la cible et aux usages. La confirmation relit ces données et applique atomiquement l’état, l’usage, l’historique et le résultat idempotent. Le cooldown utilise `gameTime`, donc exclut les pauses. Les compteurs `characters/{id}/skillUses/{skillId}` survivent aux changements de profil et de titulaire ; seule une nouvelle session recommence sans usages consommés.
+
+Le serveur applique les permissions hors combat aux découvertes, partages de connaissances et notes, publications de groupe et soins. La lecture et les notes privées restent accessibles. L’état zéro PV n’entraîne ni mort définitive ni transfert. Les historiques joueurs retirent les UID et motifs MJ ; le soignant voit les PV nécessaires au récapitulatif de sa cible. Le rôle Accueil et les badges ne reçoivent pas les PV. Voir `VALIDATION-0.8.md` pour la portée exacte et les limites.
 
 ## Commandes et concurrence
 

@@ -219,10 +219,11 @@
       "sourceLine": 104,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_8_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.8.md ; src/core/health.mjs ; src/core/health-state.mjs ; web/health.mjs ; test/support/health-suite.mjs ; test/health-ui.test.mjs ; test/integration",
+      "implementedScope": "PV et état hors combat sur la fiche, accès direct à la déclaration des dégâts et aux soins. Navigation globale et scan caméra encore incomplets."
     },
     {
       "id": "UX-02",
@@ -335,11 +336,11 @@
       "sourceLine": 129,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_7",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_8_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.7.md ; src/core/abilities.mjs ; src/core/knowledge.mjs ; web/abilities.mjs ; test/support/abilities-suite.mjs ; test/integration",
-      "implementedScope": "Compétences passives identifiées, nom, description, consignes, catégorie, version et niveau. Attribution par classe et exceptions MJ, publication avec la fiche. Compétences actives, objets, apprentissage et catalogue initial complet restant."
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.8.md ; src/core/health.mjs ; src/core/health-state.mjs ; web/health.mjs ; test/support/health-suite.mjs ; test/health-ui.test.mjs ; test/integration",
+      "implementedScope": "Compétences passives et soins actifs sur soi/cible, paramètres copiés avec le profil classe ou individuel confirmé. Autres effets, objets, apprentissage et catalogue complet restant."
     },
     {
       "id": "COM-02",
@@ -347,10 +348,11 @@
       "sourceLine": 140,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_8_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.8.md ; src/core/health.mjs ; src/core/health-state.mjs ; web/health.mjs ; test/support/health-suite.mjs ; test/health-ui.test.mjs ; test/integration",
+      "implementedScope": "Soin instantané avec usages facultatifs par session et délai en temps de jeu ; coûts affichés avant confirmation. Pas de PA imposés. Consommables et réservations différées restant."
     },
     {
       "id": "COM-03",
@@ -358,10 +360,11 @@
       "sourceLine": 142,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_8_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.8.md ; src/core/health.mjs ; src/core/health-state.mjs ; web/health.mjs ; test/support/health-suite.mjs ; test/health-ui.test.mjs ; test/integration",
+      "implementedScope": "Dégâts et soins idempotents, droits actuels revérifiés, PV et usage atomiques. Pas de dés ni consommation d’objet à ce stade."
     },
     {
       "id": "COM-04",
@@ -404,10 +407,11 @@
       "sourceLine": 154,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_8_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.8.md ; src/core/health.mjs ; src/core/health-state.mjs ; web/health.mjs ; test/support/health-suite.mjs ; test/health-ui.test.mjs ; test/integration",
+      "implementedScope": "Préparation sans effet par badge, cible et avant/après explicites, confirmation transactionnelle du soin. Pas de scan caméra, objets requis ou action différée."
     },
     {
       "id": "ACT-02",
@@ -415,10 +419,11 @@
       "sourceLine": 155,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_8_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.8.md ; src/core/health.mjs ; src/core/health-state.mjs ; web/health.mjs ; test/support/health-suite.mjs ; test/health-ui.test.mjs ; test/integration",
+      "implementedScope": "Soin direct : alias du soignant et soin reçu dans l’historique, trace MJ complète. Pas de confirmation par la cible, mode discret ou notification poussée."
     },
     {
       "id": "ACT-03",
@@ -426,10 +431,11 @@
       "sourceLine": 158,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_8_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.8.md ; src/core/health.mjs ; src/core/health-state.mjs ; web/health.mjs ; test/support/health-suite.mjs ; test/health-ui.test.mjs ; test/integration",
+      "implementedScope": "Deux soins ou dégâts confirmés sur un même état ne se valident pas silencieusement ; conflit à repréparer, aucune double consommation. Réservations longues, interruption et opposition restant."
     },
     {
       "id": "ACT-04",
@@ -448,10 +454,11 @@
       "sourceLine": 163,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_8_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.8.md ; src/core/health.mjs ; src/core/health-state.mjs ; web/health.mjs ; test/support/health-suite.mjs ; test/health-ui.test.mjs ; test/integration",
+      "implementedScope": "PV actuels/maximum, hors combat et défaut facultatif visible dans scénario/session. Protections, immunités, blessures et autres états restant."
     },
     {
       "id": "VIE-02",
@@ -459,10 +466,11 @@
       "sourceLine": 164,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_8_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.8.md ; src/core/health.mjs ; src/core/health-state.mjs ; web/health.mjs ; test/support/health-suite.mjs ; test/health-ui.test.mjs ; test/integration",
+      "implementedScope": "Accès rapide, quantité entière déclarée après affrontement et confirmation du nouveau total borné à zéro. Armes et modificateurs restant."
     },
     {
       "id": "VIE-03",
@@ -470,10 +478,11 @@
       "sourceLine": 167,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_8_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.8.md ; src/core/health.mjs ; src/core/health-state.mjs ; web/health.mjs ; test/support/health-suite.mjs ; test/health-ui.test.mjs ; test/integration",
+      "implementedScope": "Zéro PV hors combat ; quatre actions intégrées configurables et retour par MJ ou soin positif. Aucune mort automatique. Délai de secours et autres actions restant."
     },
     {
       "id": "VIE-04",
@@ -481,10 +490,11 @@
       "sourceLine": 168,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_8_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.8.md ; src/core/health.mjs ; src/core/health-state.mjs ; web/health.mjs ; test/support/health-suite.mjs ; test/health-ui.test.mjs ; test/integration",
+      "implementedScope": "Soin sur soi ou personnage actif via badge, PV bornés au maximum, usages et délai. Retrait d’états, stabilisation, consommables et diagnostic étendu restant."
     },
     {
       "id": "VIE-05",
@@ -492,10 +502,11 @@
       "sourceLine": 171,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_8_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.8.md ; src/core/health.mjs ; src/core/health-state.mjs ; web/health.mjs ; test/support/health-suite.mjs ; test/health-ui.test.mjs ; test/integration",
+      "implementedScope": "Hors combat distinct de la fiche narrative, correction PV sans réinitialisation du reste ni transfert de biens. Détention, désarmement, blessures et alertes restant."
     },
     {
       "id": "INV-01",
@@ -1436,10 +1447,11 @@
       "sourceLine": 376,
       "lot": "E",
       "prototype": "NON_VERIFIE",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_8_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.8.md ; src/core/health.mjs ; src/core/health-state.mjs ; web/health.mjs ; test/support/health-suite.mjs ; test/health-ui.test.mjs ; test/integration",
+      "implementedScope": "Parcours automatisé dégâts, zéro PV, soin, retour configuré et historique ; concurrence et usage unique vérifiés. Stock médical et recette terrain multi-comptes non réalisés."
     },
     {
       "id": "REC-08",

@@ -1,3 +1,4 @@
+import {requireGameAction,canGameAction} from './health-state.mjs';
 import {createHash} from 'node:crypto';
 import {requireThat,documentId} from './validation.mjs';
 import {knowledgeSnapshot} from './knowledge.mjs';
@@ -25,6 +26,7 @@ export function createNotebookService({store,signed,now,uuid}){
   }
   async function ownNote(tx,base,id){const note=await tx.get(`${base}/${documentId(id)}`);requireThat(note,'FORBIDDEN');return note;}
   async function shareContext(tx,actor,input,ctx){
+    requireGameAction(ctx.s,ctx.c,'share');
     const {s,c,base}=ctx,note=await ownNote(tx,base,input.noteId);
     requireThat(!note.archived,'NOTE_ARCHIVED');requireThat(note.revision===input.revision,'STALE_REVISION');
     // Reassignment between preview and confirmation must not send under a different character identity.
@@ -58,7 +60,7 @@ export function createNotebookService({store,signed,now,uuid}){
       if(action==='noteDetail'){
         const n=await ownNote(tx,base,input.noteId);
         const shares=await tx.list(`${base}/${n.id}/shares`,null,{orderBy:'at',direction:'desc',limit:30});
-        return {session:{id:s.id,stage:s.stage},character:{id:c.id,displayName:c.public.displayName},note:view(n),
+        return {session:{id:s.id,stage:s.stage},character:{id:c.id,displayName:c.public.displayName},canShare:canGameAction(s,c,'share'),note:view(n),
           shares:shares.map(x=>({id:x.id,at:x.at,knowledgeId:x.knowledgeId,revision:x.revision,recipientName:x.recipientName,authorName:x.authorName,shareMode:x.shareMode}))};
       }
       if(action==='prepareNoteShare'){

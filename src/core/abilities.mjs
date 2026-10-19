@@ -1,3 +1,4 @@
+import {healingInput} from './health-state.mjs';
 import {createHash} from 'node:crypto';
 import {requireThat,documentId,whole} from './validation.mjs';
 import {recordPublication} from './narrative.mjs';
@@ -14,9 +15,10 @@ const levels=(value,allowZero=false)=>{
   return result.sort((a,b)=>a.skillId.localeCompare(b.skillId));
 };
 export function skillInput(input,id,old={}){
-  // Only passive expertise is executable in this release. Unknown kinds are never treated as passive.
-  requireThat(input.kind==='PASSIVE','UNSUPPORTED_ABILITY');
-  return {id,kind:'PASSIVE',name:text(input.name,150,true),description:text(input.description??'',6000),
+  // Unsupported effects never become an executable action.
+  requireThat(['PASSIVE','ACTIVE_SELF','ACTIVE_TARGET'].includes(input.kind),'UNSUPPORTED_ABILITY');
+  const healing=input.kind==='PASSIVE'?null:healingInput(input.healing);
+  return {id,kind:input.kind,healing,name:text(input.name,150,true),description:text(input.description??'',6000),
     instructions:text(input.instructions??'',6000),category:text(input.category??'',150),
     gmNotes:text(input.gmNotes??'',10000),publicationState:publication(input.publicationState),revision:(old.revision??0)+1};
 }
@@ -29,10 +31,10 @@ export function playerAbilities(profile){
   if(!profile?.published)return null;
   return {className:profile.class?.name??'',classDescription:profile.class?.description??'',
     skills:profile.skills.map(s=>({id:s.id,name:s.name,description:s.description,instructions:s.instructions,
-      category:s.category,kind:s.kind,level:s.level,revision:s.revision}))};
+      category:s.category,kind:s.kind,healing:s.healing??null,level:s.level,revision:s.revision}))};
 }
 export function abilityLevel(character,skillId){
-  return playerAbilities(character.abilityProfile)?.skills.find(s=>s.id===skillId)?.level??0;
+  return playerAbilities(character.abilityProfile)?.skills.find(s=>s.id===skillId&&s.kind==='PASSIVE')?.level??0;
 }
 const writes=new Set(['saveSkill','saveSessionSkill','saveClass','saveSessionClass','setAbilityProfile']);
 export const abilityAction=a=>writes.has(a)||['prepareAbilityProfile','abilityHistory'].includes(a);
@@ -58,8 +60,8 @@ export function createAbilityService({store,signed,checkSession,checkScenario,no
     requireThat(picked.size<=60,'INVALID_ABILITY');const skills=[];
     for(const [id,level] of [...picked].sort(([a],[b])=>a.localeCompare(b))){
       const s=await tx.get(`${base}/skills/${id}`);
-      requireThat(s?.publicationState==='PUBLISHED' && s.kind==='PASSIVE','ABILITY_UNPUBLISHED');
-      skills.push({id,name:s.name,description:s.description,instructions:s.instructions,category:s.category,kind:s.kind,revision:s.revision,level});
+      requireThat(s?.publicationState==='PUBLISHED' && ['PASSIVE','ACTIVE_SELF','ACTIVE_TARGET'].includes(s.kind),'ABILITY_UNPUBLISHED');
+      skills.push({id,name:s.name,description:s.description,instructions:s.instructions,category:s.category,kind:s.kind,healing:s.healing??null,revision:s.revision,level});
     }
     const next={revision:(c.abilityProfile?.revision??0)+1,published:input.published,
       class:model?{id:model.id,name:model.name,description:model.description,revision:model.revision}:null,

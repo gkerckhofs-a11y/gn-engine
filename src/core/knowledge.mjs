@@ -1,3 +1,4 @@
+import {requireGameAction,canGameAction} from './health-state.mjs';
 import {abilityLevel} from './abilities.mjs';
 import {createHash} from 'node:crypto';
 import {requireThat,documentId} from './validation.mjs';
@@ -94,12 +95,12 @@ export function createKnowledgeService({store,signed,checkSession,checkScenario,
       const {k,r}=await known(tx,s.id,c.id,documentId(input.knowledgeId));
       if(action==='prepareKnowledgeShare'){
         requireThat((r.grantRevision??0)===input.receiptRevision,'STALE_REVISION');
-        requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireThat(view(k,r).canCopy,'SHARING_DISABLED');
+        requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,c,'share');requireThat(view(k,r).canCopy,'SHARING_DISABLED');
         const recipient=await target(tx,s.id,documentId(input.recipientId),c.id);
         const recipientReceipt=await tx.get(receiptPath(s.id,recipient.id,k.id));requireThat(!recipientReceipt||recipientReceipt.active,'FORBIDDEN');
         return {recipient:{id:recipient.id,displayName:recipient.public.displayName},knowledge:{id:k.id,title:r.snapshot.title},authorName:c.public.displayName,receiptRevision:r.grantRevision??0};
       }
-      return {session:{id:s.id,stage:s.stage},preview,knowledge:view(k,r,true)};
+      return {session:{id:s.id,stage:s.stage},preview,canShare:canGameAction(s,c,'share'),knowledge:view(k,r,true)};
     });
     const requestId=documentId(input.requestId),operationPath=`operations/${hash(`${actor.uid}:${requestId}`)}`;
     const fingerprint=hash(JSON.stringify([action,input])),newId=uuid();
@@ -112,6 +113,7 @@ export function createKnowledgeService({store,signed,checkSession,checkScenario,
       } else {
         ({s,c}=await context(tx,actor,input));const kid=documentId(input.knowledgeId);
         if(action==='discoverKnowledge'){
+          requireGameAction(s,c,'discover');
           k=await tx.get(`sessions/${s.id}/knowledge/${kid}`);
           requireThat(k?.publicationState==='PUBLISHED' && k.qrEnabled && (k.qrAudience==='ALL_PLAYERS'||k.qrCharacterIds.includes(c.id)),'FORBIDDEN');
           requireThat(!k.qrSkillId||abilityLevel(c,k.qrSkillId)>=k.qrSkillLevel,'FORBIDDEN');
@@ -119,6 +121,7 @@ export function createKnowledgeService({store,signed,checkSession,checkScenario,
         }else ({k,r}=await known(tx,s.id,c.id,kid));
         if(action==='markKnowledgeRead'||action==='shareKnowledge')requireThat((r.grantRevision??0)===input.receiptRevision,'STALE_REVISION');
         if(action==='shareKnowledge'){
+          requireGameAction(s,c,'share');
           requireThat(view(k,r).canCopy,'SHARING_DISABLED');recipient=await target(tx,s.id,documentId(input.recipientId),c.id);
           recipientReceipt=await tx.get(receiptPath(s.id,recipient.id,k.id));requireThat(!recipientReceipt||recipientReceipt.active,'FORBIDDEN');
         }

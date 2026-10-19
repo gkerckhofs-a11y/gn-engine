@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.7 : classes, compétences passives et découvertes QR conditionnelles.**
+**Version 0.8 : PV, dégâts déclarés et soins avec usages et délai de récupération.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -40,7 +40,11 @@ Les notes appartiennent au compte participant dans sa session. Un changement de 
 
 ## Classes et compétences
 
-Préparez des compétences passives et assemblez-les en classes. Sur chaque personnage, choisissez une classe et des exceptions individuelles, puis confirmez le profil affiché avant/après. Les copies attribuées ne changent pas lorsque le catalogue est modifié. Une expertise publiée peut conditionner une découverte QR avec un niveau minimum ; retirer le savoir n'efface pas un texte déjà acquis. Compétences actives et coûts restent à développer. [Parcours et limites 0.7](docs/VALIDATION-0.7.md).
+Préparez des compétences passives ou des soins et assemblez-les en classes. Sur chaque personnage, choisissez une classe et des exceptions individuelles, puis confirmez le profil affiché avant/après. Les copies attribuées ne changent pas lorsque le catalogue est modifié. Une expertise publiée peut conditionner une découverte QR avec un niveau minimum ; retirer le savoir n'efface pas un texte déjà acquis. Les soins actifs sont ajoutés en 0.8 ; les autres actions et coûts restent à développer. [Parcours et limites 0.7](docs/VALIDATION-0.7.md).
+
+## PV, dégâts et soins
+
+Le MJ active le suivi des PV et choisit les valeurs initiales, les actions permises hors combat et la règle de retour en jeu. Le joueur déclare ses dégâts après l’affrontement, puis confirme le résultat. Les compétences de soin sur soi ou sur un autre badge ont un montant fixe, des usages facultatifs par session et un délai suivant le temps de jeu. Les effets et usages sont appliqués ensemble une seule fois. Une correction MJ conserve le reste du personnage. Aucun inventaire médical ni effet différé à ce stade. [Parcours et limites 0.8](docs/VALIDATION-0.8.md).
 
 ## Infrastructure configurée
 
@@ -63,7 +67,7 @@ npm test
 npm run test:emulator
 ```
 
-**103 tests métier/interface et 83 intégrations** passent localement et sur GitHub, soit 186 tests. La version 0.7 est publiée ; le manifeste, les refus anonymes et l’accueil du site sont vérifiés. Preuves et limites dans [le rapport 0.7](docs/VALIDATION-0.7.md).
+La version 0.8 ajoute les tests métier, interface et HTTP des PV et des soins. Résultats locaux, publication et preuves GitHub sont consignés dans [le rapport 0.8](docs/VALIDATION-0.8.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 

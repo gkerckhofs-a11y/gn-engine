@@ -28,7 +28,7 @@ const version=await waitForAvailability(`${origin}/version.json?release=${encode
 assert.equal(version.status,200,'Le manifeste de version doit être accessible');
 assert.equal((await version.json()).version,expected,'Hosting doit servir la version demandée');
 
-for(const action of ['dashboard','myNotes','noteDetail','shareNote','prepareAbilityProfile','setAbilityProfile','abilityHistory']){
+for(const action of ['dashboard','myNotes','noteDetail','shareNote','prepareAbilityProfile','setAbilityProfile','abilityHistory','myHealth','prepareDamage','applyDamage','prepareTreatment','applyTreatment','correctHealth','healthHistory']){
   const api=await waitForAvailability(`${origin}/api/check`,{
     method:'POST',headers:{'content-type':'application/json'},
     body:JSON.stringify({action,input:{sessionId:'verification',noteId:'verification',requestId:'verification'}}),

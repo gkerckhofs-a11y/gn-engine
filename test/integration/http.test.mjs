@@ -16,6 +16,37 @@ const request=async(action,input={},token)=>{
   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,input})});
   return {status:response.status,...await response.json()};
 };
+
+test('HTTP + Auth : PV privés, dégât personnel et soin confirmé avec usage unique',async()=>{
+  const owner=await googleTestAccount('gkerckhofs@gmail.com'),healer=await googleTestAccount(`heal-${randomUUID()}@example.invalid`),patient=await googleTestAccount(`patient-${randomUUID()}@example.invalid`);
+  const command=async(action,input={},token=owner)=>{const r=await request(action,{requestId:randomUUID(),...input},token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};
+  const {id:scenarioId}=await command('createScenario',{title:'PV HTTP'}),characters=[];
+  const scenario=async()=>(await request('scenario',{scenarioId},owner)).result;
+  for(const name of ['Soignant','Patient'])characters.push((await command('saveCharacter',{scenarioId,revision:(await scenario()).revision,displayName:name,publicationState:'PUBLISHED'})).id);
+  const {id:skillId}=await command('saveSkill',{scenarioId,revision:(await scenario()).revision,name:'Soin HTTP',kind:'ACTIVE_TARGET',publicationState:'PUBLISHED',healing:{effect:'HEAL_HP',amount:3,uses:1,cooldownSeconds:0},gmNotes:'SECRET_HTTP_SOIN'});
+  const profile={scenarioId,revision:(await scenario()).revision,characterId:characters[0],classId:null,overrides:[{skillId,level:1}],published:true};
+  const prepared=await request('prepareAbilityProfile',profile,owner);assert.equal(prepared.status,200);await command('setAbilityProfile',{...profile,confirmation:prepared.result.confirmation});
+  await command('saveScenarioHealth',{scenarioId,revision:(await scenario()).revision,rules:{enabled:true,defaultMaxHp:10,returnMode:'MJ',allowed:{}}});
+  const {id:versionId}=await command('publishScenario',{scenarioId,revision:(await scenario()).revision}),{id:sessionId}=await command('createSession',{scenarioId,versionId,title:'Soins HTTP',capacity:2,privacy:'Fictif'});
+  const session=async()=>(await request('session',{sessionId},owner)).result;
+  await command('setRegistrationOpen',{sessionId,revision:1,open:true});
+  for(const [i,token] of [healer,patient].entries()){
+    const uid=(await request('identity',{},token)).result.uid;await command('register',{sessionId,name:'Test'},token);await command('assign',{sessionId,uid,characterId:characters[i]});
+    const invitation=randomBytes(32).toString('base64url');await command('issueInvitation',{sessionId,uid,tokenHash:hash(invitation),hours:1});assert.equal((await request('redeem',{sessionId,token:invitation},token)).status,200);
+  }
+  for(const stage of ['BRIEFING','EN_JEU'])await command('setStage',{sessionId,revision:(await session()).revision,stage});
+  for(const action of ['myHealth','prepareDamage','applyDamage','prepareTreatment','applyTreatment','correctHealth','healthHistory'])assert.equal((await request(action,{sessionId,requestId:randomUUID()})).status,401);
+  const damage={sessionId,amount:5,characterId:characters[0]},dp=await request('prepareDamage',damage,patient);assert.equal(dp.result.characterName,'Patient');await command('applyDamage',{...damage,confirmation:dp.result.confirmation},patient);
+  assert.equal((await request('myHealth',{sessionId},healer)).result.health.hp,10);
+  assert.equal((await request('myHealth',{sessionId,characterId:characters[0]},patient)).result.health.hp,5);
+  assert.equal((await request('correctHealth',{sessionId,requestId:randomUUID(),admin:true},patient)).status,403);
+  const input={sessionId,skillId,targetId:characters[1]},p=await request('prepareTreatment',input,healer);assert.equal(p.status,200);
+  assert.equal((await request('prepareTreatment',{sessionId,skillId,targetId:characters[0]},patient)).status,403);
+  const confirmed={...input,requestId:randomUUID(),confirmation:p.result.confirmation},a=await request('applyTreatment',confirmed,healer);assert.equal(a.status,200);assert.deepEqual(await request('applyTreatment',confirmed,healer),a);
+  const own=await request('myHealth',{sessionId},healer);assert.equal(own.result.skills[0].remaining,0);assert.equal(JSON.stringify(own).includes('SECRET_HTTP_SOIN'),false);
+  assert.equal((await request('myHealth',{sessionId},patient)).result.health.hp,8);
+  const denied=await request('prepareTreatment',input,healer);assert.equal(denied.error,'NO_USES_LEFT');
+});
 async function googleTestAccount(email){
   // Only Auth Emulator accepts these unsigned synthetic Google assertions.
   const enc=x=>Buffer.from(JSON.stringify(x)).toString('base64url');

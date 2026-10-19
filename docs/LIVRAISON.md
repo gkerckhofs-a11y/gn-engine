@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n'est encore validé. Version 0.7 publiée sur https://gn-engine.web.app/ : 103 tests métier/interface et 83 intégrations réussis sur GitHub, avec vérifications locales. L’accueil public et les contrôles HTTP sont vérifiés ; la recette complète avec des comptes joueurs distincts reste à faire. Voir `VALIDATION-0.7.md` et les rapports historiques 0.2/0.3/0.4/0.5/0.6. Le découpage ne réduit pas le périmètre du cahier.
+19 octobre 2026. Aucun lot complet n'est encore validé. Version 0.8 préparée pour Firebase : PV, déclaration des dégâts et soins actifs configurables. Vérifications et publication dans `VALIDATION-0.8.md` ; versions précédentes 0.2 à 0.7 conservées. La recette complète avec comptes joueurs distincts et mobile reste à faire. Le découpage ne réduit pas le périmètre du cahier.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -31,6 +31,10 @@ Carnet privé par compte/session, notes classables, protection contre la réattr
 ## Extension 0.7
 
 Classes de compétences passives, duplication des modèles, profils attribués après comparaison avant/après et exceptions individuelles. Les découvertes QR peuvent exiger une expertise avec un niveau minimum, sans effacer les documents déjà acquis. 186 tests réussis localement et sur GitHub ; version publiée avec manifeste 0.7.0 et refus anonymes vérifiés. Preuves et limites dans `VALIDATION-0.7.md`. Compétences actives et valeurs initiales PV/crédits/objets encore à développer.
+
+## Extension 0.8
+
+Suivi facultatif des PV, dégâts confirmés, hors combat et retour configurables, soins instantanés sur soi/cible, quota par session et délai suspendu pendant les pauses. État, consommation et résultat écrits ensemble ; corrections MJ et historique privé. Les PV initiaux sont actuellement définis par scénario/session, pas par classe. Inventaire médical, autres états, modificateurs et effets différés restent à intégrer. Voir `VALIDATION-0.8.md`.
 
 ## Préparation réalisée
 

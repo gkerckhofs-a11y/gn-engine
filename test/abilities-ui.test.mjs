@@ -11,7 +11,7 @@ test('interface compétences : texte échappé, profil vide masqué et aucune ac
   assert.equal(abilityPlayerSection(null),'');assert.equal(abilityPlayerSection({className:'',skills:[]}), '');
   const html=abilityPlayerSection({className:evil,classDescription:evil,skills:[skill]});assert.doesNotMatch(html,/<img|<button/);assert.match(html,/&lt;img/);assert.match(html,/Niveau 2/);
   assert.doesNotMatch(ui.editor(context,'scenario','skills',skill),/<img/);
-  assert.match(ui.editor(context,'session','skills',skill),/Aucun dé, coût, combat ou effet actif/);
+  assert.match(ui.editor(context,'session','skills',skill),/Aucun lancer de dés ni effet différé/);
 });
 test('interface compétences : copie brouillon, exceptions à zéro et confirmation explicite avant remplacement',()=>{
   const copy=ui.editor(context,'scenario','classes',context.classes[0],true);assert.match(copy,/data-id=""/);assert.match(copy,/<option value="DRAFT" selected>/);

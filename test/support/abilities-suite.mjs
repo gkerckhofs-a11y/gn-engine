@@ -110,7 +110,7 @@ export function abilitiesSuite(makeStore,prefix='compétences'){
   });
   test(`${prefix} : rejeter règles actives, niveaux invalides, doublons et références étrangères sans écriture`,async()=>{
     const f=await fixture(),s=await f.session();
-    await assert.rejects(f.saveSkill({kind:'ACTIVE_TARGET'}),err('UNSUPPORTED_ABILITY'));
+    await assert.rejects(f.saveSkill({kind:'ACTIVE_OBJECT'}),err('UNSUPPORTED_ABILITY'));
     for(const level of [-1,1.5,Number.MAX_SAFE_INTEGER+1,'2'])await assert.rejects(f.prepare({overrides:[{skillId:f.skills[0],level}]}),err('INVALID_ABILITY'));
     await assert.rejects(f.prepare({overrides:[{skillId:f.skills[0],level:1},{skillId:f.skills[0],level:2}]}),err('DUPLICATE_ABILITY'));
     await assert.rejects(f.prepare({overrides:[{skillId:'foreign',level:1}]}),err('INVALID_ABILITY_REFERENCE'));

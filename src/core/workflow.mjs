@@ -4,6 +4,8 @@ import {publicCharacter, participantCharacter} from './projections.mjs';
 import {createClock, pauseClock, resumeClock, gameTime} from './clock.mjs';
 import {staffPath,staffEmail,capabilities,sessionCommands,receptionCharacter} from './staff.mjs';
 import {narrativeInput,validateRelations,recordPublication} from './narrative.mjs';
+import {createHealthService,healthAction} from './health.mjs';
+import {healthSummary,initialHealth,requireGameAction,canGameAction} from './health-state.mjs';
 import {createAbilityService,abilityAction} from './abilities.mjs';
 import {createNotebookService,notebookAction} from './notebook.mjs';
 import {createKnowledgeService,knowledgeAction,seedKnowledge} from './knowledge.mjs';
@@ -82,11 +84,13 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     return {s,c,g,m:memberFor(g,cid)};
   };
 
+  const healthService=createHealthService({store,signed,checkSession,checkScenario,now,uuid});
   const abilityService=createAbilityService({store,signed,checkSession,checkScenario,now,uuid});
   const notebookService=createNotebookService({store,signed,now,uuid});
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(healthAction(action))return healthService(action,actor,input);
     if(abilityAction(action))return abilityService(action,actor,input);
     if(notebookAction(action))return notebookService(action,actor,input);
     if(knowledgeAction(action))return knowledgeService(action,actor,input);
@@ -137,14 +141,14 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         permissions.content?tx.list(`sessions/${sid}/groups`):[],permissions.content?tx.list(`sessions/${sid}/knowledge`):[],
         permissions.content?tx.list(`sessions/${sid}/skills`):[],permissions.content?tx.list(`sessions/${sid}/classes`):[]]);
       return {...privateSession(s),role,permissions,characters:permissions.content?characters:characters.map(receptionCharacter),registrations,
-        ...(permissions.content?{groups,groupsEnabled:s.modules?.groups===true,knowledge,skills,classes}:{}),
+        ...(permissions.content?{groups,groupsEnabled:s.modules?.groups===true,knowledge,skills,classes,healthRules:s.healthRules??null}:{}),
         audit:audit.sort((a,b)=>b.at-a.at).slice(0,50),staff:staff.map(g=>({email:g.email,role:g.role,active:g.active,updatedAt:g.updatedAt}))};
     });
     if(action==='myGroup' || action==='previewGroup') return store.runTransaction(async tx=>{
       const preview=action==='previewGroup';
       const {s,c,g}=await groupContext(tx,actor,sid,input,preview);
-      return {session:publicSession(s),characterName:c.public.displayName,preview,
-        group:await groupDetail(tx,`sessions/${sid}`,g,c.id)};
+      const detail=await groupDetail(tx,`sessions/${sid}`,g,c.id);detail.permissions.publishUpdates=detail.permissions.publishUpdates&&canGameAction(s,c,'publish');
+      return {session:publicSession(s),characterName:c.public.displayName,preview,group:detail};
     });
     if(action==='groupHistory') return store.runTransaction(async tx=>{
       let base;
@@ -166,7 +170,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       const preview=action==='preview';
       if(preview) await checkSession(tx,actor,sid);
       const r=preview ? null : await tx.get(regPath(sid,actor.uid));
-      let character=null, reason=null;
+      let character=null, reason=null,rawCharacter=null;
       const cid=preview ? documentId(input.characterId) : r?.characterId;
       if(cid) {
         const c=await tx.get(charPath(sid,cid));
@@ -175,10 +179,10 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         if(!allowed) reason='ACCESS_INACTIVE';
         else if(!['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s.stage)) reason='BRIEFING_CLOSED';
         else if(c?.publicationState!=='PUBLISHED' || c?.public.publicationState!=='PUBLISHED') reason='CONTENT_UNPUBLISHED';
-        else character=participantCharacter(c,{active:true,uid:actor.uid,characterId:cid,sessionId:sid},actor.uid);
+        else {rawCharacter=c;character=participantCharacter(c,{active:true,uid:actor.uid,characterId:cid,sessionId:sid},actor.uid);}
       }
       const groups=character && s.modules?.groups===true ? await tx.list(`sessions/${sid}/groups`) : [];
-      return {session:publicSession(s),registration:ownRegistration(r),character,reason,gameTimeMs:gameTime(s.clock,at),
+      return {session:publicSession(s),registration:ownRegistration(r),character,health:healthSummary(s,rawCharacter),reason,gameTimeMs:gameTime(s.clock,at),
         groups:groups.filter(g=>groupVisible(g,cid)).map(g=>groupSummary(g,cid))};
     });
     signed(actor);
@@ -208,7 +212,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       let postingContext;
       if(action==='publishGroupUpdate') {
         postingContext=await groupContext(tx,actor,sid,input);
-        requireThat(postingContext.m.permissions.publishUpdates===true,'FORBIDDEN');
+        requireThat(postingContext.m.permissions.publishUpdates===true,'FORBIDDEN');requireGameAction(postingContext.s,postingContext.c,'publish');
       }
       const previous=await tx.get(operationPath);
       if(previous) { requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED'); return previous.result; }
@@ -268,7 +272,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       } else if(action==='publishScenario') {
         const id=documentId(input.scenarioId),s=await checkScenario(tx,actor,id); revision(s,input.revision);
         const [chars,groups,knowledge,skills,classes]=await Promise.all([tx.list(`scenarios/${id}/characters`),tx.list(`scenarios/${id}/groups`),tx.list(`scenarios/${id}/knowledge`),tx.list(`scenarios/${id}/skills`),tx.list(`scenarios/${id}/classes`)]); requireThat(chars.length>0,'EMPTY_SCENARIO');
-        const version={id:newId,title:s.title,summary:s.summary,sourceRevision:s.revision,createdAt:at,characterCount:chars.length,groupCount:groups.length,knowledgeCount:knowledge.length,skillCount:skills.length,classCount:classes.length};
+        const version={id:newId,title:s.title,summary:s.summary,sourceRevision:s.revision,createdAt:at,characterCount:chars.length,groupCount:groups.length,knowledgeCount:knowledge.length,skillCount:skills.length,classCount:classes.length,healthRules:s.healthRules??null};
         tx.set(`scenarios/${id}/versions/${newId}`,version);
         for(const c of chars) tx.set(`scenarios/${id}/versions/${newId}/characters/${c.id}`,c);
         for(const g of groups)tx.set(`scenarios/${id}/versions/${newId}/groups/${g.id}`,g);
@@ -287,10 +291,10 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         const s={id:newId,ownerUid:actor.uid,scenarioId:id,versionId:vid,title:text(input.title,150,true),summary:v.summary,
           date:optional(input.date,40),time:optional(input.time,80),place:optional(input.place,500),practical:optional(input.practical,4000),
           privacy:text(input.privacy,4000,true),capacity,accepted:0,registrationOpen:false,stage:'PREPARATION',fields:cleanFields,
-          clock:createClock(),revision:1,createdAt:at,modules:{groups:groups.length>0}};
+          clock:createClock(),revision:1,createdAt:at,healthRules:v.healthRules??null,modules:{groups:groups.length>0}};
         tx.set(`sessions/${newId}`,s);
         for(const c of chars) {
-          const next={...c,sessionId:newId,publicCode:c.id,assignedUid:null,contentRevision:1,historyStarted:true};
+          const next={...c,...initialHealth(v.healthRules),sessionId:newId,publicCode:c.id,assignedUid:null,contentRevision:1,historyStarted:true};
           tx.set(charPath(newId,c.id),next);
           recordPublication(tx,`sessions/${newId}/characters`,null,next,{id:newId,at,actorUid:actor.uid,reason:'Création depuis la version de scénario',stage:'PREPARATION'});
         }
