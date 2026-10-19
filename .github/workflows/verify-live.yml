@@ -1,12 +1,6 @@
 name: Vérifier la version publiée de GN Engine
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - scripts/verify-deployment.mjs
-      - scripts/deployment-checks.mjs
-      - .github/workflows/verify-live.yml
 permissions:
   contents: read
 jobs:
@@ -21,4 +15,6 @@ jobs:
           node-version: '22'
       - run: node --test test/deployment-checks.test.mjs
       - run: node scripts/verify-deployment.mjs
-# Read-only HTTP checks. No Google credentials and no deployment.
+# Manual read-only recheck. The deployment workflow runs the same checks after
+# publication; do not race a source push against the not-yet-published version.
+# No Google credentials and no deployment.

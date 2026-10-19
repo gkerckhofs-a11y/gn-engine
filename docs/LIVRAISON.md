@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.9 publiée : catalogue d’objets, lots et matériel de départ, sac privé et consommation médicale atomique. 275 tests réussis ; manifeste 0.9.0 et refus des accès anonymes vérifiés. Preuves et correction du contrôle de publication dans `VALIDATION-0.9.md` ; rapports 0.2 à 0.8 conservés. La recette complète avec comptes joueurs distincts et mobile reste à faire. Le découpage ne réduit pas le périmètre du cahier.
+19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.10 préparée : remises gratuites proposées puis acceptées, fractionnement atomique et suivi dans le sac. Vérifications et publication dans `VALIDATION-0.10.md` ; rapports 0.2 à 0.9 conservés. La recette complète avec comptes joueurs distincts et mobile reste à faire. Le découpage ne réduit pas le périmètre du cahier.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -39,6 +39,10 @@ Suivi facultatif des PV, dégâts confirmés, hors combat et retour configurable
 ## Extension 0.9
 
 Catalogue versionné, copies confirmées du matériel de départ, lots indépendants par session, dons MJ confirmés, corrections tracées et sac avec filtres. Un soin peut consommer une quantité dans un lot compatible choisi ; stock, PV et usage sont appliqués ensemble une seule fois. 275 tests réussis localement et dans les journaux GitHub ; version publiée et accès privés contrôlés en ligne. Aucun transfert, fusion/fractionnement, capacité, équipement, image ou marché à ce stade. Le matériel initial est préparé individuellement, pas par classe. Voir `VALIDATION-0.9.md`.
+
+## Extension 0.10
+
+Remise gratuite d’un lot entier ou d’une quantité entière : proposition après comparaison, acceptation par le destinataire, refus/annulation et historique. Propriété, détention et emplacement changent ensemble. Le fractionnement conserve les quantités et la filiation des lots. Aucune réservation à la proposition ; toute modification du lot invalide les propositions en attente. Ventes, prêts, détention pour autrui, capacité, stockage externe, fusion, QR physique et validation de présence restent à intégrer. Voir `VALIDATION-0.10.md`.
 
 ## Préparation réalisée
 

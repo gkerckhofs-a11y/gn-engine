@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.9 : objets, lots de départ, sac privé et soins consommant le matériel.**
+**Version 0.10 : remises gratuites entre joueurs, acceptation et fractionnement des lots.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -52,6 +52,12 @@ Le catalogue distingue les exemplaires individuels des lots empilables. Prépare
 
 Le joueur consulte **Mon sac**, avec recherche, catégories et disponibilité. Un soin peut exiger un consommable d’une version précise : le soignant choisit un lot compatible, lit la quantité retirée et le stock restant, puis confirme. Stock, PV, usage et historique sont modifiés ensemble une seule fois. [Parcours et limites 0.9](docs/VALIDATION-0.9.md).
 
+## Remises entre joueurs
+
+Depuis **Mon sac**, choisissez un lot, une quantité et le lien du badge public du destinataire. Vérifiez les identités et les quantités, puis envoyez une proposition gratuite. Le destinataire consulte **Mes remises** et accepte après avoir confirmé la remise matérielle prévue par les règles. Il devient propriétaire et détenteur des objets dans son sac.
+
+Une remise complète déplace le même lot ; une remise partielle crée un lot distinct lié à sa provenance. Rien n’est réservé ou retiré lors de la proposition. Un changement de stock ou d’accès la rend périmée, sans coût. Refus, annulation, répétitions techniques et opérations concurrentes sont contrôlés. Les remises sont disponibles pendant le jeu ; le MJ peut autoriser explicitement les deux parties à agir hors combat. [Parcours et limites 0.10](docs/VALIDATION-0.10.md).
+
 ## Infrastructure configurée
 
 - GitHub privé : `gkerckhofs-a11y/gn-engine`.
@@ -73,7 +79,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.9 est publiée : **275 tests réussis** localement et dans les journaux GitHub (152 métier/interface/contrôle de publication et 123 intégrations). La version exacte 0.9.0 et le refus de 24 commandes privées anonymes sont vérifiés en ligne. Résultats, correction du contrôle de propagation et preuves GitHub dans [le rapport 0.9](docs/VALIDATION-0.9.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.10 ajoute les vérifications des propositions, des remises, des accès et des fractionnements. Résultats et preuves de publication dans [le rapport 0.10](docs/VALIDATION-0.10.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 

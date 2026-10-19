@@ -7,6 +7,7 @@ import {notebookSuite} from '../support/notebook-suite.mjs';
 import {abilitiesSuite} from '../support/abilities-suite.mjs';
 import {healthSuite} from '../support/health-suite.mjs';
 import {inventorySuite} from '../support/inventory-suite.mjs';
+import {transfersSuite} from '../support/transfers-suite.mjs';
 import {knowledgeSuite} from '../support/knowledge-suite.mjs';
 import {groupsSuite} from '../support/groups-suite.mjs';
 import {workflowSuite} from '../support/workflow-suite.mjs';
@@ -20,6 +21,7 @@ notebookSuite(()=>firestoreStore(firestore),'Carnet sur Firestore');
 abilitiesSuite(()=>firestoreStore(firestore),'Compétences sur Firestore');
 healthSuite(()=>firestoreStore(firestore),'PV et soins sur Firestore');
 inventorySuite(()=>firestoreStore(firestore),'Inventaire sur Firestore');
+transfersSuite(()=>firestoreStore(firestore),'Remises sur Firestore');
 test('règles Firestore : un client non authentifié ne peut lire ni écrire les secrets',async()=>{
   const root=`http://${process.env.FIRESTORE_EMULATOR_HOST}/v1/projects/${projectId}/databases/(default)/documents`;
   await firestore.doc('private/test').set({secret:'invisible'});

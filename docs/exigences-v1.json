@@ -395,11 +395,11 @@
       "sourceLine": 152,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_5",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_10_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.5.md ; src/core/knowledge.mjs ; web/knowledge.mjs ; test/support/knowledge-suite.mjs ; test/integration",
-      "implementedScope": "Interface annonce qu’un QR peut être photographié et ne prouve pas la présence. Validation de présence ou défi temporaire non livrés."
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.10.md ; src/core/inventory-transfers.mjs ; web/transfers.mjs ; test/support/transfers-suite.mjs ; test/transfers-ui.test.mjs ; test/integration",
+      "implementedScope": "Badge identifiant le destinataire, sans preuve de présence. Le destinataire confirme la remise matérielle requise par les règles ; aucune vérification physique automatique ni défi temporaire livré."
     },
     {
       "id": "ACT-01",
@@ -407,11 +407,11 @@
       "sourceLine": 154,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_9",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_10_A_PUBLIER",
       "coreWork": null,
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration",
-      "implementedScope": "Soin préparé sur soi ou badge, sélection explicite du lot compatible, récapitulatif PV/stock/coût puis confirmation unique. Une action refusée ne consomme rien. Scan caméra, réservations longues et autres actions restant."
+      "evidence": "docs/VALIDATION-0.10.md ; src/core/inventory-transfers.mjs ; web/transfers.mjs ; test/support/transfers-suite.mjs ; test/transfers-ui.test.mjs ; test/integration",
+      "implementedScope": "Préparation et confirmation de la proposition, puis acceptation distincte du destinataire. Révision du lot et accès contrôlés au moment de la remise. Aucun coût sur refus. Réservations longues, autres actions et scan caméra intégré restant."
     },
     {
       "id": "ACT-02",
@@ -431,11 +431,11 @@
       "sourceLine": 158,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_9",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_10_A_PUBLIER",
       "coreWork": null,
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration",
-      "implementedScope": "Soins concurrents, dernier consommable et corrections de stock concurrents contrôlés ; aucun coût partiel. Réservations longues, interruption et opposition restant."
+      "evidence": "docs/VALIDATION-0.10.md ; src/core/inventory-transfers.mjs ; web/transfers.mjs ; test/support/transfers-suite.mjs ; test/transfers-ui.test.mjs ; test/integration",
+      "implementedScope": "Acceptations concurrentes et compétition avec soins/corrections ne peuvent déplacer ou consommer le même stock deux fois. Une annulation concurrente a une seule issue. Réservations longues, interruption et opposition restant."
     },
     {
       "id": "ACT-04",
@@ -514,11 +514,11 @@
       "sourceLine": 176,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_9",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_10_A_PUBLIER",
       "coreWork": null,
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration",
-      "implementedScope": "Catalogue séparé des lots : exemplaires individuels (quantité 1), lots entiers empilables, consommable, catégorie, unité, légalité visible et volume descriptif. Snapshots, matériel initial et attributions MJ confirmés. Unicité globale, division, équipement, installation, images et valeur monétaire restant."
+      "evidence": "docs/VALIDATION-0.10.md ; src/core/inventory-transfers.mjs ; web/transfers.mjs ; test/support/transfers-suite.mjs ; test/transfers-ui.test.mjs ; test/integration",
+      "implementedScope": "Catalogue et lots 0.9 conservés. Les lots empilables peuvent être remis partiellement en unités entières ; aucun exemplaire individuel fractionné. Équipement, installation, unicité globale, images et valeur monétaire restant."
     },
     {
       "id": "INV-02",
@@ -526,11 +526,11 @@
       "sourceLine": 177,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_9",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_10_A_PUBLIER",
       "coreWork": null,
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration",
-      "implementedScope": "Champs distincts propriétaire, détenteur, emplacement et disponibilité. Parcours limité aux lots personnels dans le sac, avec états disponible, saisi, consommé et détruit. Détention pour autrui, emplacements externes et transitions de transport restant."
+      "evidence": "docs/VALIDATION-0.10.md ; src/core/inventory-transfers.mjs ; web/transfers.mjs ; test/support/transfers-suite.mjs ; test/transfers-ui.test.mjs ; test/integration",
+      "implementedScope": "Champs distincts propriétaire, détenteur, emplacement et disponibilité. Une remise gratuite acceptée déplace propriété et détention ensemble vers le sac du destinataire. Prêt, détention pour autrui, emplacements externes et transport restant."
     },
     {
       "id": "INV-03",
@@ -538,10 +538,11 @@
       "sourceLine": 180,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_10_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.10.md ; src/core/inventory-transfers.mjs ; web/transfers.mjs ; test/support/transfers-suite.mjs ; test/transfers-ui.test.mjs ; test/integration",
+      "implementedScope": "Remise partielle conservant somme des quantités, modèle copié, lot parent et racine de provenance. Référence stable conservée pour une remise complète. QR physique, contenant vide et fractionnement autonome restant."
     },
     {
       "id": "INV-04",
@@ -549,10 +550,11 @@
       "sourceLine": 181,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_10_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.10.md ; src/core/inventory-transfers.mjs ; web/transfers.mjs ; test/support/transfers-suite.mjs ; test/transfers-ui.test.mjs ; test/integration",
+      "implementedScope": "Proposition gratuite après récapitulatif, acceptation explicite du destinataire avec déclaration de remise matérielle, refus/annulation et droits revérifiés. Aucun retrait avant acceptation. Transaction atomique et idempotente. Validation MJ, preuve technique de présence, vente à distance, prêt et capacité restant."
     },
     {
       "id": "INV-05",

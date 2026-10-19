@@ -6,6 +6,7 @@ import {staffPath,staffEmail,capabilities,sessionCommands,receptionCharacter} fr
 import {narrativeInput,validateRelations,recordPublication} from './narrative.mjs';
 import {createHealthService,healthAction} from './health.mjs';
 import {createInventoryService,inventoryAction} from './inventory.mjs';
+import {createLotTransferService,lotTransferAction} from './inventory-transfers.mjs';
 import {seedInventory} from './inventory-state.mjs';
 import {healthSummary,initialHealth,requireGameAction,canGameAction} from './health-state.mjs';
 import {createAbilityService,abilityAction} from './abilities.mjs';
@@ -87,12 +88,14 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   };
 
   const inventoryService=createInventoryService({store,signed,checkSession,checkScenario,now,uuid});
+  const lotTransferService=createLotTransferService({store,signed,now,uuid});
   const healthService=createHealthService({store,signed,checkSession,checkScenario,now,uuid});
   const abilityService=createAbilityService({store,signed,checkSession,checkScenario,now,uuid});
   const notebookService=createNotebookService({store,signed,now,uuid});
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(lotTransferAction(action))return lotTransferService(action,actor,input);
     if(inventoryAction(action))return inventoryService(action,actor,input);
     if(healthAction(action))return healthService(action,actor,input);
     if(abilityAction(action))return abilityService(action,actor,input);

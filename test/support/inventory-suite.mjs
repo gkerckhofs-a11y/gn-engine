@@ -2,9 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID,randomBytes} from 'node:crypto';
 import {createWorkflow,hash} from '../../src/core/workflow.mjs';
-export function inventorySuite(makeStore,prefix='Inventaire'){
-  const err=code=>({code});
-  async function fixture(quantity=3){
+export async function inventoryFixture(makeStore,quantity=3){
     const store=await makeStore(),suffix=randomUUID();let time=100000;
     const actor=n=>({uid:`${n}-${suffix}`,email:`${n}-${suffix}@example.invalid`,emailVerified:true,provider:'google.com',authTime:100});
     const owner=actor('owner'),alice=actor('alice'),bob=actor('bob'),eve=actor('eve'),staff=actor('staff');
@@ -38,6 +36,9 @@ export function inventorySuite(makeStore,prefix='Inventaire'){
     const correct=async(lid,patch={})=>{const s=await session(),l=s.inventory.find(l=>l.id===lid);return cmd('correctLot',owner,{sessionId,revision:s.revision,lotId:lid,lotRevision:l.revision,quantity:l.quantity,status:l.status,reason:'MOTIF_PRIVE_MJ',...patch});};
     return {store,read,cmd,owner,alice,bob,eve,staff,scenarioId,sessionId,scenario,session,sessionInput,characters,items,skills,seed,stage,activate,bag,lot,health,damage,prepare,treat,grant,correct,advance:ms=>time+=ms};
   }
+export function inventorySuite(makeStore,prefix='Inventaire'){
+  const err=code=>({code});
+  const fixture=quantity=>inventoryFixture(makeStore,quantity);
   test(`${prefix} : matériel préparé sans effet puis confirmé, copie des modèles sans notes MJ`,async()=>{
     const f=await fixture(null),input={scenarioId:f.scenarioId,revision:(await f.scenario()).revision,characterId:f.characters[0],items:[{itemId:f.items[0],quantity:4}]};
     const p=await f.read('prepareStartingInventory',f.owner,input);assert.equal((await f.scenario()).characters.find(c=>c.id===f.characters[0]).startingInventory,undefined);assert.equal(JSON.stringify(p).includes('ORIGINE_SECRETE_MJ'),false);

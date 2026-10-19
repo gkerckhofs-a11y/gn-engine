@@ -174,3 +174,27 @@ test('HTTP + Auth : profil confirmé par MJ, compétence publiée et découverte
   await command('discoverKnowledge',{sessionId,knowledgeId},player);
   assert.equal((await request('knowledgeDetail',{sessionId,knowledgeId},player)).result.knowledge.body,'Texte ancien');
 });
+
+test('HTTP + Auth : remise gratuite confirmée par le destinataire, 20 unités réparties en 12 et 8',async()=>{
+  const owner=await googleTestAccount('gkerckhofs@gmail.com'),alice=await googleTestAccount(`giver-${randomUUID()}@example.invalid`),bob=await googleTestAccount(`receiver-${randomUUID()}@example.invalid`);
+  const command=async(action,input={},token=owner)=>{const r=await request(action,{requestId:randomUUID(),...input},token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};
+  const {id:scenarioId}=await command('createScenario',{title:'Remises HTTP'}),scenario=async()=>(await request('scenario',{scenarioId},owner)).result,characters=[];
+  for(const name of ['Expéditeur','Destinataire'])characters.push((await command('saveCharacter',{scenarioId,revision:(await scenario()).revision,displayName:name,publicationState:'PUBLISHED'})).id);
+  const {id:itemId}=await command('saveItem',{scenarioId,revision:(await scenario()).revision,name:'Lot HTTP',kind:'STACKABLE',consumable:false,publicationState:'PUBLISHED',gmNotes:'SECRET_REMISE_HTTP'});
+  const seed={scenarioId,revision:(await scenario()).revision,characterId:characters[0],items:[{itemId,quantity:20}]},sp=await request('prepareStartingInventory',seed,owner);await command('setStartingInventory',{...seed,confirmation:sp.result.confirmation});
+  const {id:versionId}=await command('publishScenario',{scenarioId,revision:(await scenario()).revision}),{id:sessionId}=await command('createSession',{scenarioId,versionId,title:'Remises de test',capacity:2,privacy:'Fictif'});
+  const session=async()=>(await request('session',{sessionId},owner)).result;await command('setRegistrationOpen',{sessionId,revision:1,open:true});const uids=[];
+  for(const [i,token] of [alice,bob].entries()){
+    const uid=(await request('identity',{},token)).result.uid;uids.push(uid);await command('register',{sessionId,name:'Test'},token);await command('assign',{sessionId,uid,characterId:characters[i]});const invitation=randomBytes(32).toString('base64url');await command('issueInvitation',{sessionId,uid,tokenHash:hash(invitation),hours:1});assert.equal((await request('redeem',{sessionId,token:invitation},token)).status,200);
+  }
+  for(const stage of ['BRIEFING','EN_JEU'])await command('setStage',{sessionId,revision:(await session()).revision,stage});
+  const bag=(token)=>request('myInventory',{sessionId},token),lot=(await bag(alice)).result.lots[0],input={sessionId,lotId:lot.id,quantity:8,recipientId:characters[1]};
+  for(const action of ['prepareLotTransfer','proposeLotTransfer','lotTransferDetail','acceptLotTransfer','declineLotTransfer','cancelLotTransfer'])assert.equal((await request(action,{sessionId,requestId:randomUUID()})).status,401);
+  assert.equal((await request('prepareLotTransfer',{...input,recipientId:characters[0],characterId:characters[0],uid:uids[0]},bob)).status,403);
+  const prep=await request('prepareLotTransfer',input,alice);assert.equal(prep.status,200);const proposal=await command('proposeLotTransfer',{...input,confirmation:prep.result.confirmation},alice);
+  assert.equal((await bag(alice)).result.lots[0].quantity,20);const detail=await request('lotTransferDetail',{sessionId,transferId:proposal.id},bob);assert.equal(detail.status,200);assert.equal(JSON.stringify(detail).includes('SECRET_REMISE_HTTP'),false);
+  const accept={sessionId,transferId:proposal.id,confirmation:detail.result.confirmation,received:true,requestId:randomUUID()};assert.equal((await request('acceptLotTransfer',accept,alice)).status,403);assert.equal((await request('lotTransferDetail',{sessionId,transferId:proposal.id},owner)).status,403);
+  const result=await request('acceptLotTransfer',accept,bob);assert.equal(result.status,200);assert.deepEqual(await request('acceptLotTransfer',accept,bob),result);
+  assert.equal((await bag(alice)).result.lots[0].quantity,12);assert.equal((await bag(bob)).result.lots[0].quantity,8);assert.notEqual((await bag(bob)).result.lots[0].id,lot.id);
+  await command('revokeAccess',{sessionId,uid:uids[1]});assert.equal((await request('acceptLotTransfer',accept,bob)).status,403);
+});

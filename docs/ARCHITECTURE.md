@@ -81,7 +81,7 @@ Le serveur applique les permissions hors combat aux découvertes, partages de co
 
 ### Implémentation 0.9
 
-Le catalogue `items` existe sous scénario, version figée et session. Un personnage de scénario possède une copie `startingInventory`, attribuée après préparation et confirmation des modèles publiés. Créer une session produit ses propres documents `inventory/{lotId}` à partir de ces copies. Chaque lot conserve une projection de sa définition, sa quantité, propriétaire, détenteur, emplacement, disponibilité et révision. Le parcours courant attribue propriétaire et détention au même personnage et localise le lot dans son sac ; entrepôts, transferts, prêts et transport restent à implémenter.
+Le catalogue `items` existe sous scénario, version figée et session. Un personnage de scénario possède une copie `startingInventory`, attribuée après préparation et confirmation des modèles publiés. Créer une session produit ses propres documents `inventory/{lotId}` à partir de ces copies. Chaque lot conserve une projection de sa définition, sa quantité, propriétaire, détenteur, emplacement, disponibilité et révision. Le parcours courant attribue propriétaire et détention au même personnage et localise le lot dans son sac ; les remises personnelles sont ajoutées en 0.10 ; entrepôts, prêts et transport restent à implémenter.
 
 Le coût facultatif du soin référence l’identifiant et la révision exacte du modèle consommable. Le lot choisi doit être personnel, dans le sac du soignant, compatible avec cette version, disponible et assez fourni. Le montant requis est engagé uniquement à la confirmation instantanée. Le stock, les PV, l’usage, les deux historiques et le résultat mémorisé utilisent la même transaction Firestore. Une correction concurrente du stock invalide la confirmation. Les lots épuisés restent enregistrés avec quantité zéro et état `CONSUMED`.
 
@@ -117,3 +117,11 @@ Les pièces jointes suivent les droits du contenu, y compris titres, noms de fic
 - [F4] Google Firebase, *Manage User Sessions*, documentation évolutive, consultée le 19 octobre 2026 : https://firebase.google.com/docs/auth/admin/manage-sessions
 
 Ces sources étayent l'usage technique proposé ; elles ne certifient ni l'implémentation ni la sécurité globale du moteur.
+
+### Implémentation 0.10
+
+Les propositions `sessions/{sid}/lotTransfers/{id}` conservent les deux identités publiques, leurs empreintes d’attribution/accès, le modèle copié, la quantité, le lot et sa révision. Une proposition ne réserve rien. Son acceptation relit les deux accès, les règles hors combat, la phase de jeu et la révision du lot. Un changement du lot ou des droits invalide la proposition ; l’interface la présente comme « À refaire » sans changer le stock.
+
+La transaction d’acceptation déplace le même lot s’il est remis entièrement. Sinon, elle diminue le lot source et crée un lot enfant avec `parentLotId`, `rootLotId` et `transferId`, sans fusion. Elle écrit les historiques, la proposition acceptée, l’audit et le résultat idempotent ensemble. La propriété, la détention et l’emplacement passent au même destinataire. Les corrections MJ et consommations médicales concurrentes sont détectées par les lectures/révisions Firestore. Les commandes vérifient l’accès actuel avant les résultats mémorisés.
+
+Les joueurs voient uniquement leurs remises, sans UID, empreinte d’accès, motif MJ ni solde du sac de l’autre partie. Les propositions en attente restent listées ; l’historique terminé est limité aux 30 dernières. Les requêtes utilisent deux égalités séparées (`sourceId`, `recipientId`) sans nouvel index composé. Le volume de lecture n’est pas encore paginé. Les remises sont gratuites, sans capacité ni déplacement extérieur ; aucune réservation commerciale ou preuve automatique de présence n’est déduite du QR.
