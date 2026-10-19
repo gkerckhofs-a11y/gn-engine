@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n'est encore validé. Version 0.8 préparée pour Firebase : PV, déclaration des dégâts et soins actifs configurables. Vérifications et publication dans `VALIDATION-0.8.md` ; versions précédentes 0.2 à 0.7 conservées. La recette complète avec comptes joueurs distincts et mobile reste à faire. Le découpage ne réduit pas le périmètre du cahier.
+19 octobre 2026. Aucun lot complet n'est encore validé. Version 0.8 publiée sur https://gn-engine.web.app/ : PV, déclaration des dégâts et soins actifs configurables. Les 227 tests sont réussis localement et sur GitHub ; manifeste 0.8.0, refus anonymes et écran de connexion des PV vérifiés. Vérifications et publication dans `VALIDATION-0.8.md` ; versions précédentes 0.2 à 0.7 conservées. La recette complète avec comptes joueurs distincts et mobile reste à faire. Le découpage ne réduit pas le périmètre du cahier.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|

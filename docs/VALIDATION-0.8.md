@@ -40,6 +40,7 @@ Un résultat déjà acquis peut être restitué en pause ou après la fin, tant 
 - `npm test` : 125 tests métier et interface réussis, aucun échec. Les 18 nouveaux parcours de PV/soins couvrent notamment plafonds, pause, concurrence, double envoi, révocation, réattribution, quota conservé et activation d’anciennes sessions. Quatre tests d’interface vérifient aperçu neutre, disponibilité, récapitulatif, confidentialité et texte échappé.
 - `npm run test:emulator` : 102 tests réussis, aucun échec, sur Auth et Firestore émulés avec Java 21. Les 18 parcours de PV/soins sont également exécutés sur Firestore. Total local : 227 tests.
 - Un test HTTP utilise le véritable gestionnaire exporté avec Auth et Firestore émulés : identité issue du jeton, dégâts personnels malgré un identifiant forgé, refus des opérations MJ et anonymes, soin confirmé et usage unique malgré un réessai.
+- GitHub : les 125 tests métier/interface et 102 intégrations passent aussi sur Node 22, sans échec ni test ignoré, pour le commit `d819238ce28fa9aac68cf70ce827da47d8928d65` ([workflow 39277123668](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39277123668), job de vérification `118144321541`).
 - Les comptes et contenus de tests restent synthétiques dans `demo-gn-engine`. Aucun compte, personnage ou scénario de test créé en production.
 
 ## Limites et recette restante
@@ -53,4 +54,9 @@ Un résultat déjà acquis peut être restitué en pause ou après la fin, tant 
 
 ## Publication
 
-La publication 0.8 et les contrôles de la version réellement servie seront consignés ici après le workflow GitHub. La version précédente vérifiée est la 0.7.
+Le [workflow 39277123668](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39277123668), sur le commit `d819238ce28fa9aac68cf70ce827da47d8928d65`, est terminé avec succès le 19 octobre 2026. Les journaux du job de déploiement `118145687729` confirment la publication et les contrôles HTTP à 15:25 UTC (17:25 à Bruxelles).
+
+- Fonction `api` active en Belgique ; Hosting, règles et index Firestore publiés dans `gn-engine` par le workflow autorisé.
+- Manifeste exact `0.8.0` et accueil HTTP 200 vérifiés. Les commandes anonymes existantes et nouvelles sont refusées avec `401 LOGIN_REQUIRED`, dont `myHealth`, `prepareDamage`, `applyDamage`, `prepareTreatment`, `applyTreatment`, `correctHealth` et `healthHistory`.
+- Navigateur : accueil chargé avec pied de page 0.8 ; route **PV et soins** non connectée présentant uniquement l’accès Google, sans PV ni action privée. [Capture de cet accès protégé](verification/gn-engine-0.8-1792423768264.jpg).
+- La capture prouve la version et le contrôle d’accès visibles ; elle ne constitue pas une recette des formulaires authentifiés ou de soins entre comptes réels. Aucun contenu de jeu ni compte de test créé en production.

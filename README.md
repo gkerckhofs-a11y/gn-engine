@@ -67,7 +67,7 @@ npm test
 npm run test:emulator
 ```
 
-La version 0.8 ajoute les tests métier, interface et HTTP des PV et des soins. Résultats locaux, publication et preuves GitHub sont consignés dans [le rapport 0.8](docs/VALIDATION-0.8.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+**125 tests métier/interface et 102 intégrations** passent localement et sur GitHub, soit 227 tests. La version 0.8 est publiée ; le manifeste exact, les refus anonymes et l’écran de connexion des PV sont vérifiés. Preuves dans [le rapport 0.8](docs/VALIDATION-0.8.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 
