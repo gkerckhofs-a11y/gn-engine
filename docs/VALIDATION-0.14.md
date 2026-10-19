@@ -40,7 +40,7 @@ Le prix, la description copiée, la quantité et les conditions de l’annonce s
 - 23 nouveaux parcours métier exécutés sur le stockage mémoire puis partagés avec Firestore : réservation entière/partielle, expiration, réutilisation, dons/soins/ventes bloqués, correction MJ, concurrence, paiement collectif, droits, confidentialité, rollback, identité, prix fixé et retrait sans second paiement.
 - 4 tests d’interface : champs et confirmation, filtres, comptes autorisés et solde masqué, retrait motivé et aperçu sans action.
 - Un nouveau parcours HTTP avec Auth/Firestore émulés : annonce de 8 caisses sur un stock de 20, prix 40, réservation, confirmation altérée refusée, accès tiers refusés, achat unique et révocation prioritaire.
-- `npm run test:emulator` : **227 tests réussis**, aucun échec, annulation ou test ignoré, en environ 263 secondes avec Java 21. Total local : **271 + 227 = 498**. Résultat GitHub à consigner après vérification.
+- `npm run test:emulator` : **227 tests réussis**, aucun échec, annulation ou test ignoré, en environ 263 secondes avec Java 21. Total local : **271 + 227 = 498**. Le job GitHub `118252281350`, commit source `d7d0fd71cc01cb96df7f1186df639f0b823c6bd1`, confirme **271 + 227 = 498 tests réussis**, sans échec, annulation ou test ignoré. Node 22.23.3 ; compilation terminée le 19 octobre 2026 à **19:10:28 UTC**, tests métier/interface à **19:10:35 UTC**, intégrations à **19:15:42 UTC**. Résultats lus dans le journal terminé.
 - Données synthétiques exclusivement dans `demo-gn-engine` ; aucune donnée de test créée en production.
 
 ## Limites et recette restante
@@ -55,4 +55,12 @@ La recette avec comptes Google réels distincts, téléphones et réseau terrain
 
 ## Publication
 
-Version 0.14 préparée ; publication Firebase et preuve navigateur à consigner après observation.
+Le code applicatif publié est le commit `d7d0fd71cc01cb96df7f1186df639f0b823c6bd1`. Le [workflow Firebase 39308672976](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39308672976) termine avec succès pour la vérification `118252281350` et la publication `118255078012`. Le journal de publication consigne le 19 octobre 2026 :
+
+- Fonction serveur `api` en Belgique : **ACTIVE** à **19:17:21 UTC**.
+- Firebase Hosting : **Deploy complete** à **19:17:53 UTC**.
+- Contrôle final à **19:18:06 UTC** : page HTTP 200, manifeste exact **0.14.0** et **66 commandes privées refusées en HTTP 401 / LOGIN_REQUIRED** sans authentification, dont les neuf commandes du marché.
+
+Le navigateur confirme **GN Engine · 0.14**. La route `#/market/verification` affiche seulement la connexion, sans annonce, prix ou identité privée. La capture prouve la version affichée et la fermeture de l’accès anonyme ; elle ne constitue pas une recette authentifiée des achats. Page finale : [GN Engine](https://gn-engine.web.app/).
+
+![Marché protégé — version 0.14](verification/gn-engine-0.14-1792437540420.jpg)

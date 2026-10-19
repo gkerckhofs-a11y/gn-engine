@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.14 préparée : marché de session, annonces à prix fixe, réservation et expiration du stock, achat atomique et retrait physique sans second paiement. 498 tests réussis localement (271 métier/interface et 227 intégrations) ; vérification GitHub et publication en cours. Rapport `VALIDATION-0.14.md` ; rapports précédents conservés. Recette avec comptes réels distincts et mobile restante.
+19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.14 publiée : marché de session, annonces à prix fixe, réservation et expiration du stock, achat atomique et retrait physique sans second paiement. 498 tests réussis localement et sur GitHub (271 métier/interface et 227 intégrations) ; manifeste 0.14.0 et 66 refus anonymes vérifiés en ligne. Rapport `VALIDATION-0.14.md` ; rapports précédents conservés. Recette avec comptes réels distincts et mobile restante.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|

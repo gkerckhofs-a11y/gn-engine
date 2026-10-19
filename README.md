@@ -105,7 +105,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.14 est préparée : **498 tests réussis** localement (271 métier/interface et 227 intégrations). Vérification GitHub et Firebase en cours ; preuves dans le [rapport 0.14](docs/VALIDATION-0.14.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.14 est publiée : **498 tests réussis** localement et sur GitHub (271 métier/interface et 227 intégrations). Manifeste exact 0.14.0 et 66 commandes privées refusées sans connexion, vérifiés en ligne. Preuves dans le [rapport 0.14](docs/VALIDATION-0.14.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 
