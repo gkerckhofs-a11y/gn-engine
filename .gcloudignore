@@ -1,0 +1,6 @@
+# Seuls le serveur et ses manifestes sont envoyés à Cloud Build.
+*
+!package.json
+!package-lock.json
+!src/
+!src/**

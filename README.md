@@ -24,7 +24,7 @@ L’accueil et le rythme de jeu sont indépendants. Le MJ peut éditer les fiche
 - Firebase Authentication : Google activé.
 - Cible de publication : Firebase Hosting et fonction HTTP `api` en Belgique, Node 22. **Publication restante.**
 
-Cloud Shell a retourné « Site Unavailable » dans le navigateur de travail. Le terminal local n’est pas authentifié auprès de Firebase. Aucune clé de service ni délégation de déploiement GitHub n’a été créée.
+Cloud Shell a retourné « Site Unavailable » dans le navigateur de travail. Le terminal local n’est pas authentifié auprès de Firebase. Un script d’autorisation et un workflow GitHub sont préparés : les droits doivent encore être accordés par le propriétaire avec le script ci-dessous.
 
 ## Vérifier
 
@@ -41,15 +41,28 @@ npm run test:emulator
 
 ## Publier
 
-Dans le dépôt, depuis un terminal ayant accès à ton projet Firebase :
+Une seule fois, le propriétaire exécute dans Google Cloud Shell :
+
+```sh
+bash scripts/authorize-github-firebase.sh
+```
+
+Si le fichier a été importé seul dans le dossier d’accueil de Cloud Shell, utiliser `bash authorize-github-firebase.sh`.
+
+Ensuite, lancer **Déployer GN Engine sur Firebase** dans l’onglet Actions de GitHub, sur `main`. Le workflow est aussi déclenché par une modification explicite de `.github/deploy-request.json` sur `main`, ce qui permet à Codex de demander une publication via le connecteur GitHub. Les autres commits ne lancent que les vérifications.
+
+L’autorisation utilise une identité temporaire GitHub, sans clé privée ni secret GitHub à configurer. [Droits exacts, procédure et révocation](docs/DEPLOIEMENT-GITHUB.md).
+
+Pour publier depuis un terminal local après la même configuration, avec `gcloud` et Firebase CLI connectés au projet :
 
 ```sh
 npm ci
+gcloud auth login
 npx firebase login
-bash scripts/deploy.sh
+npm run deploy
 ```
 
-Le script compile et déploie uniquement Hosting, la fonction `api` et les règles/index Firestore. Il ne charge ni le canon, ni les documents, ni les données d’essai. Le propriétaire doit présenter une identité Google vérifiée correspondant à `OWNER_EMAIL` ; aucun rôle n’est accepté depuis le JSON client.
+Le workflow vérifie les tests, compile puis publie la fonction `api` via Google Cloud CLI et le site/règles/index via Firebase CLI. Deux comptes dédiés distinguent compilation et exécution. Le canon, les documents et les données d’essai ne sont pas chargés. Le propriétaire doit présenter une identité Google vérifiée correspondant à `OWNER_EMAIL` ; aucun rôle n’est accepté depuis le JSON client.
 
 ## Périmètre restant
 

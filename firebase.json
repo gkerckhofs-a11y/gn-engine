@@ -16,6 +16,7 @@
         "public",
         "*-debug.log",
         "*.zip",
+        "gha-creds-*.json",
         ".env*",
         "*.md"
       ]

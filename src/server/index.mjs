@@ -10,7 +10,7 @@ import {DomainError} from '../core/validation.mjs';
 initializeApp();
 const ownerEmail=defineString('OWNER_EMAIL',{default:'gkerckhofs@gmail.com',description:'Compte Google vérifié propriétaire de GN Engine'});
 const store=firestoreStore(getFirestore());
-export const api=onRequest({region:'europe-west1',maxInstances:3,minInstances:0,memory:'256MiB',timeoutSeconds:60,invoker:'public'},async(req,res)=>{
+export const api=onRequest({region:'europe-west1',serviceAccount:'gn-engine-runtime@gn-engine.iam.gserviceaccount.com',maxInstances:3,minInstances:0,memory:'256MiB',timeoutSeconds:60,invoker:'public'},async(req,res)=>{
   res.set('Cache-Control','private, no-store'); res.set('X-Content-Type-Options','nosniff');
   if(req.method!=='POST') return res.status(405).json({error:'METHOD_NOT_ALLOWED'});
   if(!req.is('application/json') || Buffer.byteLength(JSON.stringify(req.body ?? {}))>128000)
