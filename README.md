@@ -111,7 +111,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.15 est préparée : **551 tests réussis** localement (299 métier/interface et 252 intégrations). Vérification GitHub et Firebase en cours ; preuves dans le [rapport 0.15](docs/VALIDATION-0.15.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.15 est publiée : **551 tests réussis** localement et sur GitHub (299 métier/interface et 252 intégrations). Firebase sert le manifeste exact 0.15.0 ; les 82 commandes privées contrôlées refusent les accès anonymes. Preuves dans le [rapport 0.15](docs/VALIDATION-0.15.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 

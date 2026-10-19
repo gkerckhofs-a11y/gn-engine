@@ -50,7 +50,7 @@ Un même envoi rejoué renvoie son résultat sans second message. Deux confirmat
 - Un parcours HTTP avec Auth/Firestore émulés vérifie une annonce ciblée, une candidature privée, la réponse organisateur, sa lecture, l’absence de paiement et la priorité de la révocation.
 - `npm run test:emulator` : **252 tests réussis**, sans échec, annulation ou test ignoré, en environ 295 secondes avec Java 21. Total local : **299 + 252 = 551 tests distincts**.
 - Après la correction finale du suivi de lecture, le parcours « question puis candidature » a été relancé isolément sur Firestore : **1 test réussi**. Il vérifie qu’un nouveau message candidat ne masque pas une réponse organisateur non acquittée. Ce réessai ne s’ajoute pas au total de tests distincts.
-- Résultat GitHub à consigner après vérification.
+- Le job GitHub `118266145382`, commit source `a76114b80da00ad987a38eb11ad7831418db08ad`, confirme **299 + 252 = 551 tests réussis**, sans échec, annulation ou test ignoré, sur la dernière version complète. Node 22.23.3 et Java 21 ; compilation terminée le 19 octobre 2026 à **19:39:07 UTC**, tests métier/interface à **19:39:14 UTC**, intégrations à **19:44:05 UTC** (environ 275 secondes). Résultats lus dans le journal terminé. Le workflow indépendant de vérification `39312703260`, job `118266144728`, termine également avec succès.
 - Données synthétiques exclusivement dans `demo-gn-engine`, aucune donnée de test en production.
 
 ## Limites et recette restante
@@ -63,4 +63,12 @@ Listes sans pagination ; les 50 derniers messages d’un échange sont affichés
 
 ## Publication
 
-Version 0.15 préparée ; publication et preuve navigateur à consigner après observation.
+Le code applicatif publié est le commit `a76114b80da00ad987a38eb11ad7831418db08ad`. Le [workflow Firebase 39312703474](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39312703474) termine avec succès pour la vérification `118266145382` et la publication `118268710363`. Le journal de publication consigne le 19 octobre 2026 :
+
+- Fonction serveur `api` en Belgique : **ACTIVE** à **19:45:47 UTC**.
+- Firebase Hosting : **Deploy complete** à **19:45:56 UTC**.
+- Contrôle final à **19:46:10 UTC** : page HTTP 200, manifeste exact **0.15.0** et **82 commandes privées refusées en HTTP 401 / LOGIN_REQUIRED** sans authentification, dont les seize nouvelles commandes des annonces et candidatures. Ces assertions sont celles du script `scripts/verify-deployment.mjs` exécuté avec succès.
+
+Le navigateur confirme **GN Engine · 0.15**. La route `#/missions/verification` affiche la connexion et aucun contenu d’annonce ou d’échange privé. La capture prouve la version affichée et la fermeture de l’accès anonyme ; elle ne constitue pas une recette authentifiée des candidatures. Page finale : [GN Engine](https://gn-engine.web.app/).
+
+![Petites annonces protégées — version 0.15](verification/gn-engine-0.15-1792439217435.jpg)

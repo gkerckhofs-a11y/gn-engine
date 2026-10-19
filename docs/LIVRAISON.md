@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.15 préparée : petites annonces organisateur, programmation et audiences, candidatures et réponses privées. 551 tests réussis localement (299 métier/interface et 252 intégrations) ; vérification GitHub et publication en cours. Rapport `VALIDATION-0.15.md` ; rapports précédents conservés. Contrats, attribution et règlement des missions ainsi que recette terrain restent ouverts.
+19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.15 publiée : petites annonces organisateur, programmation et audiences, candidatures et réponses privées. 551 tests réussis localement et sur GitHub (299 métier/interface et 252 intégrations) ; publication Firebase vérifiée, manifeste exact 0.15.0 et 82 commandes privées refusées aux accès anonymes. Rapport `VALIDATION-0.15.md` ; rapports précédents conservés. Contrats, attribution et règlement des missions ainsi que recette terrain restent ouverts.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
