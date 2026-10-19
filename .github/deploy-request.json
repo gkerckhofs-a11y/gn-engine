@@ -2,5 +2,6 @@
   "project": "gn-engine",
   "sourceCommit": "e56f905ff0fb20dd466427f17820cfabd232f91f",
   "requestedAt": "2026-10-19T12:38:04Z",
-  "reason": "Premier déploiement après confirmation de l’autorisation Google par le propriétaire."
+  "reason": "Corriger le filtre gcloud : inclure les manifestes à la racine de l’archive du serveur.",
+  "attempt": 2
 }
