@@ -1,3 +1,4 @@
+import {createMarketService,marketAction} from './market.mjs';
 import {createSaleService,saleAction} from './sales.mjs';
 import {createCollectiveService,collectiveAction} from './collective-accounts.mjs';
 import {createEconomyService,economyAction} from './economy.mjs';
@@ -11,7 +12,7 @@ import {narrativeInput,validateRelations,recordPublication} from './narrative.mj
 import {createHealthService,healthAction} from './health.mjs';
 import {createInventoryService,inventoryAction} from './inventory.mjs';
 import {createLotTransferService,lotTransferAction} from './inventory-transfers.mjs';
-import {seedInventory} from './inventory-state.mjs';
+import {seedInventory,effectiveLot} from './inventory-state.mjs';
 import {healthSummary,initialHealth,requireGameAction,canGameAction} from './health-state.mjs';
 import {createAbilityService,abilityAction} from './abilities.mjs';
 import {createNotebookService,notebookAction} from './notebook.mjs';
@@ -91,6 +92,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     return {s,c,g,m:memberFor(g,cid)};
   };
 
+  const marketService=createMarketService({store,signed,checkSession,now,uuid});
   const saleService=createSaleService({store,signed,now,uuid});
   const collectiveService=createCollectiveService({store,signed,checkSession,checkScenario,now,uuid});
   const economyService=createEconomyService({store,signed,checkSession,checkScenario,now,uuid});
@@ -102,6 +104,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(marketAction(action))return marketService(action,actor,input);
     if(saleAction(action))return saleService(action,actor,input);
     if(collectiveAction(action))return collectiveService(action,actor,input);
     if(economyAction(action))return economyService(action,actor,input);
@@ -158,7 +161,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         permissions.content?tx.list(`sessions/${sid}/groups`):[],permissions.content?tx.list(`sessions/${sid}/knowledge`):[],
         permissions.content?tx.list(`sessions/${sid}/skills`):[],permissions.content?tx.list(`sessions/${sid}/classes`):[],permissions.content?tx.list(`sessions/${sid}/items`):[],permissions.content?tx.list(`sessions/${sid}/inventory`):[],permissions.content?tx.list(`sessions/${sid}/accounts`):[]]);
       return {...privateSession(s),role,permissions,characters:permissions.content?characters:characters.map(receptionCharacter),registrations,
-        ...(permissions.content?{groups,groupsEnabled:s.modules?.groups===true,knowledge,skills,classes,items,inventory,accounts,economyRules:s.economyRules??null,healthRules:s.healthRules??null}:{}),
+        ...(permissions.content?{groups,groupsEnabled:s.modules?.groups===true,knowledge,skills,classes,items,inventory:inventory.map(l=>effectiveLot(l,now())),accounts,economyRules:s.economyRules??null,healthRules:s.healthRules??null}:{}),
         audit:audit.sort((a,b)=>b.at-a.at).slice(0,50),staff:staff.map(g=>({email:g.email,role:g.role,active:g.active,updatedAt:g.updatedAt}))};
     });
     if(action==='myGroup' || action==='previewGroup') return store.runTransaction(async tx=>{

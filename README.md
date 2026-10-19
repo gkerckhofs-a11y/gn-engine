@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.13 : ventes privées, paiement et propriété atomiques, retrait physique séparé.**
+**Version 0.14 : marché de session, annonces à prix fixe, stock réservé et achat atomique.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -76,7 +76,13 @@ Depuis **Mes comptes et caisses**, le joueur choisit un compte autorisé. Il peu
 
 Depuis **Mon sac**, proposez un lot à un joueur identifié par badge : quantité, prix total, durée, lieu et conditions de remise. L’acheteur choisit son portefeuille ou une caisse autorisée, vérifie le récapitulatif puis paie. Le paiement et la propriété changent ensemble ; le lot reste chez le vendeur. Même financé par une caisse, le lot appartient au personnage acheteur.
 
-Les objets à récupérer et ceux détenus pour autrui apparaissent séparément. Le vendeur propose ensuite la remise et l’acheteur confirme la réception physique, sans second paiement. Les propositions ne réservent rien avant acceptation. Le marché public, la négociation et les contrats restent à développer. [Parcours et limites 0.13](docs/VALIDATION-0.13.md).
+Les objets à récupérer et ceux détenus pour autrui apparaissent séparément. Le vendeur propose ensuite la remise et l’acheteur confirme la réception physique, sans second paiement. Les propositions ne réservent rien avant acceptation. Le marché de session prolonge ce parcours en 0.14 ; négociation et contrats restent à développer. [Parcours et limites 0.13](docs/VALIDATION-0.13.md).
+
+## Marché de la session
+
+Depuis **Mon sac**, publiez une quantité à prix total fixe, avec durée, lieu et conditions. La publication réserve ce stock : dons, soins et autres ventes ne peuvent plus l’utiliser. L’expiration ou le retrait de l’annonce le libère. Le marché propose recherche, catégorie et **Mes annonces**.
+
+Un joueur actif achète toute la quantité depuis un compte autorisé ; paiement et propriété changent ensemble, puis la remise physique suit le parcours du sac. Le MJ peut retirer une annonce avec motif avant de corriger son lot. [Parcours et limites 0.14](docs/VALIDATION-0.14.md).
 
 ## Infrastructure configurée
 
@@ -99,7 +105,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.13 est publiée : **447 tests réussis** localement et sur GitHub (244 métier/interface et 203 intégrations). Manifeste exact 0.13.0 et 57 commandes privées refusées sans connexion, vérifiés en ligne. Preuves dans le [rapport 0.13](docs/VALIDATION-0.13.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.14 est préparée : **498 tests réussis** localement (271 métier/interface et 227 intégrations). Vérification GitHub et Firebase en cours ; preuves dans le [rapport 0.14](docs/VALIDATION-0.14.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 

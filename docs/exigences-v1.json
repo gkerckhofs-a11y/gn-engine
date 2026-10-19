@@ -633,10 +633,11 @@
       "sourceLine": 202,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_14",
+      "coreWork": "Marché de session, réservation et achat atomique",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.14.md ; src/core/market.mjs ; src/core/inventory-state.mjs ; src/core/sales.mjs ; web/market.mjs ; test/support/market-suite.mjs ; test/market-ui.test.mjs ; test/integration",
+      "implementedScope": "Annonces des joueurs actifs de la session, description/quantité/prix total/vendeur/lieu/conditions/échéance, recherche et catégorie. Audience limitée à un groupe, alias commercial, marché noir, services et vendeur extérieur restant."
     },
     {
       "id": "MAR-02",
@@ -644,10 +645,11 @@
       "sourceLine": 204,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_14",
+      "coreWork": "Marché de session, réservation et achat atomique",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.14.md ; src/core/market.mjs ; src/core/inventory-state.mjs ; src/core/sales.mjs ; web/market.mjs ; test/support/market-suite.mjs ; test/market-ui.test.mjs ; test/integration",
+      "implementedScope": "Publication confirmée par propriétaire et détenteur, réservation atomique entière ou fractionnée, survente empêchée, expiration et retrait libérant le stock. Services et vente par mandataire restant."
     },
     {
       "id": "MAR-03",
@@ -655,11 +657,11 @@
       "sourceLine": 206,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_13",
-      "coreWork": "Vente atomique et remise physique séparée",
-      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.13.md ; src/core/sales.mjs ; src/core/inventory.mjs ; web/sales.mjs ; test/support/sales-suite.mjs ; test/sales-ui.test.mjs ; test/integration",
-      "implementedScope": "Récapitulatif d’une vente privée : prix total fixé, frais nuls, compte autorisé, lieu et conditions. Confirmation contrôlée sans accepter un prix altéré. Marché public, paniers, frais configurables et cours restant."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_14",
+      "coreWork": "Marché de session, réservation et achat atomique",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.14.md ; src/core/market.mjs ; src/core/inventory-state.mjs ; src/core/sales.mjs ; web/market.mjs ; test/support/market-suite.mjs ; test/market-ui.test.mjs ; test/integration",
+      "implementedScope": "Récapitulatif puis achat unique de toute la quantité au prix fixé, compte personnel ou collectif autorisé, frais nuls, lieu et conditions explicites. Paniers, achats partiels, frais et cours restant."
     },
     {
       "id": "MAR-04",
@@ -678,11 +680,11 @@
       "sourceLine": 210,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_13",
-      "coreWork": "Vente atomique et remise physique séparée",
-      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.13.md ; src/core/sales.mjs ; src/core/inventory.mjs ; web/sales.mjs ; test/support/sales-suite.mjs ; test/sales-ui.test.mjs ; test/integration",
-      "implementedScope": "Vente immédiate privée transférant paiement et propriété sans changer détenteur/emplacement. Retrait séparé sans second paiement ; expiration de proposition sans réservations. Livraison sous séquestre, annonces publiques, remboursements et litiges formels restant."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_14",
+      "coreWork": "Marché de session, réservation et achat atomique",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.14.md ; src/core/market.mjs ; src/core/inventory-state.mjs ; src/core/sales.mjs ; web/market.mjs ; test/support/market-suite.mjs ; test/market-ui.test.mjs ; test/integration",
+      "implementedScope": "Paiement et propriété atomiques, détention et emplacement conservés, retrait physique distinct sans second débit. Contrats, séquestre, remboursement et litiges formels restant."
     },
     {
       "id": "ANN-01",

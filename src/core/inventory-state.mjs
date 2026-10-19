@@ -15,9 +15,15 @@ export const publicItem=d=>({id:d.id,name:d.name,description:d.description,categ
 export function itemQuantity(definition,value,allowZero=false){
   const quantity=whole(value,'INVALID_QUANTITY');requireThat((allowZero||quantity>0)&&(definition.kind!=='INDIVIDUAL'||quantity<=1),'INVALID_QUANTITY');return quantity;
 }
+// Reservations expire on server time. The virtual revision invalidates old consent even before a write persists the release.
+export function effectiveLot(l,at){
+  return l?.status==='RESERVED'&&Number.isSafeInteger(l.marketReservation?.expiresAt)&&at>=l.marketReservation.expiresAt
+    ?{...l,status:'AVAILABLE',revision:l.revision+1,marketReservation:null}:l;
+}
+export const readLot=async(tx,sid,id,at)=>effectiveLot(await tx.get(`sessions/${sid}/inventory/${id}`),at);
 export const lotState=l=>({quantity:l.quantity,status:l.status,revision:l.revision});
 export const personalLot=(l,cid)=>l.ownerId===cid&&l.holderId===cid&&l.location.kind==='CHARACTER'&&l.location.id===cid;
-export const publicLot=l=>({id:l.id,item:publicItem(l.item),quantity:l.quantity,status:l.status,revision:l.revision,ownerId:l.ownerId,holderId:l.holderId,location:l.location});
+export const publicLot=l=>({id:l.id,item:publicItem(l.item),quantity:l.quantity,status:l.status,revision:l.revision,ownerId:l.ownerId,holderId:l.holderId,location:l.location,...(l.status==='RESERVED'?{marketReservation:{listingId:l.marketReservation.listingId,expiresAt:l.marketReservation.expiresAt}}:{})});
 export function newLot(id,item,quantity,characterId,at,origin){
   return {id,item:publicItem(item),quantity:itemQuantity(item,quantity),ownerId:characterId,holderId:characterId,location:{kind:'CHARACTER',id:characterId},status:'AVAILABLE',revision:1,createdAt:at,origin};
 }
@@ -34,9 +40,9 @@ export async function validateConsumable(tx,base,healing){
   requireThat(d?.publicationState==='PUBLISHED'&&d.consumable,'INVALID_CONSUMABLE');
   itemQuantity(d,cost.quantity);healing.consumable={itemId:d.id,quantity:cost.quantity,name:d.name,unit:d.unit,itemRevision:d.revision};
 }
-export async function treatmentLot(tx,sid,cid,cost,lotId){
+export async function treatmentLot(tx,sid,cid,cost,lotId,at){
   if(!cost)return null;
-  const l=await tx.get(`sessions/${sid}/inventory/${documentId(lotId)}`);
+  const l=await readLot(tx,sid,documentId(lotId),at);
   requireThat(l&&personalLot(l,cid)&&l.item.id===cost.itemId&&l.item.revision===cost.itemRevision&&l.item.consumable,'INVALID_CONSUMABLE');return l;
 }
 export function treatmentStock(cost,lot){

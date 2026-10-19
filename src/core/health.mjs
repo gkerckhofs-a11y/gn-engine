@@ -1,4 +1,4 @@
-import {treatmentLot,treatmentStock,consumeTreatmentLot,personalLot,publicLot} from './inventory-state.mjs';
+import {treatmentLot,treatmentStock,consumeTreatmentLot,personalLot,publicLot,effectiveLot} from './inventory-state.mjs';
 import {createHash} from 'node:crypto';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {gameTime} from './clock.mjs';
@@ -30,7 +30,7 @@ export function createHealthService({store,signed,checkSession,checkScenario,now
     requireThat(s.healthRules?.enabled,'HEALTH_DISABLED');healthState(c);
     return {s,c,r};
   };
-  const treatmentContext=async(tx,ctx,input)=>{
+  const treatmentContext=async(tx,ctx,input,at)=>{
     const {s,c,r}=ctx,skill=activeSkill(c,documentId(input.skillId));requireGameAction(s,c,'heal');
     const targetId=documentId(input.targetId);requireThat(skill.kind==='ACTIVE_SELF'?targetId===c.id:targetId!==c.id,'INVALID_RECIPIENT');
     const t=targetId===c.id?c:await tx.get(charPath(s.id,targetId));
@@ -38,7 +38,7 @@ export function createHealthService({store,signed,checkSession,checkScenario,now
     const tr=targetId===c.id?r:await tx.get(`sessions/${s.id}/registrations/${hash(t.assignedUid)}`);
     requireThat(tr?.status==='ACCEPTED'&&tr.accessActive&&tr.characterId===t.id,'INVALID_RECIPIENT');healthState(t);
     const use=await tx.get(usePath(s.id,c.id,skill.id));
-    const lot=await treatmentLot(tx,s.id,c.id,skill.healing.consumable,input.lotId);
+    const lot=await treatmentLot(tx,s.id,c.id,skill.healing.consumable,input.lotId,at);
     return {skill,t,tr,use,lot};
   };
   const damage=(ctx,input)=>{
@@ -98,12 +98,12 @@ export function createHealthService({store,signed,checkSession,checkScenario,now
       const preview=action==='previewHealth',ctx=await player(tx,actor,input,preview),{s,c,r}=ctx;
       if(action==='myHealth'||preview){
         const skills=c.abilityProfile?.published?c.abilityProfile.skills.filter(k=>['ACTIVE_SELF','ACTIVE_TARGET'].includes(k.kind)&&k.healing?.effect==='HEAL_HP'):[];
-        const stock=skills.some(k=>k.healing.consumable)?(await tx.list(`sessions/${s.id}/inventory`,['holderId',c.id])).filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.item.consumable):[];
+        const stock=skills.some(k=>k.healing.consumable)?(await tx.list(`sessions/${s.id}/inventory`,['holderId',c.id])).map(l=>effectiveLot(l,at)).filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.item.consumable):[];
         const items=[];for(const k of skills){const use=await tx.get(usePath(s.id,c.id,k.id));items.push({id:k.id,name:k.name,description:k.description,instructions:k.instructions,kind:k.kind,healing:k.healing,lots:k.healing.consumable?stock.filter(l=>l.item.id===k.healing.consumable.itemId&&l.item.revision===k.healing.consumable.itemRevision).map(publicLot):[],...available(k,use,gameTime(s.clock,at))});}
         const history=await tx.list(`${charPath(s.id,c.id)}/healthHistory`,null,{orderBy:'at',direction:'desc',limit:30});
         return {session:{id:s.id,stage:s.stage},preview,character:{id:c.id,name:c.public.displayName},health:healthSummary(s,c),skills:items,events:history.map(projectEvent)};
       }
-      const healing=action==='prepareTreatment'||action==='applyTreatment',x=healing?await treatmentContext(tx,ctx,input):null;
+      const healing=action==='prepareTreatment'||action==='applyTreatment',x=healing?await treatmentContext(tx,ctx,input,at):null;
       if(action==='prepareDamage'||action==='prepareTreatment'){
         requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');return healing?treatment(ctx,x,at):damage(ctx,input);
       }

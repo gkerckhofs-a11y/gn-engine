@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.13 publiée : ventes privées, paiement et propriété atomiques, retrait physique sans second paiement. 447 tests réussis localement et sur GitHub (244 métier/interface et 203 intégrations) ; manifeste 0.13.0 et 57 refus anonymes vérifiés en ligne. Rapport `VALIDATION-0.13.md` ; rapports 0.2 à 0.12 conservés. La recette avec comptes joueurs réels distincts et mobile reste à faire.
+19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.14 préparée : marché de session, annonces à prix fixe, réservation et expiration du stock, achat atomique et retrait physique sans second paiement. 498 tests réussis localement (271 métier/interface et 227 intégrations) ; vérification GitHub et publication en cours. Rapport `VALIDATION-0.14.md` ; rapports précédents conservés. Recette avec comptes réels distincts et mobile restante.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -55,6 +55,10 @@ Une caisse par groupe, préparée dans le scénario ou ouverte à zéro en sessi
 ## Extension 0.13
 
 Vente privée non réservée avant acceptation, quantité et prix total explicites, durée, lieu et conditions de remise. Achat depuis un compte personnel ou collectif autorisé ; propriété transférée avec le paiement sans déplacement physique. Objets à récupérer et détention pour autrui visibles ; remise proposée par le vendeur puis réception confirmée sans second paiement. Concurrence, droits, réessais et journaux contrôlés. Marché public, annonces engageant du stock, négociation, missions/recrutement, contrats et remboursement restent à développer. Voir `VALIDATION-0.13.md`.
+
+## Extension 0.14
+
+Marché visible aux joueurs actifs d’une session, recherche et filtres, publication confirmée d’une quantité à prix total fixe. Réservation entière ou fractionnée, expiration en temps réel, retrait vendeur/MJ motivé, achat depuis un compte autorisé et réemploi du retrait physique sans second paiement. Annonces de groupe, alias vendeur, négociation, services, panier, contrats et missions/recrutement restent à développer. Voir `VALIDATION-0.14.md`.
 
 ## Préparation réalisée
 

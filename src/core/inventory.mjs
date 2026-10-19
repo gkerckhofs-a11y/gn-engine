@@ -2,7 +2,7 @@ import {listLotSales} from './sales.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {listLotTransfers} from './inventory-transfers.mjs';
 import {canGameAction} from './health-state.mjs';
-import {inventoryHash as hash,itemInput,itemQuantity,publicItem,publicLot,lotState,newLot,personalLot} from './inventory-state.mjs';
+import {inventoryHash as hash,itemInput,itemQuantity,publicItem,publicLot,lotState,newLot,personalLot,effectiveLot,readLot} from './inventory-state.mjs';
 const reason=v=>{requireThat(typeof v==='string'&&v.trim()&&v.length<=500,'INVALID_ITEM');return v.trim();};
 const writes=new Set(['saveItem','saveSessionItem','setStartingInventory','grantItem','correctLot']);
 export const inventoryAction=a=>writes.has(a)||['prepareStartingInventory','prepareGrantItem','itemHistory','myInventory','previewInventory'].includes(a);
@@ -38,10 +38,10 @@ export function createInventoryService({store,signed,checkSession,checkScenario,
         requireThat(c&&(preview||c.assignedUid===actor.uid),'FORBIDDEN');
         requireThat(['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s.stage),'BRIEFING_CLOSED');
         requireThat(c.publicationState==='PUBLISHED'&&c.public?.publicationState==='PUBLISHED','CONTENT_UNPUBLISHED');
-        const lots=await tx.list(`sessions/${sid}/inventory`,['holderId',c.id]),owned=await tx.list(`sessions/${sid}/inventory`,['ownerId',c.id]);
+        const lots=(await tx.list(`sessions/${sid}/inventory`,['holderId',c.id])).map(l=>effectiveLot(l,at)),owned=(await tx.list(`sessions/${sid}/inventory`,['ownerId',c.id])).map(l=>effectiveLot(l,at));
         return {session:{id:sid,stage:s.stage},healthEnabled:s.healthRules?.enabled===true,economyEnabled:s.economyRules?.enabled===true,preview,character:{id:c.id,name:c.public.displayName},lots:lots.filter(l=>personalLot(l,c.id)).map(publicLot),
           ownedElsewhere:owned.filter(l=>l.holderId!==c.id).map(publicLot),heldForOthers:lots.filter(l=>l.ownerId!==c.id).map(publicLot),sales:await listLotSales(tx,s,c,at,preview),
-          canSell:!preview&&s.stage==='EN_JEU'&&s.economyRules?.enabled===true&&canGameAction(s,c,'transfer'),canTransfer:!preview&&s.stage==='EN_JEU'&&canGameAction(s,c,'transfer'),transfers:await listLotTransfers(tx,s,c,preview)};
+          canSell:!preview&&s.stage==='EN_JEU'&&s.economyRules?.enabled===true&&canGameAction(s,c,'transfer'),canTransfer:!preview&&s.stage==='EN_JEU'&&canGameAction(s,c,'transfer'),transfers:await listLotTransfers(tx,s,c,preview,at)};
       }
       const {session,parent,base}=await context(tx,actor,input);
       if(action==='itemHistory'){
@@ -68,7 +68,7 @@ export function createInventoryService({store,signed,checkSession,checkScenario,
         const lot=newLot(id,p.item,p.quantity,p.c.id,at,{kind:'GM_GRANT',actorUid:actor.uid});after=lotState(lot);
         tx.set(`${base}/inventory/${id}`,lot);result={id};
       }else if(action==='correctLot'){
-        id=documentId(input.lotId);kind='inventory';const lot=await tx.get(`${base}/inventory/${id}`);requireThat(lot,'NOT_FOUND');
+        id=documentId(input.lotId);kind='inventory';const lot=await readLot(tx,parent.id,id,at);requireThat(lot,'NOT_FOUND');
         requireThat(lot.revision===input.lotRevision,'STALE_REVISION');requireThat(['AVAILABLE','SEIZED'].includes(lot.status),'LOT_CLOSED');
         const quantity=itemQuantity(lot.item,input.quantity,true);requireThat(['AVAILABLE','SEIZED','DESTROYED'].includes(input.status)&&(quantity===0?input.status==='DESTROYED':input.status!=='DESTROYED'),'INVALID_ITEM');
         before=lotState(lot);const next={...lot,quantity,status:input.status,revision:lot.revision+1};after=lotState(next);
