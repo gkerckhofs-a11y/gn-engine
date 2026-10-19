@@ -22,7 +22,14 @@
 - Un essai HTTP/Auth supplémentaire vérifie l'effet réel d'une délégation, le rejet de la fausse déclaration de rôle, l'absence des secrets dans la réponse et la révocation immédiate.
 - Les tests créent exclusivement des comptes synthétiques dans Auth Emulator. Aucune délégation ni donnée de jeu de test n'a été créée en production par cette livraison.
 
-La publication et ses résultats sont consignés ci-dessous après vérification du workflow.
+## Publication vérifiée
+
+- Source déployée : `782c7fb814dfbed5e4100e4dbdc0ad01ac39a06c`.
+- [Workflow Firebase du 19 octobre 2026](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39257789559) : jobs `verify` et `deploy` réussis. Compilation, 37 tests métier et 24 intégrations, fonction en Belgique, Hosting, règles et index publiés.
+- Le contrôle final confirme `version.json` en `0.3.0`, accueil HTTP 200 et API privée refusant la lecture anonyme en HTTP 401 (`LOGIN_REQUIRED`).
+- Accueil réel rechargé et vérifié dans Chrome sur https://gn-engine.web.app/ ; pied de page « GN Engine · 0.3 ». Aucune connexion Google complète ni manipulation des formulaires privés en production n'est déclarée validée.
+
+![Accueil 0.3 publié](verification/gn-engine-0.3-1792415596419.jpg)
 
 ## Modèle et compatibilité
 

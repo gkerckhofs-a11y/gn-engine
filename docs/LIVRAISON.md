@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n'est encore validé. Premier parcours A développé et publié sur https://gn-engine.web.app/ : 28 tests métier et 14 intégrations réussis. L'accueil public et les contrôles HTTP sont vérifiés ; la recette complète avec des comptes joueurs distincts reste à faire. Voir `VALIDATION-0.2.md`. Le découpage ne réduit pas le périmètre du cahier.
+19 octobre 2026. Aucun lot complet n'est encore validé. Version 0.3 publiée sur https://gn-engine.web.app/ : 37 tests métier et 24 intégrations réussis localement et sur GitHub. L'accueil public et les contrôles HTTP sont vérifiés ; la recette complète avec des comptes joueurs distincts reste à faire. Voir `VALIDATION-0.3.md` et le rapport historique `VALIDATION-0.2.md`. Le découpage ne réduit pas le périmètre du cahier.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -14,7 +14,7 @@ Les contrôles d'accès et la traçabilité sont requis dès A. Les imports et o
 
 ## Extension 0.3
 
-Rôles MJ/Accueil par session, révocation vérifiée avant tout réessai, relations orientées, objectifs narratifs, historique des publications, suivi de lecture par révision et recherche de participants. 37 tests métier et 24 intégrations réussis localement ; recette navigateur authentifiée à poursuivre. Aucun lot complet déclaré terminé.
+Rôles MJ/Accueil par session, révocation vérifiée avant tout réessai, relations orientées, objectifs narratifs, historique des publications, suivi de lecture par révision et recherche de participants. 37 tests métier et 24 intégrations réussis localement et sur GitHub ; version publiée et recette navigateur authentifiée à poursuivre. Aucun lot complet déclaré terminé.
 
 ## Préparation réalisée
 

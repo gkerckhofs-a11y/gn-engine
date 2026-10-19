@@ -13,7 +13,7 @@
       "sourceLine": 43,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
+      "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
       "coreWork": null,
       "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
       "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
@@ -24,7 +24,7 @@
       "sourceLine": 44,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
+      "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
       "coreWork": null,
       "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
       "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
@@ -68,7 +68,7 @@
       "sourceLine": 64,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
+      "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
       "coreWork": null,
       "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
       "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
@@ -90,7 +90,7 @@
       "sourceLine": 67,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
+      "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
       "coreWork": null,
       "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
       "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
@@ -101,10 +101,11 @@
       "sourceLine": 69,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_3",
       "coreWork": null,
       "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
+      "evidence": "docs/VALIDATION-0.3.md ; src/core/workflow.mjs ; src/core/staff.mjs ; src/core/narrative.mjs ; test/support/workflow-suite.mjs ; test/integration/http.test.mjs",
+      "implementedScope": "Publication de fiche et de ses relations/objectifs ; aperçu joueur. Programmation et pièces jointes restent à intégrer."
     },
     {
       "id": "INS-01",
@@ -112,7 +113,7 @@
       "sourceLine": 73,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
+      "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
       "coreWork": null,
       "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
       "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
@@ -123,7 +124,7 @@
       "sourceLine": 74,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
+      "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
       "coreWork": null,
       "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
       "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
@@ -134,7 +135,7 @@
       "sourceLine": 77,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
+      "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
       "coreWork": null,
       "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
       "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
@@ -145,7 +146,7 @@
       "sourceLine": 80,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
+      "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
       "coreWork": null,
       "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
       "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
@@ -255,10 +256,11 @@
       "sourceLine": 116,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_3",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.3.md ; src/core/workflow.mjs ; src/core/staff.mjs ; src/core/narrative.mjs ; test/support/workflow-suite.mjs ; test/integration/http.test.mjs",
+      "implementedScope": "Histoire, secrets, rôleplay, relations, objectifs et historique des projections publiées. Alias multiples, portrait et consentement au nom réel restent à intégrer."
     },
     {
       "id": "CON-01",
@@ -288,10 +290,11 @@
       "sourceLine": 123,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_3",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.3.md ; src/core/workflow.mjs ; src/core/staff.mjs ; src/core/narrative.mjs ; test/support/workflow-suite.mjs ; test/integration/http.test.mjs",
+      "implementedScope": "Relations orientées sur la fiche source ; cible technique et notes MJ absentes de la projection joueur. Groupes clandestins et révélations de leurs membres restent à intégrer."
     },
     {
       "id": "MIS-01",
@@ -299,10 +302,11 @@
       "sourceLine": 124,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_3",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.3.md ; src/core/workflow.mjs ; src/core/staff.mjs ; src/core/narrative.mjs ; test/support/workflow-suite.mjs ; test/integration/http.test.mjs",
+      "implementedScope": "Objectifs narratifs privés publiables ; pas de conditions, échéances, récompenses ou résolution automatique dans l’interface."
     },
     {
       "id": "CON-03",
@@ -1025,10 +1029,11 @@
       "sourceLine": 294,
       "lot": "E",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_3",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.3.md ; src/core/workflow.mjs ; src/core/staff.mjs ; src/core/narrative.mjs ; test/support/workflow-suite.mjs ; test/integration/http.test.mjs",
+      "implementedScope": "Inscriptions, attributions, préparation, recherche et accès selon rôle. Présence terrain et tableau de jeu des autres modules restent à intégrer."
     },
     {
       "id": "MJ-02",
@@ -1036,10 +1041,11 @@
       "sourceLine": 296,
       "lot": "E",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_3",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.3.md ; src/core/workflow.mjs ; src/core/staff.mjs ; src/core/narrative.mjs ; test/support/workflow-suite.mjs ; test/integration/http.test.mjs",
+      "implementedScope": "Édition de fiche avec motif, auteur et révisions avant/après. Autres interventions et corrections de jeu restent à intégrer."
     },
     {
       "id": "MJ-03",
@@ -1146,10 +1152,11 @@
       "sourceLine": 331,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_3",
       "coreWork": null,
       "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
+      "evidence": "docs/VALIDATION-0.3.md ; src/core/workflow.mjs ; src/core/staff.mjs ; src/core/narrative.mjs ; test/support/workflow-suite.mjs ; test/integration/http.test.mjs",
+      "implementedScope": "Délégations MJ/Accueil par session, actions vérifiées et révocation avant réessai. Permissions par ressource et autres modules restent à intégrer."
     },
     {
       "id": "SEC-02",
@@ -1157,10 +1164,11 @@
       "sourceLine": 332,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_3",
       "coreWork": "projections.mjs : listes blanches des champs ; fichiers et autres ressources à intégrer",
       "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
+      "evidence": "docs/VALIDATION-0.3.md ; src/core/workflow.mjs ; src/core/staff.mjs ; src/core/narrative.mjs ; test/support/workflow-suite.mjs ; test/integration/http.test.mjs",
+      "implementedScope": "Projections serveur séparées pour accueil, joueur et badge ; relations/objectifs filtrés. Pièces jointes, exports et autres modules restent à intégrer."
     },
     {
       "id": "SEC-03",
@@ -1168,7 +1176,7 @@
       "sourceLine": 335,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
+      "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
       "coreWork": null,
       "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
       "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
@@ -1344,7 +1352,7 @@
       "sourceLine": 370,
       "lot": "E",
       "prototype": "NON_VERIFIE",
-      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
+      "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
       "coreWork": null,
       "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
       "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
