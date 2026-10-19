@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.10 publiée : remises gratuites proposées puis acceptées, fractionnement atomique et suivi dans le sac. 312 tests réussis ; manifeste 0.10.0 et refus des accès anonymes vérifiés. Preuves dans `VALIDATION-0.10.md` ; rapports 0.2 à 0.9 conservés. La recette complète avec comptes joueurs distincts et mobile reste à faire. Le découpage ne réduit pas le périmètre du cahier.
+19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.11 préparée : monnaie configurable, portefeuilles personnels, crédits de départ, paiements confirmés et corrections MJ tracées. 357 tests réussis localement (196 métier/interface et 161 intégrations) ; vérification GitHub et publication en cours. Rapport `VALIDATION-0.11.md` ; rapports 0.2 à 0.10 conservés. La recette complète avec comptes joueurs distincts et mobile reste à faire. Le découpage ne réduit pas le périmètre du cahier.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -43,6 +43,10 @@ Catalogue versionné, copies confirmées du matériel de départ, lots indépend
 ## Extension 0.10
 
 Remise gratuite d’un lot entier ou d’une quantité entière : proposition après comparaison, acceptation par le destinataire, refus/annulation et historique. Propriété, détention et emplacement changent ensemble. Le fractionnement conserve les quantités et la filiation des lots. Aucune réservation à la proposition ; toute modification du lot invalide les propositions en attente. Ventes, prêts, détention pour autrui, capacité, stockage externe, fusion, QR physique et validation de présence restent à intégrer. Voir `VALIDATION-0.10.md`.
+
+## Extension 0.11
+
+Une monnaie entière par session, dotations individuelles copiées de la version du scénario, comptes personnels et historique de leurs mouvements. Un paiement confirmé débite et crédite atomiquement ; double dépense, réessai et révocation sont contrôlés. Une intervention MJ ajoute une écriture sans effacer les précédentes. Caisses collectives, contrats, ventes, réservations commerciales et annulation avec analyse des dépendances restent à développer. Voir `VALIDATION-0.11.md`.
 
 ## Préparation réalisée
 

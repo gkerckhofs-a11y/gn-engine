@@ -1,3 +1,5 @@
+import {createEconomyService,economyAction} from './economy.mjs';
+import {seedWallets} from './economy-state.mjs';
 import {createHash, randomUUID} from 'node:crypto';
 import {requireThat, documentId, whole} from './validation.mjs';
 import {publicCharacter, participantCharacter} from './projections.mjs';
@@ -87,6 +89,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     return {s,c,g,m:memberFor(g,cid)};
   };
 
+  const economyService=createEconomyService({store,signed,checkSession,checkScenario,now,uuid});
   const inventoryService=createInventoryService({store,signed,checkSession,checkScenario,now,uuid});
   const lotTransferService=createLotTransferService({store,signed,now,uuid});
   const healthService=createHealthService({store,signed,checkSession,checkScenario,now,uuid});
@@ -95,6 +98,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(economyAction(action))return economyService(action,actor,input);
     if(lotTransferAction(action))return lotTransferService(action,actor,input);
     if(inventoryAction(action))return inventoryService(action,actor,input);
     if(healthAction(action))return healthService(action,actor,input);
@@ -143,12 +147,12 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     });
     if(action==='session') return store.runTransaction(async tx=>{
       const {s,role,permissions}=await sessionAccess(tx,actor,sid);
-      const [characters,registrations,audit,staff,groups,knowledge,skills,classes,items,inventory]=await Promise.all([tx.list(`sessions/${sid}/characters`),tx.list(`sessions/${sid}/registrations`),
+      const [characters,registrations,audit,staff,groups,knowledge,skills,classes,items,inventory,accounts]=await Promise.all([tx.list(`sessions/${sid}/characters`),tx.list(`sessions/${sid}/registrations`),
         permissions.content?tx.list(`sessions/${sid}/audit`):[],permissions.staff?tx.list('sessionStaff',['sessionId',sid]):[],
         permissions.content?tx.list(`sessions/${sid}/groups`):[],permissions.content?tx.list(`sessions/${sid}/knowledge`):[],
-        permissions.content?tx.list(`sessions/${sid}/skills`):[],permissions.content?tx.list(`sessions/${sid}/classes`):[],permissions.content?tx.list(`sessions/${sid}/items`):[],permissions.content?tx.list(`sessions/${sid}/inventory`):[]]);
+        permissions.content?tx.list(`sessions/${sid}/skills`):[],permissions.content?tx.list(`sessions/${sid}/classes`):[],permissions.content?tx.list(`sessions/${sid}/items`):[],permissions.content?tx.list(`sessions/${sid}/inventory`):[],permissions.content?tx.list(`sessions/${sid}/accounts`):[]]);
       return {...privateSession(s),role,permissions,characters:permissions.content?characters:characters.map(receptionCharacter),registrations,
-        ...(permissions.content?{groups,groupsEnabled:s.modules?.groups===true,knowledge,skills,classes,items,inventory,healthRules:s.healthRules??null}:{}),
+        ...(permissions.content?{groups,groupsEnabled:s.modules?.groups===true,knowledge,skills,classes,items,inventory,accounts,economyRules:s.economyRules??null,healthRules:s.healthRules??null}:{}),
         audit:audit.sort((a,b)=>b.at-a.at).slice(0,50),staff:staff.map(g=>({email:g.email,role:g.role,active:g.active,updatedAt:g.updatedAt}))};
     });
     if(action==='myGroup' || action==='previewGroup') return store.runTransaction(async tx=>{
@@ -189,7 +193,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         else {rawCharacter=c;character=participantCharacter(c,{active:true,uid:actor.uid,characterId:cid,sessionId:sid},actor.uid);}
       }
       const groups=character && s.modules?.groups===true ? await tx.list(`sessions/${sid}/groups`) : [];
-      return {session:publicSession(s),registration:ownRegistration(r),character,health:healthSummary(s,rawCharacter),reason,gameTimeMs:gameTime(s.clock,at),
+      return {session:publicSession(s),registration:ownRegistration(r),character,economyEnabled:s.economyRules?.enabled===true,health:healthSummary(s,rawCharacter),reason,gameTimeMs:gameTime(s.clock,at),
         groups:groups.filter(g=>groupVisible(g,cid)).map(g=>groupSummary(g,cid))};
     });
     signed(actor);
@@ -279,7 +283,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       } else if(action==='publishScenario') {
         const id=documentId(input.scenarioId),s=await checkScenario(tx,actor,id); revision(s,input.revision);
         const [chars,groups,knowledge,skills,classes,items]=await Promise.all([tx.list(`scenarios/${id}/characters`),tx.list(`scenarios/${id}/groups`),tx.list(`scenarios/${id}/knowledge`),tx.list(`scenarios/${id}/skills`),tx.list(`scenarios/${id}/classes`),tx.list(`scenarios/${id}/items`)]); requireThat(chars.length>0,'EMPTY_SCENARIO');
-        const version={id:newId,title:s.title,summary:s.summary,sourceRevision:s.revision,createdAt:at,characterCount:chars.length,groupCount:groups.length,knowledgeCount:knowledge.length,skillCount:skills.length,classCount:classes.length,itemCount:items.length,healthRules:s.healthRules??null};
+        const version={id:newId,title:s.title,summary:s.summary,sourceRevision:s.revision,createdAt:at,characterCount:chars.length,groupCount:groups.length,knowledgeCount:knowledge.length,skillCount:skills.length,classCount:classes.length,itemCount:items.length,economyRules:s.economyRules??null,healthRules:s.healthRules??null};
         tx.set(`scenarios/${id}/versions/${newId}`,version);
         for(const c of chars) tx.set(`scenarios/${id}/versions/${newId}/characters/${c.id}`,c);
         for(const g of groups)tx.set(`scenarios/${id}/versions/${newId}/groups/${g.id}`,g);
@@ -299,7 +303,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         const s={id:newId,ownerUid:actor.uid,scenarioId:id,versionId:vid,title:text(input.title,150,true),summary:v.summary,
           date:optional(input.date,40),time:optional(input.time,80),place:optional(input.place,500),practical:optional(input.practical,4000),
           privacy:text(input.privacy,4000,true),capacity,accepted:0,registrationOpen:false,stage:'PREPARATION',fields:cleanFields,
-          clock:createClock(),revision:1,createdAt:at,healthRules:v.healthRules??null,modules:{groups:groups.length>0}};
+          clock:createClock(),revision:1,createdAt:at,economyRules:v.economyRules??null,healthRules:v.healthRules??null,modules:{groups:groups.length>0}};
         tx.set(`sessions/${newId}`,s);
         for(const c of chars) {
           const next={...c,...initialHealth(v.healthRules),sessionId:newId,publicCode:c.id,assignedUid:null,contentRevision:1,historyStarted:true};
@@ -313,6 +317,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         for(const k of skills)tx.set(`sessions/${newId}/skills/${k.id}`,k);
         for(const k of classes)tx.set(`sessions/${newId}/classes/${k.id}`,k);
         for(const k of items)tx.set(`sessions/${newId}/items/${k.id}`,k);
+        seedWallets(tx,s,chars,at,actor.uid);
         seedInventory(tx,newId,chars,at,actor.uid);
         seedKnowledge(tx,newId,knowledge,at);
         result={id:newId}; auditSid=newId;

@@ -198,3 +198,23 @@ test('HTTP + Auth : remise gratuite confirmée par le destinataire, 20 unités r
   assert.equal((await bag(alice)).result.lots[0].quantity,12);assert.equal((await bag(bob)).result.lots[0].quantity,8);assert.notEqual((await bag(bob)).result.lots[0].id,lot.id);
   await command('revokeAccess',{sessionId,uid:uids[1]});assert.equal((await request('acceptLotTransfer',accept,bob)).status,403);
 });
+
+test('HTTP + Auth : portefeuille privé, paiement confirmé unique et révocation immédiate',async()=>{
+  const owner=await googleTestAccount('gkerckhofs@gmail.com'),alice=await googleTestAccount(`pay-${randomUUID()}@example.invalid`),bob=await googleTestAccount(`receive-${randomUUID()}@example.invalid`);
+  const command=async(action,input={},token=owner)=>{const r=await request(action,{requestId:randomUUID(),...input},token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};
+  const {id:scenarioId}=await command('createScenario',{title:'Crédits HTTP'}),scenario=async()=>(await request('scenario',{scenarioId},owner)).result,characters=[];
+  for(const displayName of ['Payeur','Bénéficiaire'])characters.push((await command('saveCharacter',{scenarioId,revision:(await scenario()).revision,displayName,publicationState:'PUBLISHED'})).id);
+  await command('saveScenarioEconomy',{scenarioId,revision:(await scenario()).revision,rules:{enabled:true,name:'Crédits de test',unit:'crédit'}});
+  const seed={scenarioId,revision:(await scenario()).revision,characterId:characters[0],amount:100},sp=await request('prepareStartingCredits',seed,owner);assert.equal(sp.status,200);await command('setStartingCredits',{...seed,confirmation:sp.result.confirmation});
+  const {id:versionId}=await command('publishScenario',{scenarioId,revision:(await scenario()).revision}),{id:sessionId}=await command('createSession',{scenarioId,versionId,title:'Paiement HTTP',capacity:2,privacy:'Fictif'}),session=async()=>(await request('session',{sessionId},owner)).result;
+  await command('setRegistrationOpen',{sessionId,revision:1,open:true});const uids=[];
+  for(const [i,token] of [alice,bob].entries()){const uid=(await request('identity',{},token)).result.uid;uids.push(uid);await command('register',{sessionId,name:'Test'},token);await command('assign',{sessionId,uid,characterId:characters[i]});const invitation=randomBytes(32).toString('base64url');await command('issueInvitation',{sessionId,uid,tokenHash:hash(invitation),hours:1});assert.equal((await request('redeem',{sessionId,token:invitation},token)).status,200);}
+  for(const stage of ['BRIEFING','EN_JEU'])await command('setStage',{sessionId,revision:(await session()).revision,stage});
+  for(const action of ['myWallet','previewWallet','preparePayment','payCredits','saveScenarioEconomy','saveSessionEconomy','prepareStartingCredits','setStartingCredits','prepareCreditAdjustment','applyCreditAdjustment','walletHistory'])assert.equal((await request(action,{sessionId,requestId:randomUUID()})).status,401);
+  for(const action of ['previewWallet','prepareCreditAdjustment','applyCreditAdjustment','walletHistory'])assert.equal((await request(action,{sessionId,characterId:characters[0],requestId:randomUUID(),admin:true},bob)).status,403);
+  assert.equal((await request('myWallet',{sessionId,characterId:characters[0]},bob)).result.account.balance,0);
+  const input={sessionId,recipientId:characters[1],amount:80,memo:'Paiement de jeu',fromAccountId:'forged'},p=await request('preparePayment',input,alice);assert.equal(p.status,200);assert.equal(p.result.before.balance,100);assert.deepEqual(Object.keys(p.result.recipient).sort(),['id','name']);assert.equal((await request('myWallet',{sessionId},alice)).result.account.balance,100);
+  const confirmed={...input,requestId:randomUUID(),confirmation:p.result.confirmation},r=await request('payCredits',confirmed,alice);assert.equal(r.status,200);assert.deepEqual(await request('payCredits',confirmed,alice),r);assert.equal((await request('myWallet',{sessionId},alice)).result.account.balance,20);
+  const w=(await request('myWallet',{sessionId},bob)).result;assert.equal(w.account.balance,80);assert.equal(w.entries.length,2);assert.equal(JSON.stringify(w).includes('actorUid'),false);
+  await command('revokeAccess',{sessionId,uid:uids[0]});assert.equal((await request('myWallet',{sessionId},alice)).status,403);assert.equal((await request('payCredits',confirmed,alice)).status,403);
+});

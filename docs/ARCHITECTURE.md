@@ -95,7 +95,7 @@ Un réessai restitue le résultat enregistré. Réutiliser la même référence 
 
 Les achats transfèrent propriété et crédits, sans déplacer automatiquement le lot. Les transports réservent le même bien. Une interception déplace ou partage un lot existant et respecte la capacité du vainqueur. Les doubles paiements, doubles réservations et doubles récompenses utilisent les mêmes invariants.
 
-Le fichier `src/core/payments.mjs` prépare ce contrat pour un transfert simple uniquement. Il ne couvre encore ni contrats, ni paiement partiel, ni taxes, ni création/correction de crédits, ni détention, ni conditions de soins.
+Le fichier `src/core/payments.mjs` reste un prototype isolé, non appelé par l’API actuelle. Les paiements intégrés de la 0.11 passent par `src/core/economy.mjs`, raccordé aux inscriptions, attributions et droits courants. Contrats, taxes et ventes atomiques restent à développer.
 
 ## Temps et arrêt
 
@@ -125,3 +125,16 @@ Les propositions `sessions/{sid}/lotTransfers/{id}` conservent les deux identit�
 La transaction d’acceptation déplace le même lot s’il est remis entièrement. Sinon, elle diminue le lot source et crée un lot enfant avec `parentLotId`, `rootLotId` et `transferId`, sans fusion. Elle écrit les historiques, la proposition acceptée, l’audit et le résultat idempotent ensemble. La propriété, la détention et l’emplacement passent au même destinataire. Les corrections MJ et consommations médicales concurrentes sont détectées par les lectures/révisions Firestore. Les commandes vérifient l’accès actuel avant les résultats mémorisés.
 
 Les joueurs voient uniquement leurs remises, sans UID, empreinte d’accès, motif MJ ni solde du sac de l’autre partie. Les propositions en attente restent listées ; l’historique terminé est limité aux 30 dernières. Les requêtes utilisent deux égalités séparées (`sourceId`, `recipientId`) sans nouvel index composé. Le volume de lecture n’est pas encore paginé. Les remises sont gratuites, sans capacité ni déplacement extérieur ; aucune réservation commerciale ou preuve automatique de présence n’est déduite du QR.
+
+
+### Implémentation 0.11
+
+Les `economyRules` du scénario sont copiées dans sa version figée puis dans la session. Les dotations `startingCredits` des personnages sont préparées et confirmées sans modifier les sessions existantes. `seedWallets` crée les comptes `sessions/{sid}/accounts/{hash(character:id)}` et leurs écritures initiales. Un compte appartient au personnage, indépendamment du participant qui l’incarne. L’activation d’une ancienne session ouvre seulement les comptes manquants à zéro. Nom et unité sont immuables une fois la monnaie de session configurée ; désactiver ne supprime aucun compte.
+
+Les valeurs `balance` et `reserved` sont des entiers sûrs non négatifs, et `available = balance - reserved`. Le parcours ne crée aucune réservation. La disponibilité est vérifiée avant débit ; les dépassements numériques sont refusés avant crédit. Chaque modification augmente la révision du compte. La préparation d’un paiement n’écrit rien. Sa confirmation lie le payeur autorisé, le bénéficiaire courant, les règles hors combat, le motif, le montant et le solde/révision du payeur. Le solde du bénéficiaire ne figure ni dans la réponse ni dans cette empreinte : un encaissement concurrent reste compatible avec le paiement préparé.
+
+La confirmation relit les deux comptes et les accès. Une transaction écrit ensemble débit, crédit, journal commun `ledger/{id}`, projection par compte `accounts/{id}/history/{id}`, audit et résultat idempotent. Les entrées du transfert ont une somme nulle. Les dotations et corrections indiquent séparément la monnaie créée ou retirée. Le journal conserve toutes les écritures ; l’interface consulte les 30 dernières par compte. Les projections joueurs excluent UID, motif MJ et solde de l’autre partie. Le rôle Accueil et les badges ne reçoivent aucun compte.
+
+L’accès courant précède tout résultat mémorisé. Après changement d’attribution ou nouvelle invitation, le garde d’identité empêche un ancien payeur de rejouer sa commande. Une répétition d’un paiement déjà réussi peut restituer son résultat en pause, sans nouveau mouvement ; l’archive, la révocation ou le module désactivé ferment la lecture. Un nouveau paiement exige la phase En jeu et la permission de payer hors combat si applicable. Recevoir est passif : les PV du bénéficiaire ne bloquent pas un crédit.
+
+Les interventions MJ nécessitent un montant, un mode ajout/retrait, un libellé joueur et un motif privé, puis un récapitulatif avant/après. Révision du parent et état du compte empêchent une confirmation périmée d’écraser un paiement. Aucun mouvement d’objet ni annulation de dépendances n’est lié à ce parcours. Voir `VALIDATION-0.11.md`.

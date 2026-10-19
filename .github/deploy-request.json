@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "fa77ca5603ca757f4c645bb051dda6d3591e9c33",
-  "requestedAt": "2026-10-19T16:35:06.965503+00:00",
-  "reason": "Publier la 0.10 : remises gratuites proposées et acceptées, fractionnement atomique et suivi des transferts.",
-  "version": "0.10.0"
+  "sourceCommit": "428e3adaea0c0f82298af367db9d010bcd939c01",
+  "requestedAt": "2026-10-19T17:00:33.991790+00:00",
+  "reason": "Publier la 0.11 : portefeuilles personnels, dotations, paiements confirmés atomiques et corrections MJ tracées.",
+  "version": "0.11.0"
 }

@@ -1,5 +1,5 @@
 import {escapeHtml as esc} from './groups.mjs';
-const actions={discover:'Découvrir une information par QR',share:'Transmettre une information ou une note',publish:'Publier dans un groupe',heal:'Utiliser une compétence de soin',transfer:'Remettre et recevoir des objets'};
+const actions={discover:'Découvrir une information par QR',share:'Transmettre une information ou une note',publish:'Publier dans un groupe',heal:'Utiliser une compétence de soin',transfer:'Remettre et recevoir des objets',pay:'Effectuer un paiement'};
 const eventLabels={DAMAGE:'Dégâts déclarés',HEAL:'Soin reçu',HEAL_SENT:'Soin effectué',GM:'Correction MJ'};
 const state=h=>`<strong>${h.hp} / ${h.maxHp} PV</strong> · ${h.outOfCombat?'Hors combat':'En état de jouer'}`;
 export function createHealthUi({button,link}){

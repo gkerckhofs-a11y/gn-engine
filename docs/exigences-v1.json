@@ -187,8 +187,8 @@
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_9",
       "coreWork": null,
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration",
-      "implementedScope": "Bibliothèques versionnées de compétences, classes et objets, duplication, profils et matériel initial copiés après comparaison et confirmation. Lots et sessions existants ne suivent pas automatiquement le catalogue. Bibliothèque transversale et migration collective restant."
+      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration ; docs/VALIDATION-0.11.md ; test/support/economy-suite.mjs",
+      "implementedScope": "Bibliothèques versionnées de compétences, classes et objets, duplication, profils et matériel initial copiés après comparaison et confirmation. Lots et sessions existants ne suivent pas automatiquement le catalogue. Bibliothèque transversale et migration collective restant. Monnaie et crédits de départ individuels également figés par version en 0.11, sans réécriture des soldes existants."
     },
     {
       "id": "EDI-04",
@@ -574,10 +574,11 @@
       "sourceLine": 189,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": "payments.mjs : montants entiers, réservations ; caisses et administration à intégrer",
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_11",
+      "coreWork": "economy.mjs : service intégré ; payments.mjs conservé comme prototype isolé",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.11.md ; src/core/economy.mjs ; src/core/economy-state.mjs ; web/economy.mjs ; test/support/economy-suite.mjs ; test/economy-ui.test.mjs ; test/integration",
+      "implementedScope": "Monnaie fictive principale configurable (nom/unité), montants entiers sûrs, copie de version indépendante et unité de session figée. Portefeuilles individuels ; caisses de groupe/établissement et devises multiples non intégrées."
     },
     {
       "id": "ECO-02",
@@ -585,10 +586,11 @@
       "sourceLine": 191,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": "payments.mjs : transfert simple, permissions ; interface et autres écritures à intégrer",
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_11",
+      "coreWork": "economy.mjs : service intégré ; payments.mjs conservé comme prototype isolé",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.11.md ; src/core/economy.mjs ; src/core/economy-state.mjs ; web/economy.mjs ; test/support/economy-suite.mjs ; test/economy-ui.test.mjs ; test/integration",
+      "implementedScope": "Paiement personnel confirmé vers un badge de la même session, identités publiques, montant, motif, référence et solde du payeur avant/après. Journal personnel sans solde adverse. Choix de caisses autorisées, lecteur caméra et autres contrats restant."
     },
     {
       "id": "ECO-03",
@@ -596,10 +598,11 @@
       "sourceLine": 194,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": "payments.mjs : atomicité et répétition sur simulateur ; émulateur Firebase à exécuter",
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_11",
+      "coreWork": "economy.mjs : service intégré ; payments.mjs conservé comme prototype isolé",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.11.md ; src/core/economy.mjs ; src/core/economy-state.mjs ; web/economy.mjs ; test/support/economy-suite.mjs ; test/economy-ui.test.mjs ; test/integration",
+      "implementedScope": "Débit/crédit, journal et résultat atomiques sur Firestore. Idempotence, refus sans effet, deux paiements 80 sur 100, encaissements concurrents, solde réservé et panne avant commit testés. Recette multi-comptes et charge terrain restant."
     },
     {
       "id": "ECO-04",
@@ -607,10 +610,11 @@
       "sourceLine": 195,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_11",
+      "coreWork": "economy.mjs : service intégré ; payments.mjs conservé comme prototype isolé",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.11.md ; src/core/economy.mjs ; src/core/economy-state.mjs ; web/economy.mjs ; test/support/economy-suite.mjs ; test/economy-ui.test.mjs ; test/integration",
+      "implementedScope": "Ajout/retrait MJ confirmé avec libellé joueur et motif privé ; nouvelle écriture conservant les précédentes. Confirmation périmée refusée. Annulation admissible et analyse des dépendances non intégrées."
     },
     {
       "id": "ECO-05",

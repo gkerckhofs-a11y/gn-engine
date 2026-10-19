@@ -1,5 +1,5 @@
 import {requireThat,whole,documentId} from './validation.mjs';
-export const outOfCombatActions=['discover','share','publish','heal','transfer'];
+export const outOfCombatActions=['discover','share','publish','heal','transfer','pay'];
 export function healthRulesInput(input){
   requireThat(input&&typeof input.enabled==='boolean','INVALID_HEALTH');
   const defaultMaxHp=input.defaultMaxHp==null?null:whole(input.defaultMaxHp,'INVALID_HEALTH');

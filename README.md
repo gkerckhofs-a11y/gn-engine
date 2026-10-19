@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.10 : remises gratuites entre joueurs, acceptation et fractionnement des lots.**
+**Version 0.11 : portefeuilles personnels, crédits de départ et paiements confirmés.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -58,6 +58,14 @@ Depuis **Mon sac**, choisissez un lot, une quantité et le lien du badge public 
 
 Une remise complète déplace le même lot ; une remise partielle crée un lot distinct lié à sa provenance. Rien n’est réservé ou retiré lors de la proposition. Un changement de stock ou d’accès la rend périmée, sans coût. Refus, annulation, répétitions techniques et opérations concurrentes sont contrôlés. Les remises sont disponibles pendant le jeu ; le MJ peut autoriser explicitement les deux parties à agir hors combat. [Parcours et limites 0.10](docs/VALIDATION-0.10.md).
 
+## Crédits et paiements
+
+Configurez le nom et l’unité entière de la monnaie, puis les crédits de départ de chaque personnage avant de figer le scénario. Chaque session reçoit des portefeuilles indépendants. Pour une session existante sans monnaie, l’activation ouvre les comptes à zéro. Réactiver conserve les soldes.
+
+Dans **Mon portefeuille**, le joueur consulte son solde total, réservé et disponible, puis prépare un paiement vers le badge public d’un autre personnage. Le récapitulatif indique les identités, le montant, le motif et son solde après paiement. La confirmation débite et crédite ensemble, une seule fois. Le MJ peut ajouter ou retirer des crédits avec un libellé joueur et un motif privé, après comparaison avant/après. Les écritures d’origine sont conservées. [Parcours et limites 0.11](docs/VALIDATION-0.11.md).
+
+Les paiements concernent les comptes personnels uniquement. Ils ne transfèrent pas d’objet ; les ventes atomiques, caisses collectives et contrats restent à intégrer.
+
 ## Infrastructure configurée
 
 - GitHub privé : `gkerckhofs-a11y/gn-engine`.
@@ -79,7 +87,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.10 est publiée : **312 tests réussis** localement et dans les journaux GitHub (172 métier/interface/contrôle de publication et 140 intégrations). La version exacte 0.10.0 et le refus de 30 commandes privées anonymes sont vérifiés en ligne. Résultats et preuves dans [le rapport 0.10](docs/VALIDATION-0.10.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.11 passe **357 tests localement** : 196 métier/interface/contrôle de publication et 161 intégrations sur Auth et Firestore émulés. Vérification GitHub et publication en cours ; [rapport 0.11](docs/VALIDATION-0.11.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 
@@ -108,7 +116,7 @@ Le workflow vérifie les tests, compile puis publie la fonction `api` via Google
 
 ## Périmètre restant
 
-Ce premier parcours ne termine pas tout le lot A ni les 132 exigences : valeurs initiales de classe (PV, crédits, objets), compétences actives, permissions de caisse/stock/transport, invitations de groupe entre joueurs, autres modes de connexion, récupération sans Google, pièces jointes, import/export, terrain, économie et vaisseaux restent à intégrer. Pas de démonstration de charge à 60/120 joueurs ni de recette complète des formulaires authentifiés en production.
+Ce premier parcours ne termine pas tout le lot A ni les 132 exigences : valeurs initiales de classe (PV, crédits, objets), compétences actives, permissions de caisse/stock/transport, invitations de groupe entre joueurs, autres modes de connexion, récupération sans Google, pièces jointes, import/export, terrain, suite de l’économie et vaisseaux restent à intégrer. Pas de démonstration de charge à 60/120 joueurs ni de recette complète des formulaires authentifiés en production.
 
 Les versions et copies utilisent des transactions Firestore. Aucun plafond métier de casting ; les limites de taille des transactions devront être mesurées sur les contenus réels.
 
