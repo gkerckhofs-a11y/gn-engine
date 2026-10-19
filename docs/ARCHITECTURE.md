@@ -43,6 +43,12 @@ Le rôle d'accueil n'ouvre pas les secrets. Lire une caisse, dépenser, gérer l
 
 Les révocations portent sur l'attribution et les connexions. Les lectures privées revérifient l'accès courant. Les notes non partagées appartiennent à leur auteur ; les exports MJ ne les incluent pas. Un canal exclut un ancien membre des nouveaux messages sans promettre de supprimer ce qu'il a déjà appris.
 
+### Implémentation 0.3
+
+Les profils fixes OWNER, MJ et RECEPTION sont vérifiés côté serveur via `sessionStaff`. Le propriétaire délègue par adresse Google vérifiée pour une session. Accueil reçoit une projection réduite des personnages et aucun journal de contenu. Une révocation ou diminution de rôle est contrôlée avant de retourner un résultat de commande mémorisé. Les groupes et permissions fines du modèle cible restent à implémenter.
+
+Les relations sont stockées uniquement sur leur personnage source. Leur projection ne contient ni référence technique vers la cible, ni notes MJ, ni éléments non publiés. Les publications sont conservées sous chaque fiche ; la confirmation de lecture mémorise sa révision. Voir `VALIDATION-0.3.md`.
+
 ## Commandes et concurrence
 
 Une commande contient session, référence unique, type, ressources ciblées et version attendue lorsqu'elle s'applique. L'acteur vient du jeton vérifié, jamais du corps de requête. Le service conserve une empreinte de la demande et son résultat dans la même transaction que ses effets.

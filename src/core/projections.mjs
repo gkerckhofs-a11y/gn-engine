@@ -24,6 +24,9 @@ export function participantCharacter(character, assignment, uid) {
     biography: character.biography ?? '',
     roleplay: character.roleplay ?? '',
     secrets: character.playerSecrets ?? '',
+    contentRevision:character.contentRevision??1,
+    relations:(character.relations??[]).filter(x=>x.published===true)
+      .map(x=>({id:x.id,title:x.title,description:x.description??''})),
     objectives: (character.objectives ?? []).filter(x => x.published === true)
       .map(x => ({id: x.id, title: x.title, description: x.description ?? '',
         steps: (x.steps ?? []).filter(s => s.published === true)

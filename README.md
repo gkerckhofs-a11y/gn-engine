@@ -2,13 +2,13 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.2 : premier parcours publié sur Firebase le 19 octobre 2026.**
+**Version 0.3 : équipe de session, relations, objectifs narratifs et historique des fiches.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
 ## Premier parcours
 
-1. Connexion Google et espace organisateur réservé au compte propriétaire configuré.
+1. Connexion Google ; propriétaire, MJ et accueil selon les délégations de chaque session.
 2. Scénario et personnages : identité publique, histoire, secrets, costume et notes MJ séparées.
 3. Version figée puis copie indépendante en session, avec capacité, informations pratiques, questions et notice sur les données.
 4. Inscription par lien/QR public. Une seule demande prend la dernière place ; les suivantes rejoignent la liste d’attente.
@@ -17,6 +17,12 @@ Application : **https://gn-engine.web.app/**. Le compte organisateur configuré 
 7. Réattribution ou révocation : nouvelles lectures privées refusées. Après révocation, nouvelle authentification obligatoire.
 
 L’accueil et le rythme de jeu sont indépendants. Le MJ peut éditer les fiches de session sans modifier le modèle et prévisualiser la projection du joueur. Aucune invitation n’est envoyée automatiquement par courriel.
+
+## Équipe et fiches narratives
+
+Dans une session, le propriétaire peut déléguer un accès **Accueil** ou **MJ** à une adresse Google. Accueil gère les participants sans recevoir leurs secrets de personnage ; MJ dispose aussi des fiches complètes et du pilotage du jeu. La délégation ne s’étend ni aux autres sessions ni au scénario.
+
+Les fiches proposent des relations orientées et des objectifs narratifs, publiables séparément. L’historique conserve les versions destinées au joueur. Une modification de session demande un motif et une nouvelle confirmation de lecture. Aucun calcul de mission ni récompense automatique à ce stade.
 
 ## Infrastructure configurée
 
@@ -39,7 +45,7 @@ npm test
 npm run test:emulator
 ```
 
-28 tests métier et 14 tests d’intégration passent localement. Voir [le rapport exact et ses limites](docs/VALIDATION-0.2.md).
+37 tests métier et 24 tests d’intégration passent localement. Voir [le rapport 0.3 et ses limites](docs/VALIDATION-0.3.md).
 
 ## Publier
 
@@ -68,7 +74,7 @@ Le workflow vérifie les tests, compile puis publie la fonction `api` via Google
 
 ## Périmètre restant
 
-Ce premier parcours ne termine pas tout le lot A ni les 132 exigences : délégation MJ/accueil, groupes et permissions fines, autres modes de connexion, récupération sans Google, pièces jointes, import/export, terrain, économie et vaisseaux restent à intégrer. Pas de démonstration de charge à 60/120 joueurs ni de recette navigateur en production.
+Ce premier parcours ne termine pas tout le lot A ni les 132 exigences : groupes et permissions fines, autres modes de connexion, récupération sans Google, pièces jointes, import/export, terrain, économie et vaisseaux restent à intégrer. Pas de démonstration de charge à 60/120 joueurs ni de recette navigateur en production.
 
 Les versions et copies utilisent des transactions Firestore. Aucun plafond métier de casting ; les limites de taille des transactions devront être mesurées sur les contenus réels.
 

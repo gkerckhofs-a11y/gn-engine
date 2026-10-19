@@ -12,6 +12,10 @@
 
 Les contrôles d'accès et la traçabilité sont requis dès A. Les imports et outils de secours arrivent progressivement. Votes, casino, billetterie réelle et progression restent facultatifs. Les petites annonces ne le sont pas.
 
+## Extension 0.3
+
+Rôles MJ/Accueil par session, révocation vérifiée avant tout réessai, relations orientées, objectifs narratifs, historique des publications, suivi de lecture par révision et recherche de participants. 37 tests métier et 24 intégrations réussis localement ; recette navigateur authentifiée à poursuivre. Aucun lot complet déclaré terminé.
+
 ## Préparation réalisée
 
 - Cahier V1 conservé, texte consultable, matrice de 132 exigences.
@@ -26,7 +30,7 @@ Les contrôles d'accès et la traçabilité sont requis dès A. Les imports et o
 
 1. Intégrer Storage avec le parcours médias ; Functions, Hosting, Google Authentication et Firestore sont en place.
 2. Recetter dans des navigateurs avec des comptes réels distincts. Adaptateur, règles, jetons, inscriptions et attributions passent les essais sur émulateurs.
-3. Compléter le lot A : rôles délégués, groupes, permissions fines et éditeur étendu.
+3. Compléter le lot A : groupes, permissions fines par ressource et éditeur étendu. Les rôles fixes MJ/Accueil et les fiches narratives sont développés en 0.3 ; voir `VALIDATION-0.3.md`.
 4. Étendre les commandes et l'éditeur jusqu'au lot E, avec une preuve de recette par exigence.
 5. Compléter la recette d'exploitation et de restauration. La publication GitHub et les contrôles HTTP automatisés sont en place.
 

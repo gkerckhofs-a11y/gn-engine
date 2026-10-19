@@ -2,6 +2,8 @@ import {createHash, randomUUID} from 'node:crypto';
 import {requireThat, documentId, whole} from './validation.mjs';
 import {publicCharacter, participantCharacter} from './projections.mjs';
 import {createClock, pauseClock, resumeClock, gameTime} from './clock.mjs';
+import {staffPath,staffEmail,capabilities,sessionCommands,receptionCharacter} from './staff.mjs';
+import {narrativeInput,validateRelations,recordPublication} from './narrative.mjs';
 
 export const hash = value => createHash('sha256').update(value).digest('hex');
 const text = (value, max = 4000, required = false) => {
@@ -19,23 +21,36 @@ const publicSession = s => ({id:s.id, title:s.title, summary:s.summary, date:s.d
   practical:s.practical, privacy:s.privacy, capacity:s.capacity, available:Math.max(0,s.capacity-s.accepted),
   registrationOpen:s.registrationOpen, stage:s.stage, fields:s.fields});
 const ownRegistration = r => r ? ({name:r.name, email:r.email, answers:r.answers, status:r.status,
-  characterId:r.characterId, accessActive:r.accessActive, briefingReadAt:r.briefingReadAt ?? null}) : null;
-const characterInput = (input, id) => ({id,
+  characterId:r.characterId, accessActive:r.accessActive, briefingReadAt:r.briefingReadAt ?? null,
+  briefingReadRevision:r.briefingReadRevision??null}) : null;
+const characterInput = (input, id, existing={}) => ({...existing,id,
   public: {displayName:text(input.displayName,150,true), profession:optional(input.profession,150),
     description:optional(input.description,4000), publicationState:status(input.publicationState,['DRAFT','READY','PUBLISHED'])},
   publicationState:input.publicationState, biography:optional(input.biography,20000),
   roleplay:optional(input.roleplay,10000), playerSecrets:optional(input.playerSecrets,20000),
-  gmNotes:optional(input.gmNotes,20000), objectives:[], hp:null, maxHp:null});
+  gmNotes:optional(input.gmNotes,20000),
+  objectives:input.objectives===undefined ? existing.objectives??[] : narrativeInput(input.objectives,'objectives'),
+  relations:input.relations===undefined ? existing.relations??[] : narrativeInput(input.relations,'relations'),
+  hp:existing.hp??null,maxHp:existing.maxHp??null,historyStarted:true,
+  contentRevision:(existing.contentRevision??(existing.id?1:0))+1});
 
 /** Authenticated actor is supplied by the HTTP adapter, never by input JSON. */
 export function createWorkflow({store, ownerEmail, now = Date.now, uuid = randomUUID}) {
   const isAdmin = actor => !!actor && actor.emailVerified === true && actor.provider === 'google.com'
     && actor.email?.toLowerCase() === ownerEmail?.toLowerCase();
-  function signed(actor) { requireThat(actor?.uid && actor.emailVerified === true && actor.provider === 'google.com', 'LOGIN_REQUIRED'); }
+  function signed(actor) { requireThat(actor?.uid && typeof actor.email==='string' && actor.email && actor.emailVerified === true && actor.provider === 'google.com', 'LOGIN_REQUIRED'); }
   function admin(actor) { signed(actor); requireThat(isAdmin(actor), 'FORBIDDEN'); }
-  const checkSession = async (tx, actor, sid) => {
-    admin(actor); const s = await tx.get(`sessions/${sid}`);
-    requireThat(s && s.ownerUid === actor.uid,'FORBIDDEN'); return s;
+  const sessionAccess = async (tx, actor, sid) => {
+    signed(actor);requireThat(sid,'INVALID_ID');const s=await tx.get(`sessions/${sid}`);
+    requireThat(s,'FORBIDDEN');
+    if(isAdmin(actor) && s.ownerUid===actor.uid) return {s,role:'OWNER',permissions:capabilities('OWNER')};
+    const grant=await tx.get(staffPath(sid,actor.email));
+    requireThat(grant?.active && grant.ownerUid===s.ownerUid && ['MJ','RECEPTION'].includes(grant.role),'FORBIDDEN');
+    return {s,role:grant.role,permissions:capabilities(grant.role)};
+  };
+  const checkSession = async (tx, actor, sid, permission='content') => {
+    const access=await sessionAccess(tx,actor,sid);
+    requireThat(access.permissions[permission],'FORBIDDEN');return access.s;
   };
   const checkScenario = async (tx,actor,id) => {
     admin(actor); const s = await tx.get(`scenarios/${id}`);
@@ -45,11 +60,25 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
 
   async function dispatch(action,actor,input={}) {
     const at=now(); const sid=input.sessionId ? documentId(input.sessionId) : null;
-    if(action==='identity') return {uid:actor?.uid ?? null, email:actor?.email ?? null, admin:isAdmin(actor)};
+    if(action==='identity') {
+      const verified=actor?.uid && actor.emailVerified===true && actor.provider==='google.com';
+      const grants=verified && !isAdmin(actor) ? await store.list('sessionStaff',['email',actor.email.toLowerCase()]) : [];
+      return {uid:actor?.uid??null,email:actor?.email??null,admin:isAdmin(actor),organizer:isAdmin(actor)||grants.some(g=>g.active)};
+    }
     if(action==='dashboard') {
-      admin(actor);
-      const [scenarios,sessions]=await Promise.all([store.list('scenarios',['ownerUid',actor.uid]),store.list('sessions',['ownerUid',actor.uid])]);
-      return {scenarios,sessions:sessions.map(privateSession)};
+      signed(actor);
+      return store.runTransaction(async tx=>{
+        const grants=await tx.list('sessionStaff',['email',actor.email.toLowerCase()]);
+        const own=isAdmin(actor);
+        requireThat(own||grants.some(g=>g.active),'FORBIDDEN');
+        const [scenarios,sessions]=own ? await Promise.all([tx.list('scenarios',['ownerUid',actor.uid]),tx.list('sessions',['ownerUid',actor.uid])]) : [[],[]];
+        const visible=sessions.map(s=>({...privateSession(s),role:'OWNER'}));
+        for(const g of grants.filter(g=>g.active)) {
+          const s=await tx.get(`sessions/${g.sessionId}`);
+          if(s && s.ownerUid===g.ownerUid && !visible.some(x=>x.id===s.id)) visible.push({...privateSession(s),role:g.role});
+        }
+        return {scenarios,sessions:visible};
+      });
     }
     if(action==='publicSession') {
       requireThat(sid,'INVALID_ID'); const s=await store.get(`sessions/${sid}`);
@@ -68,9 +97,19 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       return {...s,characters,versions};
     });
     if(action==='session') return store.runTransaction(async tx=>{
-      const s=await checkSession(tx,actor,sid);
-      const [characters,registrations,audit]=await Promise.all([tx.list(`sessions/${sid}/characters`),tx.list(`sessions/${sid}/registrations`),tx.list(`sessions/${sid}/audit`)]);
-      return {...privateSession(s),characters,registrations,audit:audit.sort((a,b)=>b.at-a.at).slice(0,50)};
+      const {s,role,permissions}=await sessionAccess(tx,actor,sid);
+      const [characters,registrations,audit,staff]=await Promise.all([tx.list(`sessions/${sid}/characters`),tx.list(`sessions/${sid}/registrations`),
+        permissions.content?tx.list(`sessions/${sid}/audit`):[],permissions.staff?tx.list('sessionStaff',['sessionId',sid]):[]]);
+      return {...privateSession(s),role,permissions,characters:permissions.content?characters:characters.map(receptionCharacter),registrations,
+        audit:audit.sort((a,b)=>b.at-a.at).slice(0,50),staff:staff.map(g=>({email:g.email,role:g.role,active:g.active,updatedAt:g.updatedAt}))};
+    });
+    if(action==='characterHistory') return store.runTransaction(async tx=>{
+      const cid=documentId(input.characterId);
+      let base;
+      if(sid){await checkSession(tx,actor,sid);base=`sessions/${sid}/characters`;}
+      else {const id=documentId(input.scenarioId);await checkScenario(tx,actor,id);base=`scenarios/${id}/characters`;}
+      requireThat(await tx.get(`${base}/${cid}`),'NOT_FOUND');
+      return {versions:(await tx.list(`${base}/${cid}/history`)).sort((a,b)=>b.revision-a.revision)};
     });
     if(action==='mySession' || action==='preview') return store.runTransaction(async tx=>{
       signed(actor); const s=await tx.get(`sessions/${sid}`); requireThat(s && s.stage!=='ARCHIVED','NOT_FOUND');
@@ -112,6 +151,8 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     const requestId=documentId(input.requestId); const operationPath=`operations/${hash(`${actor.uid}:${requestId}`)}`;
     const fingerprint=hash(JSON.stringify([action,input])); const newId=uuid();
     return store.runTransaction(async tx=>{
+      // A revoked staff member must not recover cached results by replaying a command.
+      if(sessionCommands[action]) await checkSession(tx,actor,sid,sessionCommands[action]);
       const previous=await tx.get(operationPath);
       if(previous) { requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED'); return previous.result; }
       let result, auditSid=sid;
@@ -122,13 +163,20 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       } else if(action==='saveSessionCharacter') {
         const s=await checkSession(tx,actor,sid);revision(s,input.revision);requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
         const cid=documentId(input.characterId),c=await tx.get(charPath(sid,cid));requireThat(c,'NOT_FOUND');
-        tx.set(charPath(sid,cid),{...c,...characterInput(input,cid)});
+        const reason=text(input.reason,500,true),next=characterInput(input,cid,c),base=`sessions/${sid}/characters`;
+        await validateRelations(tx,base,next);
+        recordPublication(tx,base,c,next,{id:newId,at,actorUid:actor.uid,reason,stage:s.stage});
+        tx.set(charPath(sid,cid),next);
+        Object.assign(audit,{characterId:cid,reason,beforeRevision:c.contentRevision??1,afterRevision:next.contentRevision});
         tx.set(`sessions/${sid}`,{...s,revision:s.revision+1});result={id:cid};
       } else if(action==='saveCharacter') {
         const id=documentId(input.scenarioId), s=await checkScenario(tx,actor,id); revision(s,input.revision);
         const cid=input.characterId ? documentId(input.characterId) : newId;
-        if(input.characterId) requireThat(await tx.get(`scenarios/${id}/characters/${cid}`),'NOT_FOUND');
-        tx.set(`scenarios/${id}/characters/${cid}`,characterInput(input,cid));
+        const base=`scenarios/${id}/characters`,old=input.characterId ? await tx.get(`${base}/${cid}`) : null;
+        if(input.characterId) requireThat(old,'NOT_FOUND');
+        const next=characterInput(input,cid,old??{});await validateRelations(tx,base,next);
+        recordPublication(tx,base,old,next,{id:newId,at,actorUid:actor.uid,reason:'Édition du scénario'});
+        tx.set(`${base}/${cid}`,next);
         tx.set(`scenarios/${id}`,{...s,revision:s.revision+1}); result={id:cid};
       } else if(action==='publishScenario') {
         const id=documentId(input.scenarioId),s=await checkScenario(tx,actor,id); revision(s,input.revision);
@@ -150,10 +198,24 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
           privacy:text(input.privacy,4000,true),capacity,accepted:0,registrationOpen:false,stage:'PREPARATION',fields:cleanFields,
           clock:createClock(),revision:1,createdAt:at};
         tx.set(`sessions/${newId}`,s);
-        for(const c of chars) tx.set(charPath(newId,c.id),{...c,sessionId:newId,publicCode:c.id,assignedUid:null});
+        for(const c of chars) {
+          const next={...c,sessionId:newId,publicCode:c.id,assignedUid:null,contentRevision:1,historyStarted:true};
+          tx.set(charPath(newId,c.id),next);
+          recordPublication(tx,`sessions/${newId}/characters`,null,next,{id:newId,at,actorUid:actor.uid,reason:'Création depuis la version de scénario',stage:'PREPARATION'});
+        }
         result={id:newId}; auditSid=newId;
+      } else if(action==='setStaff') {
+        const s=await checkSession(tx,actor,sid,'staff');revision(s,input.revision);
+        requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
+        const email=staffEmail(input.email),role=status(input.role,['MJ','RECEPTION']);
+        requireThat(email!==ownerEmail.toLowerCase() && typeof input.active==='boolean','INVALID_STAFF');
+        const reason=text(input.reason,500,true),path=staffPath(sid,email),old=await tx.get(path);
+        tx.set(path,{sessionId:sid,ownerUid:s.ownerUid,email,role,active:input.active,updatedAt:at,updatedBy:actor.uid});
+        tx.set(`sessions/${sid}`,{...s,revision:s.revision+1});
+        Object.assign(audit,{email,reason,before:old?{role:old.role,active:old.active}:null,after:{role,active:input.active}});
+        result={email,role,active:input.active};
       } else if(action==='setRegistrationOpen' || action==='setStage') {
-        const s=await checkSession(tx,actor,sid); revision(s,input.revision);
+        const s=await checkSession(tx,actor,sid,sessionCommands[action]); revision(s,input.revision);
         let next={...s,revision:s.revision+1};
         if(action==='setRegistrationOpen') {
           requireThat(!['FINISHED','ARCHIVED'].includes(s.stage),'SESSION_CLOSED');
@@ -179,7 +241,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         if(accepted) tx.set(`sessions/${sid}`,{...s,accepted:s.accepted+1,revision:s.revision+1});
         result=ownRegistration(r);
       } else if(action==='setRegistrationStatus' || action==='cancelRegistration') {
-        const s=action==='cancelRegistration' ? await tx.get(`sessions/${sid}`) : await checkSession(tx,actor,sid);
+        const s=action==='cancelRegistration' ? await tx.get(`sessions/${sid}`) : await checkSession(tx,actor,sid,'reception');
         const uid=action==='cancelRegistration' ? actor.uid : text(input.uid,128,true);
         const r=await tx.get(regPath(sid,uid)); requireThat(r && s,'NOT_FOUND');
         const nextStatus=action==='cancelRegistration' ? 'CANCELLED' : status(input.status,['RECEIVED','INCOMPLETE','ACCEPTED','WAITLISTED','REFUSED','CANCELLED']);
@@ -190,7 +252,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         if(nextStatus!=='ACCEPTED') { next.characterId=null; next.accessActive=false; next.accessVersion++; if(c) tx.set(charPath(sid,c.id),{...c,assignedUid:null}); }
         tx.set(regPath(sid,uid),next); tx.set(`sessions/${sid}`,{...s,accepted,revision:s.revision+1}); result={status:nextStatus};
       } else if(action==='assign') {
-        const s=await checkSession(tx,actor,sid); requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
+        const s=await checkSession(tx,actor,sid,'reception'); requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
         const uid=text(input.uid,128,true), cid=documentId(input.characterId);
         const r=await tx.get(regPath(sid,uid)), c=await tx.get(charPath(sid,cid));
         requireThat(r?.status==='ACCEPTED' && c,'INVALID_ASSIGNMENT');
@@ -203,7 +265,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         tx.set(regPath(sid,uid),{...r,characterId:cid,accessActive:false,accessVersion:r.accessVersion+1,briefingReadAt:null});
         result={assigned:true};
       } else if(action==='issueInvitation' || action==='revokeAccess') {
-        await checkSession(tx,actor,sid); const uid=text(input.uid,128,true),r=await tx.get(regPath(sid,uid));
+        await checkSession(tx,actor,sid,'reception'); const uid=text(input.uid,128,true),r=await tx.get(regPath(sid,uid));
         requireThat(r?.characterId && r.status==='ACCEPTED','INVALID_ASSIGNMENT');
         const version=r.accessVersion+1;
         if(action==='issueInvitation') {
@@ -221,7 +283,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         requireThat(r?.characterId,'FORBIDDEN'); const c=await tx.get(charPath(sid,r.characterId));
         requireThat(r.accessActive && actor.authTime>=r.minAuthTime && r.status==='ACCEPTED' && c?.assignedUid===actor.uid,'FORBIDDEN');
         requireThat(['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s?.stage) && c.publicationState==='PUBLISHED','BRIEFING_CLOSED');
-        tx.set(regPath(sid,actor.uid),{...r,briefingReadAt:at}); result={confirmed:true};
+        tx.set(regPath(sid,actor.uid),{...r,briefingReadAt:at,briefingReadRevision:c.contentRevision??1}); result={confirmed:true};
       } else requireThat(false,'UNKNOWN_ACTION');
       tx.set(operationPath,{uid:actor.uid,fingerprint,result,at});
       if(auditSid) tx.set(`sessions/${auditSid}/audit/${newId}`,audit);

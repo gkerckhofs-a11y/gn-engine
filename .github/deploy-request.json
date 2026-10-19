@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "e56f905ff0fb20dd466427f17820cfabd232f91f",
-  "requestedAt": "2026-10-19T12:38:04Z",
-  "reason": "Attendre la propagation initiale Hosting/Cloud Run lors du contrôle HTTP final.",
-  "attempt": 3
+  "sourceCommit": "6290e736eecda138b36858002c5a4cb12a8047a9",
+  "requestedAt": "2026-10-19T13:09:02.412573+00:00",
+  "reason": "Publier la version 0.3 : équipe MJ/Accueil et fiches narratives ; 61 tests locaux réussis.",
+  "version": "0.3.0"
 }

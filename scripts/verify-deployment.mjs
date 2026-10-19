@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
 
 const origin='https://gn-engine.web.app';
 // Le premier raccordement Hosting -> Cloud Run peut répondre brièvement 404.
@@ -22,6 +23,10 @@ async function waitForAvailability(url,options={}) {
 const page=await waitForAvailability(origin);
 assert.equal(page.status,200,'Le site doit répondre HTTP 200');
 assert.match(await page.text(),/GN Engine/,'La page GN Engine doit être publiée');
+const expected=JSON.parse(await readFile(new URL('../package.json',import.meta.url))).version;
+const version=await waitForAvailability(`${origin}/version.json?release=${encodeURIComponent(expected)}`);
+assert.equal(version.status,200,'Le manifeste de version doit être accessible');
+assert.equal((await version.json()).version,expected,'Hosting doit servir la version demandée');
 
 const api=await waitForAvailability(`${origin}/api/check`,{
   method:'POST',headers:{'content-type':'application/json'},
@@ -29,4 +34,4 @@ const api=await waitForAvailability(`${origin}/api/check`,{
 });
 assert.equal(api.status,401,'Une lecture organisateur anonyme doit être refusée');
 assert.equal((await api.json()).error,'LOGIN_REQUIRED');
-console.log('Site accessible et API privée refusant les accès anonymes.');
+console.log(`Version ${expected} accessible et API privée refusant les accès anonymes.`);

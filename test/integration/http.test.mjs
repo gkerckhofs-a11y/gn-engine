@@ -34,3 +34,19 @@ test('HTTP + Auth : le jeton vérifié détermine le rôle, jamais le JSON ou un
   assert.equal(spoof.status,401);
   const created=await request('createScenario',{requestId:randomUUID(),title:'API intégrée'},owner);assert.equal(created.status,200);assert.ok(created.result.id);
 });
+test('HTTP + Auth : délégation enregistrée, projection accueil et révocation immédiate',async()=>{
+  const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`staff-${randomUUID()}@example.invalid`,staff=await googleTestAccount(email);
+  const command=(action,input={},token=owner)=>request(action,{requestId:randomUUID(),...input},token);
+  const scenario=await command('createScenario',{title:'Test équipe HTTP'}),scenarioId=scenario.result.id;
+  const character=await command('saveCharacter',{scenarioId,revision:1,displayName:'Contact',publicationState:'PUBLISHED',playerSecrets:'SECRET_HTTP',gmNotes:'MJ_HTTP'});
+  const version=await command('publishScenario',{scenarioId,revision:2});
+  const created=await command('createSession',{scenarioId,versionId:version.result.id,title:'Session HTTP',capacity:2,privacy:'Données fictives'}),sessionId=created.result.id;
+  assert.equal((await request('session',{sessionId,role:'OWNER'},staff)).status,403);
+  assert.equal((await command('setStaff',{sessionId,revision:1,email,role:'RECEPTION',active:true,reason:'Accueil de test'})).status,200);
+  const view=await request('session',{sessionId},staff);assert.equal(view.status,200);assert.equal(view.result.role,'RECEPTION');
+  assert.equal(JSON.stringify(view.result).includes('SECRET_HTTP'),false);assert.equal(JSON.stringify(view.result).includes('MJ_HTTP'),false);
+  assert.equal((await request('preview',{sessionId,characterId:character.result.id},staff)).status,403);
+  assert.equal((await request('dashboard',{},staff)).result.sessions.length,1);
+  assert.equal((await command('setStaff',{sessionId,revision:2,email,role:'RECEPTION',active:false,reason:'Fin de test'})).status,200);
+  assert.equal((await request('session',{sessionId},staff)).status,403);
+});
