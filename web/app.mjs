@@ -162,7 +162,7 @@ document.addEventListener('click',async event=>{
     }
     if(a==='previewKnowledge'){const d=await api('previewKnowledge',{sessionId:currentSession.id,characterId:b.dataset.character});if(actionVersion!==routeVersion)return;modal(`<p class="eyebrow">Aperçu sans effet sur le jeu</p>${knowledgeUi.list({...d,characterId:b.dataset.character})}`);return;}
     if(a==='previewKnowledgeDetail'){const d=await api('previewKnowledgeDetail',{sessionId:currentSession.id,characterId:b.dataset.character,knowledgeId:b.dataset.id});if(actionVersion!==routeVersion)return;modal(knowledgeUi.detail(d));return;}
-    if(a==='knowledgeShare'){modal(`<h2>Choisir le destinataire</h2><form data-form="knowledgeSharePrepare" data-id="${esc(b.dataset.id)}" data-sid="${esc(b.dataset.sid)}">${input('Lien du badge public de ce personnage','badgeUrl','','url',true)}<p class="muted">Demandez son badge au personnage rencontré, puis collez son lien ici. Vous pourrez vérifier le nom avant de transmettre. Aucun annuaire privé n’est proposé.</p><button type="submit" class="primary">Vérifier le destinataire</button></form>`);return;}
+    if(a==='knowledgeShare'){modal(`<h2>Choisir le destinataire</h2><form data-form="knowledgeSharePrepare" data-id="${esc(b.dataset.id)}" data-sid="${esc(b.dataset.sid)}" data-receipt="${b.dataset.receipt}">${input('Lien du badge public de ce personnage','badgeUrl','','url',true)}<p class="muted">Demandez son badge au personnage rencontré, puis collez son lien ici. Vous pourrez vérifier le nom avant de transmettre. Aucun annuaire privé n’est proposé.</p><button type="submit" class="primary">Vérifier le destinataire</button></form>`);return;}
     if(a==='editGroup'){groupForm(b.dataset.id,b.dataset.scope);return;}
     if(a==='addGroupMembers'){
       const form=b.closest('form'),context=form.dataset.scope==='session'?currentSession:currentScenario;
@@ -189,7 +189,7 @@ document.addEventListener('click',async event=>{
     if(a==='preview'){const d=await api('preview',{sessionId:currentSession.id,characterId:b.dataset.id});if(actionVersion!==routeVersion)return;modal(`<p class="eyebrow">Aperçu sans effet sur le jeu</p>${d.character?characterView(d.character)+button('Voir ses informations','previewKnowledge',`data-character="${esc(b.dataset.id)}"`,'quiet')+groupUi.cards(d.groups,currentSession.id,b.dataset.id):`<p>${esc(errors[d.reason])}</p>`}`);return;}
     busy=true;b.disabled=true;
     if(a==='knowledgeDiscover'){await mutate('discoverKnowledge',{sessionId:b.dataset.sid,knowledgeId:b.dataset.id});location.hash=`#/knowledge/${b.dataset.sid}/${b.dataset.id}`;return;}
-    else if(a==='knowledgeRead'){await mutate('markKnowledgeRead',{sessionId:b.dataset.sid,knowledgeId:b.dataset.id});}
+    else if(a==='knowledgeRead'){await mutate('markKnowledgeRead',{sessionId:b.dataset.sid,knowledgeId:b.dataset.id,receiptRevision:Number(b.dataset.receipt)});}
     else if(a==='publishScenario'){await mutate('publishScenario',{scenarioId:currentScenario.id,revision:currentScenario.revision});notice('Version figée. Vous pouvez créer une session.');}
     else if(a==='toggleRegistration')await mutate('setRegistrationOpen',{sessionId:currentSession.id,revision:currentSession.revision,open:!currentSession.registrationOpen});
     else if(a==='setStage'){if(['FINISHED','ARCHIVED'].includes(b.dataset.stage)&&!confirm('Confirmer cette étape ? La session ne pourra pas revenir à l’état précédent.'))return;await mutate('setStage',{sessionId:currentSession.id,revision:currentSession.revision,stage:b.dataset.stage});}
@@ -217,11 +217,11 @@ document.addEventListener('submit',async event=>{
     }
     else if(kind==='knowledgeGrant')await mutate('grantKnowledge',{sessionId:currentSession.id,knowledgeId:form.dataset.id,knowledgeRevision:Number(form.dataset.revision),grantRevision:Number(form.elements.characterId.selectedOptions[0].dataset.grantRevision),characterId:v.characterId,enabled:v.enabled==='true',reason:v.reason});
     else if(kind==='knowledgeSharePrepare'){
-      const recipientId=badgeRecipient(v.badgeUrl,location.origin,form.dataset.sid),d=await api('prepareKnowledgeShare',{sessionId:form.dataset.sid,knowledgeId:form.dataset.id,recipientId});
+      const recipientId=badgeRecipient(v.badgeUrl,location.origin,form.dataset.sid),d=await api('prepareKnowledgeShare',{sessionId:form.dataset.sid,knowledgeId:form.dataset.id,recipientId,receiptRevision:Number(form.dataset.receipt)});
       if(submitVersion!==routeVersion)return;
-      modal(`<p class="eyebrow">Confirmer le partage</p><h2>Transmettre à ${esc(d.recipient.displayName)}</h2><p>Vous transmettez une copie de <strong>${esc(d.knowledge.title)}</strong>. Le destinataire verra votre nom de personnage : <strong>${esc(d.authorName)}</strong>. Votre propre accès est conservé.</p><form data-form="knowledgeShareConfirm" data-sid="${esc(form.dataset.sid)}" data-id="${esc(d.knowledge.id)}" data-recipient="${esc(d.recipient.id)}"><button class="primary" type="submit">Transmettre cette copie</button></form>`);return;
+      modal(`<p class="eyebrow">Confirmer le partage</p><h2>Transmettre à ${esc(d.recipient.displayName)}</h2><p>Vous transmettez une copie de <strong>${esc(d.knowledge.title)}</strong>. Le destinataire verra votre nom de personnage : <strong>${esc(d.authorName)}</strong>. Votre propre accès est conservé.</p><form data-form="knowledgeShareConfirm" data-sid="${esc(form.dataset.sid)}" data-id="${esc(d.knowledge.id)}" data-recipient="${esc(d.recipient.id)}" data-receipt="${d.receiptRevision}"><button class="primary" type="submit">Transmettre cette copie</button></form>`);return;
     }
-    else if(kind==='knowledgeShareConfirm')await mutate('shareKnowledge',{sessionId:form.dataset.sid,knowledgeId:form.dataset.id,recipientId:form.dataset.recipient});
+    else if(kind==='knowledgeShareConfirm')await mutate('shareKnowledge',{sessionId:form.dataset.sid,knowledgeId:form.dataset.id,recipientId:form.dataset.recipient,receiptRevision:Number(form.dataset.receipt)});
     else if(kind==='group'){
       const scope=form.dataset.scope,context=scope==='session'?currentSession:currentScenario;
       await mutate(scope==='session'?'saveSessionGroup':'saveGroup',{...v,members:groupMembers(form),revision:context.revision,groupId:form.dataset.id||undefined,...(scope==='session'?{sessionId:context.id}:{scenarioId:context.id})});

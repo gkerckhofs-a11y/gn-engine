@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "ae924043dda50bab2acc4ad3536e24ffb3efd090",
-  "requestedAt": "2026-10-19T13:52:28.348601+00:00",
-  "reason": "Publier la version 0.5 : connaissances privées, découverte QR conditionnelle et copies explicites par badge ; 125 tests locaux réussis.",
+  "sourceCommit": "0aace451136d8341bbb37af12a25de7782d572f0",
+  "requestedAt": "2026-10-19T13:55:42.372420+00:00",
+  "reason": "Finaliser la 0.5 : lier lecture et partage au reçu affiché pour refuser une confirmation périmée après intervention MJ.",
   "version": "0.5.0"
 }

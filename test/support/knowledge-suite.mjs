@@ -34,7 +34,7 @@ export function knowledgeSuite(makeStore,prefix='connaissances'){
     const detail=(who=alice,id=kid)=>read('knowledgeDetail',who,{sessionId,knowledgeId:id});
     const edit=async(patch={},id=kid)=>{const s=await session();return command('saveSessionKnowledge',owner,{...s.knowledge.find(k=>k.id===id),...patch,sessionId,knowledgeId:id,revision:s.revision,reason:'Correction de test'});};
     const grant=async(cid,enabled=true,id=kid,patch={})=>{const k=(await session()).knowledge.find(k=>k.id===id),r=await store.get(`sessions/${sessionId}/characters/${cid}/knowledge/${id}`);return command('grantKnowledge',owner,{sessionId,knowledgeId:id,characterId:cid,knowledgeRevision:k.revision,grantRevision:r?.grantRevision??0,enabled,reason:'Révélation ciblée',...patch});};
-    const share=(who=alice,recipientId=characters[1],patch={})=>command('shareKnowledge',who,{sessionId,knowledgeId:kid,recipientId,...patch});
+    const share=async(who=alice,recipientId=characters[1],patch={})=>{const reg=await store.get(`sessions/${sessionId}/registrations/${hash(who.uid)}`),r=await store.get(`sessions/${sessionId}/characters/${reg.characterId}/knowledge/${kid}`);return command('shareKnowledge',who,{sessionId,knowledgeId:kid,recipientId,receiptRevision:r?.grantRevision??0,...patch});};
     const discover=(who=bob,patch={})=>command('discoverKnowledge',who,{sessionId,knowledgeId:qrId,...patch});
     return {store,owner,alice,bob,eve,staff,read,command,scenarioId,versionId,sessionId,kid,otherId,qrId,characters,definition,sessionInput,session,stage,list,detail,edit,grant,share,discover,setTime:t=>time=t};
   }
@@ -52,8 +52,8 @@ export function knowledgeSuite(makeStore,prefix='connaissances'){
   });
   test(`${prefix} : copie explicite, origine visible et absence de liste automatique de destinataires`,async()=>{
     const f=await fixture();await f.stage('EN_JEU');
-    const preview=await f.read('prepareKnowledgeShare',f.alice,{sessionId:f.sessionId,knowledgeId:f.kid,recipientId:f.characters[2]});
-    assert.deepEqual(preview,{recipient:{id:f.characters[2],displayName:'Contact'},knowledge:{id:f.kid,title:'FRAGMENT_A'},authorName:'Pilote'});
+    const preview=await f.read('prepareKnowledgeShare',f.alice,{sessionId:f.sessionId,knowledgeId:f.kid,recipientId:f.characters[2],receiptRevision:0});
+    assert.deepEqual(preview,{recipient:{id:f.characters[2],displayName:'Contact'},knowledge:{id:f.kid,title:'FRAGMENT_A'},authorName:'Pilote',receiptRevision:0});
     await f.share(f.alice,f.characters[2]);assert.equal((await f.detail(f.eve)).knowledge.body,'Rumeur non certifiée');
     assert.equal((await f.detail(f.eve)).knowledge.sourceName,'Pilote');assert.equal((await f.detail(f.eve)).knowledge.source,'SHARED');
     assert.equal((await f.list()).items.length,1);assert.equal((await f.list(f.eve)).items.length,1);
@@ -81,7 +81,7 @@ export function knowledgeSuite(makeStore,prefix='connaissances'){
   test(`${prefix} : copie interdite et retrait des permissions contrôlés avant le résultat mémorisé`,async()=>{
     const f=await fixture();await f.stage('EN_JEU');const requestId=randomUUID();await f.share(f.alice,f.characters[2],{requestId});
     await f.edit({shareMode:'SHOW'});await assert.rejects(f.share(f.alice,f.characters[2],{requestId}),err('SHARING_DISABLED'));
-    await assert.rejects(f.read('prepareKnowledgeShare',f.alice,{sessionId:f.sessionId,knowledgeId:f.kid,recipientId:f.characters[1]}),err('SHARING_DISABLED'));
+    await assert.rejects(f.read('prepareKnowledgeShare',f.alice,{sessionId:f.sessionId,knowledgeId:f.kid,recipientId:f.characters[1],receiptRevision:0}),err('SHARING_DISABLED'));
     assert.equal((await f.detail()).knowledge.canCopy,false);
     await f.edit({shareMode:'COPY'});await f.command('revokeAccess',f.owner,{sessionId:f.sessionId,uid:f.alice.uid});
     await assert.rejects(f.share(f.alice,f.characters[2],{requestId}),err('FORBIDDEN'));
@@ -127,10 +127,16 @@ export function knowledgeSuite(makeStore,prefix='connaissances'){
     assert.equal((await f.store.get(`sessions/${sid}/characters/${f.characters[0]}/knowledge/${f.kid}`)).readAt,null);
   });
   test(`${prefix} : état de lecture personnel, aperçu neutre et lectures maintenues en pause puis fin`,async()=>{
-    const f=await fixture();await f.stage('EN_JEU');await f.share();await f.command('markKnowledgeRead',f.alice,{sessionId:f.sessionId,knowledgeId:f.kid});
+    const f=await fixture();await f.stage('EN_JEU');await f.share();await f.command('markKnowledgeRead',f.alice,{sessionId:f.sessionId,knowledgeId:f.kid,receiptRevision:0});
     assert.equal((await f.detail()).knowledge.readAt,100000);assert.equal((await f.detail(f.bob)).knowledge.readAt,null);
+    await f.edit({body:'NOUVELLE_VERSION_A_LIRE'});await f.grant(f.characters[0]);
+    await assert.rejects(f.command('markKnowledgeRead',f.alice,{sessionId:f.sessionId,knowledgeId:f.kid,receiptRevision:0}),err('STALE_REVISION'));
+    assert.equal((await f.detail()).knowledge.readAt,null);
+    await assert.rejects(f.share(f.alice,f.characters[2],{receiptRevision:0}),err('STALE_REVISION'));
+    assert.deepEqual((await f.list(f.eve)).items,[]);
+    await f.command('markKnowledgeRead',f.alice,{sessionId:f.sessionId,knowledgeId:f.kid,receiptRevision:1});
     await f.stage('PAUSE');await f.detail();await assert.rejects(f.share(f.alice,f.characters[2]),err('SESSION_NOT_RUNNING'));await assert.rejects(f.discover(),err('SESSION_NOT_RUNNING'));
-    await f.stage('FINISHED');await f.detail();await f.command('markKnowledgeRead',f.bob,{sessionId:f.sessionId,knowledgeId:f.kid});
+    await f.stage('FINISHED');await f.detail();await f.command('markKnowledgeRead',f.bob,{sessionId:f.sessionId,knowledgeId:f.kid,receiptRevision:1});
     await f.stage('ARCHIVED');await assert.rejects(f.detail(),err('FORBIDDEN'));await assert.rejects(f.list(),err('FORBIDDEN'));
   });
   test(`${prefix} : références invalides, modes non pris en charge et conflits ne produisent aucune écriture partielle`,async()=>{

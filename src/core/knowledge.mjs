@@ -58,7 +58,7 @@ export function createKnowledgeService({store,signed,checkSession,checkScenario,
   };
   const view=(k,r,body=false)=>({id:k.id,title:r.snapshot.title,kind:r.snapshot.kind,origin:r.snapshot.origin,
     receivedAt:r.receivedAt,source:r.source,sourceName:r.sourceName,readAt:r.readAt??null,revision:r.snapshot.revision,
-    canCopy:k.shareMode==='COPY' && r.snapshot.shareMode==='COPY',...(body?{body:r.snapshot.body}:{})});
+    receiptRevision:r.grantRevision??0,canCopy:k.shareMode==='COPY' && r.snapshot.shareMode==='COPY',...(body?{body:r.snapshot.body}:{})});
   const target=async(tx,sid,cid,ownId)=>{
     requireThat(cid!==ownId,'INVALID_RECIPIENT');const c=await tx.get(`sessions/${sid}/characters/${cid}`);
     requireThat(c?.publicationState==='PUBLISHED' && c.public?.publicationState==='PUBLISHED' && c.assignedUid,'INVALID_RECIPIENT');
@@ -89,10 +89,11 @@ export function createKnowledgeService({store,signed,checkSession,checkScenario,
       }
       const {k,r}=await known(tx,s.id,c.id,documentId(input.knowledgeId));
       if(action==='prepareKnowledgeShare'){
+        requireThat((r.grantRevision??0)===input.receiptRevision,'STALE_REVISION');
         requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireThat(view(k,r).canCopy,'SHARING_DISABLED');
         const recipient=await target(tx,s.id,documentId(input.recipientId),c.id);
         const recipientReceipt=await tx.get(receiptPath(s.id,recipient.id,k.id));requireThat(!recipientReceipt||recipientReceipt.active,'FORBIDDEN');
-        return {recipient:{id:recipient.id,displayName:recipient.public.displayName},knowledge:{id:k.id,title:r.snapshot.title},authorName:c.public.displayName};
+        return {recipient:{id:recipient.id,displayName:recipient.public.displayName},knowledge:{id:k.id,title:r.snapshot.title},authorName:c.public.displayName,receiptRevision:r.grantRevision??0};
       }
       return {session:{id:s.id,stage:s.stage},preview,knowledge:view(k,r,true)};
     });
@@ -111,6 +112,7 @@ export function createKnowledgeService({store,signed,checkSession,checkScenario,
           requireThat(k?.publicationState==='PUBLISHED' && k.qrEnabled && (k.qrAudience==='ALL_PLAYERS'||k.qrCharacterIds.includes(c.id)),'FORBIDDEN');
           r=await tx.get(receiptPath(s.id,c.id,kid));requireThat(!r||r.active,'FORBIDDEN');
         }else ({k,r}=await known(tx,s.id,c.id,kid));
+        if(action==='markKnowledgeRead'||action==='shareKnowledge')requireThat((r.grantRevision??0)===input.receiptRevision,'STALE_REVISION');
         if(action==='shareKnowledge'){
           requireThat(view(k,r).canCopy,'SHARING_DISABLED');recipient=await target(tx,s.id,documentId(input.recipientId),c.id);
           recipientReceipt=await tx.get(receiptPath(s.id,recipient.id,k.id));requireThat(!recipientReceipt||recipientReceipt.active,'FORBIDDEN');
