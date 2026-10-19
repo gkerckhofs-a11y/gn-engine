@@ -1,3 +1,4 @@
+import {playerAbilities} from './abilities.mjs';
 import { requireThat } from './validation.mjs';
 
 // Une projection construit une liste blanche. Ne pas étendre ces résultats
@@ -31,6 +32,7 @@ export function participantCharacter(character, assignment, uid) {
       .map(x => ({id: x.id, title: x.title, description: x.description ?? '',
         steps: (x.steps ?? []).filter(s => s.published === true)
           .map(s => ({id: s.id, title: s.title, description: s.description ?? ''}))})),
+    abilities: playerAbilities(character.abilityProfile),
     hp: character.hp,
     maxHp: character.maxHp,
   };

@@ -1,3 +1,4 @@
+import {abilityLevel} from './abilities.mjs';
 import {createHash} from 'node:crypto';
 import {requireThat,documentId} from './validation.mjs';
 
@@ -15,7 +16,10 @@ export function knowledgeInput(input,id,old={}) {
   requireThat(['DRAFT','READY','PUBLISHED'].includes(input.publicationState),'INVALID_KNOWLEDGE');
   requireThat(['SHOW','COPY'].includes(input.shareMode),'INVALID_KNOWLEDGE');
   requireThat(['ALL_PLAYERS','SELECTED'].includes(input.qrAudience),'INVALID_KNOWLEDGE');
-  return {id,title:text(input.title,150,true),body:text(input.body,20000,true),origin:text(input.origin??'',300),
+  const skillId=input.qrSkillId===undefined?(old.qrSkillId??null):(input.qrSkillId?documentId(input.qrSkillId):null);
+  const skillLevel=skillId?(input.qrSkillLevel??old.qrSkillLevel??1):null;
+  requireThat(!skillId||(Number.isSafeInteger(skillLevel)&&skillLevel>0),'INVALID_KNOWLEDGE');
+  return {id,qrSkillId:skillId,qrSkillLevel:skillLevel,title:text(input.title,150,true),body:text(input.body,20000,true),origin:text(input.origin??'',300),
     kind:input.kind,publicationState:input.publicationState,shareMode:input.shareMode,
     gmTruth:text(input.gmTruth??'',10000),gmNotes:text(input.gmNotes??'',10000),
     initialCharacterIds:ids(input.initialCharacterIds??[]),qrEnabled:input.qrEnabled===true,
@@ -110,6 +114,7 @@ export function createKnowledgeService({store,signed,checkSession,checkScenario,
         if(action==='discoverKnowledge'){
           k=await tx.get(`sessions/${s.id}/knowledge/${kid}`);
           requireThat(k?.publicationState==='PUBLISHED' && k.qrEnabled && (k.qrAudience==='ALL_PLAYERS'||k.qrCharacterIds.includes(c.id)),'FORBIDDEN');
+          requireThat(!k.qrSkillId||abilityLevel(c,k.qrSkillId)>=k.qrSkillLevel,'FORBIDDEN');
           r=await tx.get(receiptPath(s.id,c.id,kid));requireThat(!r||r.active,'FORBIDDEN');
         }else ({k,r}=await known(tx,s.id,c.id,kid));
         if(action==='markKnowledgeRead'||action==='shareKnowledge')requireThat((r.grantRevision??0)===input.receiptRevision,'STALE_REVISION');
@@ -127,6 +132,7 @@ export function createKnowledgeService({store,signed,checkSession,checkScenario,
         if(input.knowledgeId)requireThat(old,'NOT_FOUND');
         const next=knowledgeInput({...input,...(action==='saveSessionKnowledge'?{initialCharacterIds:old?.initialCharacterIds??[]}:{})},kid,old??{});
         for(const cid of new Set([...next.initialCharacterIds,...next.qrCharacterIds]))requireThat(await tx.get(`${base}/characters/${cid}`),'INVALID_MEMBER');
+        if(next.qrSkillId){const skill=await tx.get(`${base}/skills/${next.qrSkillId}`);requireThat(skill && skill.kind==='PASSIVE','INVALID_ABILITY_REFERENCE');requireThat(next.publicationState!=='PUBLISHED'||skill.publicationState==='PUBLISHED','ABILITY_UNPUBLISHED');}
         const reason=action==='saveSessionKnowledge'?text(input.reason,500,true):'Édition du scénario';
         tx.set(`${base}/knowledge/${kid}`,next);tx.set(base,{...parent,revision:parent.revision+1});
         tx.set(`${base}/knowledge/${kid}/history/${newId}`,{id:newId,at,actorUid:actor.uid,actorEmail:actor.email,reason,before:old,after:next});

@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.6 : carnet privé par participant et partage explicite de notes.**
+**Version 0.7 : classes, compétences passives et découvertes QR conditionnelles.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -38,6 +38,10 @@ Le MJ crée des textes, choisit leurs destinataires de départ et configure une 
 
 Les notes appartiennent au compte participant dans sa session. Un changement de personnage ne les transmet pas au nouveau joueur ; les MJ n’y accèdent pas dans l’application. Le joueur peut classer/restaurer ses notes et confirmer une copie vers un badge précis. Cette copie est consultable par les MJ, avec le droit de retransmission explicitement choisi ; le reste du carnet demeure privé. [Parcours et limites 0.6](docs/VALIDATION-0.6.md).
 
+## Classes et compétences
+
+Préparez des compétences passives et assemblez-les en classes. Sur chaque personnage, choisissez une classe et des exceptions individuelles, puis confirmez le profil affiché avant/après. Les copies attribuées ne changent pas lorsque le catalogue est modifié. Une expertise publiée peut conditionner une découverte QR avec un niveau minimum ; retirer le savoir n'efface pas un texte déjà acquis. Compétences actives et coûts restent à développer. [Parcours et limites 0.7](docs/VALIDATION-0.7.md).
+
 ## Infrastructure configurée
 
 - GitHub privé : `gkerckhofs-a11y/gn-engine`.
@@ -59,7 +63,7 @@ npm test
 npm run test:emulator
 ```
 
-**87 tests métier/interface et 69 intégrations** passent localement et sur GitHub, soit 156 tests. La version 0.6 est publiée ; le manifeste et les refus d'accès anonymes sont vérifiés. La preuve du déploiement et les limites sont consignées dans [le rapport 0.6](docs/VALIDATION-0.6.md).
+**103 tests métier/interface et 83 intégrations** passent localement, soit 186 tests. Le déploiement 0.7 et ses limites sont suivis dans [le rapport 0.7](docs/VALIDATION-0.7.md).
 
 ## Publier
 
@@ -88,7 +92,7 @@ Le workflow vérifie les tests, compile puis publie la fonction `api` via Google
 
 ## Périmètre restant
 
-Ce premier parcours ne termine pas tout le lot A ni les 132 exigences : classes et permissions de caisse/stock/transport, invitations de groupe entre joueurs, autres modes de connexion, récupération sans Google, pièces jointes, import/export, terrain, économie et vaisseaux restent à intégrer. Pas de démonstration de charge à 60/120 joueurs ni de recette navigateur en production.
+Ce premier parcours ne termine pas tout le lot A ni les 132 exigences : valeurs initiales de classe (PV, crédits, objets), compétences actives, permissions de caisse/stock/transport, invitations de groupe entre joueurs, autres modes de connexion, récupération sans Google, pièces jointes, import/export, terrain, économie et vaisseaux restent à intégrer. Pas de démonstration de charge à 60/120 joueurs ni de recette complète des formulaires authentifiés en production.
 
 Les versions et copies utilisent des transactions Firestore. Aucun plafond métier de casting ; les limites de taille des transactions devront être mesurées sur les contenus réels.
 

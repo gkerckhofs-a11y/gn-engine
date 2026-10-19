@@ -104,11 +104,11 @@
       "sourceLine": 69,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_3",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_7",
       "coreWork": null,
-      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.3.md ; src/core/workflow.mjs ; src/core/staff.mjs ; src/core/narrative.mjs ; test/support/workflow-suite.mjs ; test/integration/http.test.mjs",
-      "implementedScope": "Publication de fiche et de ses relations/objectifs ; aperçu joueur. Programmation et pièces jointes restent à intégrer."
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.7.md ; src/core/abilities.mjs ; src/core/knowledge.mjs ; web/abilities.mjs ; test/support/abilities-suite.mjs ; test/integration",
+      "implementedScope": "Publication de fiche, relations, objectifs et profil de compétences ; aperçu joueur identique sans effet. Modèles brouillon/prêt/publié. Programmation et pièces jointes restant."
     },
     {
       "id": "INS-01",
@@ -172,11 +172,11 @@
       "sourceLine": 87,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_7",
       "coreWork": null,
-      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.4.md ; src/core/groups.mjs ; src/core/workflow.mjs ; test/support/groups-suite.mjs ; test/groups-ui.test.mjs ; test/integration",
-      "implementedScope": "Groupes et appartenances séparés du métier de fiction ; affiliations publique et secrète coexistantes. Classes et valeurs initiales restent à intégrer."
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.7.md ; src/core/abilities.mjs ; src/core/knowledge.mjs ; web/abilities.mjs ; test/support/abilities-suite.mjs ; test/integration",
+      "implementedScope": "Groupes, métiers et classes distincts. Classe de compétences passives, niveaux de départ et exceptions individuelles après confirmation. PV, crédits et objets initiaux de classe restant."
     },
     {
       "id": "EDI-03",
@@ -184,10 +184,11 @@
       "sourceLine": 89,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_7",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.7.md ; src/core/abilities.mjs ; src/core/knowledge.mjs ; web/abilities.mjs ; test/support/abilities-suite.mjs ; test/integration",
+      "implementedScope": "Catalogue de scénario versionné, duplication, copie figée en session et profils attribués indépendants des modifications du catalogue. Application explicite avec comparaison avant/après. Bibliothèque transversale entre univers et migration par lot restant."
     },
     {
       "id": "EDI-04",
@@ -195,10 +196,11 @@
       "sourceLine": 91,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_7",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.7.md ; src/core/abilities.mjs ; src/core/knowledge.mjs ; web/abilities.mjs ; test/support/abilities-suite.mjs ; test/integration",
+      "implementedScope": "Condition guidée de compétence passive et niveau minimum pour une découverte QR, ajoutée à la sélection de destinataires. Aucune exécution de code narratif. Combinaisons de conditions, objets, paiements et autres effets restant."
     },
     {
       "id": "EDI-05",
@@ -273,11 +275,11 @@
       "sourceLine": 119,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_5",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_7",
       "coreWork": null,
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.5.md ; src/core/knowledge.mjs ; web/knowledge.mjs ; test/support/knowledge-suite.mjs ; test/integration",
-      "implementedScope": "Textes identifiables, origine, reçus de départ/MJ/QR/copie, accès et projections séparés. Pièces jointes et conditions mécaniques non livrées."
+      "evidence": "docs/VALIDATION-0.7.md ; src/core/abilities.mjs ; src/core/knowledge.mjs ; web/abilities.mjs ; test/support/abilities-suite.mjs ; test/integration",
+      "implementedScope": "Textes identifiables, reçus de départ/MJ/QR/copie ; découverte QR conditionnée par une expertise publiée et un niveau. Document acquis distinct du savoir mécanique. Pièces jointes et autres conditions restant."
     },
     {
       "id": "CON-02",
@@ -333,10 +335,11 @@
       "sourceLine": 129,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_7",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.7.md ; src/core/abilities.mjs ; src/core/knowledge.mjs ; web/abilities.mjs ; test/support/abilities-suite.mjs ; test/integration",
+      "implementedScope": "Compétences passives identifiées, nom, description, consignes, catégorie, version et niveau. Attribution par classe et exceptions MJ, publication avec la fiche. Compétences actives, objets, apprentissage et catalogue initial complet restant."
     },
     {
       "id": "COM-02",

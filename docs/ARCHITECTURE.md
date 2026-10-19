@@ -65,6 +65,12 @@ La découverte QR exige un personnage actif et les conditions configurées sur l
 
 Le carnet est rangé sous la session puis sous l'empreinte de l'UID authentifié, indépendamment de l'attribution du personnage. Il n'est inclus ni dans les projections MJ, ni dans les aperçus, ni dans l'audit de session. Une copie n'entre dans la bibliothèque de connaissances qu'après confirmation explicite par l'auteur ; la note originale, ses dates et son identifiant ne sont pas transmis. Les copies utilisent les reçus et contrôles de la 0.5. Voir `VALIDATION-0.6.md` pour le comportement, la concurrence et la portée applicative de cette confidentialité.
 
+### Implémentation 0.7
+
+Les compétences passives et classes sont conservées dans les bibliothèques de scénario, versions figées et sessions. Chaque personnage reçoit un profil copié et publié explicitement, avec ses exceptions individuelles. La projection joueur filtre les données réservées aux MJ ; le badge et le rôle Accueil ne reçoivent pas ce profil. Une confirmation lie le profil calculé à la révision du contexte et de la fiche. Les changements de catalogue ne réécrivent pas les profils attribués.
+
+Une découverte QR peut exiger un identifiant de compétence et un niveau minimum dans le profil publié du personnage authentifié. Ce contrôle précède le résultat mémorisé. Les reçus de connaissances restent distincts du savoir mécanique et demeurent lisibles selon leurs propres droits après le retrait de la compétence. Voir `VALIDATION-0.7.md` ; compétences actives, coûts et autres conditions restent à développer.
+
 ## Commandes et concurrence
 
 Une commande contient session, référence unique, type, ressources ciblées et version attendue lorsqu'elle s'applique. L'acteur vient du jeton vérifié, jamais du corps de requête. Le service conserve une empreinte de la demande et son résultat dans la même transaction que ses effets.

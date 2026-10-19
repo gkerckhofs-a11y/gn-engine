@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "3e9a3ba3f497667b87bc9a157776a868bfc1af05",
-  "requestedAt": "2026-10-19T14:33:07.099200+00:00",
-  "reason": "Publier la 0.6 après correction du test de changement d’alias : sélectionner l’auteur par son identifiant, indépendamment de l’ordre Firestore.",
-  "version": "0.6.0"
+  "sourceCommit": "0e5317eec1695520ccea70aafff04850467282e1",
+  "requestedAt": "2026-10-19T14:53:38.260918+00:00",
+  "reason": "Publier la 0.7 : classes et compétences passives, profils confirmés et QR conditionnels ; 186 tests locaux réussis.",
+  "version": "0.7.0"
 }

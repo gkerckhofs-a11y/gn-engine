@@ -4,6 +4,7 @@ import {publicCharacter, participantCharacter} from './projections.mjs';
 import {createClock, pauseClock, resumeClock, gameTime} from './clock.mjs';
 import {staffPath,staffEmail,capabilities,sessionCommands,receptionCharacter} from './staff.mjs';
 import {narrativeInput,validateRelations,recordPublication} from './narrative.mjs';
+import {createAbilityService,abilityAction} from './abilities.mjs';
 import {createNotebookService,notebookAction} from './notebook.mjs';
 import {createKnowledgeService,knowledgeAction,seedKnowledge} from './knowledge.mjs';
 import {groupInput,validateGroupMembers,memberFor,groupVisible,groupSummary,groupDetail,publicAffiliations} from './groups.mjs';
@@ -81,10 +82,12 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     return {s,c,g,m:memberFor(g,cid)};
   };
 
+  const abilityService=createAbilityService({store,signed,checkSession,checkScenario,now,uuid});
   const notebookService=createNotebookService({store,signed,now,uuid});
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(abilityAction(action))return abilityService(action,actor,input);
     if(notebookAction(action))return notebookService(action,actor,input);
     if(knowledgeAction(action))return knowledgeService(action,actor,input);
     const at=now(); const sid=input.sessionId ? documentId(input.sessionId) : null;
@@ -124,16 +127,17 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     }
     if(action==='scenario') return store.runTransaction(async tx=>{
       const id=documentId(input.scenarioId); const s=await checkScenario(tx,actor,id);
-      const [characters,versions,groups,knowledge]=await Promise.all([tx.list(`scenarios/${id}/characters`),tx.list(`scenarios/${id}/versions`),tx.list(`scenarios/${id}/groups`),tx.list(`scenarios/${id}/knowledge`)]);
-      return {...s,characters,versions,groups,knowledge};
+      const [characters,versions,groups,knowledge,skills,classes]=await Promise.all([tx.list(`scenarios/${id}/characters`),tx.list(`scenarios/${id}/versions`),tx.list(`scenarios/${id}/groups`),tx.list(`scenarios/${id}/knowledge`),tx.list(`scenarios/${id}/skills`),tx.list(`scenarios/${id}/classes`)]);
+      return {...s,characters,versions,groups,knowledge,skills,classes};
     });
     if(action==='session') return store.runTransaction(async tx=>{
       const {s,role,permissions}=await sessionAccess(tx,actor,sid);
-      const [characters,registrations,audit,staff,groups,knowledge]=await Promise.all([tx.list(`sessions/${sid}/characters`),tx.list(`sessions/${sid}/registrations`),
+      const [characters,registrations,audit,staff,groups,knowledge,skills,classes]=await Promise.all([tx.list(`sessions/${sid}/characters`),tx.list(`sessions/${sid}/registrations`),
         permissions.content?tx.list(`sessions/${sid}/audit`):[],permissions.staff?tx.list('sessionStaff',['sessionId',sid]):[],
-        permissions.content?tx.list(`sessions/${sid}/groups`):[],permissions.content?tx.list(`sessions/${sid}/knowledge`):[]]);
+        permissions.content?tx.list(`sessions/${sid}/groups`):[],permissions.content?tx.list(`sessions/${sid}/knowledge`):[],
+        permissions.content?tx.list(`sessions/${sid}/skills`):[],permissions.content?tx.list(`sessions/${sid}/classes`):[]]);
       return {...privateSession(s),role,permissions,characters:permissions.content?characters:characters.map(receptionCharacter),registrations,
-        ...(permissions.content?{groups,groupsEnabled:s.modules?.groups===true,knowledge}:{}),
+        ...(permissions.content?{groups,groupsEnabled:s.modules?.groups===true,knowledge,skills,classes}:{}),
         audit:audit.sort((a,b)=>b.at-a.at).slice(0,50),staff:staff.map(g=>({email:g.email,role:g.role,active:g.active,updatedAt:g.updatedAt}))};
     });
     if(action==='myGroup' || action==='previewGroup') return store.runTransaction(async tx=>{
@@ -263,17 +267,19 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         tx.set(`scenarios/${id}`,{...s,revision:s.revision+1}); result={id:cid};
       } else if(action==='publishScenario') {
         const id=documentId(input.scenarioId),s=await checkScenario(tx,actor,id); revision(s,input.revision);
-        const [chars,groups,knowledge]=await Promise.all([tx.list(`scenarios/${id}/characters`),tx.list(`scenarios/${id}/groups`),tx.list(`scenarios/${id}/knowledge`)]); requireThat(chars.length>0,'EMPTY_SCENARIO');
-        const version={id:newId,title:s.title,summary:s.summary,sourceRevision:s.revision,createdAt:at,characterCount:chars.length,groupCount:groups.length,knowledgeCount:knowledge.length};
+        const [chars,groups,knowledge,skills,classes]=await Promise.all([tx.list(`scenarios/${id}/characters`),tx.list(`scenarios/${id}/groups`),tx.list(`scenarios/${id}/knowledge`),tx.list(`scenarios/${id}/skills`),tx.list(`scenarios/${id}/classes`)]); requireThat(chars.length>0,'EMPTY_SCENARIO');
+        const version={id:newId,title:s.title,summary:s.summary,sourceRevision:s.revision,createdAt:at,characterCount:chars.length,groupCount:groups.length,knowledgeCount:knowledge.length,skillCount:skills.length,classCount:classes.length};
         tx.set(`scenarios/${id}/versions/${newId}`,version);
         for(const c of chars) tx.set(`scenarios/${id}/versions/${newId}/characters/${c.id}`,c);
         for(const g of groups)tx.set(`scenarios/${id}/versions/${newId}/groups/${g.id}`,g);
         for(const k of knowledge)tx.set(`scenarios/${id}/versions/${newId}/knowledge/${k.id}`,k);
+        for(const k of skills)tx.set(`scenarios/${id}/versions/${newId}/skills/${k.id}`,k);
+        for(const k of classes)tx.set(`scenarios/${id}/versions/${newId}/classes/${k.id}`,k);
         result={id:newId};
       } else if(action==='createSession') {
         const id=documentId(input.scenarioId), vid=documentId(input.versionId); await checkScenario(tx,actor,id);
         const v=await tx.get(`scenarios/${id}/versions/${vid}`); requireThat(v,'NOT_FOUND');
-        const [chars,groups,knowledge]=await Promise.all([tx.list(`scenarios/${id}/versions/${vid}/characters`),tx.list(`scenarios/${id}/versions/${vid}/groups`),tx.list(`scenarios/${id}/versions/${vid}/knowledge`)]);
+        const [chars,groups,knowledge,skills,classes]=await Promise.all([tx.list(`scenarios/${id}/versions/${vid}/characters`),tx.list(`scenarios/${id}/versions/${vid}/groups`),tx.list(`scenarios/${id}/versions/${vid}/knowledge`),tx.list(`scenarios/${id}/versions/${vid}/skills`),tx.list(`scenarios/${id}/versions/${vid}/classes`)]);
         const capacity=whole(input.capacity); requireThat(capacity>0,'INVALID_CAPACITY');
         const fields=Array.isArray(input.fields) ? input.fields : []; requireThat(fields.length<=20,'TOO_MANY_FIELDS');
         const cleanFields=fields.map(f=>({id:documentId(f.id),label:text(f.label,200,true),required:f.required===true}));
@@ -292,6 +298,8 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
           const next={...g,revision:1};tx.set(`sessions/${newId}/groups/${g.id}`,next);
           tx.set(`sessions/${newId}/groups/${g.id}/history/${newId}`,{id:newId,at,actorUid:actor.uid,actorEmail:actor.email,reason:'Création depuis la version de scénario',before:null,after:next});
         }
+        for(const k of skills)tx.set(`sessions/${newId}/skills/${k.id}`,k);
+        for(const k of classes)tx.set(`sessions/${newId}/classes/${k.id}`,k);
         seedKnowledge(tx,newId,knowledge,at);
         result={id:newId}; auditSid=newId;
       } else if(action==='setStaff') {

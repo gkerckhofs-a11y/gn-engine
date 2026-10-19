@@ -28,6 +28,10 @@ Connaissances textuelles et indices versionnés, reçus propres aux personnages,
 
 Carnet privé par compte/session, notes classables, protection contre la réattribution et copies explicites vers un badge public. La confirmation indique le texte, les identités, le droit de retransmission et l'accès MJ à la copie partagée. 156 tests réussis localement et sur GitHub ; version publiée avec manifeste 0.6.0 et refus anonyme vérifiés. Preuves et limites dans `VALIDATION-0.6.md`.
 
+## Extension 0.7
+
+Classes de compétences passives, duplication des modèles, profils attribués après comparaison avant/après et exceptions individuelles. Les découvertes QR peuvent exiger une expertise avec un niveau minimum, sans effacer les documents déjà acquis. 186 tests locaux réussis ; publication et limites suivies dans `VALIDATION-0.7.md`. Compétences actives et valeurs initiales PV/crédits/objets encore à développer.
+
 ## Préparation réalisée
 
 - Cahier V1 conservé, texte consultable, matrice de 132 exigences.
@@ -42,7 +46,7 @@ Carnet privé par compte/session, notes classables, protection contre la réattr
 
 1. Intégrer Storage avec le parcours médias ; Functions, Hosting, Google Authentication et Firestore sont en place.
 2. Recetter dans des navigateurs avec des comptes réels distincts. Adaptateur, règles, jetons, inscriptions et attributions passent les essais sur émulateurs.
-3. Compléter le lot A : classes, permissions de caisse/stock/transport et éditeur étendu. Les groupes avec droits narratifs sont développés en 0.4. Les rôles fixes MJ/Accueil et les fiches narratives sont développés en 0.3 ; voir `VALIDATION-0.3.md`.
+3. Compléter le lot A : valeurs initiales PV/crédits/objets des classes, permissions de caisse/stock/transport et éditeur étendu. Les groupes avec droits narratifs sont développés en 0.4. Les rôles fixes MJ/Accueil et les fiches narratives sont développés en 0.3 ; voir `VALIDATION-0.3.md`.
 4. Étendre les commandes et l'éditeur jusqu'au lot E, avec une preuve de recette par exigence.
 5. Compléter la recette d'exploitation et de restauration. La publication GitHub et les contrôles HTTP automatisés sont en place.
 
