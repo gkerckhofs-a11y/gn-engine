@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.14 publiée : marché de session, annonces à prix fixe, réservation et expiration du stock, achat atomique et retrait physique sans second paiement. 498 tests réussis localement et sur GitHub (271 métier/interface et 227 intégrations) ; manifeste 0.14.0 et 66 refus anonymes vérifiés en ligne. Rapport `VALIDATION-0.14.md` ; rapports précédents conservés. Recette avec comptes réels distincts et mobile restante.
+19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.15 préparée : petites annonces organisateur, programmation et audiences, candidatures et réponses privées. 551 tests réussis localement (299 métier/interface et 252 intégrations) ; vérification GitHub et publication en cours. Rapport `VALIDATION-0.15.md` ; rapports précédents conservés. Contrats, attribution et règlement des missions ainsi que recette terrain restent ouverts.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -59,6 +59,10 @@ Vente privée non réservée avant acceptation, quantité et prix total explicit
 ## Extension 0.14
 
 Marché visible aux joueurs actifs d’une session, recherche et filtres, publication confirmée d’une quantité à prix total fixe. Réservation entière ou fractionnée, expiration en temps réel, retrait vendeur/MJ motivé, achat depuis un compte autorisé et réemploi du retrait physique sans second paiement. Annonces de groupe, alias vendeur, négociation, services, panier, contrats et missions/recrutement restent à développer. Voir `VALIDATION-0.14.md`.
+
+## Extension 0.15
+
+Petites annonces publiées ou programmées par l’organisation, récompense descriptive fixe/négociable, audiences directes ou par groupe sans révéler leurs membres. Prévisualisation, historique MJ, questions/candidatures personnelles, tarifs privés, réponses sous le libellé du commanditaire, lecture dans Infos, refus et retrait. Contrats, attribution dans la limite des places, représentants de groupe, briefing débloqué et règlement unique restent à développer. ANN-05 et REC-10 restent ouverts. Voir `VALIDATION-0.15.md`.
 
 ## Préparation réalisée
 

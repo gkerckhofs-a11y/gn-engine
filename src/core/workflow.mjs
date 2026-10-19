@@ -1,3 +1,4 @@
+import {createAnnouncementService,announcementAction} from './announcements.mjs';
 import {createMarketService,marketAction} from './market.mjs';
 import {createSaleService,saleAction} from './sales.mjs';
 import {createCollectiveService,collectiveAction} from './collective-accounts.mjs';
@@ -92,6 +93,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     return {s,c,g,m:memberFor(g,cid)};
   };
 
+  const announcementService=createAnnouncementService({store,signed,checkSession,now,uuid});
   const marketService=createMarketService({store,signed,checkSession,now,uuid});
   const saleService=createSaleService({store,signed,now,uuid});
   const collectiveService=createCollectiveService({store,signed,checkSession,checkScenario,now,uuid});
@@ -104,6 +106,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(announcementAction(action))return announcementService(action,actor,input);
     if(marketAction(action))return marketService(action,actor,input);
     if(saleAction(action))return saleService(action,actor,input);
     if(collectiveAction(action))return collectiveService(action,actor,input);

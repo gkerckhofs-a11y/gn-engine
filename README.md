@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.14 : marché de session, annonces à prix fixe, stock réservé et achat atomique.**
+**Version 0.15 : petites annonces organisateur, audiences contrôlées et candidatures privées.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -84,6 +84,12 @@ Depuis **Mon sac**, publiez une quantité à prix total fixe, avec durée, lieu 
 
 Un joueur actif achète toute la quantité depuis un compte autorisé ; paiement et propriété changent ensemble, puis la remise physique suit le parcours du sac. Le MJ peut retirer une annonce avec motif avant de corriger son lot. [Parcours et limites 0.14](docs/VALIDATION-0.14.md).
 
+## Petites annonces et recrutement
+
+La régie propose **Gérer les petites annonces** : préparation, prévisualisation, publication ou programmation, modification et clôture avec historique. Choisissez les personnages/groupes destinataires, le commanditaire de fiction, les conditions et la récompense descriptive ; briefing réservé et notes MJ restent séparés du texte joueur.
+
+Dans le marché, **Petites annonces** rassemble les missions accessibles et les candidatures personnelles. Question, candidature et éventuel tarif proposé restent privés. Les réponses de l’organisation apparaissent dans **Infos**, avec lecture explicite. Les contrats, l’attribution, le déblocage du briefing et les paiements restent à intégrer. [Parcours et limites 0.15](docs/VALIDATION-0.15.md).
+
 ## Infrastructure configurée
 
 - GitHub privé : `gkerckhofs-a11y/gn-engine`.
@@ -105,7 +111,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.14 est publiée : **498 tests réussis** localement et sur GitHub (271 métier/interface et 227 intégrations). Manifeste exact 0.14.0 et 66 commandes privées refusées sans connexion, vérifiés en ligne. Preuves dans le [rapport 0.14](docs/VALIDATION-0.14.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.15 est préparée : **551 tests réussis** localement (299 métier/interface et 252 intégrations). Vérification GitHub et Firebase en cours ; preuves dans le [rapport 0.15](docs/VALIDATION-0.15.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 

@@ -692,10 +692,11 @@
       "sourceLine": 215,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_15",
+      "coreWork": "Petites annonces et échanges privés de recrutement",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.15.md ; src/core/announcements.mjs ; web/announcements.mjs ; test/support/announcements-suite.mjs ; test/announcements-ui.test.mjs ; test/integration",
+      "implementedScope": "Tableau de missions dans le marché, recherche et catégories, offres ouvertes séparées des candidatures personnelles. Missions effectivement attribuées restant."
     },
     {
       "id": "ANN-02",
@@ -703,10 +704,11 @@
       "sourceLine": 216,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_15",
+      "coreWork": "Petites annonces et échanges privés de recrutement",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.15.md ; src/core/announcements.mjs ; web/announcements.mjs ; test/support/announcements-suite.mjs ; test/announcements-ui.test.mjs ; test/integration",
+      "implementedScope": "Préparation, aperçu, publication/programmation, modification, clôture/annulation avec versions et auteur technique MJ. Commanditaire de fiction libre sous nom ou alias, sans permission technique implicite."
     },
     {
       "id": "ANN-03",
@@ -714,10 +716,11 @@
       "sourceLine": 217,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_15",
+      "coreWork": "Petites annonces et échanges privés de recrutement",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.15.md ; src/core/announcements.mjs ; web/announcements.mjs ; test/support/announcements-suite.mjs ; test/announcements-ui.test.mjs ; test/integration",
+      "implementedScope": "Titre, catégorie, description, commanditaire, récompense descriptive fixe/négociable, échéance, places prévues, conditions et preuve. Modes mission/prime ouverte, audiences personnages/groupes, notes et briefing séparés. Déblocage du briefing et quotas restant."
     },
     {
       "id": "ANN-04",
@@ -725,10 +728,11 @@
       "sourceLine": 219,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_15",
+      "coreWork": "Petites annonces et échanges privés de recrutement",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.15.md ; src/core/announcements.mjs ; web/announcements.mjs ; test/support/announcements-suite.mjs ; test/announcements-ui.test.mjs ; test/integration",
+      "implementedScope": "Question/candidature personnelle, message et tarif proposé privé si négociable, réponses MJ, statuts envoyée/discussion/refusée/retirée, indicateur et lecture dans Infos. Représentation de groupe, commanditaire joueur et statut retenue contractuel restant."
     },
     {
       "id": "ANN-05",
@@ -747,10 +751,11 @@
       "sourceLine": 223,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_15",
+      "coreWork": "Petites annonces et échanges privés de recrutement",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.15.md ; src/core/announcements.mjs ; web/announcements.mjs ; test/support/announcements-suite.mjs ; test/announcements-ui.test.mjs ; test/integration",
+      "implementedScope": "Dashboard d’annonces, candidatures et échanges ; brouillon, programmation, ouverture, clôture, expiration, annulation et versions conservées. Contrats, preuves, réservations, paiement, quotas et notifications externes restant."
     },
     {
       "id": "REC-10",
