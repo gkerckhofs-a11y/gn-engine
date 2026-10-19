@@ -13,10 +13,10 @@
       "sourceLine": 43,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
     },
     {
       "id": "SOC-02",
@@ -24,10 +24,10 @@
       "sourceLine": 44,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
     },
     {
       "id": "SOC-03",
@@ -68,10 +68,10 @@
       "sourceLine": 64,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
     },
     {
       "id": "SES-02",
@@ -90,10 +90,10 @@
       "sourceLine": 67,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
     },
     {
       "id": "SES-04",
@@ -101,10 +101,10 @@
       "sourceLine": 69,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
     },
     {
       "id": "INS-01",
@@ -112,10 +112,10 @@
       "sourceLine": 73,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
     },
     {
       "id": "INS-02",
@@ -123,10 +123,10 @@
       "sourceLine": 74,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
     },
     {
       "id": "INS-03",
@@ -134,10 +134,10 @@
       "sourceLine": 77,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
     },
     {
       "id": "INS-04",
@@ -145,10 +145,10 @@
       "sourceLine": 80,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
     },
     {
       "id": "EDI-01",
@@ -1146,10 +1146,10 @@
       "sourceLine": 331,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
     },
     {
       "id": "SEC-02",
@@ -1157,10 +1157,10 @@
       "sourceLine": 332,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
       "coreWork": "projections.mjs : listes blanches des champs ; fichiers et autres ressources à intégrer",
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
     },
     {
       "id": "SEC-03",
@@ -1168,10 +1168,10 @@
       "sourceLine": 335,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
     },
     {
       "id": "SEC-04",
@@ -1344,10 +1344,10 @@
       "sourceLine": 370,
       "lot": "E",
       "prototype": "NON_VERIFIE",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "IMPLEMENTATION_PREMIER_PARCOURS_NON_DEPLOYEE",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
     },
     {
       "id": "REC-02",

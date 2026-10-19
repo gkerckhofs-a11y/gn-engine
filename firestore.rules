@@ -1,8 +1,8 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Configuration de départ non déployée : accès uniquement par le service
-    // à construire. Les contrôles métier restent obligatoires dans ce service.
+    // Accès par le service HTTP uniquement. Ses contrôles métier sont
+    // obligatoires puisque le SDK Admin contourne les règles client.
     match /{document=**} {
       allow read, write: if false;
     }

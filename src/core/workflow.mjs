@@ -1,0 +1,232 @@
+import {createHash, randomUUID} from 'node:crypto';
+import {requireThat, documentId, whole} from './validation.mjs';
+import {publicCharacter, participantCharacter} from './projections.mjs';
+import {createClock, pauseClock, resumeClock, gameTime} from './clock.mjs';
+
+export const hash = value => createHash('sha256').update(value).digest('hex');
+const text = (value, max = 4000, required = false) => {
+  requireThat(typeof value === 'string' && value.length <= max && (!required || value.trim()), 'INVALID_TEXT');
+  return value.trim();
+};
+const optional = (value, max) => text(value ?? '', max);
+const status = (value, allowed) => { requireThat(allowed.includes(value), 'INVALID_STATUS'); return value; };
+const regPath = (sid, uid) => `sessions/${sid}/registrations/${hash(uid)}`;
+const charPath = (sid, cid) => `sessions/${sid}/characters/${cid}`;
+const privateSession = s => ({id:s.id, title:s.title, summary:s.summary, date:s.date, time:s.time, place:s.place,
+  practical:s.practical, privacy:s.privacy, capacity:s.capacity, accepted:s.accepted, registrationOpen:s.registrationOpen,
+  stage:s.stage, fields:s.fields, scenarioId:s.scenarioId, versionId:s.versionId, revision:s.revision});
+const publicSession = s => ({id:s.id, title:s.title, summary:s.summary, date:s.date, time:s.time, place:s.place,
+  practical:s.practical, privacy:s.privacy, capacity:s.capacity, available:Math.max(0,s.capacity-s.accepted),
+  registrationOpen:s.registrationOpen, stage:s.stage, fields:s.fields});
+const ownRegistration = r => r ? ({name:r.name, email:r.email, answers:r.answers, status:r.status,
+  characterId:r.characterId, accessActive:r.accessActive, briefingReadAt:r.briefingReadAt ?? null}) : null;
+const characterInput = (input, id) => ({id,
+  public: {displayName:text(input.displayName,150,true), profession:optional(input.profession,150),
+    description:optional(input.description,4000), publicationState:status(input.publicationState,['DRAFT','READY','PUBLISHED'])},
+  publicationState:input.publicationState, biography:optional(input.biography,20000),
+  roleplay:optional(input.roleplay,10000), playerSecrets:optional(input.playerSecrets,20000),
+  gmNotes:optional(input.gmNotes,20000), objectives:[], hp:null, maxHp:null});
+
+/** Authenticated actor is supplied by the HTTP adapter, never by input JSON. */
+export function createWorkflow({store, ownerEmail, now = Date.now, uuid = randomUUID}) {
+  const isAdmin = actor => !!actor && actor.emailVerified === true && actor.provider === 'google.com'
+    && actor.email?.toLowerCase() === ownerEmail?.toLowerCase();
+  function signed(actor) { requireThat(actor?.uid && actor.emailVerified === true && actor.provider === 'google.com', 'LOGIN_REQUIRED'); }
+  function admin(actor) { signed(actor); requireThat(isAdmin(actor), 'FORBIDDEN'); }
+  const checkSession = async (tx, actor, sid) => {
+    admin(actor); const s = await tx.get(`sessions/${sid}`);
+    requireThat(s && s.ownerUid === actor.uid,'FORBIDDEN'); return s;
+  };
+  const checkScenario = async (tx,actor,id) => {
+    admin(actor); const s = await tx.get(`scenarios/${id}`);
+    requireThat(s && s.ownerUid === actor.uid,'FORBIDDEN'); return s;
+  };
+  const revision = (record, value) => requireThat(record.revision === value, 'STALE_REVISION');
+
+  async function dispatch(action,actor,input={}) {
+    const at=now(); const sid=input.sessionId ? documentId(input.sessionId) : null;
+    if(action==='identity') return {uid:actor?.uid ?? null, email:actor?.email ?? null, admin:isAdmin(actor)};
+    if(action==='dashboard') {
+      admin(actor);
+      const [scenarios,sessions]=await Promise.all([store.list('scenarios',['ownerUid',actor.uid]),store.list('sessions',['ownerUid',actor.uid])]);
+      return {scenarios,sessions:sessions.map(privateSession)};
+    }
+    if(action==='publicSession') {
+      requireThat(sid,'INVALID_ID'); const s=await store.get(`sessions/${sid}`);
+      requireThat(s && s.stage!=='ARCHIVED','NOT_FOUND'); return publicSession(s);
+    }
+    if(action==='publicBadge') {
+      const cid=documentId(input.characterId);
+      return store.runTransaction(async tx=>{
+        const s=await tx.get(`sessions/${sid}`); const c=await tx.get(charPath(sid,cid));
+        requireThat(s && s.stage!=='ARCHIVED' && c,'NOT_FOUND'); return publicCharacter(c);
+      });
+    }
+    if(action==='scenario') return store.runTransaction(async tx=>{
+      const id=documentId(input.scenarioId); const s=await checkScenario(tx,actor,id);
+      const [characters,versions]=await Promise.all([tx.list(`scenarios/${id}/characters`),tx.list(`scenarios/${id}/versions`)]);
+      return {...s,characters,versions};
+    });
+    if(action==='session') return store.runTransaction(async tx=>{
+      const s=await checkSession(tx,actor,sid);
+      const [characters,registrations,audit]=await Promise.all([tx.list(`sessions/${sid}/characters`),tx.list(`sessions/${sid}/registrations`),tx.list(`sessions/${sid}/audit`)]);
+      return {...privateSession(s),characters,registrations,audit:audit.sort((a,b)=>b.at-a.at).slice(0,50)};
+    });
+    if(action==='mySession' || action==='preview') return store.runTransaction(async tx=>{
+      signed(actor); const s=await tx.get(`sessions/${sid}`); requireThat(s && s.stage!=='ARCHIVED','NOT_FOUND');
+      const preview=action==='preview';
+      if(preview) await checkSession(tx,actor,sid);
+      const r=preview ? null : await tx.get(regPath(sid,actor.uid));
+      let character=null, reason=null;
+      const cid=preview ? documentId(input.characterId) : r?.characterId;
+      if(cid) {
+        const c=await tx.get(charPath(sid,cid));
+        const allowed=preview || (r.status==='ACCEPTED' && r.accessActive && c?.assignedUid===actor.uid
+          && actor.authTime>=r.minAuthTime);
+        if(!allowed) reason='ACCESS_INACTIVE';
+        else if(!['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s.stage)) reason='BRIEFING_CLOSED';
+        else if(c?.publicationState!=='PUBLISHED' || c?.public.publicationState!=='PUBLISHED') reason='CONTENT_UNPUBLISHED';
+        else character=participantCharacter(c,{active:true,uid:actor.uid,characterId:cid,sessionId:sid},actor.uid);
+      }
+      return {session:publicSession(s),registration:ownRegistration(r),character,reason,gameTimeMs:gameTime(s.clock,at)};
+    });
+    signed(actor);
+    // Invitation redemption deliberately refuses every second consumption.
+    if(action==='redeem') {
+      requireThat(typeof input.token==='string' && /^[A-Za-z0-9_-]{43}$/.test(input.token),'INVALID_INVITATION');
+      const tokenHash=hash(input.token);
+      return store.runTransaction(async tx=>{
+        const inv=await tx.get(`invitations/${tokenHash}`);
+        requireThat(inv?.uid===actor.uid && inv.sessionId===sid,'INVALID_INVITATION');
+        const r=await tx.get(regPath(sid,actor.uid)); const c=await tx.get(charPath(sid,inv.characterId));
+        const s=await tx.get(`sessions/${sid}`);
+        requireThat(inv.status==='ACTIVE' && at<inv.expiresAt,'INVITATION_EXPIRED_OR_USED');
+        requireThat(s && s.stage!=='ARCHIVED' && r?.status==='ACCEPTED' && r.characterId===inv.characterId
+          && r.accessVersion===inv.accessVersion && c?.assignedUid===actor.uid,'ACCESS_INACTIVE');
+        requireThat(actor.authTime>=r.minAuthTime,'REAUTH_REQUIRED');
+        tx.set(`invitations/${tokenHash}`,{...inv,status:'CONSUMED',consumedAt:at});
+        tx.set(regPath(sid,actor.uid),{...r,accessActive:true});
+        return {activated:true};
+      });
+    }
+    const requestId=documentId(input.requestId); const operationPath=`operations/${hash(`${actor.uid}:${requestId}`)}`;
+    const fingerprint=hash(JSON.stringify([action,input])); const newId=uuid();
+    return store.runTransaction(async tx=>{
+      const previous=await tx.get(operationPath);
+      if(previous) { requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED'); return previous.result; }
+      let result, auditSid=sid;
+      const audit={id:newId,action,at,actorUid:actor.uid};
+      if(action==='createScenario') {
+        admin(actor); const s={id:newId,ownerUid:actor.uid,title:text(input.title,150,true),summary:optional(input.summary,4000),revision:1,createdAt:at};
+        tx.set(`scenarios/${newId}`,s); result={id:newId};
+      } else if(action==='saveSessionCharacter') {
+        const s=await checkSession(tx,actor,sid);revision(s,input.revision);requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
+        const cid=documentId(input.characterId),c=await tx.get(charPath(sid,cid));requireThat(c,'NOT_FOUND');
+        tx.set(charPath(sid,cid),{...c,...characterInput(input,cid)});
+        tx.set(`sessions/${sid}`,{...s,revision:s.revision+1});result={id:cid};
+      } else if(action==='saveCharacter') {
+        const id=documentId(input.scenarioId), s=await checkScenario(tx,actor,id); revision(s,input.revision);
+        const cid=input.characterId ? documentId(input.characterId) : newId;
+        if(input.characterId) requireThat(await tx.get(`scenarios/${id}/characters/${cid}`),'NOT_FOUND');
+        tx.set(`scenarios/${id}/characters/${cid}`,characterInput(input,cid));
+        tx.set(`scenarios/${id}`,{...s,revision:s.revision+1}); result={id:cid};
+      } else if(action==='publishScenario') {
+        const id=documentId(input.scenarioId),s=await checkScenario(tx,actor,id); revision(s,input.revision);
+        const chars=await tx.list(`scenarios/${id}/characters`); requireThat(chars.length>0,'EMPTY_SCENARIO');
+        const version={id:newId,title:s.title,summary:s.summary,sourceRevision:s.revision,createdAt:at,characterCount:chars.length};
+        tx.set(`scenarios/${id}/versions/${newId}`,version);
+        for(const c of chars) tx.set(`scenarios/${id}/versions/${newId}/characters/${c.id}`,c);
+        result={id:newId};
+      } else if(action==='createSession') {
+        const id=documentId(input.scenarioId), vid=documentId(input.versionId); await checkScenario(tx,actor,id);
+        const v=await tx.get(`scenarios/${id}/versions/${vid}`); requireThat(v,'NOT_FOUND');
+        const chars=await tx.list(`scenarios/${id}/versions/${vid}/characters`);
+        const capacity=whole(input.capacity); requireThat(capacity>0,'INVALID_CAPACITY');
+        const fields=Array.isArray(input.fields) ? input.fields : []; requireThat(fields.length<=20,'TOO_MANY_FIELDS');
+        const cleanFields=fields.map(f=>({id:documentId(f.id),label:text(f.label,200,true),required:f.required===true}));
+        requireThat(new Set(cleanFields.map(f=>f.id)).size===cleanFields.length,'DUPLICATE_FIELD');
+        const s={id:newId,ownerUid:actor.uid,scenarioId:id,versionId:vid,title:text(input.title,150,true),summary:v.summary,
+          date:optional(input.date,40),time:optional(input.time,80),place:optional(input.place,500),practical:optional(input.practical,4000),
+          privacy:text(input.privacy,4000,true),capacity,accepted:0,registrationOpen:false,stage:'PREPARATION',fields:cleanFields,
+          clock:createClock(),revision:1,createdAt:at};
+        tx.set(`sessions/${newId}`,s);
+        for(const c of chars) tx.set(charPath(newId,c.id),{...c,sessionId:newId,publicCode:c.id,assignedUid:null});
+        result={id:newId}; auditSid=newId;
+      } else if(action==='setRegistrationOpen' || action==='setStage') {
+        const s=await checkSession(tx,actor,sid); revision(s,input.revision);
+        let next={...s,revision:s.revision+1};
+        if(action==='setRegistrationOpen') {
+          requireThat(!['FINISHED','ARCHIVED'].includes(s.stage),'SESSION_CLOSED');
+          requireThat(typeof input.open==='boolean','INVALID_STATUS'); next.registrationOpen=input.open;
+        } else {
+          const transitions={PREPARATION:['BRIEFING'],BRIEFING:['EN_JEU'],EN_JEU:['PAUSE','FINISHED'],PAUSE:['EN_JEU','FINISHED'],FINISHED:['ARCHIVED'],ARCHIVED:[]};
+          requireThat(transitions[s.stage].includes(input.stage),'INVALID_TRANSITION');
+          next.stage=input.stage;
+          if(s.stage==='EN_JEU') next.clock=pauseClock(s.clock,at);
+          if(input.stage==='EN_JEU') next.clock=resumeClock(s.clock,at);
+          if(['FINISHED','ARCHIVED'].includes(input.stage)) next.registrationOpen=false;
+        }
+        tx.set(`sessions/${sid}`,next); result=privateSession(next);
+      } else if(action==='register') {
+        const s=await tx.get(`sessions/${sid}`); const existing=await tx.get(regPath(sid,actor.uid));
+        requireThat(s?.registrationOpen && !['FINISHED','ARCHIVED'].includes(s.stage),'REGISTRATION_CLOSED');
+        requireThat(!existing,'ALREADY_REGISTERED');
+        const answers={}; for(const f of s.fields) answers[f.id]=text(input.answers?.[f.id] ?? '',2000,f.required);
+        const accepted=s.accepted<s.capacity;
+        const r={uid:actor.uid,sessionId:sid,name:text(input.name,150,true),email:actor.email,answers,
+          status:accepted?'ACCEPTED':'WAITLISTED',characterId:null,accessActive:false,accessVersion:0,minAuthTime:0,createdAt:at};
+        tx.set(regPath(sid,actor.uid),r);
+        if(accepted) tx.set(`sessions/${sid}`,{...s,accepted:s.accepted+1,revision:s.revision+1});
+        result=ownRegistration(r);
+      } else if(action==='setRegistrationStatus' || action==='cancelRegistration') {
+        const s=action==='cancelRegistration' ? await tx.get(`sessions/${sid}`) : await checkSession(tx,actor,sid);
+        const uid=action==='cancelRegistration' ? actor.uid : text(input.uid,128,true);
+        const r=await tx.get(regPath(sid,uid)); requireThat(r && s,'NOT_FOUND');
+        const nextStatus=action==='cancelRegistration' ? 'CANCELLED' : status(input.status,['RECEIVED','INCOMPLETE','ACCEPTED','WAITLISTED','REFUSED','CANCELLED']);
+        const accepted=s.accepted+(nextStatus==='ACCEPTED'?1:0)-(r.status==='ACCEPTED'?1:0);
+        requireThat(accepted<=s.capacity,'CAPACITY_REACHED');
+        const c=r.characterId ? await tx.get(charPath(sid,r.characterId)) : null;
+        const next={...r,status:nextStatus};
+        if(nextStatus!=='ACCEPTED') { next.characterId=null; next.accessActive=false; next.accessVersion++; if(c) tx.set(charPath(sid,c.id),{...c,assignedUid:null}); }
+        tx.set(regPath(sid,uid),next); tx.set(`sessions/${sid}`,{...s,accepted,revision:s.revision+1}); result={status:nextStatus};
+      } else if(action==='assign') {
+        const s=await checkSession(tx,actor,sid); requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
+        const uid=text(input.uid,128,true), cid=documentId(input.characterId);
+        const r=await tx.get(regPath(sid,uid)), c=await tx.get(charPath(sid,cid));
+        requireThat(r?.status==='ACCEPTED' && c,'INVALID_ASSIGNMENT');
+        requireThat(!c.assignedUid || c.assignedUid===uid || input.replace===true,'CHARACTER_TAKEN');
+        const oldChar=r.characterId && r.characterId!==cid ? await tx.get(charPath(sid,r.characterId)) : null;
+        const oldReg=c.assignedUid && c.assignedUid!==uid ? await tx.get(regPath(sid,c.assignedUid)) : null;
+        if(oldChar) tx.set(charPath(sid,oldChar.id),{...oldChar,assignedUid:null});
+        if(oldReg) tx.set(regPath(sid,oldReg.uid),{...oldReg,characterId:null,accessActive:false,accessVersion:oldReg.accessVersion+1});
+        tx.set(charPath(sid,cid),{...c,assignedUid:uid});
+        tx.set(regPath(sid,uid),{...r,characterId:cid,accessActive:false,accessVersion:r.accessVersion+1,briefingReadAt:null});
+        result={assigned:true};
+      } else if(action==='issueInvitation' || action==='revokeAccess') {
+        await checkSession(tx,actor,sid); const uid=text(input.uid,128,true),r=await tx.get(regPath(sid,uid));
+        requireThat(r?.characterId && r.status==='ACCEPTED','INVALID_ASSIGNMENT');
+        const version=r.accessVersion+1;
+        if(action==='issueInvitation') {
+          requireThat(typeof input.tokenHash==='string' && /^[a-f0-9]{64}$/.test(input.tokenHash),'INVALID_INVITATION');
+          requireThat(!await tx.get(`invitations/${input.tokenHash}`),'INVALID_INVITATION');
+          const hours=whole(input.hours); requireThat(hours>=1 && hours<=168,'INVALID_EXPIRY');
+          const expiresAt=at+hours*3600000;
+          tx.set(`invitations/${input.tokenHash}`,{uid,sessionId:sid,characterId:r.characterId,accessVersion:version,status:'ACTIVE',expiresAt});
+          result={expiresAt};
+        } else result={revoked:true};
+        tx.set(regPath(sid,uid),{...r,accessActive:false,accessVersion:version,
+          minAuthTime:action==='revokeAccess' ? Math.floor(at/1000)+1 : r.minAuthTime});
+      } else if(action==='confirmBriefing') {
+        const s=await tx.get(`sessions/${sid}`),r=await tx.get(regPath(sid,actor.uid));
+        requireThat(r?.characterId,'FORBIDDEN'); const c=await tx.get(charPath(sid,r.characterId));
+        requireThat(r.accessActive && actor.authTime>=r.minAuthTime && r.status==='ACCEPTED' && c?.assignedUid===actor.uid,'FORBIDDEN');
+        requireThat(['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s?.stage) && c.publicationState==='PUBLISHED','BRIEFING_CLOSED');
+        tx.set(regPath(sid,actor.uid),{...r,briefingReadAt:at}); result={confirmed:true};
+      } else requireThat(false,'UNKNOWN_ACTION');
+      tx.set(operationPath,{uid:actor.uid,fingerprint,result,at});
+      if(auditSid) tx.set(`sessions/${auditSid}/audit/${newId}`,audit);
+      return result;
+    });
+  }
+  return {dispatch};
+}

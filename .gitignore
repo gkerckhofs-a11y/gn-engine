@@ -8,3 +8,6 @@ firestore-debug.log
 *.private.json
 coverage/
 dist/
+public/
+ui-debug.log
+database-debug.log

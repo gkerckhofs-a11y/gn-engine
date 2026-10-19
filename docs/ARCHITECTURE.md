@@ -1,6 +1,6 @@
-# Conception Firebase proposée
+# Architecture Firebase
 
-19 octobre 2026 — choix de conception pour répondre au cahier, pas description d'une infrastructure déjà configurée.
+19 octobre 2026 — conception du moteur complet. Le premier parcours est implémenté dans `src/core/workflow.mjs`, `src/server/index.mjs` et `web/`. Firestore et Authentication sont configurés ; Functions et Hosting ne sont pas déployés. Voir `VALIDATION-0.2.md` pour les preuves et limites.
 
 ## Répartition
 
@@ -11,7 +11,7 @@
 - Cloud Storage : médias séparés selon leurs droits ; téléchargement contrôlé par le service, sans publication des pièces privées.
 - Firebase Hosting pour les fichiers publics de l'interface, après configuration. Le contenu organisateur et les secrets ne sont pas embarqués dans ce bundle.
 
-Les dépendances et la région ne sont pas figées dans ce dépôt. Leurs versions et la disponibilité de la région devront être vérifiées lors de l'intégration. Aucun secret de service n'est ajouté au code.
+Premier parcours : Firestore Standard et Functions en `europe-west1` (Belgique), Node 22, Firebase Admin 14.5, Functions 7.4, SDK Web 13.0 et verrou de dépendances. Aucun secret de service dans le code. Storage et médias privés restent à intégrer.
 
 ## Modèle de données
 
@@ -61,7 +61,7 @@ Les échéances sont résolues par le service même si aucun écran n'est ouvert
 
 ## Accès privés et médias
 
-La première version Sites utilisait des clés privées permanentes. La cible est une invitation aléatoire stockée sous forme d'empreinte, consommée atomiquement, puis une session authentifiée. Les modalités de récupération et d'envoi restent à intégrer. La détection d'expiration seule du noyau n'est pas un service d'invitations complet.
+La première version Sites utilisait des clés privées permanentes. Le premier parcours Firebase implémente une invitation aléatoire, stockée sous forme d'empreinte et consommée atomiquement par le compte Google vérifié de l'inscription. Le MJ peut renouveler ou révoquer l'accès. Après révocation, une date minimale de nouvelle authentification exclut les anciens appareils. Courriels et autres modes de récupération restent à intégrer.
 
 Les pièces jointes suivent les droits du contenu, y compris titres, noms de fichiers et miniatures. Une prévisualisation MJ doit utiliser les mêmes projections que le joueur, sans modifier les découvertes. Le cache hors ligne sera limité aux contenus déjà autorisés, avec durée explicite et suppression à la déconnexion ; les opérations économiques exigent une confirmation serveur.
 

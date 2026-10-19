@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n'est encore validé. Le découpage reprend le cahier des charges ; il ne réduit pas son périmètre.
+19 octobre 2026. Aucun lot complet n'est encore validé. Premier parcours A développé : 28 tests métier et 14 intégrations réussis. Firestore et Google Authentication configurés ; publication et recette navigateur restent à faire. Voir `VALIDATION-0.2.md`. Le découpage ne réduit pas le périmètre du cahier.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -23,9 +23,9 @@ Les contrôles d'accès et la traçabilité sont requis dès A. Les imports et o
 
 ## Intégration encore à réaliser
 
-1. Configurer l'application web Firebase, Authentication, Firestore, Storage, Functions et Hosting avec des choix d'emplacement documentés.
-2. Brancher la vérification des jetons et la lecture des droits au noyau ; tester l'adaptateur et les règles dans Emulator Suite.
-3. Construire les interfaces et services du lot A ; reprendre les composants du prototype après adaptation.
+1. Publier Functions et Hosting ; application web, Google Authentication et Firestore sont configurés. Storage attend le parcours médias.
+2. Recetter dans des navigateurs avec des comptes réels distincts. Adaptateur, règles, jetons, inscriptions et attributions passent les essais sur émulateurs.
+3. Compléter le lot A : rôles délégués, groupes, permissions fines et éditeur étendu.
 4. Étendre les commandes et l'éditeur jusqu'au lot E, avec une preuve de recette par exigence.
 5. Configurer le déploiement GitHub vers Firebase avec des droits limités, puis publier et vérifier. Aucun jeton ni délégation de déploiement n'existe dans ce dépôt à ce stade.
 
