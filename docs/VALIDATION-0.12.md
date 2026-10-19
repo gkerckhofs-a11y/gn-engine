@@ -59,7 +59,8 @@ Les ajouts et retraits MJ utilisent le même parcours confirmé que les comptes 
 - Les 20 parcours sont exécutés sur le store mémoire et sur Firestore émulé : droits indépendants, groupes secrets, concurrence de caissiers et d’encaissements, réessais, retraits de permissions, publication, libellés, copies figées, ouverture à zéro, transferts entre comptes, accès croisés, révocation, réattribution, corrections, réservations, modules, hors combat, archive et panne avant commit.
 - Le gestionnaire HTTP réel est testé avec Auth émulé : lecteur refusé pour payer, caissier sans accès au solde, dotation 100, paiement 80 unique, solde final 20 et réception 80, alias sans nom de groupe secret, retrait de permission et 7 nouvelles commandes fermées sans connexion.
 - `npm run test:emulator` : **182 tests réussis**, sans échec, annulation ou test ignoré, avec Java 21, en environ 199 secondes.
-- Total local : **220 + 182 = 402 tests réussis**. Vérifications GitHub et publication en cours ; les résultats seront consignés après observation.
+- Total local : **220 + 182 = 402 tests réussis**. Le même total est confirmé dans les journaux GitHub sur Node 22.23.3.
+- GitHub, commit source `0643543ad612e620af4eb0f3fc779b17b9ccd313` : [workflow 39296121140](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39296121140), job `118208982002`. Compilation réussie à 17:40:49 UTC ; 220 tests à 17:40:54 UTC et 182 intégrations à 17:44:30 UTC le 19 octobre 2026. Aucun échec, annulation ou test ignoré. Résultats lus dans le journal terminé.
 - Données et comptes de test synthétiques dans `demo-gn-engine` uniquement. Aucune donnée de test créée dans Firebase de production.
 
 ## Limites et recette restante
@@ -75,4 +76,12 @@ Les ajouts et retraits MJ utilisent le même parcours confirmé que les comptes 
 
 ## Publication
 
-En attente du workflow Firebase. Le contrôle prévu exige le manifeste exact 0.12.0 et 48 commandes privées refusées sans authentification. La capture prévue de la route Mes comptes prouvera seulement la version visible et l’accès anonyme fermé.
+Le code applicatif publié est le commit `0643543ad612e620af4eb0f3fc779b17b9ccd313`. Le [workflow Firebase 39296121140](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39296121140), job de publication `118211038519`, consigne le 19 octobre 2026 :
+
+- Fonction serveur `api` en Belgique : état **ACTIVE** à 17:46:07 UTC.
+- Firebase Hosting : **Deploy complete** à 17:46:16 UTC.
+- Contrôle final à **17:46:24 UTC** : page HTTP 200, manifeste exact **0.12.0**, puis **48 commandes privées refusées en HTTP 401 / LOGIN_REQUIRED** sans authentification.
+
+Les résultats sont observés dans les journaux terminés. Le navigateur confirme ensuite **GN Engine · 0.12**. La route `#/accounts/verification` affiche uniquement la connexion, sans nom de caisse ni solde ni historique privé. Cette capture prouve la version visible et la fermeture de l’accès anonyme ; elle ne constitue pas une recette authentifiée des caisses. Page finale : [GN Engine](https://gn-engine.web.app/).
+
+![Comptes protégés — version 0.12](verification/gn-engine-0.12-1792432056312.jpg)

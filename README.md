@@ -93,7 +93,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.12 passe **402 tests localement** : 220 métier/interface et 182 intégrations sur Auth et Firestore émulés. Compilation réussie ; vérification GitHub et publication en cours. Preuves dans le [rapport 0.12](docs/VALIDATION-0.12.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.12 est publiée : **402 tests réussis** localement et dans les journaux GitHub (220 métier/interface et 182 intégrations). Le manifeste exact 0.12.0 et le refus de 48 commandes privées anonymes sont vérifiés en ligne. Preuves dans le [rapport 0.12](docs/VALIDATION-0.12.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 
