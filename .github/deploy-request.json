@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "522e9acff51ef2e54cf5086db0072787322091ac",
-  "requestedAt": "2026-10-19T15:19:01.127465+00:00",
-  "reason": "Publier la 0.8 : PV, dégâts et soins configurables, usages uniques et délai en temps de jeu.",
-  "version": "0.8.0"
+  "sourceCommit": "e273558c7b7b310830feada27f42eeb9b35194bc",
+  "requestedAt": "2026-10-19T15:47:13.812445+00:00",
+  "reason": "Publier la 0.9 : catalogue et lots de matériel, sac privé et consommation atomique des soins.",
+  "version": "0.9.0"
 }

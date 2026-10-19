@@ -1,3 +1,4 @@
+import {validateConsumable} from './inventory-state.mjs';
 import {healingInput} from './health-state.mjs';
 import {createHash} from 'node:crypto';
 import {requireThat,documentId,whole} from './validation.mjs';
@@ -107,6 +108,7 @@ export function createAbilityService({store,signed,checkSession,checkScenario,no
         id=input.id?documentId(input.id):newId;before=input.id?await tx.get(`${base}/${kind}/${id}`):null;
         if(input.id)requireThat(before,'NOT_FOUND');
         after=skill?skillInput(input,id,before??{}):classInput(input,id,before??{});
+        if(skill)await validateConsumable(tx,base,after.healing);
         if(!skill)for(const x of after.skills){
           const s=await tx.get(`${base}/skills/${x.skillId}`);requireThat(s,'INVALID_ABILITY_REFERENCE');
           requireThat(after.publicationState!=='PUBLISHED'||s.publicationState==='PUBLISHED','ABILITY_UNPUBLISHED');

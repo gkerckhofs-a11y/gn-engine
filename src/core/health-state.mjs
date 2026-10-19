@@ -1,4 +1,4 @@
-import {requireThat,whole} from './validation.mjs';
+import {requireThat,whole,documentId} from './validation.mjs';
 export const outOfCombatActions=['discover','share','publish','heal'];
 export function healthRulesInput(input){
   requireThat(input&&typeof input.enabled==='boolean','INVALID_HEALTH');
@@ -24,5 +24,7 @@ export function healingInput(value){
   const amount=whole(value.amount,'INVALID_HEALING'),cooldownSeconds=whole(value.cooldownSeconds,'INVALID_HEALING');
   const uses=value.uses==null?null:whole(value.uses,'INVALID_HEALING');
   requireThat(amount>0&&(uses===null||uses>0)&&Number.isSafeInteger(cooldownSeconds*1000),'INVALID_HEALING');
-  return {effect:'HEAL_HP',amount,uses,cooldownSeconds};
+  let consumable=null;
+  if(value.consumable!=null){const itemId=documentId(value.consumable.itemId),quantity=whole(value.consumable.quantity,'INVALID_HEALING');requireThat(quantity>0,'INVALID_HEALING');consumable={itemId,quantity};}
+  return {effect:'HEAL_HP',amount,uses,cooldownSeconds,consumable};
 }

@@ -79,6 +79,14 @@ Les profils de compétences acceptent les soins instantanés sur soi ou sur un a
 
 Le serveur applique les permissions hors combat aux découvertes, partages de connaissances et notes, publications de groupe et soins. La lecture et les notes privées restent accessibles. L’état zéro PV n’entraîne ni mort définitive ni transfert. Les historiques joueurs retirent les UID et motifs MJ ; le soignant voit les PV nécessaires au récapitulatif de sa cible. Le rôle Accueil et les badges ne reçoivent pas les PV. Voir `VALIDATION-0.8.md` pour la portée exacte et les limites.
 
+### Implémentation 0.9
+
+Le catalogue `items` existe sous scénario, version figée et session. Un personnage de scénario possède une copie `startingInventory`, attribuée après préparation et confirmation des modèles publiés. Créer une session produit ses propres documents `inventory/{lotId}` à partir de ces copies. Chaque lot conserve une projection de sa définition, sa quantité, propriétaire, détenteur, emplacement, disponibilité et révision. Le parcours courant attribue propriétaire et détention au même personnage et localise le lot dans son sac ; entrepôts, transferts, prêts et transport restent à implémenter.
+
+Le coût facultatif du soin référence l’identifiant et la révision exacte du modèle consommable. Le lot choisi doit être personnel, dans le sac du soignant, compatible avec cette version, disponible et assez fourni. Le montant requis est engagé uniquement à la confirmation instantanée. Le stock, les PV, l’usage, les deux historiques et le résultat mémorisé utilisent la même transaction Firestore. Une correction concurrente du stock invalide la confirmation. Les lots épuisés restent enregistrés avec quantité zéro et état `CONSUMED`.
+
+Les attributions MJ créent de nouveaux lots et demandent une confirmation avec motif. Les corrections modifient quantité/disponibilité avec contrôle de révision, sans déplacer ni changer de propriétaire. Un lot consommé ou détruit est terminal ; réapprovisionner crée un nouveau lot. Catalogue, dotation de départ et lots ont des historiques séparés, limités aux 30 derniers événements consultables. Le sac joueur exclut motifs, UID, origine interne et notes MJ. Voir `VALIDATION-0.9.md`.
+
 ## Commandes et concurrence
 
 Une commande contient session, référence unique, type, ressources ciblées et version attendue lorsqu'elle s'applique. L'acteur vient du jeton vérifié, jamais du corps de requête. Le service conserve une empreinte de la demande et son résultat dans la même transaction que ses effets.

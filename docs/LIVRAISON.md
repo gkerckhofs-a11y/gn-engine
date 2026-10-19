@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n'est encore validé. Version 0.8 publiée sur https://gn-engine.web.app/ : PV, déclaration des dégâts et soins actifs configurables. Les 227 tests sont réussis localement et sur GitHub ; manifeste 0.8.0, refus anonymes et écran de connexion des PV vérifiés. Vérifications et publication dans `VALIDATION-0.8.md` ; versions précédentes 0.2 à 0.7 conservées. La recette complète avec comptes joueurs distincts et mobile reste à faire. Le découpage ne réduit pas le périmètre du cahier.
+19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.9 préparée : catalogue d’objets, lots et matériel de départ, sac privé et consommation médicale atomique. Vérifications et publication dans `VALIDATION-0.9.md` ; rapports 0.2 à 0.8 conservés. La recette complète avec comptes joueurs distincts et mobile reste à faire. Le découpage ne réduit pas le périmètre du cahier.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -35,6 +35,10 @@ Classes de compétences passives, duplication des modèles, profils attribués a
 ## Extension 0.8
 
 Suivi facultatif des PV, dégâts confirmés, hors combat et retour configurables, soins instantanés sur soi/cible, quota par session et délai suspendu pendant les pauses. État, consommation et résultat écrits ensemble ; corrections MJ et historique privé. Les PV initiaux sont actuellement définis par scénario/session, pas par classe. Inventaire médical, autres états, modificateurs et effets différés restent à intégrer. Voir `VALIDATION-0.8.md`.
+
+## Extension 0.9
+
+Catalogue versionné, copies confirmées du matériel de départ, lots indépendants par session, dons MJ confirmés, corrections tracées et sac avec filtres. Un soin peut consommer une quantité dans un lot compatible choisi ; stock, PV et usage sont appliqués ensemble une seule fois. Aucun transfert, fusion/fractionnement, capacité, équipement, image ou marché à ce stade. Le matériel initial est préparé individuellement, pas par classe. Voir `VALIDATION-0.9.md`.
 
 ## Préparation réalisée
 

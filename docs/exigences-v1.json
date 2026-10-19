@@ -104,11 +104,11 @@
       "sourceLine": 69,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_7",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_9_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.7.md ; src/core/abilities.mjs ; src/core/knowledge.mjs ; web/abilities.mjs ; test/support/abilities-suite.mjs ; test/integration",
-      "implementedScope": "Publication de fiche, relations, objectifs et profil de compétences ; aperçu joueur identique sans effet. Modèles brouillon/prêt/publié. Programmation et pièces jointes restant."
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration",
+      "implementedScope": "Publications et aperçus de fiches, profils, connaissances, groupes, PV et sac. Modèles d’objets brouillon/prêt/publié ; lots déjà attribués gardent leur snapshot. Programmation et médias restant."
     },
     {
       "id": "INS-01",
@@ -184,11 +184,11 @@
       "sourceLine": 89,
       "lot": "A",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_7",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_9_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.7.md ; src/core/abilities.mjs ; src/core/knowledge.mjs ; web/abilities.mjs ; test/support/abilities-suite.mjs ; test/integration",
-      "implementedScope": "Catalogue de scénario versionné, duplication, copie figée en session et profils attribués indépendants des modifications du catalogue. Application explicite avec comparaison avant/après. Bibliothèque transversale entre univers et migration par lot restant."
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration",
+      "implementedScope": "Bibliothèques versionnées de compétences, classes et objets, duplication, profils et matériel initial copiés après comparaison et confirmation. Lots et sessions existants ne suivent pas automatiquement le catalogue. Bibliothèque transversale et migration collective restant."
     },
     {
       "id": "EDI-04",
@@ -196,11 +196,11 @@
       "sourceLine": 91,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_7",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_9_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.7.md ; src/core/abilities.mjs ; src/core/knowledge.mjs ; web/abilities.mjs ; test/support/abilities-suite.mjs ; test/integration",
-      "implementedScope": "Condition guidée de compétence passive et niveau minimum pour une découverte QR, ajoutée à la sélection de destinataires. Aucune exécution de code narratif. Combinaisons de conditions, objets, paiements et autres effets restant."
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration",
+      "implementedScope": "Condition de compétence passive pour QR et coût de consommable guidé pour soins. Stock personnel disponible, version du modèle, quantité et résultat contrôlés au serveur. Combinaisons générales, paiements, autres effets restant."
     },
     {
       "id": "EDI-05",
@@ -348,11 +348,11 @@
       "sourceLine": 140,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_8",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_9_A_PUBLIER",
       "coreWork": null,
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.8.md ; src/core/health.mjs ; src/core/health-state.mjs ; web/health.mjs ; test/support/health-suite.mjs ; test/health-ui.test.mjs ; test/integration",
-      "implementedScope": "Soin instantané avec usages facultatifs par session et délai en temps de jeu ; coûts affichés avant confirmation. Pas de PA imposés. Consommables et réservations différées restant."
+      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration",
+      "implementedScope": "Usages et cooldown facultatifs, plus consommable facultatif par soin. Coût de stock et solde du lot visibles avant confirmation ; aucun engagement pendant la préparation. Pas de PA imposés. Réservations différées et autres ressources restant."
     },
     {
       "id": "COM-03",
@@ -360,11 +360,11 @@
       "sourceLine": 142,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_8",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_9_A_PUBLIER",
       "coreWork": null,
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.8.md ; src/core/health.mjs ; src/core/health-state.mjs ; web/health.mjs ; test/support/health-suite.mjs ; test/health-ui.test.mjs ; test/integration",
-      "implementedScope": "Dégâts et soins idempotents, droits actuels revérifiés, PV et usage atomiques. Pas de dés ni consommation d’objet à ce stade."
+      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration",
+      "implementedScope": "Soin et consommation idempotents : PV, quantité, usage, historiques et résultat dans la même transaction. Droits et versions revérifiés ; réessai après dernière unité restituant le résultat sans double coût. Autres effets et économie restant."
     },
     {
       "id": "COM-04",
@@ -407,11 +407,11 @@
       "sourceLine": 154,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_8",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_9_A_PUBLIER",
       "coreWork": null,
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.8.md ; src/core/health.mjs ; src/core/health-state.mjs ; web/health.mjs ; test/support/health-suite.mjs ; test/health-ui.test.mjs ; test/integration",
-      "implementedScope": "Préparation sans effet par badge, cible et avant/après explicites, confirmation transactionnelle du soin. Pas de scan caméra, objets requis ou action différée."
+      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration",
+      "implementedScope": "Soin préparé sur soi ou badge, sélection explicite du lot compatible, récapitulatif PV/stock/coût puis confirmation unique. Une action refusée ne consomme rien. Scan caméra, réservations longues et autres actions restant."
     },
     {
       "id": "ACT-02",
@@ -431,11 +431,11 @@
       "sourceLine": 158,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_8",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_9_A_PUBLIER",
       "coreWork": null,
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.8.md ; src/core/health.mjs ; src/core/health-state.mjs ; web/health.mjs ; test/support/health-suite.mjs ; test/health-ui.test.mjs ; test/integration",
-      "implementedScope": "Deux soins ou dégâts confirmés sur un même état ne se valident pas silencieusement ; conflit à repréparer, aucune double consommation. Réservations longues, interruption et opposition restant."
+      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration",
+      "implementedScope": "Soins concurrents, dernier consommable et corrections de stock concurrents contrôlés ; aucun coût partiel. Réservations longues, interruption et opposition restant."
     },
     {
       "id": "ACT-04",
@@ -490,11 +490,11 @@
       "sourceLine": 168,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_8",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_9_A_PUBLIER",
       "coreWork": null,
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.8.md ; src/core/health.mjs ; src/core/health-state.mjs ; web/health.mjs ; test/support/health-suite.mjs ; test/health-ui.test.mjs ; test/integration",
-      "implementedScope": "Soin sur soi ou personnage actif via badge, PV bornés au maximum, usages et délai. Retrait d’états, stabilisation, consommables et diagnostic étendu restant."
+      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration",
+      "implementedScope": "Soins bornés au maximum avec consommable facultatif choisi dans le sac du soignant et retrait atomique. Pas de stabilisation, retrait de blessure particulière ou diagnostic étendu."
     },
     {
       "id": "VIE-05",
@@ -514,10 +514,11 @@
       "sourceLine": 176,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_9_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration",
+      "implementedScope": "Catalogue séparé des lots : exemplaires individuels (quantité 1), lots entiers empilables, consommable, catégorie, unité, légalité visible et volume descriptif. Snapshots, matériel initial et attributions MJ confirmés. Unicité globale, division, équipement, installation, images et valeur monétaire restant."
     },
     {
       "id": "INV-02",
@@ -525,10 +526,11 @@
       "sourceLine": 177,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_9_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration",
+      "implementedScope": "Champs distincts propriétaire, détenteur, emplacement et disponibilité. Parcours limité aux lots personnels dans le sac, avec états disponible, saisi, consommé et détruit. Détention pour autrui, emplacements externes et transitions de transport restant."
     },
     {
       "id": "INV-03",
@@ -558,10 +560,11 @@
       "sourceLine": 184,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_9_A_PUBLIER",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
+      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration",
+      "implementedScope": "Sac avec recherche, catégorie, disponibilité et consommation médicale contrôlée. Volume unitaire descriptif, sans limite de capacité. Soutes, entrepôts, réservations d’espace, équipement et vente restant."
     },
     {
       "id": "ECO-01",
@@ -1447,11 +1450,11 @@
       "sourceLine": 376,
       "lot": "E",
       "prototype": "NON_VERIFIE",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_8",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_9_A_PUBLIER",
       "coreWork": null,
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.8.md ; src/core/health.mjs ; src/core/health-state.mjs ; web/health.mjs ; test/support/health-suite.mjs ; test/health-ui.test.mjs ; test/integration",
-      "implementedScope": "Parcours automatisé dégâts, zéro PV, soin, retour configuré et historique ; concurrence et usage unique vérifiés. Stock médical et recette terrain multi-comptes non réalisés."
+      "evidence": "docs/VALIDATION-0.9.md ; src/core/inventory.mjs ; src/core/inventory-state.mjs ; src/core/health.mjs ; web/inventory.mjs ; test/support/inventory-suite.mjs ; test/inventory-ui.test.mjs ; test/integration",
+      "implementedScope": "Parcours automatisés dégâts, zéro PV, soins et retour configurable ; injecteur consommé une seule fois avec PV et historique cohérents. Tests mémoire, Firestore et HTTP/Auth. Recette terrain multi-comptes et états spécialisés restant."
     },
     {
       "id": "REC-08",

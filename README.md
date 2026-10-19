@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.8 : PV, dégâts déclarés et soins avec usages et délai de récupération.**
+**Version 0.9 : objets, lots de départ, sac privé et soins consommant le matériel.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -44,7 +44,13 @@ Préparez des compétences passives ou des soins et assemblez-les en classes. Su
 
 ## PV, dégâts et soins
 
-Le MJ active le suivi des PV et choisit les valeurs initiales, les actions permises hors combat et la règle de retour en jeu. Le joueur déclare ses dégâts après l’affrontement, puis confirme le résultat. Les compétences de soin sur soi ou sur un autre badge ont un montant fixe, des usages facultatifs par session et un délai suivant le temps de jeu. Les effets et usages sont appliqués ensemble une seule fois. Une correction MJ conserve le reste du personnage. Aucun inventaire médical ni effet différé à ce stade. [Parcours et limites 0.8](docs/VALIDATION-0.8.md).
+Le MJ active le suivi des PV et choisit les valeurs initiales, les actions permises hors combat et la règle de retour en jeu. Le joueur déclare ses dégâts après l’affrontement, puis confirme le résultat. Les compétences de soin sur soi ou sur un autre badge ont un montant fixe, des usages facultatifs par session et un délai suivant le temps de jeu. Les effets et usages sont appliqués ensemble une seule fois. Une correction MJ conserve le reste du personnage. Les consommables médicaux sont intégrés en 0.9 ; les effets différés restent à développer. [Parcours et limites 0.8](docs/VALIDATION-0.8.md).
+
+## Objets et sac
+
+Le catalogue distingue les exemplaires individuels des lots empilables. Préparez le matériel de chaque personnage dans le scénario, vérifiez l’avant/après, puis figez une version : chaque session recevra ses lots indépendants. En session, le MJ peut attribuer un nouveau lot ou corriger un stock avec motif ; les modèles et lots existants restent indépendants.
+
+Le joueur consulte **Mon sac**, avec recherche, catégories et disponibilité. Un soin peut exiger un consommable d’une version précise : le soignant choisit un lot compatible, lit la quantité retirée et le stock restant, puis confirme. Stock, PV, usage et historique sont modifiés ensemble une seule fois. [Parcours et limites 0.9](docs/VALIDATION-0.9.md).
 
 ## Infrastructure configurée
 
@@ -67,7 +73,7 @@ npm test
 npm run test:emulator
 ```
 
-**125 tests métier/interface et 102 intégrations** passent localement et sur GitHub, soit 227 tests. La version 0.8 est publiée ; le manifeste exact, les refus anonymes et l’écran de connexion des PV sont vérifiés. Preuves dans [le rapport 0.8](docs/VALIDATION-0.8.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.9 ajoute les vérifications du matériel de départ, des lots, du sac et des consommables. Résultats locaux, publication et preuves GitHub dans [le rapport 0.9](docs/VALIDATION-0.9.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 

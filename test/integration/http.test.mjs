@@ -55,6 +55,30 @@ async function googleTestAccount(email){
     method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({requestUri:'http://localhost',postBody:`id_token=${jwt}&providerId=google.com`,returnSecureToken:true})});
   const data=await response.json();assert.equal(response.status,200,JSON.stringify(data));return data.idToken;
 }
+test('HTTP + Auth : sac privé et consommable retiré une seule fois avec le soin confirmé',async()=>{
+  const owner=await googleTestAccount('gkerckhofs@gmail.com'),player=await googleTestAccount(`stock-${randomUUID()}@example.invalid`);
+  const command=async(action,input={},token=owner)=>{const r=await request(action,{requestId:randomUUID(),...input},token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};
+  const {id:scenarioId}=await command('createScenario',{title:'Inventaire HTTP'}),scenario=async()=>(await request('scenario',{scenarioId},owner)).result;
+  const {id:characterId}=await command('saveCharacter',{scenarioId,revision:1,displayName:'Soignant HTTP',publicationState:'PUBLISHED'});
+  const {id:itemId}=await command('saveItem',{scenarioId,revision:(await scenario()).revision,name:'Injecteur HTTP',kind:'STACKABLE',consumable:true,publicationState:'PUBLISHED',gmNotes:'SECRET_STOCK_HTTP'});
+  const seed={scenarioId,revision:(await scenario()).revision,characterId,items:[{itemId,quantity:1}]},sp=await request('prepareStartingInventory',seed,owner);assert.equal(sp.status,200);await command('setStartingInventory',{...seed,confirmation:sp.result.confirmation});
+  const {id:skillId}=await command('saveSkill',{scenarioId,revision:(await scenario()).revision,name:'Auto-soin HTTP',kind:'ACTIVE_SELF',publicationState:'PUBLISHED',healing:{effect:'HEAL_HP',amount:3,uses:1,cooldownSeconds:0,consumable:{itemId,quantity:1}}});
+  const profile={scenarioId,revision:(await scenario()).revision,characterId,classId:null,overrides:[{skillId,level:1}],published:true},pp=await request('prepareAbilityProfile',profile,owner);assert.equal(pp.status,200);await command('setAbilityProfile',{...profile,confirmation:pp.result.confirmation});
+  await command('saveScenarioHealth',{scenarioId,revision:(await scenario()).revision,rules:{enabled:true,defaultMaxHp:10,returnMode:'MJ',allowed:{}}});
+  const {id:versionId}=await command('publishScenario',{scenarioId,revision:(await scenario()).revision}),{id:sessionId}=await command('createSession',{scenarioId,versionId,title:'Stock de test',capacity:1,privacy:'Fictif'});
+  const session=async()=>(await request('session',{sessionId},owner)).result;await command('setRegistrationOpen',{sessionId,revision:1,open:true});await command('register',{sessionId,name:'Test'},player);
+  const uid=(await request('identity',{},player)).result.uid;await command('assign',{sessionId,uid,characterId});const token=randomBytes(32).toString('base64url');await command('issueInvitation',{sessionId,uid,tokenHash:hash(token),hours:1});assert.equal((await request('redeem',{sessionId,token},player)).status,200);
+  for(const stage of ['BRIEFING','EN_JEU'])await command('setStage',{sessionId,revision:(await session()).revision,stage});
+  for(const action of ['myInventory','previewInventory','saveItem','saveSessionItem','prepareStartingInventory','setStartingInventory','prepareGrantItem','grantItem','correctLot','itemHistory'])assert.equal((await request(action,{sessionId,requestId:randomUUID()})).status,401);
+  for(const action of ['previewInventory','grantItem','correctLot','itemHistory'])assert.equal((await request(action,{sessionId,requestId:randomUUID(),characterId,admin:true},player)).status,403);
+  const bag=(await request('myInventory',{sessionId,characterId:'forged'},player)).result;assert.equal(bag.lots.length,1);assert.equal(bag.character.id,characterId);assert.equal(JSON.stringify(bag).includes('SECRET_STOCK_HTTP'),false);
+  const damage={sessionId,amount:6},dp=await request('prepareDamage',damage,player);await command('applyDamage',{...damage,confirmation:dp.result.confirmation},player);
+  const input={sessionId,skillId,targetId:characterId,lotId:bag.lots[0].id},prepared=await request('prepareTreatment',input,player);assert.equal(prepared.status,200);assert.equal(prepared.result.consumable.quantity,1);
+  assert.equal((await request('myInventory',{sessionId},player)).result.lots[0].quantity,1);
+  const confirmed={...input,requestId:randomUUID(),confirmation:prepared.result.confirmation},applied=await request('applyTreatment',confirmed,player);assert.equal(applied.status,200);assert.deepEqual(await request('applyTreatment',confirmed,player),applied);
+  const after=(await request('myInventory',{sessionId},player)).result.lots[0];assert.equal(after.quantity,0);assert.equal(after.status,'CONSUMED');assert.equal((await request('myHealth',{sessionId},player)).result.health.hp,7);
+  await command('revokeAccess',{sessionId,uid});assert.equal((await request('myInventory',{sessionId},player)).status,403);assert.equal((await request('applyTreatment',confirmed,player)).status,403);
+});
 test('HTTP + Auth : le jeton vérifié détermine le rôle, jamais le JSON ou un en-tête Sites',async()=>{
   const owner=await googleTestAccount('gkerckhofs@gmail.com'),player=await googleTestAccount(`${randomUUID()}@example.invalid`);
   assert.equal((await request('identity',{},owner)).result.admin,true);

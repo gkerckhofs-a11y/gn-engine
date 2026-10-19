@@ -1,3 +1,4 @@
+import {treatmentLot,treatmentStock,consumeTreatmentLot,personalLot,publicLot} from './inventory-state.mjs';
 import {createHash} from 'node:crypto';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {gameTime} from './clock.mjs';
@@ -12,7 +13,7 @@ const activeSkill=(c,id)=>{
 };
 const available=(skill,use,time)=>({used:use?.used??0,remaining:skill.healing.uses===null?null:Math.max(0,skill.healing.uses-(use?.used??0)),
   waitMs:use?.lastUsedGameMs==null?0:Math.max(0,skill.healing.cooldownSeconds*1000-(time-use.lastUsedGameMs))});
-const projectEvent=e=>({id:e.id,kind:e.kind,at:e.at,sourceName:e.sourceName??'',targetName:e.targetName??'',skillName:e.skillName??'',before:e.before,after:e.after,restored:e.restored??null});
+const projectEvent=e=>({id:e.id,kind:e.kind,at:e.at,sourceName:e.sourceName??'',targetName:e.targetName??'',skillName:e.skillName??'',before:e.before,after:e.after,restored:e.restored??null,consumable:e.consumable?{name:e.consumable.name,quantity:e.consumable.quantity,unit:e.consumable.unit}:null});
 const writes=new Set(['saveScenarioHealth','saveSessionHealth','correctHealth','applyDamage','applyTreatment']);
 export const healthAction=a=>writes.has(a)||['myHealth','previewHealth','healthHistory','prepareDamage','prepareTreatment'].includes(a);
 
@@ -37,7 +38,8 @@ export function createHealthService({store,signed,checkSession,checkScenario,now
     const tr=targetId===c.id?r:await tx.get(`sessions/${s.id}/registrations/${hash(t.assignedUid)}`);
     requireThat(tr?.status==='ACCEPTED'&&tr.accessActive&&tr.characterId===t.id,'INVALID_RECIPIENT');healthState(t);
     const use=await tx.get(usePath(s.id,c.id,skill.id));
-    return {skill,t,tr,use};
+    const lot=await treatmentLot(tx,s.id,c.id,skill.healing.consumable,input.lotId);
+    return {skill,t,tr,use,lot};
   };
   const damage=(ctx,input)=>{
     const {s,c,r}=ctx,before=healthState(c),amount=whole(input.amount,'INVALID_HEALTH');
@@ -50,12 +52,13 @@ export function createHealthService({store,signed,checkSession,checkScenario,now
     const {s,c,r}=ctx,{skill,t,tr,use}=x,time=gameTime(s.clock,at),cost=available(skill,use,time),before=healthState(t);
     requireThat(cost.remaining===null||cost.remaining>0,'NO_USES_LEFT');requireThat(cost.waitMs===0,'COOLDOWN_ACTIVE');
     requireThat(before.hp<before.maxHp,'NO_HEAL_NEEDED');
+    const consumable=treatmentStock(skill.healing.consumable,x.lot);
     const restored=Math.min(skill.healing.amount,before.maxHp-before.hp),hp=before.hp+restored;
     const after={...before,hp,outOfCombat:s.healthRules.returnMode==='HP_POSITIVE'?false:before.outOfCombat,revision:before.revision+1};
     // The clock is deliberately absent: a valid ready action can be confirmed a few seconds later.
-    const confirmation=hash(JSON.stringify([s.id,s.healthRules,c.id,c.public.displayName,r.accessVersion,c.abilityProfile.revision,healthState(c),skill,t.id,t.public.displayName,t.assignedUid,tr.accessVersion,before,use]));
+    const confirmation=hash(JSON.stringify([s.id,s.healthRules,c.id,c.public.displayName,r.accessVersion,c.abilityProfile.revision,healthState(c),skill,t.id,t.public.displayName,t.assignedUid,tr.accessVersion,before,use,consumable]));
     return {sourceName:c.public.displayName,target:{id:t.id,name:t.public.displayName},skill:{id:skill.id,name:skill.name,healing:skill.healing},before,after,restored,
-      remainingAfter:cost.remaining===null?null:cost.remaining-1,cooldownSeconds:skill.healing.cooldownSeconds,confirmation};
+      remainingAfter:cost.remaining===null?null:cost.remaining-1,cooldownSeconds:skill.healing.cooldownSeconds,consumable,confirmation};
   };
   return async(action,actor,input)=>{
     signed(actor);const at=now(),newId=uuid();
@@ -95,7 +98,8 @@ export function createHealthService({store,signed,checkSession,checkScenario,now
       const preview=action==='previewHealth',ctx=await player(tx,actor,input,preview),{s,c,r}=ctx;
       if(action==='myHealth'||preview){
         const skills=c.abilityProfile?.published?c.abilityProfile.skills.filter(k=>['ACTIVE_SELF','ACTIVE_TARGET'].includes(k.kind)&&k.healing?.effect==='HEAL_HP'):[];
-        const items=[];for(const k of skills){const use=await tx.get(usePath(s.id,c.id,k.id));items.push({id:k.id,name:k.name,description:k.description,instructions:k.instructions,kind:k.kind,healing:k.healing,...available(k,use,gameTime(s.clock,at))});}
+        const stock=skills.some(k=>k.healing.consumable)?(await tx.list(`sessions/${s.id}/inventory`,['holderId',c.id])).filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.item.consumable):[];
+        const items=[];for(const k of skills){const use=await tx.get(usePath(s.id,c.id,k.id));items.push({id:k.id,name:k.name,description:k.description,instructions:k.instructions,kind:k.kind,healing:k.healing,lots:k.healing.consumable?stock.filter(l=>l.item.id===k.healing.consumable.itemId&&l.item.revision===k.healing.consumable.itemRevision).map(publicLot):[],...available(k,use,gameTime(s.clock,at))});}
         const history=await tx.list(`${charPath(s.id,c.id)}/healthHistory`,null,{orderBy:'at',direction:'desc',limit:30});
         return {session:{id:s.id,stage:s.stage},preview,character:{id:c.id,name:c.public.displayName},health:healthSummary(s,c),skills:items,events:history.map(projectEvent)};
       }
@@ -116,16 +120,17 @@ export function createHealthService({store,signed,checkSession,checkScenario,now
       requireThat(input.confirmation===prepared.confirmation,'STALE_REVISION');
       const t=healing?x.t:c,after=prepared.after,kind=healing?'HEAL':'DAMAGE';
       const event={id:newId,kind,at,actorUid:actor.uid,sourceName:c.public.displayName,targetName:t.public.displayName,characterId:t.id,
-        before:prepared.before,after,skillName:healing?x.skill.name:'',restored:healing?prepared.restored:null};
+        before:prepared.before,after,consumable:prepared.consumable??null,skillName:healing?x.skill.name:'',restored:healing?prepared.restored:null};
       const used=healing?whole((x.use?.used??0)+1,'INVALID_HEALING'):null;
       tx.set(charPath(s.id,t.id),{...t,hp:after.hp,maxHp:after.maxHp,outOfCombat:after.outOfCombat,healthRevision:after.revision});
       tx.set(`${charPath(s.id,t.id)}/healthHistory/${newId}`,event);
       if(healing){
+        consumeTreatmentLot(tx,s.id,x.lot,prepared.consumable,{id:newId,at,actorUid:actor.uid,skillId:x.skill.id});
         tx.set(usePath(s.id,c.id,x.skill.id),{used,lastUsedGameMs:gameTime(s.clock,at)});
         if(t.id!==c.id)tx.set(`${charPath(s.id,c.id)}/healthHistory/${newId}`,{...event,kind:'HEAL_SENT'});
       }
       tx.set(`sessions/${s.id}/audit/${newId}`,{...event,action});
-      const result={id:newId,kind,targetName:t.public.displayName,health:after,restored:prepared.restored??null,remainingAfter:prepared.remainingAfter??null};
+      const result={id:newId,kind,targetName:t.public.displayName,health:after,restored:prepared.restored??null,consumable:prepared.consumable??null,remainingAfter:prepared.remainingAfter??null};
       tx.set(op,{fingerprint,result,at,characterId:c.id,accessVersion:r.accessVersion,...(healing?{targetUid:t.assignedUid,targetAccessVersion:x.tr.accessVersion}:{})});
       return result;
     });
