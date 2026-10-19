@@ -3,11 +3,15 @@
 ## Résultats observés
 
 - Compilation esbuild réussie ; le bundle public n’inclut ni canon, ni archives, ni code serveur.
-- `npm test` : 28/28 tests passent (Node 24.19 local ; CI configurée sous Node 22).
+- `npm test` : 28/28 tests passent (Node 24.19 local ; également vérifié sous Node 22 sur GitHub Actions).
 - `npm run test:emulator` : 14/14 tests passent avec Firebase CLI 15.34, Auth Emulator, Firestore Emulator 1.22, Java Temurin 21.
 - Le véritable gestionnaire HTTP exporté pour Cloud Functions est monté dans Express pour les essais HTTP. L’émulateur Functions complet ne pouvait pas ouvrir son socket Unix local (EPERM) ; il n’est pas présenté comme validé localement.
 - Firestore créé en Belgique et fournisseur Google activé, vérifiés dans la console.
 - Aucun déploiement Functions/Hosting : Cloud Shell inaccessible, terminal non authentifié. La prévisualisation de fichier local a été refusée par la politique du navigateur ; aucune validation visuelle n’est revendiquée.
+
+GitHub Actions a réussi compilation, 28 tests métier et 14 intégrations sur le commit `5a44f87f0a27e7846d33a17d1b12cadc5eda4822` : https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39250124412
+
+![Google Authentication activé dans Firebase](verification/firebase-auth.jpg)
 
 ## Cas testés sur Firestore
 
