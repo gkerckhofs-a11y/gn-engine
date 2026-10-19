@@ -55,7 +55,7 @@ npm test
 npm run test:emulator
 ```
 
-La version 0.5 ajoute 15 parcours de connaissances exécutés en mémoire et sur Firestore, plus 2 tests d’interface. Les résultats et la preuve de déploiement sont consignés dans [le rapport 0.5](docs/VALIDATION-0.5.md).
+La version 0.5 est publiée sur Firebase. **71 tests métier/interface et 54 intégrations** passent sur GitHub, soit 125 tests. Les vérifications locales, la preuve de déploiement et les limites sont consignées dans [le rapport 0.5](docs/VALIDATION-0.5.md).
 
 ## Publier
 

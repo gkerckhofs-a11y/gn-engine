@@ -17,8 +17,8 @@
 
 ## Vérifications
 
-- `npm test` : 71 tests métier/interface réussis, dont 15 parcours de connaissances partagés avec les tests Firestore et 2 tests de rendu/validation des badges.
-- `npm run test:emulator` : 54 tests réussis sur la version finale, soit 125 tests au total avec la suite métier/interface. Exécution uniquement dans `demo-gn-engine` avec Auth et Firestore, Java 21.
+- `npm test` : 71 tests métier/interface réussis localement et sur GitHub, dont 15 parcours de connaissances partagés avec les tests Firestore et 2 tests de rendu/validation des badges.
+- `npm run test:emulator` : 54 tests réussis sur GitHub pour la source finale, soit 125 tests au total avec la suite métier/interface. La suite locale complète a aussi réussi avant la dernière protection de concurrence ; celle-ci a ensuite passé la vérification Firestore ciblée et les 71 tests métier/interface. Exécution uniquement dans `demo-gn-engine` avec Auth et Firestore, Java 21.
 - Les nouveaux cas couvrent fragments distincts, projections sans vérité MJ, aperçu neutre, copie explicite, QR conditionnel, compte non vérifié, autre session, modification de requête, concurrence, réessai, retrait, dépublication, snapshots, rôles, lecture personnelle, phases, versions de scénario et nouvelle session sans acquis précédents.
 - Les essais HTTP utilisent la véritable fonction exportée et les jetons de l'émulateur Auth : absence de contenus dans la projection Accueil, refus des routes privées, refus des accès anonymes et lecture de l'historique réservée au MJ.
 - Aucun contenu, personnage, compte de test ou partage ajouté dans la production. La recette complète des formulaires privés avec plusieurs comptes Google réels reste à faire.
@@ -52,4 +52,10 @@ Les révocations empêchent les nouvelles consultations, sans prétendre effacer
 
 ## Publication
 
-Le commit de cette version demande le déploiement Firebase via le workflow autorisé. La preuve GitHub Actions et le contrôle du site publié sont ajoutés après leur réussite.
+- Source finale déployée : `37964a268793c05e387d69d2659bc55beaf2e6ca`.
+- [Workflow GitHub Actions](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39264412058) du 19 octobre 2026 : `verify` et `deploy` réussis, 71 tests métier/interface et 54 intégrations, compilation et publication de la fonction en Belgique, Hosting, règles et index.
+- À 14:00:32 UTC, le contrôle final confirme le manifeste `0.5.0`, l'accueil HTTP 200 et l'API privée anonyme refusée en HTTP 401 (`LOGIN_REQUIRED`).
+- Accueil rechargé dans Chrome après le déploiement final sur https://gn-engine.web.app/ ; pied de page « GN Engine · 0.5 » visible.
+- Les routes anonymes de découverte et d'informations ont été ouvertes avec des identifiants de vérification fictifs : demande de connexion sans contenu privé. Aucun appel authentifié ni création de données de jeu en production. Ces contrôles ne remplacent pas une recette privée avec plusieurs comptes réels.
+
+![Accueil 0.5 publié](verification/gn-engine-0.5-1792418465800.jpg)

@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n'est encore validé. Version 0.4 publiée sur https://gn-engine.web.app/ : 54 tests métier/interface et 39 intégrations réussis localement et sur GitHub. L'accueil public et les contrôles HTTP sont vérifiés ; la recette complète avec des comptes joueurs distincts reste à faire. Voir `VALIDATION-0.4.md` et les rapports historiques 0.2/0.3. Le découpage ne réduit pas le périmètre du cahier.
+19 octobre 2026. Aucun lot complet n'est encore validé. Version 0.5 publiée sur https://gn-engine.web.app/ : 71 tests métier/interface et 54 intégrations réussis sur GitHub, avec vérifications locales. L'accueil public et les contrôles HTTP sont vérifiés ; la recette complète avec des comptes joueurs distincts reste à faire. Voir `VALIDATION-0.5.md` et les rapports historiques 0.2/0.3/0.4. Le découpage ne réduit pas le périmètre du cahier.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -22,7 +22,7 @@ Groupes versionnés publics/secrets, appartenances multiples, révélation et vi
 
 ## Extension 0.5
 
-Connaissances textuelles et indices versionnés, reçus propres aux personnages, découverte QR conditionnelle, partage explicite par badge, lecture personnelle, aperçu MJ neutre et interventions tracées. Les documents uniques, pièces jointes, compétences et notes privées restent à intégrer. Le résultat des vérifications et du déploiement est consigné dans `VALIDATION-0.5.md`.
+Connaissances textuelles et indices versionnés, reçus propres aux personnages, découverte QR conditionnelle, partage explicite par badge, lecture personnelle, aperçu MJ neutre et interventions tracées. Les documents uniques, pièces jointes, compétences et notes privées restent à intégrer. 125 tests réussis sur GitHub ; version publiée avec manifeste 0.5.0 et refus anonyme vérifiés. Résultats et limites dans `VALIDATION-0.5.md`.
 
 ## Préparation réalisée
 
