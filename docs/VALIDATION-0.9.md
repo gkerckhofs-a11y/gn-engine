@@ -56,10 +56,12 @@ Deux soins disputant la dernière unité ne réussissent pas tous les deux. Un s
 ## Vérifications
 
 - `npm run build` : interface compilée en version 0.9.0.
-- `npm test` : 149 tests métier/interface réussis, sans échec. Vingt parcours d’inventaire et quatre tests d’interface ajoutés.
+- `npm test` : 152 tests métier/interface/contrôle de publication réussis, sans échec. Vingt parcours d’inventaire, quatre tests d’interface et trois tests de propagation de publication ajoutés.
 - `npm run test:emulator` : 123 tests réussis, sans échec, sur Auth et Firestore de `demo-gn-engine`, avec Java 21. Les vingt parcours d’inventaire sont réexécutés sur Firestore.
-- Total local : **272 tests**. Ils couvrent copies, droits, profils, quantités, versions de consommables, dernier stock concurrent, soin concurrent, correction périmée, réessai après épuisement, révocation, réattribution, fermeture terminale et rollback après panne synthétique avant commit.
+- Total local : **275 tests**. Ils couvrent copies, droits, profils, quantités, versions de consommables, dernier stock concurrent, soin concurrent, correction périmée, réessai après épuisement, révocation, réattribution, fermeture terminale, rollback après panne synthétique avant commit et contrôle strict de la version publiée.
 - Le nouveau test HTTP utilise le véritable gestionnaire exporté et des jetons Auth émulés : sac personnel malgré une requête forgée, refus des accès MJ/anonymes, préparation sans effet, consommation unique avec le soin et refus après révocation.
+- GitHub : 149 tests métier/interface et 123 intégrations réussis sur Node 22, aucun échec ni test ignoré, pour le commit `a1fdcb80a959c7f7f27a97fd771ed73bfe1ce69e` ([workflow 39280912509](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39280912509), job de vérification `118154605157`).
+- Après correction du contrôle de propagation : **152 + 123 = 275 tests réussis** sur Node 22 pour `48471b410b3cb6de66a76e6ac28f7041c2e5f7f0` ([vérification 39282048034](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39282048034), job `118158119839`). Journaux : 152 réussites à 16:00:10 UTC, 123 réussites à 16:02:31 UTC le 19 octobre 2026 ; aucun échec, annulation ou test ignoré. Compilation également passée.
 - Comptes et contenus synthétiques uniquement dans les émulateurs. Aucun objet, personnage, scénario ou compte de test créé en production.
 
 ## Limites et recette restante
@@ -74,4 +76,12 @@ Deux soins disputant la dernière unité ne réussissent pas tous les deux. Un s
 
 ## Publication
 
-Le workflow et les preuves de la version réellement servie seront consignés après le déploiement. La version précédente vérifiée est la 0.8.
+Le code applicatif publié est `a1fdcb80a959c7f7f27a97fd771ed73bfe1ce69e`. Le [déploiement 39280912509](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39280912509) a publié la fonction `api` (état ACTIVE à 15:55:41 UTC) et Hosting (Deploy complete à 15:55:50 UTC) le 19 octobre 2026. **Son contrôle final a échoué**, car la lecture immédiate de `version.json` renvoyait encore 0.8.0. Ce workflow initial ne doit donc pas être présenté comme entièrement réussi.
+
+Le correctif `48471b410b3cb6de66a76e6ac28f7041c2e5f7f0` ajoute une attente bornée de la version exacte, avec des URL de vérification distinctes et sans cache partagé. Une mauvaise version persistante échoue toujours ; une réponse privée anonyme acceptée par erreur reste immédiatement bloquante. Trois tests vérifient la propagation, l’expiration de l’attente, les indisponibilités et les réponses invalides. Ce correctif ne modifie ni l’application publiée ni les données de jeu et ne demande pas de nouveau déploiement.
+
+Le [contrôle en ligne 39282048054](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39282048054), job `118158119949`, a ensuite terminé ses trois tests et constaté à **15:59:56 UTC** : version exacte **0.9.0** accessible, page HTTP 200 et **24 commandes privées refusées en HTTP 401 / LOGIN_REQUIRED** sans authentification. Cette vérification n’a ni identifiants Google ni droit de publication. Les résultats sont tirés des journaux terminés des jobs ; les métadonnées de statut renvoyées par le connecteur restaient en retard au moment du relevé.
+
+Le navigateur a confirmé le pied de page **GN Engine · 0.9**, puis la route `#/bag/verification` montrant uniquement la connexion, sans lot ni action privée. Cette observation ne remplace pas une recette authentifiée du sac. La page finale est [GN Engine](https://gn-engine.web.app/).
+
+![Accès protégé au sac et pied de page 0.9](verification/gn-engine-0.9-1792425618725.jpg)

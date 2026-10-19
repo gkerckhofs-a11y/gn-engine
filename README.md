@@ -73,7 +73,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.9 ajoute les vérifications du matériel de départ, des lots, du sac et des consommables. Résultats locaux, publication et preuves GitHub dans [le rapport 0.9](docs/VALIDATION-0.9.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.9 est publiée : **275 tests réussis** localement et dans les journaux GitHub (152 métier/interface/contrôle de publication et 123 intégrations). La version exacte 0.9.0 et le refus de 24 commandes privées anonymes sont vérifiés en ligne. Résultats, correction du contrôle de propagation et preuves GitHub dans [le rapport 0.9](docs/VALIDATION-0.9.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 
