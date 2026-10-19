@@ -1,0 +1,416 @@
+WESTERN CITY
+Cahier des charges de GN Engine
+Fonctions parcours et critères de validation
+Version 1Mise à jour du 19 octobre 2026Petites annonces et recrutement
+Moteur réutilisable de jeu de rôle grandeur natureCas pilote Port Brèche à Western City
+Objectif du document
+Ce cahier des charges décrit le parcours complet : inscription, attribution du personnage, préparation, jeu sur le terrain, économie, compétences, informations secrètes et pilotage MJ. Il fixe les comportements attendus et les situations à tester pour construire une application utilisable pendant un GN.
+Les règles et contenus propres à Port-Brèche servent de cas pilote. Le moteur doit permettre de créer d’autres univers sans recoder leurs groupes, monnaies, objets ou compétences.
+Lire et utiliser les exigences
+Chaque exigence porte un identifiant stable. Les paragraphes de validation indiquent les résultats à vérifier. Les choix de fonctionnement proposés sont signalés ; les valeurs de jeu restent dans le scénario. Les lots de livraison et les décisions à arrêter figurent en fin de document.
+Destinataires : conception du jeu, développement et organisation des sessions.
+Sommaire
+Les chapitres suivent le parcours du participant, puis les fonctions économiques, les outils MJ et la mise en service. Les références des exigences permettent de suivre les décisions et la recette.
+Périmètre et principes du moteur3
+Sessions acteurs et droits4
+Inscription attribution et accès5
+Création des scénarios et bibliothèques6
+Interface mobile du joueur7
+Background connaissances relations et objectifs8
+Bibliothèque de compétences9
+Interactions QR et installations10
+Points de vie combat et soins11
+Objets stocks et biens physiques12
+Crédits comptes et paiements13
+Marché annonces et négociation14
+Petites annonces et recrutement15
+Contrats entrepôts douanes et corruption16
+Cours stocks et événements économiques17
+Vaisseaux routes et transport18
+Interceptions et combats virtuels19
+Informations messages et révélations20
+Tableau de bord et conduite MJ21
+Modèle des données et règles communes22
+Protection des accès et des secrets23
+Réseau mobile et qualité de service24
+Import export et préparation du terrain25
+Recette complète avec Port Brèche26
+Livraisons et critères de mise en service27
+Arbitrages et références28
+Périmètre et principes du moteur
+Finalité du produit
+GN Engine doit permettre à un organisateur de préparer, accueillir et piloter un jeu de rôle grandeur nature, puis à chaque participant de consulter son personnage et d’effectuer les actions numériques utiles au jeu. Le premier cas complet est Port-Brèche, pour environ soixante joueurs. Les groupes, monnaies, compétences, lieux et règles doivent pouvoir être remplacés pour un autre univers.
+SOC-01 — Un produit distinct. GN Engine possède ses propres scénarios, sessions, données et règles. Des principes d’ergonomie peuvent être communs avec Murder Engine ; les règles de ce dernier, notamment un nombre fixe de points d’action, ne sont pas imposées au GN.
+SOC-02 — Capacité configurable. Aucun plafond de personnages ne doit être codé dans les règles métier. L’organisateur fixe la capacité d’une session et la liste d’attente. Le nombre d’utilisateurs simultanés effectivement supporté doit être mesuré ; « sans limite de casting prédéfinie » ne signifie pas capacité technique infinie.
+SOC-03 — Jeu physique et numérique. Les affrontements au sol se jouent avec des armes en mousse ou des gel blasters. L’application suit les points de vie, les états et les conséquences. Les QR permettent des actions sur des personnages, des objets ou des lieux. Les combats de vaisseaux sont résolus virtuellement.
+Trois ensembles fonctionnels
+Le tableau de bord organisateur sert à écrire, paramétrer, attribuer, contrôler et corriger. Le portail d’inscription accueille les participants et prépare leur attribution. L’interface mobile joueur présente les informations autorisées et permet les interactions pendant la partie. Un affichage public peut diffuser certaines nouvelles ou cours, sans donner accès aux secrets.
+SOC-04 — Modèles et parties séparés. Un scénario est un modèle réutilisable. Une session en est une copie jouable avec ses inscrits, ses stocks et son historique. Modifier une bibliothèque ne change pas silencieusement une session en cours.
+SOC-05 — Modules activables. Économie, transport, groupes secrets, fouilles, votes ou progression sont activés selon le GN. Une fonction désactivée ne laisse ni bouton vide ni règle obligatoire dans l’interface joueur.
+Portée de cette version
+Les principes issus du canon du GN constituent le socle. Les parcours détaillés et comportements proposés ci-après constituent le cahier des charges V1 à mettre au point. Les valeurs de jeu, le graphisme final et le choix d’hébergement restent paramétrables ou à décider. Les critères de validation décrivent le résultat attendu du développement ; ils ne certifient pas une fonction déjà disponible.
+Validation. Créer deux sessions du même scénario, modifier le stock de l’une et vérifier que l’autre et le modèle restent inchangés. Désactiver le transport et vérifier que la partie demeure utilisable sans vaisseau.
+Sessions acteurs et droits
+Les acteurs du système
+Acteur | Droits attendus
+Administrateur | Gérer ses scénarios, bibliothèques, organisateurs et sessions
+MJ de session | Préparer et piloter uniquement les sessions qui lui sont confiées
+Assistant MJ | Accès limité aux fonctions confiées, par exemple accueil ou soins
+Joueur inscrit | Gérer son inscription et accéder à son personnage attribué
+Personnage | Posséder des biens, connaître des informations, agir selon ses capacités
+Groupe ou établissement | Détenir comptes, stocks, contrats et permissions déléguées
+Visiteur public | Consulter uniquement l’annonce ou l’affichage public autorisé
+
+SES-01 — Identités distinctes. Le compte d’une personne, son inscription à une session et le personnage incarné sont trois éléments séparés. Un même participant peut jouer plusieurs GN sans partager leurs inventaires, notes ou secrets. Une attribution active désigne un personnage dans une session donnée.
+SES-02 — Droits au sein des groupes. Appartenir à un équipage ne donne pas nécessairement le droit de dépenser sa caisse ou de vendre son vaisseau. Les droits de lecture, paiement, gestion de stock, publication d’annonce, départ et invitation sont attribuables séparément. Un rôle public et une allégeance secrète peuvent coexister.
+Le cycle de la session
+SES-03 — États explicites. La session passe par préparation, inscriptions ouvertes, inscriptions closes, briefing accessible, en jeu, pause, terminée et archivée. La fermeture des inscriptions ne démarre pas le jeu. Le MJ peut rouvrir l’accueil sans recréer les personnages.
+Avant le départ, les contenus autorisés au briefing sont lisibles, mais les échanges et dépenses sont bloqués. La pause suspend les actions et le temps de jeu. La fin bloque les nouvelles actions, résout ou annule les engagements ouverts selon une règle annoncée, puis permet la consultation des contenus encore accessibles.
+SES-04 — Publication contrôlée. Un contenu existe en brouillon, prêt à publier ou publié. Le MJ choisit ses destinataires et son moment de diffusion. Un aperçu « voir comme ce personnage » doit respecter exactement ses droits, y compris pour les fichiers joints et les recherches.
+Validation. Un assistant affecté à l’accueil ne peut consulter ni modifier la cellule secrète. Un joueur de la session A ne peut ouvrir un document privé de la session B en changeant une adresse. Un membre sans droit de dépense peut consulter la caisse si autorisé, mais son paiement est refusé sans mouvement de fonds.
+Inscription attribution et accès
+Le lien public de la session
+INS-01 — Inscription partageable. Le MJ génère un lien et un QR d’inscription propres à une session. La page indique titre, présentation publique, date, horaires, lieu, conditions pratiques, places disponibles et état des inscriptions. Ce lien conduit au formulaire ; il ne donne accès à aucune fiche secrète.
+INS-02 — Formulaire configurable. Champs requis proposés : nom ou nom d’usage et moyen de retrouver son inscription. Le MJ peut ajouter préférences de jeu, expérience, souhait de groupe, disponibilité, besoin d’accessibilité et remarques privées. Seuls les champs utiles sont demandés. Les réponses personnelles ne deviennent pas des informations du personnage.
+L’inscription produit un statut : reçue, à compléter, acceptée, en attente, refusée ou annulée. Le participant reçoit une confirmation consultable ; un envoi par courriel est une fonction configurable. Le MJ dispose d’un aperçu des messages et de leur état d’envoi. Aucun paiement réel n’est nécessaire à la gestion des crédits fictifs.
+Attribuer et préparer le personnage
+INS-03 — Attribution par le MJ. Le fonctionnement recommandé est une attribution manuelle assistée par filtres. Le choix par le participant reste un mode optionnel utilisant des descriptions publiques approuvées. Ni les secrets ni les rôles cachés ne figurent dans les filtres publics. Une place ne peut être attribuée à deux personnes simultanément.
+Le joueur accède ensuite à ses informations pratiques, à la fiche publiée, à ses consignes de costume et au statut de préparation. Le MJ peut demander une confirmation de lecture. Un désistement libère la place sans supprimer le personnage du scénario ; l’attribution suivante utilise les droits du nouveau participant.
+Un accès privé distinct du badge
+INS-04 — Connexion et récupération. Proposition V1 : accès personnel par invitation nominative ou lien temporaire à usage unique ouvrant une session authentifiée. Le MJ peut révoquer cet accès, le renouveler et clôturer les connexions d’un téléphone perdu. Le mécanisme exact sera choisi avec l’architecture.
+Le QR porté par le personnage sert aux interactions publiques. Il n’est jamais la clé de sa fiche privée. Connaître son identifiant ou photographier son badge ne permet donc pas de se connecter à sa place. Un participant ne disposant pas de smartphone peut recevoir une fiche imprimée et bénéficier d’actions assistées par un MJ.
+Validation. Deux inscriptions demandent la dernière place : une seule est confirmée, l’autre rejoint la liste d’attente. Réattribuer un personnage ferme l’accès de l’ancien titulaire. Réutiliser une invitation consommée ne crée pas une nouvelle connexion. Le scan du badge ne révèle aucune donnée d’inscription.
+Création des scénarios et bibliothèques
+Un éditeur utilisable sans programmation
+EDI-01 — Organisation du contenu. Le MJ crée un univers, un scénario, ses groupes, personnages, lieux, objets, marchandises, compétences, connaissances, documents, missions, contrats et événements. Les champs sont organisés par fonction, avec recherche, filtres, duplication et modifications par lot.
+Le scénario possède une introduction publique, une référence organisateur, des règles et une médiathèque. Les images, documents et portraits peuvent être téléversés par lot, prévisualisés et attribués à plusieurs contenus. Supprimer un média encore utilisé affiche les références concernées avant confirmation.
+EDI-02 — Groupes et classes. Un groupe représente une affiliation ou une organisation. Une classe est un modèle de capacités et de valeurs initiales. Un métier est un élément de fiction. Ces notions peuvent être associées sans être confondues : un mécanicien peut appartenir à un équipage et à une cellule secrète.
+Une bibliothèque de compétences réutilisable
+EDI-03 — Modèles versionnés. Le MJ peut réutiliser une compétence, changer son nom d’ambiance et ajuster ses paramètres pour un scénario. La bibliothèque conserve la définition d’origine. Une modification du modèle ne réécrit pas une partie déjà commencée ; toute migration doit être explicitement proposée et contrôlée.
+Les personnages peuvent recevoir un ensemble de départ : PV, compétences, crédits, objets, groupe public, liens, connaissances et objectifs. Les profils de classe facilitent l’attribution, mais une exception individuelle reste possible sans créer une nouvelle classe complète. Un mode optionnel de personnalisation par le joueur peut proposer des choix encadrés ; les modifications de background et de capacités attendent alors la validation MJ.
+EDI-04 — Conditions et effets. Un éditeur guidé permet de définir des conditions simples, leurs combinaisons et leurs effets : posséder un objet, connaître une information, avoir une compétence, payer, changer un état, révéler un document ou valider une étape. Il expose les possibilités prises en charge, sans exécuter du code libre fourni dans un texte narratif.
+Préparer une partie cohérente
+EDI-05 — Vérification avant ouverture. Le contrôle du scénario signale les liens manquants, identifiants en double, secrets rendus publics, QR sans cible, capacités dépassées, soldes incohérents, missions sans issue et ressources indispensables sans solution de remplacement déclarée. Les erreurs bloquantes et avertissements doivent être distingués.
+Le MJ crée une session de test isolée, incarne plusieurs personnages et simule une action sans toucher aux données de la session réelle. Il peut ensuite repartir de l’état initial. Une prévisualisation ne marque pas un indice comme découvert par un vrai joueur.
+Validation. Dupliquer une classe conserve ses paramètres sans lier ses futures modifications. Une importation contenant un personnage référencé par une relation inexistante affiche une erreur précise. Une simulation d’achat laisse inchangés les crédits et stocks de la partie réelle.
+Interface mobile du joueur
+Une navigation proposée en quatre entrées
+Entrée | Contenu principal
+Personnage | Histoire, interprétation, objectifs, relations et règles personnelles
+Sac | Crédits, objets, équipements et accès aux biens collectifs autorisés
+Infos | Connaissances, indices, nouvelles, messages, documents et carnet
+Actions | Compétences, marché, contrats, installations et vaisseaux accessibles
+
+UX-01 — Des accès rapides. Le scan et « Mon QR » restent accessibles en un geste. Les PV, états actifs et tâches urgentes sont visibles sans chercher dans plusieurs menus. Le contexte propose les actions utiles : scanner un atelier ouvre l’atelier ; consulter un objet permet de l’utiliser, le transférer ou l’inspecter si autorisé.
+UX-02 — Une information au bon endroit. Une action peut être accessible depuis son objet et depuis Actions, mais elle utilise le même écran et le même résultat. Le Sac conserve une vue unifiée avec filtres. La présentation ne multiplie pas les sous-onglets vides et masque les modules désactivés.
+Les parcours prioritaires
+Le joueur doit pouvoir retrouver son objectif, lire une nouvelle information, utiliser une compétence sur une cible, acheter ou vendre, payer quelqu’un et signaler ses dégâts. L’interface affiche avant validation la cible, l’effet connu, le coût, la durée et la visibilité de l’action.
+UX-03 — Confirmation compréhensible. Une opération se termine par un état explicite : réussie, échouée, refusée, en attente, interrompue ou expirée. Une panne de connexion ne devient pas un échec de compétence. Le joueur doit savoir si la demande a été prise en compte avant de la recommencer.
+Les notifications renvoient vers le contenu concerné. Un badge de nouveauté disparaît après lecture. Les informations sont datées, filtrables et présentées de la plus récente à la plus ancienne lorsqu’il s’agit d’un fil. La recherche ne porte que sur les contenus auxquels le personnage a accès.
+Préserver le jeu sur le terrain
+UX-04 — Lisibilité. Les écrans principaux privilégient des textes courts, des boutons larges et des contrastes suffisants. Les portraits et objets s’ouvrent en grand. Les textes longs de background restent disponibles, avec une synthèse et des repères. Les couleurs ne constituent pas le seul moyen de distinguer un statut.
+Un choix DIRECT ou DISCRET est affiché lorsque la compétence le prévoit. Le mode discret masque les éléments définis par les règles ; il ne promet pas de rendre physiquement invisible le joueur qui utilise son téléphone.
+Validation. Depuis l’accueil, atteindre Mon QR, le scan et les dégâts en une ou deux actions. Après un achat, retrouver immédiatement le bien, son emplacement et la démarche de retrait. Un module désactivé ne produit aucune impasse de navigation.
+Background connaissances relations et objectifs
+La fiche personnelle
+PER-01 — Plusieurs niveaux de récit. La fiche distingue présentation publique, histoire personnelle, consignes d’interprétation, secrets, relations et objectifs. Le joueur lit les parties publiées pour lui ; les autres personnages ne voient que la présentation publique autorisée. L’historique des versions permet au MJ de savoir quel texte a été communiqué.
+Les champs peuvent inclure nom d’usage, alias, métier, portrait, pronoms, signes distinctifs et nom du participant lorsque son affichage est autorisé. Une identité de couverture peut être visible tandis que le passé impérial reste secret. Un changement d’alias ne modifie pas l’identité technique du personnage.
+Ce que le personnage sait
+CON-01 — Une connaissance attribuable. Une connaissance est un contenu identifiable avec un titre visible, un texte, d’éventuelles pièces jointes, une origine et des règles d’accès. Elle peut être connue au départ, obtenue par compétence, découverte par QR, transmise par un personnage ou révélée par le MJ. Un savoir mécanique, comme une langue ou une expertise de niveau donné, peut servir de condition de lecture ou d’action ; il reste distinct du document effectivement découvert.
+CON-02 — Connaître et croire. Un renseignement reçu peut être incomplet, mensonger ou incertain dans la fiction. L’état réel, éventuellement connu du MJ, est séparé de la présentation au joueur. L’application ne certifie pas automatiquement la vérité d’une rumeur ni la loyauté d’un contact.
+Le partage suit le mode de l’information : lecture montrée sur place, copie transmise, document unique transféré ou nouvelle version rédigée par le joueur. Copier une information ne retire pas ce que le premier personnage a appris. Un objet documentaire unique, lui, peut changer de détenteur tout en laissant des souvenirs.
+Relations et missions
+REL-01 — Relations orientées. A peut connaître le passé de B sans que B sache que A le connaît. La description destinée à A ne s’affiche pas automatiquement chez B. Un groupe secret n’apparaît ni dans un annuaire ni dans la liste de ses membres avant les révélations prévues.
+MIS-01 — Objectifs suivis. Les objectifs peuvent être individuels, collectifs ou secrets. Ils possèdent des étapes, échéances, dépendances, conditions de réussite et récompenses. Une étape se valide par le système, par une confirmation prévue ou par le MJ. L’objectif narratif peut rester libre, sans case de réussite automatique.
+CON-03 — Carnet. Les notes libres appartiennent au participant dans sa session et ne constituent pas des preuves certifiées. Le partage doit être explicite. Les droits de lecture du MJ sur ces notes sont annoncés dans le fonctionnement retenu ; la proposition V1 réserve les notes non partagées à leur auteur.
+Validation. Donner un fragment à A laisse les autres fragments inconnus. Partager une rumeur révèle son contenu sans révéler le diagnostic MJ « mensonge ». La relation secrète de A vers B ne se retrouve ni dans la fiche publique de B ni dans une recherche non autorisée.
+Bibliothèque de compétences
+La définition commune
+COM-01 — Une compétence est une règle configurable. Elle possède un identifiant stable, un nom, une description immersive, des instructions, une catégorie et une version. Elle peut être passive, active sur soi ou active sur une cible. L’attribution peut venir d’une classe, d’un objet, d’un apprentissage ou d’une décision MJ.
+Paramètre | Contenu attendu
+Cible | Soi, personnage, objet, installation, lieu ou vaisseau
+Conditions | Niveau, connaissance, état, objet requis et permissions
+Coûts | Crédits, consommables, usages ou ressource de jeu facultative
+Temps | Durée d’action, délai entre usages et interruption
+Résolution | Automatique, test configuré, confirmation ou arbitrage MJ
+Effets | État, soin, accès, information, transfert ou modification autorisée
+Visibilité | Ce que voient initiateur, cible, témoins autorisés et MJ
+Échec | Coût conservé ou rendu, conséquence et possibilité de nouvel essai
+
+COM-02 — Des ressources facultatives. Les points d’action ne sont pas obligatoires. Un scénario peut utiliser des charges, un délai de récupération, un consommable ou aucun coût. Chaque coût précise quand il est réservé, consommé et éventuellement restitué. Les valeurs ne sont jamais cachées au joueur qui doit les engager, sauf effet secret explicitement prévu.
+Des résultats cohérents
+COM-03 — Résolution unique. Une action validée possède une référence et un seul résultat. Recharger l’écran ne relance pas le test et ne consomme pas un second objet. Les conditions sont revérifiées au moment utile ; une cible devenue indisponible ne reçoit pas un effet incompatible.
+Un test aléatoire éventuel montre la règle connue du joueur et son résultat. Le résultat est calculé par le système de référence et enregistré. Le scénario fixe les difficultés, oppositions et modificateurs ; aucune formule de dés universelle n’est imposée par ce cahier des charges.
+COM-04 — Effets actifs. Les états temporaires possèdent une origine, une durée, une règle de cumul, une condition de levée et un éventuel contre-effet. Deux stimulants peuvent être cumulables ou exclusifs selon leur définition. Une réparation ne supprime pas tous les sabotages d’un autre type par défaut.
+Une bibliothèque initiale à préparer
+Le premier catalogue doit couvrir au minimum soins, diagnostic, crochetage, sabotage, réparation, identification, déchiffrement, fouille et expertise commerciale. Protection, intimidation, négociation assistée, dissimulation et fabrication constituent des extensions configurables. Une compétence sociale ne doit pas imposer un transfert ou révéler un secret sans règle explicite du scénario.
+Validation. Un personnage sans compétence ne peut l’utiliser en modifiant la requête. Un double clic donne un seul effet. Un échec respecte le coût prévu. Une même compétence renommée pour deux univers conserve sa logique sans partager les données des sessions.
+Interactions QR et installations
+Trois usages distincts des QR
+QR-01 — Identifier une cible. Le QR public d’un personnage ouvre son identité visible et les interactions permises. Le QR d’un objet ou d’un lieu ouvre son état visible et les actions disponibles. Le QR d’inscription ouvre le portail public. Aucun de ces codes ne contient de secret ni ne remplace une autorisation personnelle.
+Un QR permanent peut être relié à une cible différente selon la session. Le système vérifie la session active et le contexte de lecture. Il permet une saisie manuelle du code en cas de caméra indisponible. Un code inconnu ou désactivé produit un message clair sans divulguer l’existence d’une cible secrète.
+QR-02 — Présence et autorisation. Scanner un code identifie une cible ; un code photographié peut être réutilisé. Si une action exige une présence confirmée, le scénario doit prévoir une validation sur place, une confirmation du détenteur ou un dispositif de défi temporaire. Le simple scan ne sera pas présenté comme une preuve de présence.
+Le parcours d’action
+ACT-01 — Préparer puis exécuter. Après le scan, le joueur choisit une action autorisée, lit les conditions et le coût, sélectionne les éléments nécessaires et confirme. Le système réserve les ressources, commence le délai éventuel, puis applique un résultat unique. Une action indisponible n’engage aucun coût.
+ACT-02 — DIRECT et DISCRET. Le mode direct peut demander à la cible de confirmer une interaction. Le mode discret peut appliquer un effet différé sans révéler son auteur. La compétence précise les notifications produites. Les MJ habilités conservent la trace réelle de l’action, même lorsque les personnages ne la voient pas.
+Crocheter saboter réparer
+Une serrure peut être fermée, ouverte, forcée ou en cours d’intervention. Une installation peut être opérationnelle, perturbée, sabotée ou en réparation. Chaque transition définit l’acteur autorisé, le matériel, la durée et les conséquences. Ces états constituent un modèle proposé, personnalisable par scénario.
+ACT-03 — Concurrence. Deux actions incompatibles sur une même cible ne doivent pas se valider silencieusement. La règle proposée réserve l’intervention en cours ; une seconde tentative informe le joueur d’une indisponibilité sans exposer une identité cachée. Les règles peuvent prévoir une interruption ou une opposition explicite.
+ACT-04 — Fouille et découvertes. Une cible contient des éléments visibles ou découvrables, avec leurs conditions et modes d’épuisement. Réussir une fouille peut révéler une connaissance ou déplacer un objet. Les indices partagés restent disponibles selon leur règle ; un objet unique ne peut être trouvé deux fois.
+Validation. Saboter le terminal du Comptoir bloque les actions qui en dépendent. Une réparation réussie rétablit uniquement les fonctions prévues. Un second scan ne recrée pas l’indice unique. Interrompre une action applique exactement la règle de consommation configurée.
+Points de vie combat et soins
+Un suivi au service du combat physique
+VIE-01 — Fiche de santé de jeu. Chaque personnage possède des PV maximum, des PV actuels et des états. Les protections, immunités, blessures et effets persistants sont paramétrables. Les valeurs par défaut de chaque scénario doivent être visibles avant l’ouverture de la session.
+VIE-02 — Déclaration des dégâts. Fonctionnement proposé : les touches sont comptées sur le terrain et les dégâts sont déclarés après l’affrontement, avec un accès rapide. Le scénario peut proposer des boutons selon le type d’arme ou une quantité de dégâts. L’application applique les modificateurs configurés et présente le nouveau total.
+La reconnaissance d’une mise hors combat sur le terrain relève des règles physiques annoncées au briefing. L’application enregistre cet état ; elle ne détecte pas les impacts et ne remplace pas le règlement de combat. Aucune obligation de scanner un adversaire au milieu des tirs n’est prévue.
+Incapacité et retour en jeu
+VIE-03 — Zéro PV. La règle proposée fait passer le personnage à l’état hors combat. Le scénario définit les actions encore permises, le besoin de secours, un éventuel délai, les soins requis et les conditions de retour. La mort définitive n’est ni automatique ni une conséquence ajoutée par le moteur.
+VIE-04 — Soins. Un soignant scanne la cible, consulte les éléments que sa compétence permet de diagnostiquer et utilise le traitement prévu. Un soin peut restaurer des PV, retirer un état ou seulement stabiliser. Il ne doit pas dépasser les plafonds ni supprimer une blessure incompatible avec le traitement.
+Les consommables de soins appartiennent à l’inventaire et sont consommés une seule fois. Un effet différé utilise l’horloge de jeu. Deux soignants ne peuvent consommer simultanément le même objet. Une erreur de déclaration peut être corrigée par le MJ avec motif et trace.
+Captures et conséquences matérielles
+VIE-05 — États distincts. Blessure, détention et désarmement sont séparés. Mettre quelqu’un hors combat ne transfère pas automatiquement tous ses biens. Un vol, une fouille, une saisie ou une capture utilise sa propre règle et détermine ce qui change de détenteur, de propriétaire ou d’accès.
+Les modalités d’escorte, de durée de détention et de libération seront paramétrées pour éviter qu’un personnage reste inutilisable sans solution prévue. Le tableau de bord signale les personnages hors combat ou détenus depuis une durée choisie par le MJ.
+Validation. Un soin consommant un injecteur réduit le stock d’une unité et augmente une seule fois les PV. À zéro PV, seules les actions autorisées restent accessibles. Une correction MJ ne réinitialise pas les autres états ni les transactions du personnage.
+Objets stocks et biens physiques
+Une source unique pour chaque bien
+INV-01 — Définition et exemplaires. Le catalogue décrit le type d’objet ; l’inventaire contient ses exemplaires ou lots. Un objet peut être unique, empilable, divisible, consommable, équipé ou installé. Son caractère légal, sa valeur, son volume et ses effets sont définis par le scénario.
+INV-02 — Quatre informations distinctes. Chaque bien possède un propriétaire économique, un détenteur éventuel, un emplacement et un état de disponibilité. Posséder une caisse dans l’entrepôt d’un tiers ne donne pas automatiquement accès au bâtiment. Un détenteur peut transporter un bien appartenant à son client.
+Les emplacements comprennent le personnage, un contenant, un entrepôt, un quai, un vaisseau, une destination extérieure ou une zone de saisie. Les états comprennent disponible, réservé, en transfert, en transit, saisi, installé, consommé et détruit selon le type de bien.
+Faire correspondre le terrain et le stock
+INV-03 — Représentation physique. Un objet physique porte un identifiant ou un QR qui renvoie au même bien que l’inventaire. Une caisse peut représenter vingt unités virtuelles. Ouvrir ou fractionner le lot conserve la somme des quantités et leur provenance. Les règles précisent si le contenant vide reste un objet.
+INV-04 — Déplacer et remettre. Une remise entre joueurs utilise une proposition, une confirmation du destinataire ou une validation MJ selon le contexte. Les objets physiques demandent la remise réelle prévue par les règles. Une transaction à distance peut changer le propriétaire sans déplacer le stock.
+Le vol, le recel et la confiscation sont des opérations de jeu explicites. Le système conserve la provenance réelle pour les MJ ; les preuves accessibles aux personnages sont des informations scénarisées distinctes. Les pirates ne voient pas automatiquement toutes les origines cachées de leur butin.
+Capacité et usage
+INV-05 — Places et volumes. Soute et entrepôt ont une capacité mesurée dans une unité simple du scénario. Un transfert doit vérifier cette capacité avant d’être confirmé. Une place réservée à une cargaison attendue ne peut être promise simultanément à une autre arrivée incompatible.
+Le joueur peut filtrer son sac, consulter les images, équiper, déséquiper, utiliser, partager ou proposer à la vente les biens autorisés. Un bien consommé, saisi ou engagé dans une action ne peut être vendu. Une modification MJ du catalogue ne transforme pas silencieusement un objet déjà utilisé.
+Validation. Fractionner une caisse de vingt unités en deux lots de huit et douze ne modifie pas la quantité totale. Un bien vendu à distance reste à son emplacement. Dépasser la capacité de l’entrepôt refuse le transfert sans perdre la caisse.
+Crédits comptes et paiements
+Des comptes personnels et collectifs
+ECO-01 — Monnaie de jeu. Le scénario définit le nom et l’unité de sa monnaie fictive. Une session utilise une monnaie principale dans la proposition V1. Les montants sont enregistrés dans une unité entière pour éviter des écarts d’arrondi. Les devises multiples et taux de change peuvent être ajoutés comme extension.
+Un personnage possède un portefeuille ; un groupe, un établissement ou une administration peut posséder un compte. Le compte distingue solde total, montant réservé et montant disponible. Les droits de consultation et de dépense sont indépendants. Un découvert n’est possible que si une règle explicite de crédit l’autorise.
+ECO-02 — Payer et recevoir. Un paiement identifie payeur, bénéficiaire, montant, motif, session et référence d’opération. Le payeur choisit son compte autorisé, confirme le récapitulatif et reçoit le résultat. Un scan peut sélectionner le destinataire sans lui donner accès au compte du payeur.
+Les transferts entre comptes, les récompenses, salaires, commissions, remboursements et dépenses extérieures utilisent le même journal. Une corruption peut être discrète pour les personnages tout en restant comptabilisée. Les taxes officielles vont au compte défini par le scénario ; elles ne disparaissent pas nécessairement de l’économie.
+Une opération complète ou aucun changement
+ECO-03 — Cohérence. Le débit et le crédit d’un transfert doivent être appliqués ensemble. La répétition technique d’une même demande conserve son résultat initial. Deux paiements concurrents ne peuvent dépenser la même somme disponible. Un refus n’entraîne ni débit partiel ni crédit sans contrepartie.
+ECO-04 — Corrections. Le MJ peut attribuer ou retirer des crédits avec un motif, annuler une opération admissible ou ajouter une écriture de correction. L’historique conserve l’opération initiale et sa correction. Si des opérations ultérieures en dépendent, le système présente les conséquences avant d’autoriser le traitement.
+Prêts et engagements
+ECO-05 — Dette explicite. Un prêt crée un contrat avec prêteur, emprunteur, principal, échéance, remboursement et éventuelles garanties. Les intérêts et pénalités sont des règles facultatives de scénario. Leur déclenchement ne doit ni rendre un solde illisible ni confisquer arbitrairement des biens non engagés.
+Les avances de contrat sont distinguées d’un revenu définitivement acquis. Un acompte, une caution ou une somme séquestrée conserve son statut jusqu’à la condition de déblocage. Les crédits du jeu restent indépendants d’une éventuelle billetterie réelle.
+Validation. Un compte contenant 100 crédits reçoit deux demandes concurrentes de 80 : une seule peut être validée en l’absence de découvert. Répéter la demande gagnante n’ajoute aucun débit. Le journal permet de reconstituer les soldes de départ, entrées, sorties et réservations.
+Marché annonces et négociation
+Une place de marché utilisable en partie
+MAR-01 — Catalogue et vitrines. Les joueurs consultent les annonces accessibles : type, quantité, unité ou lot, prix, vendeur ou alias commercial, emplacement de retrait, disponibilité, frais connus et date de validité. Recherche et filtres permettent de trouver marchandises, consommables et services. Les annonces privées s’adressent à des contacts ou groupes autorisés.
+Le marché noir est un espace d’accès configurable. Une permission d’accès à ce marché ne révèle pas toutes les identités clandestines. Des vendeurs extérieurs simulés proposent des stocks finis ; les joueurs peuvent également publier leurs propres annonces si leurs droits le permettent.
+MAR-02 — Publication. Le vendeur choisit le bien ou service, la quantité, le prix, les conditions et la durée. Le système vérifie qu’il a le droit de vendre. Les quantités engagées par les annonces actives sont suivies ; plusieurs offres ne doivent pas promettre plus de stock disponible que le vendeur n’en possède.
+Acheter ou faire une offre
+MAR-03 — Achat direct. Le récapitulatif présente le prix, les frais applicables, le compte débité, l’emplacement du bien et les conditions de remise. Le cours indicatif n’est pas une autorisation de modifier le prix confirmé. Un panier V1 peut regrouper les articles d’un même vendeur ; les vendeurs différents donnent lieu à des opérations distinctes et clairement présentées.
+MAR-04 — Négociation. L’acheteur peut proposer quantité et prix, avec un commentaire. Le vendeur accepte, refuse ou formule une contre-offre. Chaque proposition possède une échéance et une version. La contre-offre remplace la proposition précédente ; une ancienne proposition ne peut être acceptée après remplacement.
+Le fonctionnement recommandé réserve les biens et fonds au moment de l’acceptation mutuelle, pas pendant toute conversation exploratoire. Les parties sont informées qu’une offre non acceptée ne garantit pas la disponibilité. À l’acceptation, les disponibilités et droits sont revérifiés.
+Vente retrait et litige
+MAR-05 — Modes de conclusion. Une vente immédiate transfère paiement et propriété, en conservant le lieu du stock. Un contrat de livraison peut au contraire réserver les fonds jusqu’à réception. Le mode choisi est affiché avant engagement. Aucun mode ne déplace physiquement une caisse par simple paiement.
+Une annonce peut être brouillon, active, réservée, partiellement vendue, épuisée, retirée ou expirée. Un litige peut être signalé au MJ avec la référence de l’accord. L’annulation et le remboursement suivent les conditions prévues et ne réécrivent pas les échanges déjà consommés.
+Validation. Deux joueurs achètent la dernière caisse : un seul la reçoit. Un prix négocié accepté reste inchangé après une variation du cours. Expirer une réservation libère les fonds et le stock. Le retrait ne déclenche pas un second paiement.
+Petites annonces et recrutement
+Un tableau de missions dans la place de marché
+ANN-01 — Accès joueur. La place de marché comporte un espace Petites annonces, avec recherche et filtres : primes, recrutement de mercenaires, escorte, transport, recherche d’information et autres services. Le joueur distingue les offres ouvertes de ses candidatures et des missions qui lui sont attribuées. Cette fonction appartient au périmètre initial.
+ANN-02 — Publication organisateur. Depuis le dashboard, l’organisateur crée, prévisualise, publie, programme, modifie ou retire une annonce. Il choisit le commanditaire de fiction : personnage, bande, administration ou PNJ, sous son nom ou un alias. L’auteur technique reste dans l’historique MJ. Cette version prévoit la publication des missions par les organisateurs et les réponses des joueurs.
+ANN-03 — Contenu et visibilité. La fiche précise titre, catégorie, description, commanditaire visible, récompense fixe ou négociable, échéance, places, conditions et preuve attendue. Elle distingue mission attribuée et prime ouverte à plusieurs concurrents. L’organisateur définit les destinataires autorisés et sépare texte public, briefing réservé et notes MJ. Filtres et affichage des destinataires respectent les appartenances secrètes.
+Répondre puis conclure un accord
+ANN-04 — Candidatures privées. Le bouton Répondre permet de poser une question ou de candidater, avec un message et, si autorisé, un prix proposé. Un joueur répond pour lui-même ou pour un groupe qu’il peut représenter. Les échanges sont visibles du candidat, des représentants autorisés du commanditaire et des organisateurs habilités. Les concurrents ne voient ni les candidatures ni les tarifs proposés.
+Une candidature passe par envoyée, en discussion, retenue, refusée ou retirée. Le joueur voit son statut et reçoit les réponses dans Infos. Répondre ne réserve pas automatiquement la mission et ne déclenche aucun paiement. Les notifications respectent l’identité de couverture et la confidentialité du briefing.
+ANN-05 — Attribution et contrat. Pour une mission attribuée, l’organisateur sélectionne un ou plusieurs candidats dans la limite des places ; les parties confirment les mêmes conditions. Le système crée un contrat lié à l’annonce et à la candidature, avec rémunération, acompte éventuel, échéance, preuve et valideur. Il ouvre le briefing prévu sans exposer les notes MJ. Une prime ouverte indique qui peut réclamer la récompense et combien de résultats peuvent être récompensés ; une réponse n’accorde pas d’exclusivité.
+Suivi et récompenses
+ANN-06 — Gestion et règlement. Le dashboard rassemble annonces, candidatures, échanges, contrats et preuves. Une annonce est brouillon, programmée, ouverte, pourvue, clôturée, expirée ou annulée. Modifier l’annonce ne change pas un contrat accepté : ses nouvelles conditions demandent l’accord des parties.
+La récompense utilise le compte payeur et les réservations du contrat. Un financement extérieur MJ est enregistré comme création de crédits. Deux validations concurrentes ne paient pas deux fois la même prime. Expiration et annulation traitent les fonds réservés et avertissent les personnes concernées.
+REC-10 — Publier et recruter. Deux bandes répondent à une escorte avec des tarifs différents. Une candidature est retenue et confirmée : un contrat, un briefing privé et un seul paiement après validation. Tester aussi deux réclamations concurrentes sur une prime ouverte : le quota de récompenses est respecté. Une annonce expirée refuse une nouvelle candidature.
+Contrats entrepôts douanes et corruption
+Le contrat comme accord de jeu
+CTR-01 — Structure. Un contrat contient parties, objet, quantité ou service, rémunération, acompte, garantie, échéance, conditions de validation, confidentialité et conséquences d’inexécution. Il peut porter sur transport, escorte, réparation, prime, location ou prêt. Les conditions mécaniques et promesses narratives doivent être distinguées.
+CTR-02 — Exécution. Les parties acceptent une même version. Le contrat passe ensuite par accepté, en cours, rempli, payé, expiré, annulé ou en litige. Une prestation narrative peut nécessiter une validation du bénéficiaire ou du MJ. Les objets et sommes réservés ne sont libérés qu’une fois.
+Une prime précise la preuve attendue : capture, remise d’un document, récupération d’un lot ou arbitrage. Un mot déclaré par un joueur ne suffit pas à créer automatiquement une capture ou un paiement si aucune règle ne le prévoit.
+Stockage et droits sur les lieux
+ENT-01 — Louer une capacité. Le bailleur propose emplacement, capacité, durée, prix, accès et éventuel dépôt de garantie. Le locataire choisit le compte payeur. Les biens stockés restent rattachés à leurs propriétaires. Les droits d’entrée, de retrait et de consultation sont distincts de la propriété des murs.
+ENT-02 — Échéances. Proposition V1 : louer des périodes définies sur l’horloge de jeu, avec avertissement avant expiration. Le défaut de paiement peut bloquer de nouveaux dépôts ou ouvrir un litige ; il ne détruit pas le stock. Les règles de rétention et restitution éventuelles doivent être prévues dans le bail et le scénario.
+La capacité libre tient compte des dépôts présents et des arrivées réservées. Un départ libère la place selon le moment défini. Une panne ou un changement de contrôle d’un entrepôt affecte les accès, sans transférer automatiquement la propriété de toutes les caisses.
+Douanes et arrangements
+DOU-01 — Déclarer et inspecter. Une expédition possède un manifeste déclaré et un contenu réel. Un rôle autorisé peut contrôler tout ou partie du contenu selon ses moyens. Les taxes dépendent de règles configurées ; le joueur peut voir son devis avant de confirmer un passage déclaré.
+DOU-02 — Corruption. Un paiement clandestin n’accorde un effet automatique que si un accord ou une compétence le prévoit. L’arrangement peut autoriser un passage, réduire un contrôle ou créer une promesse susceptible d’être trahie. Les traces visibles en fiction sont distinctes du journal technique MJ.
+Validation. Louer une place dans un entrepôt ne donne pas accès aux lots voisins. Une livraison constatée règle le contrat une seule fois. Un défaut de loyer conserve les marchandises. Un pot-de-vin sans accord ne désactive pas toutes les douanes de la session.
+Cours stocks et événements économiques
+Un cours de référence distinct des offres
+COU-01 — Paramètres. Chaque marchandise possède un prix de référence, des bornes, un stock extérieur et une demande extérieure configurables. Les annonces des joueurs gardent leur propre prix. Le MJ peut activer des cours par destination pour créer des opportunités d’import-export sans garantir un bénéfice sur chaque trajet.
+COU-02 — Évolution. Le premier mode recommandé est une évolution pilotée par événements et validée par le MJ. Un mode automatique peut ensuite utiliser stocks disponibles, achats, ventes et commandes selon une formule publiée dans les règles organisateur. Aucune formule d’équilibrage n’est fixée dans cette V1.
+Les changements sont horodatés, bornés et expliqués par un événement visible lorsque cela ne révèle pas un secret. Une hausse due à une panne peut être annoncée sans nommer le saboteur. Les achats déjà conclus et les contrats acceptés gardent les conditions convenues.
+Des débouchés et des contraintes réels
+COU-03 — Marché extérieur. Les fournisseurs ont des quantités limitées, des délais et des réapprovisionnements paramétrés. Les acheteurs publient des commandes avec quantité maximale, destination et échéance. Une vente extérieure exige que la marchandise atteigne l’état requis, par exemple livraison à destination.
+L’application ne doit pas proposer par défaut une boucle d’achat et de revente instantanée, illimitée et bénéficiaire. Les frais de transport, les quantités, les capacités et les délais doivent être pris en compte par les offres réellement exécutables.
+COU-04 — Prévisualisation. Avant de déclencher un événement, le MJ voit les marchandises touchées, les nouveaux cours, les stocks concernés, les contrats affectés et les notifications proposées. Il peut modifier un événement futur. Annuler un événement passé n’efface pas les transactions déjà réalisées ; une correction suit une procédure visible dans l’historique.
+Contrôler la circulation des crédits
+COU-05 — Tableau économique. Le tableau de bord affiche argent créé et retiré, circulation entre joueurs, prix, volumes vendus, stocks bloqués, concentration des fonds, dettes et engagements. Les transferts entre joueurs ne sont pas comptés comme création de richesse monétaire.
+Des alertes signalent stock négatif, compte incohérent, trop nombreuses réservations expirées ou bien immobilisé au-delà du délai prévu. Les seuils sont configurables. Le MJ peut intervenir sur les offres extérieures sans modifier arbitrairement le sac d’un joueur.
+Validation. Une cargaison médicale interceptée peut réduire le stock attendu et déclencher une hausse dans les bornes prévues. Les contrats déjà acceptés conservent leur prix. Le bilan distingue un loyer payé à un habitant d’un achat de carburant auprès d’un fournisseur extérieur.
+Vaisseaux routes et transport
+Le vaisseau comme bien collectif
+VAI-01 — Fiche. Le vaisseau possède un propriétaire, des utilisateurs autorisés, une localisation, un état, une capacité de soute, du carburant et des caractéristiques. Les modules installés, avaries, frais d’entretien et améliorations sont enregistrés comme des éléments de jeu. Leur barème reste propre au scénario.
+Un membre peut consulter la soute sans pouvoir déclencher un départ. Les permissions distinguent chargement, vente de cargaison, paiement, choix d’une route et engagement dans un combat. Un module installé ne peut pas simultanément être vendu comme une pièce disponible dans l’atelier.
+Préparer une rotation
+TRA-01 — Devis. Le joueur choisit destination, route, fret, escorte et consigne face à une interception. Le récapitulatif présente volume, durée, coût, carburant requis, entretien et risques connus. Le contenu réel et le manifeste déclaré sont conservés séparément.
+TRA-02 — Départ. La confirmation vérifie les droits, l’état du vaisseau, la capacité, les crédits, le carburant et les cargaisons engagées. L’ensemble passe en transit une seule fois. Un vaisseau ne peut partir sur deux missions concurrentes. Un lot en transit ne figure plus comme disponible pour un retrait au port.
+Le trajet suit les états préparé, prêt, en transit, intercepté, retardé, arrivé ou annulé avant départ. Les changements exceptionnels et la perte éventuelle d’une cargaison sont tracés. Une arrivée ne valide pas deux fois la même commande extérieure.
+Rester actif à Western City
+TRA-03 — Présence des joueurs. Proposition pour Port-Brèche : certaines rotations sont confiées dans la fiction à un pilote auxiliaire ou un droïde, pendant que les joueurs organisent leurs affaires sur le terrain. Un autre mode peut représenter une mission jouée. Le moteur ne présume pas que tous les membres du groupe deviennent indisponibles dès que leur vaisseau voyage.
+Les durées utilisent l’horloge de jeu. Un départ arrêté par une panne technique de l’application ne doit pas être confondu avec un retard scénaristique. La reprise retrouve l’état confirmé, sans redébiter le carburant.
+Arrivée et maintenance
+VAI-02 — Réparer et améliorer. Les réparations demandent les pièces, la prestation et le délai prévus. Une amélioration doit respecter les emplacements et incompatibilités configurés. Les changements pendant un voyage sont interdits sauf règle spécifique.
+Validation. Deux membres confirment le départ du même vaisseau : une seule mission est créée. Une soute pleine refuse un chargement supplémentaire. À l’arrivée, les biens rejoignent le quai ou l’entrepôt autorisé, et le contrat ne se règle qu’après la condition de livraison prévue.
+Interceptions et combats virtuels
+Obtenir le droit de cibler un transport
+SPA-01 — Information exploitable. Une interception exige un renseignement valable, une fenêtre de trajet et un moyen disponible. Le pirate ne voit pas une carte omnisciente de toutes les cargaisons. Le renseignement peut venir d’un informateur, d’une compétence, d’un manifeste ou d’une révélation MJ.
+Le système vérifie l’accès au renseignement et les capacités requises. Les informations visibles peuvent être partielles : route connue, cargaison supposée, escorte inconnue. Les détails réels utilisés pour la résolution restent protégés selon les droits.
+Décisions et résolution
+SPA-02 — Choix. La défense applique sa consigne ou reçoit une demande de décision avec un délai : fuir, combattre, négocier ou céder une partie du fret, selon les options du scénario. À l’expiration, une consigne de repli définie avant le départ évite de bloquer le trajet parce qu’un joueur n’a pas consulté son téléphone.
+SPA-03 — Paramètres. La résolution utilise les caractéristiques pertinentes, l’état du vaisseau, les modules, les choix tactiques, l’escorte et un aléa borné. La formule, les seuils et les probabilités seront définis dans le module de règles et testés avec les configurations de départ.
+Les données engagées au début de la confrontation sont figées pour cette résolution. Changer une caractéristique après coup ne modifie pas rétroactivement le résultat. Recharger l’écran ne relance pas le hasard. Le compte rendu présente les éléments visibles et la référence de l’action.
+Des conséquences sur les mêmes stocks
+SPA-04 — Effets possibles. Retard, dépense supplémentaire, avarie, perte partielle de marchandises, rançon ou retraite sont des conséquences configurables. Une capture de fret transfère les lots existants vers une destination réelle dans le jeu ; elle ne crée pas une copie du butin. La capacité de transport du vainqueur est vérifiée.
+La destruction définitive d’un vaisseau est une option exceptionnelle, désactivée dans la proposition initiale. Le sort physique des personnages présents à Western City ne découle pas automatiquement d’un voyage auxiliaire. Les conséquences humaines d’une mission jouée nécessitent une règle spécifique.
+SPA-05 — Attaques concurrentes. Le vaisseau ciblé est engagé dans une seule résolution incompatible à la fois. Une règle de scénario peut prévoir plusieurs participants, mais leurs engagements et effets sont regroupés dans le même affrontement. Les coûts et remboursements d’une attaque devenue impossible sont définis.
+Validation. Une attaque sans renseignement requis est refusée. Une perte de trois caisses retire trois caisses à la défense et les place une seule fois dans le circuit du vainqueur. Une répétition technique restitue le même résultat et les mêmes tirages.
+Informations messages et révélations
+Un centre de lecture unique
+INF-01 — Fil personnel. L’espace Infos regroupe les contenus reçus, avec filtres par type, statut de lecture et origine visible. Il distingue au minimum connaissances, indices, informations générales, messages et documents. Les votes n’apparaissent que si ce module est activé.
+Une information possède un titre de couverture approprié à ses destinataires. Un nom de fichier, une miniature, un aperçu de notification ou un résultat de recherche ne doit pas révéler un secret absent du texte autorisé. Les pièces jointes suivent les mêmes droits que le contenu qui les porte.
+INF-02 — Diffusion. Le MJ peut publier vers tous, vers un groupe, vers une sélection de personnages ou vers une condition préparée. La prévisualisation montre les destinataires avant envoi. Une diffusion programmée suit l’horloge choisie ; la pause de jeu en suspend les déclenchements scénaristiques.
+Communications entre personnages
+MSG-01 — Messages privés. Le moteur permet une conversation entre destinataires autorisés, un contact découvert ou une adresse de couverture prévue par le scénario. L’accès à l’annuaire peut être limité. Un pseudonyme n’est pas accompagné de son identité réelle cachée.
+Les messages peuvent joindre un document déjà accessible à l’auteur et partageable. Un document non partageable peut être montré sur le terrain sans créer automatiquement un droit permanent chez son lecteur. Les messages reçus conservent leur date et leur état de livraison.
+MSG-02 — Groupes clandestins. Le fait d’être un renégat n’ouvre pas automatiquement une conversation avec les autres renégats. Après leur rencontre, les joueurs peuvent créer un cercle d’échange ou demander les accès prévus. Une exclusion retire les accès futurs ; elle n’efface pas ce que le personnage a déjà appris ni une copie autorisée déjà reçue.
+Rumeurs et annonces publiques
+INF-03 — Fiction et vérité. Une rumeur peut circuler comme une nouvelle ou un témoignage sans label « faux » visible au joueur. Les données MJ servent à contrôler la cohérence, pas à afficher une vérité automatique. Une annonce de prime peut être publique alors que son commanditaire reste un alias.
+VOT-01 — Module facultatif. Un vote possède électeurs, choix, dates, confidentialité et règle de clôture. Un changement de vote est autorisé ou interdit explicitement. Ce module peut servir à une décision collective, sans imposer une procédure de vote à la concession de Port-Brèche.
+Validation. Une notification verrouillée ne révèle pas l’identité du renégat. Un message clandestin n’est accessible qu’à ses destinataires et aux MJ habilités selon les règles annoncées. Une publication programmée pendant la pause attend la reprise.
+Tableau de bord et conduite MJ
+Préparation accueil et pilotage
+MJ-01 — Vue de session. L’accueil présente participants, attributions, présence, état de préparation et accès à renouveler. La vue de jeu présente personnages en difficulté, actions en attente, contrats proches de leur échéance, cargaisons immobilisées, candidatures à examiner, cours et événements à venir.
+Les vues sont filtrables par groupe, lieu, type de ressource et état. Une recherche retrouve un personnage par son nom de jeu ou son participant, sans diffuser ce rapprochement au public. Les données privées d’inscription restent dans un espace à droits limités.
+MJ-02 — Intervention. Le MJ peut corriger un état, restituer un objet, attribuer une connaissance, résoudre un litige, régler une dette de jeu ou modifier un événement. Chaque intervention demande une cible explicite et conserve auteur, date, motif et valeurs avant/après. Les actions affectant plusieurs joueurs présentent leur périmètre avant validation.
+Comprendre ce qui se passe
+MJ-03 — Historique utile. Le journal permet de suivre une chaîne : annonce, négociation, vente, paiement, retrait, trajet, interception et livraison. Il relie également une compétence à son coût, son résultat et ses effets. Les recherches peuvent cibler un lot, un contrat, un compte ou un personnage.
+L’interface distingue une erreur technique, une action refusée et un échec de jeu. Les alertes proposent des informations utiles au diagnostic. Le MJ ne doit pas éditer directement la base de données pour régler une situation ordinaire.
+MJ-04 — Arbitrages. Les actions nécessitant un MJ arrivent dans une file avec demandeur, cible, règle, preuves et options autorisées. La décision est expliquée aux personnes concernées selon sa visibilité. Le premier MJ qui prend en charge la demande empêche une seconde résolution concurrente.
+Outils de rythme
+MJ-05 — Temps et événements. Le MJ prépare des arrivées de fret, annonces, contrôles, variations de prix et révélations. Il peut suspendre le jeu, annoncer un événement général ou retarder un déclenchement futur. Une modification ne rejoue pas les événements déjà appliqués.
+MJ-06 — Fin de session. La clôture produit un état final des objectifs, crédits, contrats, groupes et événements. Le MJ choisit les révélations d’épilogue. L’archivage conserve une consultation adaptée ; une nouvelle partie part du modèle et ne récupère ni notes ni secrets appris de la précédente.
+Validation. Un MJ suit l’historique complet d’une caisse volée sans révéler cet historique aux joueurs. Deux MJ ne règlent pas deux fois la même demande. Une correction de paiement conserve le mouvement original. La clôture affiche les engagements encore ouverts avant leur traitement.
+Modèle des données et règles communes
+Les éléments à conserver séparément
+Ensemble | Données et liens essentiels
+Scénario et version | Contenus, règles, médias et références des bibliothèques
+Session | Version de scénario, état, horloge et paramètres de partie
+Participant et inscription | Coordonnées utiles, réponses, statut et attribution
+Personnage | Identité, couverture, PV, compétences, objectifs et relations
+Groupe et appartenance | Visibilité, rôle, permissions et dates de validité
+Connaissance et accès | Contenu, destinataire, origine, date et mode de partage
+Bien et emplacement | Type, quantité, propriétaire, détenteur et disponibilité
+Compte et écriture | Solde, réservations, mouvements et références liées
+Annonce candidature et contrat | Commanditaire, destinataires, réponses, version, montant, état et conditions
+Compétence et action | Règle versionnée, cible, coûts, résultat et effets
+Vaisseau et trajet | Caractéristiques, route, fret, consignes et événements
+Message événement et audit | Destinataires, déclenchement, visibilité et historique
+
+DAT-01 — Identifiants stables. Les relations utilisent des identifiants, pas le nom affiché. Un renommage ne casse pas les liens. Les ressources d’une session ne peuvent pas être utilisées dans une autre par simple changement d’adresse. Une suppression référencée est refusée ou remplacée par un archivage contrôlé.
+L’autorité sur les actions
+DAT-02 — Confirmation de référence. Les crédits, stocks, permissions et résultats sont validés côté service. L’écran joueur affiche l’état confirmé ; il ne fait pas autorité sur un solde, un jet ou une appartenance secrète. Chaque commande modifiant le jeu porte une référence unique et une version attendue lorsque nécessaire.
+DAT-03 — Effets liés. Une transaction qui touche plusieurs éléments réussit entièrement ou laisse un état explicite de réservation récupérable. Les compensations sont prévues pour une opération interrompue. La répétition technique restitue le résultat déjà enregistré au lieu de créer un second effet.
+Deux notions de temps
+TMP-01 — Temps réel et temps de jeu. Le temps réel sert aux connexions et à l’exploitation. Le temps de jeu sert aux trajets, compétences, contrats et événements. Une pause fige ce dernier et son calendrier associé ; les échéances de connexion peuvent continuer à expirer.
+TMP-02 — Reprise. Le service de référence décide quand un effet arrive à terme. Une page fermée n’arrête pas un trajet. Après une interruption du service, la reprise traite chaque échéance une seule fois et dans un ordre cohérent avec ses dépendances. Le MJ peut voir les opérations en attente de reprise.
+Validation. Une modification du prix catalogue ne change pas un contrat accepté. Rejouer un déclenchement après incident ne paie pas deux fois une récompense. Une pause n’ajoute ni loyer de jeu ni temps de voyage, tandis qu’une invitation de connexion peut expirer.
+Protection des accès et des secrets
+Des droits vérifiés à chaque opération
+SEC-01 — Autorisation. Les contrôles doivent porter sur la session, l’acteur, la ressource et l’action demandée. Un accès non explicitement accordé est refusé. Les vérifications ne reposent pas uniquement sur les boutons visibles du navigateur. Ces exigences suivent les principes de moindre privilège et de contrôle de chaque requête présentés par OWASP [R1].
+SEC-02 — Données réellement séparées. Les secrets ne sont pas transmis au navigateur puis simplement masqués à l’écran. Documents, images, recherches, exports et notifications respectent les mêmes règles de visibilité. Un identifiant imprévisible ne remplace pas une autorisation.
+Les rôles d’administration sont limités aux sessions confiées. Les opérations importantes enregistrent l’acteur humain et le rôle utilisé. Un mode « voir comme un joueur » ne permet pas d’agir à sa place sans une commande MJ distincte, clairement signalée.
+Accès personnel et délégation
+SEC-03 — Invitations. Les invitations privées expirent, sont révocables et ne sont pas imprimées sur les badges publics. Les secrets d’accès ne sont pas inscrits en clair dans les journaux consultables. Le changement de titulaire ou la révocation ferme les autorisations actives correspondantes.
+SEC-04 — Accès aux fichiers. Le contrôle s’applique aussi au téléchargement direct d’un document. Un lien public ne doit pas permettre de récupérer la fiche privée d’un autre personnage. Les fichiers téléversés sont contrôlés selon des types et tailles autorisés ; un contenu de jeu ne doit pas exécuter un script dans l’interface.
+Données des participants
+PRI-01 — Usage et visibilité. Les coordonnées, besoins d’accueil et réponses au formulaire sont réservés aux organisateurs habilités. La fiche de personnage ne les expose pas. La page d’inscription présente les usages des données, leurs destinataires et les modalités prévues pour les corriger ou demander leur suppression.
+PRI-02 — Conservation. La durée de conservation des inscriptions, médias et historiques doit être configurable et annoncée. La suppression d’un compte participant ne doit pas rendre illisible le bilan de jeu : le système prévoit une dissociation ou une anonymisation des données personnelles. Les obligations applicables devront être vérifiées avant l’exploitation réelle.
+La confidentialité numérique ne retire pas ce qu’un joueur a déjà lu, photographié ou entendu. Le système doit contrôler les accès futurs et la conservation technique, sans promettre d’effacer un souvenir ni une copie extérieure.
+Validation. Tester les accès croisés à une fiche, une image et un compte par requête directe. Vérifier qu’un badge public ne sert pas de connexion. Après révocation, une nouvelle demande est refusée et aucune donnée secrète n’est renvoyée.
+Réseau mobile et qualité de service
+Prévoir une connexion imparfaite
+RES-01 — État de connexion visible. L’application indique hors ligne, en cours d’envoi, confirmé ou synchronisation nécessaire. Un écran de succès n’apparaît qu’après confirmation. Si la réponse est perdue, le système recherche le résultat de la même commande avant de proposer un nouvel essai.
+RES-02 — Lecture hors ligne limitée. Proposition V1 : consultation des contenus déjà autorisés et mis en cache, avec date de dernière synchronisation. Les achats, transferts, jets et actions modifiant un état partagé demandent une connexion. Des notes et une déclaration de dégâts peuvent être conservées en brouillon clairement non validé.
+La reconnexion ne transforme pas ces brouillons en opérations économiques automatiques. Les droits et états sont revérifiés. Un appareil déconnecté ne peut pas recevoir immédiatement une révocation ; le cache des contenus privés doit donc avoir une durée et une protection définies. La déconnexion explicite retire les données privées locales prévues par ce mécanisme.
+RES-03 — Secours MJ. Le pack imprimé permet de poursuivre les scènes essentielles. Une procédure de saisie différée identifie chaque opération manuelle et évite son double enregistrement au retour du réseau. Le MJ peut suspendre temporairement les échanges numériques pour garder un état de référence clair.
+Lisibilité et compatibilité
+QUA-01 — Mobile. L’application web fonctionne sur les navigateurs mobiles retenus lors de la recette, en portrait, avec adaptation aux grands écrans MJ. L’installation comme application web est un confort possible, pas une condition d’entrée. Le refus de la caméra doit laisser un accès par code manuel.
+QUA-02 — Interaction. Proposition de cible produit : boutons principaux d’au moins 44 pixels CSS, textes redimensionnables, états lisibles sans couleur seule, navigation clavier des écrans MJ et messages d’erreur compréhensibles. Le seuil de 44 est un choix de confort ; le critère W3C 2.5.8 décrit un minimum de 24 pixels CSS avec exceptions [R2]. Une conformité globale ne se déduit pas de cette seule mesure.
+Des objectifs mesurables
+QUA-03 — Recette proposée. Mesurer un usage simultané à 60 joueurs, puis un palier à 120 pour observer la marge. Sur un profil de réseau consigné, viser une confirmation en moins de 2 secondes pour 95 % des actions courantes hors téléversements, et une propagation d’état en moins de 5 secondes. Ce sont des objectifs à tester, pas des performances acquises.
+Validation. Couper le réseau après validation d’un achat puis revenir : le résultat est retrouvé sans double débit. Refuser la caméra laisse le code manuel utilisable. Une sauvegarde de session peut être restaurée dans un environnement de test avec les mêmes soldes et stocks.
+Import export et préparation du terrain
+Un master téléchargeable
+IMP-01 — Modèle de saisie. Le tableau de bord fournit un modèle vide versionné avec instructions, champs requis, listes de valeurs et exemples distincts des données à importer. Un classeur peut couvrir personnages, groupes, relations, connaissances, compétences, biens, lieux, comptes, contrats et événements.
+IMP-02 — Contrôle avant application. L’import affiche un bilan : créations, modifications, éléments inchangés et erreurs avec onglet, ligne et champ. Il ne crée pas partiellement des données sans le signaler. Le MJ choisit la stratégie d’import ; les identifiants stables évitent les doublons lors d’une seconde importation.
+Les champs secrets conservent leur visibilité. Les liens de médias sont vérifiés. Les références croisées manquantes bloquent les éléments concernés. Une importation dans une session en cours exige un périmètre explicite et ne réinitialise pas les crédits, PV ou connaissances déjà acquis.
+Exporter et transmettre
+EXP-01 — Sauvegarde fonctionnelle. L’export conserve données, versions, références et médias nécessaires à la réutilisation du scénario. Un export de session inclut son état et son historique dans un format documenté. Les identifiants de connexion et secrets techniques n’appartiennent pas au master de contenu.
+EXP-02 — Packs. Le MJ génère les fiches joueurs selon leurs droits, les fiches de groupe, le dossier organisateur, la liste d’accueil, les badges, les QR de lieux et d’objets, les règles et les documents à imprimer. Chaque lot indique sa session et son usage. Le pack public ne contient pas les secrets du pack MJ.
+Les QR possèdent une légende lisible, un identifiant court et une cible vérifiée. Le badge de personnage affiche uniquement les informations publiques choisies. Une fiche de secours privée peut être remise individuellement ; elle reste séparée du badge destiné à être montré.
+Médias et préparation pratique
+EXP-03 — Images et documents. Les images ont une vignette et une vue agrandie ; les documents longs disposent d’un aperçu ou d’un téléchargement autorisé. Les formats, poids et dimensions recommandés sont indiqués dans l’éditeur. Un téléchargement groupé rassemble les éléments à imprimer sans révéler des fichiers exclus du lot.
+IMP-03 — Vérification du terrain. Une vue de contrôle liste tous les QR, leur lieu d’installation, leur cible, leur état et les scénarios qui les utilisent. Un mode test permet de scanner les panneaux avant ouverture sans déclencher les découvertes des joueurs.
+Validation. Exporter puis réimporter un scénario dans une copie conserve ses relations et permissions. Importer deux fois le même master ne double pas les personnages. Un pack de badges ne contient aucun lien privé de connexion ni le nom réel de l’infiltré sous couverture.
+Recette complète avec Port Brèche
+Des parcours à vérifier de bout en bout
+Les validations de chaque module sont complétées par les parcours suivants. Ils doivent utiliser une session de test distincte avec de vrais comptes de rôles différents. Les montants, durées et marchandises de test sont des valeurs de recette, sans prétendre équilibrer le GN final.
+REC-01 — De l’inscription au personnage. Ouvrir le lien public, s’inscrire, être accepté, recevoir une attribution et accéder au briefing. Scanner son badge depuis un autre compte. Résultat attendu : l’un lit ses secrets, l’autre seulement le profil public et les interactions autorisées. Une réattribution retire l’ancien accès.
+REC-02 — Un achat et une livraison. Un équipage négocie cinq caisses, accepte le prix, paie ou réserve les fonds, loue une place, organise un trajet et livre. Résultat attendu : une seule chaîne de stock et de paiement, chaque frais vers le bon compte, aucun retrait local pendant le transit et libération correcte de la capacité.
+REC-03 — Le marché sous concurrence. Deux acheteurs tentent d’obtenir la dernière caisse tandis qu’un cours change. Résultat attendu : un seul gagnant, aucune quantité négative, aucun double débit, maintien du prix déjà accepté et message exploitable pour le perdant. Rejouer les mêmes requêtes ne modifie pas le bilan.
+REC-04 — Former la cellule. Les renégats possèdent des fragments distincts et rencontrent un personnage infiltré. Ils partagent des informations et créent un cercle. Résultat attendu : aucune liste automatique de vrais résistants, aucune fuite par annuaire, notification ou pièce jointe ; l’infiltré n’obtient que les éléments effectivement partagés avec lui.
+REC-05 — Saboter puis réparer. La cellule réunit matériel, accès et compétence, agit sur le terminal, puis un adversaire tente de réparer. Résultat attendu : consommations uniques, état cohérent du terminal, conséquences sur le convoi et condition de remise en service respectée. Les tentatives incompatibles sont arbitrées sans double application.
+REC-06 — Intercepter le fret. Un pirate obtient une information, engage son vaisseau et intercepte un trajet. Résultat attendu : choix ou consigne de la défense appliqué, un résultat stable, avaries et fret modifiés une seule fois, butin localisé et capacités respectées. Aucun crédit ni aucune caisse n’apparaît sans opération explicable.
+REC-07 — Blessure et secours. Un joueur déclare ses dégâts, passe hors combat, reçoit un soin puis reprend une action autorisée. Résultat attendu : stock médical consommé une fois, PV bornés, états compatibles et historique lisible. Le statut hors combat ne donne pas un accès général à son sac aux autres joueurs.
+REC-08 — Incident et reprise. Couper le réseau pendant une vente, mettre la session en pause, reprendre le service et retrouver l’opération. Résultat attendu : résultat unique, temps de jeu conservé, invitations traitées selon le temps réel et aucun traitement automatique ambigu des brouillons hors ligne.
+REC-09 — Clôture et réutilisation. Terminer la partie avec des contrats ouverts, appliquer la procédure de clôture et exporter le bilan. Créer une nouvelle session du scénario. Résultat attendu : état final conservé, engagements explicitement traités, nouvelle partie sans notes, transactions ni connaissances acquises dans la précédente.
+Livraisons et critères de mise en service
+Un périmètre complet livré par ensembles cohérents
+Lot | Contenu | Condition de passage
+A Fondations | Sessions, rôles, inscriptions, accès, éditeur, personnages et secrets | Inscription et attribution jouables, droits testés
+B Jeu sur le terrain | Fiches, connaissances, QR, compétences, PV, objets et informations | Actions cohérentes et récupération après incident
+C Économie | Comptes, marché, petites annonces, candidatures, contrats, entrepôts, douanes et cours | Commerce et recrutement sans double attribution ni paiement
+D Vaisseaux | Routes, départs, fret, entretien et interceptions | Trajet et affrontement avec effets réels sur les stocks
+E Exploitation | Outils MJ, packs, imports, sauvegardes, recette et documentation | Session Port-Brèche complète validée
+
+Les accès, la traçabilité et la fiabilité sont nécessaires dès le premier lot. Le lot E rassemble la vérification finale ; les fonctions d’import, de diagnostic et de secours doivent être disponibles progressivement pendant le développement. Le scénario complet de Port-Brèche dépend de tous les lots A à E.
+Les compléments facultatifs
+Une progression par expérience, l’artisanat par recettes, plusieurs devises, un casino, une carte interactive, une billetterie réelle ou une traduction complète de l’interface peuvent être ajoutés. Les votes sont optionnels. Ces fonctions ne sont pas nécessaires à la première session décrite et ne doivent pas bloquer les parcours prioritaires.
+LIV-01 — Livrables de développement. Attendre une version utilisable des trois interfaces, un modèle de scénario, une bibliothèque initiale documentée, un master d’import vide, un pack imprimable, un guide MJ, un guide joueur, un protocole de secours et un compte rendu de recette. Le dossier technique doit décrire installation, configuration, sauvegarde, restauration et maintenance.
+LIV-02 — Cas pilote. La configuration Port-Brèche reprend la répartition de référence à soixante joueurs, les deux organisations criminelles, les trois équipages, les habitants, les Impériaux, les mercenaires et les visiteurs. Les quatre renégats et l’infiltré utilisent les appartenances secrètes. Les budgets et caractéristiques restent dans le contenu du scénario.
+Conditions de mise en service
+Aucun défaut connu ne doit permettre de lire une fiche privée sans autorisation, de doubler une dépense, de dupliquer un bien ou d’appliquer deux fois un effet. Les parcours REC-01 à REC-10 doivent être exécutés et documentés ; REC-10 figure au chapitre Petites annonces et recrutement. Les objectifs de capacité et de réactivité sont mesurés dans les conditions retenues pour l’événement.
+Le pack papier, la procédure de reprise, la restauration d’une sauvegarde et les droits des assistants doivent être vérifiés avant la partie réelle. Le MJ conserve la possibilité de clôturer ou suspendre une session sans intervention dans la base de données.
+Arbitrages et références
+Les décisions à prendre avant le développement détaillé
+Décision | Base proposée dans cette V1
+Accès personnel | Invitation temporaire puis session authentifiée, distincte du badge
+Attribution des rôles | Attribution MJ, choix public optionnel sans secrets
+Navigation joueur | Personnage, Sac, Infos, Actions et accès rapide au scan
+Hors ligne | Lecture autorisée en cache, notes et dégâts en brouillon
+Temps de jeu | Horloge suspendue pendant la pause, distincte des accès réels
+Voyages à Port-Brèche | Rotations auxiliaires permettant de rester actif sur le site
+Cours | Pilotage par événements avant une éventuelle formule automatique
+Règles de compétences | Coûts et tests configurables, aucun quota universel de PA
+
+La durée du GN, les valeurs de PV, les coûts, les temps d’action, les probabilités de combat, les marchandises et les budgets doivent être fixés dans le scénario. Le choix d’hébergement, l’authentification définitive et les outils de développement feront l’objet d’une conception technique ; ce document ne présume pas d’un choix déjà arrêté.
+Références de conception
+S1 — Canon du GN. Port_Breche_Canon_Groupes_Dependances_V1.docx, 19 octobre 2026, notamment les pages 11 à 14 : économie, scénarios, fonctions attendues du moteur et paramètres ouverts. Ce document constitue la référence du cas pilote.
+S2 — Demandes de Guilz. Échanges de conception de GN Engine et de Port-Brèche : moteur distinct, combats mousse et gel blasters, PV, bibliothèque de compétences, crochetage et sabotage par QR, économie, connaissances, background et inscription. Ajout du 19 octobre 2026 : petites annonces publiées via le dashboard organisateur et réponses des joueurs. Les parcours détaillés de cette V1 sont des propositions de spécification, à distinguer des règles chiffrées encore ouvertes.
+R1 — Autorisations. OWASP Foundation, Authorization Cheat Sheet, page évolutive sans date de publication indiquée, consultée le 19 octobre 2026. Référence pour le moindre privilège, les autorisations par ressource et leur vérification côté service.
+https://cheatsheetseries.owasp.org/cheatsheets/Authorization_Cheat_Sheet.html
+R2 — Taille des cibles. W3C Web Accessibility Initiative, Understanding Success Criterion 2.5.8 Target Size Minimum, document explicatif WCAG 2.2, consulté le 19 octobre 2026. Référence pour la taille minimale des cibles et les exceptions associées ; la cible produit proposée de 44 pixels CSS est un choix de conception.
+https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html
+Ces références techniques étayent les principes cités. Elles ne certifient ni une conformité globale ni le résultat d’un audit de GN Engine. Les critères de recette ci-dessus servent à vérifier la version qui sera développée.

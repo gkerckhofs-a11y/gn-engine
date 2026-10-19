@@ -1,0 +1,10 @@
+{
+  "sourceCommit": "6a12f995c5c26aaf3891cb4bbd8168e51184551e",
+  "excluded": [
+    ".openai/hosting.json"
+  ],
+  "containsRuntimeData": false,
+  "files": 131,
+  "sha256": "5e4dddf3e83766f8b12768536fd68803cdfc5d15185383b65f350f9bd3188948",
+  "specSha256": "3bf56afc1ee04e850cb3c7732662d880cc6f6aa4f019530fc52adb6d45fab1d7"
+}

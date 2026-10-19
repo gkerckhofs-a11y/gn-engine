@@ -1,0 +1,9 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Aucune URL publique de fichier privé ; service de téléchargement à créer.
+    match /{file=**} {
+      allow read, write: if false;
+    }
+  }
+}

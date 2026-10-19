@@ -1,0 +1,676 @@
+# Texte extrait : Port_Breche_Canon_Groupes_Dependances_V1.docx
+# Document organisateur du 19 octobre 2026, lu intégralement le même jour.
+# Contient les secrets du scénario. Ne pas distribuer aux joueurs.
+
+<PARSED TEXT FOR PAGE: 1 / 15>
+WESTERN CITY
+
+
+
+
+Canon du jeu de Port Brèche
+Groupes et dépendances
+Version 1 • 19 octobre 2026 • Base de travail pour 60 joueurs
+Document de référence pour les organisateurs
+Ce dossier rassemble les groupes, leurs objectifs, leurs ressources et les relations qui les rendent
+interdépendants. Il intègre la concurrence des mafias, le commerce, le Comptoir impérial, les renégats et
+l’agent infiltré. Il permet de préparer les personnages et les besoins de GN Engine.
+Les secrets sont révélés dans cette version. Le canon officiel Star Wars, notre fiction locale et les
+paramètres restant à fixer sont distingués dans le texte. Le Livre du monde V1 reste la référence pour
+l’histoire du port.
+Sommaire
+Cadre et répartition des joueurs.........................................................................................................................................2
+Habitants et pouvoir impérial............................................................................................................................................3
+Les deux organisations criminelles...................................................................................................................................4
+Les trois équipages............................................................................................................................................................5
+Mercenaires et visiteurs.....................................................................................................................................................6
+Le Comptoir impérial de réquisition.................................................................................................................................7
+Les renégats et la cellule de résistance..............................................................................................................................8
+Infiltration et confiance.....................................................................................................................................................9
+Matrice des dépendances.................................................................................................................................................10
+Marchandises crédits et transport....................................................................................................................................11
+Scénarios et conséquences..............................................................................................................................................12
+Fonctions attendues de GN Engine.................................................................................................................................13
+Paramètres à fixer et préparation....................................................................................................................................14
+Sources et statut des informations...................................................................................................................................15
+<PARSED TEXT FOR PAGE: 2 / 15>
+PORT BRÈCHE | CANON DU JEU V1 | ORGANISATEURS
+
+
+
+Cadre et répartition des joueurs
+Le statut de cette référence
+Ce document fixe le socle narratif et les relations de départ du GN de Port-Brèche. Il complète le Livre du
+monde V1. Les groupes disposent de ressources incomplètes et doivent négocier pour agir. Leurs alliances
+peuvent évoluer : une dépendance initiale ne constitue jamais une obligation de fidélité jusqu’à la fin du
+jeu.
+Le terme « canon du jeu » désigne notre fiction de référence. Les éléments officiels de Star Wars sont
+identifiés par des appels de sources. Les personnages, le port, le conflit local et les dispositifs de jeu sont
+des créations originales. La répartition à soixante joueurs reste une base de casting ; les budgets, les noms
+propres et les règles chiffrées ne sont pas encore arrêtés.
+Le cadre commun
+Le GN se déroule à l’époque du début d’Andor, situé cinq ans avant Rogue One [1]. Port-Brèche est un
+astroport secondaire fictif d’Ord Mantell, planète montagneuse de la Bordure médiane [2–3]. Le commerce
+avec la Bordure extérieure appartient à notre histoire locale. Les bâtiments de bois viennent du passé minier
+et forestier du bourg ; les installations techniques ont été ajoutées progressivement.
+Le préfet administre le district portuaire, pas la planète. Une mafia locale contrôle une grande partie de la
+contrebande et le rémunère. Une délégation liée aux Pykes veut s’emparer des revenus du transit. Des
+mercenaires doivent déstabiliser le port. En parallèle, des renégats de l’Empire cherchent à se réunir pour
+saboter un ravitaillement impérial.
+Ensemble de départ                                          Joueurs    Référence
+Habitants et commerçants                                       12      HAB
+Préfet et administration impériale                              6      IMP
+Mafia locale                                                    8      LOC
+Délégation liée aux Pykes                                       5      PYK
+Trois équipages de six                                         18      EQ1 EQ2 EQ3
+Mercenaires                                                     5      MER
+Visiteurs indépendants                                          6      VIS
+Total                                                          60      12 + 6 + 8 + 5 + 18 + 5 + 6
+Les quatre renégats et l’infiltré occupent des places dans ces ensembles. Le Comptoir impérial est une
+institution du scénario : il ne crée aucun joueur supplémentaire. Les codes servent uniquement au travail
+des organisateurs.
+
+
+
+
+                                                                                                           Page 2
+<PARSED TEXT FOR PAGE: 3 / 15>
+PORT BRÈCHE | CANON DU JEU V1 | ORGANISATEURS
+
+
+
+Habitants et pouvoir impérial
+Les habitants et les commerçants
+Position publique. Les habitants tiennent les lieux qui permettent au port de travailler : entrepôts, atelier,
+comptoir marchand, établissement de soins, cantina et services d’information. Ils ne forment pas une
+faction unie. Certains veulent préserver les arrangements anciens ; d’autres espèrent profiter de l’arrivée
+des Pykes.
+Ressources et services. Ils apportent de la capacité de stockage, des réparations, des soins, des biens au
+détail, des contacts et une connaissance du terrain. La propriété d’un bâtiment ne signifie pas que son
+détenteur possède les marchandises qui y sont déposées. Les permissions d’accès et les contrats de location
+doivent le préciser.
+Dépendances. Ils ont besoin des cargaisons des équipages, des permis de la préfecture et de clients
+solvables. Leurs recettes peuvent dépendre des contrats du Comptoir impérial. Face aux attaques, ils
+cherchent une protection auprès de la mafia locale, des nouveaux venus ou de mercenaires. Une coalition
+d’habitants peut aussi acheter une escorte commune.
+Pouvoir de négociation. Un atelier choisit l’ordre des réparations ; un bailleur peut refuser une location
+future ; un commerçant peut réserver son stock à un partenaire. Ces décisions créent du jeu. Leur portée
+doit rester limitée par les contrats déjà conclus et par des solutions de remplacement.
+Crédits et fracture interne. L’argent sert à conserver un commerce, renouveler les stocks, payer une dette
+ou protéger un proche. La peur de perdre son activité peut pousser un habitant à soutenir l’Empire malgré
+ses convictions. Un employé d’entrepôt accueille l’une des identités secrètes de renégat.
+Le préfet et son administration
+Position publique. L’administration garantit l’ordre et perçoit les recettes du port. Le préfet contrôle les
+autorisations, les vérifications douanières, les saisies et une force armée limitée. Les fonctions de garde, de
+douane et de secrétariat seront réparties au sein des six places.
+Objectifs réels. Le préfet veut préserver sa fonction, enrichir ses réseaux et obtenir le meilleur arrangement
+dans le conflit des mafias. Il ferme les yeux sur certaines attaques tant qu’il pense pouvoir en tirer profit. Il
+doit cependant maintenir des recettes et éviter que sa hiérarchie découvre l’étendue de sa corruption.
+Dépendances. Il dépend des habitants pour faire fonctionner les installations, des équipages pour maintenir
+le trafic et des mafias pour ses revenus clandestins. Le Comptoir impérial fournit une activité à justifier
+auprès de ses supérieurs. Un arrêt des expéditions menace sa position.
+Limites et secrets. Sa cupidité ne fait pas de lui un opposant au régime. Il peut livrer un ancien partenaire
+pour protéger sa carrière. Ses agents ne partagent pas nécessairement tous ses arrangements. L’infiltré de
+l’Empire constitue une mission distincte : le préfet ne connaît pas automatiquement son identité ni ses
+rapports.
+
+
+
+
+                                                                                                           Page 3
+<PARSED TEXT FOR PAGE: 4 / 15>
+PORT BRÈCHE | CANON DU JEU V1 | ORGANISATEURS
+
+
+
+Les deux organisations criminelles
+La mafia locale
+Implantation. Cette organisation originale est installée dans les habitudes du port. Elle contrôle les
+intermédiaires de contrebande, prélève sa part, prête de l’argent et vend une protection. Son emprise passe
+par des personnes et des accords ; elle ne possède pas automatiquement tous les entrepôts.
+Objectif. Conserver le contrôle des transactions clandestines et empêcher les nouveaux venus de récupérer
+ses clients, ses créances et la future concession de transit. Elle veut apparaître comme la seule force capable
+de protéger les affaires locales.
+Ressources. Elle dispose d’un réseau de recel, de débouchés clandestins, de débiteurs et d’un arrangement
+avec le préfet. Son influence peut accélérer un passage ou faire oublier un contrôle. L’argent finance les
+paiements au préfet, les avances aux équipages et les représailles.
+Dépendances. Les équipages lui apportent les marchandises ; les habitants les stockent et les écoulent ; le
+préfet tolère les opérations. Le groupe ne peut sacrifier tous ses partenaires sans perdre ses revenus. Des
+mercenaires ou des chasseurs de primes peuvent renforcer sa capacité d’action.
+Fragilité. Ses bénéficiaires lui doivent des services, mais ses victimes peuvent changer de camp. La preuve
+d’un abandon, d’un racket excessif ou d’un marché conclu aux dépens des habitants peut briser sa
+légitimité. La résistance peut acheter ses services sans partager ses intérêts.
+La délégation liée aux Pykes
+Ancrage officiel. Le Syndicat Pyke contrôle des activités de trafic et emploie des contrebandiers ; le canon
+décrit également l’envoi de prisonniers condamnés par l’Empire dans ses exploitations de Kessel [4–5].
+L’opération à Port-Brèche, ses agents et son protecteur impérial sont propres au GN. Aucun personnage
+canonique célèbre ne dirige directement notre intrigue.
+Objectif. Prendre une position durable dans le transit et obtenir des contrats rentables. La délégation veut
+un port exploitable. Elle propose des avances, des débouchés et une protection, tout en finançant
+secrètement des attaques ciblées destinées à affaiblir ses concurrents.
+Ressources. Elle dispose d’un budget de mission, de contrats extérieurs et d’un contact lié à un responsable
+impérial régional. Cette entrée facilite certaines démarches ; elle ne vaut ni immunité générale ni ordre
+donné à tous les agents impériaux.
+Dépendances. Elle doit recruter des transporteurs, convaincre des propriétaires, obtenir une validation
+administrative et conserver des relais locaux. Les mercenaires exécutent la déstabilisation. Les accords avec
+les habitants doivent rendre son offre crédible.
+Fragilité. Une preuve de son rôle dans les attaques peut faire échouer ses négociations. Sa puissance
+extérieure ne donne pas accès à des crédits ou renforts illimités pendant la partie. Les moyens disponibles
+et les conditions d’une éventuelle aide seront fixés avant le jeu.
+Relation entre les mafias. Leur rivalité n’interdit ni un partage provisoire du trafic ni une alliance de
+circonstance face à une enquête impériale. Le préfet entretient leur concurrence, tandis que les
+commerçants cherchent à préserver leur autonomie.
+
+
+
+
+                                                                                                            Page 4
+<PARSED TEXT FOR PAGE: 5 / 15>
+PORT BRÈCHE | CANON DU JEU V1 | ORGANISATEURS
+
+
+
+Les trois équipages
+Les dix-huit joueurs disposent de trois groupes de six. Chaque équipage partage un vaisseau, une activité
+commerciale et des engagements communs. Les profils ci-dessous sont des propositions de différenciation
+pour le casting ; les noms, les classes et les caractéristiques des vaisseaux restent à créer.
+Équipage 1 transport et commerce
+Activité proposée. Un transporteur qui tire l’essentiel de ses revenus de contrats déclarés, tout en acceptant
+des arrangements lorsque les marges deviennent trop faibles. Il est bien placé pour desservir le Comptoir
+impérial et les commerces.
+Ce qu’il apporte. Capacité de fret, régularité, apparence de respectabilité et accès aux acheteurs
+institutionnels. Il peut fournir une couverture utile à un chargement plus discret.
+Ce dont il dépend. Commandes, avances, autorisations, carburant, atelier et stockage à l’arrivée. Ses
+concurrents peuvent lui acheter une place en soute. Il doit choisir entre un gros contrat impérial et des
+missions plus risquées mais mieux rémunérées.
+Équipage 2 contrebande
+Activité proposée. Un groupe habitué aux marchandises interdites, aux déclarations incomplètes et aux
+contrats qui se négocient à huis clos. La mafia locale constitue son partenaire habituel, sans posséder sa
+loyauté.
+Ce qu’il apporte. Expérience des passages discrets, contacts clandestins et capacité à transporter des biens
+ou des personnes compromettantes. Les Pykes peuvent essayer de l’attirer avec une avance ou un meilleur
+débouché.
+Ce dont il dépend. Informations sur les contrôles, entrepôts accessibles, liquidités et protection en cas de
+saisie. Sa rentabilité peut disparaître lorsqu’un intermédiaire augmente sa commission ou qu’un chargement
+reste bloqué.
+Équipage 3 piraterie et escorte
+Activité proposée. Un équipage qui vend sa force, protège certains transports et en intercepte d’autres. Ses
+clients apprécient son efficacité tout en craignant qu’il ne change de contrat.
+Ce qu’il apporte. Escorte spatiale, capacité d’interception et récupération de marchandises. Il peut faire
+pencher une confrontation sans contrôler lui-même toute la chaîne commerciale.
+Ce dont il dépend. Renseignements sur les routes, pièces, réparations, carburant et receleurs pour les
+cargaisons volées. Une attaque sans acheteur ni possibilité de réparer peut coûter davantage qu’elle ne
+rapporte.
+Des intérêts communs et des loyautés privées
+La trésorerie du vaisseau est distincte des crédits personnels. Le groupe doit savoir qui peut engager une
+dépense et qui valide un transport. Une cargaison en transit ne peut pas être revendue comme si elle se
+trouvait encore au marché local.
+Un mécanicien d’équipage est un renégat de l’Empire. L’affectation précise de ce rôle, comme la
+couverture de l’infiltré, reste à fixer. Les équipages négocient pour le fret et les débouchés ; leurs membres
+peuvent entretenir des relations secrètes avec des adversaires de leur propre groupe.
+
+
+
+
+                                                                                                            Page 5
+<PARSED TEXT FOR PAGE: 6 / 15>
+PORT BRÈCHE | CANON DU JEU V1 | ORGANISATEURS
+
+
+
+Mercenaires et visiteurs
+Les mercenaires
+Situation initiale. Les cinq mercenaires arrivent avec une mission de déstabilisation financée par la
+délégation liée aux Pykes. Le lien avec le commanditaire n’est pas public. Qui, dans le groupe, connaît son
+identité exacte sera précisé dans les fiches individuelles.
+Objectif. Obtenir leur paiement, remplir les clauses convenues et conserver une possibilité de départ. Les
+attaques visent des activités utiles à la mafia locale : un transfert de marchandises, un atelier partenaire ou
+une protection promise. Leur fonction ne se réduit pas à tirer sur tous les personnages rencontrés.
+Ressources. Ils apportent une force armée mobile, des capacités de protection et des moyens de sabotage
+de jeu. Le contrat initial prévoit des cibles et des limites ; son montant et son calendrier restent à définir.
+Dépendances. Ils ont besoin de renseignements locaux, de soins, d’équipement, d’un accès aux cibles et
+d’un payeur solvable. Un équipage peut les transporter ou garantir leur départ. Les habitants peuvent leur
+vendre des services sans connaître la mission réelle.
+Conflit interne. L’un d’eux est un déserteur qui cherche les autres renégats. Ses objectifs peuvent entrer en
+conflit avec le contrat du groupe. Les mercenaires peuvent être retournés, mais une nouvelle offre doit tenir
+compte des obligations déjà prises et des preuves que détient leur premier employeur.
+Les visiteurs indépendants
+Situation initiale. Les six visiteurs sont des individus aux intérêts distincts, pas une faction supplémentaire.
+Le casting réunira des chasseurs de primes, des fugitifs, des criminels, des intermédiaires ou des personnes
+cherchant un passage. Les proportions exactes restent ouvertes.
+Ressources. Ils apportent des mandats, des informations, des contacts extérieurs, des objets recherchés ou
+des compétences utiles. Un indépendant doit posséder un levier qui lui donne une place dans les affaires de
+la ville, même sans vaisseau ni entrepôt.
+Dépendances. Les chasseurs de primes ont besoin de renseignements, d’une preuve de capture et d’un
+commanditaire capable de payer. Les fugitifs cherchent un abri, de faux appuis et un transport. Les
+intermédiaires dépendent de la confiance et de la confidentialité de leurs sources.
+Crédits et choix. L’argent peut acheter un départ, solder une dette ou permettre de refuser une mission. Un
+personnage poursuivi n’est pas obligé de devenir résistant ; un chasseur de primes peut renoncer à un
+contrat si son enquête change son jugement.
+Lien secret fixé. Un visiteur est l’ancien auxiliaire des communications qui doit rejoindre la cellule. Un
+autre visiteur peut accueillir la couverture de l’infiltré, si cette affectation est retenue lors du casting. Cela
+ne modifie pas les six places disponibles.
+
+
+
+
+                                                                                                              Page 6
+<PARSED TEXT FOR PAGE: 7 / 15>
+PORT BRÈCHE | CANON DU JEU V1 | ORGANISATEURS
+
+
+
+Le Comptoir impérial de réquisition
+Une institution au centre des dépendances
+Le Comptoir est une entreprise fictive propre au GN. Il achète, entrepose et expédie des fournitures pour
+des installations impériales. Son activité donne du travail aux transporteurs, aux bailleurs d’entrepôts et aux
+ateliers. Ses commandes alimentent une partie de l’économie légale et offrent des occasions de
+détournement.
+Il ne constitue pas un groupe de joueurs supplémentaire. Ses fonctions locales seront portées par certains
+personnages déjà comptés parmi l’administration ou les habitants ; ses acheteurs extérieurs pourront être
+simulés par l’organisation. La liste exacte de ces attributions reste à établir.
+Ce que les groupes lui apportent
+La préfecture fournit autorisations, contrôles et protection officielle. Les habitants apportent des espaces de
+stockage et des services. Les équipages assurent le fret. Les mafias cherchent à capter des contrats,
+détourner des marchandises ou faire payer un accès. Les indépendants peuvent être recrutés pour surveiller
+une livraison ou enquêter sur une perte.
+En retour, le Comptoir apporte des commandes, des revenus et des informations sur les mouvements de
+marchandises. Ces avantages doivent être distribués entre plusieurs interlocuteurs afin qu’un seul
+personnage ne puisse pas ouvrir ou fermer toute l’activité à sa guise.
+La cible de la résistance
+Un prochain convoi doit ravitailler une opération impériale de répression. Cette destination appartient à
+notre scénario et sera révélée par des documents accessibles en jeu. Au départ, une partie des employés et
+des transporteurs ignore la finalité du convoi.
+La cellule doit empêcher l’expédition dans les délais. L’opération demande de repérer le bon convoi,
+d’obtenir un accès, de réunir un équipement de jeu, puis d’agir sur une installation pendant une fenêtre
+déterminée. La défense peut découvrir la préparation, intervenir ou organiser une réparation.
+Les installations majeures et les pistes restent dans la fiction hors des espaces accessibles du site. Un point
+de contrôle, un local technique ou un terminal représenté à Western City permet de jouer l’intervention.
+L’action repose sur un objet de jeu, des autorisations et le changement d’état de l’installation.
+Une réussite qui divise la ville
+Un convoi retardé peut empêcher l’approvisionnement ciblé tout en immobilisant les stocks de
+commerçants locaux. Le préfet cherche un responsable ; les réparateurs reçoivent de nouvelles
+commandes ; les mafias tentent de récupérer les lots bloqués. Les Pykes peuvent présenter la panne comme
+une preuve de l’incapacité des autorités locales.
+La destruction générale du port ne constitue pas l’objectif. L’effet exact, la durée d’indisponibilité, les
+moyens de remise en service et la condition de réussite seront définis avant la partie. Les conséquences
+doivent pouvoir être comprises à partir des actions réalisées.
+
+
+
+
+                                                                                                           Page 7
+<PARSED TEXT FOR PAGE: 8 / 15>
+PORT BRÈCHE | CANON DU JEU V1 | ORGANISATEURS
+
+
+
+Les renégats et la cellule de résistance
+Quatre identités dispersées
+Les quatre renégats sincères ont servi l’Empire ou travaillé pour lui. Ils arrivent sous couverture et ne se
+connaissent pas entre eux. Chacun a reçu un message d’un intermédiaire qui promettait de les réunir à Port-
+Brèche. Celui-ci a disparu avant leur rencontre ; son sort reste à écrire.
+Couverture de départ             Passé secret                        Contribution attendue
+Mécanicien d’un équipage         Technicien impérial                 Comprendre les systèmes de la cible
+Employé d’un entrepôt            Gestionnaire de convois             Identifier stocks et départs
+Mercenaire                       Déserteur d’une unité impériale     Reconnaissance, protection, diversion
+Visiteur en quête de passage     Auxiliaire des communications       Exploiter le dossier du contact
+Ces compétences facilitent l’opération sans créer quatre clés uniques irremplaçables. Une compétence
+manquante peut être obtenue auprès d’un autre personnage, au prix d’argent, de temps ou d’une
+information à révéler.
+Se retrouver avant de pouvoir agir
+Le protocole de reconnaissance associe une phrase de contact, des fragments complémentaires d’un
+message et une vérification concrète. Une réponse correcte ouvre une conversation ; elle ne prouve pas une
+loyauté. Les fragments exacts seront rédigés lors de la création des fiches.
+Le protocole a été partiellement compromis. L’infiltré possède assez d’éléments pour approcher le réseau.
+Plusieurs chemins de rencontre seront prévus : conversation, message déposé, document retrouvé ou relais
+payé. Un rendez-vous manqué ne doit pas condamner l’intrigue.
+La cellule se forme par les décisions des personnages : mettre en commun des informations, choisir une
+cible et se répartir les tâches. L’application n’affiche pas un badge qui certifierait automatiquement les
+membres authentiques.
+Ce dont la cellule dépend
+Elle a besoin d’un lieu discret, de crédits, d’informations sur le convoi, d’accès au Comptoir, d’équipement
+et d’un moyen de protéger son intervention. Les habitants peuvent la cacher ; les équipages transporter un
+matériel ; les mafias vendre un accès ; les mercenaires détourner l’attention. Aucun de ces partenaires n’est
+obligé d’adhérer à sa cause.
+Le groupe décide qui connaît le lieu de réunion, qui conserve les fonds, qui reçoit les codes et qui apprend
+la date d’action. Les secrets sont partagés volontairement. Les rôles publics continuent de produire leurs
+propres besoins : payer un atelier ou remplir un contrat peut retarder la préparation clandestine.
+Des motifs qui peuvent diverger
+La vengeance, la culpabilité, la protection d’un proche et le refus du régime donnent des raisons différentes
+de résister. La cellule devra choisir combien elle accepte de coûter aux habitants pour empêcher le convoi.
+Sa réussite ne vaut pas automatiquement victoire de la mafia locale ou victoire contre les Pykes.
+
+
+
+
+                                                                                                             Page 8
+<PARSED TEXT FOR PAGE: 9 / 15>
+PORT BRÈCHE | CANON DU JEU V1 | ORGANISATEURS
+
+
+
+Infiltration et confiance
+Un cinquième personnage lié au réseau
+L’agent impérial infiltré occupe une place existante parmi les équipages ou les visiteurs ; son affectation
+finale reste ouverte. Il se présente comme un candidat crédible à la résistance. Sa couverture précise, son
+commanditaire et ses moyens de communication seront écrits dans sa fiche, sans ajouter une faction
+publique.
+Sa mission consiste à identifier les renégats, découvrir leurs soutiens et réunir des preuves utilisables. Une
+arrestation immédiate du premier suspect n’accomplit qu’une partie de l’objectif. L’agent a donc intérêt à
+se rendre utile et à laisser le réseau se développer assez longtemps pour observer ses relations.
+Une aide qui peut être sincèrement utile
+L’infiltré peut fournir une information exacte, participer à un achat ou faciliter une première démarche. Il
+engage alors une partie de ses moyens et risque sa couverture. Il ne dispose pas d’une immunité narrative :
+les autres joueurs peuvent le démasquer, lui retirer des accès ou tenter de le retourner.
+Le préfet ne reçoit pas automatiquement ses découvertes. Une transmission doit se produire dans la fiction.
+Les rapports peuvent aussi révéler la corruption locale et rendre l’agent gênant pour des Impériaux qui
+poursuivent leurs propres intérêts.
+Des indices accessibles aux joueurs
+La préparation des fiches prévoira au moins deux voies indépendantes d’enquête. Une contradiction dans
+un registre peut fragiliser la couverture ; une communication peut révéler un contact ; un paiement peut
+conduire à un intermédiaire impérial. Les indices doivent être disponibles par des actions jouables et se
+corroborer.
+Les renégats sincères possèdent également des zones d’ombre. Leur passé explique des silences ou des
+mensonges, sans transformer toute hésitation en preuve de trahison. Les informations connues des
+organisateurs ne sont jamais des preuves que les personnages peuvent invoquer en jeu.
+Des conséquences sans exclusion automatique
+Si l’agent est découvert, il peut devenir une monnaie d’échange, une source d’information, un fugitif ou un
+prisonnier. Si la cellule est découverte, ses soutiens peuvent négocier, dissimuler des documents, organiser
+une extraction ou poursuivre une version réduite de l’opération.
+Les modalités de détention, de libération, de blessure et de retour en jeu restent à définir avec les règles de
+combat. Une révélation doit ouvrir une nouvelle situation ; elle ne doit pas laisser plusieurs joueurs sans
+activité pour le reste de la partie.
+Ce que les organisateurs gardent séparé
+Le registre MJ connaît les identités secrètes. Les fiches de groupe ne connaissent que les informations
+prévues pour leurs membres. Les dossiers individuels précisent les fragments reçus et les mensonges de
+couverture. Les canaux et permissions de l’application doivent respecter cette séparation.
+
+
+
+
+                                                                                                           Page 9
+<PARSED TEXT FOR PAGE: 10 / 15>
+PORT BRÈCHE | CANON DU JEU V1 | ORGANISATEURS
+
+
+
+Matrice des dépendances
+Cette matrice résume les échanges à préparer. Les leviers indiquent ce qui peut être négocié ou contesté ; ils
+ne donnent pas un droit automatique de confisquer le bien d’un autre joueur. Les modalités seront portées
+par les contrats, permissions et règles d’action.
+Demandeur       Interlocuteur               Besoin principal                 Levier ou contrepartie
+Habitants       Équipages                   Stocks et débouchés              Commandes, loyers, services
+Habitants       Préfecture                  Permis et protection             Taxes, informations, appuis
+Habitants       Mafias ou mercenaires       Sécurité des affaires            Paiement, fidélité, accès
+Préfet          Habitants et équipages      Activité et recettes             Autorisations, inspections
+Mafia locale    Préfet                      Tolérance de la fraude           Pots-de-vin, renseignements
+Mafia locale    Équipages et habitants      Fret, stockage, revente          Avances, protection, débouchés
+Pykes           Préfet et propriétaires     Implantation et concession       Contrats, financement, influence
+Pykes           Mercenaires                 Déstabilisation ciblée           Paiement, informations sur cibles
+Équipages       Ateliers et bailleurs       Réparation, stockage             Crédits, transport de biens
+Pirates         Informateurs et receleurs   Cibles et revente du butin       Part du gain, protection
+Mercenaires     Payeurs et habitants        Contrats, soins, équipement      Force, escorte, renseignement
+Visiteurs       Habitants et équipages      Informations, abri, passage      Primes, secrets, compétences
+                Préfecture, habitants,
+Comptoir                                    Contrôle, stockage, expédition   Commandes et paiements
+                équipages
+                Membres et alliés           Accès, fonds, matériel,
+Résistance                                                                   Services, secrets, engagements
+                extérieurs                  diversion
+                Réseau clandestin et
+Infiltré                                    Confiance et transmission        Aide, couverture, preuves
+                contact impérial
+
+Les relations qui font basculer le port
+Le préfet et la mafia locale se protègent tout en détenant des moyens de pression réciproques. Les Pykes
+cherchent à acheter les dépendances déjà construites : une dette, un bail ou un contrat peut compter
+davantage qu’une victoire dans la rue.
+Les habitants peuvent agir collectivement et les équipages changer de débouché. La résistance doit
+composer avec ces intérêts ; elle ne commande pas aux autres groupes au nom d’un objectif supérieur. Un
+conflit économique, une poursuite individuelle et une opération clandestine peuvent se croiser sans partager
+la même issue.
+Toute ressource indispensable doit posséder une solution de remplacement, même plus coûteuse ou plus
+lente. Les dépendances créent des choix ; elles ne doivent pas donner à un seul refus le pouvoir d’arrêter
+toute la partie.
+
+
+
+
+                                                                                                              Page 10
+<PARSED TEXT FOR PAGE: 11 / 15>
+PORT BRÈCHE | CANON DU JEU V1 | ORGANISATEURS
+
+
+
+Marchandises crédits et transport
+Une économie qui produit des missions
+Le crédit est recherché pour des raisons différentes : financer un départ, maintenir un commerce, payer une
+protection, entretenir un vaisseau ou acheter les moyens d’un sabotage. Le succès d’un personnage ne se
+résume pas à son solde final. Ses objectifs personnels peuvent justifier une perte financière.
+Les commandes extérieures simulées injectent des crédits en échange de livraisons réelles dans le système
+de jeu. Les fournisseurs extérieurs proposent des stocks limités. Les loyers, salaires et commissions versés
+entre joueurs font circuler l’argent ; certaines dépenses vers l’extérieur, comme l’achat de carburant, le
+retirent de l’économie locale.
+Le gros et le détail
+Le commerce de gros porte sur des lots ou des caisses. Le commerce au détail porte sur des unités et des
+services : fournitures médicales, injecteurs, antidotes, pièces, équipements ou consommables à effets
+définis. Les améliorations de vaisseau associent une pièce, une prestation et un paiement.
+Une caisse physique identifiée peut représenter plusieurs unités virtuelles. Son ouverture pour la vente au
+détail transforme le stock existant ; elle ne crée pas un inventaire supplémentaire. Le propriétaire, le
+détenteur, le lieu et les droits d’accès doivent rester distingués.
+Acheter ne déplace pas une caisse
+Une transaction peut transférer la propriété à distance alors que les biens restent dans leur entrepôt. Leur
+récupération demande un accès et un déplacement. Une cargaison embarquée est en transit ; une saisie la
+rend indisponible ; une réserve commerciale empêche qu’une même quantité soit vendue deux fois.
+Le transport engage une soute, du carburant, du temps et de l’entretien. Le stockage engage une capacité
+louée. Le passage déclaré, le passage clandestin et la corruption constituent des stratégies différentes. Les
+coûts, les risques et les effets de chaque option seront paramétrés avant la partie.
+Cours et négociation
+Le cours donne un prix de référence ; le vendeur fixe son offre. Les joueurs peuvent proposer un prix,
+répondre et conclure un accord. Une transaction acceptée conserve les conditions convenues même si le
+cours évolue ensuite.
+Les événements modifient des besoins ou des disponibilités : un lot intercepté crée une pénurie, une série
+d’avaries stimule la demande de pièces, une inspection immobilise du fret. Les variations doivent être
+annoncées et explicables. Les amplitudes, fréquences et plafonds restent à équilibrer.
+Les vaisseaux et les interceptions
+Le combat spatial est résolu virtuellement à partir des caractéristiques, des choix de route et de conduite, de
+l’escorte et d’une part de hasard limitée. Une interception demande un renseignement sur le voyage. Les
+conséquences possibles sont le retard, l’avarie, la perte partielle de fret ou une rançon ; la destruction
+définitive n’est pas une conséquence ordinaire.
+Le mode de voyage qui permet aux joueurs de rester actifs sur le site reste à fixer. Une option est de confier
+certaines rotations à un pilote auxiliaire ou à un droïde. Aucun barème ni algorithme de combat n’est arrêté
+dans cette V1.
+
+
+
+
+                                                                                                         Page 11
+<PARSED TEXT FOR PAGE: 12 / 15>
+PORT BRÈCHE | CANON DU JEU V1 | ORGANISATEURS
+
+
+
+Scénarios et conséquences
+La concession de Port Brèche
+Une concession importante de transit arrive à échéance. Son périmètre porte sur des droits et contrats
+portuaires ; elle ne transfère pas automatiquement la propriété de toutes les maisons ni le gouvernement de
+la planète. La portée exacte de la concession et ses conditions d’attribution restent à rédiger.
+La mafia locale veut préserver son emprise. Les Pykes veulent obtenir des contrats et des appuis qui
+rendent leur implantation durable. Le préfet négocie son soutien. Les habitants peuvent défendre une
+solution collective et les équipages soutenir l’acteur qui sert leurs intérêts.
+Une progression ouverte
+Les affaires. Des commandes donnent aux équipages des raisons d’investir. Les habitants louent, vendent
+et réparent. Les renégats commencent à se chercher. Les nouveaux venus proposent leurs premiers accords.
+La déstabilisation. Les mercenaires exécutent ou renégocient leurs contrats. Des livraisons sont menacées
+et les premières représailles créent des dettes. Des traces permettent d’enquêter sur les commanditaires. Les
+événements effectifs dépendent des décisions prises.
+Les engagements. Les offres de protection, les loyers, les prêts et les contrats rendent certains
+changements de camp plus coûteux. La cellule prépare son opération. L’infiltré cherche à élargir sa
+connaissance du réseau sans perdre sa couverture.
+Le basculement. Le convoi impérial, la concession et les preuves compromettantes deviennent des enjeux
+convergents. Les organisateurs résolvent leurs conséquences à partir de l’état réel des accords, des stocks et
+des actions. Aucun vainqueur n’est imposé à l’avance.
+Des confrontations avec un objectif précis
+Un combat au gel blaster peut protéger un transfert, reprendre une caisse, libérer un prisonnier, empêcher
+un embarquement ou sécuriser une réparation. La victoire doit produire un effet identifiable et limité. Le
+contrôle d’un lieu ne vaut pas, à lui seul, possession permanente de tous ses biens.
+Les situations d’échec ouvrent des recours : emprunter, céder un contrat, négocier une restitution, chercher
+une autre route ou vendre un renseignement. Les modalités de combat et de prise d’objectifs seront écrites
+séparément.
+Des issues qui peuvent se combiner
+La mafia locale peut conserver les affaires tout en perdant le préfet. Les Pykes peuvent remporter la
+concession mais échouer à empêcher le sabotage. Une coalition d’habitants peut gagner une autonomie
+limitée. L’Empire peut découvrir la cellule sans identifier tous ses soutiens.
+Le bilan doit donc distinguer le pouvoir économique, le maintien du trafic, le sort du convoi et les objectifs
+personnels. L’enrichissement d’un groupe, l’arrestation d’un agent ou la panne d’un terminal ne décide pas
+automatiquement de tous les résultats.
+
+
+
+
+                                                                                                        Page 12
+<PARSED TEXT FOR PAGE: 13 / 15>
+PORT BRÈCHE | CANON DU JEU V1 | ORGANISATEURS
+
+
+
+Fonctions attendues de GN Engine
+Ces besoins sont déduits du scénario. Ils décrivent les fonctions à prévoir et ne constituent pas un constat de
+leur disponibilité actuelle dans le moteur. Les noms de groupes et de marchandises doivent rester
+configurables pour d’autres univers.
+Fonction                  Besoin du GN
+Personnages et groupes    Groupe public, liens individuels, appartenance secrète
+Crédits                   Portefeuille personnel, caisse commune, droits de dépense
+Marché                    Annonces, stocks, offres, contre-offres, acceptation et réservation
+Inventaire                Propriétaire, détenteur, quantité, lieu et disponibilité
+Entrepôts                 Capacité, location, durée, permissions et éventuelles saisies
+Contrats                  Parties, objet, montant, échéance, condition de validation
+Transport                 Vaisseau, capacité, route, cargaison, coûts et état du voyage
+Interception              Information requise, décisions, résolution et conséquences
+Objets et installations   QR identifié, état, accès, sabotage, réparation
+Informations              Documents partagés, messages privés, révélations ciblées
+Pilotage MJ               Stocks extérieurs, commandes, événements, cours et historique
+
+Des opérations cohérentes
+Un achat réserve la quantité disponible et les crédits nécessaires avant de valider le transfert. Le système
+doit empêcher une double vente, une double dépense ou la duplication d’une caisse physique et de son
+contenu virtuel. Une annulation rend les ressources réservées selon les conditions prévues.
+Un contrat exécuté met à jour les paiements, les biens et les disponibilités correspondants. Les taxes
+officielles, les paiements clandestins et les locations ne suivent pas forcément la même destination
+comptable. Le MJ doit pouvoir retrouver ce qui s’est produit et corriger une erreur sans effacer son
+historique.
+Des informations selon le rôle
+Les joueurs voient uniquement les documents, comptes et ressources auxquels ils ont accès. Le groupe
+public ne révèle pas les renégats. Un canal clandestin ne s’ouvre pas automatiquement à tous les
+personnages qui possèdent une étiquette secrète : les joueurs doivent d’abord se trouver et décider de leurs
+partages.
+Les commandes importantes demandent un retour clair : achat conclu, stock réservé, départ confirmé,
+contrôle bloquant ou réparation terminée. Les négociations et décisions restent jouables entre personnes ;
+l’application conserve leurs effets utiles.
+Un ordre de construction lié aux dépendances
+Les comptes, les inventaires localisés, les groupes et les contrats constituent la base. Le marché et les
+entrepôts s’appuient dessus ; les transports réutilisent ces stocks ; les interceptions modifient ensuite le
+même fret. Les secrets, les permissions et les états de sabotage doivent être pensés dès cette base pour
+éviter une révélation accidentelle des identités.
+
+
+
+
+                                                                                                          Page 13
+<PARSED TEXT FOR PAGE: 14 / 15>
+PORT BRÈCHE | CANON DU JEU V1 | ORGANISATEURS
+
+
+
+Paramètres à fixer et préparation
+Ce qui constitue le socle de la V1
+Le port marchand, le préfet corrompu, la mafia locale, l’offensive liée aux Pykes et les mercenaires
+déstabilisateurs forment le conflit public. Les habitants et équipages peuvent choisir leurs partenaires. Le
+crédit soutient les échanges, mais les objectifs personnels conservent leur importance.
+Quatre renégats dispersés doivent se reconnaître et former une cellule. Un infiltré impérial cherche à les
+identifier. Le Comptoir impérial et son convoi constituent leur cible. Les identités clandestines se
+superposent au casting public ; elles n’ajoutent pas de participants.
+La possession des biens, leur localisation et leur disponibilité sont distinctes. Le commerce de gros et de
+détail partage un même stock. Les combats au sol sont physiques ; les affrontements de vaisseaux sont
+virtuels. Les résultats du conflit restent ouverts.
+Ce qui demeure à décider
+Sujet                     Décision à préparer
+Format                    Durée du GN, rythmes des arrivées et temps forts
+Casting                   Répartition finale, noms, couvertures et responsables des services
+Secrets                   Affectation de l’infiltré, fragments de contact et preuves
+Concession                Droits concernés, procédure et conditions de résultat
+Économie                  Crédits initiaux, stocks, prix, frais, dettes et rémunérations
+Contrats                  Quantités, délais, validation, pénalités et garanties
+Opération clandestine     Conditions d’accès, effet, durée et remise en service
+Combats                   Blessures, capture, détention, restitution et retour en jeu
+Vaisseaux                 Statistiques, coûts, temps de trajet et formule de résolution
+
+Les pièces à produire ensuite
+Chaque fiche de groupe doit préciser ses ressources initiales, ses engagements, ses besoins et les
+informations connues de tous ses membres. Chaque personnage doit disposer d’une activité, d’une raison
+de chercher des crédits, d’une relation déterminante et d’un objectif qui peut entrer en tension avec celui de
+son groupe.
+Le dossier MJ devra ensuite réunir l’état initial des stocks, les contrats de départ, les chaînes d’indices, les
+conditions d’action et les conséquences économiques. Chaque étape indispensable recevra un recours en
+cas d’absence, de refus ou d’échec. Les budgets et délais seront testés ensemble, sur la durée de partie
+retenue.
+Les documents destinés aux joueurs seront extraits selon leurs connaissances. Ce dossier ne doit pas être
+distribué intégralement : il contient les secrets des différents camps et les éléments de résolution des
+intrigues.
+
+
+
+
+                                                                                                           Page 14
+<PARSED TEXT FOR PAGE: 15 / 15>
+PORT BRÈCHE | CANON DU JEU V1 | ORGANISATEURS
+
+
+
+Sources et statut des informations
+Le cadre officiel de Star Wars
+Les références suivantes sont des publications officielles. Elles étayent uniquement les faits galactiques
+auxquels renvoient les appels de sources. Consultation le 19 octobre 2026. Les notices sans date de
+publication sont signalées comme non datées.
+[1] Époque d’Andor. Équipe StarWars.com, « Andor Is Here! », 21 septembre 2022. Le récit commence
+cinq ans avant les événements de Rogue One.
+https://www.starwars.com/news/andor-is-here
+
+[2] Géographie galactique. Lucasfilm et DK, « The Star Wars Galaxy », carte officielle accompagnant
+Star Wars Timelines, page non datée. La carte situe Ord Mantell dans la Bordure médiane.
+https://www.starwars.com/star-wars-galaxy-map
+
+[3] Ord Mantell. Lucasfilm, Star Wars Databank, « Ord Mantell », non daté. Monde montagneux, passé lié
+au Soleil Noir et difficultés des habitants sous l’Empire. Cette notice n’atteste pas l’existence de Port-
+Brèche.
+https://www.starwars.com/databank/ord-mantell
+
+[4] Syndicat Pyke. Lucasfilm, Star Wars Databank, « Pyke Syndicate », non daté. Contrôle d’activités liées
+à l’épice et recours à des contrebandiers pour transporter des cargaisons.
+https://www.starwars.com/databank/pyke-syndicate
+
+[5] Relations avec l’Empire. Lucasfilm, Star Wars Databank, « Kessel », non daté. L’Empire condamne
+des prisonniers au travail forcé pour les Pykes. Ce fait étaye une relation concrète ; il ne prouve pas une
+alliance générale ni l’existence de notre protecteur régional.
+https://www.starwars.com/databank/kessel
+
+Les sources internes du GN
+Livre du monde. Port Brèche — Livre du monde V1, 19 octobre 2026, fichier
+Port_Breche_Livre_du_monde_V1.docx. Référence pour le décor, l’histoire locale, les bâtiments de bois,
+le préfet et la vie commerciale. Le présent document développe les groupes et les intrigues annoncés dans
+ce livre.
+Décisions de conception. Échanges de création avec Guilz : conflit des mafias, marché numérique, coûts
+de stockage et de transport, combats au sol, vaisseaux, puis renégats dispersés et infiltré impérial. Ce sont
+les sources de notre fiction et de nos intentions de jeu ; elles ne sont pas des publications canoniques de
+Lucasfilm.
+Les ajouts de structuration
+Les profils proposés pour les trois équipages, l’attribution détaillée des postes et les paramètres recensés en
+page précédente ne sont pas présentés comme déjà testés. Ils constituent les éléments à développer à partir
+du socle retenu. Aucune valeur d’équilibrage ni disponibilité technique du moteur n’est déduite sans
+vérification.
+
+
+
+
+                                                                                                         Page 15

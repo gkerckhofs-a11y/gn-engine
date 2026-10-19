@@ -1,0 +1,40 @@
+# Suivi de réalisation
+
+19 octobre 2026. Aucun lot complet n'est encore validé. Le découpage reprend le cahier des charges ; il ne réduit pas son périmètre.
+
+| Lot | Parcours à livrer | Passage de lot |
+|---|---|---|
+| A — Fondations | Connexion, scénario versionné, session, formulaire public, liste d'attente, attribution et révocation, groupes et permissions, éditeur | REC-01 ; accès croisés et dernière place testés |
+| B — Terrain | Navigation mobile, connaissances et relations, compétences, QR, PV, états et inventaire localisé | REC-04/05/07 ; coûts et résultats uniques |
+| C — Économie | Caisses, paiements, marché/offres, annonces MJ, candidatures privées, contrats, entrepôts, douanes, cours | REC-02/03/10 pour la partie économique ; concurrence et réservations testées |
+| D — Vaisseaux | Départs, routes, carburant, fret, entretien, interception et conséquences | REC-02/06 complets ; aucune duplication de lot |
+| E — Exploitation | Import/export, packs, diagnostics, sauvegarde/restauration, secours et documentation | REC-08/09, tous les REC-01 à 10 et charge 60/120 |
+
+Les contrôles d'accès et la traçabilité sont requis dès A. Les imports et outils de secours arrivent progressivement. Votes, casino, billetterie réelle et progression restent facultatifs. Les petites annonces ne le sont pas.
+
+## Préparation réalisée
+
+- Cahier V1 conservé, texte consultable, matrice de 132 exigences.
+- Canon Port-Brèche retrouvé et lu ; aucune nouvelle valeur d'équilibrage inventée.
+- Source V0.1 conservée pour reprise des écrans et règles de terrain.
+- Audit des écarts et architecture de migration.
+- Noyau initial : horloge de jeu, projections, transfert atomique ; 16 tests locaux.
+- Projet Firebase identifié dans `.firebaserc` ; règles fermées préparées mais non déployées.
+
+## Intégration encore à réaliser
+
+1. Configurer l'application web Firebase, Authentication, Firestore, Storage, Functions et Hosting avec des choix d'emplacement documentés.
+2. Brancher la vérification des jetons et la lecture des droits au noyau ; tester l'adaptateur et les règles dans Emulator Suite.
+3. Construire les interfaces et services du lot A ; reprendre les composants du prototype après adaptation.
+4. Étendre les commandes et l'éditeur jusqu'au lot E, avec une preuve de recette par exigence.
+5. Configurer le déploiement GitHub vers Firebase avec des droits limités, puis publier et vérifier. Aucun jeton ni délégation de déploiement n'existe dans ce dépôt à ce stade.
+
+## Données Port-Brèche à finaliser
+
+La répartition de référence est de 60 places : HAB 12, IMP 6, LOC 8, PYK 5, EQ1/EQ2/EQ3 6 chacun, MER 5, VIS 6. Habitants et visiteurs sont des ensembles de casting, pas nécessairement des groupes de jeu solidaires. Le Comptoir n'ajoute pas de joueur. Les quatre renégats et l'infiltré occupent des places existantes.
+
+Le canon laisse ouverts : durée, noms et affectations finales, couverture de l'infiltré, fragments et preuves, droits de la concession, crédits/stocks/prix, contrats, conditions de sabotage et de remise en service, règles de capture/détention et caractéristiques/formule des vaisseaux. Ces choix n'empêchent pas de développer le moteur paramétrable ; ils empêchent de certifier une configuration Port-Brèche prête à jouer.
+
+## Critères de mise en service
+
+Ne pas présenter le noyau ou la V0.1 comme une réalisation complète. Exiger une recette sur des comptes de rôles distincts, des demandes concurrentes, les fichiers privés et le fonctionnement après incident. Mesurer 60 puis 120 utilisateurs et documenter le réseau : les objectifs de 2 s pour 95 % des confirmations et 5 s de propagation restent à démontrer. Vérifier le pack papier et une restauration isolée avant l'événement réel.
