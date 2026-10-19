@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
+import {waitForPublishedVersion} from './deployment-checks.mjs';
 
 const origin='https://gn-engine.web.app';
 // Le premier raccordement Hosting -> Cloud Run peut répondre brièvement 404.
@@ -24,9 +25,7 @@ const page=await waitForAvailability(origin);
 assert.equal(page.status,200,'Le site doit répondre HTTP 200');
 assert.match(await page.text(),/GN Engine/,'La page GN Engine doit être publiée');
 const expected=JSON.parse(await readFile(new URL('../package.json',import.meta.url))).version;
-const version=await waitForAvailability(`${origin}/version.json?release=${encodeURIComponent(expected)}`);
-assert.equal(version.status,200,'Le manifeste de version doit être accessible');
-assert.equal((await version.json()).version,expected,'Hosting doit servir la version demandée');
+await waitForPublishedVersion({origin,expected,onPending:({attempt,observed})=>console.log(`Manifeste ${observed??'indisponible'} ; attente de ${expected}, tentative ${attempt}/12.`)});
 
 for(const action of ['dashboard','myNotes','noteDetail','shareNote','prepareAbilityProfile','setAbilityProfile','abilityHistory','myHealth','prepareDamage','applyDamage','prepareTreatment','applyTreatment','correctHealth','healthHistory','myInventory','previewInventory','saveItem','saveSessionItem','prepareStartingInventory','setStartingInventory','prepareGrantItem','grantItem','correctLot','itemHistory']){
   const api=await waitForAvailability(`${origin}/api/check`,{
