@@ -4,6 +4,7 @@ import {publicCharacter, participantCharacter} from './projections.mjs';
 import {createClock, pauseClock, resumeClock, gameTime} from './clock.mjs';
 import {staffPath,staffEmail,capabilities,sessionCommands,receptionCharacter} from './staff.mjs';
 import {narrativeInput,validateRelations,recordPublication} from './narrative.mjs';
+import {createNotebookService,notebookAction} from './notebook.mjs';
 import {createKnowledgeService,knowledgeAction,seedKnowledge} from './knowledge.mjs';
 import {groupInput,validateGroupMembers,memberFor,groupVisible,groupSummary,groupDetail,publicAffiliations} from './groups.mjs';
 
@@ -80,9 +81,11 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     return {s,c,g,m:memberFor(g,cid)};
   };
 
+  const notebookService=createNotebookService({store,signed,now,uuid});
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(notebookAction(action))return notebookService(action,actor,input);
     if(knowledgeAction(action))return knowledgeService(action,actor,input);
     const at=now(); const sid=input.sessionId ? documentId(input.sessionId) : null;
     if(action==='identity') {

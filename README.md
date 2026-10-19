@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.5 : connaissances privées, découverte par QR et copies explicites entre personnages.**
+**Version 0.6 : carnet privé par participant et partage explicite de notes.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -34,6 +34,10 @@ Un membre peut être autorisé à lire le briefing, consulter les membres révé
 
 Le MJ crée des textes, choisit leurs destinataires de départ et configure une découverte QR éventuelle. Vérité MJ et présentation joueur restent séparées. Chaque personnage conserve la version reçue ; une copie explicite passe par le badge public du destinataire, sans annuaire privé. Le MJ peut attribuer ou retirer un accès avec un motif. L'espace **Mes informations** propose filtres et confirmation de lecture. [Parcours, garanties et limites 0.5](docs/VALIDATION-0.5.md).
 
+## Carnet personnel
+
+Les notes appartiennent au compte participant dans sa session. Un changement de personnage ne les transmet pas au nouveau joueur ; les MJ n’y accèdent pas dans l’application. Le joueur peut classer/restaurer ses notes et confirmer une copie vers un badge précis. Cette copie est consultable par les MJ, avec le droit de retransmission explicitement choisi ; le reste du carnet demeure privé. [Parcours et limites 0.6](docs/VALIDATION-0.6.md).
+
 ## Infrastructure configurée
 
 - GitHub privé : `gkerckhofs-a11y/gn-engine`.
@@ -55,7 +59,7 @@ npm test
 npm run test:emulator
 ```
 
-La version 0.5 est publiée sur Firebase. **71 tests métier/interface et 54 intégrations** passent sur GitHub, soit 125 tests. Les vérifications locales, la preuve de déploiement et les limites sont consignées dans [le rapport 0.5](docs/VALIDATION-0.5.md).
+**87 tests métier/interface et 69 intégrations** passent localement, soit 156 tests. La preuve du déploiement 0.6 et les limites sont consignées dans [le rapport 0.6](docs/VALIDATION-0.6.md).
 
 ## Publier
 

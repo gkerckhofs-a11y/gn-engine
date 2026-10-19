@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {initializeApp} from 'firebase-admin/app';
 import {getFirestore} from 'firebase-admin/firestore';
 import {firestoreStore} from '../../src/adapters/firestore.mjs';
+import {notebookSuite} from '../support/notebook-suite.mjs';
 import {knowledgeSuite} from '../support/knowledge-suite.mjs';
 import {groupsSuite} from '../support/groups-suite.mjs';
 import {workflowSuite} from '../support/workflow-suite.mjs';
@@ -12,6 +13,7 @@ initializeApp({projectId});const firestore=getFirestore();
 workflowSuite(()=>firestoreStore(firestore),'Firestore réel émulé');
 groupsSuite(()=>firestoreStore(firestore),'Groupes sur Firestore');
 knowledgeSuite(()=>firestoreStore(firestore),'Connaissances sur Firestore');
+notebookSuite(()=>firestoreStore(firestore),'Carnet sur Firestore');
 test('règles Firestore : un client non authentifié ne peut lire ni écrire les secrets',async()=>{
   const root=`http://${process.env.FIRESTORE_EMULATOR_HOST}/v1/projects/${projectId}/databases/(default)/documents`;
   await firestore.doc('private/test').set({secret:'invisible'});

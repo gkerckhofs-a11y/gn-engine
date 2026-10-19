@@ -59,7 +59,11 @@ Les contenus de groupe sont absents des projections Accueil. Les badges reçoive
 
 Les connaissances ont leur bibliothèque de scénario/version/session et des reçus sous chaque personnage de session. Un reçu conserve les champs joueurs et la révision effectivement acquise, sans vérité MJ, liste de détenteurs ni conditions cachées. L'édition du catalogue ne remplace pas le texte reçu ; une attribution MJ explicite peut le faire avec motif et contrôle de révision. Dépublication et révocations ferment les lectures courantes.
 
-La découverte QR exige un personnage actif et les conditions configurées sur la cible. La copie exige un texte partageable et un autre personnage actif identifié par son badge public. Les droits sont relus avant le résultat idempotent ; reçu, journal et opération sont atomiques. Voir `VALIDATION-0.5.md`. Le carnet privé et Storage restent à développer.
+La découverte QR exige un personnage actif et les conditions configurées sur la cible. La copie exige un texte partageable et un autre personnage actif identifié par son badge public. Les droits sont relus avant le résultat idempotent ; reçu, journal et opération sont atomiques. Voir `VALIDATION-0.5.md`. Le carnet privé est ajouté en 0.6 ; Storage reste à développer.
+
+### Implémentation 0.6
+
+Le carnet est rangé sous la session puis sous l'empreinte de l'UID authentifié, indépendamment de l'attribution du personnage. Il n'est inclus ni dans les projections MJ, ni dans les aperçus, ni dans l'audit de session. Une copie n'entre dans la bibliothèque de connaissances qu'après confirmation explicite par l'auteur ; la note originale, ses dates et son identifiant ne sont pas transmis. Les copies utilisent les reçus et contrôles de la 0.5. Voir `VALIDATION-0.6.md` pour le comportement, la concurrence et la portée applicative de cette confidentialité.
 
 ## Commandes et concurrence
 

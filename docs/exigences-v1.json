@@ -69,10 +69,11 @@
       "sourceLine": 64,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_6",
       "coreWork": null,
-      "acceptance": "TESTS_SERVICE_EMULATEURS_REUSSIS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.2.md ; src/core/workflow.mjs ; test/support/workflow-suite.mjs ; test/integration"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.6.md ; src/core/notebook.mjs ; web/notebook.mjs ; test/support/notebook-suite.mjs ; test/integration",
+      "implementedScope": "Compte, inscription et personnage distincts ; carnet attaché au compte/session et non transféré lors d’une réattribution. Nouvelle session sans notes ni copies précédentes. Autres modules du personnage restant."
     },
     {
       "id": "SES-02",
@@ -284,11 +285,11 @@
       "sourceLine": 120,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_5",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_6",
       "coreWork": null,
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.5.md ; src/core/knowledge.mjs ; web/knowledge.mjs ; test/support/knowledge-suite.mjs ; test/integration",
-      "implementedScope": "Vérité MJ séparée, copie conservant le texte appris et l’accès source, lecture montrée sur place. Document unique et version rédigée par le joueur non livrés."
+      "evidence": "docs/VALIDATION-0.6.md ; src/core/notebook.mjs ; web/notebook.mjs ; test/support/notebook-suite.mjs ; test/integration",
+      "implementedScope": "Vérité MJ distincte, copies de connaissances et nouvelles versions rédigées par le joueur via le carnet. Texte confirmé figé et lecture montrée sur place. Document unique et pièces jointes restant."
     },
     {
       "id": "REL-01",
@@ -320,10 +321,11 @@
       "sourceLine": 125,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "NON_INTEGRE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_6",
       "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
+      "evidence": "docs/VALIDATION-0.6.md ; src/core/notebook.mjs ; web/notebook.mjs ; test/support/notebook-suite.mjs ; test/integration",
+      "implementedScope": "Carnet textuel privé du compte dans sa session, création/édition, classement réversible, copies après confirmation et accès MJ limité aux copies partagées. Pas de notes privées dans les aperçus ou journaux MJ. Recette navigateur multicomptes et export restant."
     },
     {
       "id": "COM-01",
@@ -971,11 +973,11 @@
       "sourceLine": 281,
       "lot": "B",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_5",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_6",
       "coreWork": null,
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.5.md ; src/core/knowledge.mjs ; web/knowledge.mjs ; test/support/knowledge-suite.mjs ; test/integration",
-      "implementedScope": "Liste personnelle de connaissances/indices/documents, date, origine, filtres type/lu/non lu et confirmation explicite. Fil unifié avec messages/annonces et notifications restant."
+      "evidence": "docs/VALIDATION-0.6.md ; src/core/notebook.mjs ; web/notebook.mjs ; test/support/notebook-suite.mjs ; test/integration",
+      "implementedScope": "Infos personnelles avec filtres/lecture et documents issus de notes explicitement partagées ; carnet privé séparé. Fil unifié, annonces, notifications et pagination restant."
     },
     {
       "id": "INF-02",
@@ -1453,11 +1455,11 @@
       "sourceLine": 378,
       "lot": "E",
       "prototype": "NON_VERIFIE",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_5",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_0_6",
       "coreWork": null,
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_RECETTE_NAVIGATEUR_RESTANTE",
-      "evidence": "docs/VALIDATION-0.5.md ; src/core/knowledge.mjs ; web/knowledge.mjs ; test/support/knowledge-suite.mjs ; test/integration",
-      "implementedScope": "Nouvelle session depuis une version sans les connaissances acquises, partages ni états de lecture de la partie précédente. Clôture des engagements et export restant."
+      "evidence": "docs/VALIDATION-0.6.md ; src/core/notebook.mjs ; web/notebook.mjs ; test/support/notebook-suite.mjs ; test/integration",
+      "implementedScope": "Nouvelle session sans notes privées, copies de notes, acquis ou lecture de la précédente. Clôture des contrats/engagements, export et bilan restant."
     },
     {
       "id": "LIV-01",

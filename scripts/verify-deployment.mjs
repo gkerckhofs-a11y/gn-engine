@@ -28,10 +28,12 @@ const version=await waitForAvailability(`${origin}/version.json?release=${encode
 assert.equal(version.status,200,'Le manifeste de version doit être accessible');
 assert.equal((await version.json()).version,expected,'Hosting doit servir la version demandée');
 
-const api=await waitForAvailability(`${origin}/api/check`,{
-  method:'POST',headers:{'content-type':'application/json'},
-  body:JSON.stringify({action:'dashboard',input:{}}),
-});
-assert.equal(api.status,401,'Une lecture organisateur anonyme doit être refusée');
-assert.equal((await api.json()).error,'LOGIN_REQUIRED');
+for(const action of ['dashboard','myNotes','noteDetail','shareNote']){
+  const api=await waitForAvailability(`${origin}/api/check`,{
+    method:'POST',headers:{'content-type':'application/json'},
+    body:JSON.stringify({action,input:{sessionId:'verification',noteId:'verification',requestId:'verification'}}),
+  });
+  assert.equal(api.status,401,`La lecture/écriture privée anonyme ${action} doit être refusée`);
+  assert.equal((await api.json()).error,'LOGIN_REQUIRED');
+}
 console.log(`Version ${expected} accessible et API privée refusant les accès anonymes.`);

@@ -24,6 +24,10 @@ Groupes versionnés publics/secrets, appartenances multiples, révélation et vi
 
 Connaissances textuelles et indices versionnés, reçus propres aux personnages, découverte QR conditionnelle, partage explicite par badge, lecture personnelle, aperçu MJ neutre et interventions tracées. Les documents uniques, pièces jointes, compétences et notes privées restent à intégrer. 125 tests réussis sur GitHub ; version publiée avec manifeste 0.5.0 et refus anonyme vérifiés. Résultats et limites dans `VALIDATION-0.5.md`.
 
+## Extension 0.6
+
+Carnet privé par compte/session, notes classables, protection contre la réattribution et copies explicites vers un badge public. La confirmation indique le texte, les identités, le droit de retransmission et l'accès MJ à la copie partagée. 156 tests locaux réussis ; publication et limites suivies dans `VALIDATION-0.6.md`.
+
 ## Préparation réalisée
 
 - Cahier V1 conservé, texte consultable, matrice de 132 exigences.

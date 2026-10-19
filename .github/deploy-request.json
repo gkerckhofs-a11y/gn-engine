@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "0aace451136d8341bbb37af12a25de7782d572f0",
-  "requestedAt": "2026-10-19T13:55:42.372420+00:00",
-  "reason": "Finaliser la 0.5 : lier lecture et partage au reçu affiché pour refuser une confirmation périmée après intervention MJ.",
-  "version": "0.5.0"
+  "sourceCommit": "4dbbe5d6c7267b5e0d5056d0013de2a9393b99f5",
+  "requestedAt": "2026-10-19T14:27:58.422957+00:00",
+  "reason": "Publier la 0.6 : carnet privé par participant/session et copies explicitement confirmées ; 156 tests locaux réussis.",
+  "version": "0.6.0"
 }

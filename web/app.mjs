@@ -3,6 +3,7 @@ import {getAuth,GoogleAuthProvider,signInWithPopup,reauthenticateWithPopup,onAut
 import QRCode from 'qrcode';
 import config from './firebase-config.mjs';
 import {createKnowledgeUi,badgeRecipient} from './knowledge.mjs';
+import {createNotebookUi,noteMatches} from './notebook.mjs';
 import {createGroupsUi,escapeHtml as esc,permissionLabels} from './groups.mjs';
 
 const auth=getAuth(initializeApp(config));
@@ -10,7 +11,7 @@ await setPersistence(auth,browserSessionPersistence);
 const app=document.querySelector('#app'), account=document.querySelector('#account'), dialog=document.querySelector('#dialog');
 const labels={PREPARATION:'Préparation',BRIEFING:'Briefing accessible',EN_JEU:'En jeu',PAUSE:'En pause',FINISHED:'Terminée',ARCHIVED:'Archivée',
   ACCEPTED:'Acceptée',WAITLISTED:'Liste d’attente',RECEIVED:'Reçue',INCOMPLETE:'À compléter',REFUSED:'Refusée',CANCELLED:'Annulée',DRAFT:'Brouillon',READY:'Prêt à publier',PUBLISHED:'Publié',OWNER:'Propriétaire',MJ:'MJ',RECEPTION:'Accueil'};
-const errors={INVALID_KNOWLEDGE:"Vérifiez le titre, le texte et les règles d’accès de cette information.",INVALID_RECIPIENT:"Ce badge ne correspond pas à un autre personnage actif de cette session.",SHARING_DISABLED:"La copie de cette information n’est pas autorisée.",MODULE_DISABLED:'Les espaces de groupe sont désactivés pour cette session.',SESSION_NOT_RUNNING:'Cette action est disponible uniquement pendant le jeu, hors pause.',INVALID_GROUP:'Vérifiez les paramètres du groupe.',INVALID_MEMBER:'Un personnage référencé n’appartient pas à ce scénario ou cette session.',DUPLICATE_MEMBER:'Un personnage figure deux fois dans ce groupe.',INVALID_PUBLIC_AFFILIATION:'Une affiliation publique exige un groupe public et une appartenance révélée au personnage.',INVALID_EMAIL:'Saisissez une adresse Google valide.',INVALID_STAFF:'Le compte propriétaire conserve ses droits.',INVALID_RELATION:'La relation doit viser un autre personnage de cette même session ou de ce même scénario.',INVALID_NARRATIVE:'Vérifiez les relations et objectifs.',DUPLICATE_NARRATIVE:'Deux éléments utilisent le même identifiant.',LOGIN_REQUIRED:'Connectez-vous pour continuer.',FORBIDDEN:'Votre compte n’a pas accès à cet espace.',NOT_FOUND:'Ce contenu n’est pas disponible.',
+const errors={INVALID_NOTE:"Vérifiez le titre, le texte et le mode de partage de votre note.",NOTE_ARCHIVED:"Restaurez cette note avant de la modifier ou de la partager.",STALE_RECIPIENT:"L’identité ou l’accès du destinataire a changé. Vérifiez à nouveau son badge avant de transmettre.",INVALID_KNOWLEDGE:"Vérifiez le titre, le texte et les règles d’accès de cette information.",INVALID_RECIPIENT:"Ce badge ne correspond pas à un autre personnage actif de cette session.",SHARING_DISABLED:"La copie de cette information n’est pas autorisée.",MODULE_DISABLED:'Les espaces de groupe sont désactivés pour cette session.',SESSION_NOT_RUNNING:'Cette action est disponible uniquement pendant le jeu, hors pause.',INVALID_GROUP:'Vérifiez les paramètres du groupe.',INVALID_MEMBER:'Un personnage référencé n’appartient pas à ce scénario ou cette session.',DUPLICATE_MEMBER:'Un personnage figure deux fois dans ce groupe.',INVALID_PUBLIC_AFFILIATION:'Une affiliation publique exige un groupe public et une appartenance révélée au personnage.',INVALID_EMAIL:'Saisissez une adresse Google valide.',INVALID_STAFF:'Le compte propriétaire conserve ses droits.',INVALID_RELATION:'La relation doit viser un autre personnage de cette même session ou de ce même scénario.',INVALID_NARRATIVE:'Vérifiez les relations et objectifs.',DUPLICATE_NARRATIVE:'Deux éléments utilisent le même identifiant.',LOGIN_REQUIRED:'Connectez-vous pour continuer.',FORBIDDEN:'Votre compte n’a pas accès à cet espace.',NOT_FOUND:'Ce contenu n’est pas disponible.',
   STALE_REVISION:'Le contenu a changé. Actualisez la page avant de recommencer.',REGISTRATION_CLOSED:'Les inscriptions sont fermées.',ALREADY_REGISTERED:'Vous êtes déjà inscrit à cette session.',
   CAPACITY_REACHED:'La dernière place vient d’être prise.',CHARACTER_TAKEN:'Ce personnage est déjà attribué.',INVALID_ASSIGNMENT:'Sélectionnez une inscription acceptée et un personnage.',
   INVITATION_EXPIRED_OR_USED:'Cette invitation est expirée ou déjà utilisée. Si votre accès est activé, ouvrez votre espace joueur.',INVALID_INVITATION:'Cette invitation ne correspond pas à votre compte ou n’est plus valide.',
@@ -50,6 +51,7 @@ function characterView(c){return `<div class="eyebrow">Votre personnage · fiche
 function updateAccount(){account.innerHTML=auth.currentUser?`<span>${esc(auth.currentUser.email)}</span>${button('Déconnexion','logout','','quiet small')}`:button('Connexion','login','','quiet small');}
 const groupUi=createGroupsUi({button,link,pill,input,textarea});
 const knowledgeUi=createKnowledgeUi({button,link,pill,input,textarea});
+const notebookUi=createNotebookUi({button,link});
 async function dashboard(){const render=pageRenderer();
   if(!auth.currentUser){render(`<div class="hero"><div><p class="eyebrow">Préparez l’aventure</p><h1>Vos histoires.<br>Leur prochaine vie.</h1><p class="lead">Écrivez vos scénarios, accueillez les participants et confiez à chacun les secrets de son personnage.</p></div><div class="symbol">✧</div></div><div class="columns">${loginPanel()}<section class="panel"><p class="eyebrow">Vous êtes joueur ?</p><h2>L’aventure commence par un lien.</h2><p class="muted">Ouvrez le lien d’inscription ou l’invitation personnelle reçu de votre organisateur. Les badges publics ne donnent pas accès aux fiches privées.</p></section></div>`);return;}
   if(!identity?.organizer){render(`<section class="narrow"><p class="eyebrow">Bienvenue</p><h1>Prêt à entrer en jeu ?</h1><p class="lead">Ouvrez le lien de votre session pour retrouver votre inscription et votre personnage.</p><div class="panel"><p>Vous êtes connecté avec <strong>${esc(auth.currentUser.email)}</strong>.</p><p class="muted">Le même compte vous accompagne de l’inscription au briefing.</p></div></section>`);return;}
@@ -104,12 +106,23 @@ async function joinPage(id){const render=pageRenderer();
 async function playerPage(id){const render=pageRenderer();
   if(!auth.currentUser){render(`<div class="narrow"><p class="eyebrow">Espace joueur</p><h1>Retrouvez votre personnage.</h1>${loginPanel()}</div>`);return;}
   const d=await api('mySession',{sessionId:id});
-  render(`<div class="narrow"><nav class="breadcrumb">${link(esc(d.session.title),`join/${id}`,'')}<span>/</span><span>Mon personnage</span></nav>${d.character?characterView(d.character):`<section class="panel"><p class="eyebrow">Espace joueur</p><h1>${esc(d.session.title)}</h1><p>${esc(errors[d.reason]||'Votre organisateur prépare votre personnage. Vous retrouverez votre fiche ici après attribution et activation de votre invitation.')}</p>${d.registration?pill(d.registration.status):link('M’inscrire',`join/${id}`,'button primary')}</section>`}${d.character?`<div class="section-head"><div>${readCurrent(d.registration,d.character)?'<span class="pill green">Fiche actuelle lue</span>':button('J’ai lu mon briefing','readBriefing',`data-id="${id}"`,'primary')}</div>${button('Mon badge public','playerBadge',`data-sid="${id}" data-id="${d.character.id}"`,'quiet')}</div>`:''}${d.character?`<section class="panel gold"><h2>Mes informations</h2><p>Retrouvez les connaissances, indices et documents reçus par votre personnage.</p>${link('Ouvrir mes informations →',`infos/${id}`,'button primary')}</section>`:''}${groupUi.cards(d.groups,id)}<p class="muted">${esc(labels[d.session.stage])} · ${esc(d.session.date)} · ${esc(d.session.place)}</p>${button('Actualiser mon espace','refresh','','quiet small')}</div>`);
+  render(`<div class="narrow"><nav class="breadcrumb">${link(esc(d.session.title),`join/${id}`,'')}<span>/</span><span>Mon personnage</span></nav>${d.character?characterView(d.character):`<section class="panel"><p class="eyebrow">Espace joueur</p><h1>${esc(d.session.title)}</h1><p>${esc(errors[d.reason]||'Votre organisateur prépare votre personnage. Vous retrouverez votre fiche ici après attribution et activation de votre invitation.')}</p>${d.registration?pill(d.registration.status):link('M’inscrire',`join/${id}`,'button primary')}</section>`}${d.character?`<div class="section-head"><div>${readCurrent(d.registration,d.character)?'<span class="pill green">Fiche actuelle lue</span>':button('J’ai lu mon briefing','readBriefing',`data-id="${id}"`,'primary')}</div>${button('Mon badge public','playerBadge',`data-sid="${id}" data-id="${d.character.id}"`,'quiet')}</div>`:''}${d.character?`<section class="panel gold"><h2>Mes informations</h2><p>Retrouvez les connaissances, indices et documents reçus par votre personnage.</p>${link('Ouvrir mes informations →',`infos/${id}`,'button primary')}${link('Mon carnet privé',`notes/${id}`,'button quiet')}</section>`:''}${groupUi.cards(d.groups,id)}<p class="muted">${esc(labels[d.session.stage])} · ${esc(d.session.date)} · ${esc(d.session.place)}</p>${button('Actualiser mon espace','refresh','','quiet small')}</div>`);
 }
 async function knowledgePage(sid,kid){const render=pageRenderer();
   if(!auth.currentUser){render(`<div class="narrow"><h1>Vos informations privées</h1>${loginPanel()}</div>`);return;}
   const d=await api(kid?'knowledgeDetail':'myKnowledge',{sessionId:sid,...(kid?{knowledgeId:kid}:{})});
-  render(`<div class="narrow"><nav class="breadcrumb">${link('Mon personnage',`play/${sid}`,'')}${kid?link('Mes informations',`infos/${sid}`,''):''}</nav>${kid?knowledgeUi.detail(d):knowledgeUi.list(d)}${button('Actualiser','refresh','','quiet small')}</div>`);
+  render(`<div class="narrow"><nav class="breadcrumb">${link('Mon personnage',`play/${sid}`,'')}${kid?link('Mes informations',`infos/${sid}`,''):''}${link('Mon carnet privé',`notes/${sid}`,'')}</nav>${kid?knowledgeUi.detail(d):knowledgeUi.list(d)}${button('Actualiser','refresh','','quiet small')}</div>`);
+}
+async function notebookPage(sid,nid){const render=pageRenderer();
+  if(!auth.currentUser){render(`<div class="narrow"><p class="eyebrow">Carnet personnel</p><h1>Vos notes privées</h1>${loginPanel()}</div>`);return;}
+  const d=await api(nid?'noteDetail':'myNotes',{sessionId:sid,...(nid?{noteId:nid}:{})});
+  render(`<div class="narrow"><nav class="breadcrumb">${link('Mon personnage',`play/${sid}`,'')}${link('Mes informations',`infos/${sid}`,'')}${nid?link('Mon carnet',`notes/${sid}`,''):''}</nav>${nid?notebookUi.detail(d):notebookUi.list(d)}${button('Actualiser','refresh','','quiet small')}</div>`);
+}
+function dirtyNote(){return !!document.querySelector('[data-form="noteEditor"][data-dirty="true"]');}
+function filterNotes(){const root=document.querySelector('[data-note-search]')?.closest('.narrow');if(!root)return;
+  const query=root.querySelector('[data-note-search]').value,state=root.querySelector('[data-note-state]').value;let visible=0;
+  for(const item of root.querySelectorAll('[data-note-title]')){item.hidden=!noteMatches({title:item.dataset.noteTitle,archived:item.dataset.noteArchived==='true'},query,state);if(!item.hidden)visible++;}
+  root.querySelector('[data-note-empty]').hidden=visible>0;
 }
 async function discoveryPage(sid,kid){const render=pageRenderer();render(`<div class="narrow"><p class="eyebrow">Cible de découverte</p><h1>Un indice à découvrir.</h1><p class="lead">Votre accès et les conditions de découverte seront vérifiés avant de révéler le contenu.</p><p class="muted">Ce QR identifie une cible. Une photographie peut être réutilisée : ce n’est pas une preuve de présence sur place.</p>${!auth.currentUser?loginPanel():`<section class="panel">${button('Découvrir avec mon personnage','knowledgeDiscover',`data-sid="${esc(sid)}" data-id="${esc(kid)}"`,'primary')}${link('Mon espace',`play/${sid}`,'button quiet')}</section>`}</div>`);}
 async function playerGroupPage(sid,gid){const render=pageRenderer();
@@ -129,12 +142,13 @@ function groupMembers(form){return [...form.querySelectorAll('[data-members] fie
 async function invitationPage(id,token){const render=pageRenderer();
   render(`<div class="narrow"><p class="eyebrow">Invitation personnelle</p><h1>Un personnage vous attend.</h1><p class="lead">Ouvrez cette invitation avec le compte Google utilisé pour votre inscription.</p>${!auth.currentUser?loginPanel():`<section class="panel gold"><h2>Activer mon accès</h2><p>Compte connecté : ${esc(auth.currentUser.email)}</p><p class="muted">Ce lien s’utilise une seule fois. Vous retrouverez ensuite votre personnage avec ce compte.</p>${button('Activer mon personnage','redeem',`data-sid="${esc(id)}"`,'primary')}<hr class="divider">${button('Me reconnecter avec Google','reauth','','quiet')}${link('Mon espace déjà activé',`play/${id}`,'button quiet')}</section>`}</div>`);
 }
-async function route(){const version=++routeVersion;dialog.close();app.innerHTML='<p class="loading">Chargement de votre espace…</p>';try{identity=auth.currentUser?await api('identity'):null;if(version!==routeVersion)return;const [page,id,token]=(location.hash.slice(2)||'').split('/');if(page==='scenario')await scenarioPage(id);else if(page==='session')await sessionPage(id);else if(page==='join')await joinPage(id);else if(page==='play')await playerPage(id);else if(page==='infos')await knowledgePage(id);else if(page==='knowledge')await knowledgePage(id,token);else if(page==='discover')await discoveryPage(id,token);else if(page==='group')await playerGroupPage(id,token);else if(page==='invite')await invitationPage(id,token);else if(page==='badge'){const c=await api('publicBadge',{sessionId:id,characterId:token});if(version!==routeVersion)return;app.innerHTML=`<div class="narrow"><p class="eyebrow">Identité publique</p><h1>${esc(c.displayName)}</h1><p class="lead">${esc(c.profession)}</p><div class="panel prose">${esc(c.description)}</div>${c.affiliations?.length?`<section class="panel"><h2>Affiliations publiques</h2>${c.affiliations.map(g=>`<h3>${esc(g.name)}</h3><p>${esc(g.role)}</p><p class="prose">${esc(g.description)}</p>`).join('')}</section>`:''}<p class="muted">Ce badge identifie le personnage. Il n’ouvre pas son accès privé.</p></div>`;}else await dashboard();}catch(e){if(version!==routeVersion)return;app.innerHTML=`<div class="panel error-panel narrow"><h2>Nous ne pouvons pas ouvrir cet espace.</h2><p>${esc(e.message)}</p>${button('Réessayer','refresh','','quiet')}${link('Accueil','','button quiet')}</div>`;}}
+async function route(){const version=++routeVersion;dialog.close();app.innerHTML='<p class="loading">Chargement de votre espace…</p>';try{identity=auth.currentUser?await api('identity'):null;if(version!==routeVersion)return;const [page,id,token]=(location.hash.slice(2)||'').split('/');if(page==='scenario')await scenarioPage(id);else if(page==='session')await sessionPage(id);else if(page==='join')await joinPage(id);else if(page==='play')await playerPage(id);else if(page==='notes')await notebookPage(id);else if(page==='note')await notebookPage(id,token);else if(page==='infos')await knowledgePage(id);else if(page==='knowledge')await knowledgePage(id,token);else if(page==='discover')await discoveryPage(id,token);else if(page==='group')await playerGroupPage(id,token);else if(page==='invite')await invitationPage(id,token);else if(page==='badge'){const c=await api('publicBadge',{sessionId:id,characterId:token});if(version!==routeVersion)return;app.innerHTML=`<div class="narrow"><p class="eyebrow">Identité publique</p><h1>${esc(c.displayName)}</h1><p class="lead">${esc(c.profession)}</p><div class="panel prose">${esc(c.description)}</div>${c.affiliations?.length?`<section class="panel"><h2>Affiliations publiques</h2>${c.affiliations.map(g=>`<h3>${esc(g.name)}</h3><p>${esc(g.role)}</p><p class="prose">${esc(g.description)}</p>`).join('')}</section>`:''}<p class="muted">Ce badge identifie le personnage. Il n’ouvre pas son accès privé.</p></div>`;}else await dashboard();}catch(e){if(version!==routeVersion)return;app.innerHTML=`<div class="panel error-panel narrow"><h2>Nous ne pouvons pas ouvrir cet espace.</h2><p>${esc(e.message)}</p>${button('Réessayer','refresh','','quiet')}${link('Accueil','','button quiet')}</div>`;}}
 async function share(title,path){modal(`<p class="eyebrow">Lien public</p><h2>${esc(title)}</h2><div class="row"><img class="qr" alt="QR du lien public" src="${await QRCode.toDataURL(url(path),{margin:2,width:360})}"><div><p class="invite">${esc(url(path))}</p>${button('Copier le lien','copy',`data-value="${esc(url(path))}"`,'primary')}<p class="muted">Ce lien ne contient aucun accès privé.</p></div></div>`);}
 document.addEventListener('click',async event=>{
   const b=event.target.closest('[data-action]');if(!b || busy)return;const a=b.dataset.action;const actionVersion=routeVersion;
   try{
-    if(a==='close'){dialog.close();return;}
+    if(['close','logout','refresh'].includes(a)&&dirtyNote()&&!confirm('Quitter sans enregistrer les modifications de votre note ?'))return;
+    if(a==='close'){dialog.close();dialog.innerHTML='';return;}
     if(a==='login'||a==='reauth'){const provider=new GoogleAuthProvider();provider.setCustomParameters({prompt:'select_account'});if(a==='reauth')await reauthenticateWithPopup(auth.currentUser,provider);else await signInWithPopup(auth,provider);await route();return;}
     if(a==='logout'){await signOut(auth);pendingCommands.clear();identity=null;await route();return;}
     if(a==='refresh'){await route();return;}
@@ -149,6 +163,12 @@ document.addEventListener('click',async event=>{
       const d=await api('characterHistory',{...context,characterId:b.dataset.id});if(actionVersion!==routeVersion)return;
       modal(`<p class="eyebrow">Historique des publications</p><h2>Les fiches destinées au joueur</h2><p class="muted">Une publication est disponible seulement lorsque le briefing est ouvert. Cet historique ne prouve pas une lecture.</p>${d.versions.map(v=>`<details class="panel"><summary>Fiche ${v.revision} · ${new Date(v.at).toLocaleString('fr-FR')}</summary><p class="muted">${esc(v.reason)}${v.source==='LEGACY_CAPTURE'?' · Date de capture, date de publication d’origine inconnue.':''}<br>Auteur : ${esc(v.actorUid)}</p>${characterView(v.character)}</details>`).join('')||'<p class="empty">Aucune publication suivie pour cette fiche. Les fiches anciennes seront conservées lors de leur prochaine modification.</p>'}`);return;
     }
+    if(a==='editNote'){
+      let note;if(b.dataset.id){const d=await api('noteDetail',{sessionId:b.dataset.sid,noteId:b.dataset.id});if(actionVersion!==routeVersion)return;note=d.note;}
+      modal(notebookUi.editor(b.dataset.sid,note));return;
+    }
+    if(a==='prepareNoteShare'){modal(notebookUi.prepare(b.dataset.sid,b.dataset.id,Number(b.dataset.revision),b.dataset.author,b.dataset.authorName));return;}
+    if(a==='archiveNote'){await mutate('setNoteArchived',{sessionId:b.dataset.sid,noteId:b.dataset.id,revision:Number(b.dataset.revision),archived:b.dataset.archived==='true'});if(actionVersion===routeVersion)await route();return;}
     if(a==='editKnowledge'){const scope=b.dataset.scope,context=scope==='session'?currentSession:currentScenario;modal(knowledgeUi.editor(context.knowledge.find(k=>k.id===b.dataset.id),context.characters,scope));return;}
     if(a==='knowledgeQr'){await share('QR de découverte',`discover/${currentSession.id}/${b.dataset.id}`);return;}
     if(a==='knowledgeHistory'){
@@ -211,6 +231,16 @@ document.addEventListener('submit',async event=>{
   try{const v=formValues(form),kind=form.dataset.form;let destination;const submitVersion=routeVersion;
     if(kind==='scenario'){const d=await mutate('createScenario',v);destination=`scenario/${d.id}`;}
     else if(kind==='character'){v.relations=collectNarrative(form,'relations');v.objectives=collectNarrative(form,'objectives');if(form.dataset.scope==='session')await mutate('saveSessionCharacter',{...v,sessionId:currentSession.id,characterId:form.dataset.id,revision:currentSession.revision});else await mutate('saveCharacter',{...v,scenarioId:currentScenario.id,characterId:form.dataset.id||undefined,revision:currentScenario.revision});}
+    else if(kind==='noteEditor'){
+      const d=await mutate('saveNote',{sessionId:form.dataset.sid,noteId:form.dataset.id||undefined,revision:Number(form.dataset.revision),title:v.title,body:v.body});
+      form.dataset.dirty='false';destination=`note/${form.dataset.sid}/${d.id}`;
+    }
+    else if(kind==='noteSharePrepare'){
+      const recipientId=badgeRecipient(v.badgeUrl,location.origin,form.dataset.sid);
+      const d=await api('prepareNoteShare',{sessionId:form.dataset.sid,noteId:form.dataset.id,revision:Number(form.dataset.revision),authorCharacterId:form.dataset.author,authorName:form.dataset.authorName,recipientId,shareMode:v.shareMode});
+      if(submitVersion!==routeVersion)return;modal(notebookUi.confirm(form.dataset.sid,d));return;
+    }
+    else if(kind==='noteShareConfirm')await mutate('shareNote',{sessionId:form.dataset.sid,noteId:form.dataset.id,revision:Number(form.dataset.revision),authorCharacterId:form.dataset.author,authorName:form.dataset.authorName,recipientId:form.dataset.recipient,recipientVersion:form.dataset.recipientVersion,shareMode:form.dataset.shareMode});
     else if(kind==='knowledge'){
       const scope=form.dataset.scope,context=scope==='session'?currentSession:currentScenario;
       await mutate(scope==='session'?'saveSessionKnowledge':'saveKnowledge',{...v,qrEnabled:v.qrEnabled==='on',initialCharacterIds:new FormData(form).getAll('initialCharacterIds'),qrCharacterIds:new FormData(form).getAll('qrCharacterIds'),revision:context.revision,knowledgeId:form.dataset.id||undefined,...(scope==='session'?{sessionId:context.id}:{scenarioId:context.id})});
@@ -233,14 +263,19 @@ document.addEventListener('submit',async event=>{
     else if(kind==='register'){const answers=Object.fromEntries(Object.entries(v).filter(([k])=>k.startsWith('field_')).map(([k,x])=>[k.slice(6),x]));await mutate('register',{sessionId:form.dataset.id,name:v.name,answers});}
     else if(kind==='status')await mutate('setRegistrationStatus',{sessionId:currentSession.id,uid:form.dataset.uid,status:v.status});
     else if(kind==='assign')await mutate('assign',{sessionId:currentSession.id,uid:form.dataset.uid,characterId:v.characterId,replace:v.replace==='on'});
-    dialog.close();notice('Enregistré.');if(destination)location.hash=`#/${destination}`;else await route();
+    if(submitVersion!==routeVersion)return;
+    dialog.close();notice('Enregistré.');if(destination&&location.hash!==`#/${destination}`)location.hash=`#/${destination}`;else await route();
   }catch(e){notice(errors[e.code]||e.message,true);}finally{busy=false;if(b)b.disabled=false;}
 });
-document.addEventListener('input',event=>{if(event.target.matches('[data-filter]')){
+document.addEventListener('input',event=>{
+  if(event.target.closest('[data-form="noteEditor"]'))event.target.closest('form').dataset.dirty='true';
+  if(event.target.matches('[data-note-search]'))filterNotes();
+  if(event.target.matches('[data-filter]')){
   const term=event.target.value.toLowerCase().trim();
   for(const row of app.querySelectorAll('[data-search]'))row.hidden=!row.dataset.search.includes(term);
 }});
 document.addEventListener('change',event=>{
+  if(event.target.matches('[data-note-state]'))filterNotes();
   if(event.target.matches('[data-knowledge-filter]')){
     const root=event.target.closest('.narrow')??event.target.closest('dialog');
     const kind=root.querySelector('[data-knowledge-filter="kind"]').value,read=root.querySelector('[data-knowledge-filter="read"]').value;
@@ -252,6 +287,10 @@ document.addEventListener('change',event=>{
     for(const field of event.target.form.querySelectorAll('[data-member-field="publicAffiliation"]')){field.disabled=event.target.value==='SECRET';if(field.disabled)field.checked=false;}
   }
 });
+document.addEventListener('click',event=>{if(event.target.closest('a[href]')&&dirtyNote()&&!confirm('Quitter sans enregistrer les modifications de votre note ?'))event.preventDefault();},true);
+dialog.addEventListener('cancel',event=>{if(dirtyNote()&&!confirm('Quitter sans enregistrer les modifications de votre note ?'))event.preventDefault();});
+dialog.addEventListener('close',()=>{dialog.innerHTML='';});
+window.addEventListener('beforeunload',event=>{if(dirtyNote()){event.preventDefault();event.returnValue='';}});
 window.addEventListener('hashchange',route);
 // Clear private DOM immediately when leaving the page or signing out. No offline private cache.
 window.addEventListener('pagehide',()=>{app.innerHTML='';dialog.innerHTML='';currentSession=null;currentScenario=null;editingCharacter=null;});
