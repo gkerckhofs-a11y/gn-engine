@@ -44,7 +44,8 @@ Le joueur voit uniquement son propre solde, ses entrées et l’identité publiq
 - Les 20 parcours métier sont partagés entre le store mémoire et Firestore émulé : dotations, indépendance, activation, confidentialité, atomicité, journal, réessais, concurrence, droits, révocation/réattribution, hors combat, pause/fin/archive, corrections, réservations et panne avant commit.
 - Le gestionnaire HTTP réel est couvert avec des assertions Google synthétiques de l’émulateur Auth : dotation 100, paiement 80, soldes 20/80, répétition unique, identité source imposée par serveur, droits MJ, 11 nouvelles commandes refusées sans authentification et révocation immédiate.
 - `npm run test:emulator` : **161 tests réussis** sur Auth et Firestore de `demo-gn-engine`, avec Java 21, en environ 172 secondes. Aucun échec, annulation ou test ignoré.
-- Total local : **196 + 161 = 357 tests réussis**. Vérifications GitHub et publication en cours ; leurs résultats seront consignés après observation.
+- Total local : **196 + 161 = 357 tests réussis**. Le même total est confirmé dans les journaux GitHub sur Node 22.23.3.
+- GitHub, commit source `00b743473db95402ef36ce9d73cdb9ddb1b00af9` : [workflow 39290688332](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39290688332), job `118190238589`. Compilation réussie à 17:02:52 UTC ; 196 tests à 17:02:56 UTC et 161 intégrations à 17:05:58 UTC le 19 octobre 2026. Aucun échec, annulation ou test ignoré. Résultats tirés du journal terminé.
 - Toutes les données de test sont synthétiques et restent dans `demo-gn-engine`. Aucune donnée de test n’est chargée dans Firebase de production.
 
 ## Limites et recette restante
@@ -60,4 +61,12 @@ Le joueur voit uniquement son propre solde, ses entrées et l’identité publiq
 
 ## Publication
 
-En attente du résultat du workflow Firebase. Le contrôle prévu exige le manifeste exact 0.11.0 et le refus de 41 commandes privées sans authentification. Une capture de route protégée vérifiera uniquement la version visible et l’accès anonyme fermé, pas un paiement authentifié en production.
+Le code applicatif publié est le commit `00b743473db95402ef36ce9d73cdb9ddb1b00af9`. Le [workflow Firebase 39290688332](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39290688332), job de publication `118192098418`, consigne le 19 octobre 2026 :
+
+- Fonction serveur `api` en Belgique : état **ACTIVE** à 17:07:46 UTC.
+- Firebase Hosting : **Deploy complete** à 17:07:55 UTC.
+- Contrôle final à **17:08:02 UTC** : page HTTP 200, manifeste exact **0.11.0**, puis **41 commandes privées refusées en HTTP 401 / LOGIN_REQUIRED** sans authentification.
+
+Résultats observés dans les journaux terminés. Le navigateur confirme ensuite **GN Engine · 0.11**. La route `#/wallet/verification` affiche uniquement la connexion, sans solde ni historique privé. Cette capture prouve la version visible et la fermeture de l’accès anonyme ; elle ne constitue pas une recette authentifiée des paiements. Page finale : [GN Engine](https://gn-engine.web.app/).
+
+![Portefeuille protégé — version 0.11](verification/gn-engine-0.11-1792429740004.jpg)

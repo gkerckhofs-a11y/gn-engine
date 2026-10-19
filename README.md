@@ -87,7 +87,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.11 passe **357 tests localement** : 196 métier/interface/contrôle de publication et 161 intégrations sur Auth et Firestore émulés. Vérification GitHub et publication en cours ; [rapport 0.11](docs/VALIDATION-0.11.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.11 est publiée : **357 tests réussis** localement et dans les journaux GitHub (196 métier/interface/contrôle de publication et 161 intégrations). La version exacte 0.11.0 et le refus de 41 commandes privées anonymes sont vérifiés en ligne. Preuves dans le [rapport 0.11](docs/VALIDATION-0.11.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 

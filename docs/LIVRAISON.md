@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.11 préparée : monnaie configurable, portefeuilles personnels, crédits de départ, paiements confirmés et corrections MJ tracées. 357 tests réussis localement (196 métier/interface et 161 intégrations) ; vérification GitHub et publication en cours. Rapport `VALIDATION-0.11.md` ; rapports 0.2 à 0.10 conservés. La recette complète avec comptes joueurs distincts et mobile reste à faire. Le découpage ne réduit pas le périmètre du cahier.
+19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.11 publiée : monnaie configurable, portefeuilles personnels, crédits de départ, paiements confirmés et corrections MJ tracées. 357 tests réussis localement et dans les journaux GitHub (196 métier/interface et 161 intégrations) ; manifeste 0.11.0 et 41 refus anonymes vérifiés en ligne. Rapport `VALIDATION-0.11.md` ; rapports 0.2 à 0.10 conservés. La recette complète avec comptes joueurs distincts et mobile reste à faire. Le découpage ne réduit pas le périmètre du cahier.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
