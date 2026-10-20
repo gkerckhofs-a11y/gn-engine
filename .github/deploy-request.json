@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "72af674fe852ee9a16c45ad56c9b0ac1402d0d49",
-  "version": "0.27.0",
-  "requestedAt": "2026-10-20T16:16:17.009Z",
-  "reason": "Navigation Mon personnage / Mon groupe / Action / Terminal, sac avec crédits, actions et QR regroupés, règles joueur explicites. 523 tests locaux et compilation réussis. Validation Firebase obligatoire avant publication."
+  "sourceCommit": "26628014c03b32345d090c0d356a53b3fbcdc754",
+  "version": "0.27.1",
+  "requestedAt": "2026-10-20T17:14:07.938Z",
+  "reason": "Habillage galactique commun aux espaces joueur et organisateur : couleurs, pictogrammes, formulaires et accueil."
 }
