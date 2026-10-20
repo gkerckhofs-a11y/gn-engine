@@ -1,3 +1,4 @@
+import {bountiesSuite} from '../support/bounties-suite.mjs';
 import {contractsSuite} from '../support/contracts-suite.mjs';
 import {announcementsSuite} from '../support/announcements-suite.mjs';
 import {marketSuite} from '../support/market-suite.mjs';
@@ -40,3 +41,6 @@ test('règles Firestore : un client non authentifié ne peut lire ni écrire les
   const r=await fetch(`${root}/private/test`);assert.equal(r.status,403);
   const w=await fetch(`${root}/private/new`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({fields:{admin:{booleanValue:true}}})});assert.equal(w.status,403);
 });
+
+
+bountiesSuite(()=>firestoreStore(firestore),'Primes sur Firestore');

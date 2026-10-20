@@ -16,13 +16,13 @@ export function moneyState(a){
 }
 export function amountInput(v){const n=whole(v,'INVALID_AMOUNT');requireThat(n>0,'INVALID_AMOUNT');return n;}
 export const partyName=c=>({id:c.id,name:c.public.displayName});
-export const projectEntry=e=>({id:e.id,at:e.at,kind:e.kind,memo:e.memo,delta:e.delta,before:e.before,after:e.after,counterparty:e.counterparty,...(e.saleId?{saleId:e.saleId,lotId:e.lotId}:{}),...(e.contractId?{contractId:e.contractId}:{})});
+export const projectEntry=e=>({id:e.id,at:e.at,kind:e.kind,memo:e.memo,delta:e.delta,before:e.before,after:e.after,counterparty:e.counterparty,...(e.saleId?{saleId:e.saleId,lotId:e.lotId}:{}),...(e.bountyId?{bountyId:e.bountyId,claimId:e.claimId}:{}),...(e.contractId?{contractId:e.contractId}:{})});
 export function writeLedger(tx,sid,event){
   tx.set(`sessions/${sid}/ledger/${event.id}`,event);
   for(const entry of event.entries){
-    const counterparty=['TRANSFER','SALE','CONTRACT_PAY','GM_CONTRACT_PAY'].includes(event.kind)?(entry.delta<0?event.recipient:event.source):null;
+    const counterparty=['TRANSFER','SALE','CONTRACT_PAY','GM_CONTRACT_PAY','BOUNTY_PAY','GM_BOUNTY_PAY'].includes(event.kind)?(entry.delta<0?event.recipient:event.source):null;
     tx.set(`sessions/${sid}/accounts/${entry.accountId}/history/${event.id}`,{id:event.id,at:event.at,kind:event.kind,memo:event.memo,
-      delta:entry.delta,before:entry.before,after:entry.after,counterparty,actorUid:event.actorUid,reason:event.reason??'',...(event.saleId?{saleId:event.saleId,lotId:event.lotId}:{}),...(event.contractId?{contractId:event.contractId}:{})});
+      delta:entry.delta,before:entry.before,after:entry.after,counterparty,actorUid:event.actorUid,reason:event.reason??'',...(event.saleId?{saleId:event.saleId,lotId:event.lotId}:{}),...(event.bountyId?{bountyId:event.bountyId,claimId:event.claimId}:{}),...(event.contractId?{contractId:event.contractId}:{})});
   }
 }
 export function openWallet(tx,sid,c,amount,at,actorUid,kind='INITIAL'){
@@ -47,3 +47,4 @@ export function seedWallets(tx,s,chars,at,actorUid,groups=[]){
   for(const c of chars)openWallet(tx,s.id,c,c.startingCredits?.amount??0,at,actorUid);
   for(const g of groups)if(g.walletConfig)openGroupWallet(tx,s.id,g,g.walletConfig.amount,at,actorUid);
 }
+

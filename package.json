@@ -1,6 +1,6 @@
 {
   "name": "gn-engine",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -28,3 +28,4 @@
   },
   "description": "GN Engine — scénario, inscription, attribution et accès privé sur Firebase"
 }
+

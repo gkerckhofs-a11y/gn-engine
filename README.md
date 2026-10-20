@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.16 : missions attribuées, contrats confirmés, briefing privé et règlement unique.**
+**Version 0.17 : primes ouvertes financées, preuves concurrentes et récompenses limitées.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -94,7 +94,15 @@ Dans le marché, **Petites annonces** rassemble les missions accessibles et les 
 
 Le joueur relit et accepte les conditions : une place et les crédits du compte payeur sont réservés, puis le briefing privé est ouvert. **Mes missions et contrats** sépare propositions, missions attribuées et accords terminés. Une preuve textuelle doit être validée par le MJ avant le paiement unique. Le financement extérieur est enregistré comme création de crédits.
 
-Le délai suit le temps de jeu et s’arrête en pause. Une expiration ou annulation confirmée par le MJ restitue les fonds réservés. L’archivage exige de traiter les contrats ouverts. Primes ouvertes, représentation de groupe, acomptes et garanties restent à développer. [Parcours, preuves et limites 0.16](docs/VALIDATION-0.16.md).
+Le délai suit le temps de jeu et s’arrête en pause. Une expiration ou annulation confirmée par le MJ restitue les fonds réservés. L’archivage exige de traiter les contrats ouverts. La représentation de groupe, les acomptes et les garanties restent à développer. [Parcours, preuves et limites 0.16](docs/VALIDATION-0.16.md).
+
+## Primes ouvertes
+
+Publiez une annonce **Prime ouverte** avec une récompense fixe, puis choisissez **Financer la prime**. Le MJ saisit le montant par récompense et le compte payeur, ou autorise un financement extérieur. Le budget de toutes les récompenses est réservé immédiatement sur le compte. Les conditions, le quota, l’échéance et l’audience de l’annonce sont ensuite verrouillés.
+
+Les joueurs déposent des preuves privées depuis **Primes ouvertes**. Aucun dépôt ne réserve de récompense ; le MJ arbitre, peut demander un complément, refuser ou payer. Une seule récompense par personnage et par prime, sans priorité automatique à l’ordre de dépôt. Le quota et les crédits sont mis à jour dans la même transaction. La clôture restitue le budget non versé et indique combien de preuves resteront sans paiement.
+
+L’échéance suit l’heure réelle, comme celle des petites annonces, même en pause. Une preuve reçue à temps reste payable après cette échéance, jusqu’à clôture MJ ou épuisement du quota. Le briefing réservé de l’annonce n’est pas révélé par ce parcours. [Parcours et limites 0.17](docs/VALIDATION-0.17.md).
 
 ## Infrastructure configurée
 
@@ -117,7 +125,7 @@ npm test
 npm run test:emulator
 ```
 
-La **0.16 est publiée** : **615 tests réussis en une exécution complète sur GitHub** (333 métier/interface et 282 intégrations). Le manifeste 0.16.0 et le refus des accès anonymes aux 98 commandes privées ont été vérifiés après déploiement. Preuves dans le [rapport 0.16](docs/VALIDATION-0.16.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.17 est en cours de validation ; voir le rapport associé pour les preuves disponibles. Dernière publication vérifiée : **0.16**, **615 tests réussis en une exécution complète sur GitHub** (333 métier/interface et 282 intégrations). Le manifeste 0.16.0 et le refus des accès anonymes aux 98 commandes privées ont été vérifiés après déploiement. Preuves dans le [rapport 0.16](docs/VALIDATION-0.16.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 
@@ -156,3 +164,4 @@ Les versions et copies utilisent des transactions Firestore. Aucun plafond méti
 - [Canon Port-Brèche](docs/source/port-breche-canon-v1.txt) : organisateur uniquement, jamais embarqué dans l’interface publique.
 - [Audit initial](docs/AUDIT.md), [architecture](docs/ARCHITECTURE.md), [lots A à E](docs/LIVRAISON.md).
 - `reference/sites-v0.1-source.tar.gz` : prototype Sites/D1 conservé au commit `6a12f995c5c26aaf3891cb4bbd8168e51184551e`. Le prototype privé existant n’a pas été remplacé.
+
