@@ -6,6 +6,12 @@ Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
+## Campagnes persistantes — 0.22 en validation
+
+À la création d’une session depuis une version figée, choisissez **Partie indépendante** ou **Premier épisode d’une nouvelle campagne**. Le tableau de bord donne ensuite accès aux campagnes, au bilan de clôture et à la préparation de l’épisode suivant avec les acquis conservés. La politique de blessures est explicite ; les PA et délais repartent pour le nouvel épisode. Les inscriptions et invitations restent propres à chaque session.
+
+[Créer, clôturer et reprendre une campagne](docs/CAMPAGNES.md) · [Validation 0.22](docs/VALIDATION-0.22.md). Masters complémentaires, ajout de personnages et report automatique des contrats restent à développer.
+
 ## Reprise sur la note Port-Brèche V0.3 — 0.21 publiée et vérifiée
 
 Le scénario et la régie de session proposent maintenant les points d’action : plafonds par niveau global, renouvellement toutes les cinq heures de jeu, pauses, corrections MJ et modification de période avec aperçu. Le joueur voit sa réserve ; les soins existants la consomment dans la même transaction que leurs effets. La récupération peut porter sur le soignant, sur le patient commun à tous les soignants, ou être absente en clinique.

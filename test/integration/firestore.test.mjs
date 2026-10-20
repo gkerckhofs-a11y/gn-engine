@@ -1,3 +1,4 @@
+import {campaignsSuite} from '../support/campaigns-suite.mjs';
 import {actionPointsSuite} from '../support/action-points-suite.mjs';
 import {mediaSuite} from '../support/media-suite.mjs';
 import {archiveSuite} from '../support/scenario-archive-suite.mjs';
@@ -55,3 +56,5 @@ mediaSuite(()=>firestoreStore(firestore),'Médiathèque sur Firestore');
 archiveSuite(()=>firestoreStore(firestore),'Archives sur Firestore');
 
 actionPointsSuite(()=>firestoreStore(firestore),'PA sur Firestore');
+
+campaignsSuite(()=>firestoreStore(firestore),'Campagnes sur Firestore');

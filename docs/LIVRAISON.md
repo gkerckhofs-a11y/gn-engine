@@ -130,3 +130,8 @@ Export de l’état courant ou d’une version figée, avec fiches et sources no
 ## Reprise sur la note Port-Brèche V0.3 — 0.21
 
 Premier lot publié : PA facultatifs, plafonds par niveau global, renouvellement en temps de jeu, réglages et corrections MJ, coût atomique des soins et récupération par patient. Compilation et 777 tests réussis sur GitHub sous Node 22 / Java 21 (427 applicatifs et 350 intégrations Firebase). Version 0.21.0 et accès privés contrôlés en ligne le 20 octobre 2026 à 11:08:15 UTC. [Suivi GN-01 à GN-19](NOTE-V03-SUIVI.md) et [validation](VALIDATION-0.21.md). Les campagnes persistantes, les masters complémentaires et les actions chronométrées restent les prochaines étapes.
+
+
+## Extension 0.22 — validation en cours
+
+Campagnes créées depuis une version figée, bilan de clôture et état scellé, continuité des acquis et reprise par étapes. Une seule session ouverte ou en préparation par campagne. Choix explicite des blessures et nouvelles autorisations de participation. [Parcours et limites](CAMPAGNES.md) · [preuve de validation](VALIDATION-0.22.md).

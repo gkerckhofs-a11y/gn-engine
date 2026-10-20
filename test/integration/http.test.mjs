@@ -1,3 +1,4 @@
+import {campaignCommands} from '../../src/core/campaigns.mjs';
 import {actionPointCommands} from '../../src/core/action-points.mjs';
 import {sampleImage} from '../support/media-suite.mjs';
 import {archiveCommands} from '../../src/core/scenario-archives.mjs';
@@ -447,4 +448,27 @@ test('HTTP + Auth + Storage : export/import de scénario, intégrité et accès 
   const result=await request('commitScenarioImport',{importId:job.id},owner);assert.equal(result.status,200,JSON.stringify(result));assert.deepEqual(await request('commitScenarioImport',{importId:job.id},owner),result);
   const copy=await request('scenario',{scenarioId:result.result.id},owner);assert.equal(copy.result.characters[0].playerSecrets,'SECRET_ARCHIVE_HTTP');assert.equal(copy.result.characters[0].mediaImages.private.id,imported.result.mediaId);assert.equal((await request('scenario',{scenarioId:result.result.id},other)).status,403);
   const read=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${owner}`},body:JSON.stringify({action:'mediaRead',input:{context:{mode:'library'},mediaId:imported.result.mediaId,variant:'original'}})});assert.equal(read.headers.get('cache-control'),'private, no-store');assert.equal((await read.json()).result.data,source.result.data);
+});
+
+
+test('HTTP + Auth : campagne, bilan scellé et reprise sans réinitialisation des crédits',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),visitor=await googleTestAccount(`campaign-${randomUUID()}@example.invalid`);
+ const command=async(action,input={},token=owner)=>{const r=await request(action,{requestId:randomUUID(),...input},token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};
+ const {id:scenarioId}=await command('createScenario',{title:'Campagne HTTP'}),scenario=async()=>(await request('scenario',{scenarioId},owner)).result;
+ const {id:cid}=await command('saveCharacter',{scenarioId,revision:(await scenario()).revision,displayName:'Personnage durable',publicationState:'PUBLISHED'});
+ await command('saveScenarioEconomy',{scenarioId,revision:(await scenario()).revision,rules:{enabled:true,name:'Crédit',unit:'crédit'}});
+ const seed={scenarioId,revision:(await scenario()).revision,characterId:cid,amount:123},sp=await command('prepareStartingCredits',seed);await command('setStartingCredits',{...seed,confirmation:sp.confirmation});
+ const {id:versionId}=await command('publishScenario',{scenarioId,revision:(await scenario()).revision});
+ const input={scenarioId,versionId,campaignTitle:'Chronique HTTP',title:'Premier épisode',capacity:2,privacy:'Données fictives'},preview=await command('prepareCampaignStart',input);
+ assert.equal((await request('startCampaign',{...input,confirmation:preview.confirmation,requestId:randomUUID()},visitor)).status,403);
+ const {id:sessionId,campaignId}=await command('startCampaign',{...input,confirmation:preview.confirmation}),session=async()=>(await request('session',{sessionId},owner)).result;
+ const adjust={sessionId,revision:(await session()).revision,characterId:cid,amount:23,mode:'DEBIT',memo:'Dépense',reason:'Test HTTP'},ap=await command('prepareCreditAdjustment',adjust);await command('applyCreditAdjustment',{...adjust,confirmation:ap.confirmation});
+ for(const stage of ['BRIEFING','EN_JEU','PAUSE'])await command('setStage',{sessionId,revision:(await session()).revision,stage});
+ for(const action of campaignCommands)assert.equal((await request(action,{sessionId,campaignId,requestId:randomUUID()})).status,401);
+ assert.equal((await request('campaign',{campaignId,ownerUid:'forged'},visitor)).status,403);
+ const ending={sessionId,reason:'Bilan HTTP',cancelOffers:false},ep=await command('prepareCampaignClosure',ending);assert.equal(ep.canClose,true);await command('closeCampaignSession',{...ending,confirmation:ep.confirmation});
+ const next={campaignId,title:'Suite HTTP',capacity:2,privacy:'Nouvelle notice',healthPolicy:'PRESERVE',reason:'Reprise HTTP'},np=await command('prepareCampaignEpisode',next),build=await command('beginCampaignEpisode',{...next,confirmation:np.confirmation});
+ assert.equal((await request('publicSession',{sessionId:build.id})).status,400);
+ let result;do{result=await command('advanceCampaignEpisode',{campaignId,buildId:build.buildId});}while(result.status!=='READY');
+ const copied=(await request('session',{sessionId:build.id},owner)).result;assert.equal(copied.accounts[0].balance,100);assert.equal(copied.characters[0].id,cid);assert.equal(copied.registrations.length,0);assert.equal(copied.campaignEpisode,2);
 });

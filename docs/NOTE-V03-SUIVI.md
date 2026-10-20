@@ -1,6 +1,6 @@
 # Reprise du développement — note Port-Brèche V0.3
 
-Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, conservées dans [la note source](source/port-breche-engine-note-v03.md). Base inspectée : commit GitHub `bd670dea159c5c7f01cfe83f8fcba9b81657dd44`, version 0.20. Les statuts ci-dessous décrivent le code, pas une validation terrain.
+Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, conservées dans [la note source](source/port-breche-engine-note-v03.md). Base inspectée : commit GitHub `bd670dea159c5c7f01cfe83f8fcba9b81657dd44`, version 0.20. Les statuts ci-dessous décrivent le code, pas une validation terrain. Le lot 0.22 ajoute la continuité décrite dans [Campagnes](CAMPAGNES.md).
 
 ## Lot 0.21 : PA et récupération des soins existants
 
@@ -22,11 +22,11 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 
 | Exigence | État après ce lot | Suite nécessaire |
 | --- | --- | --- |
-| GN-01 | Scénario et sessions indépendantes existants | Ajouter la campagne persistante et le choix du mode. |
+| GN-01 | Choix partie indépendante / nouvelle campagne et sessions successives | Conversion des anciennes sessions indépendantes non proposée. |
 | GN-02 | Archives de scénario existantes ; PA et niveau global inclus | Master de campagne XLSX, dictionnaire et exemple validé. |
 | GN-03 | Paramètres de session et catalogues existants | Master de session complémentaire avec identifiants durables. |
 | GN-04 | Vérification des archives avant création existante | Import complémentaire sans écraser les acquis, archivage et journal d’import. |
-| GN-05 | Non couvert par la continuité actuelle | Clôture, conservation de l’état, reprise et exclusion de sessions simultanées. |
+| GN-05 | Bilan, clôture scellée, acquis conservés, reprise et verrou de campagne | Report des contrats, copie de campagne de test et états de modules futurs. |
 | GN-06 | Crédits, objets, profils, PV et maintenant PA/niveau global | XP et progression de campagne, prérequis avancés. |
 | GN-07 | PA, horloge, pauses, plafonds, renouvellement, soins | Famille FOUILLE et raccordement aux autres actions. |
 | GN-08 | Réglages en session, aperçu, échéances stables, corrections | Migration explicite des actions engagées, journal consultable dédié et reçus hors réseau. |
@@ -39,13 +39,13 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 | GN-15 | Non implémenté | Vaisseaux et trajets ; barèmes Port-Brèche à définir avant activation. |
 | GN-16 | PA dans les écrans existants | Réorganiser en Mon personnage / Mon groupe / Action / Terminal, inventaire unifié et scan. |
 | GN-17 | Médiathèque et images présentes en 0.19–0.20 | Activation du stockage selon sa procédure existante et recette sur les contenus réels. |
-| GN-18 | Inscription, invitation, attribution, révocation et aperçu existants | Retrouver le même personnage d’une campagne et compléter le pack sans smartphone. |
+| GN-18 | Nouvelles inscriptions et invitations ; rôle précédent proposé sans accès automatique | Compléter le pack sans smartphone et la recette terrain. |
 | GN-19 | Tests ajoutés pour ce lot | Recette complète avec campagne, masters, terrain et plusieurs comptes réels. |
 
 ## Ordre de reprise proposé
 
 1. Socle PA livré en 0.21 et vérifié sur Firestore/Auth : 777 tests réussis et publication contrôlée. Recette terrain encore nécessaire.
-2. Introduire la campagne persistante, sa clôture et sa reprise sans remettre les soldes à zéro.
+2. Continuité de campagne implémentée en 0.22 : bilan, clôture et reprise sans remettre les soldes à zéro ; voir le rapport de validation.
 3. Définir et fournir les deux masters XLSX, puis les imports complémentaires avec aperçu et protection des acquis.
 4. Construire l’exécuteur d’actions : fouilles, durée, D6, objets bonus, soins complets, sabotage et réservations.
 5. Réorganiser les quatre espaces joueur et compléter l’économie, les entrepôts et les recharges.

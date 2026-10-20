@@ -1,3 +1,5 @@
+import {createCampaignService,campaignAction,campaignGuardStore} from './campaigns.mjs';
+import {readScenarioVersion,sessionFromVersion,seedScenarioSession} from './session-seed.mjs';
 import {createActionPointService,actionPointAction} from './action-points.mjs';
 import {actionPointMaximum,actionPointSummary,actionPointPath} from './action-point-state.mjs';
 import {createMediaService,mediaAction} from './media.mjs';
@@ -58,7 +60,7 @@ const characterInput = (input, id, existing={}) => ({...existing,id,
 
 /** Authenticated actor is supplied by the HTTP adapter, never by input JSON. */
 export function createWorkflow({store, ownerEmail, now = Date.now, uuid = randomUUID, images=null, processImage=null}) {
-  store=mediaTrackedStore(store);
+  store=mediaTrackedStore(campaignGuardStore(store));
   const isAdmin = actor => !!actor && actor.emailVerified === true && actor.provider === 'google.com'
     && actor.email?.toLowerCase() === ownerEmail?.toLowerCase();
   function signed(actor) { requireThat(actor?.uid && typeof actor.email==='string' && actor.email && actor.emailVerified === true && actor.provider === 'google.com', 'LOGIN_REQUIRED'); }
@@ -123,6 +125,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     }
     return record.mediaImages?.[slot]??null;
   }});
+  const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,now,uuid});
   const archiveService=createScenarioArchiveService({store,admin,checkScenario,now,uuid,images,archiveUpload:mediaService.archiveUpload});
   const actionPointService=createActionPointService({store,signed,checkSession,checkScenario,now,uuid});
   const bountyService=createBountyService({store,signed,checkSession,now,uuid});
@@ -140,6 +143,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(campaignAction(action))return campaignService(action,actor,input);
     if(archiveAction(action))return archiveService(action,actor,input);
     if(mediaAction(action))return mediaService(action,actor,input);
     if(action==='setStage'&&['BRIEFING','EN_JEU'].includes(input.stage)){
@@ -177,7 +181,8 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
           const s=await tx.get(`sessions/${g.sessionId}`);
           if(s && s.ownerUid===g.ownerUid && !visible.some(x=>x.id===s.id)) visible.push({...privateSession(s),role:g.role});
         }
-        return {scenarios,sessions:visible};
+        const campaigns=own?await tx.list('campaigns',['ownerUid',actor.uid]):[];
+        return {scenarios,sessions:visible,campaigns:campaigns.map(c=>({id:c.id,title:c.title,episodeCount:c.episodeCount,activeSessionId:c.activeSessionId,activeBuildId:c.activeBuildId,latestSessionId:c.latestSessionId}))};
       });
     }
     if(action==='publicSession') {
@@ -207,8 +212,8 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         permissions.content?tx.list(`sessions/${sid}/skills`):[],permissions.content?tx.list(`sessions/${sid}/classes`):[],permissions.content?tx.list(`sessions/${sid}/items`):[],permissions.content?tx.list(`sessions/${sid}/inventory`):[],permissions.content?tx.list(`sessions/${sid}/accounts`):[]]);
       const ap=permissions.content&&s.actionPointRules?.enabled?await Promise.all(characters.map(c=>tx.get(actionPointPath(sid,c.id)))):null;
       if(ap)characters.forEach((c,i)=>c.actionPoints=actionPointSummary(s,c,ap[i],at));
-      return {...privateSession(s),role,permissions,characters:permissions.content?characters:characters.map(receptionCharacter),registrations,
-        ...(permissions.content?{groups,groupsEnabled:s.modules?.groups===true,knowledge,skills,classes,items,inventory:inventory.map(l=>effectiveLot(l,now())),accounts,actionPointRules:s.actionPointRules??null,economyRules:s.economyRules??null,healthRules:s.healthRules??null}:{}),
+      return {...privateSession(s),role,permissions,characters:permissions.content?characters:characters.map(receptionCharacter),registrations:registrations.map(r=>({...r,previousCharacterId:s.campaignId?characters.find(c=>c.previousAssignedUid===r.uid)?.id??null:null})),
+        ...(permissions.content?{campaignId:s.campaignId??null,campaignEpisode:s.campaignEpisode??null,campaignSealed:s.campaignSealed===true,previousSessionId:s.previousSessionId??null,groups,groupsEnabled:s.modules?.groups===true,knowledge,skills,classes,items,inventory:inventory.map(l=>effectiveLot(l,now())),accounts,actionPointRules:s.actionPointRules??null,economyRules:s.economyRules??null,healthRules:s.healthRules??null}:{}),
         audit:audit.sort((a,b)=>b.at-a.at).slice(0,50),staff:staff.map(g=>({email:g.email,role:g.role,active:g.active,updatedAt:g.updatedAt}))};
     });
     if(action==='myGroup' || action==='previewGroup') return store.runTransaction(async tx=>{
@@ -353,44 +358,20 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         for(const k of items)tx.set(`scenarios/${id}/versions/${newId}/items/${k.id}`,k);
         result={id:newId};
       } else if(action==='createSession') {
-        const id=documentId(input.scenarioId), vid=documentId(input.versionId); await checkScenario(tx,actor,id);
-        const v=await tx.get(`scenarios/${id}/versions/${vid}`); requireThat(v,'NOT_FOUND');
-        const [chars,groups,knowledge,skills,classes,items]=await Promise.all([tx.list(`scenarios/${id}/versions/${vid}/characters`),tx.list(`scenarios/${id}/versions/${vid}/groups`),tx.list(`scenarios/${id}/versions/${vid}/knowledge`),tx.list(`scenarios/${id}/versions/${vid}/skills`),tx.list(`scenarios/${id}/versions/${vid}/classes`),tx.list(`scenarios/${id}/versions/${vid}/items`)]);
-        const capacity=whole(input.capacity); requireThat(capacity>0,'INVALID_CAPACITY');
-        const fields=Array.isArray(input.fields) ? input.fields : []; requireThat(fields.length<=20,'TOO_MANY_FIELDS');
-        const cleanFields=fields.map(f=>({id:documentId(f.id),label:text(f.label,200,true),required:f.required===true}));
-        requireThat(new Set(cleanFields.map(f=>f.id)).size===cleanFields.length,'DUPLICATE_FIELD');
-        const s={id:newId,ownerUid:actor.uid,scenarioId:id,versionId:vid,title:text(input.title,150,true),summary:v.summary,
-          date:optional(input.date,40),time:optional(input.time,80),place:optional(input.place,500),practical:optional(input.practical,4000),
-          privacy:text(input.privacy,4000,true),capacity,accepted:0,registrationOpen:false,stage:'PREPARATION',fields:cleanFields,
-          clock:createClock(),revision:1,createdAt:at,economyRules:v.economyRules??null,healthRules:v.healthRules??null,modules:{groups:groups.length>0}};
-        if(v.actionPointRules){s.actionPointRules=v.actionPointRules;s.actionPointRulesRevision=1;s.actionPointSchedule={nextAtGameMs:v.actionPointRules.renewalMinutes*60000};for(const c of chars)actionPointMaximum(v.actionPointRules,c);}
-        tx.set(`sessions/${newId}`,s);
-        for(const c of chars) {
-          const next={...c,...initialHealth(v.healthRules),sessionId:newId,publicCode:c.id,assignedUid:null,contentRevision:1,historyStarted:true};
-          tx.set(charPath(newId,c.id),next);
-          recordPublication(tx,`sessions/${newId}/characters`,null,next,{id:newId,at,actorUid:actor.uid,reason:'Création depuis la version de scénario',stage:'PREPARATION'});
-        }
-        for(const g of groups) {
-          const next={...g,revision:1};tx.set(`sessions/${newId}/groups/${g.id}`,next);
-          tx.set(`sessions/${newId}/groups/${g.id}/history/${newId}`,{id:newId,at,actorUid:actor.uid,actorEmail:actor.email,reason:'Création depuis la version de scénario',before:null,after:next});
-        }
-        for(const k of skills)tx.set(`sessions/${newId}/skills/${k.id}`,k);
-        for(const k of classes)tx.set(`sessions/${newId}/classes/${k.id}`,k);
-        for(const k of items)tx.set(`sessions/${newId}/items/${k.id}`,k);
-        seedWallets(tx,s,chars,at,actor.uid,groups);
-        seedInventory(tx,newId,chars,at,actor.uid);
-        seedKnowledge(tx,newId,knowledge,at);
-        result={id:newId}; auditSid=newId;
+        const id=documentId(input.scenarioId),vid=documentId(input.versionId);await checkScenario(tx,actor,id);
+        requireThat(input.mode===undefined||input.mode==='INDEPENDENT','INVALID_SESSION_MODE');
+        const data=await readScenarioVersion(tx,id,vid),s=sessionFromVersion(input,data,newId,actor,at);
+        seedScenarioSession(tx,s,data,actor,at);result={id:newId};auditSid=newId;
       } else if(action==='setStaff') {
         const s=await checkSession(tx,actor,sid,'staff');revision(s,input.revision);
-        requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
+        requireThat(s.stage!=='ARCHIVED'||(s.campaignSealed&&input.active===false),'SESSION_CLOSED');
         const email=staffEmail(input.email),role=status(input.role,['MJ','RECEPTION']);
         requireThat(email!==ownerEmail.toLowerCase() && typeof input.active==='boolean','INVALID_STAFF');
         const reason=text(input.reason,500,true),path=staffPath(sid,email),old=await tx.get(path);
         tx.set(path,{sessionId:sid,ownerUid:s.ownerUid,email,role,active:input.active,updatedAt:at,updatedBy:actor.uid});
-        tx.set(`sessions/${sid}`,{...s,revision:s.revision+1});
+        if(!s.campaignSealed)tx.set(`sessions/${sid}`,{...s,revision:s.revision+1});
         Object.assign(audit,{email,reason,before:old?{role:old.role,active:old.active}:null,after:{role,active:input.active}});
+        if(s.campaignSealed){auditSid=null;tx.set(`campaigns/${s.campaignId}/history/${newId}`,{...audit,sessionId:sid});}
         result={email,role,active:input.active};
       } else if(action==='setRegistrationOpen' || action==='setStage') {
         const s=await checkSession(tx,actor,sid,sessionCommands[action]); revision(s,input.revision);
@@ -401,6 +382,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         } else {
           const transitions={PREPARATION:['BRIEFING'],BRIEFING:['EN_JEU'],EN_JEU:['PAUSE','FINISHED'],PAUSE:['EN_JEU','FINISHED'],FINISHED:['ARCHIVED'],ARCHIVED:[]};
           requireThat(transitions[s.stage].includes(input.stage),'INVALID_TRANSITION');
+          if(input.stage==='ARCHIVED')requireThat(!s.campaignId,'CAMPAIGN_CLOSE_REQUIRED');
           if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/bounties`)).some(b=>b.status==='OPEN'),'BOUNTIES_OPEN');
           if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/contracts`)).some(c=>['PROPOSED','ACTIVE','SUBMITTED'].includes(c.status)),'CONTRACTS_OPEN');
           next.stage=input.stage;
