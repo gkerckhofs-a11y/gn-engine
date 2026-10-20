@@ -117,7 +117,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.16 est préparée : **615 parcours distincts validés localement** (333 métier/interface et 282 intégrations, après correction et relance ciblée d’une assertion de confidentialité). Vérification complète GitHub et publication en cours ; preuves dans le [rapport 0.16](docs/VALIDATION-0.16.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La **0.16 est publiée** : **615 tests réussis en une exécution complète sur GitHub** (333 métier/interface et 282 intégrations). Le manifeste 0.16.0 et le refus des accès anonymes aux 98 commandes privées ont été vérifiés après déploiement. Preuves dans le [rapport 0.16](docs/VALIDATION-0.16.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 

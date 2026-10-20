@@ -59,7 +59,7 @@ L’acceptation et le dépôt de preuve exigent **En jeu** et la permission de p
 - Exécution locale complète des intégrations : **282 tests**, dont **281 réussis** et un contrôle de confidentialité initialement trop large (environ 351 secondes, Java 21). Le test cherchait la chaîne « 53 » dans tout le JSON, y compris les identifiants aléatoires. Le faux positif a été reproduit dans un identifiant de personnage ; le montant de son contrat était bien 37. Le contrôle vérifie maintenant les champs de rémunération et l’absence des identifiants/données du concurrent.
 - Ce parcours corrigé a été relancé isolément sur Firestore : **1 test réussi**, sans échec (environ 3 secondes). Les **282 parcours d’intégration distincts** ont donc été validés localement ; le réessai ne s’ajoute pas au total. Le code applicatif n’a pas été modifié pour corriger cette assertion.
 - `npm test` a ensuite été relancé intégralement : **333/333 réussis**. Total des parcours distincts : **333 + 282 = 615**.
-- Vérification GitHub et publication à consigner après observation.
+- Le job GitHub `118388669487`, commit source `46b6cafd03cd079c7df58c93d8150257658dcfdf`, confirme **333 + 282 = 615 tests réussis en une exécution complète**, sans échec, annulation ou test ignoré. Node 22.23.3 et Java 21 ; compilation terminée le 20 octobre 2026 à **00:41:11 UTC**, tests métier/interface à **00:41:17 UTC**, intégrations à **00:47:09 UTC** (environ 339 secondes). Résultats lus dans le journal terminé. Les 23 fichiers modifiés ou nouveaux du commit source ont aussi été comparés par empreinte Git aux fichiers locaux.
 - Données synthétiques exclusivement dans `demo-gn-engine`. Aucune donnée de test créée en production.
 
 ## Limites et recette restante
@@ -72,4 +72,13 @@ L’expiration et la clôture demandent une action MJ. Les annonces et contrats 
 
 ## Publication
 
-Version 0.16 préparée ; publication et preuve navigateur à consigner après observation.
+Version **0.16.0 publiée** le 20 octobre 2026 sur [GN Engine](https://gn-engine.web.app/), à partir du commit source [`46b6cafd03cd079c7df58c93d8150257658dcfdf`](https://github.com/gkerckhofs-a11y/gn-engine/commit/46b6cafd03cd079c7df58c93d8150257658dcfdf).
+
+- [Pipeline de déploiement 39349066781](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39349066781) terminé avec succès : vérification `118388669487` (615 tests), puis déploiement `118390719313`.
+- Fonction HTTP `api` active à **00:49:02 UTC**, publication Hosting terminée à **00:49:11 UTC**. Le contrôle final à **00:49:28 UTC** confirme HTTP 200, manifeste **0.16.0** et réponses **401 / LOGIN_REQUIRED** pour les **98 commandes privées distinctes**.
+- [Pipeline de vérification indépendant 39349066801](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39349066801), job `118388669682`, également terminé avec succès.
+- Le navigateur affiche **GN Engine · 0.16** sur l’accueil. L’ouverture anonyme de `#/contracts/verification` affiche **Contrats et missions**, demande une connexion et n’expose aucun accord ou briefing privé. La capture ci-dessous prouve cette fermeture d’accès et la version affichée ; elle ne constitue pas une recette authentifiée du parcours de contrat.
+
+![Version 0.16 en production — accès aux contrats soumis à connexion](verification/gn-engine-0.16-1792457423403.jpg)
+
+Le commit de preuves ne modifie pas le code applicatif ni la demande de déploiement. La recette avec plusieurs comptes réels, sur téléphone et réseau terrain, reste ouverte.

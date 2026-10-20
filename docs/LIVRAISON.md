@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-20 octobre 2026. Aucun lot complet n’est encore validé. Version 0.16 préparée : contrats de missions attribuées, consentement, briefing privé, preuve, réservation et règlement unique. 615 parcours distincts validés localement (333 métier/interface et 282 intégrations après correction et relance ciblée d’une assertion) ; vérification complète GitHub et publication en cours. Rapport `VALIDATION-0.16.md` ; rapports précédents conservés. Primes ouvertes, représentants de groupes, acomptes, garanties et recette terrain restent ouverts.
+20 octobre 2026. Aucun lot complet n’est encore validé. Version 0.16 publiée : contrats de missions attribuées, consentement, briefing privé, preuve, réservation et règlement unique. 615 tests réussis en une exécution complète sur GitHub (333 métier/interface et 282 intégrations). Manifeste 0.16.0 et refus des accès anonymes aux 98 commandes privées vérifiés après déploiement. Rapport `VALIDATION-0.16.md` ; rapports précédents conservés. Primes ouvertes, représentants de groupes, acomptes, garanties et recette terrain restent ouverts.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
