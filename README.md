@@ -6,7 +6,7 @@ Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
-## Reprise sur la note Port-Brèche V0.3 — 0.21 en développement
+## Reprise sur la note Port-Brèche V0.3 — 0.21 validée, publication en cours
 
 Le scénario et la régie de session proposent maintenant les points d’action : plafonds par niveau global, renouvellement toutes les cinq heures de jeu, pauses, corrections MJ et modification de période avec aperçu. Le joueur voit sa réserve ; les soins existants la consomment dans la même transaction que leurs effets. La récupération peut porter sur le soignant, sur le patient commun à tous les soignants, ou être absente en clinique.
 
@@ -28,7 +28,7 @@ Les images inutilisées peuvent passer en corbeille et être restaurées. Les im
 
 Télécharger `activate-media-storage.sh`, importer ce fichier dans Cloud Shell avec le compte propriétaire du projet, puis lancer `bash activate-media-storage.sh`. Une fois le message « Stockage privé activé » affiché, actualiser GN Engine et ouvrir la médiathèque. Le script ne demande aucune clé à transmettre dans la conversation.
 
-Les exports/imports de scénarios avec images et la recette mobile réelle restent à réaliser.
+Les exports/imports de scénarios avec images sont ajoutés en 0.20 ; la recette mobile réelle reste à réaliser.
 
 ## Premier parcours
 

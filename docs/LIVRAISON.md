@@ -129,4 +129,4 @@ Export de l’état courant ou d’une version figée, avec fiches et sources no
 
 ## Reprise sur la note Port-Brèche V0.3 — 0.21
 
-Premier lot préparé : PA facultatifs, plafonds par niveau global, renouvellement en temps de jeu, réglages et corrections MJ, coût atomique des soins et récupération par patient. [Suivi GN-01 à GN-19](NOTE-V03-SUIVI.md) et [validation](VALIDATION-0.21.md). Les campagnes persistantes, les masters complémentaires et les actions chronométrées restent les prochaines étapes.
+Premier lot validé : PA facultatifs, plafonds par niveau global, renouvellement en temps de jeu, réglages et corrections MJ, coût atomique des soins et récupération par patient. Compilation et 777 tests réussis sur GitHub sous Node 22 / Java 21 (427 applicatifs et 350 intégrations Firebase). Publication demandée par la chaîne Firebase existante. [Suivi GN-01 à GN-19](NOTE-V03-SUIVI.md) et [validation](VALIDATION-0.21.md). Les campagnes persistantes, les masters complémentaires et les actions chronométrées restent les prochaines étapes.
