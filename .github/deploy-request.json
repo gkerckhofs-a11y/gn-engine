@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "26628014c03b32345d090c0d356a53b3fbcdc754",
-  "version": "0.27.1",
-  "requestedAt": "2026-10-20T17:14:07.938Z",
-  "reason": "Habillage galactique commun aux espaces joueur et organisateur : couleurs, pictogrammes, formulaires et accueil."
+  "sourceCommit": "b79f6c3231e0517baec9699265e349945402763f",
+  "version": "0.28.0",
+  "requestedAt": "2026-10-20T19:55:44.899Z",
+  "reason": "Entrepôts personnels avec loyers et capacité contrôlée ; ouverture confirmée des recharges laser reçues ; continuité de campagne."
 }
