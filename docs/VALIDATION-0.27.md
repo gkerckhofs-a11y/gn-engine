@@ -16,7 +16,20 @@ La maquette à données fictives `test/ui/player-spaces-preview.mjs` est fournie
 
 ## Publication
 
-Validation Firebase et publication en attente. Les identifiants d’exécution et résultats seront ajoutés après leur réussite.
+Source : `72af674fe852ee9a16c45ad56c9b0ac1402d0d49`. Demande de publication : `c74c64e3925566fe20cd21f679246407250cf556`.
+
+[Exécution GitHub Actions 39455957562](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39455957562), terminée avec succès. Job de vérification : 118742760351 ; job de déploiement : 118749727810.
+
+| Vérification | Résultat du 20 octobre 2026, heure UTC |
+| --- | --- |
+| Compilation et tests applicatifs | 523 réussis, 0 échec, 0 ignoré ; tests terminés à 16:17:00 |
+| Intégrations Firebase | 421 réussies, 0 échec, 0 ignorée ; terminées à 16:29:59 |
+| Déploiement Firebase | Réussi à 16:32:00 |
+| Quatre masters XLSX | Téléchargés et identiques aux fichiers validés à 16:32:01 |
+| Site et API | Version 0.27.0 accessible et commandes privées anonymes refusées à 16:32:35 |
+| Navigateur | Accueil rechargé, pied de page GN Engine 0.27.0 confirmé |
+
+Total : **944 tests réussis** (523 + 421). L’inspection du navigateur porte sur l’accueil public. Les parcours privés sont couverts par les tests automatisés ; ils n’ont pas été parcourus avec des comptes réels dans le navigateur lors de cette livraison.
 
 ## Limites
 

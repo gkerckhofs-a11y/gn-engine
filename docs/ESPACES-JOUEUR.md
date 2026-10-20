@@ -23,7 +23,7 @@ Les contrats personnels sont filtrés dans Mon personnage. Les missions d’un g
 
 ## QR et actions
 
-Le joueur scanne avec l’appareil photo de son téléphone, ou colle le lien dans Action. Un lien reconnaît automatiquement sa cible ; pour un code court, le joueur choisit lieu, personnage ou information. Un ancien lien de badge public ouvre les interactions sur ce personnage. L’ouverture d’une cible ne lance pas d’action et ne consomme pas de PA.
+Le joueur scanne avec l’appareil photo de son téléphone, ou colle le lien dans Action. Dans ce formulaire, un lien reconnaît automatiquement sa cible ; pour un code court, le joueur choisit lieu, personnage ou information. Collé dans Action, un ancien lien de badge public ouvre les interactions sur ce personnage ; ouvert directement, il conserve son écran public avec accès aux interactions. L’ouverture d’une cible ne lance pas d’action et ne consomme pas de PA.
 
 La saisie refuse une autre origine, une autre session, un chemin inattendu, un lien privé d’invitation ou un lien arbitraire. Les autorisations et prérequis sont toujours vérifiés par le serveur à l’ouverture et à l’exécution. Les aperçus, confirmations, réservations, durées, jets et conséquences restent ceux des modules existants.
 

@@ -1,6 +1,10 @@
 # Suivi de réalisation
 
-20 octobre 2026. Aucun lot complet du cahier n’est encore validé. Version 0.26.1 publiée : champs d’import séparés pour les masters de campagne et de session. Compilation et 933 tests réussis (513 applicatifs, 420 intégrations Firebase), sans échec ni test ignoré. Publication, quatre masters et refus anonymes vérifiés à 15:57:01 UTC ; accueil 0.26.1 confirmé dans le navigateur. Preuves dans [VALIDATION-0.26.1.md](VALIDATION-0.26.1.md). [Guide des masters](MASTERS.md). Navigation en quatre espaces, capture complète, logistique, progression XP et recette terrain restent ouvertes.
+20 octobre 2026. Aucun lot complet du cahier n’est encore validé. Version 0.27.0 publiée : les quatre espaces joueur. Compilation et 944 tests réussis (523 applicatifs, 421 intégrations Firebase), sans échec ni test ignoré. Publication, quatre masters et refus anonymes vérifiés à 16:32:35 UTC ; accueil 0.27.0 confirmé dans le navigateur. [Validation](VALIDATION-0.27.md) · [Guide des espaces](ESPACES-JOUEUR.md). Capture complète, logistique, progression XP, bibliothèque d’articles et recette terrain restent ouvertes.
+
+## Extension 0.27 — quatre espaces joueur
+
+Navigation privée commune, sac avec crédits et objets, groupes et contrats selon les droits, Action avec lieux et personnages et saisie QR/code, Terminal avec outils existants et règles de session. La recette sur téléphones et comptes réels reste ouverte. Le scan s’effectue avec l’application photo du téléphone. [Guide et limites](ESPACES-JOUEUR.md) · [Validation](VALIDATION-0.27.md).
 
 ## Correctif 0.26.1 — imports séparés
 

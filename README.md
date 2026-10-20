@@ -2,9 +2,15 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.26.1 publiée et vérifiée : champs d’import séparés pour les masters.**
+**Version 0.27.0 publiée et vérifiée : les quatre espaces joueur.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
+
+## Mon personnage, Mon groupe, Action et Terminal — 0.27
+
+Navigation commune aux écrans privés, QR et état rapidement accessibles. Mon personnage regroupe fiche, compétences, sac avec crédits et objets, informations, carnet et missions personnelles. Mon groupe conserve les accès selon les droits, Action rassemble lieux et personnages avec saisie QR/code, et Terminal réunit les annonces, contrats, marché et informations de session. Les liens existants restent utilisables.
+
+Compilation et **944 tests réussis** : 523 applicatifs et 421 intégrations Firebase. Publication, quatre masters et accès privés vérifiés le 20 octobre 2026 à 16:32:35 UTC ; accueil 0.27.0 confirmé dans le navigateur. [Guide](docs/ESPACES-JOUEUR.md) · [Validation et limites](docs/VALIDATION-0.27.md). Recette sur téléphones et comptes réels encore ouverte ; scan par l’application photo du téléphone.
 
 ## Imports séparés — 0.26.1
 

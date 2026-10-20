@@ -2,6 +2,10 @@
 
 Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, conservées dans [la note source](source/port-breche-engine-note-v03.md). Base inspectée : commit GitHub `bd670dea159c5c7f01cfe83f8fcba9b81657dd44`, version 0.20. Les statuts ci-dessous décrivent le code, pas une validation terrain. Les lots 0.22 et 0.23, publiés et vérifiés le 20 octobre 2026, ajoutent la continuité décrite dans [Campagnes](CAMPAGNES.md) et les [masters complémentaires](MASTERS.md).
 
+## Lot 0.27 : quatre espaces joueur
+
+Mon personnage, Mon groupe, Action et Terminal organisent les écrans privés. Sac avec crédits et objets, contrats filtrés selon le titulaire, regroupement des actions sur lieux et personnages, saisie de QR/code et résumé des règles de session. Compatibilité des liens et droits conservée. 944 tests réussis (523 applicatifs, 421 intégrations Firebase) ; publication, masters et accès privés contrôlés à 16:32:35 UTC, accueil 0.27.0 confirmé. [Guide](ESPACES-JOUEUR.md) · [Validation](VALIDATION-0.27.md). Recette mobile et comptes réels restent ouverts.
+
 ## Correctif 0.26.1 : champs d’import séparés
 
 Avant le prochain lot, ajout d’un champ de campagne dans le scénario et d’un champ de session dans la régie de l’épisode en préparation. Modèles et exemples propres à chaque zone ; fichiers inversés refusés avec indication de l’écran correct. Format des classeurs inchangé. 933 tests réussis (513 applicatifs, 420 intégrations Firebase), publication et fichiers contrôlés à 15:57:01 UTC ; accueil 0.26.1 vérifié. [Guide](MASTERS.md) · [Validation](VALIDATION-0.26.1.md).
@@ -69,10 +73,10 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 | GN-13 | Groupes, caisses et mandat de mission existants | Droits distincts sur les stocks, les ventes et les départs. |
 | GN-14 | Annonces, candidatures, preuves et paiement personnel/collectif existants | Compléter selon la recette finale de la note. |
 | GN-15 | Non implémenté | Vaisseaux et trajets ; barèmes Port-Brèche à définir avant activation. |
-| GN-16 | PA, QR de lieux, liens/code manuel, actions en cours et résultats | Réorganiser les quatre espaces joueur, inventaire unifié et scan caméra intégré. |
+| GN-16 | Quatre espaces joueur, sac avec crédits et objets, QR/code de trois types, actions en cours et résultats, résumé des règles | Scan caméra intégré, articles d’univers/nouvelles, historique général des règles et recette mobile. |
 | GN-17 | Médiathèque et images présentes en 0.19–0.20 | Activation du stockage selon sa procédure existante et recette sur les contenus réels. |
 | GN-18 | Nouvelles inscriptions et invitations ; rôle précédent proposé sans accès automatique | Compléter le pack sans smartphone et la recette terrain. |
-| GN-19 | PA, campagnes, masters et terrain couverts par les suites automatisées ; 928 tests réussis en 0.26 | Recette terrain, plusieurs comptes réels et charge simultanée. |
+| GN-19 | PA, campagnes, masters, terrain et quatre espaces couverts par les suites automatisées ; 944 tests réussis en 0.27 | Recette terrain, plusieurs comptes réels et charge simultanée. |
 
 ## Ordre de reprise proposé
 
@@ -80,7 +84,7 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 2. Continuité de campagne implémentée en 0.22 : bilan, clôture et reprise sans remettre les soldes à zéro ; voir le rapport de validation.
 3. Masters XLSX et imports complémentaires implémentés en 0.23 ; compléter les nouveaux modules au fil de leur développement.
 4. Exécuteur de terrain implémenté en 0.24 : fouilles, durée, D6, bonus, sabotage/réparation et réservations. Soins en deux étapes, aide et pillage ajoutés en 0.25 ; masters de lieux et profils complétés en 0.26.
-5. Réorganiser les quatre espaces joueur et compléter l’économie, les entrepôts et les recharges.
+5. Quatre espaces joueur livrés en 0.27 ; compléter l’économie, les entrepôts et les recharges.
 6. Traiter le spatial après définition de ses règles, puis réaliser la recette terrain.
 
 Les montants économiques, les plafonds au-delà du niveau 2, les durées du GN, la portion de billes par recharge et les barèmes spatiaux restent des décisions de jeu. Cette reprise n’en fixe aucune implicitement.
