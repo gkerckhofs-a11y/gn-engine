@@ -2,6 +2,10 @@
 
 Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, conservées dans [la note source](source/port-breche-engine-note-v03.md). Base inspectée : commit GitHub `bd670dea159c5c7f01cfe83f8fcba9b81657dd44`, version 0.20. Les statuts ci-dessous décrivent le code, pas une validation terrain. Les lots 0.22 et 0.23, publiés et vérifiés le 20 octobre 2026, ajoutent la continuité décrite dans [Campagnes](CAMPAGNES.md) et les [masters complémentaires](MASTERS.md).
 
+## Correctif 0.26.1 : champs d’import séparés
+
+Avant le prochain lot, ajout d’un champ de campagne dans le scénario et d’un champ de session dans la régie de l’épisode en préparation. Modèles et exemples propres à chaque zone ; fichiers inversés refusés avec indication de l’écran correct. Format des classeurs inchangé. 933 tests réussis (513 applicatifs, 420 intégrations Firebase), publication et fichiers contrôlés à 15:57:01 UTC ; accueil 0.26.1 vérifié. [Guide](MASTERS.md) · [Validation](VALIDATION-0.26.1.md).
+
 ## Lot 0.26 : masters de terrain
 
 Lieux de fouille, installations, profils SEARCH/SABOTAGE/REPAIR, récompenses finies et cinq profils d’interaction sont importables depuis les quatre modèles/exemples XLSX mis à jour. Colonne pillable pour les modèles d’objets. Aperçu, validation atomique, stocks existants protégés, empreintes conservées en campagne. Voir [Masters](MASTERS.md) et [Validation](VALIDATION-0.26.md).

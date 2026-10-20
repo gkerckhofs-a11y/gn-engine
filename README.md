@@ -2,9 +2,15 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.26.0 publiée et vérifiée : masters de terrain et interactions.**
+**Version 0.26.1 publiée et vérifiée : champs d’import séparés pour les masters.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
+
+## Imports séparés — 0.26.1
+
+Un champ **Fichier master de campagne** dans l’atelier du scénario et un champ **Fichier master de session** dans la régie de l’épisode en préparation. Chaque zone affiche sa destination, son modèle et son exemple. Un fichier du mauvais type est refusé avant l’envoi au serveur et indique où le charger. Les quatre XLSX existants restent compatibles ; aperçu et confirmation sont conservés.
+
+Compilation et **933 tests réussis** : 513 applicatifs et 420 intégrations Firebase. Publication, fichiers et accès privés contrôlés le 20 octobre 2026 à 15:57:01 UTC ; accueil 0.26.1 confirmé dans le navigateur. [Guide](docs/MASTERS.md) · [Validation](docs/VALIDATION-0.26.1.md).
 
 ## Masters de terrain — 0.26
 

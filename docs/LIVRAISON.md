@@ -1,6 +1,10 @@
 # Suivi de réalisation
 
-20 octobre 2026. Aucun lot complet du cahier n’est encore validé. Version 0.26.0 publiée : masters de terrain et interactions. Compilation et 928 tests réussis (508 applicatifs, 420 intégrations Firebase), sans échec ni test ignoré. Publication, quatre masters et refus anonymes vérifiés à 15:20:04 UTC ; accueil 0.26.0 confirmé dans le navigateur. Preuves dans [VALIDATION-0.26.md](VALIDATION-0.26.md). [Guide des masters](MASTERS.md). Navigation en quatre espaces, capture complète, logistique, progression XP et recette terrain restent ouvertes.
+20 octobre 2026. Aucun lot complet du cahier n’est encore validé. Version 0.26.1 publiée : champs d’import séparés pour les masters de campagne et de session. Compilation et 933 tests réussis (513 applicatifs, 420 intégrations Firebase), sans échec ni test ignoré. Publication, quatre masters et refus anonymes vérifiés à 15:57:01 UTC ; accueil 0.26.1 confirmé dans le navigateur. Preuves dans [VALIDATION-0.26.1.md](VALIDATION-0.26.1.md). [Guide des masters](MASTERS.md). Navigation en quatre espaces, capture complète, logistique, progression XP et recette terrain restent ouvertes.
+
+## Correctif 0.26.1 — imports séparés
+
+Champ campagne dans le scénario, champ session dans l’épisode en préparation, avec modèles et exemples associés. Un fichier inversé est refusé avant envoi et son emplacement correct est indiqué. Le format XLSX et les contrôles serveur restent inchangés. [Validation](VALIDATION-0.26.1.md).
 
 ## Extension 0.26 — masters de terrain
 
