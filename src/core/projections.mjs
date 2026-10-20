@@ -1,3 +1,4 @@
+import {mediaFields} from './media-state.mjs';
 import {playerAbilities} from './abilities.mjs';
 import { requireThat } from './validation.mjs';
 
@@ -8,6 +9,7 @@ export function publicCharacter(character) {
   requireThat(visible?.publicationState === 'PUBLISHED'
     && typeof visible.displayName === 'string', 'PUBLIC_IDENTITY_MISSING');
   return {
+    ...mediaFields(character,['portrait']),
     id: character.id,
     displayName: visible.displayName,
     profession: visible.profession ?? '',
@@ -22,6 +24,7 @@ export function participantCharacter(character, assignment, uid) {
   requireThat(character.publicationState === 'PUBLISHED', 'CONTENT_UNPUBLISHED');
   return {
     ...publicCharacter(character),
+    ...mediaFields(character,['portrait','private']),
     biography: character.biography ?? '',
     roleplay: character.roleplay ?? '',
     secrets: character.playerSecrets ?? '',

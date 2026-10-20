@@ -2,9 +2,19 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.18 : missions et primes en son nom ou au nom d’une bande.**
+**Version 0.19 : médiathèque privée, imports par lot et images des personnages, objets et missions.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
+
+## Médiathèque 0.19
+
+Ouvrez « Médiathèque » depuis le tableau de bord, un scénario ou une session. Importez vos images, classez-les puis choisissez-les dans les éditeurs. Les attributions en série présentent chaque cible avant confirmation. Une même image peut illustrer plusieurs contenus ; les briefings privés gardent leurs droits.
+
+Les images inutilisées peuvent passer en corbeille et être restaurées. Les images présentes dans des versions ou historiques sont protégées ; une purge manuelle devient possible après 30 jours pour les images sans référence. Les sessions, lots et contrats ne changent pas silencieusement de visuel.
+
+**Activation du stockage :** le propriétaire doit exécuter [le script préparé](scripts/activate-media-storage.sh) dans Google Cloud Shell pour le bucket privé dédié. L’accès initial de déploiement ne comprend pas ce nouveau stockage. La galerie indique son état d’activation. [Parcours, limites et validation 0.19](docs/VALIDATION-0.19.md).
+
+Les exports/imports de scénarios avec images et la recette mobile réelle restent à réaliser.
 
 ## Premier parcours
 

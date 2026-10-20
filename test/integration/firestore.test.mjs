@@ -1,3 +1,4 @@
+import {mediaSuite} from '../support/media-suite.mjs';
 import {missionPartiesSuite} from '../support/mission-parties-suite.mjs';
 import {bountiesSuite} from '../support/bounties-suite.mjs';
 import {contractsSuite} from '../support/contracts-suite.mjs';
@@ -47,3 +48,5 @@ test('règles Firestore : un client non authentifié ne peut lire ni écrire les
 bountiesSuite(()=>firestoreStore(firestore),'Primes sur Firestore');
 
 missionPartiesSuite(()=>firestoreStore(firestore),'Participation sur Firestore');
+
+mediaSuite(()=>firestoreStore(firestore),'Médiathèque sur Firestore');

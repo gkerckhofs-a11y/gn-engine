@@ -115,4 +115,9 @@ Compilation et 697 tests réussis sur GitHub : 377 métier/interface et 320 int�
 
 Le [bilan courant](BILAN-2026-10-20.md) synthétise les réalisations jusqu’à la 0.18 et les chantiers restants. Les limites décrites dans les extensions anciennes sont historiques et peuvent être levées par une version ultérieure. Les primes ouvertes et les candidatures de bandes sont développées.
 
-La [révision 1.1 du cahier](source/cahier-des-charges-v1.1.txt) ajoute la [médiathèque](MEDIATHEQUE.md), obligatoire et encore à développer. La recette complète inclut désormais REC-11 pour les imports, associations, droits et suppressions d’images.
+La [révision 1.1 du cahier](source/cahier-des-charges-v1.1.txt) ajoute la [médiathèque](MEDIATHEQUE.md), obligatoire et désormais implémentée partiellement en 0.19. La recette complète inclut désormais REC-11 pour les imports, associations, droits et suppressions d’images.
+
+
+## Extension 0.19 — implémentée, activation à vérifier
+
+Médiathèque privée, import par lot, métadonnées, filtres, vignettes et agrandissement, attributions aux personnages/objets/missions, conservation des versions, corbeille et restauration. Contrôle d’usage transactionnel et autorisations par contenu. Le bucket privé requiert l’activation du script préparé par le propriétaire ; l’autorisation initiale ne comprend pas Storage. Exports/imports de scénarios avec images et recette mobile restent ouverts. Voir [VALIDATION-0.19.md](VALIDATION-0.19.md).

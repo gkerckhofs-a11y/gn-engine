@@ -1,3 +1,6 @@
+import {getStorage} from 'firebase-admin/storage';
+import {bucketImages,processImage} from '../adapters/media-images.mjs';
+import {mediaLimits} from '../core/media-state.mjs';
 import {initializeApp} from 'firebase-admin/app';
 import {getAuth} from 'firebase-admin/auth';
 import {getFirestore} from 'firebase-admin/firestore';
@@ -10,10 +13,12 @@ import {DomainError} from '../core/validation.mjs';
 initializeApp();
 const ownerEmail=defineString('OWNER_EMAIL',{default:'gkerckhofs@gmail.com',description:'Compte Google vérifié propriétaire de GN Engine'});
 const store=firestoreStore(getFirestore());
-export const api=onRequest({region:'europe-west1',serviceAccount:'gn-engine-runtime@gn-engine.iam.gserviceaccount.com',maxInstances:3,minInstances:0,memory:'256MiB',timeoutSeconds:60,invoker:'public'},async(req,res)=>{
+const mediaBucket=process.env.MEDIA_BUCKET||'gn-engine-media-936415509528';
+const images=bucketImages(getStorage().bucket(mediaBucket));
+export const api=onRequest({region:'europe-west1',serviceAccount:'gn-engine-runtime@gn-engine.iam.gserviceaccount.com',maxInstances:3,minInstances:0,memory:'512MiB',concurrency:8,timeoutSeconds:60,invoker:'public'},async(req,res)=>{
   res.set('Cache-Control','private, no-store'); res.set('X-Content-Type-Options','nosniff');
   if(req.method!=='POST') return res.status(405).json({error:'METHOD_NOT_ALLOWED'});
-  if(!req.is('application/json') || Buffer.byteLength(JSON.stringify(req.body ?? {}))>128000)
+  if(!req.is('application/json') || Buffer.byteLength(JSON.stringify(req.body ?? {}))>(req.body?.action==='mediaUpload'?Math.ceil(mediaLimits.fileBytes/3)*4+10000:128000))
     return res.status(400).json({error:'INVALID_BODY'});
   try {
     let actor=null;
@@ -24,7 +29,7 @@ export const api=onRequest({region:'europe-west1',serviceAccount:'gn-engine-runt
       actor={uid:claims.uid,email:claims.email,emailVerified:claims.email_verified,
         provider:claims.firebase?.sign_in_provider,authTime:claims.auth_time};
     }
-    const workflow=createWorkflow({store,ownerEmail:ownerEmail.value()});
+    const workflow=createWorkflow({store,ownerEmail:ownerEmail.value(),images,processImage});
     const result=await workflow.dispatch(req.body.action,actor,req.body.input ?? {});
     return res.json({result});
   } catch(error) {

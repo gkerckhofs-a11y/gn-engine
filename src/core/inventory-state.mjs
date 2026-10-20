@@ -1,3 +1,4 @@
+import {mediaFields} from './media-state.mjs';
 import {createHash} from 'node:crypto';
 import {documentId,requireThat,whole} from './validation.mjs';
 export const inventoryHash=v=>createHash('sha256').update(v).digest('hex');
@@ -7,11 +8,11 @@ export function itemInput(input,id,old={}){
   requireThat(['DRAFT','READY','PUBLISHED'].includes(input.publicationState),'INVALID_ITEM');
   requireThat(['UNSPECIFIED','LEGAL','ILLEGAL'].includes(input.legality??'UNSPECIFIED'),'INVALID_ITEM');
   const unitVolume=input.unitVolume==null?null:whole(input.unitVolume,'INVALID_ITEM');
-  return {id,name:text(input.name,150,true),description:text(input.description??'',6000),category:text(input.category??'',150),
+  return {...mediaFields(old,['illustration']),id,name:text(input.name,150,true),description:text(input.description??'',6000),category:text(input.category??'',150),
     unit:text(input.unit??'unité',50,true),kind:input.kind,consumable:input.consumable,unitVolume,legality:input.legality??'UNSPECIFIED',
     gmNotes:text(input.gmNotes??'',10000),publicationState:input.publicationState,revision:(old.revision??0)+1};
 }
-export const publicItem=d=>({id:d.id,name:d.name,description:d.description,category:d.category,unit:d.unit,kind:d.kind,consumable:d.consumable,unitVolume:d.unitVolume,legality:d.legality,revision:d.revision});
+export const publicItem=d=>({...mediaFields(d,['illustration']),id:d.id,name:d.name,description:d.description,category:d.category,unit:d.unit,kind:d.kind,consumable:d.consumable,unitVolume:d.unitVolume,legality:d.legality,revision:d.revision});
 export function itemQuantity(definition,value,allowZero=false){
   const quantity=whole(value,'INVALID_QUANTITY');requireThat((allowZero||quantity>0)&&(definition.kind!=='INDIVIDUAL'||quantity<=1),'INVALID_QUANTITY');return quantity;
 }

@@ -1,6 +1,6 @@
 # Médiathèque des images personnalisées
 
-20 octobre 2026 — spécification ajoutée au cahier V1.1 ; module à développer.
+20 octobre 2026 — spécification du cahier V1.1. Première implémentation 0.19 : voir [parcours, validation et limites](VALIDATION-0.19.md). Activation du stockage privé, exports/imports complets et recette terrain encore à confirmer ou réaliser.
 
 Ajout du 20 octobre 2026. L’organisateur dispose d’une base d’images réutilisables pour illustrer les objets, les personnages et PNJ, ainsi que les missions et petites annonces. Le module est obligatoire dans le périmètre initial. Il complète EDI-01, PER-01, INV-05, ANN-03, EXP-03 et SEC-04.
 

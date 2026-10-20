@@ -719,8 +719,8 @@
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_18",
       "coreWork": "Contrats de missions attribuées et règlement contrôlé",
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration ; docs/VALIDATION-0.17.md ; docs/VALIDATION-0.18.md ; docs/BILAN-2026-10-20.md",
-      "implementedScope": "Conditions et audiences contrôlées, briefing débloqué à l’accord, notes MJ exclues ; primes financées avec quota fixe et mode de participation verrouillé. Médias et recette terrain restant."
+      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration ; docs/VALIDATION-0.17.md ; docs/VALIDATION-0.18.md ; docs/BILAN-2026-10-20.md ; docs/VALIDATION-0.19.md",
+      "implementedScope": "Conditions et audiences contrôlées, briefing débloqué à l’accord, notes MJ exclues ; primes financées avec quota fixe et mode de participation verrouillé. Médias ajoutés en 0.19 ; activation Storage et recette terrain restantes."
     },
     {
       "id": "ANN-04",
@@ -1526,11 +1526,11 @@
       "sourceLine": 399,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
-      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_IMPLEMENTEE_0_19_ACTIVATION_STORAGE_REQUISE",
+      "coreWork": "Médiathèque privée et références versionnées",
+      "acceptance": "TESTS_AUTOMATISES_RECETTE_REELLE_RESTANTE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026 ; docs/VALIDATION-0.19.md ; src/core/media.mjs ; src/core/media-state.mjs ; src/adapters/media-images.mjs ; web/media.mjs ; test/media.test.mjs ; test/support/media-suite.mjs ; test/integration",
+      "implementedScope": "Catalogue, noms, catégories, univers, mots-clés/crédit, filtres par usage/scénario/type et pagination de 24. Activation privée et recette réelle restantes."
     },
     {
       "id": "MED-02",
@@ -1538,11 +1538,11 @@
       "sourceLine": 400,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
-      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_IMPLEMENTEE_0_19_ACTIVATION_STORAGE_REQUISE",
+      "coreWork": "Médiathèque privée et références versionnées",
+      "acceptance": "TESTS_AUTOMATISES_RECETTE_REELLE_RESTANTE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026 ; docs/VALIDATION-0.19.md ; src/core/media.mjs ; src/core/media-state.mjs ; src/adapters/media-images.mjs ; web/media.mjs ; test/media.test.mjs ; test/support/media-suite.mjs ; test/integration",
+      "implementedScope": "Multisélection et dépôt, progression par fichier, reprise idempotente, contrôle des doublons, suppression de la sélection. Tests synthétiques vingt fichiers valides et un refus ; recette navigateur réelle restante."
     },
     {
       "id": "MED-03",
@@ -1550,11 +1550,11 @@
       "sourceLine": 401,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
-      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_IMPLEMENTEE_0_19_ACTIVATION_STORAGE_REQUISE",
+      "coreWork": "Médiathèque privée et références versionnées",
+      "acceptance": "TESTS_AUTOMATISES_RECETTE_REELLE_RESTANTE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026 ; docs/VALIDATION-0.19.md ; src/core/media.mjs ; src/core/media-state.mjs ; src/adapters/media-images.mjs ; web/media.mjs ; test/media.test.mjs ; test/support/media-suite.mjs ; test/integration",
+      "implementedScope": "Décodage JPEG/PNG/WebP non animés, limites, orientation, métadonnées retirées, transparence, source normalisée et variantes 320/1280 px. Affichage entier et agrandissement ; éditeur de recadrage non inclus."
     },
     {
       "id": "MED-04",
@@ -1562,11 +1562,11 @@
       "sourceLine": 402,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
-      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_IMPLEMENTEE_0_19_ACTIVATION_STORAGE_REQUISE",
+      "coreWork": "Médiathèque privée et références versionnées",
+      "acceptance": "TESTS_AUTOMATISES_RECETTE_REELLE_RESTANTE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026 ; docs/VALIDATION-0.19.md ; src/core/media.mjs ; src/core/media-state.mjs ; src/adapters/media-images.mjs ; web/media.mjs ; test/media.test.mjs ; test/support/media-suite.mjs ; test/integration",
+      "implementedScope": "Sélection dans les éditeurs, remplacement/détachement, réutilisation et série avec récapitulatif. Portrait public, fiche privée, objet/lot, annonce et briefing distincts."
     },
     {
       "id": "MED-05",
@@ -1574,11 +1574,11 @@
       "sourceLine": 403,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
-      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_IMPLEMENTEE_0_19_ACTIVATION_STORAGE_REQUISE",
+      "coreWork": "Médiathèque privée et références versionnées",
+      "acceptance": "TESTS_AUTOMATISES_RECETTE_REELLE_RESTANTE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026 ; docs/VALIDATION-0.19.md ; src/core/media.mjs ; src/core/media-state.mjs ; src/adapters/media-images.mjs ; web/media.mjs ; test/media.test.mjs ; test/support/media-suite.mjs ; test/integration",
+      "implementedScope": "Références immuables id/version, copies de scénarios, matériel et contrats protégées. Changement par nouvelle image et choix explicite des cibles ; comparaison avant/après. Pas de remplacement en place des binaires."
     },
     {
       "id": "MED-06",
@@ -1586,11 +1586,11 @@
       "sourceLine": 406,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
-      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_IMPLEMENTEE_0_19_ACTIVATION_STORAGE_REQUISE",
+      "coreWork": "Médiathèque privée et références versionnées",
+      "acceptance": "TESTS_AUTOMATISES_RECETTE_REELLE_RESTANTE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026 ; docs/VALIDATION-0.19.md ; src/core/media.mjs ; src/core/media-state.mjs ; src/adapters/media-images.mjs ; web/media.mjs ; test/media.test.mjs ; test/support/media-suite.mjs ; test/integration",
+      "implementedScope": "Propriétaire et MJ de session, Accueil/joueurs exclus du catalogue. Chaque lecture de variante utilise les droits du contenu ; pas d’URL publique porteuse de jeton. Activation IAM et recette réelle multi-comptes restantes."
     },
     {
       "id": "MED-07",
@@ -1598,11 +1598,11 @@
       "sourceLine": 407,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
-      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_IMPLEMENTEE_0_19_ACTIVATION_STORAGE_REQUISE",
+      "coreWork": "Médiathèque privée et références versionnées",
+      "acceptance": "TESTS_AUTOMATISES_RECETTE_REELLE_RESTANTE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026 ; docs/VALIDATION-0.19.md ; src/core/media.mjs ; src/core/media-state.mjs ; src/adapters/media-images.mjs ; web/media.mjs ; test/media.test.mjs ; test/support/media-suite.mjs ; test/integration",
+      "implementedScope": "Utilisations listées, images référencées bloquées, corbeille/restauration par lot et purge explicite après 30 jours. Les références historiques restent conservées et empêchent leur purge ; pas d’effacement des historiques."
     },
     {
       "id": "MED-08",
@@ -1610,11 +1610,11 @@
       "sourceLine": 408,
       "lot": "E",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
-      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_IMPLEMENTEE_0_19_ACTIVATION_STORAGE_REQUISE",
+      "coreWork": "Médiathèque privée et références versionnées",
+      "acceptance": "TESTS_AUTOMATISES_RECETTE_REELLE_RESTANTE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026 ; docs/VALIDATION-0.19.md ; src/core/media.mjs ; src/core/media-state.mjs ; src/adapters/media-images.mjs ; web/media.mjs ; test/media.test.mjs ; test/support/media-suite.mjs ; test/integration",
+      "implementedScope": "Binaires séparés des métadonnées et contrôle avant ouverture. Export/import/restauration de scénarios avec les fichiers et permissions restant à développer."
     },
     {
       "id": "MED-09",
@@ -1622,11 +1622,11 @@
       "sourceLine": 409,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
-      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_IMPLEMENTEE_0_19_ACTIVATION_STORAGE_REQUISE",
+      "coreWork": "Médiathèque privée et références versionnées",
+      "acceptance": "TESTS_AUTOMATISES_RECETTE_REELLE_RESTANTE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026 ; docs/VALIDATION-0.19.md ; src/core/media.mjs ; src/core/media-state.mjs ; src/adapters/media-images.mjs ; web/media.mjs ; test/media.test.mjs ; test/support/media-suite.mjs ; test/integration",
+      "implementedScope": "Pages de 24, vignettes chargées à l’approche de l’écran, agrandissement à la demande, quota 512 Mio/1 000 images et erreurs sans perte du texte. Mesures mobile/réseau réel restantes."
     },
     {
       "id": "MED-10",
@@ -1634,11 +1634,11 @@
       "sourceLine": 410,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
-      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_IMPLEMENTEE_0_19_ACTIVATION_STORAGE_REQUISE",
+      "coreWork": "Médiathèque privée et références versionnées",
+      "acceptance": "TESTS_AUTOMATISES_RECETTE_REELLE_RESTANTE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026 ; docs/VALIDATION-0.19.md ; src/core/media.mjs ; src/core/media-state.mjs ; src/adapters/media-images.mjs ; web/media.mjs ; test/media.test.mjs ; test/support/media-suite.mjs ; test/integration",
+      "implementedScope": "Audit des opérations, index de références transactionnel, concurrence suppression/attribution testée ; nettoyage des imports abandonnés et reprise de purge sans effacer les réussites."
     },
     {
       "id": "REC-11",
@@ -1646,12 +1646,12 @@
       "sourceLine": 411,
       "lot": "E",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
-      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_IMPLEMENTEE_0_19_ACTIVATION_STORAGE_REQUISE",
+      "coreWork": "Médiathèque privée et références versionnées",
+      "acceptance": "TESTS_AUTOMATISES_RECETTE_REELLE_RESTANTE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026 ; docs/VALIDATION-0.19.md ; src/core/media.mjs ; src/core/media-state.mjs ; src/adapters/media-images.mjs ; web/media.mjs ; test/media.test.mjs ; test/support/media-suite.mjs ; test/integration",
+      "implementedScope": "Recette synthétique import 20+1, reprise, accès par contenu, versions, objets, mission privée, suppression et restauration. Activation Storage, recette réelle multi-comptes/mobile et export/réimport restants."
     }
   ],
-  "reviewNote": "Bilan du 20 octobre 2026 : rapports 0.17/0.18 pris en compte. Les champs prototype décrivent l’audit initial et ne mesurent pas l’avancement actuel. Une extension déployée reste partielle tant que toute l’exigence et la recette terrain ne sont pas validées. Médiathèque spécifiée, non développée."
+  "reviewNote": "Bilan du 20 octobre 2026 : rapports 0.17/0.18 pris en compte. Les champs prototype décrivent l’audit initial et ne mesurent pas l’avancement actuel. Une extension déployée reste partielle tant que toute l’exigence et la recette terrain ne sont pas validées. Médiathèque spécifiée, non développée. Première implémentation médiathèque 0.19 ajoutée : activation Storage, exports/imports et recette réelle restants."
 }

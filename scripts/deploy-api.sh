@@ -9,7 +9,7 @@ gcloud functions deploy api \
   --service-account=gn-engine-runtime@gn-engine.iam.gserviceaccount.com \
   --build-service-account=projects/gn-engine/serviceAccounts/gn-engine-build@gn-engine.iam.gserviceaccount.com \
   --docker-repository=projects/gn-engine/locations/europe-west1/repositories/gn-engine-functions \
-  --memory=256Mi --cpu=1 --min-instances=0 --max-instances=3 \
-  --concurrency=80 --timeout=60s \
-  --update-env-vars=OWNER_EMAIL=gkerckhofs@gmail.com \
+  --memory=512Mi --cpu=1 --min-instances=0 --max-instances=3 \
+  --concurrency=8 --timeout=60s \
+  --update-env-vars=OWNER_EMAIL=gkerckhofs@gmail.com,MEDIA_BUCKET=gn-engine-media-936415509528 \
   --quiet

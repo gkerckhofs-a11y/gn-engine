@@ -1,3 +1,4 @@
+import {mediaFields} from './media-state.mjs';
 import {participantOf,participantAllowed,participantAccount,participantAccess,participantCurrent,missionReadState,withMissionRead} from './mission-parties.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {inventoryHash as hash} from './inventory-state.mjs';
@@ -86,7 +87,7 @@ export function createContractService({store,signed,checkSession,now,uuid}){
     const p=await candidate(tx,s,c);let canAccept=false,unavailable=null;
     if(!admin&&c.status==='PROPOSED')try{await acceptance(tx,s,c,ctx,at);canAccept=true;}catch(e){if(!e.code)throw e;unavailable=e.code;}
     const history=await tx.list(`sessions/${s.id}/contracts/${c.id}/history`,null,{orderBy:'at',direction:'desc',limit:30});
-    return {session:{id:s.id},admin,contract:{...summary(c,s,at,ctx),terms:c.terms,acceptedAt:c.acceptedAt??null,deadlineGameMs:c.deadlineGameMs??null,remainingGameMs:c.deadlineGameMs==null?null:Math.max(0,c.deadlineGameMs-gameTime(s.clock,at)),proof:c.proof??null,briefing:c.acceptedAt!=null||admin?c.briefing:null},
+    return {session:{id:s.id},admin,contract:{...mediaFields(c,c.acceptedAt!=null||admin?['illustration','briefing']:['illustration']),...summary(c,s,at,ctx),terms:c.terms,acceptedAt:c.acceptedAt??null,deadlineGameMs:c.deadlineGameMs??null,remainingGameMs:c.deadlineGameMs==null?null:Math.max(0,c.deadlineGameMs-gameTime(s.clock,at)),proof:c.proof??null,briefing:c.acceptedAt!=null||admin?c.briefing:null},
       history:admin?history:history.map(e=>({id:e.id,at:e.at,action:e.action,body:e.body??'',reason:e.publicReason??'',decision:e.decision??'',amount:e.amount??0})),candidateCurrent:p.current,canAccept,unavailable,
       canDecline:!admin&&c.status==='PROPOSED',canSubmit:!admin&&c.status==='ACTIVE'&&gameTime(s.clock,at)<c.deadlineGameMs&&s.stage==='EN_JEU'&&canGameAction(s,ctx.c,'publish'),
       canReview:admin&&p.current&&c.status==='SUBMITTED',canClose:admin&&!terminal(c),canExpire:admin&&((c.status==='ACTIVE'&&gameTime(s.clock,at)>=c.deadlineGameMs)||(c.status==='PROPOSED'&&at>=c.offerDeadline)),
@@ -121,7 +122,7 @@ export function createContractService({store,signed,checkSession,now,uuid}){
       let next,event={id,action,at,actorUid:actor.uid};
       if(action==='proposeMissionContract'){
         const x=await prepare(tx,s,actor,input,at);requireThat(input.confirmation===x.result.confirmation,'STALE_REVISION');
-        c={id,revision:1,status:'PROPOSED',announcementId:x.a.id,announcementRevision:x.a.revision,applicationId:x.t.id,participant:participantOf(x.t),applicantUid:x.t.applicantUid,characterId:x.t.characterId,applicantVersion:x.t.applicantVersion,terms:x.terms,termsHash:digest(x.terms),briefing:x.a.briefing,sourceAccountId:x.source?.id??null,sourceGuard:x.sourceGuard,sourceName:x.sourceName,reason:x.reason,approvedBy:{uid:actor.uid,email:actor.email,emailVerified:true,provider:actor.provider},offerDeadline:x.a.deadline,createdAt:at,updatedAt:at,lastReadRevision:0};next=c;
+        c={...mediaFields(x.a,['illustration','briefing']),id,revision:1,status:'PROPOSED',announcementId:x.a.id,announcementRevision:x.a.revision,applicationId:x.t.id,participant:participantOf(x.t),applicantUid:x.t.applicantUid,characterId:x.t.characterId,applicantVersion:x.t.applicantVersion,terms:x.terms,termsHash:digest(x.terms),briefing:x.a.briefing,sourceAccountId:x.source?.id??null,sourceGuard:x.sourceGuard,sourceName:x.sourceName,reason:x.reason,approvedBy:{uid:actor.uid,email:actor.email,emailVerified:true,provider:actor.provider},offerDeadline:x.a.deadline,createdAt:at,updatedAt:at,lastReadRevision:0};next=c;
         tx.set(`${base}/applications/${x.t.id}`,{...x.t,contractId:c.id,revision:x.t.revision+1,updatedAt:at});event.terms=c.terms;event.reason=x.reason;
       }else if(action==='acceptContract'){
         const x=await acceptance(tx,s,c,ctx,at);requireThat(input.confirmation===x.result.confirmation,'STALE_REVISION');const t=await tx.get(`${base}/applications/${c.applicationId}`),gameAt=gameTime(s.clock,at);

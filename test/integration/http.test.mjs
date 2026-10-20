@@ -1,14 +1,18 @@
+import {sampleImage} from '../support/media-suite.mjs';
+import {getStorage} from 'firebase-admin/storage';
+import {mediaCommands} from '../../src/core/media.mjs';
 import test, {after} from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID,randomBytes} from 'node:crypto';
 import {hash} from '../../src/core/workflow.mjs';
 import express from 'express';
 if(!process.env.FIREBASE_AUTH_EMULATOR_HOST) throw new Error('Auth emulator required');
+process.env.MEDIA_BUCKET='demo-gn-engine-media';
 process.env.OWNER_EMAIL='gkerckhofs@gmail.com';
 const {api}=await import('../../src/server/index.mjs');
 // The actual exported HTTP handler is mounted in Express; Firebase Auth and
 // Firestore use their emulators. No Functions runtime socket needed locally.
-const app=express();app.use(express.json());app.post('/api',api);
+const app=express();app.use(express.json({limit:'8mb'}));app.post('/api',api);
 const server=await new Promise(resolve=>{const s=app.listen(0,'127.0.0.1',()=>resolve(s));});
 after(()=>new Promise(resolve=>server.close(resolve)));
 const endpoint=`http://127.0.0.1:${server.address().port}/api`;
@@ -398,4 +402,25 @@ test('HTTP + Auth : mandat de bande, relais de représentant et paiements collec
   assert.equal((await request('prepareBountyClaim',{sessionId,bountyId,body:'Sans bande'},second)).error,'PARTICIPATION_NOT_ALLOWED');const claim={sessionId,bountyId,groupId,body:'Preuve collective HTTP'},pc=await read('prepareBountyClaim',claim,second);await command('submitBountyClaim',{...claim,confirmation:pc.confirmation},second);
   const claimId=(await read('bountyDetail',{sessionId,bountyId},second)).claims[0].id,pay={sessionId,bountyId,claimId,decision:'PAY',reason:'Test'},payPreview=await read('prepareBountyReview',pay);await command('reviewBounty',{...pay,confirmation:payPreview.confirmation});
   assert.equal((await session()).accounts.find(a=>a.id===wallet.accountId).balance,74);assert.equal((await read('myWallet',{sessionId},payer)).account.balance,26);assert.equal(JSON.stringify(await read('myWallet',{sessionId},payer)).includes('BANDE_HTTP_SECRETE'),false);assert.equal((await read('myWallet',{sessionId},second)).account.balance,0);
+});
+
+
+test('HTTP + Auth + Storage : import réel, reprise, lecture privée et refus des liens directs',async()=>{
+  assert.ok(process.env.FIREBASE_STORAGE_EMULATOR_HOST,'Storage emulator required');
+  const owner=await googleTestAccount('gkerckhofs@gmail.com'),other=await googleTestAccount(`image-${randomUUID()}@example.invalid`),bucket=getStorage().bucket('demo-gn-engine-media');
+  await bucket.file('system/ready').save('ready');
+  for(const action of mediaCommands){const r=await request(action,{},undefined);assert.equal(r.status,401,action);}
+  const input={name:'Image HTTP',data:await sampleImage(),requestId:randomUUID(),allowDuplicate:true},uploaded=await request('mediaUpload',input,owner);assert.equal(uploaded.status,200,JSON.stringify(uploaded));
+  assert.deepEqual(await request('mediaUpload',input,owner),uploaded);
+  const catalog=await request('mediaCatalog',{},owner);assert.equal(catalog.result.storageConfigured,true);assert.ok(catalog.result.images.find(x=>x.id===uploaded.result.id));
+  for(const variant of ['thumb','mobile','original']){
+    const p={context:{mode:'library'},mediaId:uploaded.result.id,variant},r=await request('mediaRead',p,owner);assert.equal(r.status,200);assert.ok(r.result.data);assert.equal((await request('mediaRead',p,other)).status,403);
+  }
+  const [files]=await bucket.getFiles({prefix:`media/${uploaded.result.id}/`});assert.equal(files.length,3);
+  for(const file of files){
+    const url=`http://${process.env.FIREBASE_STORAGE_EMULATOR_HOST}/v0/b/demo-gn-engine-media/o/${encodeURIComponent(file.name)}?alt=media`;
+    for(const token of [null,other]){const r=await fetch(url,{headers:token?{Authorization:`Bearer ${token}`}:{}});assert.equal(r.status,403);}
+  }
+  const bad=await request('mediaUpload',{...input,requestId:randomUUID(),data:Buffer.from('<svg/>').toString('base64')},owner);assert.equal(bad.result,undefined);assert.equal(bad.error,'INVALID_IMAGE');
+  const check=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${owner}`},body:JSON.stringify({action:'mediaRead',input:{context:{mode:'library'},mediaId:uploaded.result.id}})});assert.match(check.headers.get('cache-control'),/no-store/);
 });

@@ -1,3 +1,5 @@
+import {createMediaService,mediaAction} from './media.mjs';
+import {mediaTrackedStore,mediaFields} from './media-state.mjs';
 import {createBountyService,bountyAction} from './bounties.mjs';
 import {createContractService,contractAction} from './contracts.mjs';
 import {createAnnouncementService,announcementAction} from './announcements.mjs';
@@ -52,7 +54,8 @@ const characterInput = (input, id, existing={}) => ({...existing,id,
   contentRevision:(existing.contentRevision??(existing.id?1:0))+1});
 
 /** Authenticated actor is supplied by the HTTP adapter, never by input JSON. */
-export function createWorkflow({store, ownerEmail, now = Date.now, uuid = randomUUID}) {
+export function createWorkflow({store, ownerEmail, now = Date.now, uuid = randomUUID, images=null, processImage=null}) {
+  store=mediaTrackedStore(store);
   const isAdmin = actor => !!actor && actor.emailVerified === true && actor.provider === 'google.com'
     && actor.email?.toLowerCase() === ownerEmail?.toLowerCase();
   function signed(actor) { requireThat(actor?.uid && typeof actor.email==='string' && actor.email && actor.emailVerified === true && actor.provider === 'google.com', 'LOGIN_REQUIRED'); }
@@ -95,6 +98,28 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     return {s,c,g,m:memberFor(g,cid)};
   };
 
+  const mediaService=createMediaService({store,signed,admin,isAdmin,checkSession,checkScenario,now,uuid,images,processImage,authorizeRead:async(actor,context,slot)=>{
+    requireThat(context&&typeof context==='object','INVALID_MEDIA_TARGET');
+    const id=documentId(context.id),scopeId=documentId(context.scopeId);let record;
+    if(context.mode==='organizer')return store.runTransaction(async tx=>{
+      requireThat(['scenario','session'].includes(context.scope),'INVALID_MEDIA_TARGET');
+      if(context.scope==='session')await checkSession(tx,actor,scopeId);else await checkScenario(tx,actor,scopeId);
+      const kinds={character:'characters',item:'items',inventory:'inventory',announcement:'announcements',contract:'contracts'};requireThat(kinds[context.kind],'INVALID_MEDIA_TARGET');
+      const r=await tx.get(`${context.scope==='session'?'sessions':'scenarios'}/${scopeId}/${kinds[context.kind]}/${id}`);requireThat(r,'FORBIDDEN');return (context.kind==='inventory'?r.item:r).mediaImages?.[slot]??null;
+    });
+    if(context.mode==='public'){
+      requireThat(context.kind==='character'&&slot==='portrait'&&context.scope==='session','FORBIDDEN');
+      record=await dispatch('publicBadge',actor,{sessionId:scopeId,characterId:id});
+    }else{
+      signed(actor);requireThat(context.mode==='player'&&context.scope==='session','FORBIDDEN');
+      if(context.kind==='character'){const d=await dispatch('mySession',actor,{sessionId:scopeId});requireThat(d.character?.id===id,'FORBIDDEN');record=d.character;}
+      else if(context.kind==='inventory'){const d=await dispatch('myInventory',actor,{sessionId:scopeId}),l=[...d.lots,...d.ownedElsewhere,...d.heldForOthers].find(l=>l.id===id);requireThat(l,'FORBIDDEN');record=l.item;}
+      else if(context.kind==='announcement')record=(await dispatch('announcementDetail',actor,{sessionId:scopeId,announcementId:id})).announcement;
+      else if(context.kind==='contract')record=(await dispatch('contractDetail',actor,{sessionId:scopeId,contractId:id})).contract;
+      else requireThat(false,'FORBIDDEN');
+    }
+    return record.mediaImages?.[slot]??null;
+  }});
   const bountyService=createBountyService({store,signed,checkSession,now,uuid});
   const contractService=createContractService({store,signed,checkSession,now,uuid});
   const announcementService=createAnnouncementService({store,signed,checkSession,now,uuid});
@@ -110,6 +135,10 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(mediaAction(action))return mediaService(action,actor,input);
+    if(action==='setStage'&&['BRIEFING','EN_JEU'].includes(input.stage)){
+      const health=await mediaService('mediaHealth',actor,{sessionId:input.sessionId});requireThat(health.issues.length===0,'MEDIA_MISSING');
+    }
     if(bountyAction(action))return bountyService(action,actor,input);
     if(contractAction(action))return contractService(action,actor,input);
     if(announcementAction(action))return announcementService(action,actor,input);
