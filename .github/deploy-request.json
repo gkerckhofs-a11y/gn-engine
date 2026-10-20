@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "4a1086b06d13cffa17de699e14e5190619f7c0fa",
-  "requestedAt": "2026-10-20T00:35:38.800408+00:00",
-  "reason": "Publier la 0.16 : contrats de missions attribuées, accord, briefing privé, réservations de crédits, preuve et règlement unique.",
-  "version": "0.16.0"
+  "sourceCommit": "787ffbdc3d17b768a0bb44aab6a4d1bb015a871a",
+  "requestedAt": "2026-10-20T05:50:55.758331+00:00",
+  "reason": "Publier la 0.17 : primes ouvertes financées, preuves privées concurrentes, quota atomique et paiement unique. 652 tests réussis.",
+  "version": "0.17.0"
 }

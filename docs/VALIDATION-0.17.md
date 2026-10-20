@@ -1,6 +1,6 @@
 # Validation 0.17 — primes ouvertes
 
-Date : 20 octobre 2026. Statut : vérification distante et publication en attente.
+Date : 20 octobre 2026. Statut : vérification distante réussie ; publication demandée.
 
 ## Parcours livré
 
@@ -32,7 +32,7 @@ Local : compilation réussie ; 353 tests métier/interface réussis sous Node 24
 
 Nouveaux contrôles : réservation et fonds disponibles ; deux prétendants à la dernière récompense ; deux lauréats distincts ; conservation de monnaie ; versement et clôture concurrents ; rejeu idempotent ; restitution partielle ; financement extérieur ; refus/complément avec historique ; échéance en pause ; restrictions de santé et de phase ; archivage ; audiences ; séparation MJ/Accueil/joueur ; anonymat ; révocation/réattribution ; arrêt économique ; rollback en cas d’échec ; rendu échappé et confirmations financières.
 
-La suite métier est exécutée également sur Firestore émulé. Un parcours HTTP utilise des jetons Google de test de l’émulateur Auth, de l’inscription au paiement et à la révocation. Résultats distants à renseigner après exécution.
+La suite métier est exécutée également sur Firestore émulé. Un parcours HTTP utilise des jetons Google de test de l’émulateur Auth, de l’inscription au paiement et à la révocation. Résultats distants : **353 + 299 = 652 tests réussis**, sans échec, annulation ou test ignoré, dans le [run GitHub 39376274000](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39376274000), job `118475014804`, commit `787ffbdc3d17b768a0bb44aab6a4d1bb015a871a`. Journaux terminés consultés : tests métier/interface à 05:42:34 UTC, intégrations à 05:49:38 UTC (environ 411 secondes). Compilation réussie.
 
 La recette réelle avec plusieurs comptes Google, appareils mobiles et une charge de 60/120 joueurs n’a pas été réalisée. REC-10 reste partiel.
 

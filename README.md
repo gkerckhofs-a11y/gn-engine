@@ -125,7 +125,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.17 est en cours de validation ; voir le rapport associé pour les preuves disponibles. Dernière publication vérifiée : **0.16**, **615 tests réussis en une exécution complète sur GitHub** (333 métier/interface et 282 intégrations). Le manifeste 0.16.0 et le refus des accès anonymes aux 98 commandes privées ont été vérifiés après déploiement. Preuves dans le [rapport 0.16](docs/VALIDATION-0.16.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.17 a réussi **652 tests en une exécution complète sur GitHub** (353 métier/interface et 299 intégrations), sans échec ni test ignoré. Publication demandée ; résultat à confirmer dans le [rapport 0.17](docs/VALIDATION-0.17.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 

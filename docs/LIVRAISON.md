@@ -97,9 +97,9 @@ Le canon laisse ouverts : durée, noms et affectations finales, couverture de l'
 Ne pas présenter le noyau ou la V0.1 comme une réalisation complète. Exiger une recette sur des comptes de rôles distincts, des demandes concurrentes, les fichiers privés et le fonctionnement après incident. Mesurer 60 puis 120 utilisateurs et documenter le réseau : les objectifs de 2 s pour 95 % des confirmations et 5 s de propagation restent à démontrer. Vérifier le pack papier et une restauration isolée avant l'événement réel.
 
 
-## Extension 0.17 — en validation
+## Extension 0.17 — validée, publication demandée
 
 Primes ouvertes à récompense fixe : cagnotte réservée, preuves concurrentes privées, complément/refus/arbitrage MJ, quota et paiement uniques, clôture avec restitution du reliquat, protection contre révocation et réattribution. La création extérieure est comptabilisée seulement au règlement. Échéance réelle commune aux petites annonces ; conditions verrouillées au financement.
 
-353 tests métier/interface et compilation réussis localement. Vérification GitHub Node 22 / Java 21 et intégrations Firebase à confirmer avant publication. REC-10 reste partiel : représentation de groupe et recette terrain non réalisées. Voir `VALIDATION-0.17.md`.
+Compilation et 652 tests réussis en une exécution complète sur GitHub : 353 métier/interface et 299 intégrations Firebase, Node 22 / Java 21. Publication demandée. REC-10 reste partiel : représentation de groupe et recette terrain non réalisées. Voir `VALIDATION-0.17.md`.
 
