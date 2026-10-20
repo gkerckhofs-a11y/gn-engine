@@ -1,3 +1,5 @@
+import {createFieldService,fieldAction} from './field-actions.mjs';
+import {validateFieldReferences} from './field-state.mjs';
 import {createMasterService,masterAction} from './masters.mjs';
 import {createCampaignService,campaignAction,campaignGuardStore} from './campaigns.mjs';
 import {readScenarioVersion,sessionFromVersion,seedScenarioSession} from './session-seed.mjs';
@@ -60,7 +62,7 @@ const characterInput = (input, id, existing={}) => ({...existing,id,
   contentRevision:(existing.contentRevision??(existing.id?1:0))+1});
 
 /** Authenticated actor is supplied by the HTTP adapter, never by input JSON. */
-export function createWorkflow({store, ownerEmail, now = Date.now, uuid = randomUUID, images=null, processImage=null}) {
+export function createWorkflow({store, ownerEmail, now = Date.now, uuid = randomUUID, images=null, processImage=null,rollD6}) {
   store=mediaTrackedStore(campaignGuardStore(store));
   const isAdmin = actor => !!actor && actor.emailVerified === true && actor.provider === 'google.com'
     && actor.email?.toLowerCase() === ownerEmail?.toLowerCase();
@@ -127,6 +129,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     return record.mediaImages?.[slot]??null;
   }});
   const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,now,uuid});
+  const fieldService=createFieldService({store,signed,checkSession,checkScenario,now,uuid,rollD6});
   const masterService=createMasterService({store,admin,checkSession,checkScenario,now,uuid});
   const archiveService=createScenarioArchiveService({store,admin,checkScenario,now,uuid,images,archiveUpload:mediaService.archiveUpload});
   const actionPointService=createActionPointService({store,signed,checkSession,checkScenario,now,uuid});
@@ -145,6 +148,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(fieldAction(action))return fieldService(action,actor,input);
     if(masterAction(action))return masterService(action,actor,input);
     if(campaignAction(action))return campaignService(action,actor,input);
     if(archiveAction(action))return archiveService(action,actor,input);
@@ -351,6 +355,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         const id=documentId(input.scenarioId),s=await checkScenario(tx,actor,id); revision(s,input.revision);
         const [chars,groups,knowledge,skills,classes,items]=await Promise.all([tx.list(`scenarios/${id}/characters`),tx.list(`scenarios/${id}/groups`),tx.list(`scenarios/${id}/knowledge`),tx.list(`scenarios/${id}/skills`),tx.list(`scenarios/${id}/classes`),tx.list(`scenarios/${id}/items`)]); requireThat(chars.length>0,'EMPTY_SCENARIO');
         if(s.actionPointRules)for(const c of chars)actionPointMaximum(s.actionPointRules,c);
+        const fieldTargets=await tx.list(`scenarios/${id}/fieldTargets`);for(const t of fieldTargets)validateFieldReferences(t,{fieldTargets,skills,items,knowledge});
         const masterRows=await tx.list(`scenarios/${id}/masterRows`);
         const version={id:newId,masterRowBaseline:masterRows,title:s.title,summary:s.summary,sourceRevision:s.revision,createdAt:at,characterCount:chars.length,groupCount:groups.length,knowledgeCount:knowledge.length,skillCount:skills.length,classCount:classes.length,itemCount:items.length,actionPointRules:s.actionPointRules??null,economyRules:s.economyRules??null,healthRules:s.healthRules??null};
         tx.set(`scenarios/${id}/versions/${newId}`,version);
@@ -360,6 +365,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         for(const k of skills)tx.set(`scenarios/${id}/versions/${newId}/skills/${k.id}`,k);
         for(const k of classes)tx.set(`scenarios/${id}/versions/${newId}/classes/${k.id}`,k);
         for(const k of items)tx.set(`scenarios/${id}/versions/${newId}/items/${k.id}`,k);
+        for(const t of fieldTargets)tx.set(`scenarios/${id}/versions/${newId}/fieldTargets/${t.id}`,t);
         result={id:newId};
       } else if(action==='createSession') {
         const id=documentId(input.scenarioId),vid=documentId(input.versionId);await checkScenario(tx,actor,id);
@@ -386,6 +392,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         } else {
           const transitions={PREPARATION:['BRIEFING'],BRIEFING:['EN_JEU'],EN_JEU:['PAUSE','FINISHED'],PAUSE:['EN_JEU','FINISHED'],FINISHED:['ARCHIVED'],ARCHIVED:[]};
           requireThat(transitions[s.stage].includes(input.stage),'INVALID_TRANSITION');
+          if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/fieldActions`)).some(a=>a.status==='ACTIVE'),'FIELD_ACTIONS_OPEN');
           if(input.stage==='ARCHIVED')requireThat(!s.campaignId,'CAMPAIGN_CLOSE_REQUIRED');
           if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/bounties`)).some(b=>b.status==='OPEN'),'BOUNTIES_OPEN');
           if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/contracts`)).some(c=>['PROPOSED','ACTIVE','SUBMITTED'].includes(c.status)),'CONTRACTS_OPEN');

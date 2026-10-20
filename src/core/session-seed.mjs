@@ -1,3 +1,4 @@
+import {seedFieldTargets} from './field-state.mjs';
 import {documentId,whole,requireThat} from './validation.mjs';
 import {createClock} from './clock.mjs';
 import {initialHealth} from './health-state.mjs';
@@ -9,11 +10,11 @@ import {seedKnowledge} from './knowledge.mjs';
 const text=(v,max,required=false)=>{requireThat(typeof v==='string'&&v.length<=max&&(!required||v.trim()),'INVALID_TEXT');return v.trim();};
 const optional=(v,max)=>text(v??'',max);
 const charPath=(sid,cid)=>`sessions/${sid}/characters/${cid}`;
-export const scenarioCollections=['characters','groups','knowledge','skills','classes','items'];
+export const scenarioCollections=['characters','groups','knowledge','skills','classes','items','fieldTargets'];
 export async function readScenarioVersion(tx,id,vid){
  const v=await tx.get(`scenarios/${id}/versions/${vid}`);requireThat(v,'NOT_FOUND');
-  const [chars,groups,knowledge,skills,classes,items]=await Promise.all(scenarioCollections.map(k=>tx.list(`scenarios/${id}/versions/${vid}/${k}`)));
- return {v,chars,groups,knowledge,skills,classes,items};
+  const [chars,groups,knowledge,skills,classes,items,fieldTargets]=await Promise.all(scenarioCollections.map(k=>tx.list(`scenarios/${id}/versions/${vid}/${k}`)));
+ return {v,chars,groups,knowledge,skills,classes,items,fieldTargets};
 }
 export function sessionFromVersion(input,data,newId,actor,at){
  const {v,chars,groups}=data,id=documentId(input.scenarioId),vid=documentId(input.versionId);
@@ -44,6 +45,7 @@ export function seedScenarioSession(tx,s,data,actor,at){
         for(const k of skills)tx.set(`sessions/${newId}/skills/${k.id}`,k);
         for(const k of classes)tx.set(`sessions/${newId}/classes/${k.id}`,k);
         for(const k of items)tx.set(`sessions/${newId}/items/${k.id}`,k);
+        seedFieldTargets(tx,s,data.fieldTargets);
         seedWallets(tx,s,chars,at,actor.uid,groups);
         seedInventory(tx,newId,chars,at,actor.uid);
         seedKnowledge(tx,newId,knowledge,at);

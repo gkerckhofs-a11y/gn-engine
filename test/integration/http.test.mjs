@@ -1,3 +1,4 @@
+import {fieldCommands} from '../../src/core/field-actions.mjs';
 import {masterCommands} from '../../src/core/masters.mjs';
 import {masterExample} from '../../src/shared/master-examples.mjs';
 import {campaignCommands} from '../../src/core/campaigns.mjs';
@@ -26,6 +27,22 @@ const request=async(action,input={},token)=>{
   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,input})});
   return {status:response.status,...await response.json()};
 };
+
+test('HTTP + Auth : QR de lieu privé, action confirmée et récompense unique',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),player=await googleTestAccount(`field-${randomUUID()}@example.invalid`);
+ const command=async(action,input={},token=owner)=>{const r=await request(action,{requestId:randomUUID(),...input},token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};
+ const {id:scenarioId}=await command('createScenario',{title:'Terrain HTTP'}),scenario=async()=>(await request('scenario',{scenarioId},owner)).result;
+ const master={scenarioId,sheets:masterExample(),reason:'Données synthétiques'},mp=await command('prepareMasterImport',master);await command('applyMasterImport',{...master,confirmation:mp.confirmation});
+ const {id:targetId}=await command('saveFieldTarget',{scenarioId,reason:'Cachette HTTP',target:{kind:'SEARCH',title:'Cachette HTTP',gmNotes:'RESERVE_PRIVEE_HTTP',publicationState:'PUBLISHED',profiles:{SEARCH:{durationSeconds:0,test:'AUTO',threshold:0,bonusItems:[]}},rewards:[{id:'credits',kind:'CREDITS',quantity:7,stock:1,perCharacter:1}]}});
+ const {id:versionId}=await command('publishScenario',{scenarioId,revision:(await scenario()).revision}),{id:sessionId}=await command('createSession',{scenarioId,versionId,title:'Terrain HTTP',capacity:1,privacy:'Fictif'}),session=async()=>(await request('session',{sessionId},owner)).result;
+ await command('setRegistrationOpen',{sessionId,revision:1,open:true});await command('register',{sessionId,name:'Test'},player);const uid=(await command('identity',{},player)).uid;await command('assign',{sessionId,uid,characterId:'pilote'});
+ const invitation=randomBytes(32).toString('base64url');await command('issueInvitation',{sessionId,uid,tokenHash:hash(invitation),hours:1});await command('redeem',{sessionId,token:invitation},player);for(const stage of ['BRIEFING','EN_JEU'])await command('setStage',{sessionId,revision:(await session()).revision,stage});
+ for(const action of fieldCommands)assert.equal((await request(action,{sessionId,targetId,requestId:randomUUID()})).status,401);assert.equal((await request('fieldAdmin',{sessionId},player)).status,403);
+ const target=await command('fieldTarget',{sessionId,targetId},player);assert.equal(JSON.stringify(target).includes('RESERVE_PRIVEE_HTTP'),false);assert.equal('rewards' in target.target,false);
+ const input={sessionId,targetId,kind:'SEARCH'},preview=await command('prepareFieldAction',input,player),started=await command('startFieldAction',{...input,confirmation:preview.confirmation,present:true},player);
+ const payload={sessionId,actionId:started.id,present:true,requestId:randomUUID()},finished=await request('finishFieldAction',payload,player);assert.equal(finished.status,200,JSON.stringify(finished));assert.equal(finished.result.result.reward.quantity,7);assert.deepEqual(await request('finishFieldAction',payload,player),finished);
+ assert.equal((await command('myWallet',{sessionId},player)).account.balance,107);await command('revokeAccess',{sessionId,uid});assert.equal((await request('finishFieldAction',payload,player)).status,403);
+});
 
 test('HTTP + Auth : master validé, refus des accès étrangers et import atomique',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),visitor=await googleTestAccount(`masters-${randomUUID()}@example.invalid`);
