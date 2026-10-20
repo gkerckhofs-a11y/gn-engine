@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "6bc5a1e8cce753a820393bf34005edefd8b2fd0d",
-  "version": "0.19.0",
-  "requestedAt": "2026-10-20T07:32:04.866Z",
-  "reason": "Déployer la médiathèque privée : imports, attribution, droits et suppression. 395 tests métier/interface et 331 intégrations validés localement ; activation du bucket privé distincte."
+  "sourceCommit": "e8500152581dcfe877d0789a7852eff03321eb85",
+  "version": "0.19.1",
+  "requestedAt": "2026-10-20T07:35:55.584Z",
+  "reason": "Publier la médiathèque privée et l’invalidation des réponses en vol après déconnexion. 396 tests métier/interface ; 331 intégrations. Activation privée du bucket préparée séparément."
 }
