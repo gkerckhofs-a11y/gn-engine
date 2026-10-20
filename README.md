@@ -162,14 +162,16 @@ Le workflow vérifie les tests, compile puis publie la fonction `api` via Google
 
 ## Périmètre restant
 
-Ce premier parcours ne termine pas tout le lot A ni les 132 exigences : valeurs initiales de classe (PV, crédits, objets), compétences actives, permissions étendues de caisse/stock/transport, invitations de groupe entre joueurs, autres modes de connexion, récupération sans Google, pièces jointes, import/export, terrain, suite de l’économie et vaisseaux restent à intégrer. Pas de démonstration de charge à 60/120 joueurs ni de recette complète des formulaires authentifiés en production.
+Ce premier parcours ne termine pas tout le lot A ni l’ensemble des exigences : valeurs initiales de classe (PV, crédits, objets), compétences actives, permissions étendues de caisse/stock/transport, invitations de groupe entre joueurs, autres modes de connexion, récupération sans Google, pièces jointes, import/export, terrain, suite de l’économie et vaisseaux restent à intégrer. Pas de démonstration de charge à 60/120 joueurs ni de recette complète des formulaires authentifiés en production.
 
 Les versions et copies utilisent des transactions Firestore. Aucun plafond métier de casting ; les limites de taille des transactions devront être mesurées sur les contenus réels.
 
 ## Références
 
-- [Cahier V1](docs/source/GN_Engine_Cahier_des_charges_V1.docx), [texte](docs/source/cahier-des-charges-v1.txt), [132 exigences](docs/exigences-v1.json).
+- [Cahier courant V1.1](docs/source/cahier-des-charges-v1.1.txt), [Word V1 archivé](docs/source/GN_Engine_Cahier_des_charges_V1.docx), [143 exigences](docs/exigences-v1.json).
+- [Bilan du 20 octobre 2026](docs/BILAN-2026-10-20.md) et [médiathèque à développer](docs/MEDIATHEQUE.md) : import multiple, attribution aux objets/personnages/missions et suppression contrôlée.
 - [Canon Port-Brèche](docs/source/port-breche-canon-v1.txt) : organisateur uniquement, jamais embarqué dans l’interface publique.
 - [Audit initial](docs/AUDIT.md), [architecture](docs/ARCHITECTURE.md), [lots A à E](docs/LIVRAISON.md).
 - `reference/sites-v0.1-source.tar.gz` : prototype Sites/D1 conservé au commit `6a12f995c5c26aaf3891cb4bbd8168e51184551e`. Le prototype privé existant n’a pas été remplacé.
+
 

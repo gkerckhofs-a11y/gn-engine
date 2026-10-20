@@ -70,7 +70,7 @@ Proposition MJ et acceptation personnelle du même contrat ; places limitées, c
 
 ## Préparation réalisée
 
-- Cahier V1 conservé, texte consultable, matrice de 132 exigences.
+- Cahier V1 conservé ; révision V1.1 avec médiathèque, texte consultable et matrice de 143 exigences. Le nombre d’exigences ne mesure pas l’avancement.
 - Canon Port-Brèche retrouvé et lu ; aucune nouvelle valeur d'équilibrage inventée.
 - Source V0.1 conservée pour reprise des écrans et règles de terrain.
 - Audit des écarts et architecture de migration.
@@ -80,7 +80,7 @@ Proposition MJ et acceptation personnelle du même contrat ; places limitées, c
 
 ## Intégration encore à réaliser
 
-1. Intégrer Storage avec le parcours médias ; Functions, Hosting, Google Authentication et Firestore sont en place.
+1. Développer la médiathèque personnalisée et intégrer Storage : import multiple, affectation objets/personnages/missions, suppression contrôlée et droits des images. Spécification MED-01 à MED-10 et REC-11 dans `MEDIATHEQUE.md`. Functions, Hosting, Google Authentication et Firestore sont en place.
 2. Recetter dans des navigateurs avec des comptes réels distincts. Adaptateur, règles, jetons, inscriptions et attributions passent les essais sur émulateurs.
 3. Compléter le lot A : valeurs initiales PV/crédits/objets des classes, permissions de caisse/stock/transport et éditeur étendu. Les groupes avec droits narratifs sont développés en 0.4. Les rôles fixes MJ/Accueil et les fiches narratives sont développés en 0.3 ; voir `VALIDATION-0.3.md`.
 4. Étendre les commandes et l'éditeur jusqu'au lot E, avec une preuve de recette par exigence.
@@ -109,3 +109,10 @@ Compilation et 652 tests réussis en une exécution complète sur GitHub : 353 m
 Choix personnel/bande/les deux par annonce, mandat explicite, candidatures et missions partagées entre représentants actuels, continuité après retrait d’un représentant, une place et une récompense par bande, paiements vers sa caisse. Les engagements personnels restent privés. Les écritures financières montrent le libellé de caisse, sans révéler le nom interne d’un groupe secret.
 
 Compilation et 697 tests réussis sur GitHub : 377 métier/interface et 320 intégrations Firestore/Auth, avec un parcours HTTP/Auth du mandat au règlement collectif. Publication réussie et contrôlée. REC-10 reste partiel : recette réelle multi-comptes et terrain non réalisée. Voir `VALIDATION-0.18.md`.
+
+
+## Bilan et cahier actualisés le 20 octobre 2026
+
+Le [bilan courant](BILAN-2026-10-20.md) synthétise les réalisations jusqu’à la 0.18 et les chantiers restants. Les limites décrites dans les extensions anciennes sont historiques et peuvent être levées par une version ultérieure. Les primes ouvertes et les candidatures de bandes sont développées.
+
+La [révision 1.1 du cahier](source/cahier-des-charges-v1.1.txt) ajoute la [médiathèque](MEDIATHEQUE.md), obligatoire et encore à développer. La recette complète inclut désormais REC-11 pour les imports, associations, droits et suppressions d’images.

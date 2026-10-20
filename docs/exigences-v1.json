@@ -1,6 +1,6 @@
 {
   "date": "2026-10-20",
-  "source": "docs/source/GN_Engine_Cahier_des_charges_V1.docx",
+  "source": "docs/source/cahier-des-charges-v1.1.txt",
   "statusMeaning": {
     "PARTIEL": "Une partie est observée dans le prototype, la totalité de l’exigence reste à valider.",
     "A_DEVELOPPER": "Aucune implémentation complète identifiée dans le prototype audité.",
@@ -10,7 +10,7 @@
     {
       "id": "SOC-01",
       "requirement": "Un produit distinct. GN Engine possède ses propres scénarios, sessions, données et règles. Des principes d’ergonomie peuvent être communs avec Murder Engine ; les règles de ce dernier, notamment un nombre fixe de points d’action, ne sont pas imposées au GN.",
-      "sourceLine": 43,
+      "sourceLine": 49,
       "lot": "A",
       "prototype": "PARTIEL",
       "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
@@ -21,7 +21,7 @@
     {
       "id": "SOC-02",
       "requirement": "Capacité configurable. Aucun plafond de personnages ne doit être codé dans les règles métier. L’organisateur fixe la capacité d’une session et la liste d’attente. Le nombre d’utilisateurs simultanés effectivement supporté doit être mesuré ; « sans limite de casting prédéfinie » ne signifie pas capacité technique infinie.",
-      "sourceLine": 44,
+      "sourceLine": 50,
       "lot": "A",
       "prototype": "PARTIEL",
       "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
@@ -32,7 +32,7 @@
     {
       "id": "SOC-03",
       "requirement": "Jeu physique et numérique. Les affrontements au sol se jouent avec des armes en mousse ou des gel blasters. L’application suit les points de vie, les états et les conséquences. Les QR permettent des actions sur des personnages, des objets ou des lieux. Les combats de vaisseaux sont résolus virtuellement.",
-      "sourceLine": 45,
+      "sourceLine": 51,
       "lot": "A",
       "prototype": "PARTIEL",
       "firebaseIntegration": "NON_INTEGRE",
@@ -43,7 +43,7 @@
     {
       "id": "SOC-04",
       "requirement": "Modèles et parties séparés. Un scénario est un modèle réutilisable. Une session en est une copie jouable avec ses inscrits, ses stocks et son historique. Modifier une bibliothèque ne change pas silencieusement une session en cours.",
-      "sourceLine": 48,
+      "sourceLine": 54,
       "lot": "A",
       "prototype": "PARTIEL",
       "firebaseIntegration": "NON_INTEGRE",
@@ -54,7 +54,7 @@
     {
       "id": "SOC-05",
       "requirement": "Modules activables. Économie, transport, groupes secrets, fouilles, votes ou progression sont activés selon le GN. Une fonction désactivée ne laisse ni bouton vide ni règle obligatoire dans l’interface joueur.",
-      "sourceLine": 49,
+      "sourceLine": 55,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
@@ -66,7 +66,7 @@
     {
       "id": "SES-01",
       "requirement": "Identités distinctes. Le compte d’une personne, son inscription à une session et le personnage incarné sont trois éléments séparés. Un même participant peut jouer plusieurs GN sans partager leurs inventaires, notes ou secrets. Une attribution active désigne un personnage dans une session donnée.",
-      "sourceLine": 64,
+      "sourceLine": 71,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_6",
@@ -78,19 +78,19 @@
     {
       "id": "SES-02",
       "requirement": "Droits au sein des groupes. Appartenir à un équipage ne donne pas nécessairement le droit de dépenser sa caisse ou de vendre son vaisseau. Les droits de lecture, paiement, gestion de stock, publication d’annonce, départ et invitation sont attribuables séparément. Un rôle public et une allégeance secrète peuvent coexister.",
-      "sourceLine": 65,
+      "sourceLine": 72,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_12",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_18",
       "coreWork": "Caisses intégrées au journal commun, droits readWallet/payWallet séparés",
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.12.md ; src/core/collective-accounts.mjs ; src/core/economy-state.mjs ; src/core/groups.mjs ; web/collective-accounts.mjs ; test/support/collective-suite.mjs ; test/collective-ui.test.mjs ; test/integration",
-      "implementedScope": "Droits narratifs et financiers séparés par personnage membre. Consulter la caisse et payer avec elle sont indépendants ; appartenance active/révélée, publication et modules contrôlés. Révocation et baisse des permissions appliquées avant réessai. Droits de stock, annonces, départ et invitation restant."
+      "evidence": "docs/VALIDATION-0.12.md ; src/core/collective-accounts.mjs ; src/core/economy-state.mjs ; src/core/groups.mjs ; web/collective-accounts.mjs ; test/support/collective-suite.mjs ; test/collective-ui.test.mjs ; test/integration ; docs/VALIDATION-0.17.md ; docs/VALIDATION-0.18.md ; docs/BILAN-2026-10-20.md",
+      "implementedScope": "Droits narratifs, financiers et mandat de représentation des missions séparés. Un représentant actuel habilité peut poursuivre le dossier collectif ; cela ne donne aucun droit de consulter ou dépenser sa caisse. Stock, transport, vente par mandataire et invitations de groupe restant."
     },
     {
       "id": "SES-03",
       "requirement": "États explicites. La session passe par préparation, inscriptions ouvertes, inscriptions closes, briefing accessible, en jeu, pause, terminée et archivée. La fermeture des inscriptions ne démarre pas le jeu. Le MJ peut rouvrir l’accueil sans recréer les personnages.",
-      "sourceLine": 67,
+      "sourceLine": 74,
       "lot": "A",
       "prototype": "PARTIEL",
       "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
@@ -101,7 +101,7 @@
     {
       "id": "SES-04",
       "requirement": "Publication contrôlée. Un contenu existe en brouillon, prêt à publier ou publié. Le MJ choisit ses destinataires et son moment de diffusion. Un aperçu « voir comme ce personnage » doit respecter exactement ses droits, y compris pour les fichiers joints et les recherches.",
-      "sourceLine": 69,
+      "sourceLine": 76,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_9",
@@ -113,7 +113,7 @@
     {
       "id": "INS-01",
       "requirement": "Inscription partageable. Le MJ génère un lien et un QR d’inscription propres à une session. La page indique titre, présentation publique, date, horaires, lieu, conditions pratiques, places disponibles et état des inscriptions. Ce lien conduit au formulaire ; il ne donne accès à aucune fiche secrète.",
-      "sourceLine": 73,
+      "sourceLine": 81,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
@@ -124,7 +124,7 @@
     {
       "id": "INS-02",
       "requirement": "Formulaire configurable. Champs requis proposés : nom ou nom d’usage et moyen de retrouver son inscription. Le MJ peut ajouter préférences de jeu, expérience, souhait de groupe, disponibilité, besoin d’accessibilité et remarques privées. Seuls les champs utiles sont demandés. Les réponses personnelles ne deviennent pas des informations du personnage.",
-      "sourceLine": 74,
+      "sourceLine": 82,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
@@ -135,7 +135,7 @@
     {
       "id": "INS-03",
       "requirement": "Attribution par le MJ. Le fonctionnement recommandé est une attribution manuelle assistée par filtres. Le choix par le participant reste un mode optionnel utilisant des descriptions publiques approuvées. Ni les secrets ni les rôles cachés ne figurent dans les filtres publics. Une place ne peut être attribuée à deux personnes simultanément.",
-      "sourceLine": 77,
+      "sourceLine": 85,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
@@ -146,7 +146,7 @@
     {
       "id": "INS-04",
       "requirement": "Connexion et récupération. Proposition V1 : accès personnel par invitation nominative ou lien temporaire à usage unique ouvrant une session authentifiée. Le MJ peut révoquer cet accès, le renouveler et clôturer les connexions d’un téléphone perdu. Le mécanisme exact sera choisi avec l’architecture.",
-      "sourceLine": 80,
+      "sourceLine": 88,
       "lot": "A",
       "prototype": "PARTIEL",
       "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
@@ -156,8 +156,8 @@
     },
     {
       "id": "EDI-01",
-      "requirement": "Organisation du contenu. Le MJ crée un univers, un scénario, ses groupes, personnages, lieux, objets, marchandises, compétences, connaissances, documents, missions, contrats et événements. Les champs sont organisés par fonction, avec recherche, filtres, duplication et modifications par lot.",
-      "sourceLine": 85,
+      "requirement": "Organisation du contenu. Le MJ crée un univers, un scénario, ses groupes, personnages, lieux, objets, marchandises, compétences, connaissances, documents, missions, contrats et événements. Les champs sont organisés par fonction, avec recherche, filtres, duplication et modifications par lot. La médiathèque MED-01 à MED-10 permet les imports multiples et l’attribution des images aux contenus.",
+      "sourceLine": 94,
       "lot": "A",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_5",
@@ -169,7 +169,7 @@
     {
       "id": "EDI-02",
       "requirement": "Groupes et classes. Un groupe représente une affiliation ou une organisation. Une classe est un modèle de capacités et de valeurs initiales. Un métier est un élément de fiction. Ces notions peuvent être associées sans être confondues : un mécanicien peut appartenir à un équipage et à une cellule secrète.",
-      "sourceLine": 87,
+      "sourceLine": 96,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_7",
@@ -181,7 +181,7 @@
     {
       "id": "EDI-03",
       "requirement": "Modèles versionnés. Le MJ peut réutiliser une compétence, changer son nom d’ambiance et ajuster ses paramètres pour un scénario. La bibliothèque conserve la définition d’origine. Une modification du modèle ne réécrit pas une partie déjà commencée ; toute migration doit être explicitement proposée et contrôlée.",
-      "sourceLine": 89,
+      "sourceLine": 98,
       "lot": "A",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_9",
@@ -193,7 +193,7 @@
     {
       "id": "EDI-04",
       "requirement": "Conditions et effets. Un éditeur guidé permet de définir des conditions simples, leurs combinaisons et leurs effets : posséder un objet, connaître une information, avoir une compétence, payer, changer un état, révéler un document ou valider une étape. Il expose les possibilités prises en charge, sans exécuter du code libre fourni dans un texte narratif.",
-      "sourceLine": 91,
+      "sourceLine": 100,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_9",
@@ -205,7 +205,7 @@
     {
       "id": "EDI-05",
       "requirement": "Vérification avant ouverture. Le contrôle du scénario signale les liens manquants, identifiants en double, secrets rendus publics, QR sans cible, capacités dépassées, soldes incohérents, missions sans issue et ressources indispensables sans solution de remplacement déclarée. Les erreurs bloquantes et avertissements doivent être distingués.",
-      "sourceLine": 93,
+      "sourceLine": 102,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -216,7 +216,7 @@
     {
       "id": "UX-01",
       "requirement": "Des accès rapides. Le scan et « Mon QR » restent accessibles en un geste. Les PV, états actifs et tâches urgentes sont visibles sans chercher dans plusieurs menus. Le contexte propose les actions utiles : scanner un atelier ouvre l’atelier ; consulter un objet permet de l’utiliser, le transférer ou l’inspecter si autorisé.",
-      "sourceLine": 104,
+      "sourceLine": 114,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_8",
@@ -228,7 +228,7 @@
     {
       "id": "UX-02",
       "requirement": "Une information au bon endroit. Une action peut être accessible depuis son objet et depuis Actions, mais elle utilise le même écran et le même résultat. Le Sac conserve une vue unifiée avec filtres. La présentation ne multiplie pas les sous-onglets vides et masque les modules désactivés.",
-      "sourceLine": 105,
+      "sourceLine": 115,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "NON_INTEGRE",
@@ -239,7 +239,7 @@
     {
       "id": "UX-03",
       "requirement": "Confirmation compréhensible. Une opération se termine par un état explicite : réussie, échouée, refusée, en attente, interrompue ou expirée. Une panne de connexion ne devient pas un échec de compétence. Le joueur doit savoir si la demande a été prise en compte avant de la recommencer.",
-      "sourceLine": 108,
+      "sourceLine": 118,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "NON_INTEGRE",
@@ -250,7 +250,7 @@
     {
       "id": "UX-04",
       "requirement": "Lisibilité. Les écrans principaux privilégient des textes courts, des boutons larges et des contrastes suffisants. Les portraits et objets s’ouvrent en grand. Les textes longs de background restent disponibles, avec une synthèse et des repères. Les couleurs ne constituent pas le seul moyen de distinguer un statut.",
-      "sourceLine": 111,
+      "sourceLine": 121,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "NON_INTEGRE",
@@ -261,7 +261,7 @@
     {
       "id": "PER-01",
       "requirement": "Plusieurs niveaux de récit. La fiche distingue présentation publique, histoire personnelle, consignes d’interprétation, secrets, relations et objectifs. Le joueur lit les parties publiées pour lui ; les autres personnages ne voient que la présentation publique autorisée. L’historique des versions permet au MJ de savoir quel texte a été communiqué.",
-      "sourceLine": 116,
+      "sourceLine": 127,
       "lot": "A",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_3",
@@ -273,7 +273,7 @@
     {
       "id": "CON-01",
       "requirement": "Une connaissance attribuable. Une connaissance est un contenu identifiable avec un titre visible, un texte, d’éventuelles pièces jointes, une origine et des règles d’accès. Elle peut être connue au départ, obtenue par compétence, découverte par QR, transmise par un personnage ou révélée par le MJ. Un savoir mécanique, comme une langue ou une expertise de niveau donné, peut servir de condition de lecture ou d’action ; il reste distinct du document effectivement découvert.",
-      "sourceLine": 119,
+      "sourceLine": 130,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_7",
@@ -285,7 +285,7 @@
     {
       "id": "CON-02",
       "requirement": "Connaître et croire. Un renseignement reçu peut être incomplet, mensonger ou incertain dans la fiction. L’état réel, éventuellement connu du MJ, est séparé de la présentation au joueur. L’application ne certifie pas automatiquement la vérité d’une rumeur ni la loyauté d’un contact.",
-      "sourceLine": 120,
+      "sourceLine": 131,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_6",
@@ -297,7 +297,7 @@
     {
       "id": "REL-01",
       "requirement": "Relations orientées. A peut connaître le passé de B sans que B sache que A le connaît. La description destinée à A ne s’affiche pas automatiquement chez B. Un groupe secret n’apparaît ni dans un annuaire ni dans la liste de ses membres avant les révélations prévues.",
-      "sourceLine": 123,
+      "sourceLine": 134,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
@@ -309,7 +309,7 @@
     {
       "id": "MIS-01",
       "requirement": "Objectifs suivis. Les objectifs peuvent être individuels, collectifs ou secrets. Ils possèdent des étapes, échéances, dépendances, conditions de réussite et récompenses. Une étape se valide par le système, par une confirmation prévue ou par le MJ. L’objectif narratif peut rester libre, sans case de réussite automatique.",
-      "sourceLine": 124,
+      "sourceLine": 135,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_3",
@@ -321,7 +321,7 @@
     {
       "id": "CON-03",
       "requirement": "Carnet. Les notes libres appartiennent au participant dans sa session et ne constituent pas des preuves certifiées. Le partage doit être explicite. Les droits de lecture du MJ sur ces notes sont annoncés dans le fonctionnement retenu ; la proposition V1 réserve les notes non partagées à leur auteur.",
-      "sourceLine": 125,
+      "sourceLine": 136,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_6",
@@ -333,7 +333,7 @@
     {
       "id": "COM-01",
       "requirement": "Une compétence est une règle configurable. Elle possède un identifiant stable, un nom, une description immersive, des instructions, une catégorie et une version. Elle peut être passive, active sur soi ou active sur une cible. L’attribution peut venir d’une classe, d’un objet, d’un apprentissage ou d’une décision MJ.",
-      "sourceLine": 129,
+      "sourceLine": 141,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_8",
@@ -345,7 +345,7 @@
     {
       "id": "COM-02",
       "requirement": "Des ressources facultatives. Les points d’action ne sont pas obligatoires. Un scénario peut utiliser des charges, un délai de récupération, un consommable ou aucun coût. Chaque coût précise quand il est réservé, consommé et éventuellement restitué. Les valeurs ne sont jamais cachées au joueur qui doit les engager, sauf effet secret explicitement prévu.",
-      "sourceLine": 140,
+      "sourceLine": 152,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_9",
@@ -357,7 +357,7 @@
     {
       "id": "COM-03",
       "requirement": "Résolution unique. Une action validée possède une référence et un seul résultat. Recharger l’écran ne relance pas le test et ne consomme pas un second objet. Les conditions sont revérifiées au moment utile ; une cible devenue indisponible ne reçoit pas un effet incompatible.",
-      "sourceLine": 142,
+      "sourceLine": 154,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_9",
@@ -369,7 +369,7 @@
     {
       "id": "COM-04",
       "requirement": "Effets actifs. Les états temporaires possèdent une origine, une durée, une règle de cumul, une condition de levée et un éventuel contre-effet. Deux stimulants peuvent être cumulables ou exclusifs selon leur définition. Une réparation ne supprime pas tous les sabotages d’un autre type par défaut.",
-      "sourceLine": 144,
+      "sourceLine": 156,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -380,7 +380,7 @@
     {
       "id": "QR-01",
       "requirement": "Identifier une cible. Le QR public d’un personnage ouvre son identité visible et les interactions permises. Le QR d’un objet ou d’un lieu ouvre son état visible et les actions disponibles. Le QR d’inscription ouvre le portail public. Aucun de ces codes ne contient de secret ni ne remplace une autorisation personnelle.",
-      "sourceLine": 150,
+      "sourceLine": 163,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_5",
@@ -392,7 +392,7 @@
     {
       "id": "QR-02",
       "requirement": "Présence et autorisation. Scanner un code identifie une cible ; un code photographié peut être réutilisé. Si une action exige une présence confirmée, le scénario doit prévoir une validation sur place, une confirmation du détenteur ou un dispositif de défi temporaire. Le simple scan ne sera pas présenté comme une preuve de présence.",
-      "sourceLine": 152,
+      "sourceLine": 165,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_10",
@@ -404,7 +404,7 @@
     {
       "id": "ACT-01",
       "requirement": "Préparer puis exécuter. Après le scan, le joueur choisit une action autorisée, lit les conditions et le coût, sélectionne les éléments nécessaires et confirme. Le système réserve les ressources, commence le délai éventuel, puis applique un résultat unique. Une action indisponible n’engage aucun coût.",
-      "sourceLine": 154,
+      "sourceLine": 167,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_10",
@@ -416,7 +416,7 @@
     {
       "id": "ACT-02",
       "requirement": "DIRECT et DISCRET. Le mode direct peut demander à la cible de confirmer une interaction. Le mode discret peut appliquer un effet différé sans révéler son auteur. La compétence précise les notifications produites. Les MJ habilités conservent la trace réelle de l’action, même lorsque les personnages ne la voient pas.",
-      "sourceLine": 155,
+      "sourceLine": 168,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_8",
@@ -428,7 +428,7 @@
     {
       "id": "ACT-03",
       "requirement": "Concurrence. Deux actions incompatibles sur une même cible ne doivent pas se valider silencieusement. La règle proposée réserve l’intervention en cours ; une seconde tentative informe le joueur d’une indisponibilité sans exposer une identité cachée. Les règles peuvent prévoir une interruption ou une opposition explicite.",
-      "sourceLine": 158,
+      "sourceLine": 171,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_10",
@@ -440,7 +440,7 @@
     {
       "id": "ACT-04",
       "requirement": "Fouille et découvertes. Une cible contient des éléments visibles ou découvrables, avec leurs conditions et modes d’épuisement. Réussir une fouille peut révéler une connaissance ou déplacer un objet. Les indices partagés restent disponibles selon leur règle ; un objet unique ne peut être trouvé deux fois.",
-      "sourceLine": 159,
+      "sourceLine": 172,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "NON_INTEGRE",
@@ -451,7 +451,7 @@
     {
       "id": "VIE-01",
       "requirement": "Fiche de santé de jeu. Chaque personnage possède des PV maximum, des PV actuels et des états. Les protections, immunités, blessures et effets persistants sont paramétrables. Les valeurs par défaut de chaque scénario doivent être visibles avant l’ouverture de la session.",
-      "sourceLine": 163,
+      "sourceLine": 177,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_8",
@@ -463,7 +463,7 @@
     {
       "id": "VIE-02",
       "requirement": "Déclaration des dégâts. Fonctionnement proposé : les touches sont comptées sur le terrain et les dégâts sont déclarés après l’affrontement, avec un accès rapide. Le scénario peut proposer des boutons selon le type d’arme ou une quantité de dégâts. L’application applique les modificateurs configurés et présente le nouveau total.",
-      "sourceLine": 164,
+      "sourceLine": 178,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_8",
@@ -475,7 +475,7 @@
     {
       "id": "VIE-03",
       "requirement": "Zéro PV. La règle proposée fait passer le personnage à l’état hors combat. Le scénario définit les actions encore permises, le besoin de secours, un éventuel délai, les soins requis et les conditions de retour. La mort définitive n’est ni automatique ni une conséquence ajoutée par le moteur.",
-      "sourceLine": 167,
+      "sourceLine": 181,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_8",
@@ -487,7 +487,7 @@
     {
       "id": "VIE-04",
       "requirement": "Soins. Un soignant scanne la cible, consulte les éléments que sa compétence permet de diagnostiquer et utilise le traitement prévu. Un soin peut restaurer des PV, retirer un état ou seulement stabiliser. Il ne doit pas dépasser les plafonds ni supprimer une blessure incompatible avec le traitement.",
-      "sourceLine": 168,
+      "sourceLine": 182,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_9",
@@ -499,7 +499,7 @@
     {
       "id": "VIE-05",
       "requirement": "États distincts. Blessure, détention et désarmement sont séparés. Mettre quelqu’un hors combat ne transfère pas automatiquement tous ses biens. Un vol, une fouille, une saisie ou une capture utilise sa propre règle et détermine ce qui change de détenteur, de propriétaire ou d’accès.",
-      "sourceLine": 171,
+      "sourceLine": 185,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_8",
@@ -511,7 +511,7 @@
     {
       "id": "INV-01",
       "requirement": "Définition et exemplaires. Le catalogue décrit le type d’objet ; l’inventaire contient ses exemplaires ou lots. Un objet peut être unique, empilable, divisible, consommable, équipé ou installé. Son caractère légal, sa valeur, son volume et ses effets sont définis par le scénario.",
-      "sourceLine": 176,
+      "sourceLine": 191,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_10",
@@ -523,7 +523,7 @@
     {
       "id": "INV-02",
       "requirement": "Quatre informations distinctes. Chaque bien possède un propriétaire économique, un détenteur éventuel, un emplacement et un état de disponibilité. Posséder une caisse dans l’entrepôt d’un tiers ne donne pas automatiquement accès au bâtiment. Un détenteur peut transporter un bien appartenant à son client.",
-      "sourceLine": 177,
+      "sourceLine": 192,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_13",
@@ -535,7 +535,7 @@
     {
       "id": "INV-03",
       "requirement": "Représentation physique. Un objet physique porte un identifiant ou un QR qui renvoie au même bien que l’inventaire. Une caisse peut représenter vingt unités virtuelles. Ouvrir ou fractionner le lot conserve la somme des quantités et leur provenance. Les règles précisent si le contenant vide reste un objet.",
-      "sourceLine": 180,
+      "sourceLine": 195,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_13",
@@ -547,7 +547,7 @@
     {
       "id": "INV-04",
       "requirement": "Déplacer et remettre. Une remise entre joueurs utilise une proposition, une confirmation du destinataire ou une validation MJ selon le contexte. Les objets physiques demandent la remise réelle prévue par les règles. Une transaction à distance peut changer le propriétaire sans déplacer le stock.",
-      "sourceLine": 181,
+      "sourceLine": 196,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_13",
@@ -559,7 +559,7 @@
     {
       "id": "INV-05",
       "requirement": "Places et volumes. Soute et entrepôt ont une capacité mesurée dans une unité simple du scénario. Un transfert doit vérifier cette capacité avant d’être confirmé. Une place réservée à une cargaison attendue ne peut être promise simultanément à une autre arrivée incompatible.",
-      "sourceLine": 184,
+      "sourceLine": 199,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_13",
@@ -571,7 +571,7 @@
     {
       "id": "ECO-01",
       "requirement": "Monnaie de jeu. Le scénario définit le nom et l’unité de sa monnaie fictive. Une session utilise une monnaie principale dans la proposition V1. Les montants sont enregistrés dans une unité entière pour éviter des écarts d’arrondi. Les devises multiples et taux de change peuvent être ajoutés comme extension.",
-      "sourceLine": 189,
+      "sourceLine": 205,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_12",
@@ -583,7 +583,7 @@
     {
       "id": "ECO-02",
       "requirement": "Payer et recevoir. Un paiement identifie payeur, bénéficiaire, montant, motif, session et référence d’opération. Le payeur choisit son compte autorisé, confirme le récapitulatif et reçoit le résultat. Un scan peut sélectionner le destinataire sans lui donner accès au compte du payeur.",
-      "sourceLine": 191,
+      "sourceLine": 207,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_13",
@@ -595,7 +595,7 @@
     {
       "id": "ECO-03",
       "requirement": "Cohérence. Le débit et le crédit d’un transfert doivent être appliqués ensemble. La répétition technique d’une même demande conserve son résultat initial. Deux paiements concurrents ne peuvent dépenser la même somme disponible. Un refus n’entraîne ni débit partiel ni crédit sans contrepartie.",
-      "sourceLine": 194,
+      "sourceLine": 210,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_13",
@@ -607,7 +607,7 @@
     {
       "id": "ECO-04",
       "requirement": "Corrections. Le MJ peut attribuer ou retirer des crédits avec un motif, annuler une opération admissible ou ajouter une écriture de correction. L’historique conserve l’opération initiale et sa correction. Si des opérations ultérieures en dépendent, le système présente les conséquences avant d’autoriser le traitement.",
-      "sourceLine": 195,
+      "sourceLine": 211,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_12",
@@ -619,7 +619,7 @@
     {
       "id": "ECO-05",
       "requirement": "Dette explicite. Un prêt crée un contrat avec prêteur, emprunteur, principal, échéance, remboursement et éventuelles garanties. Les intérêts et pénalités sont des règles facultatives de scénario. Leur déclenchement ne doit ni rendre un solde illisible ni confisquer arbitrairement des biens non engagés.",
-      "sourceLine": 197,
+      "sourceLine": 213,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -630,7 +630,7 @@
     {
       "id": "MAR-01",
       "requirement": "Catalogue et vitrines. Les joueurs consultent les annonces accessibles : type, quantité, unité ou lot, prix, vendeur ou alias commercial, emplacement de retrait, disponibilité, frais connus et date de validité. Recherche et filtres permettent de trouver marchandises, consommables et services. Les annonces privées s’adressent à des contacts ou groupes autorisés.",
-      "sourceLine": 202,
+      "sourceLine": 219,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_14",
@@ -642,7 +642,7 @@
     {
       "id": "MAR-02",
       "requirement": "Publication. Le vendeur choisit le bien ou service, la quantité, le prix, les conditions et la durée. Le système vérifie qu’il a le droit de vendre. Les quantités engagées par les annonces actives sont suivies ; plusieurs offres ne doivent pas promettre plus de stock disponible que le vendeur n’en possède.",
-      "sourceLine": 204,
+      "sourceLine": 221,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_14",
@@ -654,7 +654,7 @@
     {
       "id": "MAR-03",
       "requirement": "Achat direct. Le récapitulatif présente le prix, les frais applicables, le compte débité, l’emplacement du bien et les conditions de remise. Le cours indicatif n’est pas une autorisation de modifier le prix confirmé. Un panier V1 peut regrouper les articles d’un même vendeur ; les vendeurs différents donnent lieu à des opérations distinctes et clairement présentées.",
-      "sourceLine": 206,
+      "sourceLine": 223,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_14",
@@ -666,7 +666,7 @@
     {
       "id": "MAR-04",
       "requirement": "Négociation. L’acheteur peut proposer quantité et prix, avec un commentaire. Le vendeur accepte, refuse ou formule une contre-offre. Chaque proposition possède une échéance et une version. La contre-offre remplace la proposition précédente ; une ancienne proposition ne peut être acceptée après remplacement.",
-      "sourceLine": 207,
+      "sourceLine": 224,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -677,7 +677,7 @@
     {
       "id": "MAR-05",
       "requirement": "Modes de conclusion. Une vente immédiate transfère paiement et propriété, en conservant le lieu du stock. Un contrat de livraison peut au contraire réserver les fonds jusqu’à réception. Le mode choisi est affiché avant engagement. Aucun mode ne déplace physiquement une caisse par simple paiement.",
-      "sourceLine": 210,
+      "sourceLine": 227,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_14",
@@ -689,19 +689,19 @@
     {
       "id": "ANN-01",
       "requirement": "Accès joueur. La place de marché comporte un espace Petites annonces, avec recherche et filtres : primes, recrutement de mercenaires, escorte, transport, recherche d’information et autres services. Le joueur distingue les offres ouvertes de ses candidatures et des missions qui lui sont attribuées. Cette fonction appartient au périmètre initial.",
-      "sourceLine": 215,
+      "sourceLine": 233,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_16",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_18",
       "coreWork": "Contrats de missions attribuées et règlement contrôlé",
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration",
-      "implementedScope": "Offres ouvertes, candidatures personnelles, propositions de contrats, missions attribuées et contrats terminés séparés. Recette terrain restante."
+      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration ; docs/VALIDATION-0.17.md ; docs/VALIDATION-0.18.md ; docs/BILAN-2026-10-20.md",
+      "implementedScope": "Annonces ouvertes, candidatures, contrats attribués et primes ouvertes consultables ; participation personnelle ou collective configurable par annonce. Recette terrain restante."
     },
     {
       "id": "ANN-02",
       "requirement": "Publication organisateur. Depuis le dashboard, l’organisateur crée, prévisualise, publie, programme, modifie ou retire une annonce. Il choisit le commanditaire de fiction : personnage, bande, administration ou PNJ, sous son nom ou un alias. L’auteur technique reste dans l’historique MJ. Cette version prévoit la publication des missions par les organisateurs et les réponses des joueurs.",
-      "sourceLine": 216,
+      "sourceLine": 234,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_15",
@@ -713,91 +713,91 @@
     {
       "id": "ANN-03",
       "requirement": "Contenu et visibilité. La fiche précise titre, catégorie, description, commanditaire visible, récompense fixe ou négociable, échéance, places, conditions et preuve attendue. Elle distingue mission attribuée et prime ouverte à plusieurs concurrents. L’organisateur définit les destinataires autorisés et sépare texte public, briefing réservé et notes MJ. Filtres et affichage des destinataires respectent les appartenances secrètes.",
-      "sourceLine": 217,
+      "sourceLine": 235,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_16",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_18",
       "coreWork": "Contrats de missions attribuées et règlement contrôlé",
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration",
-      "implementedScope": "Conditions publiques et audiences contrôlées ; compteur de places, briefing de la version acceptée débloqué au seul titulaire, notes MJ exclues. Quotas de primes ouvertes restant."
+      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration ; docs/VALIDATION-0.17.md ; docs/VALIDATION-0.18.md ; docs/BILAN-2026-10-20.md",
+      "implementedScope": "Conditions et audiences contrôlées, briefing débloqué à l’accord, notes MJ exclues ; primes financées avec quota fixe et mode de participation verrouillé. Médias et recette terrain restant."
     },
     {
       "id": "ANN-04",
       "requirement": "Candidatures privées. Le bouton Répondre permet de poser une question ou de candidater, avec un message et, si autorisé, un prix proposé. Un joueur répond pour lui-même ou pour un groupe qu’il peut représenter. Les échanges sont visibles du candidat, des représentants autorisés du commanditaire et des organisateurs habilités. Les concurrents ne voient ni les candidatures ni les tarifs proposés.",
-      "sourceLine": 219,
+      "sourceLine": 237,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_16",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_18",
       "coreWork": "Contrats de missions attribuées et règlement contrôlé",
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration",
-      "implementedScope": "Questions/candidatures personnelles, tarifs privés, réponses MJ, lecture dans Infos et statut mission attribuée relié au contrat. Représentation de groupe et commanditaire joueur restant."
+      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration ; docs/VALIDATION-0.17.md ; docs/VALIDATION-0.18.md ; docs/BILAN-2026-10-20.md",
+      "implementedScope": "Questions et candidatures personnelles ou de bande, tarifs privés, dossiers communs aux représentants habilités, réponses MJ et lecture individuelle. Représentant joueur du commanditaire non livré ; recette terrain restante."
     },
     {
       "id": "ANN-05",
       "requirement": "Attribution et contrat. Pour une mission attribuée, l’organisateur sélectionne un ou plusieurs candidats dans la limite des places ; les parties confirment les mêmes conditions. Le système crée un contrat lié à l’annonce et à la candidature, avec rémunération, acompte éventuel, échéance, preuve et valideur. Il ouvre le briefing prévu sans exposer les notes MJ. Une prime ouverte indique qui peut réclamer la récompense et combien de résultats peuvent être récompensés ; une réponse n’accorde pas d’exclusivité.",
-      "sourceLine": 221,
+      "sourceLine": 239,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_16",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_18",
       "coreWork": "Contrats de missions attribuées et règlement contrôlé",
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration",
-      "implementedScope": "Sélection par proposition MJ, accord personnel sur les mêmes conditions, places contrôlées atomiquement, montant explicite, délai de jeu, preuve et valideur MJ, briefing privé. Sans acompte/garantie ; groupes et primes ouvertes restant."
+      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration ; docs/VALIDATION-0.17.md ; docs/VALIDATION-0.18.md ; docs/BILAN-2026-10-20.md",
+      "implementedScope": "Mission personnelle ou collective confirmée sur des conditions figées, place et fonds contrôlés, briefing privé ; primes ouvertes avec quota par bénéficiaire. Sans acompte/garantie ; recette terrain restante."
     },
     {
       "id": "ANN-06",
       "requirement": "Gestion et règlement. Le dashboard rassemble annonces, candidatures, échanges, contrats et preuves. Une annonce est brouillon, programmée, ouverte, pourvue, clôturée, expirée ou annulée. Modifier l’annonce ne change pas un contrat accepté : ses nouvelles conditions demandent l’accord des parties.",
-      "sourceLine": 223,
+      "sourceLine": 241,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_16",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_18",
       "coreWork": "Contrats de missions attribuées et règlement contrôlé",
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration",
-      "implementedScope": "Tableaux annonces/candidatures/contrats/preuves ; annonce pourvue, conditions acceptées figées, réservation de fonds, validation et paiement unique ou création monétaire extérieure tracée. Annulation/expiration MJ explicites libérant les réservations ; pas de traitement planifié ni avenant."
+      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration ; docs/VALIDATION-0.17.md ; docs/VALIDATION-0.18.md ; docs/BILAN-2026-10-20.md",
+      "implementedScope": "Annonces, candidatures, contrats et primes avec preuves textuelles, quota, règlement unique, création monétaire extérieure tracée et clôture MJ restituant les réserves. Pas d’avenant, de pièce jointe ni de clôture planifiée."
     },
     {
       "id": "REC-10",
       "requirement": "Publier et recruter. Deux bandes répondent à une escorte avec des tarifs différents. Une candidature est retenue et confirmée : un contrat, un briefing privé et un seul paiement après validation. Tester aussi deux réclamations concurrentes sur une prime ouverte : le quota de récompenses est respecté. Une annonce expirée refuse une nouvelle candidature.",
-      "sourceLine": 225,
+      "sourceLine": 243,
       "lot": "E",
       "prototype": "NON_VERIFIE",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_16",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_18",
       "coreWork": "Contrats de missions attribuées et règlement contrôlé",
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration",
-      "implementedScope": "Parcours synthétiques de candidats personnels : tarifs distincts, dernière place concurrente, accord, briefing privé, preuve et règlement unique. Les bandes, représentants et quotas de primes ouvertes ne sont pas implémentés ; REC-10 non validé."
+      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration ; docs/VALIDATION-0.17.md ; docs/VALIDATION-0.18.md ; docs/BILAN-2026-10-20.md",
+      "implementedScope": "Les parcours automatisés couvrent candidatures de bandes, représentants distincts et relais, contrat, briefing, preuve, paiement collectif, primes ouvertes et quota concurrent. 697 tests passent dans la version 0.18. Recette réelle multi-comptes et terrain non exécutée : REC-10 demeure partiel."
     },
     {
       "id": "CTR-01",
       "requirement": "Structure. Un contrat contient parties, objet, quantité ou service, rémunération, acompte, garantie, échéance, conditions de validation, confidentialité et conséquences d’inexécution. Il peut porter sur transport, escorte, réparation, prime, location ou prêt. Les conditions mécaniques et promesses narratives doivent être distinguées.",
-      "sourceLine": 228,
+      "sourceLine": 247,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_16",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_18",
       "coreWork": "Contrats de missions attribuées et règlement contrôlé",
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration",
-      "implementedScope": "Contrat de mission attribuée : parties, service, montant en crédits, durée de jeu, preuve, MJ valideur, confidentialité et inexécution narrative. Sans acompte, garantie, objets, prêt ou location."
+      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration ; docs/VALIDATION-0.17.md ; docs/VALIDATION-0.18.md ; docs/BILAN-2026-10-20.md",
+      "implementedScope": "Contrats de mission personnels ou collectifs, service, montant, financement, durée de jeu, preuve, validation MJ et confidentialité ; primes ouvertes financées. Acompte, garantie, objets, prêt, location et livraison mécanique restant."
     },
     {
       "id": "CTR-02",
       "requirement": "Exécution. Les parties acceptent une même version. Le contrat passe ensuite par accepté, en cours, rempli, payé, expiré, annulé ou en litige. Une prestation narrative peut nécessiter une validation du bénéficiaire ou du MJ. Les objets et sommes réservés ne sont libérés qu’une fois.",
-      "sourceLine": 229,
+      "sourceLine": 248,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_16",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_18",
       "coreWork": "Contrats de missions attribuées et règlement contrôlé",
       "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration",
-      "implementedScope": "Proposition, accord, mission en cours, preuve à valider, complément, paiement unique, refus et clôture/expiration MJ avec libération des fonds. Pas de litige formalisé ni règlement automatique."
+      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration ; docs/VALIDATION-0.17.md ; docs/VALIDATION-0.18.md ; docs/BILAN-2026-10-20.md",
+      "implementedScope": "Accord, briefing, preuve, complément, paiement unique au personnage ou à la caisse de la bande, clôture et restitution MJ. Primes ouvertes avec arbitrage et quota. Litiges formels, avenants et règlement automatique restant."
     },
     {
       "id": "ENT-01",
       "requirement": "Louer une capacité. Le bailleur propose emplacement, capacité, durée, prix, accès et éventuel dépôt de garantie. Le locataire choisit le compte payeur. Les biens stockés restent rattachés à leurs propriétaires. Les droits d’entrée, de retrait et de consultation sont distincts de la propriété des murs.",
-      "sourceLine": 232,
+      "sourceLine": 251,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -808,7 +808,7 @@
     {
       "id": "ENT-02",
       "requirement": "Échéances. Proposition V1 : louer des périodes définies sur l’horloge de jeu, avec avertissement avant expiration. Le défaut de paiement peut bloquer de nouveaux dépôts ou ouvrir un litige ; il ne détruit pas le stock. Les règles de rétention et restitution éventuelles doivent être prévues dans le bail et le scénario.",
-      "sourceLine": 233,
+      "sourceLine": 252,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -819,7 +819,7 @@
     {
       "id": "DOU-01",
       "requirement": "Déclarer et inspecter. Une expédition possède un manifeste déclaré et un contenu réel. Un rôle autorisé peut contrôler tout ou partie du contenu selon ses moyens. Les taxes dépendent de règles configurées ; le joueur peut voir son devis avant de confirmer un passage déclaré.",
-      "sourceLine": 236,
+      "sourceLine": 255,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -830,7 +830,7 @@
     {
       "id": "DOU-02",
       "requirement": "Corruption. Un paiement clandestin n’accorde un effet automatique que si un accord ou une compétence le prévoit. L’arrangement peut autoriser un passage, réduire un contrôle ou créer une promesse susceptible d’être trahie. Les traces visibles en fiction sont distinctes du journal technique MJ.",
-      "sourceLine": 237,
+      "sourceLine": 256,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -841,7 +841,7 @@
     {
       "id": "COU-01",
       "requirement": "Paramètres. Chaque marchandise possède un prix de référence, des bornes, un stock extérieur et une demande extérieure configurables. Les annonces des joueurs gardent leur propre prix. Le MJ peut activer des cours par destination pour créer des opportunités d’import-export sans garantir un bénéfice sur chaque trajet.",
-      "sourceLine": 241,
+      "sourceLine": 261,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -852,7 +852,7 @@
     {
       "id": "COU-02",
       "requirement": "Évolution. Le premier mode recommandé est une évolution pilotée par événements et validée par le MJ. Un mode automatique peut ensuite utiliser stocks disponibles, achats, ventes et commandes selon une formule publiée dans les règles organisateur. Aucune formule d’équilibrage n’est fixée dans cette V1.",
-      "sourceLine": 242,
+      "sourceLine": 262,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -863,7 +863,7 @@
     {
       "id": "COU-03",
       "requirement": "Marché extérieur. Les fournisseurs ont des quantités limitées, des délais et des réapprovisionnements paramétrés. Les acheteurs publient des commandes avec quantité maximale, destination et échéance. Une vente extérieure exige que la marchandise atteigne l’état requis, par exemple livraison à destination.",
-      "sourceLine": 245,
+      "sourceLine": 265,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -874,7 +874,7 @@
     {
       "id": "COU-04",
       "requirement": "Prévisualisation. Avant de déclencher un événement, le MJ voit les marchandises touchées, les nouveaux cours, les stocks concernés, les contrats affectés et les notifications proposées. Il peut modifier un événement futur. Annuler un événement passé n’efface pas les transactions déjà réalisées ; une correction suit une procédure visible dans l’historique.",
-      "sourceLine": 247,
+      "sourceLine": 267,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -885,7 +885,7 @@
     {
       "id": "COU-05",
       "requirement": "Tableau économique. Le tableau de bord affiche argent créé et retiré, circulation entre joueurs, prix, volumes vendus, stocks bloqués, concentration des fonds, dettes et engagements. Les transferts entre joueurs ne sont pas comptés comme création de richesse monétaire.",
-      "sourceLine": 249,
+      "sourceLine": 269,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -896,7 +896,7 @@
     {
       "id": "VAI-01",
       "requirement": "Fiche. Le vaisseau possède un propriétaire, des utilisateurs autorisés, une localisation, un état, une capacité de soute, du carburant et des caractéristiques. Les modules installés, avaries, frais d’entretien et améliorations sont enregistrés comme des éléments de jeu. Leur barème reste propre au scénario.",
-      "sourceLine": 254,
+      "sourceLine": 275,
       "lot": "D",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -907,7 +907,7 @@
     {
       "id": "TRA-01",
       "requirement": "Devis. Le joueur choisit destination, route, fret, escorte et consigne face à une interception. Le récapitulatif présente volume, durée, coût, carburant requis, entretien et risques connus. Le contenu réel et le manifeste déclaré sont conservés séparément.",
-      "sourceLine": 257,
+      "sourceLine": 278,
       "lot": "D",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -918,7 +918,7 @@
     {
       "id": "TRA-02",
       "requirement": "Départ. La confirmation vérifie les droits, l’état du vaisseau, la capacité, les crédits, le carburant et les cargaisons engagées. L’ensemble passe en transit une seule fois. Un vaisseau ne peut partir sur deux missions concurrentes. Un lot en transit ne figure plus comme disponible pour un retrait au port.",
-      "sourceLine": 258,
+      "sourceLine": 279,
       "lot": "D",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -929,7 +929,7 @@
     {
       "id": "TRA-03",
       "requirement": "Présence des joueurs. Proposition pour Port-Brèche : certaines rotations sont confiées dans la fiction à un pilote auxiliaire ou un droïde, pendant que les joueurs organisent leurs affaires sur le terrain. Un autre mode peut représenter une mission jouée. Le moteur ne présume pas que tous les membres du groupe deviennent indisponibles dès que leur vaisseau voyage.",
-      "sourceLine": 261,
+      "sourceLine": 282,
       "lot": "D",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -940,7 +940,7 @@
     {
       "id": "VAI-02",
       "requirement": "Réparer et améliorer. Les réparations demandent les pièces, la prestation et le délai prévus. Une amélioration doit respecter les emplacements et incompatibilités configurés. Les changements pendant un voyage sont interdits sauf règle spécifique.",
-      "sourceLine": 264,
+      "sourceLine": 285,
       "lot": "D",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -951,7 +951,7 @@
     {
       "id": "SPA-01",
       "requirement": "Information exploitable. Une interception exige un renseignement valable, une fenêtre de trajet et un moyen disponible. Le pirate ne voit pas une carte omnisciente de toutes les cargaisons. Le renseignement peut venir d’un informateur, d’une compétence, d’un manifeste ou d’une révélation MJ.",
-      "sourceLine": 268,
+      "sourceLine": 290,
       "lot": "D",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -962,7 +962,7 @@
     {
       "id": "SPA-02",
       "requirement": "Choix. La défense applique sa consigne ou reçoit une demande de décision avec un délai : fuir, combattre, négocier ou céder une partie du fret, selon les options du scénario. À l’expiration, une consigne de repli définie avant le départ évite de bloquer le trajet parce qu’un joueur n’a pas consulté son téléphone.",
-      "sourceLine": 271,
+      "sourceLine": 293,
       "lot": "D",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -973,7 +973,7 @@
     {
       "id": "SPA-03",
       "requirement": "Paramètres. La résolution utilise les caractéristiques pertinentes, l’état du vaisseau, les modules, les choix tactiques, l’escorte et un aléa borné. La formule, les seuils et les probabilités seront définis dans le module de règles et testés avec les configurations de départ.",
-      "sourceLine": 272,
+      "sourceLine": 294,
       "lot": "D",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -984,7 +984,7 @@
     {
       "id": "SPA-04",
       "requirement": "Effets possibles. Retard, dépense supplémentaire, avarie, perte partielle de marchandises, rançon ou retraite sont des conséquences configurables. Une capture de fret transfère les lots existants vers une destination réelle dans le jeu ; elle ne crée pas une copie du butin. La capacité de transport du vainqueur est vérifiée.",
-      "sourceLine": 275,
+      "sourceLine": 297,
       "lot": "D",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -995,7 +995,7 @@
     {
       "id": "SPA-05",
       "requirement": "Attaques concurrentes. Le vaisseau ciblé est engagé dans une seule résolution incompatible à la fois. Une règle de scénario peut prévoir plusieurs participants, mais leurs engagements et effets sont regroupés dans le même affrontement. Les coûts et remboursements d’une attaque devenue impossible sont définis.",
-      "sourceLine": 277,
+      "sourceLine": 299,
       "lot": "D",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1006,7 +1006,7 @@
     {
       "id": "INF-01",
       "requirement": "Fil personnel. L’espace Infos regroupe les contenus reçus, avec filtres par type, statut de lecture et origine visible. Il distingue au minimum connaissances, indices, informations générales, messages et documents. Les votes n’apparaissent que si ce module est activé.",
-      "sourceLine": 281,
+      "sourceLine": 304,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_6",
@@ -1018,7 +1018,7 @@
     {
       "id": "INF-02",
       "requirement": "Diffusion. Le MJ peut publier vers tous, vers un groupe, vers une sélection de personnages ou vers une condition préparée. La prévisualisation montre les destinataires avant envoi. Une diffusion programmée suit l’horloge choisie ; la pause de jeu en suspend les déclenchements scénaristiques.",
-      "sourceLine": 283,
+      "sourceLine": 306,
       "lot": "B",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
@@ -1030,7 +1030,7 @@
     {
       "id": "MSG-01",
       "requirement": "Messages privés. Le moteur permet une conversation entre destinataires autorisés, un contact découvert ou une adresse de couverture prévue par le scénario. L’accès à l’annuaire peut être limité. Un pseudonyme n’est pas accompagné de son identité réelle cachée.",
-      "sourceLine": 285,
+      "sourceLine": 308,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1041,7 +1041,7 @@
     {
       "id": "MSG-02",
       "requirement": "Groupes clandestins. Le fait d’être un renégat n’ouvre pas automatiquement une conversation avec les autres renégats. Après leur rencontre, les joueurs peuvent créer un cercle d’échange ou demander les accès prévus. Une exclusion retire les accès futurs ; elle n’efface pas ce que le personnage a déjà appris ni une copie autorisée déjà reçue.",
-      "sourceLine": 287,
+      "sourceLine": 310,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
@@ -1053,7 +1053,7 @@
     {
       "id": "INF-03",
       "requirement": "Fiction et vérité. Une rumeur peut circuler comme une nouvelle ou un témoignage sans label « faux » visible au joueur. Les données MJ servent à contrôler la cohérence, pas à afficher une vérité automatique. Une annonce de prime peut être publique alors que son commanditaire reste un alias.",
-      "sourceLine": 289,
+      "sourceLine": 312,
       "lot": "B",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_5",
@@ -1065,7 +1065,7 @@
     {
       "id": "VOT-01",
       "requirement": "Module facultatif. Un vote possède électeurs, choix, dates, confidentialité et règle de clôture. Un changement de vote est autorisé ou interdit explicitement. Ce module peut servir à une décision collective, sans imposer une procédure de vote à la concession de Port-Brèche.",
-      "sourceLine": 290,
+      "sourceLine": 313,
       "lot": "E",
       "prototype": "PARTIEL",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1076,7 +1076,7 @@
     {
       "id": "MJ-01",
       "requirement": "Vue de session. L’accueil présente participants, attributions, présence, état de préparation et accès à renouveler. La vue de jeu présente personnages en difficulté, actions en attente, contrats proches de leur échéance, cargaisons immobilisées, candidatures à examiner, cours et événements à venir.",
-      "sourceLine": 294,
+      "sourceLine": 318,
       "lot": "E",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_3",
@@ -1088,7 +1088,7 @@
     {
       "id": "MJ-02",
       "requirement": "Intervention. Le MJ peut corriger un état, restituer un objet, attribuer une connaissance, résoudre un litige, régler une dette de jeu ou modifier un événement. Chaque intervention demande une cible explicite et conserve auteur, date, motif et valeurs avant/après. Les actions affectant plusieurs joueurs présentent leur périmètre avant validation.",
-      "sourceLine": 296,
+      "sourceLine": 320,
       "lot": "E",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_5",
@@ -1100,7 +1100,7 @@
     {
       "id": "MJ-03",
       "requirement": "Historique utile. Le journal permet de suivre une chaîne : annonce, négociation, vente, paiement, retrait, trajet, interception et livraison. Il relie également une compétence à son coût, son résultat et ses effets. Les recherches peuvent cibler un lot, un contrat, un compte ou un personnage.",
-      "sourceLine": 298,
+      "sourceLine": 322,
       "lot": "E",
       "prototype": "PARTIEL",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1111,7 +1111,7 @@
     {
       "id": "MJ-04",
       "requirement": "Arbitrages. Les actions nécessitant un MJ arrivent dans une file avec demandeur, cible, règle, preuves et options autorisées. La décision est expliquée aux personnes concernées selon sa visibilité. Le premier MJ qui prend en charge la demande empêche une seconde résolution concurrente.",
-      "sourceLine": 300,
+      "sourceLine": 324,
       "lot": "E",
       "prototype": "PARTIEL",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1122,7 +1122,7 @@
     {
       "id": "MJ-05",
       "requirement": "Temps et événements. Le MJ prépare des arrivées de fret, annonces, contrôles, variations de prix et révélations. Il peut suspendre le jeu, annoncer un événement général ou retarder un déclenchement futur. Une modification ne rejoue pas les événements déjà appliqués.",
-      "sourceLine": 302,
+      "sourceLine": 326,
       "lot": "E",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1133,7 +1133,7 @@
     {
       "id": "MJ-06",
       "requirement": "Fin de session. La clôture produit un état final des objectifs, crédits, contrats, groupes et événements. Le MJ choisit les révélations d’épilogue. L’archivage conserve une consultation adaptée ; une nouvelle partie part du modèle et ne récupère ni notes ni secrets appris de la précédente.",
-      "sourceLine": 303,
+      "sourceLine": 327,
       "lot": "E",
       "prototype": "PARTIEL",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1144,7 +1144,7 @@
     {
       "id": "DAT-01",
       "requirement": "Identifiants stables. Les relations utilisent des identifiants, pas le nom affiché. Un renommage ne casse pas les liens. Les ressources d’une session ne peuvent pas être utilisées dans une autre par simple changement d’adresse. Une suppression référencée est refusée ou remplacée par un archivage contrôlé.",
-      "sourceLine": 321,
+      "sourceLine": 346,
       "lot": "A",
       "prototype": "PARTIEL",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1155,7 +1155,7 @@
     {
       "id": "DAT-02",
       "requirement": "Confirmation de référence. Les crédits, stocks, permissions et résultats sont validés côté service. L’écran joueur affiche l’état confirmé ; il ne fait pas autorité sur un solde, un jet ou une appartenance secrète. Chaque commande modifiant le jeu porte une référence unique et une version attendue lorsque nécessaire.",
-      "sourceLine": 323,
+      "sourceLine": 348,
       "lot": "A",
       "prototype": "PARTIEL",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1166,7 +1166,7 @@
     {
       "id": "DAT-03",
       "requirement": "Effets liés. Une transaction qui touche plusieurs éléments réussit entièrement ou laisse un état explicite de réservation récupérable. Les compensations sont prévues pour une opération interrompue. La répétition technique restitue le résultat déjà enregistré au lieu de créer un second effet.",
-      "sourceLine": 324,
+      "sourceLine": 349,
       "lot": "A",
       "prototype": "PARTIEL",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1177,7 +1177,7 @@
     {
       "id": "TMP-01",
       "requirement": "Temps réel et temps de jeu. Le temps réel sert aux connexions et à l’exploitation. Le temps de jeu sert aux trajets, compétences, contrats et événements. Une pause fige ce dernier et son calendrier associé ; les échéances de connexion peuvent continuer à expirer.",
-      "sourceLine": 326,
+      "sourceLine": 351,
       "lot": "E",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1188,7 +1188,7 @@
     {
       "id": "TMP-02",
       "requirement": "Reprise. Le service de référence décide quand un effet arrive à terme. Une page fermée n’arrête pas un trajet. Après une interruption du service, la reprise traite chaque échéance une seule fois et dans un ordre cohérent avec ses dépendances. Le MJ peut voir les opérations en attente de reprise.",
-      "sourceLine": 327,
+      "sourceLine": 352,
       "lot": "E",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1199,7 +1199,7 @@
     {
       "id": "SEC-01",
       "requirement": "Autorisation. Les contrôles doivent porter sur la session, l’acteur, la ressource et l’action demandée. Un accès non explicitement accordé est refusé. Les vérifications ne reposent pas uniquement sur les boutons visibles du navigateur. Ces exigences suivent les principes de moindre privilège et de contrôle de chaque requête présentés par OWASP [R1].",
-      "sourceLine": 331,
+      "sourceLine": 357,
       "lot": "A",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
@@ -1211,7 +1211,7 @@
     {
       "id": "SEC-02",
       "requirement": "Données réellement séparées. Les secrets ne sont pas transmis au navigateur puis simplement masqués à l’écran. Documents, images, recherches, exports et notifications respectent les mêmes règles de visibilité. Un identifiant imprévisible ne remplace pas une autorisation.",
-      "sourceLine": 332,
+      "sourceLine": 358,
       "lot": "A",
       "prototype": "PARTIEL",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_4",
@@ -1223,7 +1223,7 @@
     {
       "id": "SEC-03",
       "requirement": "Invitations. Les invitations privées expirent, sont révocables et ne sont pas imprimées sur les badges publics. Les secrets d’accès ne sont pas inscrits en clair dans les journaux consultables. Le changement de titulaire ou la révocation ferme les autorisations actives correspondantes.",
-      "sourceLine": 335,
+      "sourceLine": 361,
       "lot": "A",
       "prototype": "PARTIEL",
       "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
@@ -1234,7 +1234,7 @@
     {
       "id": "SEC-04",
       "requirement": "Accès aux fichiers. Le contrôle s’applique aussi au téléchargement direct d’un document. Un lien public ne doit pas permettre de récupérer la fiche privée d’un autre personnage. Les fichiers téléversés sont contrôlés selon des types et tailles autorisés ; un contenu de jeu ne doit pas exécuter un script dans l’interface.",
-      "sourceLine": 336,
+      "sourceLine": 362,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1245,7 +1245,7 @@
     {
       "id": "PRI-01",
       "requirement": "Usage et visibilité. Les coordonnées, besoins d’accueil et réponses au formulaire sont réservés aux organisateurs habilités. La fiche de personnage ne les expose pas. La page d’inscription présente les usages des données, leurs destinataires et les modalités prévues pour les corriger ou demander leur suppression.",
-      "sourceLine": 338,
+      "sourceLine": 364,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1256,7 +1256,7 @@
     {
       "id": "PRI-02",
       "requirement": "Conservation. La durée de conservation des inscriptions, médias et historiques doit être configurable et annoncée. La suppression d’un compte participant ne doit pas rendre illisible le bilan de jeu : le système prévoit une dissociation ou une anonymisation des données personnelles. Les obligations applicables devront être vérifiées avant l’exploitation réelle.",
-      "sourceLine": 339,
+      "sourceLine": 365,
       "lot": "A",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1267,7 +1267,7 @@
     {
       "id": "RES-01",
       "requirement": "État de connexion visible. L’application indique hors ligne, en cours d’envoi, confirmé ou synchronisation nécessaire. Un écran de succès n’apparaît qu’après confirmation. Si la réponse est perdue, le système recherche le résultat de la même commande avant de proposer un nouvel essai.",
-      "sourceLine": 344,
+      "sourceLine": 371,
       "lot": "E",
       "prototype": "PARTIEL",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1278,7 +1278,7 @@
     {
       "id": "RES-02",
       "requirement": "Lecture hors ligne limitée. Proposition V1 : consultation des contenus déjà autorisés et mis en cache, avec date de dernière synchronisation. Les achats, transferts, jets et actions modifiant un état partagé demandent une connexion. Des notes et une déclaration de dégâts peuvent être conservées en brouillon clairement non validé.",
-      "sourceLine": 345,
+      "sourceLine": 372,
       "lot": "E",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1289,7 +1289,7 @@
     {
       "id": "RES-03",
       "requirement": "Secours MJ. Le pack imprimé permet de poursuivre les scènes essentielles. Une procédure de saisie différée identifie chaque opération manuelle et évite son double enregistrement au retour du réseau. Le MJ peut suspendre temporairement les échanges numériques pour garder un état de référence clair.",
-      "sourceLine": 347,
+      "sourceLine": 374,
       "lot": "E",
       "prototype": "NON_VERIFIE",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1300,7 +1300,7 @@
     {
       "id": "QUA-01",
       "requirement": "Mobile. L’application web fonctionne sur les navigateurs mobiles retenus lors de la recette, en portrait, avec adaptation aux grands écrans MJ. L’installation comme application web est un confort possible, pas une condition d’entrée. Le refus de la caméra doit laisser un accès par code manuel.",
-      "sourceLine": 349,
+      "sourceLine": 376,
       "lot": "E",
       "prototype": "PARTIEL",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1311,7 +1311,7 @@
     {
       "id": "QUA-02",
       "requirement": "Interaction. Proposition de cible produit : boutons principaux d’au moins 44 pixels CSS, textes redimensionnables, états lisibles sans couleur seule, navigation clavier des écrans MJ et messages d’erreur compréhensibles. Le seuil de 44 est un choix de confort ; le critère W3C 2.5.8 décrit un minimum de 24 pixels CSS avec exceptions [R2]. Une conformité globale ne se déduit pas de cette seule mesure.",
-      "sourceLine": 350,
+      "sourceLine": 377,
       "lot": "E",
       "prototype": "NON_VERIFIE",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1322,7 +1322,7 @@
     {
       "id": "QUA-03",
       "requirement": "Recette proposée. Mesurer un usage simultané à 60 joueurs, puis un palier à 120 pour observer la marge. Sur un profil de réseau consigné, viser une confirmation en moins de 2 secondes pour 95 % des actions courantes hors téléversements, et une propagation d’état en moins de 5 secondes. Ce sont des objectifs à tester, pas des performances acquises.",
-      "sourceLine": 352,
+      "sourceLine": 379,
       "lot": "E",
       "prototype": "NON_VERIFIE",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1333,7 +1333,7 @@
     {
       "id": "IMP-01",
       "requirement": "Modèle de saisie. Le tableau de bord fournit un modèle vide versionné avec instructions, champs requis, listes de valeurs et exemples distincts des données à importer. Un classeur peut couvrir personnages, groupes, relations, connaissances, compétences, biens, lieux, comptes, contrats et événements.",
-      "sourceLine": 356,
+      "sourceLine": 384,
       "lot": "E",
       "prototype": "PARTIEL",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1344,7 +1344,7 @@
     {
       "id": "IMP-02",
       "requirement": "Contrôle avant application. L’import affiche un bilan : créations, modifications, éléments inchangés et erreurs avec onglet, ligne et champ. Il ne crée pas partiellement des données sans le signaler. Le MJ choisit la stratégie d’import ; les identifiants stables évitent les doublons lors d’une seconde importation.",
-      "sourceLine": 357,
+      "sourceLine": 385,
       "lot": "E",
       "prototype": "PARTIEL",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1355,7 +1355,7 @@
     {
       "id": "EXP-01",
       "requirement": "Sauvegarde fonctionnelle. L’export conserve données, versions, références et médias nécessaires à la réutilisation du scénario. Un export de session inclut son état et son historique dans un format documenté. Les identifiants de connexion et secrets techniques n’appartiennent pas au master de contenu.",
-      "sourceLine": 360,
+      "sourceLine": 388,
       "lot": "E",
       "prototype": "PARTIEL",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1366,7 +1366,7 @@
     {
       "id": "EXP-02",
       "requirement": "Packs. Le MJ génère les fiches joueurs selon leurs droits, les fiches de groupe, le dossier organisateur, la liste d’accueil, les badges, les QR de lieux et d’objets, les règles et les documents à imprimer. Chaque lot indique sa session et son usage. Le pack public ne contient pas les secrets du pack MJ.",
-      "sourceLine": 361,
+      "sourceLine": 389,
       "lot": "E",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1376,8 +1376,8 @@
     },
     {
       "id": "EXP-03",
-      "requirement": "Images et documents. Les images ont une vignette et une vue agrandie ; les documents longs disposent d’un aperçu ou d’un téléchargement autorisé. Les formats, poids et dimensions recommandés sont indiqués dans l’éditeur. Un téléchargement groupé rassemble les éléments à imprimer sans révéler des fichiers exclus du lot.",
-      "sourceLine": 364,
+      "requirement": "Images et documents. Les images ont une vignette et une vue agrandie ; les documents longs disposent d’un aperçu ou d’un téléchargement autorisé. Les formats, poids et dimensions recommandés sont indiqués dans l’éditeur. Un téléchargement groupé rassemble les éléments à imprimer sans révéler des fichiers exclus du lot. La gestion des images est précisée au chapitre Médiathèque des images personnalisées ; les documents longs restent couverts par la présente exigence.",
+      "sourceLine": 392,
       "lot": "E",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1388,7 +1388,7 @@
     {
       "id": "IMP-03",
       "requirement": "Vérification du terrain. Une vue de contrôle liste tous les QR, leur lieu d’installation, leur cible, leur état et les scénarios qui les utilisent. Un mode test permet de scanner les panneaux avant ouverture sans déclencher les découvertes des joueurs.",
-      "sourceLine": 365,
+      "sourceLine": 393,
       "lot": "E",
       "prototype": "A_DEVELOPPER",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1399,7 +1399,7 @@
     {
       "id": "REC-01",
       "requirement": "De l’inscription au personnage. Ouvrir le lien public, s’inscrire, être accepté, recevoir une attribution et accéder au briefing. Scanner son badge depuis un autre compte. Résultat attendu : l’un lit ses secrets, l’autre seulement le profil public et les interactions autorisées. Une réattribution retire l’ancien accès.",
-      "sourceLine": 370,
+      "sourceLine": 416,
       "lot": "E",
       "prototype": "NON_VERIFIE",
       "firebaseIntegration": "PREMIER_PARCOURS_DEPLOYE_0_2",
@@ -1410,7 +1410,7 @@
     {
       "id": "REC-02",
       "requirement": "Un achat et une livraison. Un équipage négocie cinq caisses, accepte le prix, paie ou réserve les fonds, loue une place, organise un trajet et livre. Résultat attendu : une seule chaîne de stock et de paiement, chaque frais vers le bon compte, aucun retrait local pendant le transit et libération correcte de la capacité.",
-      "sourceLine": 371,
+      "sourceLine": 417,
       "lot": "E",
       "prototype": "NON_VERIFIE",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1421,7 +1421,7 @@
     {
       "id": "REC-03",
       "requirement": "Le marché sous concurrence. Deux acheteurs tentent d’obtenir la dernière caisse tandis qu’un cours change. Résultat attendu : un seul gagnant, aucune quantité négative, aucun double débit, maintien du prix déjà accepté et message exploitable pour le perdant. Rejouer les mêmes requêtes ne modifie pas le bilan.",
-      "sourceLine": 372,
+      "sourceLine": 418,
       "lot": "E",
       "prototype": "NON_VERIFIE",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1432,7 +1432,7 @@
     {
       "id": "REC-04",
       "requirement": "Former la cellule. Les renégats possèdent des fragments distincts et rencontrent un personnage infiltré. Ils partagent des informations et créent un cercle. Résultat attendu : aucune liste automatique de vrais résistants, aucune fuite par annuaire, notification ou pièce jointe ; l’infiltré n’obtient que les éléments effectivement partagés avec lui.",
-      "sourceLine": 373,
+      "sourceLine": 419,
       "lot": "E",
       "prototype": "NON_VERIFIE",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_5",
@@ -1444,7 +1444,7 @@
     {
       "id": "REC-05",
       "requirement": "Saboter puis réparer. La cellule réunit matériel, accès et compétence, agit sur le terminal, puis un adversaire tente de réparer. Résultat attendu : consommations uniques, état cohérent du terminal, conséquences sur le convoi et condition de remise en service respectée. Les tentatives incompatibles sont arbitrées sans double application.",
-      "sourceLine": 374,
+      "sourceLine": 420,
       "lot": "E",
       "prototype": "NON_VERIFIE",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1455,7 +1455,7 @@
     {
       "id": "REC-06",
       "requirement": "Intercepter le fret. Un pirate obtient une information, engage son vaisseau et intercepte un trajet. Résultat attendu : choix ou consigne de la défense appliqué, un résultat stable, avaries et fret modifiés une seule fois, butin localisé et capacités respectées. Aucun crédit ni aucune caisse n’apparaît sans opération explicable.",
-      "sourceLine": 375,
+      "sourceLine": 421,
       "lot": "E",
       "prototype": "NON_VERIFIE",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1466,7 +1466,7 @@
     {
       "id": "REC-07",
       "requirement": "Blessure et secours. Un joueur déclare ses dégâts, passe hors combat, reçoit un soin puis reprend une action autorisée. Résultat attendu : stock médical consommé une fois, PV bornés, états compatibles et historique lisible. Le statut hors combat ne donne pas un accès général à son sac aux autres joueurs.",
-      "sourceLine": 376,
+      "sourceLine": 422,
       "lot": "E",
       "prototype": "NON_VERIFIE",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_9",
@@ -1478,7 +1478,7 @@
     {
       "id": "REC-08",
       "requirement": "Incident et reprise. Couper le réseau pendant une vente, mettre la session en pause, reprendre le service et retrouver l’opération. Résultat attendu : résultat unique, temps de jeu conservé, invitations traitées selon le temps réel et aucun traitement automatique ambigu des brouillons hors ligne.",
-      "sourceLine": 377,
+      "sourceLine": 423,
       "lot": "E",
       "prototype": "NON_VERIFIE",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1489,7 +1489,7 @@
     {
       "id": "REC-09",
       "requirement": "Clôture et réutilisation. Terminer la partie avec des contrats ouverts, appliquer la procédure de clôture et exporter le bilan. Créer une nouvelle session du scénario. Résultat attendu : état final conservé, engagements explicitement traités, nouvelle partie sans notes, transactions ni connaissances acquises dans la précédente.",
-      "sourceLine": 378,
+      "sourceLine": 424,
       "lot": "E",
       "prototype": "NON_VERIFIE",
       "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_6",
@@ -1501,7 +1501,7 @@
     {
       "id": "LIV-01",
       "requirement": "Livrables de développement. Attendre une version utilisable des trois interfaces, un modèle de scénario, une bibliothèque initiale documentée, un master d’import vide, un pack imprimable, un guide MJ, un guide joueur, un protocole de secours et un compte rendu de recette. Le dossier technique doit décrire installation, configuration, sauvegarde, restauration et maintenance.",
-      "sourceLine": 391,
+      "sourceLine": 438,
       "lot": "E",
       "prototype": "NON_VERIFIE",
       "firebaseIntegration": "NON_INTEGRE",
@@ -1512,13 +1512,146 @@
     {
       "id": "LIV-02",
       "requirement": "Cas pilote. La configuration Port-Brèche reprend la répartition de référence à soixante joueurs, les deux organisations criminelles, les trois équipages, les habitants, les Impériaux, les mercenaires et les visiteurs. Les quatre renégats et l’infiltré utilisent les appartenances secrètes. Les budgets et caractéristiques restent dans le contenu du scénario.",
-      "sourceLine": 392,
+      "sourceLine": 439,
       "lot": "E",
       "prototype": "NON_VERIFIE",
       "firebaseIntegration": "NON_INTEGRE",
       "coreWork": null,
       "acceptance": "NON_EXECUTEE",
       "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+    },
+    {
+      "id": "MED-01",
+      "requirement": "Catalogue central. Une médiathèque organisateur rassemble les images, avec vignette, nom modifiable, catégorie, mots-clés, origine ou crédit facultatif et état d’utilisation. Recherche et filtres permettent de retrouver les images par univers, scénario, type de contenu et statut utilisé ou inutilisé. Chaque image possède un identifiant stable indépendant de son nom de fichier.",
+      "sourceLine": 399,
+      "lot": "A",
+      "prototype": "A_DEVELOPPER",
+      "firebaseIntegration": "NON_INTEGRE",
+      "coreWork": null,
+      "acceptance": "NON_EXECUTEE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
+      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+    },
+    {
+      "id": "MED-02",
+      "requirement": "Import par lot. Le MJ peut sélectionner plusieurs fichiers ou les glisser ensemble. Avant envoi, il voit les miniatures, formats et tailles ; pendant l’import, chaque fichier affiche progression, réussite ou erreur. Un échec n’annule pas les fichiers réussis. Il peut retirer un fichier de la sélection et relancer seulement les échecs. Un réessai technique ne crée pas de doublon ; un fichier identique est signalé avant réimport volontaire.",
+      "sourceLine": 400,
+      "lot": "A",
+      "prototype": "A_DEVELOPPER",
+      "firebaseIntegration": "NON_INTEGRE",
+      "coreWork": null,
+      "acceptance": "NON_EXECUTEE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
+      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+    },
+    {
+      "id": "MED-03",
+      "requirement": "Formats et rendu. La première version accepte JPEG, PNG et WebP, y compris les PNG transparents. Les limites de taille, de dimensions et de nombre de fichiers sont configurées et affichées avant envoi. Le service contrôle le contenu réel, normalise l’orientation et retire les métadonnées de localisation. Il prépare des vignettes et des versions adaptées au mobile. L’image entière reste visible sans déformation, avec agrandissement ; le recadrage de présentation ne détruit pas la source.",
+      "sourceLine": 401,
+      "lot": "A",
+      "prototype": "A_DEVELOPPER",
+      "firebaseIntegration": "NON_INTEGRE",
+      "coreWork": null,
+      "acceptance": "NON_EXECUTEE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
+      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+    },
+    {
+      "id": "MED-04",
+      "requirement": "Attribution aux contenus. Depuis une fiche objet, personnage ou PNJ, mission ou petite annonce, le MJ choisit une image de la médiathèque, peut la remplacer ou retirer son association. Une image peut illustrer plusieurs contenus. Une sélection multiple permet des attributions en série avec un récapitulatif explicite image par cible avant confirmation. Le nom de fichier ne déclenche jamais une attribution silencieuse. Portrait public, fiche privée et briefing de mission restent des usages distincts.",
+      "sourceLine": 402,
+      "lot": "A",
+      "prototype": "A_DEVELOPPER",
+      "firebaseIntegration": "NON_INTEGRE",
+      "coreWork": null,
+      "acceptance": "NON_EXECUTEE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
+      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+    },
+    {
+      "id": "MED-05",
+      "requirement": "Réutilisation et versions. Un visuel peut être réutilisé dans plusieurs scénarios autorisés. Chaque contenu référence une version précise. Remplacer l’image dans la bibliothèque ne modifie pas silencieusement une session démarrée, un objet déjà attribué ou un contrat accepté. Une propagation demande un choix des cibles et une comparaison avant confirmation. Sans image, un visuel neutre conserve une fiche lisible.",
+      "sourceLine": 403,
+      "lot": "A",
+      "prototype": "A_DEVELOPPER",
+      "firebaseIntegration": "NON_INTEGRE",
+      "coreWork": null,
+      "acceptance": "NON_EXECUTEE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
+      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+    },
+    {
+      "id": "MED-06",
+      "requirement": "Droits sur les images. La gestion est réservée au propriétaire et aux organisateurs explicitement habilités dans leur périmètre. Les joueurs ne parcourent pas la médiathèque et ne voient que les images des contenus auxquels ils ont accès. Vignettes, versions agrandies et accès directs appliquent les mêmes droits. Réutiliser une image ne donne accès ni aux autres fiches qui l’emploient ni à leurs usages secrets. Les noms internes et métadonnées ne doivent pas révéler un secret.",
+      "sourceLine": 406,
+      "lot": "A",
+      "prototype": "A_DEVELOPPER",
+      "firebaseIntegration": "NON_INTEGRE",
+      "coreWork": null,
+      "acceptance": "NON_EXECUTEE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
+      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+    },
+    {
+      "id": "MED-07",
+      "requirement": "Suppression et restauration. Le MJ peut sélectionner une image ou un lot à supprimer. Avant confirmation, l’écran liste les utilisations concernées, y compris dans les versions de scénarios et sessions. Retirer une association n’efface pas l’image partagée. Une image référencée ne peut être détruite définitivement avant remplacement ou détachement explicite de chaque usage, selon les droits et règles de version. Les images sans usage passent en corbeille restaurable ; la durée de conservation et la purge sont explicites. Aucun lien cassé ni effacement de contenu de jeu ne doit résulter de la suppression.",
+      "sourceLine": 407,
+      "lot": "A",
+      "prototype": "A_DEVELOPPER",
+      "firebaseIntegration": "NON_INTEGRE",
+      "coreWork": null,
+      "acceptance": "NON_EXECUTEE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
+      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+    },
+    {
+      "id": "MED-08",
+      "requirement": "Sauvegarde et import. Les exports de scénario et les sauvegardes incluent les fichiers nécessaires, leurs versions, leurs associations et leurs permissions. Restaurer ou importer un ensemble retrouve les bonnes images sans les rendre publiques. Les fichiers binaires sont stockés séparément des métadonnées et références de la base de données. Le contrôle avant ouverture signale une image absente ou inaccessible.",
+      "sourceLine": 408,
+      "lot": "E",
+      "prototype": "A_DEVELOPPER",
+      "firebaseIntegration": "NON_INTEGRE",
+      "coreWork": null,
+      "acceptance": "NON_EXECUTEE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
+      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+    },
+    {
+      "id": "MED-09",
+      "requirement": "Usage mobile et quotas. La galerie charge progressivement ses vignettes et propose une pagination ou un défilement maîtrisé. Les écrans joueurs ne téléchargent pas tous les originaux. Un échec d’image laisse le texte et les actions utilisables. L’organisateur voit le volume occupé et les limites disponibles. Les durées d’import et le chargement mobile sont mesurés sur un lot de recette représentatif.",
+      "sourceLine": 409,
+      "lot": "A",
+      "prototype": "A_DEVELOPPER",
+      "firebaseIntegration": "NON_INTEGRE",
+      "coreWork": null,
+      "acceptance": "NON_EXECUTEE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
+      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+    },
+    {
+      "id": "MED-10",
+      "requirement": "Traçabilité. Import, attribution, remplacement, retrait, suppression, restauration et purge conservent l’acteur, la date, le périmètre et les références utiles. Deux actions concurrentes ne peuvent supprimer une image pendant sa nouvelle attribution sans contrôle. Les fichiers incomplets sont nettoyés sans effacer les imports réussis. Les journaux n’exposent pas les liens privés d’accès.",
+      "sourceLine": 410,
+      "lot": "A",
+      "prototype": "A_DEVELOPPER",
+      "firebaseIntegration": "NON_INTEGRE",
+      "coreWork": null,
+      "acceptance": "NON_EXECUTEE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
+      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
+    },
+    {
+      "id": "REC-11",
+      "requirement": "Importer illustrer puis supprimer. Importer ensemble vingt images valides et un fichier refusé, puis relancer sans dupliquer les réussites. Illustrer un objet, un personnage et une mission privée ; réutiliser une image sur deux fiches. Vérifier vignette, agrandissement et accès direct avec deux comptes de droits différents. Tester suppression d’une image inutilisée, blocage d’une image utilisée, remplacement contrôlé, restauration et export puis réimport. Une session déjà démarrée garde sa version tant qu’aucune propagation explicite n’est confirmée.",
+      "sourceLine": 411,
+      "lot": "E",
+      "prototype": "A_DEVELOPPER",
+      "firebaseIntegration": "NON_INTEGRE",
+      "coreWork": null,
+      "acceptance": "NON_EXECUTEE",
+      "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026",
+      "implementedScope": "Spécifié dans le cahier 1.1 ; aucun parcours développé."
     }
-  ]
+  ],
+  "reviewNote": "Bilan du 20 octobre 2026 : rapports 0.17/0.18 pris en compte. Les champs prototype décrivent l’audit initial et ne mesurent pas l’avancement actuel. Une extension déployée reste partielle tant que toute l’exigence et la recette terrain ne sont pas validées. Médiathèque spécifiée, non développée."
 }
