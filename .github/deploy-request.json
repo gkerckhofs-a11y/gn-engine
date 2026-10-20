@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "de6cca4112680d11ac1983eef72be003a0a85c0b",
-  "version": "0.19.2",
-  "requestedAt": "2026-10-20T07:50:54.111Z",
-  "reason": "Médiathèque privée avec protection des réponses tardives et des éditeurs ouverts pendant une attribution. 397 tests métier/interface ; 331 intégrations. Activation privée du stockage préparée."
+  "sourceCommit": "6ac17244b9192a8c03dc1602eb61bdee3a53d629",
+  "version": "0.20.0",
+  "requestedAt": "2026-10-20T08:38:47.120Z",
+  "reason": "Export/import de l’état courant ou d’une version figée avec sources normalisées des images, droits de fiction et reprise. 411 tests métier/interface réussis ; 338 intégrations locales réussies et 339 prévues dans la suite finale. Activation privée du stockage encore à confirmer."
 }
