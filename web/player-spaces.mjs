@@ -1,6 +1,7 @@
 import {escapeHtml as esc} from './groups.mjs';
+import {spaceIcon} from './galactic-ui.mjs';
 
-const spaces=[['character','Mon personnage','play','◉'],['group','Mon groupe','groups','♟'],['action','Action','action','⚡'],['terminal','Terminal','terminal','▤']];
+const spaces=[['character','Mon personnage','play',spaceIcon('character')],['group','Mon groupe','groups',spaceIcon('group')],['action','Action','action',spaceIcon('action')],['terminal','Terminal','terminal',spaceIcon('terminal')]];
 const stages={PREPARATION:'Préparation',BRIEFING:'Briefing',EN_JEU:'En jeu',PAUSE:'En pause',FINISHED:'Terminée',ARCHIVED:'Archivée'};
 const routes={play:'character',skills:'character',bag:'character',wallet:'character',health:'character',infos:'character',knowledge:'character',notes:'character',note:'character',groups:'group',group:'group','group-missions':'group',accounts:'group',account:'group',action:'action',actions:'action',interactions:'action',field:'action',person:'action',discover:'action',terminal:'terminal',market:'terminal',missions:'terminal',mission:'terminal',application:'terminal',bounties:'terminal',bounty:'terminal',contracts:'terminal',contract:'character'};
 const href=(path,label,kind='button quiet')=>`<a class="${kind}" href="#/${esc(path)}">${label}</a>`;

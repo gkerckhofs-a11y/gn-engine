@@ -7,6 +7,7 @@ const template=await readFile('web/index.html','utf8');
 if(!template.includes('{{APP_VERSION}}'))throw new Error('Version placeholder missing from the page');
 await writeFile('public/index.html',template.replace('{{APP_VERSION}}',version));
 await copyFile('web/style.css','public/style.css');
+await copyFile('web/galactic.css','public/galactic.css');
 await mkdir('public/masters',{recursive:true});
 for(const name of await readdir('assets/masters'))if(name.endsWith('.xlsx'))await copyFile(`assets/masters/${name}`,`public/masters/${name}`);
 await writeFile('public/version.json',JSON.stringify({version}));
