@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-20 octobre 2026. Aucun lot complet n’est encore validé. Version 0.18 en publication : participation personnelle ou collective par mission, mandat de représentation distinct des droits de caisse, suivi partagé et paiement au bon bénéficiaire. 697 tests et compilation réussis sur GitHub (377 métier/interface et 320 intégrations). Publication en cours. Rapport `VALIDATION-0.18.md` ; rapports précédents conservés. Acomptes, garanties et recette terrain restent ouverts.
+20 octobre 2026. Aucun lot complet n’est encore validé. Version 0.18 publiée : participation personnelle ou collective par mission, mandat de représentation distinct des droits de caisse, suivi partagé et paiement au bon bénéficiaire. 697 tests et compilation réussis sur GitHub (377 métier/interface et 320 intégrations), puis à nouveau dans la chaîne de déploiement. Manifeste 0.18.0 et refus des accès anonymes aux 110 commandes privées vérifiés après installation. Rapport `VALIDATION-0.18.md` ; rapports précédents conservés. Acomptes, garanties et recette terrain restent ouverts.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -104,8 +104,8 @@ Primes ouvertes à récompense fixe : cagnotte réservée, preuves concurrentes 
 Compilation et 652 tests réussis en une exécution complète sur GitHub : 353 métier/interface et 299 intégrations Firebase, Node 22 / Java 21. Publication réussie et contrôlée. REC-10 reste partiel : représentation de groupe et recette terrain non réalisées. Voir `VALIDATION-0.17.md`.
 
 
-## Extension 0.18 — en publication
+## Extension 0.18 — publiée
 
 Choix personnel/bande/les deux par annonce, mandat explicite, candidatures et missions partagées entre représentants actuels, continuité après retrait d’un représentant, une place et une récompense par bande, paiements vers sa caisse. Les engagements personnels restent privés. Les écritures financières montrent le libellé de caisse, sans révéler le nom interne d’un groupe secret.
 
-Compilation et 697 tests réussis sur GitHub : 377 métier/interface et 320 intégrations Firestore/Auth, avec un parcours HTTP/Auth du mandat au règlement collectif. REC-10 reste partiel : recette réelle multi-comptes et terrain non réalisée. Voir `VALIDATION-0.18.md`.
+Compilation et 697 tests réussis sur GitHub : 377 métier/interface et 320 intégrations Firestore/Auth, avec un parcours HTTP/Auth du mandat au règlement collectif. Publication réussie et contrôlée. REC-10 reste partiel : recette réelle multi-comptes et terrain non réalisée. Voir `VALIDATION-0.18.md`.

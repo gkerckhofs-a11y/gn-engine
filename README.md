@@ -28,7 +28,7 @@ Les fiches proposent des relations orientées et des objectifs narratifs, publia
 
 Le scénario et la session disposent d'un éditeur de groupes publics ou secrets. Chaque personnage peut avoir plusieurs appartenances, avec révélation et permissions séparées. Le rôle Accueil ne reçoit aucun contenu de groupe. Seules les affiliations explicitement publiques apparaissent sur les badges.
 
-Un membre peut être autorisé à lire le briefing, consulter les membres révélés, recevoir des informations et/ou en publier pendant le jeu. Un nouveau membre ne récupère pas automatiquement le passé du groupe. La désactivation des espaces ferme les lectures et publications joueurs sans effacer les données. [Parcours et limites de la version 0.4](docs/VALIDATION-0.4.md).
+Un membre peut être autorisé à lire le briefing, consulter les membres révélés, recevoir des informations et/ou en publier pendant le jeu. Un nouveau membre ne récupère pas automatiquement les anciennes publications du fil de groupe. La désactivation des espaces ferme les lectures et publications joueurs sans effacer les données. [Parcours et limites de la version 0.4](docs/VALIDATION-0.4.md).
 
 ## Connaissances et indices
 
@@ -133,7 +133,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.18 a réussi **697 tests en une exécution complète sur GitHub** (377 métier/interface et 320 intégrations), sans échec ni test ignoré, ainsi que la compilation. Publication en cours. Preuves dans le [rapport 0.18](docs/VALIDATION-0.18.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.18 a réussi **697 tests en une exécution complète sur GitHub** (377 métier/interface et 320 intégrations), sans échec ni test ignoré, ainsi que la compilation. Version **0.18.0 publiée** ; manifeste et refus des accès anonymes aux **110 commandes privées** vérifiés après installation. Preuves dans le [rapport 0.18](docs/VALIDATION-0.18.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 
