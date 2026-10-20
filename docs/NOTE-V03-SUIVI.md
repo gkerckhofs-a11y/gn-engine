@@ -1,6 +1,14 @@
 # Reprise du développement — note Port-Brèche V0.3
 
-Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, conservées dans [la note source](source/port-breche-engine-note-v03.md). Base inspectée : commit GitHub `bd670dea159c5c7f01cfe83f8fcba9b81657dd44`, version 0.20. Les statuts ci-dessous décrivent le code, pas une validation terrain. Le lot 0.22, publié et vérifié le 20 octobre 2026, ajoute la continuité décrite dans [Campagnes](CAMPAGNES.md).
+Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, conservées dans [la note source](source/port-breche-engine-note-v03.md). Base inspectée : commit GitHub `bd670dea159c5c7f01cfe83f8fcba9b81657dd44`, version 0.20. Les statuts ci-dessous décrivent le code, pas une validation terrain. Les lots 0.22 et 0.23, publiés et vérifiés le 20 octobre 2026, ajoutent la continuité décrite dans [Campagnes](CAMPAGNES.md) et les [masters complémentaires](MASTERS.md).
+
+## Lot 0.23 : masters complémentaires et personnages ajoutés
+
+Modèles XLSX CAMPAGNE et SESSION, deux exemples fictifs validés, import avec aperçu, différences, contrôles des références et médias, application atomique et journal. Les identifiants et versions des lignes suivent les épisodes. Le bouton d’ajout de personnage utilise le même parcours. Les dotations sont réservées aux personnages créés ensemble et restent immuables. Les imports de session sont réservés au propriétaire, en préparation avant le premier lancement.
+
+Ce format couvre les catalogues déjà exécutables. Les annonces, caisses, fouilles, installations, entrepôts, vaisseaux et progression XP ne deviennent pas importables implicitement. [Contrat et limites](MASTERS.md) · [Validation](VALIDATION-0.23.md).
+
+Compilation et 831 tests réussis sur GitHub ; publication, quatre téléchargements XLSX et refus des accès privés anonymes vérifiés à 12:53:45 UTC. Accueil 0.23.0 confirmé dans le navigateur. La recette multi-comptes et mobile reste ouverte.
 
 ## Lot 0.21 : PA et récupération des soins existants
 
@@ -23,9 +31,9 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 | Exigence | État après ce lot | Suite nécessaire |
 | --- | --- | --- |
 | GN-01 | Choix partie indépendante / nouvelle campagne et sessions successives | Conversion des anciennes sessions indépendantes non proposée. |
-| GN-02 | Archives de scénario existantes ; PA et niveau global inclus | Master de campagne XLSX, dictionnaire et exemple validé. |
-| GN-03 | Paramètres de session et catalogues existants | Master de session complémentaire avec identifiants durables. |
-| GN-04 | Vérification des archives avant création existante | Import complémentaire sans écraser les acquis, archivage et journal d’import. |
+| GN-02 | Master CAMPAGNE XLSX, dictionnaire, exemple et import dans le scénario ; archives conservées | Étendre aux futurs modules et champs non encore importables. |
+| GN-03 | Master SESSION complémentaire, identifiants durables, ajouts de personnages et paramètres avant jeu | Étendre aux lieux, installations, spatial et annonces. |
+| GN-04 | Aperçu avant/après, versions, acquis protégés, archivage contrôlé et journal d’import | Import en cours de jeu non proposé ; sauvegarde complète distincte. |
 | GN-05 | Bilan, clôture scellée, acquis conservés, reprise et verrou de campagne | Report des contrats, copie de campagne de test et états de modules futurs. |
 | GN-06 | Crédits, objets, profils, PV et maintenant PA/niveau global | XP et progression de campagne, prérequis avancés. |
 | GN-07 | PA, horloge, pauses, plafonds, renouvellement, soins | Famille FOUILLE et raccordement aux autres actions. |
@@ -40,13 +48,13 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 | GN-16 | PA dans les écrans existants | Réorganiser en Mon personnage / Mon groupe / Action / Terminal, inventaire unifié et scan. |
 | GN-17 | Médiathèque et images présentes en 0.19–0.20 | Activation du stockage selon sa procédure existante et recette sur les contenus réels. |
 | GN-18 | Nouvelles inscriptions et invitations ; rôle précédent proposé sans accès automatique | Compléter le pack sans smartphone et la recette terrain. |
-| GN-19 | PA et continuité de campagne couverts par les suites automatisées ; 807 tests au total en 0.22 | Masters, recette terrain et plusieurs comptes réels. |
+| GN-19 | PA, campagnes et masters couverts par les suites automatisées ; 831 tests réussis en 0.23 | Recette terrain, plusieurs comptes réels et charge simultanée. |
 
 ## Ordre de reprise proposé
 
 1. Socle PA livré en 0.21 et vérifié sur Firestore/Auth : 777 tests réussis et publication contrôlée. Recette terrain encore nécessaire.
 2. Continuité de campagne implémentée en 0.22 : bilan, clôture et reprise sans remettre les soldes à zéro ; voir le rapport de validation.
-3. Définir et fournir les deux masters XLSX, puis les imports complémentaires avec aperçu et protection des acquis.
+3. Masters XLSX et imports complémentaires implémentés en 0.23 ; compléter les nouveaux modules au fil de leur développement.
 4. Construire l’exécuteur d’actions : fouilles, durée, D6, objets bonus, soins complets, sabotage et réservations.
 5. Réorganiser les quatre espaces joueur et compléter l’économie, les entrepôts et les recharges.
 6. Traiter le spatial après définition de ses règles, puis réaliser la recette terrain.

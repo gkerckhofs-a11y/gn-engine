@@ -101,6 +101,6 @@ Les champs permettant de remplacer un solde, un stock détenu, une compétence a
 
 Limites de cette version : fichier XLSX de 8 Mio, décompression de 16 Mio, 250 lignes de données par import (Meta et Parametres compris), charge JSON de 1 Mio. Le catalogue combiné reste soumis au plafond existant de 500 fiches. Le lot de changements est limité à 420 écritures de contenu, 480 avec les index de médias et la commande, 800 Ko par document et 3 Mio de données écrites. Les publications et historiques comptent aussi. Un complément trop gros est refusé avant application ; le fractionner en ensembles cohérents, avec les dotations jointes à leurs nouveaux personnages.
 
-Les formules, erreurs Excel, macros et liens externes sont refusés. Les rendus et tests de lecture des fichiers fournis ne remplacent pas une recette dans les applications natives Excel et Google Sheets.
+Les formules, erreurs Excel, macros et liens vers des classeurs externes sont refusés. Les rendus et tests de lecture des fichiers fournis ne remplacent pas une recette dans les applications natives Excel et Google Sheets.
 
 Restent hors de ce format : participants réels, petites annonces et leurs contrats, caisses de groupe initiales, lieux de fouille, installations, entrepôts, vaisseaux, XP, protections de combat et effets avancés d’objets. Les outils déjà disponibles pour les annonces et les caisses restent utilisables dans la régie. Les autres modules seront ajoutés à mesure de leur développement.

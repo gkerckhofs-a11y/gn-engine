@@ -2,21 +2,29 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.22.0 publiée : campagnes persistantes, bilan de clôture et reprise des personnages et de leurs acquis entre épisodes, avec 807 tests réussis.**
+**Version 0.23.0 publiée et vérifiée : masters Excel complémentaires et ajout de personnages.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
+
+## Masters et nouveaux personnages — 0.23
+
+Les scénarios et sessions proposent **Contenus et masters** : modèles Excel CAMPAGNE / SESSION, exemples fictifs, import avec erreurs localisées, différences avant/après et confirmation. Un complément crée des personnages, ajoute ou modifie les contenus et conserve les acquis. Les dotations sont réservées aux nouveaux personnages et ne sont pas rejouées lors d’un réimport.
+
+En session, le propriétaire dispose aussi de **Ajouter un personnage**, avec classe et dotation initiale. Ces ajouts se font en préparation, avant le premier lancement. Les règles, limites et modules non importables sont décrits dans [le guide des masters](docs/MASTERS.md). [Validation 0.23](docs/VALIDATION-0.23.md).
+
+Compilation et 831 tests réussis sur GitHub (456 applicatifs et 375 intégrations Firebase). Version, quatre téléchargements XLSX et refus des accès privés anonymes vérifiés le 20 octobre 2026 à 12:53:45 UTC. L’accueil 0.23.0 est confirmé dans le navigateur ; la recette des nouveaux écrans privés sur mobile reste à réaliser.
 
 ## Campagnes persistantes — 0.22 publiée et vérifiée
 
 À la création d’une session depuis une version figée, choisissez **Partie indépendante** ou **Premier épisode d’une nouvelle campagne**. Le tableau de bord donne ensuite accès aux campagnes, au bilan de clôture et à la préparation de l’épisode suivant avec les acquis conservés. La politique de blessures est explicite ; les PA et délais repartent pour le nouvel épisode. Les inscriptions et invitations restent propres à chaque session.
 
-Publication vérifiée le 20 octobre 2026 à 12:05:20 UTC ; accueil affichant 0.22.0 contrôlé dans le navigateur. [Créer, clôturer et reprendre une campagne](docs/CAMPAGNES.md) · [Preuves et limites 0.22](docs/VALIDATION-0.22.md). Masters complémentaires, ajout de personnages et report automatique des contrats restent à développer.
+Publication vérifiée le 20 octobre 2026 à 12:05:20 UTC ; accueil affichant 0.22.0 contrôlé dans le navigateur. [Créer, clôturer et reprendre une campagne](docs/CAMPAGNES.md) · [Preuves et limites 0.22](docs/VALIDATION-0.22.md). Les masters complémentaires et nouveaux personnages sont ajoutés en 0.23 ; le report automatique des contrats reste à développer.
 
 ## Reprise sur la note Port-Brèche V0.3 — 0.21 publiée et vérifiée
 
 Le scénario et la régie de session proposent maintenant les points d’action : plafonds par niveau global, renouvellement toutes les cinq heures de jeu, pauses, corrections MJ et modification de période avec aperçu. Le joueur voit sa réserve ; les soins existants la consomment dans la même transaction que leurs effets. La récupération peut porter sur le soignant, sur le patient commun à tous les soignants, ou être absente en clinique.
 
-Le module reste désactivé tant que l’organisateur ne l’active pas. Les soins de cette étape restent instantanés. La campagne persistante est ajoutée en 0.22. Les masters XLSX et les actions chronométrées avec D6 restent à développer. Compilation et 777 tests réussis ; version 0.21.0 et accès privés vérifiés en ligne le 20 octobre 2026 à 11:08:15 UTC. [Suivi des 19 exigences de la note](docs/NOTE-V03-SUIVI.md) · [activation, validation et limites de ce lot](docs/VALIDATION-0.21.md).
+Le module reste désactivé tant que l’organisateur ne l’active pas. Les soins de cette étape restent instantanés. La campagne persistante est ajoutée en 0.22. Les masters XLSX sont ajoutés en 0.23. Les actions chronométrées avec D6 restent à développer. Compilation et 777 tests réussis ; version 0.21.0 et accès privés vérifiés en ligne le 20 octobre 2026 à 11:08:15 UTC. [Suivi des 19 exigences de la note](docs/NOTE-V03-SUIVI.md) · [activation, validation et limites de ce lot](docs/VALIDATION-0.21.md).
 
 ## Export et import des scénarios 0.20
 

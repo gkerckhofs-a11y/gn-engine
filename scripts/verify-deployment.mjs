@@ -6,7 +6,7 @@ import {mediaCommands} from '../src/core/media.mjs';
 import {bountyCommands} from '../src/core/bounties.mjs';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {waitForPublishedVersion} from './deployment-checks.mjs';
+import {waitForPublishedPage,waitForPublishedVersion} from './deployment-checks.mjs';
 
 const origin='https://gn-engine.web.app';
 // Le premier raccordement Hosting -> Cloud Run peut répondre brièvement 404.
@@ -27,12 +27,8 @@ async function waitForAvailability(url,options={}) {
     await new Promise(resolve=>setTimeout(resolve,5_000));
   }
 }
-const page=await waitForAvailability(origin);
-assert.equal(page.status,200,'Le site doit répondre HTTP 200');
-const html=await page.text();
-assert.match(html,/GN Engine/,'La page GN Engine doit être publiée');
 const expected=JSON.parse(await readFile(new URL('../package.json',import.meta.url))).version;
-assert.ok(html.includes(`GN Engine · ${expected} `),'Le pied de page doit afficher la version publiée');
+await waitForPublishedPage({origin,expected,onPending:({attempt,observed})=>console.log(`Page ${observed??'indisponible'} ; attente de ${expected}, tentative ${attempt}/12.`)});
 await waitForPublishedVersion({origin,expected,onPending:({attempt,observed})=>console.log(`Manifeste ${observed??'indisponible'} ; attente de ${expected}, tentative ${attempt}/12.`)});
 for(const name of ['Master_Campagne','Master_Session','Exemple_Campagne','Exemple_Session']){
   const filename=`GN_Engine_${name}.xlsx`,response=await waitForAvailability(`${origin}/masters/${filename}`);

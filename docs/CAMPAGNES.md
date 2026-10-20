@@ -50,7 +50,7 @@ Les liens d’inscription, invitations et QR restent propres à la nouvelle sess
 | Historiques | Conservés dans la session source ; provenance de la reprise enregistrée dans la campagne et le nouvel épisode. Ce mécanisme n’est pas un export de sauvegarde. |
 | Équipe organisatrice | Délégations propres à chaque session, à attribuer de nouveau. |
 
-Le moteur ne développe pas encore un barème XP, les dettes, le spatial, les fouilles ou les états avancés absents du lot précédent. Leur continuité sera raccordée lors de leur implémentation. Les masters complémentaires et l’ajout de nouveaux personnages à une campagne restent le prochain chantier.
+Le moteur ne développe pas encore un barème XP, les dettes, le spatial, les fouilles ou les états avancés absents du lot précédent. Leur continuité sera raccordée lors de leur implémentation. Depuis la version 0.23, les masters complémentaires et le bouton « Ajouter un personnage » permettent de compléter le nouvel épisode en préparation. Les dotations des anciens personnages ne sont pas réappliquées. Voir [Masters](MASTERS.md).
 
 ## Garanties et limites d’exploitation
 

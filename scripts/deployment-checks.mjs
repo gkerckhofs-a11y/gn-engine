@@ -1,5 +1,25 @@
 import assert from 'node:assert/strict';
 
+// The HTML and manifest may propagate independently. Require the exact footer
+// too, with bounded retries; an inaccessible or malformed page still fails.
+export async function waitForPublishedPage({origin,expected,request=fetch,delay=ms=>new Promise(r=>setTimeout(r,ms)),attempts=12,onPending=()=>{}}){
+  const nonce=Date.now();let observed;
+  for(let attempt=1;attempt<=attempts;attempt++){
+    let response;
+    try{response=await request(`${origin}/?release=${encodeURIComponent(expected)}&check=${nonce}-${attempt}`,{cache:'no-store',signal:AbortSignal.timeout(10000)});}
+    catch(error){if(attempt===attempts)throw error;}
+    if(response&&response.status!==404&&response.status<500){
+      assert.equal(response.status,200,'Le site doit répondre HTTP 200');
+      const html=await response.text();
+      assert.match(html,/GN Engine/,'La page GN Engine doit être publiée');
+      observed=html.match(/GN Engine · ([^ <]+)/)?.[1];
+      if(html.includes(`GN Engine · ${expected} `))return html;
+    }else await response?.body?.cancel();
+    if(attempt===attempts)assert.fail(`Le pied de page doit afficher la version publiée ${expected} (observée : ${observed??'indisponible'})`);
+    onPending({attempt,observed});await delay(5000);
+  }
+}
+
 // A completed Hosting release may briefly serve the previous manifest at an edge.
 // Retry availability and version propagation, never accept a different version.
 export async function waitForPublishedVersion({origin,expected,request=fetch,delay=ms=>new Promise(r=>setTimeout(r,ms)),attempts=12,onPending=()=>{}}){

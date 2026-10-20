@@ -1,6 +1,11 @@
 # Suivi de réalisation
 
-20 octobre 2026. Aucun lot complet du cahier n’est encore validé. Version 0.22.0 publiée : campagnes persistantes, bilan de clôture, état scellé et reprise par étapes, avec conservation des personnages et de leurs acquis. Compilation et 807 tests réussis sous Node 22 / Java 21 (443 applicatifs, 364 intégrations), puis répétés avec succès dans la chaîne de déploiement. Version, pied de page et refus des commandes privées anonymes contrôlés à 12:05:20 UTC ; accueil 0.22.0 confirmé dans le navigateur. Rapports `VALIDATION-0.22.md` et `CAMPAGNES.md`. Masters complémentaires, ajout de personnages, report des contrats, progression XP, actions chronométrées et recette terrain restent à développer.
+20 octobre 2026. Aucun lot complet du cahier n’est encore validé. Version 0.23.0 publiée : masters complémentaires CAMPAGNE et SESSION, aperçu des différences, journal et ajout de personnages en préparation, avec conservation des acquis. Compilation et 831 tests réussis sous Node 22 / Java 21 (456 applicatifs, 375 intégrations), puis répétés avec succès dans la chaîne de déploiement. Version, quatre fichiers XLSX et refus des commandes privées anonymes contrôlés à 12:53:45 UTC ; accueil 0.23.0 confirmé dans le navigateur. Rapports `VALIDATION-0.23.md` et `MASTERS.md`. Report des contrats, progression XP, actions chronométrées et recette terrain restent à développer.
+
+## Extension 0.23 — masters et nouveaux personnages
+
+Imports CAMPAGNE et SESSION avec modèles et exemples XLSX, aperçu des différences, erreurs localisées, validation des références et médias, protection des acquis, dotations immuables et journal. Ajout direct de personnages dans un épisode en préparation. 831 tests réussis sur GitHub et publication contrôlée à 12:53:45 UTC. Un contrôle initial trop précoce du pied de page a nécessité une relance ; l’attente de propagation a été ajoutée au vérificateur et ses six tests ciblés passent. Voir `MASTERS.md` et `VALIDATION-0.23.md`.
+
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
