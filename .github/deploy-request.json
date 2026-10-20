@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "d3e563294ae3ed3dc09b3f4cbbeef992b12c4915",
-  "version": "0.21.0",
-  "requestedAt": "2026-10-20T10:57:12.134Z",
-  "reason": "Note Port-Brèche V0.3 : PA facultatifs, niveaux globaux, renouvellement cinq heures et récupération des soins. Compilation et 777 tests validés sur GitHub (427 applicatifs, 350 intégrations Firebase). Aucune modification des données de production."
+  "sourceCommit": "22dd5f3476f0793dcf31240fea48242f8e158dd8",
+  "version": "0.22.0",
+  "requestedAt": "2026-10-20T11:39:20.768Z",
+  "reason": "Campagnes persistantes : bilan scellé et reprise des acquis par étapes. 443 tests locaux et compilation réussis ; publication subordonnée à la validation Firebase de la chaîne existante."
 }
