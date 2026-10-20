@@ -4,7 +4,7 @@ import {randomUUID} from 'node:crypto';
 import {createWorkflow} from '../../src/core/workflow.mjs';
 import {accountId} from '../../src/core/economy-state.mjs';
 
-import {masterExample} from '../../src/shared/master-examples.mjs';
+import {masterExample,terrainMasterExample,terrainSessionMasterExample} from '../../src/shared/master-examples.mjs';
 export {masterExample};
 export async function masterFixture(makeStore){
  const store=await makeStore(),uid=randomUUID(),owner={uid,email:`${uid}@test.invalid`,emailVerified:true,provider:'google.com',authTime:1},player={...owner,uid:randomUUID(),email:'player@test.invalid'};
@@ -16,6 +16,65 @@ export async function masterFixture(makeStore){
  return {store,owner,player,read,cmd,scenarioId,prepare,apply,session};
 }
 export function mastersSuite(makeStore,prefix='Masters'){
+ test(`${prefix} : terrain et interactions complets, aperçus sans écriture et états initiaux uniques`,async()=>{
+  const f=await masterFixture(makeStore),sheets=terrainMasterExample(),p=await f.prepare(sheets);assert.deepEqual(p.errors,[]);assert.ok(p.changes.some(c=>c.sheet==='Recompenses'));assert.equal((await f.store.list(`scenarios/${f.scenarioId}/fieldTargets`)).length,0);
+  await f.apply(sheets);const s=await f.session(),base=`sessions/${s.id}`;
+  const target=await f.store.get(`${base}/fieldTargets/cache`),state=await f.store.get(`${base}/fieldStates/cache`),profiles=await f.store.list(`${base}/personProfiles`);
+  assert.equal(target.dependencyId,'generateur');assert.deepEqual(target.profiles.SEARCH.durationByLevel,{'2':30});assert.deepEqual(state.stock,{'cache-kit':3,'cache-credits':2,'cache-indice':1});assert.equal(profiles.length,5);assert.equal(profiles.find(p=>p.id==='clinique-rapide').test,'D6');assert.deepEqual(profiles.find(p=>p.id==='clinique-sure').extraConsumables,[{itemId:'bacta',quantity:1}]);assert.equal((await f.store.get(`${base}/items/outil`)).pillable,true);
+  const sessionSheets={...sheets,Meta:[{format:'gn-engine-master',version:'1',type:'SESSION',campaign_id:s.campaignId}]};delete sessionSheets.Parametres;assert.equal((await f.apply(sessionSheets,{scenarioId:undefined,sessionId:s.id})).unchanged,true);assert.deepEqual(await f.store.get(`${base}/fieldStates/cache`),state);
+ });
+ test(`${prefix} : ajout de cache en session, stock acquis conservé et règles modifiables`,async()=>{
+  const f=await masterFixture(makeStore);await f.apply(terrainMasterExample());const s=await f.session(),base=`sessions/${s.id}`,extra={scenarioId:undefined,sessionId:s.id},sheets=terrainSessionMasterExample();sheets.Meta[0].campaign_id=s.campaignId;
+  await f.apply(sheets,extra);assert.equal((await f.store.get(`${base}/fieldStates/cache-episode`)).stock['reserve-episode'],2);
+  // A prior episode may have exhausted this stock before this preparation phase.
+  const state={...await f.store.get(`${base}/fieldStates/cache`),stock:{'cache-kit':0,'cache-credits':1,'cache-indice':0},claims:{pilote:{'cache-kit':1}},status:'OFFLINE',offlineUntilGameMs:120000,revision:9};await f.store.runTransaction(async tx=>tx.set(`${base}/fieldStates/cache`,state));
+  await f.apply({Meta:sheets.Meta,Lieux:[{id:'cache',operation:'MODIFIER',version:'2',titre:'Cache renommée',installation_id:'!EFFACER'}],ActionsTerrain:[{id:'fouille-cache',operation:'MODIFIER',version:'2',lieu_id:'cache',type:'SEARCH',duree_secondes:'90',bonus_objets:'!EFFACER'}]},extra);
+  assert.deepEqual(await f.store.get(`${base}/fieldStates/cache`),state);assert.equal((await f.store.get(`${base}/fieldTargets/cache`)).profiles.SEARCH.durationSeconds,90);
+  assert.equal((await f.apply(sheets,extra)).unchanged,true);assert.equal((await f.store.get(`${base}/fieldStates/cache-episode`)).stock['reserve-episode'],2);
+ });
+ test(`${prefix} : récompenses existantes protégées, aucune réinitialisation ni changement de type`,async()=>{
+  const f=await masterFixture(makeStore);await f.apply(terrainMasterExample());const s=await f.session(),Meta=[{format:'gn-engine-master',version:'1',type:'SESSION',campaign_id:s.campaignId}],extra={scenarioId:undefined,sessionId:s.id};
+  for(const patch of [{Recompenses:[{id:'cache-kit',operation:'MODIFIER',version:'2',lieu_id:'cache',stock_initial:'999'}]},{Recompenses:[{id:'cache-kit',operation:'ARCHIVER',version:'2',lieu_id:'cache'}]},{Recompenses:[{id:'extra-credit',operation:'CREER',version:'1',lieu_id:'cache',type:'CREDITS',quantite:'10',stock_initial:'1',limite_personnage:'1'}]},{Lieux:[{id:'cache',operation:'MODIFIER',version:'2',type:'INSTALLATION'}]}])assert.equal((await f.prepare({Meta,...patch},extra)).canApply,false);
+  assert.equal((await f.store.get(`sessions/${s.id}/fieldStates/cache`)).stock['cache-kit'],3);
+ });
+ test(`${prefix} : références de terrain et interactions localisées, aucune publication partielle`,async()=>{
+  const f=await masterFixture(makeStore);
+  for(const mutate of [s=>s.ActionsTerrain[0].competence_id='absente',s=>s.Recompenses[0].objet_id='absent',s=>s.Lieux[1].installation_id='absente',s=>s.Interactions[0].competence_id='medecine',s=>s.Interactions[2].consommables_supplementaires='absent:1',s=>s.Objets[0].publication='DRAFT',s=>s.ActionsTerrain[0].bonus_objets='outil:3']){
+   const sheets=terrainMasterExample();mutate(sheets);const p=await f.prepare(sheets);assert.equal(p.canApply,false);assert.ok(p.errors.some(e=>['Lieux','ActionsTerrain','Recompenses','Interactions'].includes(e.sheet)));await assert.rejects(f.cmd('applyMasterImport',{scenarioId:f.scenarioId,sheets,reason:'Test',confirmation:p.confirmation}),{code:'INVALID_MASTER'});
+  }
+  assert.equal((await f.store.list(`scenarios/${f.scenarioId}/items`)).length,0);
+ });
+ test(`${prefix} : identités des lignes filles, doublons, durées et consommables contrôlés`,async()=>{
+  const f=await masterFixture(makeStore);
+  for(const mutate of [s=>s.ActionsTerrain.push({...s.ActionsTerrain[0],id:'doublon'}),s=>s.ActionsTerrain[0].durees_niveaux='2:30;2:60',s=>s.Interactions[2].prerequis='secours:2;secours:1',s=>s.Interactions[2].consommables_supplementaires='bacta:1;kit:1',s=>s.Interactions[0].recuperation_secondes='600',s=>s.ActionsTerrain[0].duree_secondes='',s=>s.Recompenses[0].stock_initial='',s=>s.Recompenses[0].connaissance_id='secret',s=>s.ActionsTerrain[0].cout_pa='-1']){
+   const sheets=terrainMasterExample();mutate(sheets);assert.equal((await f.prepare(sheets)).canApply,false);
+  }
+  await f.apply(terrainMasterExample());const Meta=masterExample().Meta;
+  assert.equal((await f.prepare({Meta,ActionsTerrain:[{id:'fouille-cache',operation:'MODIFIER',version:'2',lieu_id:'generateur',type:'SEARCH',duree_secondes:'5'}]})).canApply,false);
+  assert.equal((await f.prepare({Meta,Recompenses:[{id:'cache-kit',operation:'MODIFIER',version:'2',lieu_id:'generateur',quantite:'1'}]})).canApply,false);
+ });
+ test(`${prefix} : dépendance d’installation, archivage explicite et anciennes cellules préservées`,async()=>{
+  const f=await masterFixture(makeStore);await f.apply(terrainMasterExample());const Meta=masterExample().Meta;
+  assert.equal((await f.prepare({Meta,Lieux:[{id:'generateur',operation:'ARCHIVER',version:'2'}]})).canApply,false);
+  assert.equal((await f.prepare({Meta,ActionsTerrain:[{id:'fouille-cache',operation:'ARCHIVER',version:'2',lieu_id:'cache',type:'SEARCH'}]})).canApply,false);
+  await f.apply({Meta,Lieux:[{id:'cache',operation:'MODIFIER',version:'2',titre:'',installation_id:'!EFFACER'},{id:'generateur',operation:'ARCHIVER',version:'2'}],Recompenses:[{id:'cache-kit',operation:'MODIFIER',version:'2',lieu_id:'cache',quantite:'2'},{id:'cache-indice',operation:'ARCHIVER',version:'2',lieu_id:'cache'}],Interactions:[{id:'clinique-sure',operation:'MODIFIER',version:'2',prerequis:'!EFFACER',consommables_supplementaires:'!EFFACER'},{id:'pillage-ordinaire',operation:'ARCHIVER',version:'2'}]});
+  const base=`scenarios/${f.scenarioId}`,target=await f.store.get(`${base}/fieldTargets/cache`);assert.equal(target.title,'Cache de démonstration');assert.equal(target.dependencyId,null);assert.deepEqual(target.rewards.map(x=>x.id),['cache-kit','cache-credits']);assert.equal(target.rewards[0].quantity,2);assert.equal((await f.store.get(`${base}/fieldTargets/generateur`)).publicationState,'DRAFT');assert.deepEqual((await f.store.get(`${base}/personProfiles/clinique-sure`)).prerequisites,[]);assert.equal((await f.store.get(`${base}/personProfiles/pillage-ordinaire`)).publicationState,'DRAFT');
+ });
+ test(`${prefix} : changement d’état après aperçu et transaction interrompue`,async()=>{
+  const f=await masterFixture(makeStore);await f.apply(terrainMasterExample());const s=await f.session(),Meta=[{format:'gn-engine-master',version:'1',type:'SESSION',campaign_id:s.campaignId}],input={sessionId:s.id,sheets:{Meta,Lieux:[{id:'cache',operation:'MODIFIER',version:'2',titre:'Nouveau titre'}]},reason:'Test'},preview=await f.read('prepareMasterImport',input),path=`sessions/${s.id}/fieldStates/cache`;
+  await f.store.runTransaction(async tx=>{const st=await tx.get(path);tx.set(path,{...st,stock:{...st.stock,'cache-kit':2},revision:st.revision+1});});await assert.rejects(f.cmd('applyMasterImport',{...input,confirmation:preview.confirmation}),{code:'STALE_REVISION'});
+  const before=await f.store.get(`sessions/${s.id}/fieldTargets/cache`),fresh=await f.read('prepareMasterImport',input),run=f.store.runTransaction.bind(f.store);f.store.runTransaction=callback=>run(async tx=>{await callback(tx);throw new Error('Interruption import');});await assert.rejects(f.cmd('applyMasterImport',{...input,confirmation:fresh.confirmation}),/Interruption import/);f.store.runTransaction=run;assert.deepEqual(await f.store.get(`sessions/${s.id}/fieldTargets/cache`),before);await f.cmd('applyMasterImport',{...input,confirmation:fresh.confirmation});assert.equal((await f.store.get(path)).stock['cache-kit'],2);
+ });
+ test(`${prefix} : continuité de campagne conserve état, profils et empreintes de terrain`,async()=>{
+  const f=await masterFixture(makeStore),sheets=terrainMasterExample();await f.apply(sheets);const s=await f.session(),path=`sessions/${s.id}/fieldStates/cache`,state={...await f.store.get(path),stock:{'cache-kit':0,'cache-credits':1,'cache-indice':0}};await f.store.runTransaction(async tx=>tx.set(path,state));
+  const close={sessionId:s.id,reason:'Fin',cancelOffers:false},p=await f.read('prepareCampaignClosure',close);await f.cmd('closeCampaignSession',{...close,confirmation:p.confirmation});
+  const input={campaignId:s.campaignId,title:'Suite terrain',capacity:60,privacy:'Notice',healthPolicy:'PRESERVE',reason:'Suite'},n=await f.read('prepareCampaignEpisode',input);let b=await f.cmd('beginCampaignEpisode',{...input,confirmation:n.confirmation});while(b.status!=='READY')b=await f.cmd('advanceCampaignEpisode',{campaignId:s.campaignId,buildId:b.buildId??(await f.read('campaign',{campaignId:s.campaignId})).activeBuildId});
+  const copy={...sheets,Meta:[{format:'gn-engine-master',version:'1',type:'SESSION',campaign_id:s.campaignId}]};delete copy.Parametres;assert.equal((await f.apply(copy,{scenarioId:undefined,sessionId:b.id})).unchanged,true);assert.deepEqual((await f.store.get(`sessions/${b.id}/fieldStates/cache`)).stock,state.stock);assert.equal((await f.store.list(`sessions/${b.id}/personProfiles`)).length,5);
+ });
+ test(`${prefix} : crédits de lieu exigent économie active et limites de catalogues`,async()=>{
+  const f=await masterFixture(makeStore),s=terrainMasterExample();s.Parametres.find(r=>r.cle==='economie_active').valeur='NON';assert.equal((await f.prepare(s)).canApply,false);
+  const many={Meta:masterExample().Meta,Interactions:Array.from({length:101},(_,i)=>({id:`pillage-${i}`,operation:'CREER',version:'1',nom:'Fouille',type:'LOOT_COMMON',duree_secondes:'60'}))};const p=await f.prepare(many);assert.ok(p.errors.some(e=>e.sheet==='Interactions'&&e.message.includes('100')));
+ });
  test(`${prefix} : exemple complet, aperçu sans écriture et dotations à la création`,async()=>{
   const f=await masterFixture(makeStore),sheets=masterExample();const p=await f.prepare(sheets);assert.deepEqual(p.errors,[]);assert.equal(p.newCharacters[0],'pilote');assert.equal((await f.read('scenario',{scenarioId:f.scenarioId})).characters.length,0);
   await f.apply(sheets);const start=await f.session(),s=await f.read('session',{sessionId:start.id});

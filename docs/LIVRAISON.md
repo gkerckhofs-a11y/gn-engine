@@ -2,6 +2,10 @@
 
 20 octobre 2026. Aucun lot complet du cahier n’est encore validé. Version 0.25.0 publiée : soins, aide et pillage. Compilation et 910 tests réussis (499 applicatifs, 411 intégrations Firebase), sans échec ni test ignoré. Publication, quatre masters et refus anonymes vérifiés à 14:41:05 UTC ; accueil 0.25.0 confirmé dans le navigateur. Preuves dans [VALIDATION-0.25.md](VALIDATION-0.25.md). [Guide de configuration](SOINS-AIDE-PILLAGE.md). Capture complète, effets économiques des pannes, progression XP et recette terrain restent ouverts.
 
+## Extension 0.26 — masters de terrain
+
+Quatre onglets complètent les imports : lieux, actions de terrain, récompenses et interactions sur badge. Préparation des profils et du matériel depuis Excel, protection des états acquis, exemples fictifs régénérés avec dictionnaire et validations de cellules. [Guide](MASTERS.md) · [Validation](VALIDATION-0.26.md). L’import pendant la partie reste à développer.
+
 ## Extension 0.25 — soins, aide et pillage
 
 Profils chronométrés sur personnage, récupération du patient, clinique sûre ou accélérée et complément sans second coût ; convalescence, aide +1, pillage limité à une unité choisie par la victime ou le fouilleur selon sa méthode, remise confirmée. Objets protégés par défaut, corrections MJ, profils et acquis conservés en campagne. Le guide distingue les déclarations de capture du système complet restant à développer.
@@ -10,7 +14,7 @@ Profils chronométrés sur personnage, récupération du patient, clinique sûre
 
 Éditeur de lieux et installations, QR, aperçu joueur, durée suspendue en pause, PA et matériel réservés, résolution atomique avec D6 serveur, récupération commune FOUILLE et interruption sans jet. Découvertes finies de crédits, objets et informations, plafonds individuels, panne, réparation, protection et blocage des fouilles dépendantes. Archives de scénario compatibles ; stocks, plafonds et durées de panne restantes conservés en campagne. Les actions ouvertes bloquent la clôture même sans PA.
 
-867 tests réussis ; publication contrôlée le 20 octobre 2026 à 13:34:23 UTC. Les soins existants restent instantanés. L’aide, le pillage et les soins en deux étapes sont ajoutés en 0.25 ; les notifications DIRECT/DISCRET et les onglets XLSX restent à développer. [Guide](ACTIONS-TERRAIN.md) · [Preuves et limites](VALIDATION-0.24.md).
+867 tests réussis ; publication contrôlée le 20 octobre 2026 à 13:34:23 UTC. Les soins existants restent instantanés. L’aide, le pillage et les soins en deux étapes sont ajoutés en 0.25 ; les notifications DIRECT/DISCRET restent à développer, les onglets XLSX sont ajoutés en 0.26. [Guide](ACTIONS-TERRAIN.md) · [Preuves et limites](VALIDATION-0.24.md).
 
 ## Extension 0.23 — masters et nouveaux personnages
 

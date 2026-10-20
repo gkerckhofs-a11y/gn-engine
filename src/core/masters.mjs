@@ -12,6 +12,7 @@ import {cleanScenarioSnapshot} from './scenario-package.mjs';
 import {recordPublication} from './narrative.mjs';
 import {imageReferences} from './media-state.mjs';
 import {gameTime} from './clock.mjs';
+import {importTerrain} from './master-terrain.mjs';
 
 export const masterCommands=['prepareMasterImport','applyMasterImport','masterImportHistory'];
 export const masterAction=a=>masterCommands.includes(a);
@@ -89,6 +90,7 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
   const {session,id,parent,base}=ctx;requireThat(!session||(parent.stage==='PREPARATION'&&!parent.campaignSealed&&gameTime(parent.clock,at)===0),'MASTER_PREPARATION_REQUIRED');
   const {rows,errors}=cleanRows(input.sheets),changes=[],stamps=[],writes=new Map(),put=(path,value)=>writes.set(path,value),sink={set:put};
   const records=Object.fromEntries(await Promise.all(kinds.map(async k=>[k,(await tx.list(`${base}/${k}`)).sort((a,b)=>a.id.localeCompare(b.id))]))),m=mapsFor(records);
+  const fieldStates=session?(await tx.list(`${base}/fieldStates`)).sort((a,b)=>a.id.localeCompare(b.id)):[];
   const prior=new Map([...(parent.masterRowBaseline??[]),...await tx.list(`${base}/masterRows`)].map(x=>[x.id,x])),receipts=[...prior.values()];
   let nextParent=parent;const created=new Set(),newKnowledge=new Set(),changedRecords=new Set(),seen=new Set(),targetSeen=new Set(),archives=[];
   const addError=(sheet,r,e)=>errors.push({sheet,row:r?._row??1,column:e.column??'',message:e.masterMessage??e.code??'Valeur ou référence invalide.'});
@@ -103,8 +105,8 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
    const rid=documentId(r.id),key=digest([sheet,rid]),version=num(r.version,'version',true),body=Object.fromEntries(Object.entries(r).filter(([k])=>k!=='_row')),hash=digest(body);
    if(seen.has(key))issue('id','Identifiant répété dans cet onglet.');seen.add(key);
    if(!['CREER','MODIFIER','ARCHIVER'].includes(r.operation))issue('operation','Utiliser CREER, MODIFIER ou ARCHIVER.');
-   const identity=digest([r.personnage_id??null,r.groupe_id??null]);
-   const old=prior.get(key);if(old){if(version<old.version)issue('version','Version plus ancienne que celle déjà importée.');if(version===old.version){if(old.digest!==hash)issue('version','Même version avec un contenu différent. Augmenter la version.');changes.push({sheet,row:r._row,id:rid,status:'UNCHANGED',fields:[]});return false;}if(sheet==='Dotations')issue('id','Cet identifiant de dotation a déjà été utilisé. Une dotation est immuable.');if(old.identity&&old.identity!==identity)issue('id','Un identifiant existant ne peut pas changer de personnage ou de groupe.');}
+   const identity=digest(['ActionsTerrain','Recompenses'].includes(sheet)?[r.lieu_id??null,...(sheet==='ActionsTerrain'?[r.type??null]:[])]:[r.personnage_id??null,r.groupe_id??null]);
+   const old=prior.get(key);if(old){if(version<old.version)issue('version','Version plus ancienne que celle déjà importée.');if(version===old.version){if(old.digest!==hash)issue('version','Même version avec un contenu différent. Augmenter la version.');changes.push({sheet,row:r._row,id:rid,status:'UNCHANGED',fields:[]});return false;}if(sheet==='Dotations')issue('id','Cet identifiant de dotation a déjà été utilisé. Une dotation est immuable.');if(old.identity&&old.identity!==identity)issue('id','Un identifiant existant ne peut pas changer de personnage, de groupe, de lieu ou de type de profil.');}
    stamps.push({id:key,sheet,rowId:rid,version,digest:hash,identity,at,importId:eventId});return true;
   };
   const mark=(kind,id)=>changedRecords.add(`${kind}/${id}`);
@@ -128,7 +130,7 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
     if(!old){created.add(r.id);if(session)Object.assign(d,initialHealth(nextParent.healthRules,d),{sessionId:id,publicCode:r.id,assignedUid:null,...(parent.campaignId?{campaignId:parent.campaignId,campaignCharacterId:r.id}:{})});}
    }else if(sheet==='Objets'){
     d=patch(r,{kind:'STACKABLE',consumable:false,publicationState:'DRAFT',...old},{nom:'name',description:'description',categorie:'category',unite:'unit',type:'kind',legalite:'legality',publication:'publicationState',notes_mj:'gmNotes'});
-    if(!empty(r.consommable))d.consumable=bool(r.consommable,'consommable');if(!empty(r.volume_unitaire))d.unitVolume=r.volume_unitaire==='!EFFACER'?null:num(r.volume_unitaire,'volume_unitaire');
+    if(!empty(r.consommable))d.consumable=bool(r.consommable,'consommable');if(!empty(r.pillable))d.pillable=bool(r.pillable,'pillable');if(!empty(r.volume_unitaire))d.unitVolume=r.volume_unitaire==='!EFFACER'?null:num(r.volume_unitaire,'volume_unitaire');
     d={...old,...itemInput(d,r.id,old)};imagePatch(r,d,{image_media_id:'illustration'});
    }else if(sheet==='Competences'){
     d=patch(r,{kind:'PASSIVE',publicationState:'DRAFT',...old},{nom:'name',description:'description',instructions:'instructions',categorie:'category',type:'kind',publication:'publicationState',notes_mj:'gmNotes'});
@@ -182,9 +184,10 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
     c[field]=[...c[field].filter(x=>x.id!==r.id),next];mark('characters',cid);summary(sheet,r,old,next);
    }
   }catch(e){addError(sheet,r,e);}}
+  importTerrain({rows,m,records,session,fieldStates,parent:nextParent,stamp,checkOperation,summary,mark,addError,issue,num,empty,patch,base,put});
   // Validate the combined graph; a broken reference cannot leave half an import behind.
   try{
-   cleanScenarioSnapshot({scenario:nextParent,records:{...rowsRecord(m),fieldTargets:await tx.list(`${base}/fieldTargets`),personProfiles:await tx.list(`${base}/personProfiles`)}});
+   cleanScenarioSnapshot({scenario:nextParent,records:rowsRecord(m)});
    for(const s of m.skills.values())if(s.healing?.consumable){const item=ref(m.items,s.healing.consumable.itemId,'consommable_id');if(s.publicationState==='PUBLISHED'&&(item.publicationState!=='PUBLISHED'||!item.consumable))issue('consommable_id','Un soin publié doit référencer un consommable publié.');}
    for(const cl of m.classes.values())for(const x of cl.skills)if(cl.publicationState==='PUBLISHED'&&ref(m.skills,x.skillId,'competences').publicationState!=='PUBLISHED')issue('competences','Une classe publiée dépend d’une compétence non publiée.');
    for(const k of m.knowledge.values())if(k.qrSkillId&&k.qrEnabled){const s=ref(m.skills,k.qrSkillId,'qr_competence_id');if(s.kind!=='PASSIVE'||s.publicationState!=='PUBLISHED')issue('qr_competence_id','La condition QR exige une compétence passive publiée.');}
@@ -225,7 +228,7 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
   let indexWrites=0;const changedMedia=new Set();
   for(const [path,data] of writes){const after=imageReferences(data);if(!JSON.stringify(data).includes('\"mediaImages\"'))continue;const before=imageReferences(await tx.get(path));for(const mid of new Set([...before.keys(),...after.keys()]))if(before.has(mid)!==after.has(mid)){indexWrites++;changedMedia.add(mid);}}
   if(writes.size>masterLimits.writes||writes.size+indexWrites+changedMedia.size+1>480||[...writes.values()].some(v=>Buffer.byteLength(JSON.stringify(v))>800000)||Buffer.byteLength(JSON.stringify([...writes.values()]))>3*1024*1024)errors.push({sheet:'Meta',row:1,column:'',message:'Trop de changements ou de publications dans une transaction. Fractionner le classeur.'});
-  const confirmation=digest({actor:actor.uid,base,parent,records,prior:receipts.sort((a,b)=>a.id.localeCompare(b.id)),rows,reason,mediaState,resources});
+  const confirmation=digest({actor:actor.uid,base,parent,records,fieldStates,prior:receipts.sort((a,b)=>a.id.localeCompare(b.id)),rows,reason,mediaState,resources});
   return {errors,changes,canApply:!errors.length,confirmation,receipt,writes,applied:applied.length,newCharacters:[...created],destination:{id,title:parent.title,type:session?'SESSION':'CAMPAGNE',campaignId:parent.campaignId??null}};
  }
  return async(action,actor,input)=>{

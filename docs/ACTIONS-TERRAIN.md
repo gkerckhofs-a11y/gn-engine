@@ -66,7 +66,7 @@ Les lieux sont inclus dans les versions figées et dans les archives `.gnscenari
 
 L’épisode suivant conserve les réserves restantes et les plafonds utilisés. Il conserve aussi les pannes et protections avec leur temps de jeu restant : une panne avec dix minutes restantes repart avec dix minutes, sans s’écouler pendant les semaines entre deux événements. Les récupérations personnelles repartent au nouvel épisode selon la règle de campagne existante. Les résultats et journaux restent consultables dans leur session d’origine par les organisateurs habilités ; l’écran joueur liste ses actions de l’épisode courant.
 
-Les masters Excel 0.23 restent compatibles. Les lieux, leurs profils et leurs réserves se configurent **dans l’éditeur de terrain**, pas encore dans de nouveaux onglets XLSX. Un complément de master doit cependant préserver les références des lieux déjà présents : il ne peut archiver silencieusement un objet requis par un lieu publié.
+Les masters Excel 0.23 restent compatibles. Depuis la 0.26, les lieux, leurs profils et leurs réserves se configurent dans l’éditeur de terrain ou les onglets **Lieux, ActionsTerrain et Recompenses** des [masters XLSX](MASTERS.md). Un complément de master doit cependant préserver les références des lieux déjà présents : il ne peut archiver silencieusement un objet requis par un lieu publié.
 
 ## Limites de ce lot
 

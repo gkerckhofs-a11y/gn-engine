@@ -71,7 +71,7 @@ Profils copiés dans les versions figées, les nouvelles sessions, les archives 
 
 Les acquis et lots suivent la campagne. La convalescence restante est reportée avec la politique « conserver les blessures » et effacée avec « restaurer ». Actions ouvertes, offres d’aide et rencontres ne sont pas transférées ; une clôture exige d’abord de résoudre les actions. Les historiques restent dans l’épisode source.
 
-Les profils ne sont pas encore importables par les masters XLSX. Les notifications DIRECT/DISCRET, diagnostic, antidotes, secours commun, progression XP, capture complète et reçus utilisables hors connexion restent à développer. L’interface affiche jusqu’à 100 interactions personnelles récentes. Le panneau MJ montre les interactions ouvertes ; les résultats médicaux apparaissent également dans l’historique de santé.
+Depuis la 0.26, les profils sont importables dans l’onglet Interactions des [masters XLSX](MASTERS.md). Les notifications DIRECT/DISCRET, diagnostic, antidotes, secours commun, progression XP, capture complète et reçus utilisables hors connexion restent à développer. L’interface affiche jusqu’à 100 interactions personnelles récentes. Le panneau MJ montre les interactions ouvertes ; les résultats médicaux apparaissent également dans l’historique de santé.
 
 ## Recette terrain à réaliser
 

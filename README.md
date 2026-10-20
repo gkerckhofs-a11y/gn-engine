@@ -6,11 +6,17 @@ Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
+## Masters de terrain — 0.26
+
+Les masters CAMPAGNE et SESSION acceptent **Lieux, ActionsTerrain, Recompenses et Interactions** : fouilles, installations, profils médicaux et pillage, expertises requises, durées, jets, coûts, consommables et bonus. Les objets ont une colonne `pillable`. Quatre fichiers XLSX et leurs exemples fictifs sont disponibles dans Contenus et masters.
+
+Les imports restent préparés, contrôlés puis confirmés avant le premier lancement. Les récompenses d’un lieu déjà créé en session restent immuables ; stock restant, découvertes et état de panne sont conservés. L’import détecte les références invalides, doublons, changements d’identité et aperçus périmés. [Mode d’emploi](docs/MASTERS.md) · [Validation 0.26](docs/VALIDATION-0.26.md).
+
 ## Soins, aide et pillage — 0.25
 
 Les nouveaux profils proposent soin de terrain, clinique sûre ou accélérée, fouille ordinaire et méthodique. Le parcours joueur part du badge du personnage. Durée, réservations, récupération, convalescence et remise d’une unité pillable sont suivies par le moteur. Une aide compétente apporte +1 aux tests compatibles sans second PA. Après l’échec d’une clinique accélérée, le complément n’exige ni second jet ni nouveau coût.
 
-[Configuration et limites](docs/SOINS-AIDE-PILLAGE.md) · [Validation 0.25](docs/VALIDATION-0.25.md). Compilation et **910 tests réussis** sur GitHub : 499 applicatifs et 411 intégrations Firebase, sans échec ni test ignoré. Publication, quatre masters XLSX et refus des accès privés anonymes vérifiés le 20 octobre 2026 à 14:41:05 UTC ; accueil 0.25.0 confirmé dans le navigateur. Les profils se configurent dans le scénario ou la régie. Ils ne sont pas encore importables par XLSX. La capture complète, les notifications DIRECT/DISCRET et la recette mobile restent ouvertes.
+[Configuration et limites](docs/SOINS-AIDE-PILLAGE.md) · [Validation 0.25](docs/VALIDATION-0.25.md). Compilation et **910 tests réussis** sur GitHub : 499 applicatifs et 411 intégrations Firebase, sans échec ni test ignoré. Publication, quatre masters XLSX et refus des accès privés anonymes vérifiés le 20 octobre 2026 à 14:41:05 UTC ; accueil 0.25.0 confirmé dans le navigateur. Les profils se configurent dans le scénario ou la régie. Leur import XLSX est ajouté en 0.26. La capture complète, les notifications DIRECT/DISCRET et la recette mobile restent ouvertes.
 
 ## Actions de terrain — 0.24
 
@@ -18,7 +24,7 @@ Dans le scénario ou la régie, **Fouilles et installations** permet de définir
 
 Les fouilles distribuent des crédits, objets ou informations depuis une réserve finie, avec plafond individuel. Sabotage et réparation changent l’état des installations et peuvent bloquer les fouilles qui en dépendent. Les PA et le matériel sont réservés, puis coût et effet sont appliqués ensemble ; une interruption libère la réservation. Les stocks et durées de panne restantes suivent les épisodes de campagne.
 
-[Parcours, configuration et limites](docs/ACTIONS-TERRAIN.md) · [Validation 0.24](docs/VALIDATION-0.24.md). L’aide, le pillage et les soins en deux étapes sont ajoutés en 0.25 ; les onglets XLSX de terrain restent à développer. Les conséquences économiques générales des pannes ne sont pas encore automatisées.
+[Parcours, configuration et limites](docs/ACTIONS-TERRAIN.md) · [Validation 0.24](docs/VALIDATION-0.24.md). L’aide, le pillage et les soins en deux étapes sont ajoutés en 0.25 ; les onglets XLSX de terrain sont ajoutés en 0.26. Les conséquences économiques générales des pannes ne sont pas encore automatisées.
 
 Compilation et **867 tests réussis** sur GitHub : 476 applicatifs et 391 intégrations Firebase, sans échec ni test ignoré. Publication, quatre fichiers XLSX et refus des commandes privées anonymes contrôlés le 20 octobre 2026 à 13:34:23 UTC. Accueil 0.24.0 confirmé dans le navigateur. Les essais privés sur mobile, multi-comptes et à 60 connexions restent à réaliser.
 

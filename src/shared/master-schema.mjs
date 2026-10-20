@@ -5,7 +5,7 @@ export const masterSheets={
  Meta:['format','version','type','destination_id','campaign_id','base_revision'],
  Parametres:['cle','valeur'],
  Personnages:['id','operation','version','nom','metier','description_publique','publication_publique','publication','histoire','interpretation','secrets_joueur','notes_mj','niveau_global','pv_max_initiaux','portrait_media_id','image_privee_media_id'],
- Objets:['id','operation','version','nom','description','categorie','unite','type','consommable','volume_unitaire','legalite','publication','notes_mj','image_media_id'],
+ Objets:['id','operation','version','nom','description','categorie','unite','type','consommable','volume_unitaire','legalite','publication','notes_mj','image_media_id','pillable'],
  Competences:['id','operation','version','nom','description','instructions','categorie','type','publication','notes_mj','soin_pv','usages','recuperation_secondes','portee_recuperation','consommable_id','consommable_quantite'],
  Classes:['id','operation','version','nom','description','publication','notes_mj','competences'],
  Attributions:['id','operation','version','personnage_id','classe_id','competences','publication'],
@@ -15,8 +15,12 @@ export const masterSheets={
  Objectifs:['id','operation','version','personnage_id','titre','description','publication','notes_mj'],
  Relations:['id','operation','version','personnage_id','cible_id','titre','description','publication','notes_mj'],
  Dotations:['id','operation','version','personnage_id','type','objet_id','quantite'],
+ Lieux:['id','operation','version','titre','type','publication','description','notes_mj','installation_id','panne_secondes','verrou_echec_secondes','protection_reparation_secondes'],
+ ActionsTerrain:['id','operation','version','lieu_id','type','competence_id','niveau_minimum','instructions','duree_secondes','durees_niveaux','test','seuil','cout_pa','recuperation_secondes','bonus_objets','consommable_id','consommable_quantite','texte_reussite','texte_echec'],
+ Recompenses:['id','operation','version','lieu_id','type','objet_id','connaissance_id','quantite','stock_initial','limite_personnage'],
+ Interactions:['id','operation','version','nom','type','publication','competence_id','niveau_minimum','prerequis','instructions','duree_secondes','durees_niveaux','seuil','cout_pa','recuperation_secondes','bonus_objets','consommable_id','consommable_quantite','consommables_supplementaires','texte_reussite','texte_echec','complement_secondes','soin_pv','niveau_reanimation','convalescence_secondes','recuperation_patient_secondes'],
 };
-export const masterCollections={Personnages:'characters',Objets:'items',Competences:'skills',Classes:'classes',Groupes:'groups',Connaissances:'knowledge'};
+export const masterCollections={Personnages:'characters',Objets:'items',Competences:'skills',Classes:'classes',Groupes:'groups',Connaissances:'knowledge',Lieux:'fieldTargets',Interactions:'personProfiles'};
 export const masterIgnoredSheets=['Guide','Dictionnaire'];
 export const masterParameters=['titre','resume','date','horaires','lieu','infos_pratiques','confidentialite','capacite','groupes_actifs','pa_actifs','pa_niveau_1','pa_niveau_2','pa_renouvellement_minutes','pa_cout','pa_recuperation_secondes','pa_recuperation_patient_secondes','economie_active','monnaie_nom','monnaie_unite','sante_active','pv_max_defaut'];
 export const masterHints={
@@ -33,9 +37,35 @@ export const masterHints={
  campaign_id:'Identifiant de la campagne. Obligatoire pour un complément dans une session de campagne.',
  base_revision:'Révision attendue, facultative. L’aperçu impose toujours une confirmation sur les données actuelles.',
  format:'gn-engine-master',version_format:'1',
+ pillable:'OUI ou NON. NON par défaut. Modèle uniquement : les lots déjà détenus gardent leur réglage.',
+ lieu_id:'Identifiant du lieu. Obligatoire sur chaque ligne fille ; ne peut changer pour un même id.',
+ installation_id:'Installation existante ou créée dans cet import. Bloque la fouille quand elle est en panne. !EFFACER retire le lien.',
+ duree_secondes:'Entier de 0 à 86400. Obligatoire pour un nouveau profil ; secondes de jeu.',
+ durees_niveaux:'Durées par niveau : 1:60;2:30. Niveaux uniques, durées en secondes. !EFFACER retire les durées particulières.',
+ niveau_minimum:'Niveau minimum de la compétence, de 1 à 100. Valeur initiale : 1.',
+ competence_id:'Compétence PASSIVE. Obligatoire pour les soins et le pillage méthodique. Interdite pour LOOT_COMMON. !EFFACER retire une référence facultative.',
+ prerequis:'Compétences PASSIVE supplémentaires : secours:2;clinique:1. Maximum 10. !EFFACER retire la liste.',
+ bonus_objets:'Objets donnant un bonus : outil:1;scanner:2. Bonus de 0 à 2, maximum 20 objets distincts. !EFFACER retire la liste.',
+ consommables_supplementaires:'Objet:quantité ; maximum 3 consommables distincts au total avec consommable_id. Interdits pour le pillage.',
+ cout_pa:'De 0 à 1000. Vide à la création ou !EFFACER : utiliser le coût PA de session ; 0 est un coût nul explicite.',
+ seuil:'Seuil D6 + niveau + bonus. De 0 à 10000 ; 0 par défaut. Interactions : utilisé seulement par CLINIC_FAST.',
+ stock_initial:'Nombre de découvertes disponibles, de 1 à 1000000. 2 découvertes de 10 crédits représentent 20 crédits. Immuable après création en session.',
+ limite_personnage:'Nombre maximal de découvertes de cette récompense par personnage, de 1 à 1000. Obligatoire à la création.',
+ panne_secondes:'Durée de panne de 0 à 604800 secondes de jeu. 0 : réparation nécessaire.',
+ verrou_echec_secondes:'Verrou après un échec technique, de 0 à 86400 secondes de jeu. Valeur initiale : 300.',
+ protection_reparation_secondes:'Protection après réparation, de 0 à 86400 secondes de jeu. Valeur initiale : 0.',
+ complement_secondes:'CLINIC_FAST : durée de complément après un échec, sans second coût. De 0 à 86400 ; valeur initiale : 120.',
+ niveau_reanimation:'Niveau permettant la réanimation par soin de terrain, de 1 à 100. Valeur initiale : 2.',
+ convalescence_secondes:'Convalescence après un soin de terrain, de 0 à 86400 secondes de jeu. Valeur initiale : 600.',
+ recuperation_patient_secondes:'Récupération commune du patient après soin, de 0 à 86400 secondes de jeu. Valeur initiale : 600.',
+};
+export const masterSheetHints={
+ ActionsTerrain:{operation:'CREER ou MODIFIER. Le profil est obligatoire : pour le désactiver, archiver son lieu.',recuperation_secondes:'0 à 86400. Vide à la création ou !EFFACER : récupération de session. Fouilles : famille FOUILLE commune.',test:'AUTO sans jet, D6 pour D6 + niveau + bonus. Obligatoire à la création.'},
+ Recompenses:{quantite:'Crédits ou unités par découverte, entier positif. ITEM individuel : 1. KNOWLEDGE : utiliser 1.',objet_id:'Requis pour ITEM uniquement. Une autre référence doit être effacée si le type change.',connaissance_id:'Requise pour KNOWLEDGE uniquement. Une autre référence doit être effacée si le type change.'},
+ Interactions:{recuperation_secondes:'Pillage : 0 à 86400, vide à la création ou !EFFACER = règle de session. Soins : 0 ; utiliser recuperation_patient_secondes.',soin_pv:'Soin de terrain : PV rendus, de 1 à 1000. Valeur initiale : 1. Clinique : retour au maximum.'},
 };
 export const masterGuide=[
- ['GN Engine 0.23 — masters complémentaires','Format 1. Contenus pris en charge par cette version du moteur.'],
+ ['GN Engine 0.26 — masters complémentaires','Format 1 étendu. Les anciens masters restent acceptés.'],
  ['Destination','CAMPAGNE se charge dans un scénario modèle. SESSION se charge dans un épisode en PREPARATION, avant le premier lancement.'],
  ['Parcours','Importer le XLSX, corriger les erreurs, relire l’aperçu, saisir un motif puis confirmer. Le chargement seul ne modifie rien.'],
  ['Réimport','Identifiants durables. Même version et même contenu = inchangé. Pour une nouvelle modification, augmenter la version.'],
@@ -52,6 +82,14 @@ export const masterGuide=[
  ['Images','Référencer des médias existants de votre médiathèque. Aucune URL d’image ou donnée de connexion dans ce classeur.'],
  ['Excel et Sheets','Pas de formules dans les onglets importés. Utiliser des valeurs. Exporter Google Sheets au format .xlsx avant import.'],
  ['Limites','250 lignes de contenu et 1 Mio de données par import, transaction limitée à 420 écritures avant indexation des médias. Fractionner les gros ajouts.'],
- ['Modules à venir','Fouilles, installations, entrepôts, vaisseaux, XP et effets avancés : non importables. Les onglets ou colonnes inconnus sont refusés.'],
+ ['Lieux','SEARCH pour une fouille ; INSTALLATION pour sabotage et réparation. Chaque lieu utilise son id comme cible du QR généré par le moteur.'],
+ ['ActionsTerrain','Une ligne SEARCH par fouille ; deux lignes SABOTAGE et REPAIR par installation. Renseigner lieu_id, durée et test. Id stable et unique par ligne.'],
+ ['Récompenses','Une ligne par réserve de crédits, objets ou information. Stock en nombre de découvertes et plafond par personnage. La fouille choisit la première récompense encore disponible dans l’ordre enregistré.'],
+ ['Stock conservé','En session, le type et les récompenses d’un lieu existant sont immuables. Un réimport ne recrée aucun stock. Utiliser le réapprovisionnement MJ pour un nouvel apport.'],
+ ['Interactions','FIELD_CARE, CLINIC_SAFE, CLINIC_FAST, LOOT_COMMON ou LOOT_METHODICAL. Les expertises référencées sont PASSIVE ; ces profils portent leurs effets actifs.'],
+ ['Aide','Les actions D6 avec compétence acceptent l’aide compétente +1 du moteur. Aucun profil AIDE ni second PA. La clinique accélérée est le seul soin à jet.'],
+ ['Modification des listes','durees_niveaux, bonus_objets, prerequis et consommables_supplementaires remplacent leur liste quand renseignés. Vide conserve ; !EFFACER vide.'],
+ ['Publication','Les contenus requis par un profil publié doivent être publiés. L’archivage d’une installation encore requise par une fouille publiée est refusé.'],
+ ['Modules à venir','Entrepôts, vaisseaux, XP et effets avancés : non importables. Les onglets ou colonnes inconnus sont refusés.'],
  ['Source','Contrat du moteur : src/shared/master-schema.mjs et docs/MASTERS.md, 20 octobre 2026. Les données des exemples sont fictives.'],
 ];

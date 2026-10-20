@@ -2,17 +2,21 @@
 
 Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, conservées dans [la note source](source/port-breche-engine-note-v03.md). Base inspectée : commit GitHub `bd670dea159c5c7f01cfe83f8fcba9b81657dd44`, version 0.20. Les statuts ci-dessous décrivent le code, pas une validation terrain. Les lots 0.22 et 0.23, publiés et vérifiés le 20 octobre 2026, ajoutent la continuité décrite dans [Campagnes](CAMPAGNES.md) et les [masters complémentaires](MASTERS.md).
 
+## Lot 0.26 : masters de terrain
+
+Lieux de fouille, installations, profils SEARCH/SABOTAGE/REPAIR, récompenses finies et cinq profils d’interaction sont importables depuis les quatre modèles/exemples XLSX mis à jour. Colonne pillable pour les modèles d’objets. Aperçu, validation atomique, stocks existants protégés, empreintes conservées en campagne. Voir [Masters](MASTERS.md) et [Validation](VALIDATION-0.26.md).
+
 ## Lot 0.25 : soins, aide et pillage
 
 Cinq profils configurables, actions sur badge, soins chronométrés, clinique accélérée avec complément sans second coût, récupération commune du patient, convalescence et aide +1 sans second PA. Pillage d’une unité, choix selon la méthode, quota par victime et rencontre, remise confirmée, objets protégés par défaut. Profils conservés dans les versions, archives et campagnes. [Guide et limites](SOINS-AIDE-PILLAGE.md) · [Validation](VALIDATION-0.25.md).
 
-910 tests réussis sur GitHub : 499 applicatifs et 411 intégrations Firebase, sans échec ni test ignoré. Publication, quatre masters XLSX et refus anonymes contrôlés à 14:41:05 UTC ; accueil 0.25.0 confirmé dans le navigateur. La capture complète, les effets non médicaux, les notifications et l’import XLSX de ces profils restent ouverts.
+910 tests réussis sur GitHub : 499 applicatifs et 411 intégrations Firebase, sans échec ni test ignoré. Publication, quatre masters XLSX et refus anonymes contrôlés à 14:41:05 UTC ; accueil 0.25.0 confirmé dans le navigateur. La capture complète, les effets non médicaux, les notifications restent ouvertes. L’import XLSX des profils est ajouté en 0.26.
 
 ## Lot 0.24 : actions de terrain
 
 Fouilles et installations configurables dans le scénario ou la session, QR, aperçu, présence déclarée, durée en temps de jeu, réservation des PA et du matériel, D6 serveur et bonus d’équipement. Résolution unique, interruption, récupération commune FOUILLE, réserve finie de crédits/objets/informations, sabotage, réparation et protection. Les paramètres engagés sont figés ; le résultat, les coûts et les effets sont enregistrés ensemble. Les lieux voyagent dans les archives ; réserves, plafonds utilisés et durées de panne restantes suivent les épisodes.
 
-Les soins en deux étapes, l’aide et le pillage sont ajoutés en 0.25. Les notifications DIRECT/DISCRET restent ouvertes. Les dépendances d’installation bloquent seulement les fouilles configurées. Les onglets XLSX de terrain restent à ajouter. [Parcours et limites](ACTIONS-TERRAIN.md) · [Validation](VALIDATION-0.24.md).
+Les soins en deux étapes, l’aide et le pillage sont ajoutés en 0.25. Les notifications DIRECT/DISCRET restent ouvertes. Les dépendances d’installation bloquent seulement les fouilles configurées. Les onglets XLSX de terrain sont ajoutés en 0.26. [Parcours et limites](ACTIONS-TERRAIN.md) · [Validation](VALIDATION-0.24.md).
 
 Compilation et 867 tests réussis sur GitHub (476 applicatifs et 391 intégrations Firebase). Publication, fichiers XLSX et refus des commandes privées anonymes vérifiés à 13:34:23 UTC ; accueil 0.24.0 confirmé dans le navigateur. Recette mobile, multi-comptes et charge réelle toujours ouverte.
 
@@ -69,7 +73,7 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 1. Socle PA livré en 0.21 et vérifié sur Firestore/Auth : 777 tests réussis et publication contrôlée. Recette terrain encore nécessaire.
 2. Continuité de campagne implémentée en 0.22 : bilan, clôture et reprise sans remettre les soldes à zéro ; voir le rapport de validation.
 3. Masters XLSX et imports complémentaires implémentés en 0.23 ; compléter les nouveaux modules au fil de leur développement.
-4. Exécuteur de terrain implémenté en 0.24 : fouilles, durée, D6, bonus, sabotage/réparation et réservations. Compléter avec soins en deux étapes, aide et pillage ; étendre les masters aux lieux.
+4. Exécuteur de terrain implémenté en 0.24 : fouilles, durée, D6, bonus, sabotage/réparation et réservations. Soins en deux étapes, aide et pillage ajoutés en 0.25 ; masters de lieux et profils complétés en 0.26.
 5. Réorganiser les quatre espaces joueur et compléter l’économie, les entrepôts et les recharges.
 6. Traiter le spatial après définition de ses règles, puis réaliser la recette terrain.
 

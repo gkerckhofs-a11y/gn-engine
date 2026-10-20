@@ -1,7 +1,7 @@
 import {personCommands} from '../../src/core/person-actions.mjs';
 import {fieldCommands} from '../../src/core/field-actions.mjs';
 import {masterCommands} from '../../src/core/masters.mjs';
-import {masterExample} from '../../src/shared/master-examples.mjs';
+import {masterExample,terrainMasterExample} from '../../src/shared/master-examples.mjs';
 import {campaignCommands} from '../../src/core/campaigns.mjs';
 import {actionPointCommands} from '../../src/core/action-points.mjs';
 import {sampleImage} from '../support/media-suite.mjs';
@@ -33,8 +33,8 @@ test('HTTP + Auth : QR de lieu privé, action confirmée et récompense unique',
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),player=await googleTestAccount(`field-${randomUUID()}@example.invalid`);
  const command=async(action,input={},token=owner)=>{const r=await request(action,{requestId:randomUUID(),...input},token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};
  const {id:scenarioId}=await command('createScenario',{title:'Terrain HTTP'}),scenario=async()=>(await request('scenario',{scenarioId},owner)).result;
- const master={scenarioId,sheets:masterExample(),reason:'Données synthétiques'},mp=await command('prepareMasterImport',master);await command('applyMasterImport',{...master,confirmation:mp.confirmation});
- const {id:targetId}=await command('saveFieldTarget',{scenarioId,reason:'Cachette HTTP',target:{kind:'SEARCH',title:'Cachette HTTP',gmNotes:'RESERVE_PRIVEE_HTTP',publicationState:'PUBLISHED',profiles:{SEARCH:{durationSeconds:0,test:'AUTO',threshold:0,bonusItems:[]}},rewards:[{id:'credits',kind:'CREDITS',quantity:7,stock:1,perCharacter:1}]}});
+ const targetId='cache-http',sheets=masterExample();sheets.Lieux=[{id:targetId,operation:'CREER',version:'1',titre:'Cachette HTTP',type:'SEARCH',publication:'PUBLISHED',notes_mj:'RESERVE_PRIVEE_HTTP'}];sheets.ActionsTerrain=[{id:'fouille-http',operation:'CREER',version:'1',lieu_id:targetId,type:'SEARCH',duree_secondes:'0',test:'AUTO'}];sheets.Recompenses=[{id:'credits-http',operation:'CREER',version:'1',lieu_id:targetId,type:'CREDITS',quantite:'7',stock_initial:'1',limite_personnage:'1'}];
+ const master={scenarioId,sheets,reason:'Données synthétiques'},mp=await command('prepareMasterImport',master);await command('applyMasterImport',{...master,confirmation:mp.confirmation});
  const {id:versionId}=await command('publishScenario',{scenarioId,revision:(await scenario()).revision}),{id:sessionId}=await command('createSession',{scenarioId,versionId,title:'Terrain HTTP',capacity:1,privacy:'Fictif'}),session=async()=>(await request('session',{sessionId},owner)).result;
  await command('setRegistrationOpen',{sessionId,revision:1,open:true});await command('register',{sessionId,name:'Test'},player);const uid=(await command('identity',{},player)).uid;await command('assign',{sessionId,uid,characterId:'pilote'});
  const invitation=randomBytes(32).toString('base64url');await command('issueInvitation',{sessionId,uid,tokenHash:hash(invitation),hours:1});await command('redeem',{sessionId,token:invitation},player);for(const stage of ['BRIEFING','EN_JEU'])await command('setStage',{sessionId,revision:(await session()).revision,stage});
@@ -48,11 +48,12 @@ test('HTTP + Auth : QR de lieu privé, action confirmée et récompense unique',
 test('HTTP + Auth : master validé, refus des accès étrangers et import atomique',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),visitor=await googleTestAccount(`masters-${randomUUID()}@example.invalid`);
  const initial=await request('createScenario',{title:'Master HTTP',requestId:randomUUID()},owner);assert.equal(initial.status,200);const scenarioId=initial.result.id;
- const payload={scenarioId,sheets:masterExample(),reason:'Validation HTTP',filename:'Exemple test.xlsx'};
+ const payload={scenarioId,sheets:terrainMasterExample(),reason:'Validation HTTP',filename:'Exemple test.xlsx'};
  for(const action of masterCommands){assert.equal((await request(action,{...payload,requestId:randomUUID()})).status,401);assert.equal((await request(action,{...payload,requestId:randomUUID()},visitor)).status,403);}
  const preview=await request('prepareMasterImport',payload,owner);assert.equal(preview.status,200);assert.deepEqual(preview.result.errors,[]);
  const command={...payload,confirmation:preview.result.confirmation,requestId:randomUUID()},saved=await request('applyMasterImport',command,owner);assert.equal(saved.status,200);assert.deepEqual(await request('applyMasterImport',command,owner),saved);
  const scenario=await request('scenario',{scenarioId},owner);assert.equal(scenario.result.characters.length,1);assert.equal(scenario.result.characters[0].startingCredits.amount,100);
+ const field=await request('fieldAdmin',{scenarioId},owner);assert.equal(field.result.fieldTargets.length,2);const people=await request('personAdmin',{scenarioId},owner);assert.equal(people.result.personProfiles.length,5);
  const changed=structuredClone(payload);changed.sheets.Personnages[0].nom='Autre nom sans changer la version';const denied=await request('prepareMasterImport',changed,owner);assert.equal(denied.result.canApply,false);assert.ok(denied.result.errors.some(e=>e.sheet==='Personnages'&&e.column==='version'));
  const history=await request('masterImportHistory',{scenarioId},owner);assert.equal(history.result.imports.length,1);
 });
