@@ -1,4 +1,5 @@
 import {createMediaService,mediaAction} from './media.mjs';
+import {createScenarioArchiveService,archiveAction} from './scenario-archives.mjs';
 import {mediaTrackedStore,mediaFields} from './media-state.mjs';
 import {createBountyService,bountyAction} from './bounties.mjs';
 import {createContractService,contractAction} from './contracts.mjs';
@@ -120,6 +121,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     }
     return record.mediaImages?.[slot]??null;
   }});
+  const archiveService=createScenarioArchiveService({store,admin,checkScenario,now,uuid,images,archiveUpload:mediaService.archiveUpload});
   const bountyService=createBountyService({store,signed,checkSession,now,uuid});
   const contractService=createContractService({store,signed,checkSession,now,uuid});
   const announcementService=createAnnouncementService({store,signed,checkSession,now,uuid});
@@ -135,6 +137,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(archiveAction(action))return archiveService(action,actor,input);
     if(mediaAction(action))return mediaService(action,actor,input);
     if(action==='setStage'&&['BRIEFING','EN_JEU'].includes(input.stage)){
       const health=await mediaService('mediaHealth',actor,{sessionId:input.sessionId});requireThat(health.issues.length===0,'MEDIA_MISSING');

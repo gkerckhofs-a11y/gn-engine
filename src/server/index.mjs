@@ -1,6 +1,7 @@
 import {getStorage} from 'firebase-admin/storage';
 import {bucketImages,processImage} from '../adapters/media-images.mjs';
 import {mediaLimits} from '../core/media-state.mjs';
+import {packageLimits} from '../core/scenario-package.mjs';
 import {initializeApp} from 'firebase-admin/app';
 import {getAuth} from 'firebase-admin/auth';
 import {getFirestore} from 'firebase-admin/firestore';
@@ -18,7 +19,8 @@ const images=bucketImages(getStorage().bucket(mediaBucket));
 export const api=onRequest({region:'europe-west1',serviceAccount:'gn-engine-runtime@gn-engine.iam.gserviceaccount.com',maxInstances:3,minInstances:0,memory:'512MiB',concurrency:8,timeoutSeconds:60,invoker:'public'},async(req,res)=>{
   res.set('Cache-Control','private, no-store'); res.set('X-Content-Type-Options','nosniff');
   if(req.method!=='POST') return res.status(405).json({error:'METHOD_NOT_ALLOWED'});
-  if(!req.is('application/json') || Buffer.byteLength(JSON.stringify(req.body ?? {}))>(req.body?.action==='mediaUpload'?Math.ceil(mediaLimits.fileBytes/3)*4+10000:128000))
+  const limit=req.body?.action==='mediaUpload'?Math.ceil(mediaLimits.fileBytes/3)*4+10000:req.body?.action==='scenarioImportImage'?Math.ceil(mediaLimits.variantBytes/3)*4+10000:['prepareScenarioImport','beginScenarioImport'].includes(req.body?.action)?packageLimits.manifestBytes+10000:128000;
+  if(!req.is('application/json') || Buffer.byteLength(JSON.stringify(req.body ?? {}))>limit)
     return res.status(400).json({error:'INVALID_BODY'});
   try {
     let actor=null;

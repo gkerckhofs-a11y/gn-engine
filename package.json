@@ -1,6 +1,6 @@
 {
   "name": "gn-engine",
-  "version": "0.19.2",
+  "version": "0.20.0",
   "private": true,
   "type": "module",
   "engines": {
@@ -23,6 +23,7 @@
   "devDependencies": {
     "esbuild": "0.25.12",
     "express": "5.2.1",
+    "fflate": "0.8.2",
     "firebase": "13.0.0",
     "firebase-tools": "15.34.0",
     "qrcode": "1.5.4"

@@ -34,11 +34,11 @@ export function createMediaService({store,signed,admin,isAdmin,checkSession,chec
     try{return {mime:a.variants[variant].mime,data:(await images.read(a.variants[variant].path)).toString('base64')};}
     catch(e){if(e instanceof DomainError)throw e;throw new DomainError('MEDIA_STORAGE_UNAVAILABLE');}
   }
-  async function upload(actor,input){
+  async function upload(actor,input,archived=false){
     signed(actor);storage();const requestId=documentId(input.requestId),info=metadata(input);
     // Check organizer rights before decoding any untrusted image.
     const initial=await store.runTransaction(tx=>scope(tx,actor,input));
-    const prepared=await processImage(input.data),id=hash(`${actor.uid}:${requestId}`),path=`media/${id}`,fingerprint=digest([prepared.digest,info,initial.key,input.allowDuplicate===true]);
+    const prepared=await processImage(input.data,archived?{fileBytes:mediaLimits.variantBytes,preserveSource:true}:undefined),id=hash(`${actor.uid}:${requestId}`),path=`media/${id}`,fingerprint=digest([prepared.digest,info,initial.key,input.allowDuplicate===true]);
     const attempt=uuid(),at=now(),variants=Object.fromEntries(Object.entries(prepared.variants).map(([k,v])=>[k,{path:`media/${id}/${attempt}/${k}`,mime:v.mime,bytes:v.data.length}]));
     const claim=await store.runTransaction(async tx=>{
       const ctx=await scope(tx,actor,input),old=await tx.get(path),q=await quota(tx,ctx.ownerUid),known=await tx.list('media',['ownerUid',ctx.ownerUid]),duplicate=known.find(a=>a.digest===prepared.digest&&a.id!==id&&['READY','TRASHED','UPLOADING'].includes(a.status)&&(isAdmin(actor)||a.key===ctx.key));
@@ -105,7 +105,7 @@ export function createMediaService({store,signed,admin,isAdmin,checkSession,chec
       catch{await store.runTransaction(async tx=>{const old=await tx.get(`media/${a.id}`);if(old.status==='CLEANING')tx.set(`media/${a.id}`,{...old,status:'UPLOADING'});});}
     }return {cleaned};
   }
-  return async(action,actor,input)=>{
+  const dispatch=async(action,actor,input)=>{
     if(action==='mediaRead')return read(actor,input);
     signed(actor);
     if(action==='mediaUpload')return upload(actor,input);
@@ -188,4 +188,6 @@ export function createMediaService({store,signed,admin,isAdmin,checkSession,chec
       audit(tx,action==='trashMedia'?'TRASH':'RESTORE',actor,ctx,x.assets.map(a=>a.id));const result={updated:x.assets.length};tx.set(op,{fingerprint,result});return result;
     });
   };
+  dispatch.archiveUpload=(actor,input)=>upload(actor,input,true);
+  return dispatch;
 }

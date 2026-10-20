@@ -6,6 +6,12 @@ Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
+## Export et import des scénarios 0.20
+
+Depuis l’atelier, **Exporter le scénario** prépare un fichier `.gnscenario.zip` pour l’état courant ou une version figée. Depuis le tableau de bord propriétaire, **Importer un scénario** permet de vérifier ce fichier, puis de créer un nouveau scénario avec ses textes privés, droits de fiction, dotations et images. Les imports interrompus peuvent être repris avec le même fichier.
+
+Cette extension est développée ; validation de publication en cours. [Mode opératoire et format](docs/SCENARIO-ARCHIVES.md) · [preuves et limites 0.20](docs/VALIDATION-0.20.md). Le stockage privé doit être activé pour transférer les images. L’export des sessions et de l’ensemble des historiques reste à développer.
+
 ## Médiathèque 0.19
 
 Ouvrez « Médiathèque » depuis le tableau de bord, un scénario ou une session. Importez vos images, classez-les puis choisissez-les dans les éditeurs. Les attributions en série présentent chaque cible avant confirmation. Une même image peut illustrer plusieurs contenus ; les briefings privés gardent leurs droits.

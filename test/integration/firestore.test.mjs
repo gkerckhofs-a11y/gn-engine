@@ -1,4 +1,5 @@
 import {mediaSuite} from '../support/media-suite.mjs';
+import {archiveSuite} from '../support/scenario-archive-suite.mjs';
 import {missionPartiesSuite} from '../support/mission-parties-suite.mjs';
 import {bountiesSuite} from '../support/bounties-suite.mjs';
 import {contractsSuite} from '../support/contracts-suite.mjs';
@@ -50,3 +51,4 @@ bountiesSuite(()=>firestoreStore(firestore),'Primes sur Firestore');
 missionPartiesSuite(()=>firestoreStore(firestore),'Participation sur Firestore');
 
 mediaSuite(()=>firestoreStore(firestore),'Médiathèque sur Firestore');
+archiveSuite(()=>firestoreStore(firestore),'Archives sur Firestore');

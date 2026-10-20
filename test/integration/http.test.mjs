@@ -1,10 +1,12 @@
 import {sampleImage} from '../support/media-suite.mjs';
+import {archiveCommands} from '../../src/core/scenario-archives.mjs';
 import {getStorage} from 'firebase-admin/storage';
 import {mediaCommands} from '../../src/core/media.mjs';
 import test, {after} from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID,randomBytes} from 'node:crypto';
 import {hash} from '../../src/core/workflow.mjs';
+import {mediaHash} from '../../src/core/media-state.mjs';
 import express from 'express';
 if(!process.env.FIREBASE_AUTH_EMULATOR_HOST) throw new Error('Auth emulator required');
 process.env.MEDIA_BUCKET='demo-gn-engine-media';
@@ -12,7 +14,7 @@ process.env.OWNER_EMAIL='gkerckhofs@gmail.com';
 const {api}=await import('../../src/server/index.mjs');
 // The actual exported HTTP handler is mounted in Express; Firebase Auth and
 // Firestore use their emulators. No Functions runtime socket needed locally.
-const app=express();app.use(express.json({limit:'8mb'}));app.post('/api',api);
+const app=express();app.use(express.json({limit:'24mb'}));app.post('/api',api);
 const server=await new Promise(resolve=>{const s=app.listen(0,'127.0.0.1',()=>resolve(s));});
 after(()=>new Promise(resolve=>server.close(resolve)));
 const endpoint=`http://127.0.0.1:${server.address().port}/api`;
@@ -423,4 +425,20 @@ test('HTTP + Auth + Storage : import réel, reprise, lecture privée et refus de
   }
   const bad=await request('mediaUpload',{...input,requestId:randomUUID(),data:Buffer.from('<svg/>').toString('base64')},owner);assert.equal(bad.result,undefined);assert.equal(bad.error,'INVALID_IMAGE');
   const check=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${owner}`},body:JSON.stringify({action:'mediaRead',input:{context:{mode:'library'},mediaId:uploaded.result.id}})});assert.match(check.headers.get('cache-control'),/no-store/);
+});
+
+test('HTTP + Auth + Storage : export/import de scénario, intégrité et accès propriétaire',async()=>{
+  const owner=await googleTestAccount('gkerckhofs@gmail.com'),other=await googleTestAccount(`archive-${randomUUID()}@example.invalid`);
+  const command=async(action,input={})=>{const r=await request(action,{requestId:randomUUID(),...input},owner);assert.equal(r.status,200,JSON.stringify(r));return r.result;};
+  const {id:scenarioId}=await command('createScenario',{title:'Scénario HTTP à conserver'}),scenario=async()=>(await request('scenario',{scenarioId},owner)).result;
+  const {id:characterId}=await command('saveCharacter',{scenarioId,revision:1,displayName:'Personnage privé',publicationState:'PUBLISHED',playerSecrets:'SECRET_ARCHIVE_HTTP',gmNotes:'Note privée'});
+  const a=await command('mediaUpload',{name:'Image de scénario HTTP',data:await sampleImage(),allowDuplicate:true}),targets=[{scope:'scenario',scopeId:scenarioId,kind:'character',id:characterId,slot:'private',mediaId:a.id}],prepared=await request('prepareMediaAssignments',{targets},owner);assert.equal(prepared.status,200);await command('assignMedia',{targets,confirmation:prepared.result.confirmation});
+  const exported=await request('prepareScenarioExport',{scenarioId,revision:(await scenario()).revision},owner);assert.equal(exported.status,200);const manifest=exported.result.manifest,source=await request('mediaRead',{context:{mode:'library'},mediaId:a.id,variant:'original'},owner);assert.equal(source.status,200);manifest.images[0].source.sha256=mediaHash(Buffer.from(source.result.data,'base64'));
+  const p=await request('prepareScenarioImport',{manifest,title:'Copie HTTP'},owner);assert.equal(p.status,200);const job=await command('beginScenarioImport',{manifest,title:'Copie HTTP',confirmation:p.result.confirmation});
+  for(const action of archiveCommands){assert.equal((await request(action,{scenarioId,importId:job.id})).status,401);assert.equal((await request(action,{scenarioId,importId:job.id,admin:true},other)).status,403);}
+  assert.equal((await request('commitScenarioImport',{importId:job.id},owner)).error,'SCENARIO_IMPORT_INCOMPLETE');
+  const upload={importId:job.id,mediaId:a.id,data:source.result.data},imported=await request('scenarioImportImage',upload,owner);assert.equal(imported.status,200,JSON.stringify(imported));assert.deepEqual(await request('scenarioImportImage',upload,owner),imported);
+  const result=await request('commitScenarioImport',{importId:job.id},owner);assert.equal(result.status,200,JSON.stringify(result));assert.deepEqual(await request('commitScenarioImport',{importId:job.id},owner),result);
+  const copy=await request('scenario',{scenarioId:result.result.id},owner);assert.equal(copy.result.characters[0].playerSecrets,'SECRET_ARCHIVE_HTTP');assert.equal(copy.result.characters[0].mediaImages.private.id,imported.result.mediaId);assert.equal((await request('scenario',{scenarioId:result.result.id},other)).status,403);
+  const read=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${owner}`},body:JSON.stringify({action:'mediaRead',input:{context:{mode:'library'},mediaId:imported.result.mediaId,variant:'original'}})});assert.equal(read.headers.get('cache-control'),'private, no-store');assert.equal((await read.json()).result.data,source.result.data);
 });

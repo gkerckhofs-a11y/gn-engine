@@ -121,3 +121,7 @@ La [révision 1.1 du cahier](source/cahier-des-charges-v1.1.txt) ajoute la [méd
 ## Extension 0.19.2 — code publié, activation du stockage requise
 
 Médiathèque privée, import par lot, métadonnées, filtres, vignettes et agrandissement, attributions aux personnages/objets/missions, conservation des versions, corbeille et restauration. Contrôle d’usage transactionnel et autorisations par contenu. 728 tests réussis et publication vérifiée le 20 octobre 2026 à 08:06:01 UTC. Le bucket privé requiert l’activation du script préparé par le propriétaire ; l’autorisation initiale ne comprend pas Storage. Exports/imports de scénarios avec images et recette mobile restent ouverts. Voir [VALIDATION-0.19.md](VALIDATION-0.19.md).
+
+## Extension 0.20 — développée, publication en cours de vérification
+
+Export de l’état courant ou d’une version figée, avec fiches et sources normalisées des images ; aperçu avant import dans un nouveau scénario, maintien des permissions de fiction et reprise après interruption. Les identités réelles et les sessions restent exclues de ce master de contenu. La restauration complète des historiques, les exports de session et la recette terrain restent ouverts. Voir [le format et le parcours](SCENARIO-ARCHIVES.md) et [VALIDATION-0.20.md](VALIDATION-0.20.md).
