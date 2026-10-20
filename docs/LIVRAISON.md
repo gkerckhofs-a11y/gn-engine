@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-20 octobre 2026. Aucun lot complet n’est encore validé. Version 0.20.0 publiée : export/import d’un état de scénario avec ses fiches, permissions de fiction et images privées, aperçu et reprise après interruption. 750 tests et compilation réussis sur GitHub (411 métier/interface et 339 intégrations), puis à nouveau dans la chaîne de déploiement. Manifeste 0.20.0 et refus des accès anonymes aux 132 commandes privées vérifiés après installation. Rapport `VALIDATION-0.20.md` ; rapports précédents conservés. Activation effective du stockage privé et recette terrain à confirmer ; exports/restauration de sessions et historiques complets encore à développer.
+20 octobre 2026. Aucun lot complet du cahier n’est encore validé. Version 0.21.0 publiée : PA facultatifs, niveaux globaux, renouvellement en temps de jeu et récupération des soins, en complément des archives de scénario 0.20. Compilation et 777 tests réussis sur GitHub (427 applicatifs et 350 intégrations), puis à nouveau dans la chaîne de déploiement. Manifeste 0.21.0 et refus des accès privés anonymes vérifiés à 11:08:15 UTC. Rapport `VALIDATION-0.21.md` ; rapports précédents conservés. Activation effective du stockage privé et recette terrain à confirmer ; campagnes persistantes, masters complémentaires et actions chronométrées encore à développer.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -129,4 +129,4 @@ Export de l’état courant ou d’une version figée, avec fiches et sources no
 
 ## Reprise sur la note Port-Brèche V0.3 — 0.21
 
-Premier lot validé : PA facultatifs, plafonds par niveau global, renouvellement en temps de jeu, réglages et corrections MJ, coût atomique des soins et récupération par patient. Compilation et 777 tests réussis sur GitHub sous Node 22 / Java 21 (427 applicatifs et 350 intégrations Firebase). Publication demandée par la chaîne Firebase existante. [Suivi GN-01 à GN-19](NOTE-V03-SUIVI.md) et [validation](VALIDATION-0.21.md). Les campagnes persistantes, les masters complémentaires et les actions chronométrées restent les prochaines étapes.
+Premier lot publié : PA facultatifs, plafonds par niveau global, renouvellement en temps de jeu, réglages et corrections MJ, coût atomique des soins et récupération par patient. Compilation et 777 tests réussis sur GitHub sous Node 22 / Java 21 (427 applicatifs et 350 intégrations Firebase). Version 0.21.0 et accès privés contrôlés en ligne le 20 octobre 2026 à 11:08:15 UTC. [Suivi GN-01 à GN-19](NOTE-V03-SUIVI.md) et [validation](VALIDATION-0.21.md). Les campagnes persistantes, les masters complémentaires et les actions chronométrées restent les prochaines étapes.

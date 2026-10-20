@@ -44,7 +44,7 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 
 ## Ordre de reprise proposé
 
-1. Livrer et vérifier ce socle PA sur Firestore/Auth.
+1. Socle PA livré en 0.21 et vérifié sur Firestore/Auth : 777 tests réussis et publication contrôlée. Recette terrain encore nécessaire.
 2. Introduire la campagne persistante, sa clôture et sa reprise sans remettre les soldes à zéro.
 3. Définir et fournir les deux masters XLSX, puis les imports complémentaires avec aperçu et protection des acquis.
 4. Construire l’exécuteur d’actions : fouilles, durée, D6, objets bonus, soins complets, sabotage et réservations.
