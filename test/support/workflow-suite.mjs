@@ -45,6 +45,25 @@ export function workflowSuite(makeStore,prefix='métier') {
     assert.equal((await f.view(f.bob)).character,null);
     const preview=await f.read('preview',f.owner,{sessionId:f.sessionId,characterId:f.characterId});assert.deepEqual(preview.character,view.character);
   });
+  test(`${prefix} : les règles du Terminal suivent la session et restent privées avant activation`,async()=>{
+    const f=await fixture();await f.reg(f.alice);await f.assign(f.alice);
+    await f.store.runTransaction(async tx=>{
+      const path=`sessions/${f.sessionId}`,s=await tx.get(path),c=await tx.get(`${path}/characters/${f.characterId}`);
+      tx.set(path,{...s,actionPointRules:{enabled:true,maxByLevel:{1:5,2:8},renewalMinutes:300,cost:1,cooldownSeconds:600,patientCooldownSeconds:600,gmNotes:'SECRET_REGLE'},actionPointRulesRevision:4});
+      tx.set(`${path}/characters/${f.characterId}`,{...c,globalLevel:2});
+    });
+    assert.equal((await f.view(f.alice)).playerRules,null);
+    await f.redeem(f.alice,await f.invite(f.alice));assert.equal((await f.view(f.alice)).globalLevel,null);
+    await f.stage('BRIEFING');const view=await f.view(f.alice);
+    assert.equal(view.globalLevel,2);assert.equal(view.actionPoints.maximum,8);
+    assert.deepEqual(view.playerRules.actionPoints,{renewalMinutes:300,cost:1,cooldownSeconds:600,patientCooldownSeconds:600,revision:4});
+    assert.equal(JSON.stringify(view.playerRules).includes('SECRET'),false);
+    await f.store.runTransaction(async tx=>{const path=`sessions/${f.sessionId}`,s=await tx.get(path);tx.set(path,{...s,actionPointRules:{...s.actionPointRules,renewalMinutes:120},actionPointRulesRevision:5});});
+    assert.equal((await f.view(f.alice)).playerRules.actionPoints.renewalMinutes,120);
+    assert.equal((await f.view(f.alice)).playerRules.actionPoints.revision,5);
+    await f.reg(f.bob);await f.assign(f.bob,true);
+    const revoked=await f.view(f.alice);assert.equal(revoked.character,null);assert.equal(revoked.playerRules,null);assert.equal(revoked.globalLevel,null);
+  });
   test(`${prefix} : invitation nominative, usage unique et double consommation concurrente`,async()=>{
     const f=await fixture();await f.reg(f.alice);await f.assign(f.alice);const token=await f.invite(f.alice);
     await assert.rejects(f.redeem(f.bob,token),err('INVALID_INVITATION'));

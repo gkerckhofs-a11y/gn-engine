@@ -1,4 +1,5 @@
 import {createPersonService,personAction} from './person-actions.mjs';
+import {playerRules} from './player-rules.mjs';
 import {validatePersonReferences,personOpen} from './person-state.mjs';
 import {createFieldService,fieldAction} from './field-actions.mjs';
 import {validateFieldReferences} from './field-state.mjs';
@@ -269,6 +270,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       }
       const groups=character && s.modules?.groups===true ? await tx.list(`sessions/${sid}/groups`) : [];
       return {session:publicSession(s),registration:ownRegistration(r),character,economyEnabled:s.economyRules?.enabled===true,actionPoints:rawCharacter&&s.actionPointRules?.enabled?actionPointSummary(s,rawCharacter,await tx.get(actionPointPath(sid,rawCharacter.id)),at):null,health:healthSummary(s,rawCharacter,at),reason,gameTimeMs:gameTime(s.clock,at),
+        globalLevel:character?(rawCharacter.globalLevel??1):null,playerRules:character?playerRules(s):null,
         groups:groups.filter(g=>groupVisible(g,cid)).map(g=>groupSummary(g,cid))};
     });
     signed(actor);
