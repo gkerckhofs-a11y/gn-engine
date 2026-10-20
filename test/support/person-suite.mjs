@@ -94,4 +94,7 @@ export function personSuite(makeStore,prefix='Interactions'){
   const f=await fixture(makeStore),before=(await f.session()).revision;for(const patch of [{extraConsumables:[null]},{prerequisites:'invalide'},{healAmount:0}])await assert.rejects(f.savePerson('FIELD_CARE',patch),{code:'INVALID_PERSON_PROFILE'});assert.equal((await f.session()).revision,before);
   const p=await f.savePerson('FIELD_CARE'),a=await f.startPerson(p);f.advance(10000);await f.finishPerson(a);f.advance(60000);await f.stage('PAUSE');f.advance(3600000);assert.equal((await f.r('myPersonActions',{},f.bob)).convalescenceMs,540000);await f.close();await f.resume(await f.begin());assert.equal((await f.char(1)).convalescentUntilGameMs,540000);assert.equal((await f.char(1)).lootEncounter,undefined);
  });
+ test(`${prefix} : une permission de découverte hors combat ne permet pas d’engager une aide incapable`,async()=>{
+  const f=await fixture(makeStore),p=await f.savePerson('CLINIC_FAST'),o=await f.q('offerAid',{targetId:f.characters[0],skillId:f.skill.id,present:true},f.eve);await f.health(2,0);const s=await f.session();await f.cmd('saveSessionHealth',f.owner,{sessionId:f.sid,revision:s.revision,rules:{...s.healthRules,allowed:{...s.healthRules.allowed,discover:true}},reason:'Découverte permise hors combat'});await assert.rejects(f.startPerson(p,{aidOfferId:o.id}),{code:'OUT_OF_COMBAT'});assert.equal((await f.lot(f.kl.id)).status,'AVAILABLE');assert.equal((await f.char(0)).activeFieldActionId??null,null);assert.equal((await f.personPoints(0))?.reserved??0,0);
+ });
 }

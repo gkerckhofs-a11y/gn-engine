@@ -10,7 +10,7 @@ Application : **https://gn-engine.web.app/**. Le compte organisateur configuré 
 
 Les nouveaux profils proposent soin de terrain, clinique sûre ou accélérée, fouille ordinaire et méthodique. Le parcours joueur part du badge du personnage. Durée, réservations, récupération, convalescence et remise d’une unité pillable sont suivies par le moteur. Une aide compétente apporte +1 aux tests compatibles sans second PA. Après l’échec d’une clinique accélérée, le complément n’exige ni second jet ni nouveau coût.
 
-[Configuration et limites](docs/SOINS-AIDE-PILLAGE.md) · [Validation 0.25](docs/VALIDATION-0.25.md). Compilation et 498 tests applicatifs locaux réussis ; validation Firebase et publication à confirmer. Les profils se configurent dans le scénario ou la régie. Ils ne sont pas encore importables par XLSX. La capture complète, les notifications DIRECT/DISCRET et la recette mobile restent ouvertes.
+[Configuration et limites](docs/SOINS-AIDE-PILLAGE.md) · [Validation 0.25](docs/VALIDATION-0.25.md). Compilation et 499 tests applicatifs locaux réussis ; validation Firebase et publication à confirmer. Les profils se configurent dans le scénario ou la régie. Ils ne sont pas encore importables par XLSX. La capture complète, les notifications DIRECT/DISCRET et la recette mobile restent ouvertes.
 
 ## Actions de terrain — 0.24
 

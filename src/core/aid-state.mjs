@@ -18,7 +18,7 @@ export async function prepareAid(tx,s,c,input,p,family,at){
  const recipient=await activeCharacter(tx,s.id,c.id);requireThat(recipient.r.accessVersion===offer.recipientAccessVersion,'AID_UNAVAILABLE');
  const helper=await activeCharacter(tx,s.id,offer.helperId);
  requireThat(helper.c.id!==c.id&&helper.c.assignedUid===offer.helperUid&&helper.r.accessVersion===offer.accessVersion,'AID_UNAVAILABLE');
- requireGameAction(s,helper.c,'discover',at);requireThat(!helper.c.activeFieldActionId&&!helper.c.activePersonActionId,'FIELD_ACTOR_BUSY');
+ requireGameAction(s,helper.c,'discover',at);requireThat(!(s.healthRules?.enabled&&(helper.c.hp===0||helper.c.outOfCombat)),'OUT_OF_COMBAT');requireThat(!helper.c.activeFieldActionId&&!helper.c.activePersonActionId,'FIELD_ACTOR_BUSY');
  requireThat(abilityLevel(helper.c,p.skillId)>=p.minLevel,'FIELD_SKILL_REQUIRED');for(const req of p.prerequisites??[])requireThat(abilityLevel(helper.c,req.skillId)>=req.minLevel,'FIELD_SKILL_REQUIRED');
  const use=await tx.get(cooldownPath(s.id,helper.c.id,family));requireThat((use?.readyAtGameMs??0)<=gameTime(s.clock,at),'COOLDOWN_ACTIVE');
  return {offer,character:helper.c,accessVersion:helper.r.accessVersion};

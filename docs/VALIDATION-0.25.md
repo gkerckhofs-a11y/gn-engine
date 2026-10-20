@@ -6,7 +6,7 @@ Base GitHub : `ae47d57758499462d3b492ed7e2219db95325d58`, version 0.24. Périmè
 
 ## Contrôles locaux
 
-Compilation réussie ; **498 tests applicatifs réussis**, zéro échec, zéro ignoré. Dix-neuf tests d’interaction partagés avec Firestore émulé couvrent : coût unique de la clinique accélérée, complément, interruption avant/après consommation, limites du soin de terrain, patient réservé, pause, convalescence, soin sur soi, aide, récupération, retrait, confidentialité du résultat pour l’aide, choix du bien, quota commun, remise unique, concurrence, révocation avant réessai, PA désactivés, clôture, copie en campagne, rollback médical et anciens fichiers d’archive.
+Compilation réussie ; **499 tests applicatifs réussis**, zéro échec, zéro ignoré. Vingt tests d’interaction partagés avec Firestore émulé couvrent : coût unique de la clinique accélérée, complément, interruption avant/après consommation, limites du soin de terrain, patient réservé, pause, convalescence, soin sur soi, aide, récupération, retrait, confidentialité du résultat pour l’aide, choix du bien, quota commun, remise unique, concurrence, révocation avant réessai, PA désactivés, clôture, copie en campagne, rollback médical et anciens fichiers d’archive.
 
 Trois tests HTML nouveaux couvrent les rôles acteur/cible, la résolution du complément, la remise, les contenus échappés, les contrôles en pause, l’aide réservée aux tests et la régie scellée. Ils ne constituent pas une recette visuelle ou mobile des formulaires privés.
 
