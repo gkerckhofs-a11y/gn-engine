@@ -1,6 +1,6 @@
 # Masters de campagne et de session — format 1
 
-GN Engine 0.23. Date : 20 octobre 2026. Ce contrat décrit les champs réellement acceptés par le moteur. Source de référence : `src/shared/master-schema.mjs` ; validation métier : `src/core/masters.mjs`.
+GN Engine 0.24, format Excel introduit en 0.23. Date : 20 octobre 2026. Ce contrat décrit les champs réellement acceptés par le moteur. Source de référence : `src/shared/master-schema.mjs` ; validation métier : `src/core/masters.mjs`.
 
 ## Commencer
 
@@ -103,4 +103,6 @@ Limites de cette version : fichier XLSX de 8 Mio, décompression de 16 Mio, 250 
 
 Les formules, erreurs Excel, macros et liens vers des classeurs externes sont refusés. Les rendus et tests de lecture des fichiers fournis ne remplacent pas une recette dans les applications natives Excel et Google Sheets.
 
-Restent hors de ce format : participants réels, petites annonces et leurs contrats, caisses de groupe initiales, lieux de fouille, installations, entrepôts, vaisseaux, XP, protections de combat et effets avancés d’objets. Les outils déjà disponibles pour les annonces et les caisses restent utilisables dans la régie. Les autres modules seront ajoutés à mesure de leur développement.
+Restent hors de ce format : participants réels, petites annonces et leurs contrats, caisses de groupe initiales, lieux de fouille, installations, entrepôts, vaisseaux, XP, protections de combat et effets avancés d’objets. Les outils déjà disponibles pour les annonces et les caisses restent utilisables dans la régie.
+
+Depuis la 0.24, les fouilles, installations, profils et réserves se configurent dans **Fouilles et installations** et voyagent dans les archives de scénario. Ils ne disposent pas encore d’onglets XLSX. L’import contrôle toutefois les références des lieux existants : archiver un objet, une compétence ou une connaissance nécessaire à un lieu publié bloque le complément. Voir [Actions de terrain](ACTIONS-TERRAIN.md).

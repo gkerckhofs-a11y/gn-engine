@@ -1,6 +1,12 @@
 # Suivi de réalisation
 
-20 octobre 2026. Aucun lot complet du cahier n’est encore validé. Version 0.23.0 publiée : masters complémentaires CAMPAGNE et SESSION, aperçu des différences, journal et ajout de personnages en préparation, avec conservation des acquis. Compilation et 831 tests réussis sous Node 22 / Java 21 (456 applicatifs, 375 intégrations), puis répétés avec succès dans la chaîne de déploiement. Version, quatre fichiers XLSX et refus des commandes privées anonymes contrôlés à 12:53:45 UTC ; accueil 0.23.0 confirmé dans le navigateur. Rapports `VALIDATION-0.23.md` et `MASTERS.md`. Report des contrats, progression XP, actions chronométrées et recette terrain restent à développer.
+20 octobre 2026. Aucun lot complet du cahier n’est encore validé. Version 0.24.0 publiée : actions de terrain chronométrées, D6 serveur, bonus matériel, fouilles à stock fini et sabotage/réparation. Compilation et 867 tests réussis sous Node 22 / Java 21 (476 applicatifs, 391 intégrations), zéro échec et zéro ignoré. Version, quatre fichiers XLSX et refus des commandes privées anonymes contrôlés à 13:34:23 UTC ; accueil 0.24.0 confirmé dans le navigateur. Rapports `VALIDATION-0.24.md` et `ACTIONS-TERRAIN.md`. Aide, pillage, soins complexes, conséquences économiques des pannes, progression XP et recette terrain restent ouverts.
+
+## Extension 0.24 — actions de terrain publiées et vérifiées
+
+Éditeur de lieux et installations, QR, aperçu joueur, durée suspendue en pause, PA et matériel réservés, résolution atomique avec D6 serveur, récupération commune FOUILLE et interruption sans jet. Découvertes finies de crédits, objets et informations, plafonds individuels, panne, réparation, protection et blocage des fouilles dépendantes. Archives de scénario compatibles ; stocks, plafonds et durées de panne restantes conservés en campagne. Les actions ouvertes bloquent la clôture même sans PA.
+
+867 tests réussis ; publication contrôlée le 20 octobre 2026 à 13:34:23 UTC. Les soins existants restent instantanés. L’aide, le pillage, les soins en deux étapes, les notifications DIRECT/DISCRET et les onglets XLSX de terrain restent à développer. [Guide](ACTIONS-TERRAIN.md) · [Preuves et limites](VALIDATION-0.24.md).
 
 ## Extension 0.23 — masters et nouveaux personnages
 

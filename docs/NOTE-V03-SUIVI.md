@@ -2,6 +2,14 @@
 
 Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, conservées dans [la note source](source/port-breche-engine-note-v03.md). Base inspectée : commit GitHub `bd670dea159c5c7f01cfe83f8fcba9b81657dd44`, version 0.20. Les statuts ci-dessous décrivent le code, pas une validation terrain. Les lots 0.22 et 0.23, publiés et vérifiés le 20 octobre 2026, ajoutent la continuité décrite dans [Campagnes](CAMPAGNES.md) et les [masters complémentaires](MASTERS.md).
 
+## Lot 0.24 : actions de terrain
+
+Fouilles et installations configurables dans le scénario ou la session, QR, aperçu, présence déclarée, durée en temps de jeu, réservation des PA et du matériel, D6 serveur et bonus d’équipement. Résolution unique, interruption, récupération commune FOUILLE, réserve finie de crédits/objets/informations, sabotage, réparation et protection. Les paramètres engagés sont figés ; le résultat, les coûts et les effets sont enregistrés ensemble. Les lieux voyagent dans les archives ; réserves, plafonds utilisés et durées de panne restantes suivent les épisodes.
+
+Les soins complexes, aide, pillage et notifications DIRECT/DISCRET restent ouverts. Les dépendances d’installation bloquent seulement les fouilles configurées. Les onglets XLSX de terrain restent à ajouter. [Parcours et limites](ACTIONS-TERRAIN.md) · [Validation](VALIDATION-0.24.md).
+
+Compilation et 867 tests réussis sur GitHub (476 applicatifs et 391 intégrations Firebase). Publication, fichiers XLSX et refus des commandes privées anonymes vérifiés à 13:34:23 UTC ; accueil 0.24.0 confirmé dans le navigateur. Recette mobile, multi-comptes et charge réelle toujours ouverte.
+
 ## Lot 0.23 : masters complémentaires et personnages ajoutés
 
 Modèles XLSX CAMPAGNE et SESSION, deux exemples fictifs validés, import avec aperçu, différences, contrôles des références et médias, application atomique et journal. Les identifiants et versions des lignes suivent les épisodes. Le bouton d’ajout de personnage utilise le même parcours. Les dotations sont réservées aux personnages créés ensemble et restent immuables. Les imports de session sont réservés au propriétaire, en préparation avant le premier lancement.
@@ -36,26 +44,26 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 | GN-04 | Aperçu avant/après, versions, acquis protégés, archivage contrôlé et journal d’import | Import en cours de jeu non proposé ; sauvegarde complète distincte. |
 | GN-05 | Bilan, clôture scellée, acquis conservés, reprise et verrou de campagne | Report des contrats, copie de campagne de test et états de modules futurs. |
 | GN-06 | Crédits, objets, profils, PV et maintenant PA/niveau global | XP et progression de campagne, prérequis avancés. |
-| GN-07 | PA, horloge, pauses, plafonds, renouvellement, soins | Famille FOUILLE et raccordement aux autres actions. |
+| GN-07 | PA, horloge, pauses, plafonds, renouvellement, soins et famille FOUILLE des actions de terrain | Raccordement aux futurs parcours de pillage et soins complexes. |
 | GN-08 | Réglages en session, aperçu, échéances stables, corrections | Migration explicite des actions engagées, journal consultable dédié et reçus hors réseau. |
-| GN-09 | Soins instantanés et coûts atomiques | Exécuteur commun avec durée, D6, bonus, effets, interruption et règles figées au lancement. |
-| GN-10 | Récupération du patient et protection contre les doubles dépenses | Fouilles, pillage, quotas, soins en deux étapes, installations, aide, DIRECT/DISCRET. |
+| GN-09 | Actions de terrain avec durée, D6 serveur, bonus, réservations, interruption, effets atomiques et règles figées au lancement | Aide, soins complexes, catalogue général d’effets et reprise partielle de durée. |
+| GN-10 | Fouilles à stock fini et plafonds individuels, sabotage, réparation, protection, récupération du patient et doubles dépenses contrôlées | Pillage, réserves par groupe, soins en deux étapes, aide, DIRECT/DISCRET et effets économiques des installations. |
 | GN-11 | Marché, comptes, ventes et retrait physique existants | Gros/détail, négociation commerciale, cours, entrepôts, douanes et corruption. |
 | GN-12 | Lots et remises existants | Ouverture explicite des recharges et suivi de leur stock physique. |
 | GN-13 | Groupes, caisses et mandat de mission existants | Droits distincts sur les stocks, les ventes et les départs. |
 | GN-14 | Annonces, candidatures, preuves et paiement personnel/collectif existants | Compléter selon la recette finale de la note. |
 | GN-15 | Non implémenté | Vaisseaux et trajets ; barèmes Port-Brèche à définir avant activation. |
-| GN-16 | PA dans les écrans existants | Réorganiser en Mon personnage / Mon groupe / Action / Terminal, inventaire unifié et scan. |
+| GN-16 | PA, QR de lieux, liens/code manuel, actions en cours et résultats | Réorganiser les quatre espaces joueur, inventaire unifié et scan caméra intégré. |
 | GN-17 | Médiathèque et images présentes en 0.19–0.20 | Activation du stockage selon sa procédure existante et recette sur les contenus réels. |
 | GN-18 | Nouvelles inscriptions et invitations ; rôle précédent proposé sans accès automatique | Compléter le pack sans smartphone et la recette terrain. |
-| GN-19 | PA, campagnes et masters couverts par les suites automatisées ; 831 tests réussis en 0.23 | Recette terrain, plusieurs comptes réels et charge simultanée. |
+| GN-19 | PA, campagnes, masters et terrain couverts par les suites automatisées ; 867 tests réussis en 0.24 | Recette terrain, plusieurs comptes réels et charge simultanée. |
 
 ## Ordre de reprise proposé
 
 1. Socle PA livré en 0.21 et vérifié sur Firestore/Auth : 777 tests réussis et publication contrôlée. Recette terrain encore nécessaire.
 2. Continuité de campagne implémentée en 0.22 : bilan, clôture et reprise sans remettre les soldes à zéro ; voir le rapport de validation.
 3. Masters XLSX et imports complémentaires implémentés en 0.23 ; compléter les nouveaux modules au fil de leur développement.
-4. Construire l’exécuteur d’actions : fouilles, durée, D6, objets bonus, soins complets, sabotage et réservations.
+4. Exécuteur de terrain implémenté en 0.24 : fouilles, durée, D6, bonus, sabotage/réparation et réservations. Compléter avec soins en deux étapes, aide et pillage ; étendre les masters aux lieux.
 5. Réorganiser les quatre espaces joueur et compléter l’économie, les entrepôts et les recharges.
 6. Traiter le spatial après définition de ses règles, puis réaliser la recette terrain.
 

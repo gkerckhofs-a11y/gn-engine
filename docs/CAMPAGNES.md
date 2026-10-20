@@ -1,4 +1,4 @@
-# Campagnes persistantes — version 0.22
+# Campagnes persistantes — mises à jour jusqu’à la version 0.24
 
 Spécification réalisée le 20 octobre 2026 à partir des exigences GN-01 et GN-05 de la note Port-Brèche V0.3. Le [rapport de validation](VALIDATION-0.22.md) distingue code testé, publication et recette terrain.
 
@@ -14,7 +14,7 @@ Cette version ne transforme pas rétroactivement une session indépendante exist
 
 1. Mettre le jeu en pause s’il est lancé. La clôture peut également terminer un épisode encore en préparation, en briefing ou déjà terminé.
 2. Dans la régie, ouvrir **Préparer le bilan de clôture**, saisir un motif, puis examiner les personnages, soldes, PV, lots et connaissances.
-3. Régler ou annuler les contrats et primes encore ouverts. Les achats déjà payés doivent être remis ; les crédits, PA ou stocks encore engagés bloquent la clôture. Les contrats ne sont pas reportés automatiquement dans cette version.
+3. Régler ou annuler les contrats et primes encore ouverts. Les achats déjà payés doivent être remis ; les crédits, PA ou stocks encore engagés bloquent la clôture. Résoudre ou interrompre aussi les actions de terrain : elles bloquent la clôture même sans PA. Les contrats ne sont pas reportés automatiquement dans cette version.
 4. Pour les offres non acceptées, confirmer explicitement leur annulation : annonces du marché, ventes privées proposées et remises proposées. Le stock réservé au marché redevient disponible. Aucun achat payé n’est annulé par ce choix.
 5. Confirmer un bilan à jour. Toute modification d’état survenue depuis son aperçu oblige à en préparer un nouveau. La session est alors archivée et scellée ; elle devient le dernier état validé de la campagne.
 
@@ -41,6 +41,7 @@ Les liens d’inscription, invitations et QR restent propres à la nouvelle sess
 | Crédits | Soldes personnels et collectifs repris ; écriture de continuité à variation zéro, sans nouvelle création de monnaie. |
 | Objets | Identifiants, quantités, états, propriétaires, détenteurs, emplacements et images conservés. Les lots consommés restent consommés. |
 | Connaissances | Catalogue courant et reçus individuels conservés, y compris les versions reçues et les accès retirés. |
+| Fouilles et installations | Lieux, profils, réserves restantes et plafonds individuels utilisés conservés. Pannes, protections et blocages techniques reprennent avec leur durée de jeu restante ; ils ne s’écoulent pas entre deux événements. Aucune action engagée ne peut franchir la clôture. |
 | Groupes | Membres, droits, caisses et messages conservés ; chaque ancien message garde ses destinataires d’origine. |
 | PV | Politique choisie et prévisualisée pour ce nouvel épisode. Aucun soin implicite. |
 | PA et récupération | PA pleins au niveau global conservé ; nouvelle horloge et nouveau calendrier de renouvellement. Usages par session, délais personnels et délai de soin du patient remis à zéro. Une simple reconnexion au même épisode ne réinitialise rien. |
@@ -50,7 +51,7 @@ Les liens d’inscription, invitations et QR restent propres à la nouvelle sess
 | Historiques | Conservés dans la session source ; provenance de la reprise enregistrée dans la campagne et le nouvel épisode. Ce mécanisme n’est pas un export de sauvegarde. |
 | Équipe organisatrice | Délégations propres à chaque session, à attribuer de nouveau. |
 
-Le moteur ne développe pas encore un barème XP, les dettes, le spatial, les fouilles ou les états avancés absents du lot précédent. Leur continuité sera raccordée lors de leur implémentation. Depuis la version 0.23, les masters complémentaires et le bouton « Ajouter un personnage » permettent de compléter le nouvel épisode en préparation. Les dotations des anciens personnages ne sont pas réappliquées. Voir [Masters](MASTERS.md).
+Le moteur ne développe pas encore un barème XP, les dettes, le spatial ou les états avancés absents des lots livrés. Leur continuité sera raccordée lors de leur implémentation. Depuis la version 0.23, les masters complémentaires et le bouton « Ajouter un personnage » permettent de compléter le nouvel épisode en préparation. Les dotations des anciens personnages ne sont pas réappliquées. Voir [Masters](MASTERS.md). Les lieux de fouille et installations se configurent dans leur éditeur depuis la 0.24 ; voir [Actions de terrain](ACTIONS-TERRAIN.md). Leurs journaux restent dans l’épisode source et leurs récupérations personnelles repartent au nouvel épisode.
 
 ## Garanties et limites d’exploitation
 

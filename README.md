@@ -2,9 +2,19 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.23.0 publiée et vérifiée : masters Excel complémentaires et ajout de personnages.**
+**Version 0.24.0 publiée et vérifiée : actions de terrain, fouilles et installations.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
+
+## Actions de terrain — 0.24
+
+Dans le scénario ou la régie, **Fouilles et installations** permet de définir les lieux, leurs QR, les compétences requises, durées, coûts, seuils, bonus matériels et réserves. Le joueur ouvre **Actions de terrain**, consulte l’aperçu, confirme sa présence et lance l’action. Le temps suit les pauses de session ; le D6 est tiré par le serveur et son résultat est conservé.
+
+Les fouilles distribuent des crédits, objets ou informations depuis une réserve finie, avec plafond individuel. Sabotage et réparation changent l’état des installations et peuvent bloquer les fouilles qui en dépendent. Les PA et le matériel sont réservés, puis coût et effet sont appliqués ensemble ; une interruption libère la réservation. Les stocks et durées de panne restantes suivent les épisodes de campagne.
+
+[Parcours, configuration et limites](docs/ACTIONS-TERRAIN.md) · [Validation 0.24](docs/VALIDATION-0.24.md). L’aide, le pillage, les soins en deux étapes et les onglets XLSX de terrain restent à développer. Les conséquences économiques générales des pannes ne sont pas encore automatisées.
+
+Compilation et **867 tests réussis** sur GitHub : 476 applicatifs et 391 intégrations Firebase, sans échec ni test ignoré. Publication, quatre fichiers XLSX et refus des commandes privées anonymes contrôlés le 20 octobre 2026 à 13:34:23 UTC. Accueil 0.24.0 confirmé dans le navigateur. Les essais privés sur mobile, multi-comptes et à 60 connexions restent à réaliser.
 
 ## Masters et nouveaux personnages — 0.23
 
@@ -24,7 +34,7 @@ Publication vérifiée le 20 octobre 2026 à 12:05:20 UTC ; accueil affichant 0.
 
 Le scénario et la régie de session proposent maintenant les points d’action : plafonds par niveau global, renouvellement toutes les cinq heures de jeu, pauses, corrections MJ et modification de période avec aperçu. Le joueur voit sa réserve ; les soins existants la consomment dans la même transaction que leurs effets. La récupération peut porter sur le soignant, sur le patient commun à tous les soignants, ou être absente en clinique.
 
-Le module reste désactivé tant que l’organisateur ne l’active pas. Les soins de cette étape restent instantanés. La campagne persistante est ajoutée en 0.22. Les masters XLSX sont ajoutés en 0.23. Les actions chronométrées avec D6 restent à développer. Compilation et 777 tests réussis ; version 0.21.0 et accès privés vérifiés en ligne le 20 octobre 2026 à 11:08:15 UTC. [Suivi des 19 exigences de la note](docs/NOTE-V03-SUIVI.md) · [activation, validation et limites de ce lot](docs/VALIDATION-0.21.md).
+Le module reste désactivé tant que l’organisateur ne l’active pas. Les soins de cette étape restent instantanés. La campagne persistante est ajoutée en 0.22, les masters XLSX en 0.23 et les actions de terrain chronométrées avec D6 en 0.24. Compilation et 777 tests réussis pour le lot 0.21 ; version et accès privés vérifiés en ligne le 20 octobre 2026 à 11:08:15 UTC. [Suivi des 19 exigences de la note](docs/NOTE-V03-SUIVI.md) · [activation, validation et limites de ce lot](docs/VALIDATION-0.21.md).
 
 ## Export et import des scénarios 0.20
 

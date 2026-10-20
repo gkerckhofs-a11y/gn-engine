@@ -17,6 +17,7 @@ Un import en attente peut être annulé depuis cette liste. Ses images déjà im
 - Connaissances et indices : destinataires initiaux, conditions QR, droit de copie ou de simple lecture, vérité MJ et notes.
 - Compétences, classes et profils déjà copiés ; règles de PV et d’économie, crédits et matériel de départ avec leurs snapshots.
 - Modèles d’objets, images des fiches et du matériel de départ ; une image réutilisée est présente une seule fois dans le fichier.
+- Depuis la 0.24 : lieux de fouille et installations, profils d’action, réserves initiales et dépendances. Une ancienne archive sans collection `fieldTargets` reste lisible et fournit une liste vide. Les stocks restants et historiques d’une session ne font pas partie de l’archive de scénario.
 
 Les identifiants des contenus sont conservés à l’intérieur du nouveau scénario, ce qui préserve les relations et conditions. Les images importées reçoivent de nouveaux identifiants dans la médiathèque, et toutes leurs références sont réécrites ensemble. La source normalisée de chaque image est conservée exactement ; les variantes d’affichage sont régénérées. Un modèle modifié depuis une attribution ne remplace pas le snapshot déjà copié.
 
