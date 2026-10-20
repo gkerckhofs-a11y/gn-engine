@@ -31,6 +31,8 @@ L’aperçu montre les valeurs avant/après. La préparation reprend l’état v
 
 Une campagne ne peut avoir qu’un épisode ouvert ou en préparation à la fois. Le verrou vaut aussi pour une session en préparation : deux copies concurrentes ne peuvent pas dépenser les mêmes acquis.
 
+Les liens d’inscription, invitations et QR restent propres à la nouvelle session. Les identifiants de personnages sont conservés, mais les anciens liens de la session archivée ne donnent pas accès à l’épisode suivant.
+
 ## État conservé et éléments de session
 
 | Élément | Traitement |

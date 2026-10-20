@@ -1,6 +1,6 @@
 # Reprise du développement — note Port-Brèche V0.3
 
-Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, conservées dans [la note source](source/port-breche-engine-note-v03.md). Base inspectée : commit GitHub `bd670dea159c5c7f01cfe83f8fcba9b81657dd44`, version 0.20. Les statuts ci-dessous décrivent le code, pas une validation terrain. Le lot 0.22 ajoute la continuité décrite dans [Campagnes](CAMPAGNES.md).
+Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, conservées dans [la note source](source/port-breche-engine-note-v03.md). Base inspectée : commit GitHub `bd670dea159c5c7f01cfe83f8fcba9b81657dd44`, version 0.20. Les statuts ci-dessous décrivent le code, pas une validation terrain. Le lot 0.22, publié et vérifié le 20 octobre 2026, ajoute la continuité décrite dans [Campagnes](CAMPAGNES.md).
 
 ## Lot 0.21 : PA et récupération des soins existants
 
@@ -40,7 +40,7 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 | GN-16 | PA dans les écrans existants | Réorganiser en Mon personnage / Mon groupe / Action / Terminal, inventaire unifié et scan. |
 | GN-17 | Médiathèque et images présentes en 0.19–0.20 | Activation du stockage selon sa procédure existante et recette sur les contenus réels. |
 | GN-18 | Nouvelles inscriptions et invitations ; rôle précédent proposé sans accès automatique | Compléter le pack sans smartphone et la recette terrain. |
-| GN-19 | Tests ajoutés pour ce lot | Recette complète avec campagne, masters, terrain et plusieurs comptes réels. |
+| GN-19 | PA et continuité de campagne couverts par les suites automatisées ; 807 tests au total en 0.22 | Masters, recette terrain et plusieurs comptes réels. |
 
 ## Ordre de reprise proposé
 

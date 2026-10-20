@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-20 octobre 2026. Aucun lot complet du cahier n’est encore validé. Version 0.21.0 publiée : PA facultatifs, niveaux globaux, renouvellement en temps de jeu et récupération des soins, en complément des archives de scénario 0.20. Compilation et 777 tests réussis sur GitHub (427 applicatifs et 350 intégrations), puis à nouveau dans la chaîne de déploiement. Manifeste 0.21.0 et refus des accès privés anonymes vérifiés à 11:08:15 UTC. Rapport `VALIDATION-0.21.md` ; rapports précédents conservés. Activation effective du stockage privé et recette terrain à confirmer ; campagnes persistantes, masters complémentaires et actions chronométrées encore à développer.
+20 octobre 2026. Aucun lot complet du cahier n’est encore validé. Version 0.22.0 publiée : campagnes persistantes, bilan de clôture, état scellé et reprise par étapes, avec conservation des personnages et de leurs acquis. Compilation et 807 tests réussis sous Node 22 / Java 21 (443 applicatifs, 364 intégrations), puis répétés avec succès dans la chaîne de déploiement. Version, pied de page et refus des commandes privées anonymes contrôlés à 12:05:20 UTC ; accueil 0.22.0 confirmé dans le navigateur. Rapports `VALIDATION-0.22.md` et `CAMPAGNES.md`. Masters complémentaires, ajout de personnages, report des contrats, progression XP, actions chronométrées et recette terrain restent à développer.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -132,6 +132,6 @@ Export de l’état courant ou d’une version figée, avec fiches et sources no
 Premier lot publié : PA facultatifs, plafonds par niveau global, renouvellement en temps de jeu, réglages et corrections MJ, coût atomique des soins et récupération par patient. Compilation et 777 tests réussis sur GitHub sous Node 22 / Java 21 (427 applicatifs et 350 intégrations Firebase). Version 0.21.0 et accès privés contrôlés en ligne le 20 octobre 2026 à 11:08:15 UTC. [Suivi GN-01 à GN-19](NOTE-V03-SUIVI.md) et [validation](VALIDATION-0.21.md). Les campagnes persistantes, les masters complémentaires et les actions chronométrées restent les prochaines étapes.
 
 
-## Extension 0.22 — validation en cours
+## Extension 0.22 — publiée et vérifiée
 
-Campagnes créées depuis une version figée, bilan de clôture et état scellé, continuité des acquis et reprise par étapes. Une seule session ouverte ou en préparation par campagne. Choix explicite des blessures et nouvelles autorisations de participation. [Parcours et limites](CAMPAGNES.md) · [preuve de validation](VALIDATION-0.22.md).
+Campagnes créées depuis une version figée, bilan de clôture et état scellé, continuité des acquis et reprise par étapes. Une seule session ouverte ou en préparation par campagne. Choix explicite des blessures et nouvelles autorisations de participation. 807 tests et compilation réussis ; publication contrôlée le 20 octobre 2026 à 12:05:20 UTC. [Parcours et limites](CAMPAGNES.md) · [preuve de validation](VALIDATION-0.22.md).
