@@ -2,6 +2,10 @@
 
 Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, conservées dans [la note source](source/port-breche-engine-note-v03.md). Base inspectée : commit GitHub `bd670dea159c5c7f01cfe83f8fcba9b81657dd44`, version 0.20. Les statuts ci-dessous décrivent le code, pas une validation terrain. Les lots 0.22 et 0.23, publiés et vérifiés le 20 octobre 2026, ajoutent la continuité décrite dans [Campagnes](CAMPAGNES.md) et les [masters complémentaires](MASTERS.md).
 
+## Habillage 0.27.1 : console galactique
+
+Thème commun aux espaces joueur et organisateur, sans changement de règles, de données ni de permissions. Accueil publié et vérifié visuellement. [Description](THEME-GALACTIQUE.md) · [Validation](VALIDATION-0.27.1.md).
+
 ## Lot 0.27 : quatre espaces joueur
 
 Mon personnage, Mon groupe, Action et Terminal organisent les écrans privés. Sac avec crédits et objets, contrats filtrés selon le titulaire, regroupement des actions sur lieux et personnages, saisie de QR/code et résumé des règles de session. Compatibilité des liens et droits conservée. 944 tests réussis (523 applicatifs, 421 intégrations Firebase) ; publication, masters et accès privés contrôlés à 16:32:35 UTC, accueil 0.27.0 confirmé. [Guide](ESPACES-JOUEUR.md) · [Validation](VALIDATION-0.27.md). Recette mobile et comptes réels restent ouverts.

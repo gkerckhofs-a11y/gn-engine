@@ -3,6 +3,14 @@ import assert from 'node:assert/strict';
 import {waitForPublishedPage,waitForPublishedVersion} from '../scripts/deployment-checks.mjs';
 const common={origin:'https://example.invalid',expected:'0.9.0',attempts:3};
 const page=version=>({status:200,text:async()=>`<footer>GN Engine · ${version} <span>Scénarios</span></footer>`});
+test('publication : version exacte dans le pied de page, indépendante de son habillage',async()=>{
+  for(const html of ['<footer><span>GN Engine · 0.9.0</span><span>Scénarios</span></footer>','<footer class="site-footer">GN Engine · <strong>0.9.0</strong></footer>']){
+    assert.equal(await waitForPublishedPage({...common,attempts:1,request:async()=>({status:200,text:async()=>html})}),html);
+  }
+  for(const html of ['<footer>GN Engine · 0.9.01 </footer>','<footer>GN Engine · 0.9.0-beta </footer>','<div>GN Engine · 0.9.0 </div><footer>Ancienne page</footer>']){
+    await assert.rejects(waitForPublishedPage({...common,attempts:1,request:async()=>({status:200,text:async()=>html})}),/Le pied de page doit afficher la version publiée/);
+  }
+});
 test('publication : ancienne page réessayée puis pied de page exact exigé',async()=>{
   const urls=[],delays=[],pending=[];
   const html=await waitForPublishedPage({...common,delay:async ms=>delays.push(ms),onPending:p=>pending.push(p),request:async(url,options)=>{

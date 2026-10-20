@@ -2,9 +2,13 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.27.0 publiée et vérifiée : les quatre espaces joueur.**
+**Version 0.27.1 publiée : habillage galactique commun aux espaces joueur et organisateur.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
+
+## Habillage galactique — 0.27.1
+
+Console sombre, accents ambrés et cyan, pictogrammes vectoriels et carte de navigation décorative à l’accueil. Le thème s’applique également aux formulaires, imports de masters, espaces de groupe, marché et médiathèque. Les ressources sont locales et les règles de jeu restent inchangées. [Description](docs/THEME-GALACTIQUE.md) · [Validation](docs/VALIDATION-0.27.1.md).
 
 ## Mon personnage, Mon groupe, Action et Terminal — 0.27
 

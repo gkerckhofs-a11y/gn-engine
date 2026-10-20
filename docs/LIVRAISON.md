@@ -1,6 +1,10 @@
 # Suivi de réalisation
 
-20 octobre 2026. Aucun lot complet du cahier n’est encore validé. Version 0.27.0 publiée : les quatre espaces joueur. Compilation et 944 tests réussis (523 applicatifs, 421 intégrations Firebase), sans échec ni test ignoré. Publication, quatre masters et refus anonymes vérifiés à 16:32:35 UTC ; accueil 0.27.0 confirmé dans le navigateur. [Validation](VALIDATION-0.27.md) · [Guide des espaces](ESPACES-JOUEUR.md). Capture complète, logistique, progression XP, bibliothèque d’articles et recette terrain restent ouvertes.
+20 octobre 2026. Aucun lot complet du cahier n’est encore validé. Version 0.27.1 publiée : habillage galactique des quatre espaces joueur et de l’organisation. Compilation et 944 tests réussis (523 applicatifs, 421 intégrations Firebase), sans échec ni test ignoré. Les résultats de publication et de vérification de la skin sont détaillés dans la [validation 0.27.1](VALIDATION-0.27.1.md) · [Guide des espaces](ESPACES-JOUEUR.md). Capture complète, logistique, progression XP, bibliothèque d’articles et recette terrain restent ouvertes.
+
+## Habillage 0.27.1 — console galactique
+
+Thème commun joueur et organisateur, pictogrammes SVG locaux, panneaux et formulaires harmonisés. Accueil publié et contrôlé visuellement. La recette mobile et les parcours privés avec comptes réels restent ouverts. [Description](THEME-GALACTIQUE.md) · [Validation](VALIDATION-0.27.1.md).
 
 ## Extension 0.27 — quatre espaces joueur
 

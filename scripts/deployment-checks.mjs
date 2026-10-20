@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 
 // The HTML and manifest may propagate independently. Require the exact footer
-// too, with bounded retries; an inaccessible or malformed page still fails.
+// version, independent of inline presentation tags, with bounded retries.
 export async function waitForPublishedPage({origin,expected,request=fetch,delay=ms=>new Promise(r=>setTimeout(r,ms)),attempts=12,onPending=()=>{}}){
   const nonce=Date.now();let observed;
   for(let attempt=1;attempt<=attempts;attempt++){
@@ -12,8 +12,9 @@ export async function waitForPublishedPage({origin,expected,request=fetch,delay=
       assert.equal(response.status,200,'Le site doit répondre HTTP 200');
       const html=await response.text();
       assert.match(html,/GN Engine/,'La page GN Engine doit être publiée');
-      observed=html.match(/GN Engine · ([^ <]+)/)?.[1];
-      if(html.includes(`GN Engine · ${expected} `))return html;
+      const footer=html.match(/<footer\b[^>]*>([\s\S]*?)<\/footer\s*>/i)?.[1]??'';
+      observed=footer.replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').match(/GN Engine · ([^\s<]+)/)?.[1];
+      if(observed===expected)return html;
     }else await response?.body?.cancel();
     if(attempt===attempts)assert.fail(`Le pied de page doit afficher la version publiée ${expected} (observée : ${observed??'indisponible'})`);
     onPending({attempt,observed});await delay(5000);
