@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-20 octobre 2026. Aucun lot complet n’est encore validé. Code 0.19.2 publié : médiathèque privée, import par lot, images des personnages/objets/missions et corbeille contrôlée. 728 tests et compilation réussis sur GitHub (397 métier/interface et 331 intégrations), puis à nouveau dans la chaîne de déploiement. Manifeste 0.19.2 et refus des accès anonymes aux 124 commandes privées vérifiés après installation. Rapport `VALIDATION-0.19.md` ; rapports précédents conservés. L’activation du stockage privé par le propriétaire, les exports/imports avec images et la recette terrain restent ouverts.
+20 octobre 2026. Aucun lot complet n’est encore validé. Version 0.20.0 publiée : export/import d’un état de scénario avec ses fiches, permissions de fiction et images privées, aperçu et reprise après interruption. 750 tests et compilation réussis sur GitHub (411 métier/interface et 339 intégrations), puis à nouveau dans la chaîne de déploiement. Manifeste 0.20.0 et refus des accès anonymes aux 132 commandes privées vérifiés après installation. Rapport `VALIDATION-0.20.md` ; rapports précédents conservés. Activation effective du stockage privé et recette terrain à confirmer ; exports/restauration de sessions et historiques complets encore à développer.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -113,7 +113,7 @@ Compilation et 697 tests réussis sur GitHub : 377 métier/interface et 320 int�
 
 ## Bilan et cahier actualisés le 20 octobre 2026
 
-Le [bilan courant](BILAN-2026-10-20.md) conserve le bilan 0.18 et ajoute l’avancement 0.19.2 avec les chantiers restants. Les limites décrites dans les extensions anciennes sont historiques et peuvent être levées par une version ultérieure. Les primes ouvertes et les candidatures de bandes sont développées.
+Le [bilan courant](BILAN-2026-10-20.md) conserve le bilan 0.18 et ajoute les avancements 0.19.2 et 0.20 avec les chantiers restants. Les limites décrites dans les extensions anciennes sont historiques et peuvent être levées par une version ultérieure. Les primes ouvertes et les candidatures de bandes sont développées.
 
 La [révision 1.1 du cahier](source/cahier-des-charges-v1.1.txt) ajoute la [médiathèque](MEDIATHEQUE.md), obligatoire et désormais implémentée partiellement en 0.19. La recette complète inclut désormais REC-11 pour les imports, associations, droits et suppressions d’images.
 
@@ -122,6 +122,6 @@ La [révision 1.1 du cahier](source/cahier-des-charges-v1.1.txt) ajoute la [méd
 
 Médiathèque privée, import par lot, métadonnées, filtres, vignettes et agrandissement, attributions aux personnages/objets/missions, conservation des versions, corbeille et restauration. Contrôle d’usage transactionnel et autorisations par contenu. 728 tests réussis et publication vérifiée le 20 octobre 2026 à 08:06:01 UTC. Le bucket privé requiert l’activation du script préparé par le propriétaire ; l’autorisation initiale ne comprend pas Storage. Exports/imports de scénarios avec images et recette mobile restent ouverts. Voir [VALIDATION-0.19.md](VALIDATION-0.19.md).
 
-## Extension 0.20 — développée, publication en cours de vérification
+## Extension 0.20 — publiée et vérifiée
 
-Export de l’état courant ou d’une version figée, avec fiches et sources normalisées des images ; aperçu avant import dans un nouveau scénario, maintien des permissions de fiction et reprise après interruption. Les identités réelles et les sessions restent exclues de ce master de contenu. La restauration complète des historiques, les exports de session et la recette terrain restent ouverts. Voir [le format et le parcours](SCENARIO-ARCHIVES.md) et [VALIDATION-0.20.md](VALIDATION-0.20.md).
+Export de l’état courant ou d’une version figée, avec fiches et sources normalisées des images ; aperçu avant import dans un nouveau scénario, maintien des permissions de fiction et reprise après interruption. 750 tests réussis ; publication et accès privés contrôlés le 20 octobre 2026 à 08:48:56 UTC. Les identités réelles et les sessions restent exclues de ce master de contenu. La restauration complète des historiques, les exports de session et la recette terrain restent ouverts. Voir [le format et le parcours](SCENARIO-ARCHIVES.md) et [VALIDATION-0.20.md](VALIDATION-0.20.md).

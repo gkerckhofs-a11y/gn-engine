@@ -1,6 +1,6 @@
 # Validation 0.20 — export/import des scénarios avec images
 
-20 octobre 2026. Développement et compilation réalisés ; publication finale et activation effective du stockage privé encore à confirmer.
+20 octobre 2026. **Version 0.20.0 publiée et vérifiée, avec 750 tests réussis.** L’activation effective du stockage privé et la recette sur comptes réels restent à confirmer.
 
 ## Réalisation
 
@@ -23,7 +23,13 @@ Le format, le mode opératoire, les limites de taille, la reprise et les exclusi
 - Texte Unicode volumineux réparti dans les documents privés temporaires, puis réassemblé.
 - Suite métier partagée avec Firestore émulé et parcours HTTP réel avec Auth et Storage émulés.
 
-Résultat local métier/interface : **411 tests réussis**, sans échec ni test ignoré. La compilation passe. Une exécution complète des intégrations locales a réussi ses **338 tests** Auth/Firestore/Storage, dont le parcours HTTP d’export/import. Le cas Unicode volumineux a été ajouté pendant cette exécution ; il passe dans la suite métier et sera également rejoué avec Firestore dans la suite GitHub finale, qui comporte 339 intégrations. Les références et preuves de publication seront renseignées après leur achèvement.
+Résultat local métier/interface : **411 tests réussis**, sans échec ni test ignoré. La compilation passe. Une exécution complète des intégrations locales a réussi ses **338 tests** Auth/Firestore/Storage, dont le parcours HTTP d’export/import. Le cas Unicode volumineux a été ajouté pendant cette exécution et passe dans la suite métier.
+
+La révision finale `501cde01c1da2bd0f827edc4a03a72730aaa98b6` a ensuite réussi **750 tests sur GitHub : 411 métier/interface et 339 intégrations**, avec compilation réussie, aucun échec ni test ignoré. Les deux exécutions [de vérification 39394915797](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39394915797) et [de déploiement 39394915846](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39394915846) ont passé ces contrôles. Dans la chaîne de déploiement, les tests métier se sont terminés à 08:39:27 UTC, le cas Unicode sur Firestore a réussi à 08:45:52 UTC et les 339 intégrations se sont terminées à 08:46:17 UTC le 20 octobre 2026.
+
+Commit applicatif : `6ac17244b9192a8c03dc1602eb61bdee3a53d629`. Demande de déploiement : `501cde01c1da2bd0f827edc4a03a72730aaa98b6`. Les 26 fichiers publiés, demande de déploiement comprise, ont été comparés aux objets du dépôt GitHub sans différence avant l’ajout de ces preuves documentaires.
+
+Publication Firebase réussie dans l’exécution [39394915846](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39394915846) : fonction ACTIVE à **08:48:18 UTC**, Hosting publié à **08:48:27 UTC**, manifeste **0.20.0** et refus anonyme des **132 commandes privées** vérifiés à **08:48:56 UTC** (10:48:56 à Bruxelles). L’écran d’accueil a été rechargé dans le navigateur et affiche également 0.20.0. Ce contrôle public ne constitue pas une recette authentifiée ni une confirmation de l’activation du bucket privé.
 
 ## Limites
 

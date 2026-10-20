@@ -1358,7 +1358,7 @@
       "sourceLine": 388,
       "lot": "E",
       "prototype": "PARTIEL",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_IMPLEMENTEE_0_20_ACTIVATION_STORAGE_REQUISE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_20_ACTIVATION_STORAGE_A_CONFIRMER",
       "coreWork": null,
       "acceptance": "TESTS_AUTOMATISES_RECETTE_REELLE_RESTANTE",
       "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e ; docs/VALIDATION-0.20.md ; docs/SCENARIO-ARCHIVES.md ; src/core/scenario-archives.mjs ; src/core/scenario-package.mjs ; test/support/scenario-archive-suite.mjs ; test/integration",
@@ -1611,7 +1611,7 @@
       "sourceLine": 408,
       "lot": "E",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_IMPLEMENTEE_0_20_ACTIVATION_STORAGE_REQUISE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_20_ACTIVATION_STORAGE_A_CONFIRMER",
       "coreWork": "Médiathèque privée et références versionnées",
       "acceptance": "TESTS_AUTOMATISES_RECETTE_REELLE_RESTANTE",
       "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026 ; docs/VALIDATION-0.19.md ; src/core/media.mjs ; src/core/media-state.mjs ; src/adapters/media-images.mjs ; web/media.mjs ; test/media.test.mjs ; test/support/media-suite.mjs ; test/integration ; docs/VALIDATION-0.20.md ; docs/SCENARIO-ARCHIVES.md ; src/core/scenario-archives.mjs ; src/core/scenario-package.mjs ; test/support/scenario-archive-suite.mjs ; test/integration",
@@ -1647,12 +1647,12 @@
       "sourceLine": 411,
       "lot": "E",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_IMPLEMENTEE_0_20_ACTIVATION_STORAGE_REQUISE",
+      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_20_ACTIVATION_STORAGE_A_CONFIRMER",
       "coreWork": "Médiathèque privée et références versionnées",
       "acceptance": "TESTS_AUTOMATISES_RECETTE_REELLE_RESTANTE",
       "evidence": "docs/MEDIATHEQUE.md ; demande utilisateur du 20 octobre 2026 ; docs/VALIDATION-0.19.md ; src/core/media.mjs ; src/core/media-state.mjs ; src/adapters/media-images.mjs ; web/media.mjs ; test/media.test.mjs ; test/support/media-suite.mjs ; test/integration ; docs/VALIDATION-0.20.md ; docs/SCENARIO-ARCHIVES.md ; src/core/scenario-archives.mjs ; src/core/scenario-package.mjs ; test/support/scenario-archive-suite.mjs ; test/integration",
       "implementedScope": "Recette synthétique import 20+1, reprise, accès par contenu, versions, objets, mission privée, suppression/restauration ; aller-retour ZIP de scénario avec images et droits testé. Activation Storage et recette réelle multi-comptes/mobile restantes."
     }
   ],
-  "reviewNote": "Bilan du 20 octobre 2026 : rapports 0.17/0.18/0.19 pris en compte. Les champs prototype décrivent l’audit initial et ne mesurent pas l’avancement actuel. Une extension déployée reste partielle tant que toute l’exigence et la recette terrain ne sont pas validées. Première implémentation médiathèque 0.19.2 publiée et vérifiée, 728 tests réussis : activation Storage, exports/imports et recette réelle restants. Extension 0.20 développée : transfert d’un état de scénario avec images et permissions de fiction. Les sessions, historiques complets et sauvegardes générales restent hors de ce périmètre."
+  "reviewNote": "Bilan du 20 octobre 2026 : rapports 0.17/0.18/0.19 pris en compte. Les champs prototype décrivent l’audit initial et ne mesurent pas l’avancement actuel. Une extension déployée reste partielle tant que toute l’exigence et la recette terrain ne sont pas validées. Première implémentation médiathèque 0.19.2 publiée et vérifiée, 728 tests réussis : activation Storage, exports/imports et recette réelle restants. Extension 0.20 publiée et vérifiée, 750 tests réussis : transfert d’un état de scénario avec images et permissions de fiction. Les sessions, historiques complets et sauvegardes générales restent hors de ce périmètre."
 }

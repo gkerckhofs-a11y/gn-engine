@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.19.2 publiée : médiathèque privée, imports par lot et images des personnages, objets et missions. Activation du stockage privé requise pour les imports.**
+**Version 0.20.0 publiée : export et import des scénarios avec images, en complément de la médiathèque privée. Le stockage privé doit être activé pour transférer les images.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -10,7 +10,7 @@ Application : **https://gn-engine.web.app/**. Le compte organisateur configuré 
 
 Depuis l’atelier, **Exporter le scénario** prépare un fichier `.gnscenario.zip` pour l’état courant ou une version figée. Depuis le tableau de bord propriétaire, **Importer un scénario** permet de vérifier ce fichier, puis de créer un nouveau scénario avec ses textes privés, droits de fiction, dotations et images. Les imports interrompus peuvent être repris avec le même fichier.
 
-Cette extension est développée ; validation de publication en cours. [Mode opératoire et format](docs/SCENARIO-ARCHIVES.md) · [preuves et limites 0.20](docs/VALIDATION-0.20.md). Le stockage privé doit être activé pour transférer les images. L’export des sessions et de l’ensemble des historiques reste à développer.
+Cette extension est publiée et vérifiée, avec 750 tests réussis. [Mode opératoire et format](docs/SCENARIO-ARCHIVES.md) · [preuves et limites 0.20](docs/VALIDATION-0.20.md). Le stockage privé doit être activé pour transférer les images. L’export des sessions et de l’ensemble des historiques reste à développer.
 
 ## Médiathèque 0.19
 
@@ -151,7 +151,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.19.2 a réussi **728 tests en une exécution complète sur GitHub** (397 métier/interface et 331 intégrations Auth/Firestore/Storage), sans échec ni test ignoré, ainsi que la compilation. Ces contrôles ont aussi réussi dans la chaîne de déploiement. Version **0.19.2 publiée** ; manifeste et refus des accès anonymes aux **124 commandes privées** vérifiés après installation. Preuves dans le [rapport 0.19](docs/VALIDATION-0.19.md). L’activation du stockage privé et la recette authentifiée sur plusieurs comptes et mobile restent ouvertes.
+La 0.20.0 a réussi **750 tests en une exécution complète sur GitHub** (411 métier/interface et 339 intégrations Auth/Firestore/Storage), sans échec ni test ignoré, ainsi que la compilation. Ces contrôles ont aussi réussi dans la chaîne de déploiement. Version **0.20.0 publiée** ; manifeste et refus des accès anonymes aux **132 commandes privées** vérifiés après installation. Preuves dans le [rapport 0.20](docs/VALIDATION-0.20.md). L’activation effective du stockage privé et la recette authentifiée sur plusieurs comptes et mobile restent à confirmer.
 
 ## Publier
 
@@ -180,7 +180,7 @@ Le workflow vérifie les tests, compile puis publie la fonction `api` via Google
 
 ## Périmètre restant
 
-Ce premier parcours ne termine pas tout le lot A ni l’ensemble des exigences : valeurs initiales de classe (PV, crédits, objets), compétences actives, permissions étendues de caisse/stock/transport, invitations de groupe entre joueurs, autres modes de connexion, récupération sans Google, pièces jointes, import/export, terrain, suite de l’économie et vaisseaux restent à intégrer. Pas de démonstration de charge à 60/120 joueurs ni de recette complète des formulaires authentifiés en production.
+Ce premier parcours ne termine pas tout le lot A ni l’ensemble des exigences : valeurs initiales de classe (PV, crédits, objets), compétences actives, permissions étendues de caisse/stock/transport, invitations de groupe entre joueurs, autres modes de connexion, récupération sans Google, pièces jointes hors images, exports/restauration de sessions et historiques complets, terrain, suite de l’économie et vaisseaux restent à intégrer. Pas de démonstration de charge à 60/120 joueurs ni de recette complète des formulaires authentifiés en production.
 
 Les versions et copies utilisent des transactions Firestore. Aucun plafond métier de casting ; les limites de taille des transactions devront être mesurées sur les contenus réels.
 
