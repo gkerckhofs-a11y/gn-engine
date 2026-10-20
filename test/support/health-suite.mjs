@@ -4,40 +4,7 @@ import {randomUUID,randomBytes} from 'node:crypto';
 import {createWorkflow,hash} from '../../src/core/workflow.mjs';
 export function healthSuite(makeStore,prefix='PV et soins'){
   const err=code=>({code});
-  async function fixture(enabled=true){
-    const store=await makeStore(),suffix=randomUUID();let time=100000;
-    const actor=n=>({uid:`${n}-${suffix}`,email:`${n}-${suffix}@example.invalid`,emailVerified:true,provider:'google.com',authTime:100});
-    const owner=actor('owner'),alice=actor('alice'),bob=actor('bob'),eve=actor('eve'),staff=actor('staff');
-    const workflow=createWorkflow({store,ownerEmail:owner.email,now:()=>time});
-    const read=(a,who=owner,i={})=>workflow.dispatch(a,who,i),cmd=(a,who=owner,i={})=>read(a,who,{requestId:randomUUID(),...i});
-    const {id:scenarioId}=await cmd('createScenario',owner,{title:'Santé de jeu synthétique'}),scenario=()=>read('scenario',owner,{scenarioId}),characters=[];
-    for(const name of ['Soignant','Patient','Secours'])characters.push((await cmd('saveCharacter',owner,{scenarioId,revision:(await scenario()).revision,displayName:name,biography:'BIO_CONSERVEE',publicationState:'PUBLISHED'})).id);
-    const skills=[];
-    for(const [kind,uses,cooldownSeconds] of [['ACTIVE_TARGET',2,60],['ACTIVE_SELF',1,0]])skills.push((await cmd('saveSkill',owner,{scenarioId,revision:(await scenario()).revision,name:kind==='ACTIVE_SELF'?'Auto-soin':'Traitement',kind,publicationState:'PUBLISHED',healing:{effect:'HEAL_HP',amount:3,uses,cooldownSeconds},gmNotes:'SECRET_SOINS_MJ'})).id);
-    for(const characterId of [characters[0],characters[2]]){
-      const input={scenarioId,revision:(await scenario()).revision,characterId,classId:null,overrides:skills.map(skillId=>({skillId,level:1})),published:true};
-      const p=await read('prepareAbilityProfile',owner,input);await cmd('setAbilityProfile',owner,{...input,confirmation:p.confirmation});
-    }
-    const rules={enabled,defaultMaxHp:10,returnMode:'MJ',allowed:{discover:false,share:false,publish:false,heal:false}};
-    await cmd('saveScenarioHealth',owner,{scenarioId,revision:(await scenario()).revision,rules});
-    const {id:versionId}=await cmd('publishScenario',owner,{scenarioId,revision:(await scenario()).revision}),sessionInput={scenarioId,versionId,title:'Soins de test',capacity:3,privacy:'Fictif'};
-    const {id:sessionId}=await cmd('createSession',owner,sessionInput),session=()=>read('session',owner,{sessionId});
-    const stage=async value=>cmd('setStage',owner,{sessionId,revision:(await session()).revision,stage:value});
-    const activate=async(who,sid=sessionId)=>{const token=randomBytes(32).toString('base64url');await cmd('issueInvitation',owner,{sessionId:sid,uid:who.uid,tokenHash:hash(token),hours:1});await read('redeem',who,{sessionId:sid,token});};
-    await cmd('setRegistrationOpen',owner,{sessionId,revision:1,open:true});
-    for(const [i,who] of [alice,bob,eve].entries()){await cmd('register',who,{sessionId,name:'Test'});await cmd('assign',owner,{sessionId,uid:who.uid,characterId:characters[i]});await activate(who);}
-    await stage('BRIEFING');await stage('EN_JEU');
-    const view=(who=alice,patch={})=>read('myHealth',who,{sessionId,...patch});
-    const prepareDamage=async(who=alice,amount=2)=>{const input={sessionId,amount};return {input,result:await read('prepareDamage',who,input)};};
-    const applyDamage=(p,who=alice,patch={})=>cmd('applyDamage',who,{...p.input,confirmation:p.result.confirmation,...patch});
-    const damage=async(who=alice,amount=2)=>applyDamage(await prepareDamage(who,amount),who);
-    const prepare=async(who=alice,targetId=characters[1],skillId=skills[0],patch={})=>{const input={sessionId,targetId,skillId,...patch};return {input,result:await read('prepareTreatment',who,input)};};
-    const treat=(p,who=alice,patch={})=>cmd('applyTreatment',who,{...p.input,confirmation:p.result.confirmation,...patch});
-    const setRules=async patch=>cmd('saveSessionHealth',owner,{sessionId,revision:(await session()).revision,rules:{...(await session()).healthRules,...patch},reason:'Règle de test'});
-    const correct=async(characterId,patch={})=>{const s=await session(),c=s.characters.find(c=>c.id===characterId);return cmd('correctHealth',owner,{sessionId,revision:s.revision,characterId,healthRevision:c.healthRevision,hp:c.hp,maxHp:c.maxHp,outOfCombat:c.outOfCombat,reason:'MOTIF_PRIVE_MJ',...patch});};
-    const republish=async characterId=>{const input={sessionId,revision:(await session()).revision,characterId,classId:null,overrides:skills.map(skillId=>({skillId,level:1})),published:true,reason:'Réattribuer'};const p=await read('prepareAbilityProfile',owner,input);return cmd('setAbilityProfile',owner,{...input,confirmation:p.confirmation});};
-    return {store,read,cmd,owner,alice,bob,eve,staff,scenarioId,sessionId,scenario,session,sessionInput,characters,skills,stage,activate,view,prepareDamage,applyDamage,damage,prepare,treat,setRules,correct,republish,advance:ms=>time+=ms};
-  }
+  const fixture=(enabled=true)=>healthFixture(makeStore,enabled);
   test(`${prefix} : activation facultative, valeurs initiales figées et réactivation sans soin gratuit`,async()=>{
     const f=await fixture(false);await assert.rejects(f.view(),err('HEALTH_DISABLED'));
     await f.setRules({enabled:true,defaultMaxHp:12});assert.equal((await f.view()).health.hp,12);await f.damage();
@@ -161,3 +128,38 @@ export function healthSuite(makeStore,prefix='PV et soins'){
     await f.setRules({enabled:false});await assert.rejects(f.applyDamage(p,f.alice,{requestId}),err('HEALTH_DISABLED'));await f.stage('ARCHIVED');await assert.rejects(f.view(),err('FORBIDDEN'));
   });
 }
+
+export async function healthFixture(makeStore,enabled=true){
+    const store=await makeStore(),suffix=randomUUID();let time=100000;
+    const actor=n=>({uid:`${n}-${suffix}`,email:`${n}-${suffix}@example.invalid`,emailVerified:true,provider:'google.com',authTime:100});
+    const owner=actor('owner'),alice=actor('alice'),bob=actor('bob'),eve=actor('eve'),staff=actor('staff');
+    const workflow=createWorkflow({store,ownerEmail:owner.email,now:()=>time});
+    const read=(a,who=owner,i={})=>workflow.dispatch(a,who,i),cmd=(a,who=owner,i={})=>read(a,who,{requestId:randomUUID(),...i});
+    const {id:scenarioId}=await cmd('createScenario',owner,{title:'Santé de jeu synthétique'}),scenario=()=>read('scenario',owner,{scenarioId}),characters=[];
+    for(const name of ['Soignant','Patient','Secours'])characters.push((await cmd('saveCharacter',owner,{scenarioId,revision:(await scenario()).revision,displayName:name,biography:'BIO_CONSERVEE',publicationState:'PUBLISHED'})).id);
+    const skills=[];
+    for(const [kind,uses,cooldownSeconds] of [['ACTIVE_TARGET',2,60],['ACTIVE_SELF',1,0]])skills.push((await cmd('saveSkill',owner,{scenarioId,revision:(await scenario()).revision,name:kind==='ACTIVE_SELF'?'Auto-soin':'Traitement',kind,publicationState:'PUBLISHED',healing:{effect:'HEAL_HP',amount:3,uses,cooldownSeconds},gmNotes:'SECRET_SOINS_MJ'})).id);
+    for(const characterId of [characters[0],characters[2]]){
+      const input={scenarioId,revision:(await scenario()).revision,characterId,classId:null,overrides:skills.map(skillId=>({skillId,level:1})),published:true};
+      const p=await read('prepareAbilityProfile',owner,input);await cmd('setAbilityProfile',owner,{...input,confirmation:p.confirmation});
+    }
+    const rules={enabled,defaultMaxHp:10,returnMode:'MJ',allowed:{discover:false,share:false,publish:false,heal:false}};
+    await cmd('saveScenarioHealth',owner,{scenarioId,revision:(await scenario()).revision,rules});
+    const {id:versionId}=await cmd('publishScenario',owner,{scenarioId,revision:(await scenario()).revision}),sessionInput={scenarioId,versionId,title:'Soins de test',capacity:3,privacy:'Fictif'};
+    const {id:sessionId}=await cmd('createSession',owner,sessionInput),session=()=>read('session',owner,{sessionId});
+    const stage=async value=>cmd('setStage',owner,{sessionId,revision:(await session()).revision,stage:value});
+    const activate=async(who,sid=sessionId)=>{const token=randomBytes(32).toString('base64url');await cmd('issueInvitation',owner,{sessionId:sid,uid:who.uid,tokenHash:hash(token),hours:1});await read('redeem',who,{sessionId:sid,token});};
+    await cmd('setRegistrationOpen',owner,{sessionId,revision:1,open:true});
+    for(const [i,who] of [alice,bob,eve].entries()){await cmd('register',who,{sessionId,name:'Test'});await cmd('assign',owner,{sessionId,uid:who.uid,characterId:characters[i]});await activate(who);}
+    await stage('BRIEFING');await stage('EN_JEU');
+    const view=(who=alice,patch={})=>read('myHealth',who,{sessionId,...patch});
+    const prepareDamage=async(who=alice,amount=2)=>{const input={sessionId,amount};return {input,result:await read('prepareDamage',who,input)};};
+    const applyDamage=(p,who=alice,patch={})=>cmd('applyDamage',who,{...p.input,confirmation:p.result.confirmation,...patch});
+    const damage=async(who=alice,amount=2)=>applyDamage(await prepareDamage(who,amount),who);
+    const prepare=async(who=alice,targetId=characters[1],skillId=skills[0],patch={})=>{const input={sessionId,targetId,skillId,...patch};return {input,result:await read('prepareTreatment',who,input)};};
+    const treat=(p,who=alice,patch={})=>cmd('applyTreatment',who,{...p.input,confirmation:p.result.confirmation,...patch});
+    const setRules=async patch=>cmd('saveSessionHealth',owner,{sessionId,revision:(await session()).revision,rules:{...(await session()).healthRules,...patch},reason:'Règle de test'});
+    const correct=async(characterId,patch={})=>{const s=await session(),c=s.characters.find(c=>c.id===characterId);return cmd('correctHealth',owner,{sessionId,revision:s.revision,characterId,healthRevision:c.healthRevision,hp:c.hp,maxHp:c.maxHp,outOfCombat:c.outOfCombat,reason:'MOTIF_PRIVE_MJ',...patch});};
+    const republish=async characterId=>{const input={sessionId,revision:(await session()).revision,characterId,classId:null,overrides:skills.map(skillId=>({skillId,level:1})),published:true,reason:'Réattribuer'};const p=await read('prepareAbilityProfile',owner,input);return cmd('setAbilityProfile',owner,{...input,confirmation:p.confirmation});};
+    return {store,read,cmd,owner,alice,bob,eve,staff,scenarioId,sessionId,scenario,session,sessionInput,characters,skills,stage,activate,view,prepareDamage,applyDamage,damage,prepare,treat,setRules,correct,republish,advance:ms=>time+=ms};
+  }

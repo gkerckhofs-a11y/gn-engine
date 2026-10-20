@@ -125,3 +125,8 @@ Médiathèque privée, import par lot, métadonnées, filtres, vignettes et agra
 ## Extension 0.20 — publiée et vérifiée
 
 Export de l’état courant ou d’une version figée, avec fiches et sources normalisées des images ; aperçu avant import dans un nouveau scénario, maintien des permissions de fiction et reprise après interruption. 750 tests réussis ; publication et accès privés contrôlés le 20 octobre 2026 à 08:48:56 UTC. Les identités réelles et les sessions restent exclues de ce master de contenu. La restauration complète des historiques, les exports de session et la recette terrain restent ouverts. Voir [le format et le parcours](SCENARIO-ARCHIVES.md) et [VALIDATION-0.20.md](VALIDATION-0.20.md).
+
+
+## Reprise sur la note Port-Brèche V0.3 — 0.21
+
+Premier lot préparé : PA facultatifs, plafonds par niveau global, renouvellement en temps de jeu, réglages et corrections MJ, coût atomique des soins et récupération par patient. [Suivi GN-01 à GN-19](NOTE-V03-SUIVI.md) et [validation](VALIDATION-0.21.md). Les campagnes persistantes, les masters complémentaires et les actions chronométrées restent les prochaines étapes.

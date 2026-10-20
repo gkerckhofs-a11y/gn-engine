@@ -6,6 +6,12 @@ Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
+## Reprise sur la note Port-Brèche V0.3 — 0.21 en développement
+
+Le scénario et la régie de session proposent maintenant les points d’action : plafonds par niveau global, renouvellement toutes les cinq heures de jeu, pauses, corrections MJ et modification de période avec aperçu. Le joueur voit sa réserve ; les soins existants la consomment dans la même transaction que leurs effets. La récupération peut porter sur le soignant, sur le patient commun à tous les soignants, ou être absente en clinique.
+
+Le module reste désactivé tant que l’organisateur ne l’active pas. Les soins de cette étape restent instantanés. La campagne persistante, les masters XLSX et les actions chronométrées avec D6 restent à développer. [Suivi des 19 exigences de la note](docs/NOTE-V03-SUIVI.md) · [validation de ce lot](docs/VALIDATION-0.21.md).
+
 ## Export et import des scénarios 0.20
 
 Depuis l’atelier, **Exporter le scénario** prépare un fichier `.gnscenario.zip` pour l’état courant ou une version figée. Depuis le tableau de bord propriétaire, **Importer un scénario** permet de vérifier ce fichier, puis de créer un nouveau scénario avec ses textes privés, droits de fiction, dotations et images. Les imports interrompus peuvent être repris avec le même fichier.

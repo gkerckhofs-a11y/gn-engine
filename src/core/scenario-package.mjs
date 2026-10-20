@@ -1,3 +1,4 @@
+import {actionPointRulesInput,actionPointMaximum,globalLevel} from './action-point-state.mjs';
 import {requireThat,documentId,whole} from './validation.mjs';
 import {narrativeInput} from './narrative.mjs';
 import {groupInput} from './groups.mjs';
@@ -42,6 +43,7 @@ function profile(v){
 function character(v){
   object(v);const p=object(v.public),state=publication(v.publicationState);
   const c={id:documentId(v.id),public:{displayName:text(p.displayName,150,true),profession:text(p.profession??'',150),description:text(p.description??'',4000),publicationState:publication(p.publicationState)},publicationState:state,biography:text(v.biography??'',20000),roleplay:text(v.roleplay??'',10000),playerSecrets:text(v.playerSecrets??'',20000),gmNotes:text(v.gmNotes??'',20000),objectives:narrativeInput(v.objectives??[],'objectives'),relations:narrativeInput(v.relations??[],'relations'),hp:null,maxHp:null,historyStarted:true,contentRevision:revision(v.contentRevision??1),...imageFields(v,['portrait','private'])};
+  if(v.globalLevel!==undefined)c.globalLevel=globalLevel(v.globalLevel);
   if(v.abilityProfile)c.abilityProfile=profile(v.abilityProfile);
   if(v.startingCredits)c.startingCredits={amount:whole(v.startingCredits.amount,'INVALID_SCENARIO_PACKAGE'),revision:revision(v.startingCredits.revision)};
   if(v.startingInventory){const entries=array(v.startingInventory.items,60).map(x=>{const i=item(x.item,true);return {item:i,quantity:itemQuantity(i,x.quantity)};});fail(new Set(entries.map(x=>x.item.id)).size===entries.length);c.startingInventory={revision:revision(v.startingInventory.revision),items:entries};}
@@ -52,12 +54,14 @@ function group(v){const g=groupInput(object(v),documentId(v.id));g.revision=revi
 export function cleanScenarioSnapshot(input){
   object(input);const root=object(input.scenario),records=object(input.records);
   const scenario={title:text(root.title,150,true),summary:text(root.summary??'',4000),economyRules:root.economyRules==null?null:economyRulesInput(root.economyRules),healthRules:root.healthRules==null?null:healthRulesInput(root.healthRules)};
+  if(root.actionPointRules)scenario.actionPointRules=actionPointRulesInput(root.actionPointRules);
   const cleaners={characters:character,groups:group,knowledge:v=>({...knowledgeInput(object(v),documentId(v.id)),revision:revision(v.revision)}),skills:v=>({...skillInput(object(v),documentId(v.id)),healing:healing(v),revision:revision(v.revision)}),classes:v=>({...classInput(object(v),documentId(v.id)),revision:revision(v.revision)}),items:item};
   const clean={};let count=0;for(const kind of scenarioCollections){clean[kind]=unique(array(records[kind]).map(v=>cleaners[kind](v))).sort((a,b)=>a.id.localeCompare(b.id));count+=clean[kind].length;for(const record of clean[kind])requireThat(Buffer.byteLength(JSON.stringify(record))<750000,'SCENARIO_PACKAGE_TOO_LARGE');}
   requireThat(count<=packageLimits.records,'SCENARIO_PACKAGE_TOO_LARGE');
   const sets=Object.fromEntries(scenarioCollections.map(k=>[k,new Set(clean[k].map(x=>x.id))]));
   const checkCost=s=>{if(s.healing?.consumable){const x=s.healing.consumable;ref(x.itemId,sets.items);const model=clean.items.find(i=>i.id===x.itemId);if(model.revision===x.itemRevision){fail(model.consumable);itemQuantity(model,x.quantity);}}};
   for(const c of clean.characters){
+    if(scenario.actionPointRules)actionPointMaximum(scenario.actionPointRules,c);
     for(const r of c.relations)if(r.targetId){ref(r.targetId,sets.characters);fail(r.targetId!==c.id);}
     const p=c.abilityProfile;if(p){if(p.class)ref(p.class.id,sets.classes);if(p.choices.classId)ref(p.choices.classId,sets.classes);for(const o of p.choices.overrides)ref(o.skillId,sets.skills);for(const s of p.skills){ref(s.id,sets.skills);checkCost(s);}}
     for(const x of c.startingInventory?.items??[])ref(x.item.id,sets.items);

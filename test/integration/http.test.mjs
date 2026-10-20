@@ -1,3 +1,4 @@
+import {actionPointCommands} from '../../src/core/action-points.mjs';
 import {sampleImage} from '../support/media-suite.mjs';
 import {archiveCommands} from '../../src/core/scenario-archives.mjs';
 import {getStorage} from 'firebase-admin/storage';
@@ -42,6 +43,11 @@ test('HTTP + Auth : PV privés, dégât personnel et soin confirmé avec usage u
   }
   for(const stage of ['BRIEFING','EN_JEU'])await command('setStage',{sessionId,revision:(await session()).revision,stage});
   for(const action of ['myHealth','prepareDamage','applyDamage','prepareTreatment','applyTreatment','correctHealth','healthHistory'])assert.equal((await request(action,{sessionId,requestId:randomUUID()})).status,401);
+  for(const action of actionPointCommands)assert.equal((await request(action,{sessionId,requestId:randomUUID()})).status,401);
+  const apInput={sessionId,revision:(await session()).revision,reason:'Règles HTTP',rules:{enabled:true,maxByLevel:{1:5,2:8},renewalMinutes:300,cost:1,cooldownSeconds:600,patientCooldownSeconds:600}};
+  const apPrepared=await request('prepareActionPointRules',apInput,owner);assert.equal(apPrepared.status,200);
+  assert.equal((await request('saveActionPointRules',{...apInput,confirmation:apPrepared.result.confirmation,requestId:randomUUID()},patient)).status,403);
+  await command('saveActionPointRules',{...apInput,confirmation:apPrepared.result.confirmation});
   const damage={sessionId,amount:5,characterId:characters[0]},dp=await request('prepareDamage',damage,patient);assert.equal(dp.result.characterName,'Patient');await command('applyDamage',{...damage,confirmation:dp.result.confirmation},patient);
   assert.equal((await request('myHealth',{sessionId},healer)).result.health.hp,10);
   assert.equal((await request('myHealth',{sessionId,characterId:characters[0]},patient)).result.health.hp,5);
@@ -49,7 +55,7 @@ test('HTTP + Auth : PV privés, dégât personnel et soin confirmé avec usage u
   const input={sessionId,skillId,targetId:characters[1]},p=await request('prepareTreatment',input,healer);assert.equal(p.status,200);
   assert.equal((await request('prepareTreatment',{sessionId,skillId,targetId:characters[0]},patient)).status,403);
   const confirmed={...input,requestId:randomUUID(),confirmation:p.result.confirmation},a=await request('applyTreatment',confirmed,healer);assert.equal(a.status,200);assert.deepEqual(await request('applyTreatment',confirmed,healer),a);
-  const own=await request('myHealth',{sessionId},healer);assert.equal(own.result.skills[0].remaining,0);assert.equal(JSON.stringify(own).includes('SECRET_HTTP_SOIN'),false);
+  const own=await request('myHealth',{sessionId},healer);assert.equal(own.result.actionPoints.available,4);assert.equal(own.result.skills[0].remaining,0);assert.equal(JSON.stringify(own).includes('SECRET_HTTP_SOIN'),false);
   assert.equal((await request('myHealth',{sessionId},patient)).result.health.hp,8);
   const denied=await request('prepareTreatment',input,healer);assert.equal(denied.error,'NO_USES_LEFT');
 });

@@ -26,5 +26,6 @@ export function healingInput(value){
   requireThat(amount>0&&(uses===null||uses>0)&&Number.isSafeInteger(cooldownSeconds*1000),'INVALID_HEALING');
   let consumable=null;
   if(value.consumable!=null){const itemId=documentId(value.consumable.itemId),quantity=whole(value.consumable.quantity,'INVALID_HEALING');requireThat(quantity>0,'INVALID_HEALING');consumable={itemId,quantity};}
-  return {effect:'HEAL_HP',amount,uses,cooldownSeconds,consumable};
+  const cooldownScope=value.cooldownScope??'ACTOR';requireThat(['ACTOR','PATIENT','NONE'].includes(cooldownScope),'INVALID_HEALING');
+  return {effect:'HEAL_HP',amount,uses,cooldownSeconds,consumable,...(value.cooldownScope!==undefined?{cooldownScope}:{})};
 }

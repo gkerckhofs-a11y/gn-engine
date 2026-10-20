@@ -98,6 +98,17 @@ export function createAbilityService({store,signed,checkSession,checkScenario,no
       if(action==='setAbilityProfile'){
         const {c,next}=await profile(tx,base,input);
         requireThat(typeof input.confirmation==='string' && input.confirmation===confirmation(parent,c,next),'STALE_REVISION');
+        // Freeze legacy cooldown deadlines before replacing the old skill snapshot.
+        const legacyUses=[];
+        if(session)for(const oldSkill of c.abilityProfile?.skills??[]){
+          if(!oldSkill.healing)continue;
+          const path=`${base}/characters/${c.id}/skillUses/${oldSkill.id}`,use=await tx.get(path);
+          if(use?.lastUsedGameMs!=null&&use.readyAtGameMs==null){
+            const readyAtGameMs=whole(use.lastUsedGameMs+oldSkill.healing.cooldownSeconds*1000,'INVALID_HEALING');
+            legacyUses.push({path,value:{...use,readyAtGameMs}});
+          }
+        }
+        for(const entry of legacyUses)tx.set(entry.path,entry.value);
         id=c.id;kind='characters';before=c.abilityProfile??null;after=next;
         characterNext={...c,abilityProfile:next,contentRevision:(c.contentRevision??1)+1,historyStarted:true};
         // No further reads after this publication snapshot is written.

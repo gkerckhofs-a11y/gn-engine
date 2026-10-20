@@ -1,3 +1,4 @@
+import {actionPointsSuite} from '../support/action-points-suite.mjs';
 import {mediaSuite} from '../support/media-suite.mjs';
 import {archiveSuite} from '../support/scenario-archive-suite.mjs';
 import {missionPartiesSuite} from '../support/mission-parties-suite.mjs';
@@ -52,3 +53,5 @@ missionPartiesSuite(()=>firestoreStore(firestore),'Participation sur Firestore')
 
 mediaSuite(()=>firestoreStore(firestore),'Médiathèque sur Firestore');
 archiveSuite(()=>firestoreStore(firestore),'Archives sur Firestore');
+
+actionPointsSuite(()=>firestoreStore(firestore),'PA sur Firestore');
