@@ -184,7 +184,7 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
   }catch(e){addError(sheet,r,e);}}
   // Validate the combined graph; a broken reference cannot leave half an import behind.
   try{
-   cleanScenarioSnapshot({scenario:nextParent,records:{...rowsRecord(m),fieldTargets:await tx.list(`${base}/fieldTargets`)}});
+   cleanScenarioSnapshot({scenario:nextParent,records:{...rowsRecord(m),fieldTargets:await tx.list(`${base}/fieldTargets`),personProfiles:await tx.list(`${base}/personProfiles`)}});
    for(const s of m.skills.values())if(s.healing?.consumable){const item=ref(m.items,s.healing.consumable.itemId,'consommable_id');if(s.publicationState==='PUBLISHED'&&(item.publicationState!=='PUBLISHED'||!item.consumable))issue('consommable_id','Un soin publié doit référencer un consommable publié.');}
    for(const cl of m.classes.values())for(const x of cl.skills)if(cl.publicationState==='PUBLISHED'&&ref(m.skills,x.skillId,'competences').publicationState!=='PUBLISHED')issue('competences','Une classe publiée dépend d’une compétence non publiée.');
    for(const k of m.knowledge.values())if(k.qrSkillId&&k.qrEnabled){const s=ref(m.skills,k.qrSkillId,'qr_competence_id');if(s.kind!=='PASSIVE'||s.publicationState!=='PUBLISHED')issue('qr_competence_id','La condition QR exige une compétence passive publiée.');}

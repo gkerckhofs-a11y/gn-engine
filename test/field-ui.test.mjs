@@ -6,6 +6,6 @@ test('terrain interface : contenu échappé, choix du matériel, action bloquée
  assert.ok(html.includes('&lt;script&gt;'));assert.ok(!html.includes('<script>'));assert.match(html,/name="bonusLotId"/);assert.match(html,/disabled>Préparer cette action/);
 });
 test('terrain interface : résultat enregistré détaille le calcul sans proposer de nouveau jet',()=>{
- const html=fieldResultHtml({status:'SUCCEEDED',kind:'SEARCH',result:{success:true,roll:4,level:2,bonus:2,total:8,threshold:7,text:'<secret>',reward:{name:'Crédits',quantity:10}}});assert.match(html,/4 \+ compétence 2 \+ matériel 2 = <b>8/);assert.ok(html.includes('&lt;secret&gt;'));assert.ok(!html.includes('<button'));
+ const html=fieldResultHtml({status:'SUCCEEDED',kind:'SEARCH',result:{success:true,roll:4,level:2,bonus:2,total:8,threshold:7,text:'<secret>',reward:{name:'Crédits',quantity:10}}});assert.match(html,/4 \+ compétence 2 \+ matériel 2 \+ aide 0 = <b>8/);assert.ok(html.includes('&lt;secret&gt;'));assert.ok(!html.includes('<button'));
  const admin=fieldAdminHtml({scope:'session',parent:{id:'s',title:'Test',sealed:true},fieldTargets:[],states:[],actions:[],skills:[],items:[],knowledge:[]});assert.ok(!admin.includes('data-field-action="new"'));
 });

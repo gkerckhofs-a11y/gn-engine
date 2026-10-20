@@ -7,12 +7,13 @@ export function itemInput(input,id,old={}){
   requireThat(['INDIVIDUAL','STACKABLE'].includes(input.kind)&&typeof input.consumable==='boolean','INVALID_ITEM');
   requireThat(['DRAFT','READY','PUBLISHED'].includes(input.publicationState),'INVALID_ITEM');
   requireThat(['UNSPECIFIED','LEGAL','ILLEGAL'].includes(input.legality??'UNSPECIFIED'),'INVALID_ITEM');
+  requireThat(input.pillable===undefined||typeof input.pillable==='boolean','INVALID_ITEM');
   const unitVolume=input.unitVolume==null?null:whole(input.unitVolume,'INVALID_ITEM');
   return {...mediaFields(old,['illustration']),id,name:text(input.name,150,true),description:text(input.description??'',6000),category:text(input.category??'',150),
-    unit:text(input.unit??'unité',50,true),kind:input.kind,consumable:input.consumable,unitVolume,legality:input.legality??'UNSPECIFIED',
+    pillable:input.pillable??old.pillable??false,unit:text(input.unit??'unité',50,true),kind:input.kind,consumable:input.consumable,unitVolume,legality:input.legality??'UNSPECIFIED',
     gmNotes:text(input.gmNotes??'',10000),publicationState:input.publicationState,revision:(old.revision??0)+1};
 }
-export const publicItem=d=>({...mediaFields(d,['illustration']),id:d.id,name:d.name,description:d.description,category:d.category,unit:d.unit,kind:d.kind,consumable:d.consumable,unitVolume:d.unitVolume,legality:d.legality,revision:d.revision});
+export const publicItem=d=>({...mediaFields(d,['illustration']),id:d.id,name:d.name,pillable:d.pillable??false,description:d.description,category:d.category,unit:d.unit,kind:d.kind,consumable:d.consumable,unitVolume:d.unitVolume,legality:d.legality,revision:d.revision});
 export function itemQuantity(definition,value,allowZero=false){
   const quantity=whole(value,'INVALID_QUANTITY');requireThat((allowZero||quantity>0)&&(definition.kind!=='INDIVIDUAL'||quantity<=1),'INVALID_QUANTITY');return quantity;
 }
@@ -24,7 +25,7 @@ export function effectiveLot(l,at){
 export const readLot=async(tx,sid,id,at)=>effectiveLot(await tx.get(`sessions/${sid}/inventory/${id}`),at);
 export const lotState=l=>({quantity:l.quantity,status:l.status,revision:l.revision});
 export const personalLot=(l,cid)=>l.ownerId===cid&&l.holderId===cid&&l.location.kind==='CHARACTER'&&l.location.id===cid;
-export const publicLot=l=>({id:l.id,item:publicItem(l.item),quantity:l.quantity,status:l.status,revision:l.revision,ownerId:l.ownerId,holderId:l.holderId,location:l.location,...(l.status==='RESERVED'?{marketReservation:{listingId:l.marketReservation.listingId,expiresAt:l.marketReservation.expiresAt}}:{})});
+export const publicLot=l=>({id:l.id,pillable:(l.pillable??l.item.pillable)===true,item:publicItem(l.item),quantity:l.quantity,status:l.status,revision:l.revision,ownerId:l.ownerId,holderId:l.holderId,location:l.location,...(l.status==='RESERVED'?{marketReservation:{listingId:l.marketReservation.listingId,expiresAt:l.marketReservation.expiresAt}}:{})});
 export function newLot(id,item,quantity,characterId,at,origin){
   return {id,item:publicItem(item),quantity:itemQuantity(item,quantity),ownerId:characterId,holderId:characterId,location:{kind:'CHARACTER',id:characterId},status:'AVAILABLE',revision:1,createdAt:at,origin};
 }

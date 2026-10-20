@@ -1,3 +1,4 @@
+import {personCommands} from '../../src/core/person-actions.mjs';
 import {fieldCommands} from '../../src/core/field-actions.mjs';
 import {masterCommands} from '../../src/core/masters.mjs';
 import {masterExample} from '../../src/shared/master-examples.mjs';
@@ -90,6 +91,17 @@ test('HTTP + Auth : PV privés, dégât personnel et soin confirmé avec usage u
   const own=await request('myHealth',{sessionId},healer);assert.equal(own.result.actionPoints.available,4);assert.equal(own.result.skills[0].remaining,0);assert.equal(JSON.stringify(own).includes('SECRET_HTTP_SOIN'),false);
   assert.equal((await request('myHealth',{sessionId},patient)).result.health.hp,8);
   const denied=await request('prepareTreatment',input,healer);assert.equal(denied.error,'NO_USES_LEFT');
+  for(const action of personCommands)assert.equal((await request(action,{sessionId,requestId:randomUUID()})).status,401);
+  assert.equal((await request('personAdmin',{sessionId},patient)).status,403);
+  const expert=await command('saveSessionSkill',{sessionId,revision:(await session()).revision,name:'Expertise soin temporisé',kind:'PASSIVE',publicationState:'PUBLISHED',reason:'Test'});
+  const ability={sessionId,revision:(await session()).revision,characterId:characters[0],classId:null,overrides:[{skillId:expert.id,level:2}],published:true,reason:'Test'};
+  const ap=await command('prepareAbilityProfile',ability);await command('setAbilityProfile',{...ability,confirmation:ap.confirmation});
+  const protocol=await command('savePersonProfile',{sessionId,reason:'Test de soin temporisé',profile:{kind:'FIELD_CARE',name:'Protocole HTTP',publicationState:'PUBLISHED',skillId:expert.id,minLevel:1,durationSeconds:0}});
+  const personInput={sessionId,targetId:characters[1],profileId:protocol.id},personPreview=await command('preparePersonAction',personInput,healer),started=await command('startPersonAction',{...personInput,confirmation:personPreview.confirmation,present:true},healer);
+  assert.equal((await request('finishPersonAction',{sessionId,actionId:started.id,present:true,requestId:randomUUID()},patient)).status,403);
+  const resolution={sessionId,actionId:started.id,present:true,requestId:randomUUID()},finished=await request('finishPersonAction',resolution,healer);assert.equal(finished.status,200,JSON.stringify(finished));assert.equal(finished.result.result.hp,9);assert.deepEqual(await request('finishPersonAction',resolution,healer),finished);
+  assert.equal((await request('myHealth',{sessionId},healer)).result.actionPoints.available,3);
+  assert.equal((await request('preparePersonAction',personInput,healer)).error,'PATIENT_COOLDOWN_ACTIVE');
 });
 async function googleTestAccount(email){
   // Only Auth Emulator accepts these unsigned synthetic Google assertions.

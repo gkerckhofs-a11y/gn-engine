@@ -1,3 +1,4 @@
+import {personSuite} from '../support/person-suite.mjs';
 import {fieldSuite} from '../support/field-suite.mjs';
 import {mastersSuite} from '../support/masters-suite.mjs';
 import {campaignsSuite} from '../support/campaigns-suite.mjs';
@@ -64,3 +65,5 @@ campaignsSuite(()=>firestoreStore(firestore),'Campagnes sur Firestore');
 mastersSuite(()=>firestoreStore(firestore),'Masters sur Firestore');
 
 fieldSuite(()=>firestoreStore(firestore),'Firestore terrain');
+
+personSuite(()=>firestoreStore(firestore),'Interactions sur Firestore');

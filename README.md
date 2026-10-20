@@ -2,9 +2,15 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.24.0 publiée et vérifiée : actions de terrain, fouilles et installations.**
+**Version 0.25.0 : soins, aide et pillage — validation Firebase en cours.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
+
+## Soins, aide et pillage — 0.25
+
+Les nouveaux profils proposent soin de terrain, clinique sûre ou accélérée, fouille ordinaire et méthodique. Le parcours joueur part du badge du personnage. Durée, réservations, récupération, convalescence et remise d’une unité pillable sont suivies par le moteur. Une aide compétente apporte +1 aux tests compatibles sans second PA. Après l’échec d’une clinique accélérée, le complément n’exige ni second jet ni nouveau coût.
+
+[Configuration et limites](docs/SOINS-AIDE-PILLAGE.md) · [Validation 0.25](docs/VALIDATION-0.25.md). Compilation et 498 tests applicatifs locaux réussis ; validation Firebase et publication à confirmer. Les profils se configurent dans le scénario ou la régie. Ils ne sont pas encore importables par XLSX. La capture complète, les notifications DIRECT/DISCRET et la recette mobile restent ouvertes.
 
 ## Actions de terrain — 0.24
 
@@ -12,7 +18,7 @@ Dans le scénario ou la régie, **Fouilles et installations** permet de définir
 
 Les fouilles distribuent des crédits, objets ou informations depuis une réserve finie, avec plafond individuel. Sabotage et réparation changent l’état des installations et peuvent bloquer les fouilles qui en dépendent. Les PA et le matériel sont réservés, puis coût et effet sont appliqués ensemble ; une interruption libère la réservation. Les stocks et durées de panne restantes suivent les épisodes de campagne.
 
-[Parcours, configuration et limites](docs/ACTIONS-TERRAIN.md) · [Validation 0.24](docs/VALIDATION-0.24.md). L’aide, le pillage, les soins en deux étapes et les onglets XLSX de terrain restent à développer. Les conséquences économiques générales des pannes ne sont pas encore automatisées.
+[Parcours, configuration et limites](docs/ACTIONS-TERRAIN.md) · [Validation 0.24](docs/VALIDATION-0.24.md). L’aide, le pillage et les soins en deux étapes sont ajoutés en 0.25 ; les onglets XLSX de terrain restent à développer. Les conséquences économiques générales des pannes ne sont pas encore automatisées.
 
 Compilation et **867 tests réussis** sur GitHub : 476 applicatifs et 391 intégrations Firebase, sans échec ni test ignoré. Publication, quatre fichiers XLSX et refus des commandes privées anonymes contrôlés le 20 octobre 2026 à 13:34:23 UTC. Accueil 0.24.0 confirmé dans le navigateur. Les essais privés sur mobile, multi-comptes et à 60 connexions restent à réaliser.
 

@@ -113,7 +113,7 @@ export function createKnowledgeService({store,signed,checkSession,checkScenario,
       } else {
         ({s,c}=await context(tx,actor,input));const kid=documentId(input.knowledgeId);
         if(action==='discoverKnowledge'){
-          requireGameAction(s,c,'discover');
+          requireGameAction(s,c,'discover',at);
           k=await tx.get(`sessions/${s.id}/knowledge/${kid}`);
           requireThat(k?.publicationState==='PUBLISHED' && k.qrEnabled && (k.qrAudience==='ALL_PLAYERS'||k.qrCharacterIds.includes(c.id)),'FORBIDDEN');
           requireThat(!k.qrSkillId||abilityLevel(c,k.qrSkillId)>=k.qrSkillLevel,'FORBIDDEN');
