@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-20 octobre 2026. Aucun lot complet n’est encore validé. Version 0.18 publiée : participation personnelle ou collective par mission, mandat de représentation distinct des droits de caisse, suivi partagé et paiement au bon bénéficiaire. 697 tests et compilation réussis sur GitHub (377 métier/interface et 320 intégrations), puis à nouveau dans la chaîne de déploiement. Manifeste 0.18.0 et refus des accès anonymes aux 110 commandes privées vérifiés après installation. Rapport `VALIDATION-0.18.md` ; rapports précédents conservés. Acomptes, garanties et recette terrain restent ouverts.
+20 octobre 2026. Aucun lot complet n’est encore validé. Code 0.19.2 publié : médiathèque privée, import par lot, images des personnages/objets/missions et corbeille contrôlée. 728 tests et compilation réussis sur GitHub (397 métier/interface et 331 intégrations), puis à nouveau dans la chaîne de déploiement. Manifeste 0.19.2 et refus des accès anonymes aux 124 commandes privées vérifiés après installation. Rapport `VALIDATION-0.19.md` ; rapports précédents conservés. L’activation du stockage privé par le propriétaire, les exports/imports avec images et la recette terrain restent ouverts.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -113,11 +113,11 @@ Compilation et 697 tests réussis sur GitHub : 377 métier/interface et 320 int�
 
 ## Bilan et cahier actualisés le 20 octobre 2026
 
-Le [bilan courant](BILAN-2026-10-20.md) synthétise les réalisations jusqu’à la 0.18 et les chantiers restants. Les limites décrites dans les extensions anciennes sont historiques et peuvent être levées par une version ultérieure. Les primes ouvertes et les candidatures de bandes sont développées.
+Le [bilan courant](BILAN-2026-10-20.md) conserve le bilan 0.18 et ajoute l’avancement 0.19.2 avec les chantiers restants. Les limites décrites dans les extensions anciennes sont historiques et peuvent être levées par une version ultérieure. Les primes ouvertes et les candidatures de bandes sont développées.
 
 La [révision 1.1 du cahier](source/cahier-des-charges-v1.1.txt) ajoute la [médiathèque](MEDIATHEQUE.md), obligatoire et désormais implémentée partiellement en 0.19. La recette complète inclut désormais REC-11 pour les imports, associations, droits et suppressions d’images.
 
 
-## Extension 0.19 — implémentée, activation à vérifier
+## Extension 0.19.2 — code publié, activation du stockage requise
 
-Médiathèque privée, import par lot, métadonnées, filtres, vignettes et agrandissement, attributions aux personnages/objets/missions, conservation des versions, corbeille et restauration. Contrôle d’usage transactionnel et autorisations par contenu. Le bucket privé requiert l’activation du script préparé par le propriétaire ; l’autorisation initiale ne comprend pas Storage. Exports/imports de scénarios avec images et recette mobile restent ouverts. Voir [VALIDATION-0.19.md](VALIDATION-0.19.md).
+Médiathèque privée, import par lot, métadonnées, filtres, vignettes et agrandissement, attributions aux personnages/objets/missions, conservation des versions, corbeille et restauration. Contrôle d’usage transactionnel et autorisations par contenu. 728 tests réussis et publication vérifiée le 20 octobre 2026 à 08:06:01 UTC. Le bucket privé requiert l’activation du script préparé par le propriétaire ; l’autorisation initiale ne comprend pas Storage. Exports/imports de scénarios avec images et recette mobile restent ouverts. Voir [VALIDATION-0.19.md](VALIDATION-0.19.md).

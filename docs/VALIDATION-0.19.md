@@ -1,6 +1,6 @@
 # Validation 0.19 — médiathèque privée
 
-20 octobre 2026. Développement terminé ; publication et activation du stockage à vérifier avant de déclarer le service d’images opérationnel en production.
+20 octobre 2026. **Code 0.19.2 publié et vérifié ; activation du stockage privé encore requise avant de pouvoir importer les images en production.**
 
 ## Parcours développé
 
@@ -35,7 +35,11 @@ La fonction dispose de 512 Mio, au maximum trois instances et huit requêtes sim
 - Aucune donnée de jeu ni image de recette créée en production.
 - Une fixture locale `test/ui/media-preview.mjs` (génération : `node scripts/build-media-preview.mjs`) permet la revue de l’interface sur données fictives. La revue visuelle via le navigateur distant n’a pas été exécutée : sa politique refuse les fichiers locaux. Les tests d’interface automatisés ne remplacent pas la recette sur téléphone.
 
-Validation locale : 397 tests métier/interface et 331 intégrations Auth/Firestore/Storage réussis. La suite complète sera réexécutée sur la révision publiée dans la chaîne GitHub avant déploiement ; les références finales seront ajoutées ensuite.
+Validation locale : 397 tests métier/interface et 331 intégrations Auth/Firestore/Storage réussis. La même suite a réussi sur GitHub sur la révision `8928a496b3ec1602b3b585214f926c2cc7692085` : **728 tests, aucun échec ni test ignoré**, compilation réussie. Exécution indépendante [39389251147](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39389251147), intégrations terminées le 20 octobre 2026 à 07:59:00 UTC.
+
+La chaîne de déploiement [39389251256](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39389251256) a réexécuté les 728 tests avec succès : 397 tests métier/interface à 07:55:58 UTC, 331 intégrations à 08:03:23 UTC. La fonction est passée ACTIVE à 08:05:26 UTC, la publication Hosting s’est terminée à 08:05:36 UTC, puis le manifeste **0.19.2** et le refus anonyme des **124 commandes privées** ont été vérifiés à 08:06:01 UTC. L’écran d’accueil a également été rechargé dans le navigateur et affiche 0.19.2. Aucune recette authentifiée ni activation Storage n’a été effectuée pendant ces contrôles.
+
+Commit applicatif final : `de6cca4112680d11ac1983eef72be003a0a85c0b`. Demande de déploiement : `8928a496b3ec1602b3b585214f926c2cc7692085`. Les 37 fichiers applicatifs, de configuration et de suivi concernés ont été comparés aux objets du dépôt GitHub sans différence avant la mise à jour finale des preuves documentaires.
 
 ## Limites et suite du cahier
 

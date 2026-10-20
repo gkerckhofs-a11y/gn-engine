@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.19 : médiathèque privée, imports par lot et images des personnages, objets et missions.**
+**Version 0.19.2 publiée : médiathèque privée, imports par lot et images des personnages, objets et missions. Activation du stockage privé requise pour les imports.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -13,6 +13,8 @@ Ouvrez « Médiathèque » depuis le tableau de bord, un scénario ou une sessio
 Les images inutilisées peuvent passer en corbeille et être restaurées. Les images présentes dans des versions ou historiques sont protégées ; une purge manuelle devient possible après 30 jours pour les images sans référence. Les sessions, lots et contrats ne changent pas silencieusement de visuel.
 
 **Activation du stockage :** le propriétaire doit exécuter [le script préparé](scripts/activate-media-storage.sh) dans Google Cloud Shell pour le bucket privé dédié. L’accès initial de déploiement ne comprend pas ce nouveau stockage. La galerie indique son état d’activation. [Parcours, limites et validation 0.19](docs/VALIDATION-0.19.md).
+
+Télécharger `activate-media-storage.sh`, importer ce fichier dans Cloud Shell avec le compte propriétaire du projet, puis lancer `bash activate-media-storage.sh`. Une fois le message « Stockage privé activé » affiché, actualiser GN Engine et ouvrir la médiathèque. Le script ne demande aucune clé à transmettre dans la conversation.
 
 Les exports/imports de scénarios avec images et la recette mobile réelle restent à réaliser.
 
@@ -143,7 +145,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.18 a réussi **697 tests en une exécution complète sur GitHub** (377 métier/interface et 320 intégrations), sans échec ni test ignoré, ainsi que la compilation. Version **0.18.0 publiée** ; manifeste et refus des accès anonymes aux **110 commandes privées** vérifiés après installation. Preuves dans le [rapport 0.18](docs/VALIDATION-0.18.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.19.2 a réussi **728 tests en une exécution complète sur GitHub** (397 métier/interface et 331 intégrations Auth/Firestore/Storage), sans échec ni test ignoré, ainsi que la compilation. Ces contrôles ont aussi réussi dans la chaîne de déploiement. Version **0.19.2 publiée** ; manifeste et refus des accès anonymes aux **124 commandes privées** vérifiés après installation. Preuves dans le [rapport 0.19](docs/VALIDATION-0.19.md). L’activation du stockage privé et la recette authentifiée sur plusieurs comptes et mobile restent ouvertes.
 
 ## Publier
 
