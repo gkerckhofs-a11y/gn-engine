@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "22dd5f3476f0793dcf31240fea48242f8e158dd8",
+  "sourceCommit": "9d961c0966b6105ae5366a0a3cb2b5bfd8d3157e",
   "version": "0.22.0",
-  "requestedAt": "2026-10-20T11:39:20.768Z",
-  "reason": "Campagnes persistantes : bilan scellé et reprise des acquis par étapes. 443 tests locaux et compilation réussis ; publication subordonnée à la validation Firebase de la chaîne existante."
+  "requestedAt": "2026-10-20T11:42:19.367Z",
+  "reason": "Finalisation 0.22 : campagnes persistantes et numéro de version du site généré depuis le paquet. Compilation locale et concordance page/manifeste vérifiées ; contrôles Firebase obligatoires avant publication."
 }
