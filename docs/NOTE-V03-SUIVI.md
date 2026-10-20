@@ -2,6 +2,10 @@
 
 Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, conservées dans [la note source](source/port-breche-engine-note-v03.md). Base inspectée : commit GitHub `bd670dea159c5c7f01cfe83f8fcba9b81657dd44`, version 0.20. Les statuts ci-dessous décrivent le code, pas une validation terrain. Les lots 0.22 et 0.23, publiés et vérifiés le 20 octobre 2026, ajoutent la continuité décrite dans [Campagnes](CAMPAGNES.md) et les [masters complémentaires](MASTERS.md).
 
+## Lot 0.28 : entrepôts et recharges laser
+
+Locations personnelles, volume contrôlé, paiement personnel ou par caisse autorisée, loyers vers une caisse ou retirés de la circulation, dépôts/retraits, échéance suspendue en pause et conservation en campagne. Ouverture confirmée de recharges reçues et comptabilisation des lots scellés consommés. Configuration par la régie ; import XLSX et stocks collectifs restent ouverts. [Guide](LOGISTIQUE.md) · [Validation](VALIDATION-0.28.md).
+
 ## Habillage 0.27.1 : console galactique
 
 Thème commun aux espaces joueur et organisateur, sans changement de règles, de données ni de permissions. Accueil publié et vérifié visuellement. [Description](THEME-GALACTIQUE.md) · [Validation](VALIDATION-0.27.1.md).
@@ -72,8 +76,8 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 | GN-08 | Réglages en session, aperçu, échéances stables, corrections | Migration explicite des actions engagées, journal consultable dédié et reçus hors réseau. |
 | GN-09 | Actions de terrain avec durée, D6 serveur, bonus, réservations, interruption, effets atomiques et règles figées au lancement | Aide et clinique en deux étapes ajoutées en 0.25 ; catalogue général d’effets et reprise partielle de durée ouverts. |
 | GN-10 | Fouilles à stock fini et plafonds individuels, sabotage, réparation, protection, récupération du patient et doubles dépenses contrôlées | Pillage, soins en deux étapes et aide ajoutés en 0.25 ; réserves par groupe, capture complète, DIRECT/DISCRET et effets économiques ouverts. |
-| GN-11 | Marché, comptes, ventes et retrait physique existants | Gros/détail, négociation commerciale, cours, entrepôts, douanes et corruption. |
-| GN-12 | Lots et remises existants | Ouverture explicite des recharges et suivi de leur stock physique. |
+| GN-11 | Marché, comptes, ventes et retrait physique ; locations personnelles, capacité des entrepôts et loyers en 0.28 | Stocks collectifs, import logistique, gros/détail, négociation commerciale, cours, douanes et corruption. |
+| GN-12 | Lots, remises et ouverture explicite des recharges reçues en 0.28 | Import du conditionnement et rapprochement du stock physique au comptoir. |
 | GN-13 | Groupes, caisses et mandat de mission existants | Droits distincts sur les stocks, les ventes et les départs. |
 | GN-14 | Annonces, candidatures, preuves et paiement personnel/collectif existants | Compléter selon la recette finale de la note. |
 | GN-15 | Non implémenté | Vaisseaux et trajets ; barèmes Port-Brèche à définir avant activation. |
@@ -88,7 +92,7 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 2. Continuité de campagne implémentée en 0.22 : bilan, clôture et reprise sans remettre les soldes à zéro ; voir le rapport de validation.
 3. Masters XLSX et imports complémentaires implémentés en 0.23 ; compléter les nouveaux modules au fil de leur développement.
 4. Exécuteur de terrain implémenté en 0.24 : fouilles, durée, D6, bonus, sabotage/réparation et réservations. Soins en deux étapes, aide et pillage ajoutés en 0.25 ; masters de lieux et profils complétés en 0.26.
-5. Quatre espaces joueur livrés en 0.27 ; compléter l’économie, les entrepôts et les recharges.
+5. Quatre espaces joueur livrés en 0.27 ; entrepôts personnels et recharges en 0.28. Poursuivre avec stocks collectifs et import de la logistique, puis frais et cours du commerce.
 6. Traiter le spatial après définition de ses règles, puis réaliser la recette terrain.
 
 Les montants économiques, les plafonds au-delà du niveau 2, les durées du GN, la portion de billes par recharge et les barèmes spatiaux restent des décisions de jeu. Cette reprise n’en fixe aucune implicitement.

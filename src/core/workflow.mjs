@@ -1,3 +1,4 @@
+import {createLogisticsService,logisticsAction} from './logistics.mjs';
 import {createPersonService,personAction} from './person-actions.mjs';
 import {playerRules} from './player-rules.mjs';
 import {validatePersonReferences,personOpen} from './person-state.mjs';
@@ -124,13 +125,14 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     }else{
       signed(actor);requireThat(context.mode==='player'&&context.scope==='session','FORBIDDEN');
       if(context.kind==='character'){const d=await dispatch('mySession',actor,{sessionId:scopeId});requireThat(d.character?.id===id,'FORBIDDEN');record=d.character;}
-      else if(context.kind==='inventory'){const d=await dispatch('myInventory',actor,{sessionId:scopeId}),l=[...d.lots,...d.ownedElsewhere,...d.heldForOthers].find(l=>l.id===id);requireThat(l,'FORBIDDEN');record=l.item;}
+      else if(context.kind==='inventory'){const d=await dispatch('myInventory',actor,{sessionId:scopeId}),l=[...d.lots,...d.stored,...d.ownedElsewhere,...d.heldForOthers].find(l=>l.id===id);requireThat(l,'FORBIDDEN');record=l.item;}
       else if(context.kind==='announcement')record=(await dispatch('announcementDetail',actor,{sessionId:scopeId,announcementId:id})).announcement;
       else if(context.kind==='contract')record=(await dispatch('contractDetail',actor,{sessionId:scopeId,contractId:id})).contract;
       else requireThat(false,'FORBIDDEN');
     }
     return record.mediaImages?.[slot]??null;
   }});
+  const logisticsService=createLogisticsService({store,signed,checkSession,now,uuid});
   const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,now,uuid});
   const personService=createPersonService({store,signed,checkSession,checkScenario,now,uuid,rollD6});
   const fieldService=createFieldService({store,signed,checkSession,checkScenario,now,uuid,rollD6});
@@ -152,6 +154,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(logisticsAction(action))return logisticsService(action,actor,input);
     if(personAction(action))return personService(action,actor,input);
     if(fieldAction(action))return fieldService(action,actor,input);
     if(masterAction(action))return masterService(action,actor,input);

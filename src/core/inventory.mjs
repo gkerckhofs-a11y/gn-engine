@@ -1,3 +1,4 @@
+import {checkStoredCorrection} from './storage-state.mjs';
 import {listLotSales} from './sales.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {listLotTransfers} from './inventory-transfers.mjs';
@@ -40,7 +41,7 @@ export function createInventoryService({store,signed,checkSession,checkScenario,
         requireThat(c.publicationState==='PUBLISHED'&&c.public?.publicationState==='PUBLISHED','CONTENT_UNPUBLISHED');
         const lots=(await tx.list(`sessions/${sid}/inventory`,['holderId',c.id])).map(l=>effectiveLot(l,at)),owned=(await tx.list(`sessions/${sid}/inventory`,['ownerId',c.id])).map(l=>effectiveLot(l,at));
         return {session:{id:sid,stage:s.stage},healthEnabled:s.healthRules?.enabled===true,economyEnabled:s.economyRules?.enabled===true,preview,character:{id:c.id,name:c.public.displayName},lots:lots.filter(l=>personalLot(l,c.id)).map(publicLot),
-          ownedElsewhere:owned.filter(l=>l.holderId!==c.id).map(publicLot),heldForOthers:lots.filter(l=>l.ownerId!==c.id).map(publicLot),sales:await listLotSales(tx,s,c,at,preview),
+          stored:owned.filter(l=>l.location?.kind==='WAREHOUSE'&&l.quantity>0).map(publicLot),ownedElsewhere:owned.filter(l=>l.holderId!==c.id).map(publicLot),heldForOthers:lots.filter(l=>l.ownerId!==c.id).map(publicLot),sales:await listLotSales(tx,s,c,at,preview),
           canSell:!preview&&s.stage==='EN_JEU'&&s.economyRules?.enabled===true&&canGameAction(s,c,'transfer'),canTransfer:!preview&&s.stage==='EN_JEU'&&canGameAction(s,c,'transfer'),transfers:await listLotTransfers(tx,s,c,preview,at)};
       }
       const {session,parent,base}=await context(tx,actor,input);
@@ -72,6 +73,7 @@ export function createInventoryService({store,signed,checkSession,checkScenario,
         requireThat(lot.revision===input.lotRevision,'STALE_REVISION');requireThat(['AVAILABLE','SEIZED'].includes(lot.status),'LOT_CLOSED');
         const quantity=itemQuantity(lot.item,input.quantity,true);requireThat(['AVAILABLE','SEIZED','DESTROYED'].includes(input.status)&&(quantity===0?input.status==='DESTROYED':input.status!=='DESTROYED'),'INVALID_ITEM');
         before=lotState(lot);const next={...lot,quantity,status:input.status,revision:lot.revision+1};after=lotState(next);
+        await checkStoredCorrection(tx,parent.id,lot,next);
         tx.set(`${base}/inventory/${id}`,next);result={id,revision:next.revision};
       }else{
         id=input.id?documentId(input.id):newId;kind='items';before=input.id?await tx.get(`${base}/items/${id}`):null;if(input.id)requireThat(before,'NOT_FOUND');

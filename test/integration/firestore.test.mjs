@@ -1,3 +1,4 @@
+import {logisticsSuite} from '../support/logistics-suite.mjs';
 import {personSuite} from '../support/person-suite.mjs';
 import {fieldSuite} from '../support/field-suite.mjs';
 import {mastersSuite} from '../support/masters-suite.mjs';
@@ -36,6 +37,7 @@ notebookSuite(()=>firestoreStore(firestore),'Carnet sur Firestore');
 abilitiesSuite(()=>firestoreStore(firestore),'Compétences sur Firestore');
 healthSuite(()=>firestoreStore(firestore),'PV et soins sur Firestore');
 inventorySuite(()=>firestoreStore(firestore),'Inventaire sur Firestore');
+logisticsSuite(()=>firestoreStore(firestore),'Logistique sur Firestore');
 transfersSuite(()=>firestoreStore(firestore),'Remises sur Firestore');
 economySuite(()=>firestoreStore(firestore),'Crédits sur Firestore');
 collectiveSuite(()=>firestoreStore(firestore),'Caisses sur Firestore');

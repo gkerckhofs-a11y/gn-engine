@@ -14,7 +14,7 @@ const digest=v=>hash(JSON.stringify(canonical(v)));
 const text=(v,max=500)=>{requireThat(typeof v==='string'&&v.trim()&&v.length<=max,'INVALID_CAMPAIGN');return v.trim();};
 const sorted=rows=>rows.sort((a,b)=>a.id.localeCompare(b.id));
 const root=id=>`campaigns/${documentId(id)}`;
-const collections=['characters','groups','knowledge','skills','classes','items','accounts','inventory','masterRows','fieldTargets','fieldStates','personProfiles'];
+const collections=['characters','groups','knowledge','skills','classes','items','accounts','inventory','masterRows','fieldTargets','fieldStates','personProfiles','warehouses'];
 const reads=['campaign','prepareCampaignStart','prepareCampaignClosure','prepareCampaignEpisode'];
 const writes=['startCampaign','closeCampaignSession','beginCampaignEpisode','advanceCampaignEpisode','reopenCampaignSession'];
 export const campaignCommands=[...reads,...writes];
@@ -69,6 +69,7 @@ function episodeEntries(data,source,s,actor,at){
   for(const r of data.receipts[c.id]??[])put(`characters/${c.id}/knowledge/${r.id}`,r);
  }
  for(const key of ['groups','knowledge','skills','classes','items','masterRows','fieldTargets','personProfiles'])for(const row of data[key])put(`${key}/${row.id}`,row);
+ for(const w of data.warehouses)put(`warehouses/${w.id}`,{...w,revision:1,expiresAtGameMs:w.tenantId?Math.max(0,w.expiresAtGameMs-gameTime(source.clock,at)):null});
  for(const row of data.fieldStates){const state=effectiveFieldState(source,row,at),time=gameTime(source.clock,at);put(`fieldStates/${row.id}`,{...state,activeActionId:null,offlineUntilGameMs:state.offlineUntilGameMs===null?null:Math.max(0,state.offlineUntilGameMs-time),lockedUntilGameMs:Math.max(0,state.lockedUntilGameMs-time),protectedUntilGameMs:Math.max(0,state.protectedUntilGameMs-time)});}
  for(const g of data.groups)for(const u of data.updates[g.id]??[]){
   put(`groups/${g.id}/updates/${u.id}`,u);

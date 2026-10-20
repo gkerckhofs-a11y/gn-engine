@@ -2,9 +2,13 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.27.1 publiée : habillage galactique commun aux espaces joueur et organisateur.**
+**Version 0.28.0 : entrepôts et recharges laser. Publication en cours de vérification.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
+
+## Entrepôts et recharges laser — 0.28
+
+Location personnelle depuis le Terminal, loyer réglable et payable par portefeuille ou caisse autorisée, capacité contrôlée, dépôts et retraits de lots, échéance sur le temps de jeu et continuité entre épisodes. Les recharges laser se configurent dans le catalogue et s’ouvrent depuis le sac après leur réception physique. [Guide et limites](docs/LOGISTIQUE.md) · [Validation](docs/VALIDATION-0.28.md).
 
 ## Habillage galactique — 0.27.1
 

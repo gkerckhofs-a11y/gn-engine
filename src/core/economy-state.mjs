@@ -20,7 +20,7 @@ export const projectEntry=e=>({id:e.id,at:e.at,kind:e.kind,memo:e.memo,delta:e.d
 export function writeLedger(tx,sid,event){
   tx.set(`sessions/${sid}/ledger/${event.id}`,event);
   for(const entry of event.entries){
-    const counterparty=['TRANSFER','SALE','CONTRACT_PAY','GM_CONTRACT_PAY','BOUNTY_PAY','GM_BOUNTY_PAY'].includes(event.kind)?(entry.delta<0?event.recipient:event.source):null;
+    const counterparty=['TRANSFER','SALE','CONTRACT_PAY','GM_CONTRACT_PAY','BOUNTY_PAY','GM_BOUNTY_PAY','WAREHOUSE_RENT'].includes(event.kind)?(entry.delta<0?event.recipient:event.source):null;
     tx.set(`sessions/${sid}/accounts/${entry.accountId}/history/${event.id}`,{id:event.id,at:event.at,kind:event.kind,memo:event.memo,
       delta:entry.delta,before:entry.before,after:entry.after,counterparty,actorUid:event.actorUid,reason:event.reason??'',...(event.saleId?{saleId:event.saleId,lotId:event.lotId}:{}),...(event.bountyId?{bountyId:event.bountyId,claimId:event.claimId}:{}),...(event.contractId?{contractId:event.contractId}:{})});
   }
