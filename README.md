@@ -125,7 +125,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.17 a réussi **652 tests en une exécution complète sur GitHub** (353 métier/interface et 299 intégrations), sans échec ni test ignoré. Publication demandée ; résultat à confirmer dans le [rapport 0.17](docs/VALIDATION-0.17.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.17 a réussi **652 tests en une exécution complète sur GitHub** (353 métier/interface et 299 intégrations), sans échec ni test ignoré. Version **0.17.0 publiée** ; manifeste et refus des accès anonymes aux **110 commandes privées** vérifiés après installation. Preuves dans le [rapport 0.17](docs/VALIDATION-0.17.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 

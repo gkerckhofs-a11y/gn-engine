@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-20 octobre 2026. Aucun lot complet n’est encore validé. Version 0.16 publiée : contrats de missions attribuées, consentement, briefing privé, preuve, réservation et règlement unique. 615 tests réussis en une exécution complète sur GitHub (333 métier/interface et 282 intégrations). Manifeste 0.16.0 et refus des accès anonymes aux 98 commandes privées vérifiés après déploiement. Rapport `VALIDATION-0.16.md` ; rapports précédents conservés. Primes ouvertes, représentants de groupes, acomptes, garanties et recette terrain restent ouverts.
+20 octobre 2026. Aucun lot complet n’est encore validé. Version 0.17 publiée : primes ouvertes financées, preuves concurrentes privées, quota de récompenses et règlement unique. 652 tests réussis en une exécution complète sur GitHub (353 métier/interface et 299 intégrations), puis à nouveau dans la chaîne de déploiement. Manifeste 0.17.0 et refus des accès anonymes aux 110 commandes privées vérifiés après installation. Rapport `VALIDATION-0.17.md` ; rapports précédents conservés. Représentants de groupes, acomptes, garanties et recette terrain restent ouverts.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -97,9 +97,9 @@ Le canon laisse ouverts : durée, noms et affectations finales, couverture de l'
 Ne pas présenter le noyau ou la V0.1 comme une réalisation complète. Exiger une recette sur des comptes de rôles distincts, des demandes concurrentes, les fichiers privés et le fonctionnement après incident. Mesurer 60 puis 120 utilisateurs et documenter le réseau : les objectifs de 2 s pour 95 % des confirmations et 5 s de propagation restent à démontrer. Vérifier le pack papier et une restauration isolée avant l'événement réel.
 
 
-## Extension 0.17 — validée, publication demandée
+## Extension 0.17 — publiée
 
 Primes ouvertes à récompense fixe : cagnotte réservée, preuves concurrentes privées, complément/refus/arbitrage MJ, quota et paiement uniques, clôture avec restitution du reliquat, protection contre révocation et réattribution. La création extérieure est comptabilisée seulement au règlement. Échéance réelle commune aux petites annonces ; conditions verrouillées au financement.
 
-Compilation et 652 tests réussis en une exécution complète sur GitHub : 353 métier/interface et 299 intégrations Firebase, Node 22 / Java 21. Publication demandée. REC-10 reste partiel : représentation de groupe et recette terrain non réalisées. Voir `VALIDATION-0.17.md`.
+Compilation et 652 tests réussis en une exécution complète sur GitHub : 353 métier/interface et 299 intégrations Firebase, Node 22 / Java 21. Publication réussie et contrôlée. REC-10 reste partiel : représentation de groupe et recette terrain non réalisées. Voir `VALIDATION-0.17.md`.
 

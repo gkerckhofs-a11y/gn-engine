@@ -1,6 +1,6 @@
 # Validation 0.17 — primes ouvertes
 
-Date : 20 octobre 2026. Statut : vérification distante réussie ; publication demandée.
+Date : 20 octobre 2026. Statut : version 0.17.0 publiée et contrôlée.
 
 ## Parcours livré
 
@@ -36,3 +36,15 @@ La suite métier est exécutée également sur Firestore émulé. Un parcours HT
 
 La recette réelle avec plusieurs comptes Google, appareils mobiles et une charge de 60/120 joueurs n’a pas été réalisée. REC-10 reste partiel.
 
+
+
+## Publication vérifiée
+
+- Commit applicatif : `787ffbdc3d17b768a0bb44aab6a4d1bb015a871a` ; commit de publication : `35156077cd4652fb00a8d44161ad48d77582bde0`.
+- [Déploiement GitHub 39377091774](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39377091774) terminé avec succès le 20 octobre 2026 à 06:00:02 UTC.
+- Job de vérification `118477560323` : compilation puis **353 tests métier/interface et 299 intégrations réussis**, zéro échec, annulation ou test ignoré. Fin des intégrations à 05:57:53 UTC.
+- Job de publication `118479484398` : fonction HTTP, règles/index Firestore et Hosting publiés. Installation Firebase terminée à 05:59:37 UTC.
+- Contrôle en ligne terminé à 05:59:56 UTC : site HTTP 200, manifeste **0.17.0**, **110 commandes privées** refusées sans authentification avec HTTP 401 / LOGIN_REQUIRED. Résultats lus dans les journaux terminés.
+- Application : https://gn-engine.web.app/.
+
+Ces contrôles ne remplacent pas la recette avec de vrais joueurs, plusieurs comptes Google et des appareils mobiles. Aucune donnée de jeu ni de test n’a été créée en production pendant cette livraison.
