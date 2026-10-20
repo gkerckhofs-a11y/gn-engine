@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.25.0 : soins, aide et pillage — validation Firebase en cours.**
+**Version 0.25.0 publiée et vérifiée : soins, aide et pillage.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -10,7 +10,7 @@ Application : **https://gn-engine.web.app/**. Le compte organisateur configuré 
 
 Les nouveaux profils proposent soin de terrain, clinique sûre ou accélérée, fouille ordinaire et méthodique. Le parcours joueur part du badge du personnage. Durée, réservations, récupération, convalescence et remise d’une unité pillable sont suivies par le moteur. Une aide compétente apporte +1 aux tests compatibles sans second PA. Après l’échec d’une clinique accélérée, le complément n’exige ni second jet ni nouveau coût.
 
-[Configuration et limites](docs/SOINS-AIDE-PILLAGE.md) · [Validation 0.25](docs/VALIDATION-0.25.md). Compilation et 499 tests applicatifs locaux réussis ; validation Firebase et publication à confirmer. Les profils se configurent dans le scénario ou la régie. Ils ne sont pas encore importables par XLSX. La capture complète, les notifications DIRECT/DISCRET et la recette mobile restent ouvertes.
+[Configuration et limites](docs/SOINS-AIDE-PILLAGE.md) · [Validation 0.25](docs/VALIDATION-0.25.md). Compilation et **910 tests réussis** sur GitHub : 499 applicatifs et 411 intégrations Firebase, sans échec ni test ignoré. Publication, quatre masters XLSX et refus des accès privés anonymes vérifiés le 20 octobre 2026 à 14:41:05 UTC ; accueil 0.25.0 confirmé dans le navigateur. Les profils se configurent dans le scénario ou la régie. Ils ne sont pas encore importables par XLSX. La capture complète, les notifications DIRECT/DISCRET et la recette mobile restent ouvertes.
 
 ## Actions de terrain — 0.24
 

@@ -6,7 +6,7 @@ Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, co
 
 Cinq profils configurables, actions sur badge, soins chronométrés, clinique accélérée avec complément sans second coût, récupération commune du patient, convalescence et aide +1 sans second PA. Pillage d’une unité, choix selon la méthode, quota par victime et rencontre, remise confirmée, objets protégés par défaut. Profils conservés dans les versions, archives et campagnes. [Guide et limites](SOINS-AIDE-PILLAGE.md) · [Validation](VALIDATION-0.25.md).
 
-499 tests applicatifs locaux réussis. Validation Firebase et publication à confirmer. La capture complète, les effets non médicaux, les notifications et l’import XLSX de ces profils restent ouverts.
+910 tests réussis sur GitHub : 499 applicatifs et 411 intégrations Firebase, sans échec ni test ignoré. Publication, quatre masters XLSX et refus anonymes contrôlés à 14:41:05 UTC ; accueil 0.25.0 confirmé dans le navigateur. La capture complète, les effets non médicaux, les notifications et l’import XLSX de ces profils restent ouverts.
 
 ## Lot 0.24 : actions de terrain
 

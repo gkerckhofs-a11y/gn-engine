@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-20 octobre 2026. Aucun lot complet du cahier n’est encore validé. Version 0.25.0 préparée : soins, aide et pillage. Compilation et 499 tests applicatifs locaux réussis, sans échec ni test ignoré. Validation Firebase et publication à confirmer dans [VALIDATION-0.25.md](VALIDATION-0.25.md). [Guide de configuration](SOINS-AIDE-PILLAGE.md). Capture complète, effets économiques des pannes, progression XP et recette terrain restent ouverts.
+20 octobre 2026. Aucun lot complet du cahier n’est encore validé. Version 0.25.0 publiée : soins, aide et pillage. Compilation et 910 tests réussis (499 applicatifs, 411 intégrations Firebase), sans échec ni test ignoré. Publication, quatre masters et refus anonymes vérifiés à 14:41:05 UTC ; accueil 0.25.0 confirmé dans le navigateur. Preuves dans [VALIDATION-0.25.md](VALIDATION-0.25.md). [Guide de configuration](SOINS-AIDE-PILLAGE.md). Capture complète, effets économiques des pannes, progression XP et recette terrain restent ouverts.
 
 ## Extension 0.25 — soins, aide et pillage
 
