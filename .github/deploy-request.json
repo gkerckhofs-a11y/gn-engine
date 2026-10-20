@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "8896ce1f3065144cb9940abe203881e1d4a33d6d",
-  "version": "0.24.0",
-  "requestedAt": "2026-10-20T13:19:16.876Z",
-  "reason": "Actions de terrain chronométrées, D6 serveur, bonus d’équipement, fouilles à stock fini et sabotage/réparation. 476 tests applicatifs locaux réussis ; validation Firebase obligatoire avant publication."
+  "sourceCommit": "89c6293c27e833c16f8c90d6ad35f72c48943a5e",
+  "version": "0.25.0",
+  "requestedAt": "2026-10-20T14:12:51.404Z",
+  "reason": "Soins de terrain et clinique en deux étapes, aide compétente et pillage avec remise confirmée. 498 tests applicatifs locaux réussis ; validation Firebase obligatoire avant publication."
 }
