@@ -1,6 +1,6 @@
 import {documentId,requireThat} from './validation.mjs';
 
-export const groupPermissions=['readBriefing','readMembers','readUpdates','publishUpdates','readWallet','payWallet'];
+export const groupPermissions=['readBriefing','readMembers','readUpdates','publishUpdates','readWallet','payWallet','representMissions'];
 const text=(v,max,required=false)=>{
   requireThat(typeof v==='string' && v.length<=max && (!required||v.trim()),'INVALID_TEXT');return v.trim();
 };
@@ -52,3 +52,4 @@ export async function groupDetail(tx,base,g,cid) {
   }
   return result;
 }
+

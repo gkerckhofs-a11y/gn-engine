@@ -1,10 +1,10 @@
 export const escapeHtml=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-export const permissionLabels={readBriefing:'Lire le briefing',readMembers:'Voir les membres révélés',readUpdates:'Recevoir les informations',publishUpdates:'Publier une information',readWallet:'Consulter la caisse',payWallet:'Payer avec la caisse'};
+export const permissionLabels={readBriefing:'Lire le briefing',readMembers:'Voir les membres révélés',readUpdates:'Recevoir les informations',publishUpdates:'Publier une information',readWallet:'Consulter la caisse',payWallet:'Payer avec la caisse',representMissions:'Représenter la bande pour les missions'};
 export function createGroupsUi({button,link,pill,input,textarea}) {
   const esc=escapeHtml;
   const check=(key,label,value,extra='')=>`<label class="check"><input type="checkbox" data-member-field="${key}" ${value?'checked':''} ${extra}>${label}</label>`;
   function memberRow(m,c,visibility) {
-    return `<fieldset class="membership-row" data-character="${esc(c.id)}"><legend>${esc(c.public.displayName)}</legend><label>Rôle connu du personnage<input data-member-field="role" value="${esc(m.role)}" maxlength="150"></label><div class="two">${check('active','Appartenance active',m.active)}${check('revealed','Révéler le groupe à ce personnage',m.revealed)}${check('visibleToMembers','Nom visible dans la liste autorisée',m.visibleToMembers)}${check('publicAffiliation','Affiliation sur le badge public',m.publicAffiliation,visibility==='SECRET'?'disabled':'')}</div><p class="muted">Droits indépendants, effectifs après révélation et publication du groupe.</p><div class="permission-grid">${Object.entries(permissionLabels).map(([key,label])=>check(key,label,m.permissions?.[key])).join('')}</div><button type="button" class="quiet small danger" data-action="removeGroupMember">Retirer du groupe</button></fieldset>`;
+    return `<fieldset class="membership-row" data-character="${esc(c.id)}"><legend>${esc(c.public.displayName)}</legend><label>Rôle connu du personnage<input data-member-field="role" value="${esc(m.role)}" maxlength="150"></label><div class="two">${check('active','Appartenance active',m.active)}${check('revealed','Révéler le groupe à ce personnage',m.revealed)}${check('visibleToMembers','Nom visible dans la liste autorisée',m.visibleToMembers)}${check('publicAffiliation','Affiliation sur le badge public',m.publicAffiliation,visibility==='SECRET'?'disabled':'')}</div><p class="muted">Droits indépendants, effectifs après révélation et publication du groupe. Représenter la bande donne accès à ses candidatures, contrats et preuves partagés, y compris ceux ouverts par un autre représentant, sans autoriser les dépenses de sa caisse.</p><div class="permission-grid">${Object.entries(permissionLabels).map(([key,label])=>check(key,label,m.permissions?.[key])).join('')}</div><button type="button" class="quiet small danger" data-action="removeGroupMember">Retirer du groupe</button></fieldset>`;
   }
   function editor(group,characters,scope) {
     const g=group??{visibility:'SECRET',publicationState:'DRAFT',members:[]};
@@ -28,3 +28,4 @@ export function createGroupsUi({button,link,pill,input,textarea}) {
   }
   return {editor,memberRow,adminPanel,cards,detail,historyState};
 }
+

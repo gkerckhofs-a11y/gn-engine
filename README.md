@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.17 : primes ouvertes financées, preuves concurrentes et récompenses limitées.**
+**Version 0.18 : missions et primes en son nom ou au nom d’une bande.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -64,7 +64,7 @@ Configurez le nom et l’unité entière de la monnaie, puis les crédits de dé
 
 Dans **Mon portefeuille**, le joueur consulte son solde total, réservé et disponible, puis prépare un paiement vers le badge public d’un autre personnage. Le récapitulatif indique les identités, le montant, le motif et son solde après paiement. La confirmation débite et crédite ensemble, une seule fois. Le MJ peut ajouter ou retirer des crédits avec un libellé joueur et un motif privé, après comparaison avant/après. Les écritures d’origine sont conservées. [Parcours et limites 0.11](docs/VALIDATION-0.11.md).
 
-Les paiements simples ne transfèrent pas d’objet. Les caisses collectives prolongent ce parcours en 0.12 et les ventes privées en 0.13 ; les contrats restent à intégrer.
+Les paiements simples ne transfèrent pas d’objet. Les caisses collectives prolongent ce parcours en 0.12 et les ventes privées en 0.13 ; les contrats sont disponibles depuis la 0.16.
 
 ## Caisses collectives
 
@@ -88,21 +88,29 @@ Un joueur actif achète toute la quantité depuis un compte autorisé ; paiement
 
 La régie propose **Gérer les petites annonces** : préparation, prévisualisation, publication ou programmation, modification et clôture avec historique. Choisissez les personnages/groupes destinataires, le commanditaire de fiction, les conditions et la récompense descriptive ; briefing réservé et notes MJ restent séparés du texte joueur.
 
-Dans le marché, **Petites annonces** rassemble les missions accessibles et les candidatures personnelles. Question, candidature et éventuel tarif proposé restent privés. Les réponses de l’organisation apparaissent dans **Infos**, avec lecture explicite. Depuis la candidature, le MJ propose maintenant un contrat de mission avec conditions et financement explicites. [Petites annonces 0.15](docs/VALIDATION-0.15.md).
+Dans le marché, **Petites annonces** rassemble les missions accessibles et les candidatures personnelles ou collectives autorisées. Question, candidature et éventuel tarif proposé restent privés. Les réponses de l’organisation apparaissent dans **Infos**, avec lecture explicite. Depuis la candidature, le MJ propose maintenant un contrat de mission avec conditions et financement explicites. [Petites annonces 0.15](docs/VALIDATION-0.15.md).
 
 ## Contrats de missions
 
 Le joueur relit et accepte les conditions : une place et les crédits du compte payeur sont réservés, puis le briefing privé est ouvert. **Mes missions et contrats** sépare propositions, missions attribuées et accords terminés. Une preuve textuelle doit être validée par le MJ avant le paiement unique. Le financement extérieur est enregistré comme création de crédits.
 
-Le délai suit le temps de jeu et s’arrête en pause. Une expiration ou annulation confirmée par le MJ restitue les fonds réservés. L’archivage exige de traiter les contrats ouverts. La représentation de groupe, les acomptes et les garanties restent à développer. [Parcours, preuves et limites 0.16](docs/VALIDATION-0.16.md).
+Le délai suit le temps de jeu et s’arrête en pause. Une expiration ou annulation confirmée par le MJ restitue les fonds réservés. L’archivage exige de traiter les contrats ouverts. La représentation de groupe est ajoutée en 0.18 ; les acomptes et les garanties restent à développer. [Parcours, preuves et limites 0.16](docs/VALIDATION-0.16.md).
 
 ## Primes ouvertes
 
 Publiez une annonce **Prime ouverte** avec une récompense fixe, puis choisissez **Financer la prime**. Le MJ saisit le montant par récompense et le compte payeur, ou autorise un financement extérieur. Le budget de toutes les récompenses est réservé immédiatement sur le compte. Les conditions, le quota, l’échéance et l’audience de l’annonce sont ensuite verrouillés.
 
-Les joueurs déposent des preuves privées depuis **Primes ouvertes**. Aucun dépôt ne réserve de récompense ; le MJ arbitre, peut demander un complément, refuser ou payer. Une seule récompense par personnage et par prime, sans priorité automatique à l’ordre de dépôt. Le quota et les crédits sont mis à jour dans la même transaction. La clôture restitue le budget non versé et indique combien de preuves resteront sans paiement.
+Les joueurs déposent des preuves privées depuis **Primes ouvertes**. Aucun dépôt ne réserve de récompense ; le MJ arbitre, peut demander un complément, refuser ou payer. Une seule récompense par bénéficiaire (personnage ou bande) et par prime, sans priorité automatique à l’ordre de dépôt. Le quota et les crédits sont mis à jour dans la même transaction. La clôture restitue le budget non versé et indique combien de preuves resteront sans paiement.
 
 L’échéance suit l’heure réelle, comme celle des petites annonces, même en pause. Une preuve reçue à temps reste payable après cette échéance, jusqu’à clôture MJ ou épuisement du quota. Le briefing réservé de l’annonce n’est pas révélé par ce parcours. [Parcours et limites 0.17](docs/VALIDATION-0.17.md).
+
+## Participation personnelle ou collective
+
+Dans chaque petite annonce, le MJ choisit **En son nom uniquement**, **Au nom d’une bande uniquement** ou **En son nom ou au nom d’une bande**. Le joueur choisit le bénéficiaire avant sa candidature ou sa preuve. Ce choix reste attaché à l’engagement : une mission personnelle paie le portefeuille du personnage, une mission collective la caisse de la bande. Les anciennes annonces restent personnelles.
+
+Dans les membres du groupe, le MJ accorde le droit **Représenter la bande dans les missions**. Il exige une appartenance active et révélée, un groupe publié, les espaces de groupes activés et une caisse configurée. Il ne donne aucun droit de consulter ou dépenser la caisse. Les représentants habilités partagent la candidature, le contrat, le briefing accepté et les preuves, y compris leur historique ; chacun garde son propre suivi de lecture.
+
+Une bande occupe une seule place et ne reçoit qu’une récompense par prime, même si plusieurs représentants interviennent. Le retrait d’un mandat bloque immédiatement les accès concernés, tandis qu’un autre représentant peut poursuivre. Sans représentant actif, le MJ doit rétablir une représentation ou clôturer l’engagement avant de libérer les fonds. Le mode « les deux » autorise des engagements distincts par bénéficiaire : ce n’est pas une limite par compte joueur. [Règles, vérifications et limites 0.18](docs/VALIDATION-0.18.md).
 
 ## Infrastructure configurée
 
@@ -125,7 +133,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.17 a réussi **652 tests en une exécution complète sur GitHub** (353 métier/interface et 299 intégrations), sans échec ni test ignoré. Version **0.17.0 publiée** ; manifeste et refus des accès anonymes aux **110 commandes privées** vérifiés après installation. Preuves dans le [rapport 0.17](docs/VALIDATION-0.17.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.18 a réussi **377 tests métier/interface localement** et la compilation. La vérification Firestore/Auth distante et la publication restent en cours. Preuves dans le [rapport 0.18](docs/VALIDATION-0.18.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 
