@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "880870d2409aa633418fb29c24ab5cd905728a0c",
-  "version": "0.26.0",
-  "requestedAt": "2026-10-20T15:03:15.320Z",
-  "reason": "Masters de terrain : 508 tests locaux et compilation réussis. Validation Firebase obligatoire avant publication."
+  "sourceCommit": "fc690dd783bc158a432e258489bbfe58406c4d74",
+  "version": "0.26.1",
+  "requestedAt": "2026-10-20T15:44:30.474Z",
+  "reason": "Champs distincts pour masters de campagne et de session, modèles contextualisés et refus des fichiers inversés avant envoi. Compilation et 513 tests locaux réussis ; validation Firebase obligatoire avant publication."
 }
