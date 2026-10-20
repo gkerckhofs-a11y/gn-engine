@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "9d961c0966b6105ae5366a0a3cb2b5bfd8d3157e",
-  "version": "0.22.0",
-  "requestedAt": "2026-10-20T11:42:19.367Z",
-  "reason": "Finalisation 0.22 : campagnes persistantes et numéro de version du site généré depuis le paquet. Compilation locale et concordance page/manifeste vérifiées ; contrôles Firebase obligatoires avant publication."
+  "sourceCommit": "418bcfe3605651b10f7c81f8f6220036038b026e",
+  "version": "0.23.0",
+  "requestedAt": "2026-10-20T12:36:33.548Z",
+  "reason": "Masters CAMPAGNE et SESSION, import complémentaire confirmé et ajout de personnages sans réappliquer les dotations. 456 tests locaux réussis, exemples XLSX validés ; contrôles Firebase obligatoires avant publication."
 }
