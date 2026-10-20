@@ -6,6 +6,8 @@ Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, co
 
 Locations personnelles, volume contrôlé, paiement personnel ou par caisse autorisée, loyers vers une caisse ou retirés de la circulation, dépôts/retraits, échéance suspendue en pause et conservation en campagne. Ouverture confirmée de recharges reçues et comptabilisation des lots scellés consommés. Configuration par la régie ; import XLSX et stocks collectifs restent ouverts. [Guide](LOGISTIQUE.md) · [Validation](VALIDATION-0.28.md).
 
+978 tests réussis : 542 applicatifs et 436 intégrations Firebase. Publication, quatre masters et accès privés contrôlés le 20 octobre 2026 à 20:09:28 UTC ; accueil 0.28.0 confirmé. Recette mobile et comptes réels restent ouverts.
+
 ## Habillage 0.27.1 : console galactique
 
 Thème commun aux espaces joueur et organisateur, sans changement de règles, de données ni de permissions. Accueil publié et vérifié visuellement. [Description](THEME-GALACTIQUE.md) · [Validation](VALIDATION-0.27.1.md).

@@ -16,7 +16,7 @@ La durée suit l’horloge de session : les pauses et l’intervalle entre deux 
 
 Un renouvellement achète une période supplémentaire au tarif alors affiché. La période s’ajoute au temps encore payé, ou commence au moment de la confirmation si le bail a expiré. Une modification de tarif ne retire pas du temps déjà acheté. Le joueur peut rendre un entrepôt vide ; le temps restant n’est pas remboursé.
 
-Le loyer peut être versé à une caisse de groupe choisie par l’organisation, ou être retiré explicitement de la monnaie en circulation. Un paiement utilise seulement les crédits disponibles, hors réservations existantes. La caisse destinataire et sa véritable identité de groupe ne sont pas exposées aux locataires ; leur historique mentionne l’exploitant. Un compte ne peut pas se payer lui-même.
+Le loyer peut être versé à une caisse de groupe choisie par l’organisation, ou être retiré explicitement de la monnaie en circulation. Un paiement utilise seulement les crédits disponibles, hors réservations existantes. Le nom de la caisse destinataire et sa véritable identité de groupe ne sont pas exposés aux locataires ; leur historique mentionne l’exploitant. Un compte ne peut pas se payer lui-même.
 
 ## Configuration de l’organisation
 
