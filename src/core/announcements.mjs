@@ -8,10 +8,10 @@ const actions=new Set([...adminActions,'announcements','announcementDetail','myA
 export const announcementAction=a=>actions.has(a);
 const text=(v,max,required=false)=>{requireThat(typeof v==='string'&&v.length<=max&&(!required||v.trim()),'INVALID_ANNOUNCEMENT');return v.trim();};
 const oneOf=(v,values)=>{requireThat(values.includes(v),'INVALID_ANNOUNCEMENT');return v;};
-const state=(a,at)=>a.publication==='PUBLISHED'?(at<a.opensAt?'SCHEDULED':at>=a.deadline?'EXPIRED':'OPEN'):a.publication;
+const state=(a,at)=>a.publication==='PUBLISHED'?(at<a.opensAt?'SCHEDULED':at>=a.deadline?'EXPIRED':a.mode==='ASSIGNMENT'&&(a.assignedCount??0)>=a.places?'FILLED':'OPEN'):a.publication;
 const view=(a,at)=>({id:a.id,revision:a.revision,status:state(a,at),title:a.title,category:a.category,mode:a.mode,description:a.description,sponsor:{kind:a.sponsorKind,name:a.sponsorName},rewardType:a.rewardType,rewardText:a.rewardText,places:a.places,conditions:a.conditions,proofExpected:a.proofExpected,opensAt:a.opensAt,deadline:a.deadline});
 const digest=v=>hash(JSON.stringify(v));
-const closed=t=>['DECLINED','WITHDRAWN'].includes(t.status);
+const closed=t=>['DECLINED','WITHDRAWN','ASSIGNED'].includes(t.status);
 const threadId=(a,ctx,actor)=>digest([a.id,actor.uid,ctx.version]);
 const own=(t,ctx,actor)=>!!t&&t.applicantUid===actor.uid&&t.characterId===ctx.c.id&&t.applicantVersion===ctx.version;
 async function audienceAllowed(tx,s,a,cid){
@@ -22,14 +22,15 @@ async function audienceAllowed(tx,s,a,cid){
 }
 const readable=async(tx,s,a,cid,at)=>!!a&&!['DRAFT','SCHEDULED'].includes(state(a,at))&&await audienceAllowed(tx,s,a,cid);
 const responseAllowed=(s,c,a,at)=>state(a,at)==='OPEN'&&s.stage==='EN_JEU'&&canGameAction(s,c,'publish');
-const summary=(t,a,at,admin=false)=>({id:t.id,revision:t.revision,announcementId:t.announcementId,title:t.terms.title,announcementRevision:a.revision,announcementStatus:state(a,at),reviewedRevision:t.reviewedTerms.revision,status:t.status,intent:t.intent,applicant:{id:t.characterId,name:t.applicantName},createdAt:t.createdAt,updatedAt:t.updatedAt,unread:!admin&&(t.lastReadRevision<t.revision||t.lastReadAnnouncementRevision!==a.revision)});
+const summary=(t,a,at,admin=false)=>({id:t.id,revision:t.revision,announcementId:t.announcementId,title:t.terms.title,announcementRevision:a.revision,announcementStatus:state(a,at),reviewedRevision:t.reviewedTerms.revision,status:t.status,intent:t.intent,contractId:t.contractId??null,applicant:{id:t.characterId,name:t.applicantName},createdAt:t.createdAt,updatedAt:t.updatedAt,unread:!admin&&(t.lastReadRevision<t.revision||t.lastReadAnnouncementRevision!==a.revision)});
 const messageView=m=>({id:m.id,sequence:m.sequence,at:m.at,from:m.from,authorName:m.authorName,body:m.body,proposedReward:m.proposedReward,announcementRevision:m.announcementRevision});
 export function createAnnouncementService({store,signed,checkSession,now,uuid}){
   async function prepare(tx,s,input,at){
     const old=input.announcementId?await tx.get(`sessions/${s.id}/announcements/${documentId(input.announcementId)}`):null;
     if(input.announcementId)requireThat(old,'NOT_FOUND');requireThat((old?.revision??0)===input.revision,'STALE_REVISION');
-    const draft={id:old?.id??null,revision:(old?.revision??0)+1,title:text(input.title,150,true),category:oneOf(input.category,['BOUNTY','MERCENARY','ESCORT','TRANSPORT','INFORMATION','OTHER']),mode:oneOf(input.mode,['ASSIGNMENT','OPEN_BOUNTY']),description:text(input.description,10000,true),sponsorKind:oneOf(input.sponsorKind,['CHARACTER','GROUP','AUTHORITY','NPC']),sponsorName:text(input.sponsorName,150,true),rewardType:oneOf(input.rewardType,['FIXED','NEGOTIABLE']),rewardText:text(input.rewardText,1000,true),places:whole(input.places,'INVALID_ANNOUNCEMENT'),conditions:text(input.conditions,4000,true),proofExpected:text(input.proofExpected,2000,true),briefing:text(input.briefing??'',12000),gmNotes:text(input.gmNotes??'',12000),publication:oneOf(input.publication,['DRAFT','PUBLISHED','CLOSED','CANCELLED']),opensAt:whole(input.opensAt,'INVALID_ANNOUNCEMENT'),deadline:whole(input.deadline,'INVALID_ANNOUNCEMENT')};
+    const draft={id:old?.id??null,assignedCount:old?.assignedCount??0,revision:(old?.revision??0)+1,title:text(input.title,150,true),category:oneOf(input.category,['BOUNTY','MERCENARY','ESCORT','TRANSPORT','INFORMATION','OTHER']),mode:oneOf(input.mode,['ASSIGNMENT','OPEN_BOUNTY']),description:text(input.description,10000,true),sponsorKind:oneOf(input.sponsorKind,['CHARACTER','GROUP','AUTHORITY','NPC']),sponsorName:text(input.sponsorName,150,true),rewardType:oneOf(input.rewardType,['FIXED','NEGOTIABLE']),rewardText:text(input.rewardText,1000,true),places:whole(input.places,'INVALID_ANNOUNCEMENT'),conditions:text(input.conditions,4000,true),proofExpected:text(input.proofExpected,2000,true),briefing:text(input.briefing??'',12000),gmNotes:text(input.gmNotes??'',12000),publication:oneOf(input.publication,['DRAFT','PUBLISHED','CLOSED','CANCELLED']),opensAt:whole(input.opensAt,'INVALID_ANNOUNCEMENT'),deadline:whole(input.deadline,'INVALID_ANNOUNCEMENT')};
     requireThat(draft.places>0&&draft.places<=1000&&draft.deadline>draft.opensAt&&draft.deadline<=8640000000000000,'INVALID_ANNOUNCEMENT');if(draft.publication==='PUBLISHED')requireThat(draft.deadline>at,'ANNOUNCEMENT_EXPIRED');
+    requireThat(draft.places>=draft.assignedCount&&(!draft.assignedCount||draft.mode===old.mode),'MISSION_PLACES_LOCKED');
     const a=input.audience;requireThat(a&&['ALL','TARGETED'].includes(a.kind)&&Array.isArray(a.characterIds)&&Array.isArray(a.groupIds)&&a.characterIds.length<=200&&a.groupIds.length<=100,'INVALID_AUDIENCE');
     const characterIds=[...new Set(a.characterIds.map(documentId))].sort(),groupIds=[...new Set(a.groupIds.map(documentId))].sort();
     requireThat(a.kind==='ALL'?characterIds.length+groupIds.length===0:characterIds.length+groupIds.length>0,'INVALID_AUDIENCE');
@@ -126,3 +127,5 @@ export function createAnnouncementService({store,signed,checkSession,now,uuid}){
     });
   };
 }
+
+export {state as announcementState,view as announcementView,readable as announcementReadable};

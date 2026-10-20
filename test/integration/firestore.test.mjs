@@ -1,3 +1,4 @@
+import {contractsSuite} from '../support/contracts-suite.mjs';
 import {announcementsSuite} from '../support/announcements-suite.mjs';
 import {marketSuite} from '../support/market-suite.mjs';
 import {salesSuite} from '../support/sales-suite.mjs';
@@ -32,6 +33,7 @@ collectiveSuite(()=>firestoreStore(firestore),'Caisses sur Firestore');
 salesSuite(()=>firestoreStore(firestore),'Ventes sur Firestore');
 marketSuite(()=>firestoreStore(firestore),'Marché sur Firestore');
 announcementsSuite(()=>firestoreStore(firestore),'Petites annonces sur Firestore');
+contractsSuite(()=>firestoreStore(firestore),'Contrats sur Firestore');
 test('règles Firestore : un client non authentifié ne peut lire ni écrire les secrets',async()=>{
   const root=`http://${process.env.FIRESTORE_EMULATOR_HOST}/v1/projects/${projectId}/databases/(default)/documents`;
   await firestore.doc('private/test').set({secret:'invisible'});

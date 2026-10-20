@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.15 : petites annonces organisateur, audiences contrôlées et candidatures privées.**
+**Version 0.16 : missions attribuées, contrats confirmés, briefing privé et règlement unique.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -88,7 +88,13 @@ Un joueur actif achète toute la quantité depuis un compte autorisé ; paiement
 
 La régie propose **Gérer les petites annonces** : préparation, prévisualisation, publication ou programmation, modification et clôture avec historique. Choisissez les personnages/groupes destinataires, le commanditaire de fiction, les conditions et la récompense descriptive ; briefing réservé et notes MJ restent séparés du texte joueur.
 
-Dans le marché, **Petites annonces** rassemble les missions accessibles et les candidatures personnelles. Question, candidature et éventuel tarif proposé restent privés. Les réponses de l’organisation apparaissent dans **Infos**, avec lecture explicite. Les contrats, l’attribution, le déblocage du briefing et les paiements restent à intégrer. [Parcours et limites 0.15](docs/VALIDATION-0.15.md).
+Dans le marché, **Petites annonces** rassemble les missions accessibles et les candidatures personnelles. Question, candidature et éventuel tarif proposé restent privés. Les réponses de l’organisation apparaissent dans **Infos**, avec lecture explicite. Depuis la candidature, le MJ propose maintenant un contrat de mission avec conditions et financement explicites. [Petites annonces 0.15](docs/VALIDATION-0.15.md).
+
+## Contrats de missions
+
+Le joueur relit et accepte les conditions : une place et les crédits du compte payeur sont réservés, puis le briefing privé est ouvert. **Mes missions et contrats** sépare propositions, missions attribuées et accords terminés. Une preuve textuelle doit être validée par le MJ avant le paiement unique. Le financement extérieur est enregistré comme création de crédits.
+
+Le délai suit le temps de jeu et s’arrête en pause. Une expiration ou annulation confirmée par le MJ restitue les fonds réservés. L’archivage exige de traiter les contrats ouverts. Primes ouvertes, représentation de groupe, acomptes et garanties restent à développer. [Parcours, preuves et limites 0.16](docs/VALIDATION-0.16.md).
 
 ## Infrastructure configurée
 
@@ -111,7 +117,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.15 est publiée : **551 tests réussis** localement et sur GitHub (299 métier/interface et 252 intégrations). Firebase sert le manifeste exact 0.15.0 ; les 82 commandes privées contrôlées refusent les accès anonymes. Preuves dans le [rapport 0.15](docs/VALIDATION-0.15.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.16 est préparée : **615 parcours distincts validés localement** (333 métier/interface et 282 intégrations, après correction et relance ciblée d’une assertion de confidentialité). Vérification complète GitHub et publication en cours ; preuves dans le [rapport 0.16](docs/VALIDATION-0.16.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 

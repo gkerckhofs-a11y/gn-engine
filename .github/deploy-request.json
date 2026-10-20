@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "0d66850eea9d0b33492fdb1b388ca9cda2e702da",
-  "requestedAt": "2026-10-19T19:34:05.193811+00:00",
-  "reason": "Publier la 0.15 : petites annonces organisateur, programmation, audiences et candidatures privées avec réponses dans Infos.",
-  "version": "0.15.0"
+  "sourceCommit": "4a1086b06d13cffa17de699e14e5190619f7c0fa",
+  "requestedAt": "2026-10-20T00:35:38.800408+00:00",
+  "reason": "Publier la 0.16 : contrats de missions attribuées, accord, briefing privé, réservations de crédits, preuve et règlement unique.",
+  "version": "0.16.0"
 }

@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-19",
+  "date": "2026-10-20",
   "source": "docs/source/GN_Engine_Cahier_des_charges_V1.docx",
   "statusMeaning": {
     "PARTIEL": "Une partie est observée dans le prototype, la totalité de l’exigence reste à valider.",
@@ -692,11 +692,11 @@
       "sourceLine": 215,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_15",
-      "coreWork": "Petites annonces et échanges privés de recrutement",
-      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.15.md ; src/core/announcements.mjs ; web/announcements.mjs ; test/support/announcements-suite.mjs ; test/announcements-ui.test.mjs ; test/integration",
-      "implementedScope": "Tableau de missions dans le marché, recherche et catégories, offres ouvertes séparées des candidatures personnelles. Missions effectivement attribuées restant."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_16",
+      "coreWork": "Contrats de missions attribuées et règlement contrôlé",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_VALIDES_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration",
+      "implementedScope": "Offres ouvertes, candidatures personnelles, propositions de contrats, missions attribuées et contrats terminés séparés. Recette terrain restante."
     },
     {
       "id": "ANN-02",
@@ -716,11 +716,11 @@
       "sourceLine": 217,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_15",
-      "coreWork": "Petites annonces et échanges privés de recrutement",
-      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.15.md ; src/core/announcements.mjs ; web/announcements.mjs ; test/support/announcements-suite.mjs ; test/announcements-ui.test.mjs ; test/integration",
-      "implementedScope": "Titre, catégorie, description, commanditaire, récompense descriptive fixe/négociable, échéance, places prévues, conditions et preuve. Modes mission/prime ouverte, audiences personnages/groupes, notes et briefing séparés. Déblocage du briefing et quotas restant."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_16",
+      "coreWork": "Contrats de missions attribuées et règlement contrôlé",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_VALIDES_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration",
+      "implementedScope": "Conditions publiques et audiences contrôlées ; compteur de places, briefing de la version acceptée débloqué au seul titulaire, notes MJ exclues. Quotas de primes ouvertes restant."
     },
     {
       "id": "ANN-04",
@@ -728,11 +728,11 @@
       "sourceLine": 219,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_15",
-      "coreWork": "Petites annonces et échanges privés de recrutement",
-      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.15.md ; src/core/announcements.mjs ; web/announcements.mjs ; test/support/announcements-suite.mjs ; test/announcements-ui.test.mjs ; test/integration",
-      "implementedScope": "Question/candidature personnelle, message et tarif proposé privé si négociable, réponses MJ, statuts envoyée/discussion/refusée/retirée, indicateur et lecture dans Infos. Représentation de groupe, commanditaire joueur et statut retenue contractuel restant."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_16",
+      "coreWork": "Contrats de missions attribuées et règlement contrôlé",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_VALIDES_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration",
+      "implementedScope": "Questions/candidatures personnelles, tarifs privés, réponses MJ, lecture dans Infos et statut mission attribuée relié au contrat. Représentation de groupe et commanditaire joueur restant."
     },
     {
       "id": "ANN-05",
@@ -740,10 +740,11 @@
       "sourceLine": 221,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_16",
+      "coreWork": "Contrats de missions attribuées et règlement contrôlé",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_VALIDES_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration",
+      "implementedScope": "Sélection par proposition MJ, accord personnel sur les mêmes conditions, places contrôlées atomiquement, montant explicite, délai de jeu, preuve et valideur MJ, briefing privé. Sans acompte/garantie ; groupes et primes ouvertes restant."
     },
     {
       "id": "ANN-06",
@@ -751,11 +752,11 @@
       "sourceLine": 223,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "EXTENSION_PARTIELLE_DEPLOYEE_0_15",
-      "coreWork": "Petites annonces et échanges privés de recrutement",
-      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_REUSSIS_RECETTE_TERRAIN_RESTANTE",
-      "evidence": "docs/VALIDATION-0.15.md ; src/core/announcements.mjs ; web/announcements.mjs ; test/support/announcements-suite.mjs ; test/announcements-ui.test.mjs ; test/integration",
-      "implementedScope": "Dashboard d’annonces, candidatures et échanges ; brouillon, programmation, ouverture, clôture, expiration, annulation et versions conservées. Contrats, preuves, réservations, paiement, quotas et notifications externes restant."
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_16",
+      "coreWork": "Contrats de missions attribuées et règlement contrôlé",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_VALIDES_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration",
+      "implementedScope": "Tableaux annonces/candidatures/contrats/preuves ; annonce pourvue, conditions acceptées figées, réservation de fonds, validation et paiement unique ou création monétaire extérieure tracée. Annulation/expiration MJ explicites libérant les réservations ; pas de traitement planifié ni avenant."
     },
     {
       "id": "REC-10",
@@ -763,10 +764,11 @@
       "sourceLine": 225,
       "lot": "E",
       "prototype": "NON_VERIFIE",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_16",
+      "coreWork": "Contrats de missions attribuées et règlement contrôlé",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_VALIDES_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration",
+      "implementedScope": "Parcours synthétiques de candidats personnels : tarifs distincts, dernière place concurrente, accord, briefing privé, preuve et règlement unique. Les bandes, représentants et quotas de primes ouvertes ne sont pas implémentés ; REC-10 non validé."
     },
     {
       "id": "CTR-01",
@@ -774,10 +776,11 @@
       "sourceLine": 228,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_16",
+      "coreWork": "Contrats de missions attribuées et règlement contrôlé",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_VALIDES_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration",
+      "implementedScope": "Contrat de mission attribuée : parties, service, montant en crédits, durée de jeu, preuve, MJ valideur, confidentialité et inexécution narrative. Sans acompte, garantie, objets, prêt ou location."
     },
     {
       "id": "CTR-02",
@@ -785,10 +788,11 @@
       "sourceLine": 229,
       "lot": "C",
       "prototype": "A_DEVELOPPER",
-      "firebaseIntegration": "NON_INTEGRE",
-      "coreWork": null,
-      "acceptance": "NON_EXECUTEE",
-      "evidence": "docs/AUDIT.md ; source Sites 6a12f995c5c26aaf3891cb4bbd8168e51184551e"
+      "firebaseIntegration": "EXTENSION_PARTIELLE_PREPAREE_0_16",
+      "coreWork": "Contrats de missions attribuées et règlement contrôlé",
+      "acceptance": "TESTS_METIER_INTERFACE_EMULATEURS_VALIDES_PUBLICATION_EN_COURS",
+      "evidence": "docs/VALIDATION-0.16.md ; src/core/contracts.mjs ; src/core/announcements.mjs ; src/core/economy-state.mjs ; web/contracts.mjs ; test/support/contracts-suite.mjs ; test/contracts-ui.test.mjs ; test/integration",
+      "implementedScope": "Proposition, accord, mission en cours, preuve à valider, complément, paiement unique, refus et clôture/expiration MJ avec libération des fonds. Pas de litige formalisé ni règlement automatique."
     },
     {
       "id": "ENT-01",

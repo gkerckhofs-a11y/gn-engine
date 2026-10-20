@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-19 octobre 2026. Aucun lot complet n’est encore validé. Version 0.15 publiée : petites annonces organisateur, programmation et audiences, candidatures et réponses privées. 551 tests réussis localement et sur GitHub (299 métier/interface et 252 intégrations) ; publication Firebase vérifiée, manifeste exact 0.15.0 et 82 commandes privées refusées aux accès anonymes. Rapport `VALIDATION-0.15.md` ; rapports précédents conservés. Contrats, attribution et règlement des missions ainsi que recette terrain restent ouverts.
+20 octobre 2026. Aucun lot complet n’est encore validé. Version 0.16 préparée : contrats de missions attribuées, consentement, briefing privé, preuve, réservation et règlement unique. 615 parcours distincts validés localement (333 métier/interface et 282 intégrations après correction et relance ciblée d’une assertion) ; vérification complète GitHub et publication en cours. Rapport `VALIDATION-0.16.md` ; rapports précédents conservés. Primes ouvertes, représentants de groupes, acomptes, garanties et recette terrain restent ouverts.
 
 | Lot | Parcours à livrer | Passage de lot |
 |---|---|---|
@@ -63,6 +63,10 @@ Marché visible aux joueurs actifs d’une session, recherche et filtres, public
 ## Extension 0.15
 
 Petites annonces publiées ou programmées par l’organisation, récompense descriptive fixe/négociable, audiences directes ou par groupe sans révéler leurs membres. Prévisualisation, historique MJ, questions/candidatures personnelles, tarifs privés, réponses sous le libellé du commanditaire, lecture dans Infos, refus et retrait. Contrats, attribution dans la limite des places, représentants de groupe, briefing débloqué et règlement unique restent à développer. ANN-05 et REC-10 restent ouverts. Voir `VALIDATION-0.15.md`.
+
+## Extension 0.16
+
+Proposition MJ et acceptation personnelle du même contrat ; places limitées, conditions figées, briefing privé, horloge suspendue pendant les pauses. Réservation sur compte personnel/collectif autorisée par le MJ ou financement extérieur identifié. Preuve textuelle, complément, validation et paiement unique, annulation/expiration explicites avec restitution, lecture dans Infos et archivage bloqué par les contrats ouverts. Primes ouvertes et représentation de bandes restent à développer : REC-10 demeure partiel. Voir `VALIDATION-0.16.md`.
 
 ## Préparation réalisée
 

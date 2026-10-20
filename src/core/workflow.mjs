@@ -1,3 +1,4 @@
+import {createContractService,contractAction} from './contracts.mjs';
 import {createAnnouncementService,announcementAction} from './announcements.mjs';
 import {createMarketService,marketAction} from './market.mjs';
 import {createSaleService,saleAction} from './sales.mjs';
@@ -93,6 +94,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     return {s,c,g,m:memberFor(g,cid)};
   };
 
+  const contractService=createContractService({store,signed,checkSession,now,uuid});
   const announcementService=createAnnouncementService({store,signed,checkSession,now,uuid});
   const marketService=createMarketService({store,signed,checkSession,now,uuid});
   const saleService=createSaleService({store,signed,now,uuid});
@@ -106,6 +108,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(contractAction(action))return contractService(action,actor,input);
     if(announcementAction(action))return announcementService(action,actor,input);
     if(marketAction(action))return marketService(action,actor,input);
     if(saleAction(action))return saleService(action,actor,input);
@@ -352,6 +355,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         } else {
           const transitions={PREPARATION:['BRIEFING'],BRIEFING:['EN_JEU'],EN_JEU:['PAUSE','FINISHED'],PAUSE:['EN_JEU','FINISHED'],FINISHED:['ARCHIVED'],ARCHIVED:[]};
           requireThat(transitions[s.stage].includes(input.stage),'INVALID_TRANSITION');
+          if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/contracts`)).some(c=>['PROPOSED','ACTIVE','SUBMITTED'].includes(c.status)),'CONTRACTS_OPEN');
           next.stage=input.stage;
           if(s.stage==='EN_JEU') next.clock=pauseClock(s.clock,at);
           if(input.stage==='EN_JEU') next.clock=resumeClock(s.clock,at);
