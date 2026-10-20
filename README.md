@@ -108,7 +108,7 @@ L’échéance suit l’heure réelle, comme celle des petites annonces, même e
 
 Dans chaque petite annonce, le MJ choisit **En son nom uniquement**, **Au nom d’une bande uniquement** ou **En son nom ou au nom d’une bande**. Le joueur choisit le bénéficiaire avant sa candidature ou sa preuve. Ce choix reste attaché à l’engagement : une mission personnelle paie le portefeuille du personnage, une mission collective la caisse de la bande. Les anciennes annonces restent personnelles.
 
-Dans les membres du groupe, le MJ accorde le droit **Représenter la bande dans les missions**. Il exige une appartenance active et révélée, un groupe publié, les espaces de groupes activés et une caisse configurée. Il ne donne aucun droit de consulter ou dépenser la caisse. Les représentants habilités partagent la candidature, le contrat, le briefing accepté et les preuves, y compris leur historique ; chacun garde son propre suivi de lecture.
+Dans les membres du groupe, le MJ accorde le droit **Représenter la bande pour les missions**. Il exige une appartenance active et révélée, un groupe publié, les espaces de groupes activés et une caisse configurée. Il ne donne aucun droit de consulter ou dépenser la caisse. Les représentants habilités partagent la candidature, le contrat, le briefing accepté et les preuves, y compris leur historique ; chacun garde son propre suivi de lecture.
 
 Une bande occupe une seule place et ne reçoit qu’une récompense par prime, même si plusieurs représentants interviennent. Le retrait d’un mandat bloque immédiatement les accès concernés, tandis qu’un autre représentant peut poursuivre. Sans représentant actif, le MJ doit rétablir une représentation ou clôturer l’engagement avant de libérer les fonds. Le mode « les deux » autorise des engagements distincts par bénéficiaire : ce n’est pas une limite par compte joueur. [Règles, vérifications et limites 0.18](docs/VALIDATION-0.18.md).
 
@@ -133,7 +133,7 @@ npm test
 npm run test:emulator
 ```
 
-La 0.18 a réussi **377 tests métier/interface localement** et la compilation. La vérification Firestore/Auth distante et la publication restent en cours. Preuves dans le [rapport 0.18](docs/VALIDATION-0.18.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
+La 0.18 a réussi **697 tests en une exécution complète sur GitHub** (377 métier/interface et 320 intégrations), sans échec ni test ignoré, ainsi que la compilation. Publication en cours. Preuves dans le [rapport 0.18](docs/VALIDATION-0.18.md). La recette authentifiée sur plusieurs comptes et mobile reste ouverte.
 
 ## Publier
 

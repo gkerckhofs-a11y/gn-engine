@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "787ffbdc3d17b768a0bb44aab6a4d1bb015a871a",
-  "requestedAt": "2026-10-20T05:50:55.758331+00:00",
-  "reason": "Publier la 0.17 : primes ouvertes financées, preuves privées concurrentes, quota atomique et paiement unique. 652 tests réussis.",
-  "version": "0.17.0"
+  "sourceCommit": "7072cda44252d2fded85bfe9661240140eed0a61",
+  "requestedAt": "2026-10-20T06:27:03.664096+00:00",
+  "reason": "Publier la 0.18 : participation personnelle ou de bande par mission, mandats de représentation, dossiers partagés et paiements collectifs. 697 tests réussis.",
+  "version": "0.18.0"
 }
