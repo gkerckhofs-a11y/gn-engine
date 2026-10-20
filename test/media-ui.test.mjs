@@ -14,3 +14,17 @@ test('Médiathèque UI : objets, missions et contrats utilisent leurs droits de 
   const ann=createAnnouncementUi({button,link}),html=ann.detail({session:{id:'s'},announcement:{id:'m',mediaImages:a.mediaImages,sponsor:{kind:'NPC',name:'Alias'},deadline:1000},canRespond:false});assert.match(html,/data-media-request/);assert.doesNotMatch(html,/briefing.*data-media-request/);
   const c=createContractUi({button,link}),page=c.detail({session:{id:'s'},admin:false,contract:{id:'c',revision:1,status:'PROPOSED',terms:{title:'Contrat',currency:{unit:'cr'},applicant:{kind:'PERSONAL',name:'Moi'},sponsor:{name:'Alias'}},mediaImages:a.mediaImages,briefing:null},history:[]});assert.match(page,/contract/);assert.match(page,/Le briefing réservé sera ouvert après acceptation/);
 });
+
+test('Confidentialité UI : aucune réponse privée tardive ne rouvre une image après déconnexion',async()=>{
+  const {createMediaController}=await import('../web/media.mjs');
+  const saved=Object.fromEntries(['document','window','MutationObserver','IntersectionObserver'].map(k=>[k,globalThis[k]]));
+  try{
+    for(const action of ['enlarge','original','picker','removal','batch']){
+      const handlers={},dialogs=[];let resolve;
+      globalThis.window={addEventListener(){}};globalThis.MutationObserver=class{observe(){}};globalThis.IntersectionObserver=class{observe(){}unobserve(){}};
+      globalThis.document={body:{append:d=>dialogs.push(d)},querySelectorAll:()=>[],addEventListener:(n,f)=>handlers[n]=f,createElement:()=>({open:false,innerHTML:'',showModal(){this.open=true;},close(){this.open=false;}})};
+      const ui=createMediaController({api:()=>new Promise(r=>resolve=r),mutate:async()=>{},auth:{},notice:()=>{}}),b={disabled:false,dataset:{mediaAction:action,id:'image',request:JSON.stringify({context:{mode:'player'}}),target:JSON.stringify({scope:'session',scopeId:'s',kind:'character',id:'c',slot:'private'})},closest:()=>null};
+      const pending=handlers.click({target:{closest:()=>b},preventDefault(){}});ui.clear();resolve({mime:'image/png',data:'SECRET_PRIVATE_BYTES',images:[],rows:[],scenarios:[],sessions:[]});await pending;assert.equal(dialogs.length,0,action);
+    }
+  }finally{for(const [k,v] of Object.entries(saved))if(v===undefined)delete globalThis[k];else globalThis[k]=v;}
+});

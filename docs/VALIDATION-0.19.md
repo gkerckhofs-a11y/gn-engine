@@ -20,7 +20,7 @@
 
 Métadonnées, références, quotas et audit dans Firestore ; binaires dans le bucket Cloud Storage privé `gn-engine-media-936415509528`, en Belgique. Les images ne sont ni publiques ni servies avec des URL porteuses d’un jeton. Chaque lecture passe par l’API authentifiée et la projection autorisée du contenu, puis renvoie uniquement les octets. Exception explicite : le portrait d’un badge public publié suit l’accès public de ce badge.
 
-L’API sert les variantes avec `Cache-Control: private, no-store`. Le client ne conserve pas de cache persistant des images et nettoie son interface à la déconnexion. La permission d’un fichier déjà consulté ne peut pas effacer les copies ou captures conservées par le lecteur.
+L’API sert les variantes avec `Cache-Control: private, no-store`. Le client ne conserve pas de cache persistant des images et nettoie son interface à la déconnexion. Le correctif 0.19.1 invalide aussi les réponses privées encore en vol lors d’une déconnexion ou d’un changement de page ; elles ne peuvent rouvrir une image ensuite. La permission d’un fichier déjà consulté ne peut pas effacer les copies ou captures conservées par le lecteur.
 
 L’autorisation GitHub initiale ne donne pas de droits Storage au compte d’exécution. L’activation est préparée dans `scripts/activate-media-storage.sh` : création du bucket dans le projet attendu, accès uniforme, interdiction d’accès public et rôle `roles/storage.objectUser` pour le seul compte `gn-engine-runtime`, sur ce seul bucket. Aucun rôle Owner/Editor, aucune clé, aucun accès Storage ajouté au compte de déploiement. Un marqueur privé vérifie l’accès réel de l’API. Tant qu’il manque, le catalogue affiche un message d’activation et désactive la sélection de fichiers.
 
@@ -35,7 +35,7 @@ La fonction dispose de 512 Mio, au maximum trois instances et huit requêtes sim
 - Aucune donnée de jeu ni image de recette créée en production.
 - Une fixture locale `test/ui/media-preview.mjs` (génération : `node scripts/build-media-preview.mjs`) permet la revue de l’interface sur données fictives. La revue visuelle via le navigateur distant n’a pas été exécutée : sa politique refuse les fichiers locaux. Les tests d’interface automatisés ne remplacent pas la recette sur téléphone.
 
-Validation locale : 395 tests métier/interface et 331 intégrations Auth/Firestore/Storage réussis. La suite complète sera réexécutée sur la révision publiée dans la chaîne GitHub avant déploiement ; les références finales seront ajoutées ensuite.
+Validation locale : 396 tests métier/interface et 331 intégrations Auth/Firestore/Storage réussis. La suite complète sera réexécutée sur la révision publiée dans la chaîne GitHub avant déploiement ; les références finales seront ajoutées ensuite.
 
 ## Limites et suite du cahier
 
