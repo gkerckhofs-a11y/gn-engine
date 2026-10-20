@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "89c6293c27e833c16f8c90d6ad35f72c48943a5e",
+  "sourceCommit": "d96fe52066e991fa34d769710fea8ae48139e181",
   "version": "0.25.0",
-  "requestedAt": "2026-10-20T14:12:51.404Z",
-  "reason": "Soins de terrain et clinique en deux étapes, aide compétente et pillage avec remise confirmée. 498 tests applicatifs locaux réussis ; validation Firebase obligatoire avant publication."
+  "requestedAt": "2026-10-20T14:16:30.407Z",
+  "reason": "Soins, aide et pillage ; contrôle de santé de l’aide avant réservation. 499 tests applicatifs locaux réussis ; validation Firebase obligatoire avant publication."
 }
