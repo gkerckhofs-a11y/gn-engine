@@ -28,3 +28,10 @@ test('Confidentialité UI : aucune réponse privée tardive ne rouvre une image 
     }
   }finally{for(const [k,v] of Object.entries(saved))if(v===undefined)delete globalThis[k];else globalThis[k]=v;}
 });
+
+test('Éditeur ouvert : attribuer une image ne masque pas une modification de texte concurrente',async()=>{
+  const {mediaEditorSnapshot}=await import('../web/media.mjs'),opened={id:'session',revision:4,characters:[{id:'c',biography:'Texte au moment de l’ouverture'}]},onlyImage={...opened,revision:5},concurrent={...opened,revision:6,characters:[{id:'c',biography:'Nouvelle biographie d’un autre MJ'}]};
+  assert.equal(mediaEditorSnapshot(opened,onlyImage),onlyImage,'Notre seule attribution peut avancer la révision');
+  assert.equal(mediaEditorSnapshot(opened,concurrent),opened,'Le formulaire garde la révision périmée ; le serveur refusera de remplacer la nouvelle biographie');
+  assert.equal(mediaEditorSnapshot(opened,{...onlyImage,id:'autre-session'}),opened);
+});

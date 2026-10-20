@@ -35,10 +35,12 @@ La fonction dispose de 512 Mio, au maximum trois instances et huit requêtes sim
 - Aucune donnée de jeu ni image de recette créée en production.
 - Une fixture locale `test/ui/media-preview.mjs` (génération : `node scripts/build-media-preview.mjs`) permet la revue de l’interface sur données fictives. La revue visuelle via le navigateur distant n’a pas été exécutée : sa politique refuse les fichiers locaux. Les tests d’interface automatisés ne remplacent pas la recette sur téléphone.
 
-Validation locale : 396 tests métier/interface et 331 intégrations Auth/Firestore/Storage réussis. La suite complète sera réexécutée sur la révision publiée dans la chaîne GitHub avant déploiement ; les références finales seront ajoutées ensuite.
+Validation locale : 397 tests métier/interface et 331 intégrations Auth/Firestore/Storage réussis. La suite complète sera réexécutée sur la révision publiée dans la chaîne GitHub avant déploiement ; les références finales seront ajoutées ensuite.
 
 ## Limites et suite du cahier
 
 Le module ne couvre pas encore les exports/imports complets de scénario avec leurs fichiers, associations et permissions, ni les sauvegardes/restaurations générales. MED-08 reste partiel malgré la séparation des binaires et le contrôle avant ouverture. Les durées sur un lot de vraies photos et le chargement sur téléphone/réseau terrain restent à mesurer (MED-09 / REC-11). La recette authentifiée avec les comptes réels et l’activation du bucket restent à confirmer.
 
 La source conservée est une source normalisée et débarrassée de ses métadonnées, pas une copie binaire inchangée du fichier importé. Aucun éditeur de recadrage n’est inclus. La première version protège les références des historiques sans interface permettant d’effacer ces historiques ; les images qui y figurent restent conservées.
+
+Le correctif 0.19.2 conserve également la protection contre les modifications concurrentes dans un éditeur de texte resté ouvert pendant le choix d’une image. Seule la révision produite par cette attribution peut être reprise automatiquement ; une modification intermédiaire d’un autre organisateur laisse l’enregistrement périmé et oblige à relire la fiche.
