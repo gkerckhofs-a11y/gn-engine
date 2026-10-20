@@ -13,7 +13,23 @@ Date : 20 octobre 2026. Extension du contrat XLSX de format 1 ; les anciens mast
 
 ## Publication
 
-Validation Firebase et publication en attente. Les identifiants des commits et résultats définitifs seront ajoutés après contrôle.
+Le 20 octobre 2026, la chaîne GitHub Actions **39444879476** a terminé avec succès.
+
+| Élément | Preuve |
+| --- | --- |
+| Commit fonctionnel | `880870d2409aa633418fb29c24ab5cd905728a0c` |
+| Commit de publication validé | `26904e2ccdff62e102bb77940a640b9753e22cd8` |
+| Job verify | `118704021867`, succès |
+| Tests applicatifs | 508 réussis à 15:04:13 UTC ; 0 échec, 0 ignoré |
+| Tests Firebase | 420 réussis à 15:17:19 UTC ; 0 échec, 0 ignoré |
+| Total | **928 tests réussis** |
+| Job deploy | `118711547340`, succès |
+| Publication Firebase | Terminée à 15:19:33 UTC |
+| Quatre fichiers XLSX | Téléchargés et comparés octet par octet aux fichiers validés à 15:19:35 UTC |
+| Site et accès privés | Version 0.26.0 accessible ; commandes privées anonymes refusées à 15:20:04 UTC |
+| Navigateur | Accueil rechargé, pied de page GN Engine 0.26.0 confirmé |
+
+Application : https://gn-engine.web.app/#/ . Aucun import n’a été effectué dans une partie réelle pendant la validation. Les parcours authentifiés de ce lot sont vérifiés par les tests HTTP et Firebase ; l’observation du navigateur porte sur l’accueil public.
 
 ## Limites
 

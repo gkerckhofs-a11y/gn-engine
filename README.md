@@ -2,13 +2,15 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.25.0 publiée et vérifiée : soins, aide et pillage.**
+**Version 0.26.0 publiée et vérifiée : masters de terrain et interactions.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
 ## Masters de terrain — 0.26
 
 Les masters CAMPAGNE et SESSION acceptent **Lieux, ActionsTerrain, Recompenses et Interactions** : fouilles, installations, profils médicaux et pillage, expertises requises, durées, jets, coûts, consommables et bonus. Les objets ont une colonne `pillable`. Quatre fichiers XLSX et leurs exemples fictifs sont disponibles dans Contenus et masters.
+
+Compilation et **928 tests réussis** sur GitHub : 508 applicatifs et 420 intégrations Firebase, sans échec ni test ignoré. Publication, quatre XLSX et refus anonymes contrôlés à 15:20:04 UTC le 20 octobre 2026 ; accueil 0.26.0 vérifié dans le navigateur.
 
 Les imports restent préparés, contrôlés puis confirmés avant le premier lancement. Les récompenses d’un lieu déjà créé en session restent immuables ; stock restant, découvertes et état de panne sont conservés. L’import détecte les références invalides, doublons, changements d’identité et aperçus périmés. [Mode d’emploi](docs/MASTERS.md) · [Validation 0.26](docs/VALIDATION-0.26.md).
 

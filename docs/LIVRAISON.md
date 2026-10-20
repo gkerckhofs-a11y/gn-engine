@@ -1,6 +1,6 @@
 # Suivi de réalisation
 
-20 octobre 2026. Aucun lot complet du cahier n’est encore validé. Version 0.25.0 publiée : soins, aide et pillage. Compilation et 910 tests réussis (499 applicatifs, 411 intégrations Firebase), sans échec ni test ignoré. Publication, quatre masters et refus anonymes vérifiés à 14:41:05 UTC ; accueil 0.25.0 confirmé dans le navigateur. Preuves dans [VALIDATION-0.25.md](VALIDATION-0.25.md). [Guide de configuration](SOINS-AIDE-PILLAGE.md). Capture complète, effets économiques des pannes, progression XP et recette terrain restent ouverts.
+20 octobre 2026. Aucun lot complet du cahier n’est encore validé. Version 0.26.0 publiée : masters de terrain et interactions. Compilation et 928 tests réussis (508 applicatifs, 420 intégrations Firebase), sans échec ni test ignoré. Publication, quatre masters et refus anonymes vérifiés à 15:20:04 UTC ; accueil 0.26.0 confirmé dans le navigateur. Preuves dans [VALIDATION-0.26.md](VALIDATION-0.26.md). [Guide des masters](MASTERS.md). Navigation en quatre espaces, capture complète, logistique, progression XP et recette terrain restent ouvertes.
 
 ## Extension 0.26 — masters de terrain
 

@@ -6,6 +6,8 @@ Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, co
 
 Lieux de fouille, installations, profils SEARCH/SABOTAGE/REPAIR, récompenses finies et cinq profils d’interaction sont importables depuis les quatre modèles/exemples XLSX mis à jour. Colonne pillable pour les modèles d’objets. Aperçu, validation atomique, stocks existants protégés, empreintes conservées en campagne. Voir [Masters](MASTERS.md) et [Validation](VALIDATION-0.26.md).
 
+928 tests réussis sur GitHub : 508 applicatifs et 420 intégrations Firebase, sans échec ni test ignoré. Publication, quatre XLSX et refus anonymes contrôlés à 15:20:04 UTC ; accueil 0.26.0 vérifié dans le navigateur.
+
 ## Lot 0.25 : soins, aide et pillage
 
 Cinq profils configurables, actions sur badge, soins chronométrés, clinique accélérée avec complément sans second coût, récupération commune du patient, convalescence et aide +1 sans second PA. Pillage d’une unité, choix selon la méthode, quota par victime et rencontre, remise confirmée, objets protégés par défaut. Profils conservés dans les versions, archives et campagnes. [Guide et limites](SOINS-AIDE-PILLAGE.md) · [Validation](VALIDATION-0.25.md).
@@ -50,7 +52,7 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 | --- | --- | --- |
 | GN-01 | Choix partie indépendante / nouvelle campagne et sessions successives | Conversion des anciennes sessions indépendantes non proposée. |
 | GN-02 | Master CAMPAGNE XLSX, dictionnaire, exemple et import dans le scénario ; archives conservées | Étendre aux futurs modules et champs non encore importables. |
-| GN-03 | Master SESSION complémentaire, identifiants durables, ajouts de personnages et paramètres avant jeu | Étendre aux lieux, installations, spatial et annonces. |
+| GN-03 | Master SESSION complémentaire, identifiants durables, personnages, lieux, installations, interactions et paramètres avant jeu | Étendre au spatial, aux annonces et à la logistique. |
 | GN-04 | Aperçu avant/après, versions, acquis protégés, archivage contrôlé et journal d’import | Import en cours de jeu non proposé ; sauvegarde complète distincte. |
 | GN-05 | Bilan, clôture scellée, acquis conservés, reprise et verrou de campagne | Report des contrats, copie de campagne de test et états de modules futurs. |
 | GN-06 | Crédits, objets, profils, PV et maintenant PA/niveau global | XP et progression de campagne, prérequis avancés. |
@@ -66,7 +68,7 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 | GN-16 | PA, QR de lieux, liens/code manuel, actions en cours et résultats | Réorganiser les quatre espaces joueur, inventaire unifié et scan caméra intégré. |
 | GN-17 | Médiathèque et images présentes en 0.19–0.20 | Activation du stockage selon sa procédure existante et recette sur les contenus réels. |
 | GN-18 | Nouvelles inscriptions et invitations ; rôle précédent proposé sans accès automatique | Compléter le pack sans smartphone et la recette terrain. |
-| GN-19 | PA, campagnes, masters et terrain couverts par les suites automatisées ; 867 tests réussis en 0.24 | Recette terrain, plusieurs comptes réels et charge simultanée. |
+| GN-19 | PA, campagnes, masters et terrain couverts par les suites automatisées ; 928 tests réussis en 0.26 | Recette terrain, plusieurs comptes réels et charge simultanée. |
 
 ## Ordre de reprise proposé
 
