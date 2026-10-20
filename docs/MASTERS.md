@@ -1,16 +1,18 @@
 # Masters de campagne et de session — format 1
 
-GN Engine 0.26, format Excel introduit en 0.23 et étendu en 0.26. Date : 20 octobre 2026. Ce contrat décrit les champs réellement acceptés par le moteur. Source de référence : `src/shared/master-schema.mjs` ; validation métier : `src/core/masters.mjs`.
+GN Engine 0.26.1, format Excel introduit en 0.23 et étendu en 0.26. Date : 20 octobre 2026. Ce contrat décrit les champs réellement acceptés par le moteur. Source de référence : `src/shared/master-schema.mjs` ; validation métier : `src/core/masters.mjs`.
 
 ## Commencer
 
-Dans un **scénario**, ouvrir **Contenus et masters → Importer un master Excel**. Le master CAMPAGNE prépare le modèle réutilisable. Il ne crée pas immédiatement une campagne : après import, figer une version, puis choisir **Premier épisode d’une nouvelle campagne**.
+Dans un **scénario**, choisir le fichier dans **Contenus et masters → Master de campagne → Fichier master de campagne (.xlsx)**. Le master CAMPAGNE prépare le modèle réutilisable. Il ne crée pas immédiatement une campagne : après import, figer une version, puis choisir **Premier épisode d’une nouvelle campagne**.
 
-Dans une **session en préparation**, le même panneau accepte le master SESSION et propose **Ajouter un personnage**. Le formulaire direct utilise exactement le même aperçu, les mêmes contrôles et le même journal que le fichier Excel. Seul le propriétaire dispose de ces imports ; les délégations MJ conservent leurs outils d’édition habituels. Les nouveaux personnages restent sans compte joueur attribué.
+Dans la régie d’une **session en préparation**, utiliser le champ distinct **Contenus et masters → Master de session → Fichier master de session (.xlsx)**. Ce panneau propose aussi **Ajouter un personnage**. Le formulaire direct utilise exactement le même aperçu, les mêmes contrôles et le même journal que le fichier Excel. Seul le propriétaire dispose de ces imports ; les délégations MJ conservent leurs outils d’édition habituels. Les nouveaux personnages restent sans compte joueur attribué.
+
+Chaque zone propose uniquement son modèle et son exemple à télécharger, affiche la destination et rappelle où charger l’autre type. Après sélection, saisir le motif puis vérifier le fichier. Un master du mauvais type est refusé avant l’envoi au serveur : le message indique le champ et l’écran à utiliser. Le contrôle lit `Meta.type`, même si le fichier a été renommé. Le serveur conserve son propre contrôle de type et de destination. Aucun import n’est appliqué sans aperçu et confirmation explicite.
 
 Le master de session complète l’épisode ouvert. Pour ajouter des personnages entre deux épisodes, clôturer le précédent, préparer le suivant, puis importer le complément dans sa régie. Le complément sera conservé à la clôture de cet épisode. Un import n’altère pas rétroactivement le scénario ni les épisodes archivés.
 
-Fichiers fournis et accessibles depuis le panneau :
+Fichiers fournis et accessibles depuis leurs panneaux respectifs :
 
 - `assets/masters/GN_Engine_Master_Campagne.xlsx` : modèle vierge.
 - `assets/masters/GN_Engine_Master_Session.xlsx` : modèle vierge.
