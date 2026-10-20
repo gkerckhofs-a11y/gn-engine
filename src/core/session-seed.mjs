@@ -12,7 +12,7 @@ const charPath=(sid,cid)=>`sessions/${sid}/characters/${cid}`;
 export const scenarioCollections=['characters','groups','knowledge','skills','classes','items'];
 export async function readScenarioVersion(tx,id,vid){
  const v=await tx.get(`scenarios/${id}/versions/${vid}`);requireThat(v,'NOT_FOUND');
- const [chars,groups,knowledge,skills,classes,items]=await Promise.all(scenarioCollections.map(k=>tx.list(`scenarios/${id}/versions/${vid}/${k}`)));
+  const [chars,groups,knowledge,skills,classes,items]=await Promise.all(scenarioCollections.map(k=>tx.list(`scenarios/${id}/versions/${vid}/${k}`)));
  return {v,chars,groups,knowledge,skills,classes,items};
 }
 export function sessionFromVersion(input,data,newId,actor,at){
@@ -25,6 +25,7 @@ export function sessionFromVersion(input,data,newId,actor,at){
           date:optional(input.date,40),time:optional(input.time,80),place:optional(input.place,500),practical:optional(input.practical,4000),
           privacy:text(input.privacy,4000,true),capacity,accepted:0,registrationOpen:false,stage:'PREPARATION',fields:cleanFields,
           clock:createClock(),revision:1,createdAt:at,economyRules:v.economyRules??null,healthRules:v.healthRules??null,modules:{groups:groups.length>0}};
+        if(v.masterRowBaseline?.length)s.masterRowBaseline=v.masterRowBaseline;
         if(v.actionPointRules){s.actionPointRules=v.actionPointRules;s.actionPointRulesRevision=1;s.actionPointSchedule={nextAtGameMs:v.actionPointRules.renewalMinutes*60000};for(const c of chars)actionPointMaximum(v.actionPointRules,c);}
         return s;
 }
@@ -32,7 +33,7 @@ export function seedScenarioSession(tx,s,data,actor,at){
  const {v,chars,groups,knowledge,skills,classes,items}=data,newId=s.id;
         tx.set(`sessions/${newId}`,s);
         for(const c of chars) {
-          const next={...c,...initialHealth(v.healthRules),sessionId:newId,publicCode:c.id,assignedUid:null,contentRevision:1,historyStarted:true};
+          const next={...c,...initialHealth(v.healthRules,c),sessionId:newId,publicCode:c.id,assignedUid:null,contentRevision:1,historyStarted:true};
           tx.set(charPath(newId,c.id),next);
           recordPublication(tx,`sessions/${newId}/characters`,null,next,{id:newId,at,actorUid:actor.uid,reason:'Création depuis la version de scénario',stage:'PREPARATION'});
         }

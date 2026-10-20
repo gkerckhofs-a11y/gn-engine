@@ -1,3 +1,5 @@
+import {masterCommands} from '../../src/core/masters.mjs';
+import {masterExample} from '../../src/shared/master-examples.mjs';
 import {campaignCommands} from '../../src/core/campaigns.mjs';
 import {actionPointCommands} from '../../src/core/action-points.mjs';
 import {sampleImage} from '../support/media-suite.mjs';
@@ -24,6 +26,18 @@ const request=async(action,input={},token)=>{
   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,input})});
   return {status:response.status,...await response.json()};
 };
+
+test('HTTP + Auth : master validé, refus des accès étrangers et import atomique',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),visitor=await googleTestAccount(`masters-${randomUUID()}@example.invalid`);
+ const initial=await request('createScenario',{title:'Master HTTP',requestId:randomUUID()},owner);assert.equal(initial.status,200);const scenarioId=initial.result.id;
+ const payload={scenarioId,sheets:masterExample(),reason:'Validation HTTP',filename:'Exemple test.xlsx'};
+ for(const action of masterCommands){assert.equal((await request(action,{...payload,requestId:randomUUID()})).status,401);assert.equal((await request(action,{...payload,requestId:randomUUID()},visitor)).status,403);}
+ const preview=await request('prepareMasterImport',payload,owner);assert.equal(preview.status,200);assert.deepEqual(preview.result.errors,[]);
+ const command={...payload,confirmation:preview.result.confirmation,requestId:randomUUID()},saved=await request('applyMasterImport',command,owner);assert.equal(saved.status,200);assert.deepEqual(await request('applyMasterImport',command,owner),saved);
+ const scenario=await request('scenario',{scenarioId},owner);assert.equal(scenario.result.characters.length,1);assert.equal(scenario.result.characters[0].startingCredits.amount,100);
+ const changed=structuredClone(payload);changed.sheets.Personnages[0].nom='Autre nom sans changer la version';const denied=await request('prepareMasterImport',changed,owner);assert.equal(denied.result.canApply,false);assert.ok(denied.result.errors.some(e=>e.sheet==='Personnages'&&e.column==='version'));
+ const history=await request('masterImportHistory',{scenarioId},owner);assert.equal(history.result.imports.length,1);
+});
 
 test('HTTP + Auth : PV privés, dégât personnel et soin confirmé avec usage unique',async()=>{
   const owner=await googleTestAccount('gkerckhofs@gmail.com'),healer=await googleTestAccount(`heal-${randomUUID()}@example.invalid`),patient=await googleTestAccount(`patient-${randomUUID()}@example.invalid`);

@@ -12,7 +12,7 @@ const digest=v=>hash(JSON.stringify(canonical(v)));
 const text=(v,max=500)=>{requireThat(typeof v==='string'&&v.trim()&&v.length<=max,'INVALID_CAMPAIGN');return v.trim();};
 const sorted=rows=>rows.sort((a,b)=>a.id.localeCompare(b.id));
 const root=id=>`campaigns/${documentId(id)}`;
-const collections=['characters','groups','knowledge','skills','classes','items','accounts','inventory'];
+const collections=['characters','groups','knowledge','skills','classes','items','accounts','inventory','masterRows'];
 const reads=['campaign','prepareCampaignStart','prepareCampaignClosure','prepareCampaignEpisode'];
 const writes=['startCampaign','closeCampaignSession','beginCampaignEpisode','advanceCampaignEpisode','reopenCampaignSession'];
 export const campaignCommands=[...reads,...writes];
@@ -47,7 +47,7 @@ const cpSummary=c=>({id:c.id,title:c.title,revision:c.revision,activeSessionId:c
 const sourceIdentity=s=>({id:s.id,revision:s.revision,scenarioId:s.scenarioId,versionId:s.versionId,actionPointRules:s.actionPointRules??null,healthRules:s.healthRules??null,economyRules:s.economyRules??null,modules:s.modules??{}});
 function episodeHeader(input,source,campaign,newId,actor,at){
  requireThat(['PRESERVE','RESTORE'].includes(input.healthPolicy),'CAMPAIGN_HEALTH_POLICY_REQUIRED');
- const template={v:{summary:source.summary,economyRules:source.economyRules??null,healthRules:null,actionPointRules:source.actionPointRules??null},chars:[],groups:[]};
+ const template={v:{masterRowBaseline:source.masterRowBaseline??[],summary:source.summary,economyRules:source.economyRules??null,healthRules:null,actionPointRules:source.actionPointRules??null},chars:[],groups:[]};
  const s=sessionFromVersion({...input,scenarioId:source.scenarioId,versionId:source.versionId},template,newId,actor,at);
  return {...s,healthRules:source.healthRules??null,modules:source.modules??{},campaignId:campaign.id,campaignEpisode:campaign.episodeCount+1,
   previousSessionId:source.id,campaignSealed:false,campaignHealthPolicy:input.healthPolicy};
@@ -65,7 +65,7 @@ function episodeEntries(data,source,s,actor,at){
   recordPublication({set:(path,value)=>put(path.slice(`sessions/${s.id}/`.length),value)},`sessions/${s.id}/characters`,null,next,{id:s.id,at,actorUid:actor.uid,reason,stage:'PREPARATION'});
   for(const r of data.receipts[c.id]??[])put(`characters/${c.id}/knowledge/${r.id}`,r);
  }
- for(const key of ['groups','knowledge','skills','classes','items'])for(const row of data[key])put(`${key}/${row.id}`,row);
+ for(const key of ['groups','knowledge','skills','classes','items','masterRows'])for(const row of data[key])put(`${key}/${row.id}`,row);
  for(const g of data.groups)for(const u of data.updates[g.id]??[]){
   put(`groups/${g.id}/updates/${u.id}`,u);
   // Preserve the original audience. Later members never receive earlier posts.

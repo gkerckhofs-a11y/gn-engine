@@ -1,3 +1,4 @@
+import {mastersSuite} from '../support/masters-suite.mjs';
 import {campaignsSuite} from '../support/campaigns-suite.mjs';
 import {actionPointsSuite} from '../support/action-points-suite.mjs';
 import {mediaSuite} from '../support/media-suite.mjs';
@@ -58,3 +59,5 @@ archiveSuite(()=>firestoreStore(firestore),'Archives sur Firestore');
 actionPointsSuite(()=>firestoreStore(firestore),'PA sur Firestore');
 
 campaignsSuite(()=>firestoreStore(firestore),'Campagnes sur Firestore');
+
+mastersSuite(()=>firestoreStore(firestore),'Masters sur Firestore');

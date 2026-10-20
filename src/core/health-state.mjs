@@ -13,7 +13,7 @@ export function healthState(c){
   requireThat(Number.isSafeInteger(c.maxHp)&&c.maxHp>0&&Number.isSafeInteger(c.hp)&&c.hp>=0&&c.hp<=c.maxHp,'HEALTH_NOT_CONFIGURED');
   return {hp:c.hp,maxHp:c.maxHp,outOfCombat:c.hp===0||c.outOfCombat===true,revision:c.healthRevision??0};
 }
-export const initialHealth=rules=>rules?.enabled?{hp:rules.defaultMaxHp,maxHp:rules.defaultMaxHp,outOfCombat:false,healthRevision:1}:{};
+export const initialHealth=(rules,character={})=>rules?.enabled?{hp:character.initialMaxHp??rules.defaultMaxHp,maxHp:character.initialMaxHp??rules.defaultMaxHp,outOfCombat:false,healthRevision:1}:{};
 export function healthSummary(s,c){
   return s.healthRules?.enabled&&c?{...healthState(c),stage:s.stage,returnMode:s.healthRules.returnMode,allowed:s.healthRules.allowed}:null;
 }

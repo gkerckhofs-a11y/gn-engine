@@ -44,6 +44,7 @@ function character(v){
   object(v);const p=object(v.public),state=publication(v.publicationState);
   const c={id:documentId(v.id),public:{displayName:text(p.displayName,150,true),profession:text(p.profession??'',150),description:text(p.description??'',4000),publicationState:publication(p.publicationState)},publicationState:state,biography:text(v.biography??'',20000),roleplay:text(v.roleplay??'',10000),playerSecrets:text(v.playerSecrets??'',20000),gmNotes:text(v.gmNotes??'',20000),objectives:narrativeInput(v.objectives??[],'objectives'),relations:narrativeInput(v.relations??[],'relations'),hp:null,maxHp:null,historyStarted:true,contentRevision:revision(v.contentRevision??1),...imageFields(v,['portrait','private'])};
   if(v.globalLevel!==undefined)c.globalLevel=globalLevel(v.globalLevel);
+  if(v.initialMaxHp!==undefined)c.initialMaxHp=revision(v.initialMaxHp);
   if(v.abilityProfile)c.abilityProfile=profile(v.abilityProfile);
   if(v.startingCredits)c.startingCredits={amount:whole(v.startingCredits.amount,'INVALID_SCENARIO_PACKAGE'),revision:revision(v.startingCredits.revision)};
   if(v.startingInventory){const entries=array(v.startingInventory.items,60).map(x=>{const i=item(x.item,true);return {item:i,quantity:itemQuantity(i,x.quantity)};});fail(new Set(entries.map(x=>x.item.id)).size===entries.length);c.startingInventory={revision:revision(v.startingInventory.revision),items:entries};}

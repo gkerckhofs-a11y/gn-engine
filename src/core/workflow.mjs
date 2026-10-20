@@ -1,3 +1,4 @@
+import {createMasterService,masterAction} from './masters.mjs';
 import {createCampaignService,campaignAction,campaignGuardStore} from './campaigns.mjs';
 import {readScenarioVersion,sessionFromVersion,seedScenarioSession} from './session-seed.mjs';
 import {createActionPointService,actionPointAction} from './action-points.mjs';
@@ -126,6 +127,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     return record.mediaImages?.[slot]??null;
   }});
   const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,now,uuid});
+  const masterService=createMasterService({store,admin,checkSession,checkScenario,now,uuid});
   const archiveService=createScenarioArchiveService({store,admin,checkScenario,now,uuid,images,archiveUpload:mediaService.archiveUpload});
   const actionPointService=createActionPointService({store,signed,checkSession,checkScenario,now,uuid});
   const bountyService=createBountyService({store,signed,checkSession,now,uuid});
@@ -143,6 +145,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(masterAction(action))return masterService(action,actor,input);
     if(campaignAction(action))return campaignService(action,actor,input);
     if(archiveAction(action))return archiveService(action,actor,input);
     if(mediaAction(action))return mediaService(action,actor,input);
@@ -348,7 +351,8 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         const id=documentId(input.scenarioId),s=await checkScenario(tx,actor,id); revision(s,input.revision);
         const [chars,groups,knowledge,skills,classes,items]=await Promise.all([tx.list(`scenarios/${id}/characters`),tx.list(`scenarios/${id}/groups`),tx.list(`scenarios/${id}/knowledge`),tx.list(`scenarios/${id}/skills`),tx.list(`scenarios/${id}/classes`),tx.list(`scenarios/${id}/items`)]); requireThat(chars.length>0,'EMPTY_SCENARIO');
         if(s.actionPointRules)for(const c of chars)actionPointMaximum(s.actionPointRules,c);
-        const version={id:newId,title:s.title,summary:s.summary,sourceRevision:s.revision,createdAt:at,characterCount:chars.length,groupCount:groups.length,knowledgeCount:knowledge.length,skillCount:skills.length,classCount:classes.length,itemCount:items.length,actionPointRules:s.actionPointRules??null,economyRules:s.economyRules??null,healthRules:s.healthRules??null};
+        const masterRows=await tx.list(`scenarios/${id}/masterRows`);
+        const version={id:newId,masterRowBaseline:masterRows,title:s.title,summary:s.summary,sourceRevision:s.revision,createdAt:at,characterCount:chars.length,groupCount:groups.length,knowledgeCount:knowledge.length,skillCount:skills.length,classCount:classes.length,itemCount:items.length,actionPointRules:s.actionPointRules??null,economyRules:s.economyRules??null,healthRules:s.healthRules??null};
         tx.set(`scenarios/${id}/versions/${newId}`,version);
         for(const c of chars) tx.set(`scenarios/${id}/versions/${newId}/characters/${c.id}`,c);
         for(const g of groups)tx.set(`scenarios/${id}/versions/${newId}/groups/${g.id}`,g);
