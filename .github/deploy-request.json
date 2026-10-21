@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "cc3718090a765eddbaca34d451a9df39145ea3f1",
-  "version": "0.31.0",
-  "requestedAt": "2026-10-21T09:03:32.757Z",
-  "reason": "Réservoirs, pleins depuis les lots, voyages configurables et masters campagne/session ; publication après validation complète."
+  "sourceCommit": "65b9728a1cfdd77113c1a20fd49892f1f3ca1df3",
+  "version": "0.32.0",
+  "requestedAt": "2026-10-21T11:15:01.235Z",
+  "reason": "Cours des marchandises, événements manuels ou liés aux pannes, ventes indexées ; publication après validation complète."
 }
