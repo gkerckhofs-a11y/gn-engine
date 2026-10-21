@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.31.0 : réservoirs, ravitaillement et voyages — validation en cours.**
+**Version 0.31.0 publiée : réservoirs, ravitaillement et voyages.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -10,11 +10,13 @@ Application : **https://gn-engine.web.app/**. Le compte organisateur configuré 
 
 Carburant pris dans l’inventaire, réservoirs configurables, routes à sens unique, aperçu du coût, départ transactionnel et arrivée confirmée après le temps de jeu. Les soutes sont bloquées en transit ; les échanges locaux reprennent au retour à l’astroport. Droit explicite de pilotage pour les bandes, arbitrage MJ et continuité de campagne. Les quatre masters incluent vaisseaux, routes et port local ; les archives conservent les définitions initiales sans état joué. Aucun barème de jeu n’est activé en production. [Guide](docs/LOGISTIQUE.md) · [Imports](docs/MASTERS.md).
 
+Compilation et **1 063 tests réussis** (588 applicatifs, 475 intégrations Firebase). Publication, quatre masters et refus anonymes vérifiés le 21 octobre 2026 à 09:20:40 UTC ; accueil 0.31.0 confirmé dans le navigateur. [Validation et limites](docs/VALIDATION-0.31.md). Recette privée sur téléphones et charge réelle encore ouverte.
+
 ## QR, soutes et carburant — 0.30
 
 QR privés pour les lots et les destinations, soutes personnelles ou de bande, transferts directs conservant la propriété, réservation de la quantité et du volume, réception explicite et annulation tracée. Le catalogue propose la préparation d’un modèle de carburant pour les achats, ventes et chargements existants. Aucun stock de production ni tarif de transport n’est créé implicitement. [Guide](docs/LOGISTIQUE.md) · [Validation](docs/VALIDATION-0.30.md).
 
-Compilation et **1 032 tests réussis** (571 applicatifs, 461 intégrations Firebase). Publication, quatre masters et refus anonymes vérifiés le 21 octobre 2026 à 07:06:59 UTC ; accueil 0.30.0 confirmé dans le navigateur. Les pleins, trajets et consommation restent à développer ; les soutes se configurent dans la régie et suivent les campagnes. Recette privée sur téléphones et charge réelle encore ouverte.
+Compilation et **1 032 tests réussis** (571 applicatifs, 461 intégrations Firebase). Publication, quatre masters et refus anonymes vérifiés le 21 octobre 2026 à 07:06:59 UTC ; accueil 0.30.0 confirmé dans le navigateur. Les pleins, trajets et consommation sont ajoutés en 0.31 ; les soutes se configurent dans la régie et suivent les campagnes. Recette privée sur téléphones et charge réelle encore ouverte.
 
 ## Stocks collectifs et masters logistiques — 0.29
 
