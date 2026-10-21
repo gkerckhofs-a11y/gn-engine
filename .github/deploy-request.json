@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "b79f6c3231e0517baec9699265e349945402763f",
-  "version": "0.28.0",
-  "requestedAt": "2026-10-20T19:55:44.899Z",
-  "reason": "Entrepôts personnels avec loyers et capacité contrôlée ; ouverture confirmée des recharges laser reçues ; continuité de campagne."
+  "sourceCommit": "6643b56890c977dfb781d934d969f7632a092149",
+  "version": "0.29.0",
+  "requestedAt": "2026-10-21T06:08:29.044Z",
+  "reason": "Stocks collectifs, droits de stockage, baux au nom des bandes et imports logistiques. Compilation et 555 tests locaux réussis."
 }
