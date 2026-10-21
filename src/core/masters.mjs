@@ -5,7 +5,8 @@ import {skillInput,classInput} from './abilities.mjs';
 import {groupInput,groupPermissions} from './groups.mjs';
 import {knowledgeInput,initialReceipt} from './knowledge.mjs';
 import {itemInput,publicItem,itemQuantity,seedInventory} from './inventory-state.mjs';
-import {seedWallets,economyRulesInput} from './economy-state.mjs';
+import {seedWallets,economyRulesInput,groupAccountId,moneyState} from './economy-state.mjs';
+import {warehouseInput,stockVolume,storedIn} from './storage-state.mjs';
 import {healthRulesInput,initialHealth} from './health-state.mjs';
 import {actionPointRulesInput,actionPointMaximum,actionPointPath} from './action-point-state.mjs';
 import {cleanScenarioSnapshot} from './scenario-package.mjs';
@@ -91,6 +92,8 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
   const {rows,errors}=cleanRows(input.sheets),changes=[],stamps=[],writes=new Map(),put=(path,value)=>writes.set(path,value),sink={set:put};
   const records=Object.fromEntries(await Promise.all(kinds.map(async k=>[k,(await tx.list(`${base}/${k}`)).sort((a,b)=>a.id.localeCompare(b.id))]))),m=mapsFor(records);
   const fieldStates=session?(await tx.list(`${base}/fieldStates`)).sort((a,b)=>a.id.localeCompare(b.id)):[];
+  const storedInventory=session?(await tx.list(`${base}/inventory`)).filter(l=>l.location?.kind==='WAREHOUSE'&&l.quantity>0&&!['CONSUMED','DESTROYED'].includes(l.status)).sort((a,b)=>a.id.localeCompare(b.id)):[];
+  const rentAccounts=[];
   const prior=new Map([...(parent.masterRowBaseline??[]),...await tx.list(`${base}/masterRows`)].map(x=>[x.id,x])),receipts=[...prior.values()];
   let nextParent=parent;const created=new Set(),newKnowledge=new Set(),changedRecords=new Set(),seen=new Set(),targetSeen=new Set(),archives=[];
   const addError=(sheet,r,e)=>errors.push({sheet,row:r?._row??1,column:e.column??'',message:e.masterMessage??e.code??'Valeur ou référence invalide.'});
@@ -102,7 +105,8 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
   }catch(e){addError('Meta',rows.Meta?.[0],e);}
   try{nextParent=parameters(parent,rows.Parametres??[],session);}catch(e){addError('Parametres',(rows.Parametres??[]).find(r=>r.cle===e.column),e);}
   const stamp=(sheet,r)=>{
-   const rid=documentId(r.id),key=digest([sheet,rid]),version=num(r.version,'version',true),body=Object.fromEntries(Object.entries(r).filter(([k])=>k!=='_row')),hash=digest(body);
+   // The new optional blank column must not change fingerprints of pre-0.29 rows.
+   const rid=documentId(r.id),key=digest([sheet,rid]),version=num(r.version,'version',true),body=Object.fromEntries(Object.entries(r).filter(([k,v])=>k!=='_row'&&!(sheet==='Objets'&&k==='billes_par_recharge'&&empty(v)))),hash=digest(body);
    if(seen.has(key))issue('id','Identifiant répété dans cet onglet.');seen.add(key);
    if(!['CREER','MODIFIER','ARCHIVER'].includes(r.operation))issue('operation','Utiliser CREER, MODIFIER ou ARCHIVER.');
    const identity=digest(['ActionsTerrain','Recompenses'].includes(sheet)?[r.lieu_id??null,...(sheet==='ActionsTerrain'?[r.type??null]:[])]:[r.personnage_id??null,r.groupe_id??null]);
@@ -131,7 +135,10 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
    }else if(sheet==='Objets'){
     d=patch(r,{kind:'STACKABLE',consumable:false,publicationState:'DRAFT',...old},{nom:'name',description:'description',categorie:'category',unite:'unit',type:'kind',legalite:'legality',publication:'publicationState',notes_mj:'gmNotes'});
     if(!empty(r.consommable))d.consumable=bool(r.consommable,'consommable');if(!empty(r.pillable))d.pillable=bool(r.pillable,'pillable');if(!empty(r.volume_unitaire))d.unitVolume=r.volume_unitaire==='!EFFACER'?null:num(r.volume_unitaire,'volume_unitaire');
+    if(!empty(r.billes_par_recharge))d.laserRecharge=r.billes_par_recharge==='!EFFACER'?null:{pelletsPerUnit:num(r.billes_par_recharge,'billes_par_recharge',true)};
+    const removeRecharge=d.laserRecharge===null;
     d={...old,...itemInput(d,r.id,old)};imagePatch(r,d,{image_media_id:'illustration'});
+    if(removeRecharge)delete d.laserRecharge;
    }else if(sheet==='Competences'){
     d=patch(r,{kind:'PASSIVE',publicationState:'DRAFT',...old},{nom:'name',description:'description',instructions:'instructions',categorie:'category',type:'kind',publication:'publicationState',notes_mj:'gmNotes'});
     if(d.kind!=='PASSIVE'){
@@ -185,6 +192,25 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
    }
   }catch(e){addError(sheet,r,e);}}
   importTerrain({rows,m,records,session,fieldStates,parent:nextParent,stamp,checkOperation,summary,mark,addError,issue,num,empty,patch,base,put});
+  for(const r of rows.Entrepots??[]){try{
+   if(!stamp('Entrepots',r))continue;const old=m.warehouses.get(r.id);checkOperation(r,old);
+   let d=patch(r,{enabled:false,rentAccountId:null,...old},{nom:'name',description:'description'});
+   if(r.operation==='ARCHIVER'){
+    if(Object.entries(r).some(([k,v])=>!['_row','id','operation','version'].includes(k)&&v))issue('operation','ARCHIVER ne contient que id, operation et version.');
+    d.enabled=false;
+   }else{
+    for(const [key,field] of Object.entries({capacite_volume:'capacity',loyer:'rent',periode_minutes:'periodMinutes'}))if(!empty(r[key]))d[field]=num(r[key],key,key!=='loyer');
+    if(!empty(r.ouvert))d.enabled=bool(r.ouvert,'ouvert');
+    if(!empty(r.loyer_groupe_id)){if(r.loyer_groupe_id==='!EFFACER')d.rentAccountId=null;else{const g=ref(m.groups,r.loyer_groupe_id,'loyer_groupe_id');if(!g.walletConfig)issue('loyer_groupe_id','Configurer la caisse du groupe avant de lui verser un loyer.');d.rentAccountId=groupAccountId(g.id);}}
+   }
+   d={...old,...warehouseInput(d,r.id,old),masterArchived:r.operation==='ARCHIVER'};
+   if(session){
+    Object.assign(d,{tenantType:old?.tenantType??'CHARACTER',tenantId:old?.tenantId??null,expiresAtGameMs:old?.expiresAtGameMs??null});
+    if(stockVolume(storedInventory.filter(l=>storedIn(l,r.id)))>d.capacity)issue('capacite_volume','La capacité doit couvrir le volume déjà stocké.');
+    if(d.rentAccountId){const a=await tx.get(`${base}/accounts/${d.rentAccountId}`);rentAccounts.push(a);if(a?.sessionId!==id||a?.ownerType!=='GROUP')issue('loyer_groupe_id','Caisse de session indisponible.');moneyState(a);}
+   }
+   m.warehouses.set(r.id,d);mark('warehouses',r.id);summary('Entrepots',r,old,d);
+  }catch(e){addError('Entrepots',r,e);}}
   // Validate the combined graph; a broken reference cannot leave half an import behind.
   try{
    cleanScenarioSnapshot({scenario:nextParent,records:rowsRecord(m)});
@@ -228,7 +254,7 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
   let indexWrites=0;const changedMedia=new Set();
   for(const [path,data] of writes){const after=imageReferences(data);if(!JSON.stringify(data).includes('\"mediaImages\"'))continue;const before=imageReferences(await tx.get(path));for(const mid of new Set([...before.keys(),...after.keys()]))if(before.has(mid)!==after.has(mid)){indexWrites++;changedMedia.add(mid);}}
   if(writes.size>masterLimits.writes||writes.size+indexWrites+changedMedia.size+1>480||[...writes.values()].some(v=>Buffer.byteLength(JSON.stringify(v))>800000)||Buffer.byteLength(JSON.stringify([...writes.values()]))>3*1024*1024)errors.push({sheet:'Meta',row:1,column:'',message:'Trop de changements ou de publications dans une transaction. Fractionner le classeur.'});
-  const confirmation=digest({actor:actor.uid,base,parent,records,fieldStates,prior:receipts.sort((a,b)=>a.id.localeCompare(b.id)),rows,reason,mediaState,resources});
+  const confirmation=digest({actor:actor.uid,base,parent,records,fieldStates,storedInventory,rentAccounts,prior:receipts.sort((a,b)=>a.id.localeCompare(b.id)),rows,reason,mediaState,resources});
   return {errors,changes,canApply:!errors.length,confirmation,receipt,writes,applied:applied.length,newCharacters:[...created],destination:{id,title:parent.title,type:session?'SESSION':'CAMPAGNE',campaignId:parent.campaignId??null}};
  }
  return async(action,actor,input)=>{

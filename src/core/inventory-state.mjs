@@ -26,8 +26,8 @@ export function effectiveLot(l,at){
 }
 export const readLot=async(tx,sid,id,at)=>effectiveLot(await tx.get(`sessions/${sid}/inventory/${id}`),at);
 export const lotState=l=>({quantity:l.quantity,status:l.status,revision:l.revision});
-export const personalLot=(l,cid)=>l.ownerId===cid&&l.holderId===cid&&l.location.kind==='CHARACTER'&&l.location.id===cid;
-export const publicLot=l=>({id:l.id,pillable:(l.pillable??l.item.pillable)===true,item:publicItem(l.item),quantity:l.quantity,status:l.status,revision:l.revision,ownerId:l.ownerId,holderId:l.holderId,location:l.location,...(l.status==='RESERVED'?{marketReservation:{listingId:l.marketReservation.listingId,expiresAt:l.marketReservation.expiresAt}}:{})});
+export const personalLot=(l,cid)=>l.ownerType!=='GROUP'&&l.ownerId===cid&&l.holderId===cid&&l.location.kind==='CHARACTER'&&l.location.id===cid;
+export const publicLot=l=>({id:l.id,pillable:(l.pillable??l.item.pillable)===true,item:publicItem(l.item),quantity:l.quantity,status:l.status,revision:l.revision,ownerType:l.ownerType??'CHARACTER',ownerId:l.ownerId,holderId:l.holderId,location:l.location,...(l.status==='RESERVED'?{marketReservation:{listingId:l.marketReservation.listingId,expiresAt:l.marketReservation.expiresAt}}:{})});
 export function newLot(id,item,quantity,characterId,at,origin){
   return {id,item:publicItem(item),quantity:itemQuantity(item,quantity),ownerId:characterId,holderId:characterId,location:{kind:'CHARACTER',id:characterId},status:'AVAILABLE',revision:1,createdAt:at,origin};
 }

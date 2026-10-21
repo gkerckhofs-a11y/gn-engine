@@ -2,9 +2,13 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.28.0 publiée : entrepôts et recharges laser.**
+**Version 0.29.0 en validation : stocks de bande et masters logistiques.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
+
+## Stocks collectifs et masters logistiques — 0.29
+
+Location au nom du personnage ou de sa bande, titulaire distinct du compte payeur, droits de lecture/dépôt/retrait/gestion du bail et transferts de propriété confirmés. Les stocks, baux et droits suivent les épisodes. Les quatre modèles XLSX incluent Entrepots, le conditionnement des recharges et les permissions de stockage. [Guide](docs/LOGISTIQUE.md) · [Imports](docs/MASTERS.md) · [Validation](docs/VALIDATION-0.29.md).
 
 ## Entrepôts et recharges laser — 0.28
 

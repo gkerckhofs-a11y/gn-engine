@@ -109,7 +109,7 @@ Limites de cette version : fichier XLSX de 8 Mio, décompression de 16 Mio, 250 
 
 Les formules, erreurs Excel, macros et liens vers des classeurs externes sont refusés. Les rendus et tests de lecture des fichiers fournis ne remplacent pas une recette dans les applications natives Excel et Google Sheets.
 
-Restent hors de ce format : participants réels, petites annonces et leurs contrats, caisses de groupe initiales, entrepôts, vaisseaux, XP, protections de combat et effets avancés d’objets. Les outils déjà disponibles pour les annonces et les caisses restent utilisables dans la régie.
+Restent hors de ce format : participants réels, petites annonces et leurs contrats, caisses de groupe initiales, stocks collectifs initiaux, vaisseaux, XP, protections de combat et effets avancés d’objets. Les outils déjà disponibles pour les annonces et les caisses restent utilisables dans la régie.
 
 Depuis la 0.26, les lieux et profils peuvent être préparés dans les quatre nouveaux onglets ci-dessus ou dans leurs éditeurs dédiés. Les anciens classeurs de format 1 restent acceptés. Les profils importés voyagent dans les versions figées, archives et campagnes avec les mêmes règles que les profils créés à l’écran.
 
@@ -158,4 +158,17 @@ Le master refuse une modification d’un lieu réservé par une action. Il ne re
 
 L’archivage d’un lieu ou d’une interaction dépublie sans supprimer ses historiques ou stocks. Les dépendances publiées doivent rester cohérentes : retirer le lien d’une fouille, ou la dépublier, avant d’archiver l’installation qu’elle exige. Une récompense peut être retirée d’un scénario par ARCHIVER avec son id, sa version et lieu_id, tant que sa fouille garde au moins une récompense. Cette suppression est interdite pour un lieu déjà créé en session.
 
-Les imports restent limités à la préparation avant lancement. La publication de nouveaux contenus par XLSX pendant le jeu, les réserves par groupe, les notifications DIRECT/DISCRET, les annonces, la logistique et les vaisseaux restent hors de ce lot.
+Les imports restent limités à la préparation avant lancement. La publication de nouveaux contenus par XLSX pendant le jeu, les réserves par groupe, les notifications DIRECT/DISCRET, les annonces et les vaisseaux restent hors de ce lot. La logistique est ajoutée en 0.29 ci-dessous.
+
+
+## Logistique — 0.29
+
+L’onglet **Entrepots** accepte `CREER`, `MODIFIER` et `ARCHIVER`. Une création exige explicitement le nom, `capacite_volume` (entier positif), `loyer` (entier positif ou nul) et `periode_minutes` (entier positif). `ouvert` accepte OUI ou NON, avec NON par défaut. `description` est publique. Aucun montant ni délai du jeu n’est ajouté par défaut.
+
+`loyer_groupe_id` désigne un groupe dont la caisse est déjà configurée dans le scénario ou la session. Vide à la création, ou `!EFFACER`, signifie que les crédits sont retirés de la circulation. Une cellule vide en modification conserve le bénéficiaire. L’aperçu refuse une caisse absente ou indisponible.
+
+Le master CAMPAGNE prépare des définitions réutilisables. Le master SESSION, toujours limité à la préparation avant lancement, préserve le titulaire, le temps de bail restant, les lots, leurs quantités et leurs propriétaires. La capacité ne peut pas passer sous le volume occupé. `ARCHIVER` ferme aux locations et dépôts, conserve les biens et autorise les retraits selon les droits. L’import ne crée aucun bail, ne débite aucun loyer et ne dote pas un stock collectif.
+
+`Objets.billes_par_recharge` est un entier strictement positif et exige `consommable = OUI`. Vide conserve le réglage ; `!EFFACER` retire cette fonction du catalogue. Les lots déjà créés gardent leur conditionnement. Les dotations personnelles peuvent référencer un modèle de recharge.
+
+`Membres.droits` accepte `readStock`, `depositStock`, `withdrawStock` et `manageStorage`. Le retrait exige lecture et retrait ; gérer le bail ne donne pas accès au stock ou à la caisse. Les anciens classeurs sans ces colonnes et sans Entrepots restent acceptés. Les valeurs des exemples sont fictives et ne constituent aucun barème du GN. Voir [Logistique](LOGISTIQUE.md).

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 import {createWorkflow} from '../../src/core/workflow.mjs';
 import {accountId} from '../../src/core/economy-state.mjs';
+import {masterLogisticsSuite} from './master-logistics-suite.mjs';
 
 import {masterExample,terrainMasterExample,terrainSessionMasterExample} from '../../src/shared/master-examples.mjs';
 export {masterExample};
@@ -16,6 +17,7 @@ export async function masterFixture(makeStore){
  return {store,owner,player,read,cmd,scenarioId,prepare,apply,session};
 }
 export function mastersSuite(makeStore,prefix='Masters'){
+ masterLogisticsSuite(()=>masterFixture(makeStore),prefix);
  test(`${prefix} : terrain et interactions complets, aperçus sans écriture et états initiaux uniques`,async()=>{
   const f=await masterFixture(makeStore),sheets=terrainMasterExample(),p=await f.prepare(sheets);assert.deepEqual(p.errors,[]);assert.ok(p.changes.some(c=>c.sheet==='Recompenses'));assert.equal((await f.store.list(`scenarios/${f.scenarioId}/fieldTargets`)).length,0);
   await f.apply(sheets);const s=await f.session(),base=`sessions/${s.id}`;

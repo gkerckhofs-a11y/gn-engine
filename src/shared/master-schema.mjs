@@ -5,7 +5,8 @@ export const masterSheets={
  Meta:['format','version','type','destination_id','campaign_id','base_revision'],
  Parametres:['cle','valeur'],
  Personnages:['id','operation','version','nom','metier','description_publique','publication_publique','publication','histoire','interpretation','secrets_joueur','notes_mj','niveau_global','pv_max_initiaux','portrait_media_id','image_privee_media_id'],
- Objets:['id','operation','version','nom','description','categorie','unite','type','consommable','volume_unitaire','legalite','publication','notes_mj','image_media_id','pillable'],
+ Objets:['id','operation','version','nom','description','categorie','unite','type','consommable','volume_unitaire','legalite','publication','notes_mj','image_media_id','pillable','billes_par_recharge'],
+ Entrepots:['id','operation','version','nom','description','capacite_volume','loyer','periode_minutes','ouvert','loyer_groupe_id'],
  Competences:['id','operation','version','nom','description','instructions','categorie','type','publication','notes_mj','soin_pv','usages','recuperation_secondes','portee_recuperation','consommable_id','consommable_quantite'],
  Classes:['id','operation','version','nom','description','publication','notes_mj','competences'],
  Attributions:['id','operation','version','personnage_id','classe_id','competences','publication'],
@@ -20,14 +21,20 @@ export const masterSheets={
  Recompenses:['id','operation','version','lieu_id','type','objet_id','connaissance_id','quantite','stock_initial','limite_personnage'],
  Interactions:['id','operation','version','nom','type','publication','competence_id','niveau_minimum','prerequis','instructions','duree_secondes','durees_niveaux','seuil','cout_pa','recuperation_secondes','bonus_objets','consommable_id','consommable_quantite','consommables_supplementaires','texte_reussite','texte_echec','complement_secondes','soin_pv','niveau_reanimation','convalescence_secondes','recuperation_patient_secondes'],
 };
-export const masterCollections={Personnages:'characters',Objets:'items',Competences:'skills',Classes:'classes',Groupes:'groups',Connaissances:'knowledge',Lieux:'fieldTargets',Interactions:'personProfiles'};
+export const masterCollections={Personnages:'characters',Objets:'items',Competences:'skills',Classes:'classes',Groupes:'groups',Connaissances:'knowledge',Lieux:'fieldTargets',Interactions:'personProfiles',Entrepots:'warehouses'};
 export const masterIgnoredSheets=['Guide','Dictionnaire'];
 export const masterParameters=['titre','resume','date','horaires','lieu','infos_pratiques','confidentialite','capacite','groupes_actifs','pa_actifs','pa_niveau_1','pa_niveau_2','pa_renouvellement_minutes','pa_cout','pa_recuperation_secondes','pa_recuperation_patient_secondes','economie_active','monnaie_nom','monnaie_unite','sante_active','pv_max_defaut'];
 export const masterHints={
  operation:'CREER, MODIFIER ou ARCHIVER. Une ligne absente reste inchangée.',version:'Entier positif. Augmenter après une modification. Une même version ne peut changer de contenu.',
  publication:'DRAFT, READY ou PUBLISHED. Objectifs, relations et attributions : OUI ou NON.',publication_publique:'DRAFT, READY ou PUBLISHED.',
  competences:'Liste séparée par ; au format competence_id:1. Aucun JSON. Une attribution de session est réservée à un personnage créé dans cet import.',
- droits:'Liste séparée par ; : readBriefing, readMembers, readUpdates, publishUpdates, readWallet, payWallet, representMissions.',
+ droits:'Liste séparée par ; : readBriefing, readMembers, readUpdates, publishUpdates, readWallet, payWallet, representMissions, readStock, depositStock, withdrawStock, manageStorage. Retirer exige readStock et withdrawStock.',
+ billes_par_recharge:'Entier strictement positif, consommable = OUI. Vide conserve ; !EFFACER retire la fonction recharge. Les lots existants gardent leur conditionnement.',
+ capacite_volume:'Entier strictement positif. En session, ne peut pas être inférieur au volume déjà stocké.',
+ loyer:'Entier positif ou nul, en crédits de jeu. Obligatoire à la création. Aucun prix implicite.',
+ periode_minutes:'Entier strictement positif, en minutes de jeu. Obligatoire à la création. Les pauses arrêtent le bail.',
+ loyer_groupe_id:'Groupe dont la caisse est déjà configurée. Vide à la création ou !EFFACER : crédits retirés de la circulation. Vide en modification : conserver.',
+ ouvert:'OUI ou NON. NON par défaut. Fermer bloque location et dépôt, conserve stock et retrait.',
  type:'Voir les valeurs autorisées pour cet onglet dans le Guide.',
  niveau_global:'Entier positif. Modification des acquis interdite en session. Un plafond PA doit être configuré.',
  pv_max_initiaux:'Maximum initial pour un nouveau personnage. Aucun soin des personnages existants.',
@@ -65,7 +72,7 @@ export const masterSheetHints={
  Interactions:{recuperation_secondes:'Pillage : 0 à 86400, vide à la création ou !EFFACER = règle de session. Soins : 0 ; utiliser recuperation_patient_secondes.',soin_pv:'Soin de terrain : PV rendus, de 1 à 1000. Valeur initiale : 1. Clinique : retour au maximum.'},
 };
 export const masterGuide=[
- ['GN Engine 0.26 — masters complémentaires','Format 1 étendu. Les anciens masters restent acceptés.'],
+ ['GN Engine 0.29 — logistique','Format 1 étendu. Les anciens masters restent acceptés.'],
  ['Destination','CAMPAGNE se charge dans un scénario modèle. SESSION se charge dans un épisode en PREPARATION, avant le premier lancement.'],
  ['Parcours','Importer le XLSX, corriger les erreurs, relire l’aperçu, saisir un motif puis confirmer. Le chargement seul ne modifie rien.'],
  ['Réimport','Identifiants durables. Même version et même contenu = inchangé. Pour une nouvelle modification, augmenter la version.'],
@@ -90,6 +97,10 @@ export const masterGuide=[
  ['Aide','Les actions D6 avec compétence acceptent l’aide compétente +1 du moteur. Aucun profil AIDE ni second PA. La clinique accélérée est le seul soin à jet.'],
  ['Modification des listes','durees_niveaux, bonus_objets, prerequis et consommables_supplementaires remplacent leur liste quand renseignés. Vide conserve ; !EFFACER vide.'],
  ['Publication','Les contenus requis par un profil publié doivent être publiés. L’archivage d’une installation encore requise par une fouille publiée est refusé.'],
- ['Modules à venir','Entrepôts, vaisseaux, XP et effets avancés : non importables. Les onglets ou colonnes inconnus sont refusés.'],
- ['Source','Contrat du moteur : src/shared/master-schema.mjs et docs/MASTERS.md, 20 octobre 2026. Les données des exemples sont fictives.'],
+ ['Entrepôts','Entrepots configure nom, capacité, loyer, durée, ouverture et bénéficiaire. Aucun stock ni bail créé par l’import. ARCHIVER ferme sans détruire les biens.'],
+ ['Continuité logistique','Le master SESSION conserve le locataire, le temps payé, les lots et leurs propriétaires. Les modifications de tarif concernent le prochain paiement.'],
+ ['Stocks de bande','Droits explicites dans Membres : readStock, depositStock, withdrawStock, manageStorage. Retrait : lecture et retrait requis. La caisse reste un droit distinct.'],
+ ['Recharges laser','Objets → billes_par_recharge configure le conditionnement. Consommable = OUI. Les dotations utilisent ensuite ce modèle, sans modifier les anciens lots.'],
+ ['Modules à venir','Vaisseaux, XP et effets avancés : non importables. Les onglets ou colonnes inconnus sont refusés.'],
+ ['Source','Contrat du moteur : src/shared/master-schema.mjs et docs/MASTERS.md, 21 octobre 2026. Les données des exemples sont fictives.'],
 ];

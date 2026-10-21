@@ -70,7 +70,7 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 | --- | --- | --- |
 | GN-01 | Choix partie indépendante / nouvelle campagne et sessions successives | Conversion des anciennes sessions indépendantes non proposée. |
 | GN-02 | Master CAMPAGNE XLSX, dictionnaire, exemple et import dans le scénario ; archives conservées | Étendre aux futurs modules et champs non encore importables. |
-| GN-03 | Master SESSION complémentaire, identifiants durables, personnages, lieux, installations, interactions et paramètres avant jeu | Étendre au spatial, aux annonces et à la logistique. |
+| GN-03 | Master SESSION complémentaire, identifiants durables, personnages, lieux, installations, interactions et paramètres avant jeu | Logistique ajoutée en 0.29 ; étendre au spatial et aux annonces. |
 | GN-04 | Aperçu avant/après, versions, acquis protégés, archivage contrôlé et journal d’import | Import en cours de jeu non proposé ; sauvegarde complète distincte. |
 | GN-05 | Bilan, clôture scellée, acquis conservés, reprise et verrou de campagne | Report des contrats, copie de campagne de test et états de modules futurs. |
 | GN-06 | Crédits, objets, profils, PV et maintenant PA/niveau global | XP et progression de campagne, prérequis avancés. |
@@ -78,9 +78,9 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 | GN-08 | Réglages en session, aperçu, échéances stables, corrections | Migration explicite des actions engagées, journal consultable dédié et reçus hors réseau. |
 | GN-09 | Actions de terrain avec durée, D6 serveur, bonus, réservations, interruption, effets atomiques et règles figées au lancement | Aide et clinique en deux étapes ajoutées en 0.25 ; catalogue général d’effets et reprise partielle de durée ouverts. |
 | GN-10 | Fouilles à stock fini et plafonds individuels, sabotage, réparation, protection, récupération du patient et doubles dépenses contrôlées | Pillage, soins en deux étapes et aide ajoutés en 0.25 ; réserves par groupe, capture complète, DIRECT/DISCRET et effets économiques ouverts. |
-| GN-11 | Marché, comptes, ventes et retrait physique ; locations personnelles, capacité des entrepôts et loyers en 0.28 | Stocks collectifs, import logistique, gros/détail, négociation commerciale, cours, douanes et corruption. |
-| GN-12 | Lots, remises et ouverture explicite des recharges reçues en 0.28 | Import du conditionnement et rapprochement du stock physique au comptoir. |
-| GN-13 | Groupes, caisses et mandat de mission existants | Droits distincts sur les stocks, les ventes et les départs. |
+| GN-11 | Marché, comptes, ventes et retrait physique ; locations personnelles, capacité des entrepôts et loyers en 0.28 | Stocks collectifs et import logistique ajoutés en 0.29 ; gros/détail, négociation commerciale, cours, douanes et corruption à compléter. |
+| GN-12 | Lots, remises et ouverture explicite des recharges reçues en 0.28 | Conditionnement importable en 0.29 ; rapprochement du stock physique au comptoir à compléter. |
+| GN-13 | Groupes, caisses et mandat de mission existants | Droits de stock et de bail ajoutés en 0.29 ; ventes et départs à compléter. |
 | GN-14 | Annonces, candidatures, preuves et paiement personnel/collectif existants | Compléter selon la recette finale de la note. |
 | GN-15 | Non implémenté | Vaisseaux et trajets ; barèmes Port-Brèche à définir avant activation. |
 | GN-16 | Quatre espaces joueur, sac avec crédits et objets, QR/code de trois types, actions en cours et résultats, résumé des règles | Scan caméra intégré, articles d’univers/nouvelles, historique général des règles et recette mobile. |
@@ -94,7 +94,7 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 2. Continuité de campagne implémentée en 0.22 : bilan, clôture et reprise sans remettre les soldes à zéro ; voir le rapport de validation.
 3. Masters XLSX et imports complémentaires implémentés en 0.23 ; compléter les nouveaux modules au fil de leur développement.
 4. Exécuteur de terrain implémenté en 0.24 : fouilles, durée, D6, bonus, sabotage/réparation et réservations. Soins en deux étapes, aide et pillage ajoutés en 0.25 ; masters de lieux et profils complétés en 0.26.
-5. Quatre espaces joueur livrés en 0.27 ; entrepôts personnels et recharges en 0.28. Poursuivre avec stocks collectifs et import de la logistique, puis frais et cours du commerce.
+5. Quatre espaces joueur livrés en 0.27 ; entrepôts personnels et recharges en 0.28. Stocks collectifs et import de la logistique ajoutés en 0.29. Poursuivre avec frais et cours du commerce.
 6. Traiter le spatial après définition de ses règles, puis réaliser la recette terrain.
 
 Les montants économiques, les plafonds au-delà du niveau 2, les durées du GN, la portion de billes par recharge et les barèmes spatiaux restent des décisions de jeu. Cette reprise n’en fixe aucune implicitement.

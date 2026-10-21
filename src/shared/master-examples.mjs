@@ -41,3 +41,18 @@ export function terrainSessionMasterExample(){
  s.Interactions=[{id:'soin-terrain',operation:'MODIFIER',version:'2',instructions:'Jouer le soin avec le consentement du patient. Consigne fictive de ce nouvel épisode.'}];
  return s;
 }
+
+// Logistics demonstration values are examples, never session defaults or game canon.
+export function logisticsMasterExample(){
+ const s=terrainMasterExample();
+ s.Objets.push({id:'recharge-demo',operation:'CREER',version:'1',nom:'Recharge laser de démonstration',type:'STACKABLE',consommable:'OUI',volume_unitaire:'1',billes_par_recharge:'500',publication:'PUBLISHED'});
+ s.Entrepots=[{id:'hangar-demo',operation:'CREER',version:'1',nom:'Hangar de démonstration',description:'Valeurs fictives à remplacer pour votre partie.',capacite_volume:'20',loyer:'30',periode_minutes:'300',ouvert:'OUI'}];
+ s.Membres[0].droits+=';readStock;depositStock;withdrawStock;manageStorage';
+ return s;
+}
+export function logisticsSessionMasterExample(){
+ const s=terrainSessionMasterExample();
+ s.Entrepots=[{id:'hangar-demo',operation:'MODIFIER',version:'2',capacite_volume:'25',loyer:'35'}];
+ s.Membres[0].droits+=';readStock;withdrawStock';
+ return s;
+}

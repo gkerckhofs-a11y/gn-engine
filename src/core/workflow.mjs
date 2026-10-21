@@ -217,7 +217,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(action==='scenario') return store.runTransaction(async tx=>{
       const id=documentId(input.scenarioId); const s=await checkScenario(tx,actor,id);
       const [characters,versions,groups,knowledge,skills,classes,items]=await Promise.all([tx.list(`scenarios/${id}/characters`),tx.list(`scenarios/${id}/versions`),tx.list(`scenarios/${id}/groups`),tx.list(`scenarios/${id}/knowledge`),tx.list(`scenarios/${id}/skills`),tx.list(`scenarios/${id}/classes`),tx.list(`scenarios/${id}/items`)]);
-      return {...s,characters,versions,groups,knowledge,skills,classes,items};
+      return {...s,characters,versions,groups,knowledge,skills,classes,items,warehouses:await tx.list(`scenarios/${id}/warehouses`)};
     });
     if(action==='session') return store.runTransaction(async tx=>{
       const {s,role,permissions}=await sessionAccess(tx,actor,sid);
@@ -366,6 +366,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         if(s.actionPointRules)for(const c of chars)actionPointMaximum(s.actionPointRules,c);
         const fieldTargets=await tx.list(`scenarios/${id}/fieldTargets`);for(const t of fieldTargets)validateFieldReferences(t,{fieldTargets,skills,items,knowledge});
         const personProfiles=await tx.list(`scenarios/${id}/personProfiles`);for(const p of personProfiles)validatePersonReferences(p,{skills,items});
+        const warehouses=await tx.list(`scenarios/${id}/warehouses`);
         const masterRows=await tx.list(`scenarios/${id}/masterRows`);
         const version={id:newId,masterRowBaseline:masterRows,title:s.title,summary:s.summary,sourceRevision:s.revision,createdAt:at,characterCount:chars.length,groupCount:groups.length,knowledgeCount:knowledge.length,skillCount:skills.length,classCount:classes.length,itemCount:items.length,actionPointRules:s.actionPointRules??null,economyRules:s.economyRules??null,healthRules:s.healthRules??null};
         tx.set(`scenarios/${id}/versions/${newId}`,version);
@@ -377,6 +378,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         for(const k of items)tx.set(`scenarios/${id}/versions/${newId}/items/${k.id}`,k);
         for(const t of fieldTargets)tx.set(`scenarios/${id}/versions/${newId}/fieldTargets/${t.id}`,t);
         for(const p of personProfiles)tx.set(`scenarios/${id}/versions/${newId}/personProfiles/${p.id}`,p);
+        for(const w of warehouses)tx.set(`scenarios/${id}/versions/${newId}/warehouses/${w.id}`,w);
         result={id:newId};
       } else if(action==='createSession') {
         const id=documentId(input.scenarioId),vid=documentId(input.versionId);await checkScenario(tx,actor,id);

@@ -41,7 +41,7 @@ async function readState(tx,s){
 function stateSummary(data,healthPolicy='PRESERVE'){
  return {characters:data.characters.map(c=>({id:c.id,name:c.public.displayName,level:c.globalLevel??1,skills:c.abilityProfile?.skills.length??0,
   balance:data.accounts.find(a=>a.id===accountId(c.id))?.balance??null,hpBefore:c.hp??null,hpAfter:healthPolicy==='RESTORE'&&c.maxHp!=null?c.maxHp:c.hp??null,maxHp:c.maxHp??null,
-  lots:data.inventory.filter(l=>l.ownerId===c.id&&l.quantity>0).length,knowledge:(data.receipts[c.id]??[]).filter(r=>r.active).length})),
+  lots:data.inventory.filter(l=>l.ownerType!=='GROUP'&&l.ownerId===c.id&&l.quantity>0).length,knowledge:(data.receipts[c.id]??[]).filter(r=>r.active).length})),
   accounts:data.accounts.map(a=>({id:a.id,ownerType:a.ownerType,label:a.ownerType==='GROUP'?a.label:data.characters.find(c=>c.id===a.characterId)?.public.displayName??a.id,balance:a.balance,reserved:a.reserved})),
   groups:data.groups.length,lots:data.inventory.length,quantity:data.inventory.reduce((n,l)=>n+l.quantity,0),receipts:Object.values(data.receipts).reduce((n,r)=>n+r.length,0)};
 }

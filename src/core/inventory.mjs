@@ -39,7 +39,7 @@ export function createInventoryService({store,signed,checkSession,checkScenario,
         requireThat(c&&(preview||c.assignedUid===actor.uid),'FORBIDDEN');
         requireThat(['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s.stage),'BRIEFING_CLOSED');
         requireThat(c.publicationState==='PUBLISHED'&&c.public?.publicationState==='PUBLISHED','CONTENT_UNPUBLISHED');
-        const lots=(await tx.list(`sessions/${sid}/inventory`,['holderId',c.id])).map(l=>effectiveLot(l,at)),owned=(await tx.list(`sessions/${sid}/inventory`,['ownerId',c.id])).map(l=>effectiveLot(l,at));
+        const lots=(await tx.list(`sessions/${sid}/inventory`,['holderId',c.id])).filter(l=>l.ownerType!=='GROUP').map(l=>effectiveLot(l,at)),owned=(await tx.list(`sessions/${sid}/inventory`,['ownerId',c.id])).filter(l=>l.ownerType!=='GROUP').map(l=>effectiveLot(l,at));
         return {session:{id:sid,stage:s.stage},healthEnabled:s.healthRules?.enabled===true,economyEnabled:s.economyRules?.enabled===true,preview,character:{id:c.id,name:c.public.displayName},lots:lots.filter(l=>personalLot(l,c.id)).map(publicLot),
           stored:owned.filter(l=>l.location?.kind==='WAREHOUSE'&&l.quantity>0).map(publicLot),ownedElsewhere:owned.filter(l=>l.holderId!==c.id).map(publicLot),heldForOthers:lots.filter(l=>l.ownerId!==c.id).map(publicLot),sales:await listLotSales(tx,s,c,at,preview),
           canSell:!preview&&s.stage==='EN_JEU'&&s.economyRules?.enabled===true&&canGameAction(s,c,'transfer'),canTransfer:!preview&&s.stage==='EN_JEU'&&canGameAction(s,c,'transfer'),transfers:await listLotTransfers(tx,s,c,preview,at)};

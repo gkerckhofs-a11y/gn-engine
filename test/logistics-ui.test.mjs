@@ -8,12 +8,17 @@ const helpers={button:(label,action,extra='')=>`<button data-action="${action}" 
 const ui=createLogisticsUi(helpers),evil='<img src=x onerror="bad()">';
 const w={id:'warehouse',name:evil,description:evil,capacity:10,rent:5,periodMinutes:60,enabled:true,rented:true,mine:true,remainingMs:300000,revision:2};
 const lot={id:'lot',item:{id:'recharge',name:evil,unit:'recharge',description:'',category:'',unitVolume:1,kind:'STACKABLE',consumable:true,laserRecharge:{pelletsPerUnit:500}},quantity:3,status:'AVAILABLE',location:{kind:'CHARACTER',id:'character'}};
-const data={session:{id:'session',stage:'EN_JEU',revision:1},currency:{unit:'cr'},warehouse:w,warehouses:[w],used:3,stock:[lot],bag:[lot],canMove:true,canDeposit:true,canRent:true,accounts:[],events:[]};
+const data={session:{id:'session',stage:'EN_JEU',revision:1},currency:{unit:'cr'},warehouse:w,warehouses:[w],used:3,stock:[lot],bag:[lot],canMove:true,canReadStock:true,canDeposit:true,canRent:true,rentChoices:[{type:'CHARACTER',id:'character',name:'Personnel'}],accounts:[],events:[]};
 test('logistique UI : formulaires, destinations et textes publics échappés',()=>{
   for(const html of [ui.overview(data),ui.detail(data,[{id:'account',name:evil,canSpend:true}]),ui.editor(data,w),ui.admin({...data,warehouses:[{...w,used:3}]}),ui.recharge('session',lot)])assert.doesNotMatch(html,/<img|onerror="bad/);
-  const page=ui.detail(data,[{id:'account',name:'Compte joueur',canSpend:true},{id:'readonly',name:'Lecture seule',canSpend:false}]);assert.match(page,/data-form="warehouseRent"/);assert.match(page,/data-direction="DEPOSIT"/);assert.match(page,/data-direction="WITHDRAW"/);assert.doesNotMatch(page,/Lecture seule/);assert.match(page,/bail et les objets restent à votre nom/);
+  const page=ui.detail(data,[{id:'account',name:'Compte joueur',canSpend:true},{id:'readonly',name:'Lecture seule',canSpend:false}]);assert.match(page,/data-form="warehouseRent"/);assert.match(page,/data-direction="DEPOSIT"/);assert.match(page,/data-direction="WITHDRAW"/);assert.doesNotMatch(page,/Lecture seule/);assert.match(page,/bail personnel garde les objets à votre nom/);
   const expired=ui.detail({...data,canDeposit:false,canRent:false,warehouse:{...w,expired:true}});assert.doesNotMatch(expired,/data-direction="DEPOSIT"/);assert.match(expired,/data-direction="WITHDRAW"/);
   const paused=ui.detail({...data,canMove:false,canDeposit:false,canRent:false});assert.doesNotMatch(paused,/data-form="warehouseMove"|data-form="warehouseRent"|warehouseRelease/);
+});
+test('logistique UI : titulaire distinct du payeur, droits limités et transfert explicite',()=>{
+ const d={...data,warehouse:{...w,group:{id:'group',name:evil},tenantType:'GROUP'},rentChoices:[{type:'GROUP',id:'group',name:evil}],canReadStock:false,stock:[],canMove:false,canDeposit:true,canRelease:false};
+ const html=ui.detail(d,[]);assert.match(html,/name="tenant"/);assert.match(html,/value="GROUP:group"/);assert.match(html,/droit de consulter/);assert.match(html,/data-direction="DEPOSIT"/);assert.doesNotMatch(html,/data-direction="WITHDRAW"|warehouseRelease|<img/);
+ const confirm=ui.confirm('move',{direction:'DEPOSIT',name:'Objet',quantity:1,warehouseName:'Hangar',used:0,afterVolume:1,capacity:10,ownershipTransfer:{from:'Personnage',to:evil}},{});assert.match(confirm,/Transfert de propriété/);assert.doesNotMatch(confirm,/<img/);
 });
 test('logistique UI : confirmation de la consommation et du paiement avec preuve serveur',()=>{
   const p={sessionId:'session',lotId:'lot',quantity:2},html=ui.confirm('recharge',{name:evil,quantity:2,pellets:1000,remaining:1,confirmation:'proof'},p);

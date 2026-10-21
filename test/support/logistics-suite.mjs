@@ -5,6 +5,7 @@ import {economyFixture} from './economy-suite.mjs';
 import {campaignFixture} from './campaigns-suite.mjs';
 import {accountId,groupAccountId} from '../../src/core/economy-state.mjs';
 import {logisticsCommands} from '../../src/core/logistics.mjs';
+import {storageGroupsSuite} from './storage-groups-suite.mjs';
 
 export async function logisticsFixture(makeStore,campaign=false){
   const f=await (campaign?campaignFixture:economyFixture)(makeStore),sid=campaign?f.sid:f.sessionId,base=`sessions/${sid}`;
@@ -26,6 +27,7 @@ export async function logisticsFixture(makeStore,campaign=false){
 }
 export function logisticsSuite(makeStore,prefix='Logistique'){
   const fixture=campaign=>logisticsFixture(makeStore,campaign);
+  storageGroupsSuite(fixture,`${prefix} collective`);
   test(`${prefix} : location confirmée, débit unique et monnaie retirée explicitement`,async()=>{
     const f=await fixture(),p=await f.prepared('prepareWarehouseRent',f.rentInput()),requestId=randomUUID();
     assert.equal((await f.detail(f.wid)).warehouse.rented,false);assert.equal((await f.wallet()).account.balance,100);

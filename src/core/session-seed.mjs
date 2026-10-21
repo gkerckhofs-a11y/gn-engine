@@ -10,11 +10,11 @@ import {seedKnowledge} from './knowledge.mjs';
 const text=(v,max,required=false)=>{requireThat(typeof v==='string'&&v.length<=max&&(!required||v.trim()),'INVALID_TEXT');return v.trim();};
 const optional=(v,max)=>text(v??'',max);
 const charPath=(sid,cid)=>`sessions/${sid}/characters/${cid}`;
-export const scenarioCollections=['characters','groups','knowledge','skills','classes','items','fieldTargets','personProfiles'];
+export const scenarioCollections=['characters','groups','knowledge','skills','classes','items','fieldTargets','personProfiles','warehouses'];
 export async function readScenarioVersion(tx,id,vid){
  const v=await tx.get(`scenarios/${id}/versions/${vid}`);requireThat(v,'NOT_FOUND');
-  const [chars,groups,knowledge,skills,classes,items,fieldTargets,personProfiles]=await Promise.all(scenarioCollections.map(k=>tx.list(`scenarios/${id}/versions/${vid}/${k}`)));
- return {v,chars,groups,knowledge,skills,classes,items,fieldTargets,personProfiles};
+  const [chars,groups,knowledge,skills,classes,items,fieldTargets,personProfiles,warehouses]=await Promise.all(scenarioCollections.map(k=>tx.list(`scenarios/${id}/versions/${vid}/${k}`)));
+ return {v,chars,groups,knowledge,skills,classes,items,fieldTargets,personProfiles,warehouses};
 }
 export function sessionFromVersion(input,data,newId,actor,at){
  const {v,chars,groups}=data,id=documentId(input.scenarioId),vid=documentId(input.versionId);
@@ -47,6 +47,7 @@ export function seedScenarioSession(tx,s,data,actor,at){
         for(const k of items)tx.set(`sessions/${newId}/items/${k.id}`,k);
         seedFieldTargets(tx,s,data.fieldTargets);
         for(const p of data.personProfiles??[])tx.set(`sessions/${newId}/personProfiles/${p.id}`,p);
+        for(const w of data.warehouses??[])tx.set(`sessions/${newId}/warehouses/${w.id}`,{...w,tenantType:'CHARACTER',tenantId:null,expiresAtGameMs:null,revision:1});
         seedWallets(tx,s,chars,at,actor.uid,groups);
         seedInventory(tx,newId,chars,at,actor.uid);
         seedKnowledge(tx,newId,knowledge,at);
