@@ -1,3 +1,4 @@
+import {pricesSuite} from '../support/prices-suite.mjs';
 import {voyagesSuite} from '../support/voyages-suite.mjs';
 import {cargoSuite} from '../support/cargo-suite.mjs';
 import {logisticsSuite} from '../support/logistics-suite.mjs';
@@ -39,6 +40,7 @@ notebookSuite(()=>firestoreStore(firestore),'Carnet sur Firestore');
 abilitiesSuite(()=>firestoreStore(firestore),'Compétences sur Firestore');
 healthSuite(()=>firestoreStore(firestore),'PV et soins sur Firestore');
 inventorySuite(()=>firestoreStore(firestore),'Inventaire sur Firestore');
+pricesSuite(()=>firestoreStore(firestore),'Cours sur Firestore');
 voyagesSuite(()=>firestoreStore(firestore),'Navigation sur Firestore');
 cargoSuite(()=>firestoreStore(firestore),'Cargaisons sur Firestore');
 logisticsSuite(()=>firestoreStore(firestore),'Logistique sur Firestore');

@@ -1,3 +1,4 @@
+import {createPriceService,priceAction} from './prices.mjs';
 import {validateNavigationReferences} from './navigation-state.mjs';
 import {createVoyageService,voyageAction} from './voyages.mjs';
 import {createCargoService,cargoAction} from './cargo.mjs';
@@ -135,6 +136,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     }
     return record.mediaImages?.[slot]??null;
   }});
+  const priceService=createPriceService({store,signed,checkSession,now,uuid});
   const voyageService=createVoyageService({store,signed,checkSession,now,uuid});
   const cargoService=createCargoService({store,signed,checkSession,now,uuid});
   const logisticsService=createLogisticsService({store,signed,checkSession,now,uuid});
@@ -159,6 +161,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(priceAction(action))return priceService(action,actor,input);
     if(voyageAction(action))return voyageService(action,actor,input);
     if(cargoAction(action))return cargoService(action,actor,input);
     if(logisticsAction(action))return logisticsService(action,actor,input);

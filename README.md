@@ -2,9 +2,13 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.31.0 publiée : réservoirs, ravitaillement et voyages.**
+**Version 0.32.0 : cours des marchandises et ventes indexées — validation en cours.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
+
+## Cours et événements — 0.32
+
+Cours unitaires configurables en régie, variations manuelles ou liées à une panne d’installation, tableau public aux joueurs actifs et annonces au prix fixe ou indexé. Montant recalculé avant confirmation, paiement atomique et reçu figé après achat. Les réglages suivent les campagnes, sans import XLSX dans ce lot. Aucun barème ni stock de production créé. [Guide](docs/COURS-MARCHANDISES.md).
 
 ## Réservoirs et voyages — 0.31
 
