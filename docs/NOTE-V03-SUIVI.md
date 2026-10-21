@@ -70,7 +70,7 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 | --- | --- | --- |
 | GN-01 | Choix partie indépendante / nouvelle campagne et sessions successives | Conversion des anciennes sessions indépendantes non proposée. |
 | GN-02 | Master CAMPAGNE XLSX, dictionnaire, exemple et import dans le scénario ; archives conservées | Étendre aux futurs modules et champs non encore importables. |
-| GN-03 | Master SESSION complémentaire, identifiants durables, personnages, lieux, installations, interactions et paramètres avant jeu | Logistique ajoutée en 0.29 ; étendre au spatial et aux annonces. |
+| GN-03 | Master SESSION complémentaire, identifiants durables, personnages, lieux, installations, interactions et paramètres avant jeu | Logistique en 0.29, vaisseaux et routes en 0.31 ; annonces encore à étendre. |
 | GN-04 | Aperçu avant/après, versions, acquis protégés, archivage contrôlé et journal d’import | Import en cours de jeu non proposé ; sauvegarde complète distincte. |
 | GN-05 | Bilan, clôture scellée, acquis conservés, reprise et verrou de campagne | Report des contrats, copie de campagne de test et états de modules futurs. |
 | GN-06 | Crédits, objets, profils, PV et maintenant PA/niveau global | XP et progression de campagne, prérequis avancés. |
@@ -82,7 +82,7 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 | GN-12 | Lots, remises et ouverture explicite des recharges reçues en 0.28 | Conditionnement importable en 0.29 ; rapprochement du stock physique au comptoir à compléter. |
 | GN-13 | Groupes, caisses et mandat de mission existants | Droits de stock et de bail ajoutés en 0.29 ; ventes et départs à compléter. |
 | GN-14 | Annonces, candidatures, preuves et paiement personnel/collectif existants | Compléter selon la recette finale de la note. |
-| GN-15 | Soutes, QR et chargements conservant la propriété en 0.30 ; carburant commercial configurable | Import des vaisseaux, réservoirs, trajets, consommation, entretien et combats à définir puis implémenter. |
+| GN-15 | Soutes, QR et chargements conservant la propriété en 0.30 ; carburant commercial configurable | Réservoirs, trajets configurables et imports livrés en 0.31. Entretien et combats à définir puis implémenter. |
 | GN-16 | Quatre espaces joueur, sac avec crédits et objets, QR/code des personnes, lieux, informations, cargaisons et stockages, actions en cours et résultats, résumé des règles | Scan caméra intégré, articles d’univers/nouvelles, historique général des règles et recette mobile. |
 | GN-17 | Médiathèque et images présentes en 0.19–0.20 | Activation du stockage selon sa procédure existante et recette sur les contenus réels. |
 | GN-18 | Nouvelles inscriptions et invitations ; rôle précédent proposé sans accès automatique | Compléter le pack sans smartphone et la recette terrain. |
@@ -94,7 +94,7 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 2. Continuité de campagne implémentée en 0.22 : bilan, clôture et reprise sans remettre les soldes à zéro ; voir le rapport de validation.
 3. Masters XLSX et imports complémentaires implémentés en 0.23 ; compléter les nouveaux modules au fil de leur développement.
 4. Exécuteur de terrain implémenté en 0.24 : fouilles, durée, D6, bonus, sabotage/réparation et réservations. Soins en deux étapes, aide et pillage ajoutés en 0.25 ; masters de lieux et profils complétés en 0.26.
-5. Quatre espaces joueur livrés en 0.27 ; entrepôts personnels et recharges en 0.28. Stocks collectifs et import de la logistique ajoutés en 0.29. Prolongement implémenté en 0.30 : QR des lots et destinations, réservations et réceptions, transferts directs conservant la propriété, soutes comme espaces de stockage, préparation de carburant commercial. Vaisseaux dans les masters, frais et cours du commerce à suivre.
+5. Quatre espaces joueur livrés en 0.27 ; entrepôts personnels et recharges en 0.28. Stocks collectifs et import de la logistique ajoutés en 0.29. Prolongement implémenté en 0.30 : QR des lots et destinations, réservations et réceptions, transferts directs conservant la propriété, soutes comme espaces de stockage, préparation de carburant commercial. Vaisseaux dans les masters, réservoirs et voyages ajoutés en 0.31 ; frais et cours du commerce à suivre.
 6. Traiter les trajets et combats spatiaux après définition de leurs règles, puis réaliser la recette terrain. Une soute de stockage n’implique pas encore un moteur de voyage ou de combat.
 
 Les montants économiques, les plafonds au-delà du niveau 2, les durées du GN, la portion de billes par recharge et les barèmes spatiaux restent des décisions de jeu. Cette reprise n’en fixe aucune implicitement.

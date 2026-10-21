@@ -109,7 +109,7 @@ Limites de cette version : fichier XLSX de 8 Mio, décompression de 16 Mio, 250 
 
 Les formules, erreurs Excel, macros et liens vers des classeurs externes sont refusés. Les rendus et tests de lecture des fichiers fournis ne remplacent pas une recette dans les applications natives Excel et Google Sheets.
 
-Restent hors de ce format : participants réels, petites annonces et leurs contrats, caisses de groupe initiales, stocks collectifs initiaux, vaisseaux, XP, protections de combat et effets avancés d’objets. Les outils déjà disponibles pour les annonces et les caisses restent utilisables dans la régie.
+Restent hors de ce format : participants réels, petites annonces et leurs contrats, caisses de groupe initiales, stocks collectifs initiaux, XP, protections de combat et effets avancés d’objets. Les outils déjà disponibles pour les annonces et les caisses restent utilisables dans la régie.
 
 Depuis la 0.26, les lieux et profils peuvent être préparés dans les quatre nouveaux onglets ci-dessus ou dans leurs éditeurs dédiés. Les anciens classeurs de format 1 restent acceptés. Les profils importés voyagent dans les versions figées, archives et campagnes avec les mêmes règles que les profils créés à l’écran.
 
@@ -172,3 +172,18 @@ Le master CAMPAGNE prépare des définitions réutilisables. Le master SESSION, 
 `Objets.billes_par_recharge` est un entier strictement positif et exige `consommable = OUI`. Vide conserve le réglage ; `!EFFACER` retire cette fonction du catalogue. Les lots déjà créés gardent leur conditionnement. Les dotations personnelles peuvent référencer un modèle de recharge.
 
 `Membres.droits` accepte `readStock`, `depositStock`, `withdrawStock` et `manageStorage`. Le retrait exige lecture et retrait ; gérer le bail ne donne pas accès au stock ou à la caisse. Les anciens classeurs sans ces colonnes et sans Entrepots restent acceptés. Les valeurs des exemples sont fictives et ne constituent aucun barème du GN. Voir [Logistique](LOGISTIQUE.md).
+
+
+## Navigation — extension 0.31, format 1 conservé
+
+Les quatre téléchargements incluent maintenant **Vaisseaux** et **Routes**. Le master CAMPAGNE définit les vaisseaux du scénario et leurs routes ; le master SESSION complète ou modifie un épisode en préparation. Les anciens fichiers restent acceptés sans ces onglets.
+
+- `Parametres.astroport_id` : identifiant du port local, commun aux routes et aux positions des vaisseaux.
+- `Vaisseaux` : propriétaire `CHARACTER` ou `GROUP`, capacité de soute, disponibilité à quai, ouverture, modèle de carburant, capacité de réservoir, carburant et port initiaux.
+- `Routes` : nom, description, départ, arrivée, durée positive en secondes de jeu, coût entier positif ou nul en unités du réservoir, ouverture. Créer séparément chaque sens.
+- `Membres.droits` : `pilotShip` pour piloter et ravitailler. Lecture et retrait du carburant collectif restent des droits distincts.
+- Le carburant est un modèle Objets empilable et consommable, sans recharge laser. Une unité commerciale = une unité de réservoir. La catégorie « Carburant » seule ne crée aucun effet.
+
+Les quatre champs de navigation d’un vaisseau se renseignent ensemble à sa première activation. Un réimport ne réinitialise ni le carburant restant ni le port actuel. Il protège les capacités occupées et interdit un changement de propriétaire si la soute contient des biens. ARCHIVER ferme le vaisseau ou la route sans supprimer de stock ou de carburant. Un voyage commencé conserve sa définition de départ et doit être terminé avant la clôture de campagne.
+
+Les exemples sont fictifs, avec réservoir vide et sans distribution de carburant. L’organisation choisit ses propres barèmes et attribue les stocks au comptoir. Les imports ne créent aucune dotation supplémentaire sur un personnage existant. Voir [le parcours de navigation](LOGISTIQUE.md#réservoirs-et-voyages--031).

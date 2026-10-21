@@ -1,3 +1,4 @@
+import {shipInput,seedShip,shipAccess,localShip,validateNavigationReferences} from './navigation-state.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {inventoryPlayer} from './inventory-transfers.mjs';
 import {inventoryHash as hash,readLot,publicLot,itemQuantity} from './inventory-state.mjs';
@@ -39,12 +40,12 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
     }
     const collection=loc.kind==='HOLD'?'ships':'warehouses',r=await tx.get(`${base}/${collection}/${loc.id}`);requireThat(r,'CARGO_UNAVAILABLE');
     const owner=loc.kind==='HOLD'?ownerOf(r):{type:r.tenantType??'CHARACTER',id:r.tenantId};
-    const access=admin?{access:true,read:true,withdraw:true,deposit:true}:warehouseAccess({tenantType:owner.type,tenantId:owner.id},c.id,groups);
-    const deposit=access.deposit&&r.enabled&&(loc.kind==='HOLD'?r.docked:!!r.tenantId&&time<r.expiresAtGameMs);
+    const access=admin?{access:true,read:true,withdraw:true,deposit:true}:loc.kind==='HOLD'?shipAccess(r,c.id,groups):warehouseAccess({tenantType:owner.type,tenantId:owner.id},c.id,groups);
+    const deposit=access.deposit&&r.enabled&&(loc.kind==='HOLD'?localShip(s,r):!!r.tenantId&&time<r.expiresAtGameMs);
     const stock=access.access?await warehouseStock(tx,sid,r.id,loc.kind):[];
-    return {location:loc,name:r.name,owner,read:access.read,withdraw:access.withdraw&&(loc.kind!=='HOLD'||r.docked),deposit:!!deposit,revision:r.revision,record:r,collection,capacity:r.capacity,used:stockVolume(stock),incoming:access.access?await incomingVolume(tx,sid,r.id,loc.kind):0,stock};
+    return {location:loc,name:r.name,owner,read:access.read,pilot:access.pilot===true,withdraw:access.withdraw&&(loc.kind!=='HOLD'||localShip(s,r)),deposit:!!deposit,revision:r.revision,record:r,collection,capacity:r.capacity,used:stockVolume(stock),incoming:access.access?await incomingVolume(tx,sid,r.id,loc.kind):0,stock};
    }
-   const viewPlace=p=>({location:p.location,name:p.name,capacity:p.capacity,used:p.used,incoming:p.incoming,canDeposit:p.deposit,canWithdraw:p.withdraw});
+   const viewPlace=p=>({location:p.location,name:p.name,capacity:p.capacity,used:p.used,incoming:p.incoming,canDeposit:p.deposit,canWithdraw:p.withdraw,canPilot:p.pilot===true});
    const bump=p=>{if(p.record)tx.set(`${base}/${p.collection}/${p.record.id}`,{...p.record,revision:p.record.revision+1});};
    const visibleLot=async lot=>{
     requireThat(lot,'CARGO_UNAVAILABLE');const p=await place(lot.location);
@@ -57,30 +58,32 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
    if(action==='cargoAdmin'){
     const characters=await tx.list(`${base}/characters`),ships=await tx.list(`${base}/ships`),rows=[];
     for(const ship of ships){const p=await place({kind:'HOLD',id:ship.id});rows.push({...ship,used:p.used,incoming:p.incoming});}
-    return {session:{id:sid,revision:s.revision,stage:s.stage},ships:rows,owners:[...characters.map(c=>({type:'CHARACTER',id:c.id,name:c.public.displayName})),...allGroups.map(g=>({type:'GROUP',id:g.id,name:g.name}))],transfers:(await tx.list(`${base}/cargoTransfers`)).filter(t=>t.status==='LOADING').map(publicTransfer)};
+    return {session:{id:sid,revision:s.revision,stage:s.stage},ships:rows,transportRules:s.transportRules??null,items:await tx.list(`${base}/items`),routes:await tx.list(`${base}/routes`),owners:[...characters.map(c=>({type:'CHARACTER',id:c.id,name:c.public.displayName})),...allGroups.map(g=>({type:'GROUP',id:g.id,name:g.name}))],transfers:(await tx.list(`${base}/cargoTransfers`)).filter(t=>t.status==='LOADING').map(publicTransfer)};
    }
    if(action==='saveShip'){
     requireThat(input.revision===s.revision,'STALE_REVISION');const id=input.shipId?documentId(input.shipId):eventId,old=await tx.get(`${base}/ships/${id}`);
     if(input.shipId)requireThat(old&&old.revision===input.shipRevision,'STALE_REVISION');
-    requireThat(typeof input.name==='string'&&input.name.trim()&&input.name.length<=150&&typeof (input.description??'')==='string'&&(input.description??'').length<=4000&&typeof input.docked==='boolean'&&typeof input.enabled==='boolean','INVALID_SHIP');
-    whole(input.capacity,'INVALID_SHIP');requireThat(input.capacity>0&&['CHARACTER','GROUP'].includes(input.ownerType),'INVALID_SHIP');
-    const ownerId=documentId(input.ownerId);requireThat(await tx.get(`${base}/${input.ownerType==='GROUP'?'groups':'characters'}/${ownerId}`),'INVALID_SHIP');
+    const config=shipInput({...old,...input},id,old??{}),ownerId=config.ownerId;
+    validateNavigationReferences(config,{characters:await tx.list(`${base}/characters`),groups:allGroups,items:await tx.list(`${base}/items`)});
+    requireThat(!old?.journey,'VOYAGES_OPEN');
+    if(old?.navigation){requireThat(config.navigation,'NAVIGATION_LOCKED');requireThat(config.navigation.tankCapacity>=old.fuel,'TANK_FULL');if(config.navigation.fuelItemId!==old.navigation.fuelItemId)requireThat(old.fuel===0,'FUEL_TYPE_LOCKED');}
     const stock=await warehouseStock(tx,sid,id,'HOLD'),incoming=await incomingVolume(tx,sid,id,'HOLD'),active=(await tx.list(`${base}/cargoTransfers`)).filter(t=>t.status==='LOADING'&&[t.source,t.destination].some(p=>p.kind==='HOLD'&&p.id===id));
-    requireThat(stockVolume(stock)+incoming<=input.capacity,'WAREHOUSE_FULL');
-    if(old&&!sameOwner(ownerOf(old),{type:input.ownerType,id:ownerId}))requireThat(stock.length===0&&active.length===0,'SHIP_NOT_EMPTY');
-    if(!input.docked)requireThat(active.length===0,'CARGO_TRANSFERS_OPEN');
-    const next={id,name:input.name.trim(),description:(input.description??'').trim(),capacity:input.capacity,ownerType:input.ownerType,ownerId,docked:input.docked,enabled:input.enabled,revision:(old?.revision??0)+1},reason=moneyText(input.reason);
+    requireThat(stockVolume(stock)+incoming<=config.capacity,'WAREHOUSE_FULL');
+    if(old&&!sameOwner(ownerOf(old),{type:config.ownerType,id:ownerId}))requireThat(stock.length===0&&active.length===0,'SHIP_NOT_EMPTY');
+    if(!config.docked)requireThat(active.length===0,'CARGO_TRANSFERS_OPEN');
+    const next=old?{...old,...config,...(!old.navigation&&config.navigation?{fuel:config.navigation.initialFuel,portId:config.navigation.initialPort,journey:null}:{})}:seedShip(config),reason=moneyText(input.reason);
+    if(active.length&&config.navigation)requireThat(localShip(s,next),'CARGO_TRANSFERS_OPEN');
     tx.set(`${base}/ships/${id}`,next);tx.set(base,{...s,revision:s.revision+1});
     return audit({id,revision:next.revision},{id:eventId,kind:'SHIP_CONFIGURE',at,actorUid:actor.uid,reason,before:old,after:next});
    }
    if(action==='myCargo'){
-    const holds=[];for(const ship of await tx.list(`${base}/ships`)){const p=await place({kind:'HOLD',id:ship.id});if(p.read||p.deposit||p.withdraw)holds.push({...viewPlace(p),docked:ship.docked,enabled:ship.enabled});}
+    const holds=[];for(const ship of await tx.list(`${base}/ships`)){const p=await place({kind:'HOLD',id:ship.id});if(p.read||p.deposit||p.withdraw||p.pilot)holds.push({...viewPlace(p),docked:ship.docked,enabled:ship.enabled,portId:ship.portId??null,inTransit:!!ship.journey,local:localShip(s,ship)});}
     const transfers=[];for(const t of await tx.list(`${base}/cargoTransfers`)){if(t.status!=='LOADING'||t.destination.kind==='CHARACTER'&&t.destination.id!==c.id)continue;const p=await place(t.destination);if(p.read)transfers.push(publicTransfer(t));}
     return {session:{id:sid,stage:s.stage},holds,transfers};
    }
    if(action==='shipHold'){
-    const p=await place({kind:'HOLD',id:documentId(input.shipId)});requireThat(p.read||p.deposit||p.withdraw,'FORBIDDEN');
-    return {session:{id:sid,stage:s.stage},hold:{...viewPlace(p),description:p.record.description,docked:p.record.docked,enabled:p.record.enabled},stock:p.read?p.stock.map(publicLot):[],canRead:p.read};
+    const p=await place({kind:'HOLD',id:documentId(input.shipId)});requireThat(p.read||p.deposit||p.withdraw||p.pilot,'FORBIDDEN');
+    return {session:{id:sid,stage:s.stage},hold:{...viewPlace(p),description:p.record.description,docked:p.record.docked,enabled:p.record.enabled,local:localShip(s,p.record),portId:p.record.portId??null,inTransit:!!p.record.journey},stock:p.read?p.stock.map(publicLot):[],canRead:p.read};
    }
    if(action==='cargoLot'){
     const lot=await readLot(tx,sid,documentId(input.lotId),at),p=await visibleLot(lot);

@@ -1,6 +1,6 @@
 import {documentId,requireThat} from './validation.mjs';
 
-export const groupPermissions=['readBriefing','readMembers','readUpdates','publishUpdates','readWallet','payWallet','representMissions','readStock','depositStock','withdrawStock','manageStorage'];
+export const groupPermissions=['readBriefing','readMembers','readUpdates','publishUpdates','readWallet','payWallet','representMissions','readStock','depositStock','withdrawStock','manageStorage','pilotShip'];
 const text=(v,max,required=false)=>{
   requireThat(typeof v==='string' && v.length<=max && (!required||v.trim()),'INVALID_TEXT');return v.trim();
 };

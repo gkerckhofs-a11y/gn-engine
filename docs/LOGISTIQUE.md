@@ -1,4 +1,4 @@
-# Entrepôts, soutes, cargaisons et carburant — 0.30
+# Entrepôts, soutes, cargaisons et voyages — 0.31
 
 ## Parcours joueur
 
@@ -19,6 +19,7 @@ Les permissions se règlent dans les appartenances de groupe, à l’écran ou d
 | `readStock` | Voir les lots collectifs et leurs quantités. |
 | `depositStock` | Déposer ses propres biens. Sans lecture, seuls le volume occupé et son propre sac sont exposés. |
 | `withdrawStock` | Retirer vers son sac. Exige également `readStock`. |
+| `pilotShip` | Piloter et ravitailler les vaisseaux de la bande ; ne donne pas lecture ou retrait du stock. |
 | `manageStorage` | Louer pour la bande, renouveler ou rendre un entrepôt vide. Ne donne aucun droit sur les objets. |
 
 Le droit de payer avec la caisse reste distinct. Le gestionnaire peut payer avec son portefeuille. Révoquer un droit ou masquer le groupe bloque aussi les confirmations en attente et les réessais mémorisés. Les autres joueurs voient un entrepôt occupé sans connaître sa bande, ses stocks ou sa durée restante. Le bail ne change pas de titulaire pendant un renouvellement : il faut d’abord vider et rendre l’entrepôt.
@@ -68,7 +69,7 @@ La fiche présente nature, description, catégorie, quantité, volume, statut l�
 
 ## Soutes et chargements — 0.30
 
-**Organisation → Objets et inventaires → Vaisseaux et cargaisons** permet de créer une soute, d’attribuer son vaisseau à un personnage ou à une bande, de choisir sa capacité, son état à quai et l’ouverture des chargements. Aucune capacité n’est imposée. Ces réglages sont actuellement faits dans la régie de session ; les masters et archives de scénario n’importent pas encore les vaisseaux. Les soutes et leur cargaison sont conservées lors de la reprise d’une campagne.
+**Organisation → Objets et inventaires → Vaisseaux et cargaisons** permet de créer une soute, d’attribuer son vaisseau à un personnage ou à une bande, de choisir sa capacité, son état à quai et l’ouverture des chargements. Aucune capacité n’est imposée. Depuis 0.31, ces réglages sont aussi importables par master et conservés dans les versions et archives de scénario. Les soutes et leur cargaison sont conservées lors de la reprise d’une campagne.
 
 **Terminal / Mon groupe → Vaisseaux et cargaisons** réunit les soutes autorisées et les chargements en attente. Pour une bande, les droits existants s’appliquent : lecture du stock, dépôt, retrait. Un droit de bail ne permet pas de configurer un vaisseau. Un vaisseau absent du quai bloque chargement et déchargement. Fermer seulement le chargement conserve les sorties possibles à quai.
 
@@ -92,8 +93,38 @@ Une réservation, même de volume nul, empêche de rendre le bail destinataire. 
 
 Le carburant utilise le commerce existant : publication au marché ou vente privée, paiement, remise et réception, revente depuis le sac. Il se stocke et se charge comme les autres marchandises. Un achat payé mais non remis ne peut pas être embarqué. Les quantités commerciales sont celles de l’unité configurée ; changer le catalogue ne modifie pas les lots déjà distribués.
 
-Il peut aussi être préparé dans l’onglet **Objets** des masters existants, avec `categorie = Carburant`, `type = STACKABLE`, `consommable = OUI`, une `unite`, un `volume_unitaire` et la publication souhaitée. Vérifier les intitulés exacts dans le dictionnaire du fichier utilisé. La catégorie reste un libellé commercial ; elle ne déclenche aucun effet caché de voyage. Le plein d’un réservoir, les carburants compatibles, l’entretien, les distances et la consommation par trajet restent à implémenter après choix des règles.
+Il peut aussi être préparé dans l’onglet **Objets** des masters existants, avec `categorie = Carburant`, `type = STACKABLE`, `consommable = OUI`, une `unite`, un `volume_unitaire` et la publication souhaitée. Vérifier les intitulés exacts dans le dictionnaire du fichier utilisé. La catégorie reste un libellé commercial ; elle ne déclenche aucun effet caché de voyage. Depuis 0.31, le modèle accepté est choisi explicitement dans la configuration de chaque vaisseau. Les capacités, durées et consommations sont renseignées par l’organisation.
+
+## Réservoirs et voyages — 0.31
+
+Dans **Organisation → Objets et inventaires → Vaisseaux et cargaisons**, renseigner l’identifiant de l’astroport local. Cet identifiant technique, choisi par l’organisation, désigne le site où se trouvent les sacs et entrepôts. Il ne fixe aucun nom de planète ni élément du canon. Les identifiants de ports utilisent lettres, chiffres, tirets et soulignements.
+
+Configurer ensuite chaque vaisseau : modèle de carburant accepté, capacité de réservoir, carburant initial et port initial. Le modèle doit être empilable et consommable, sans effet recharge laser. **Une unité commerciale du lot fournit une unité de réservoir** : choisir le conditionnement en conséquence. Il n’existe pas de conversion implicite en litres ni de rendement différent par bidon. Le réservoir et la soute sont deux capacités séparées. Les anciens vaisseaux sans navigation conservent leur fonctionnement de stockage.
+
+L’état initial n’est appliqué qu’à la création ou à la première activation de la navigation. Modifier les valeurs initiales ne remplit pas un réservoir déjà utilisé et ne déplace pas le vaisseau. La capacité ne peut pas descendre sous le carburant restant ; changer de modèle exige un réservoir vide. Un voyage actif bloque la modification du vaisseau. Les droits MJ permettent de modifier la disponibilité à quai, mais ne changent pas son port actuel.
+
+Créer les routes avec leurs ports de départ et d’arrivée, durée positive en secondes de jeu et consommation entière positive ou nulle. **Chaque route est à sens unique : prévoir aussi le retour.** Aucune durée, capacité ou consommation n’est installée dans une session réelle. Les chiffres des exemples XLSX servent uniquement à essayer le moteur. Modifier ou fermer une route concerne les prochains départs ; un voyage commencé conserve son coût, sa durée et sa destination.
+
+### Plein, départ et arrivée
+
+1. Acheter le carburant par les parcours commerciaux existants et confirmer sa réception. Un lot payé mais encore détenu par le vendeur ne peut pas alimenter le réservoir.
+2. Ouvrir **Terminal / Mon groupe → Vaisseaux et cargaisons → Ouvrir la soute**. Le panneau Navigation affiche la position, la réserve et les routes disponibles.
+3. **Faire le plein** depuis un lot du sac personnel ou de la soute du vaisseau. Le joueur doit être propriétaire du vaisseau ou disposer du droit de bande `pilotShip`. Un prélèvement collectif en soute exige aussi `readStock` et `withdrawStock`. Un carburant personnel versé dans un vaisseau de bande constitue un apport explicite, annoncé dans la confirmation.
+4. Vérifier puis confirmer : le lot diminue et le réservoir augmente dans la même transaction. Un lot épuisé reste tracé comme consommé. Le moteur refuse le dépassement de capacité, le carburant incompatible, les lots réservés et toute quantité indisponible.
+5. Terminer les chargements, choisir une route, relire durée, consommation et réserve restante, puis confirmer le départ. Le carburant est prélevé une seule fois. Le vaisseau passe en transit ; sa cargaison demeure dans la soute et aucun chargement ou déchargement n’est possible.
+6. La durée suit l’horloge de jeu : les pauses la suspendent. **Actualiser puis confirmer l’arrivée** après l’échéance, avec un compte autorisé au pilotage. L’arrivée n’est pas écrite automatiquement par une tâche de fond. Tant qu’elle n’est pas confirmée, le vaisseau reste en transit.
+7. À un port distant, la soute reste consultable selon les droits et les routes de continuation sont accessibles. Les échanges avec les sacs et entrepôts locaux, ainsi que le plein, restent bloqués. Prévoir assez de carburant pour rentrer. Le retour confirmé à l’astroport rend les transferts locaux possibles.
+
+Le droit `pilotShip` est distinct de la lecture et de la manutention du stock. Il se règle dans les appartenances de groupe à l’écran ou dans `Membres.droits`. Il ne révèle pas le contenu de la soute sans `readStock`. Les nouveaux droits sont désactivés pour les anciennes appartenances. Les actions de navigation exigent une session en jeu et les permissions de santé applicables aux échanges. Elles ne consomment ni PA ni jet de dé, et n’ajoutent pas de frais de crédits au coût du carburant acheté.
+
+### Arbitrage, continuité et limites
+
+L’organisation peut clôturer un voyage avec un motif privé, y compris en pause ou en fin de session : arrivée à destination ou retour au port de départ. Le carburant déjà consommé reste dépensé. Cet arbitrage permet de traiter une interruption ou la disparition du dernier pilote autorisé ; il est journalisé.
+
+Les voyages actifs bloquent l’archivage et le scellement d’un épisode. Une fois terminés, carburant restant, position, cargaison, propriétaires, droits et routes suivent la campagne. Les masters SESSION conservent ces acquis. Les archives de scénario exportent uniquement les définitions et valeurs initiales, sans voyage ou réserve jouée.
+
+Les historiques de lots et de logistique enregistrent pleins, départs, arrivées et arbitrages. Chaque opération est transactionnelle et protégée contre les doubles requêtes. Le serveur contrôle à nouveau droits, état, disponibilité et confirmation au moment de l’écriture.
 
 ## Suite ouverte
 
-Vaisseaux dans les masters et archives de scénario, transport pour autrui, vente directement depuis un entrepôt ou une soute, dotations directement collectives, cours variables, boutique organisation sans personnage vendeur, frais de douane/corruption et rapprochement réel du stock restent à développer. La recette sur vrais téléphones, plusieurs comptes et environ 60 connexions reste nécessaire avant un GN.
+Entretien, combat spatial, ravitaillement et commerce à distance, transport pour autrui, vente directement depuis un entrepôt ou une soute, dotations directement collectives, cours variables, boutique organisation sans personnage vendeur, frais de douane/corruption et rapprochement réel du stock restent à développer. La recette sur vrais téléphones, plusieurs comptes et environ 60 connexions reste nécessaire avant un GN.

@@ -6,6 +6,8 @@ export const masterSheets={
  Parametres:['cle','valeur'],
  Personnages:['id','operation','version','nom','metier','description_publique','publication_publique','publication','histoire','interpretation','secrets_joueur','notes_mj','niveau_global','pv_max_initiaux','portrait_media_id','image_privee_media_id'],
  Objets:['id','operation','version','nom','description','categorie','unite','type','consommable','volume_unitaire','legalite','publication','notes_mj','image_media_id','pillable','billes_par_recharge'],
+ Vaisseaux:['id','operation','version','nom','description','proprietaire_type','proprietaire_id','capacite_volume','a_quai','ouvert','carburant_objet_id','capacite_reservoir','carburant_initial','port_initial'],
+ Routes:['id','operation','version','nom','description','depart_port','arrivee_port','duree_secondes','carburant_cout','ouvert'],
  Entrepots:['id','operation','version','nom','description','capacite_volume','loyer','periode_minutes','ouvert','loyer_groupe_id'],
  Competences:['id','operation','version','nom','description','instructions','categorie','type','publication','notes_mj','soin_pv','usages','recuperation_secondes','portee_recuperation','consommable_id','consommable_quantite'],
  Classes:['id','operation','version','nom','description','publication','notes_mj','competences'],
@@ -21,9 +23,9 @@ export const masterSheets={
  Recompenses:['id','operation','version','lieu_id','type','objet_id','connaissance_id','quantite','stock_initial','limite_personnage'],
  Interactions:['id','operation','version','nom','type','publication','competence_id','niveau_minimum','prerequis','instructions','duree_secondes','durees_niveaux','seuil','cout_pa','recuperation_secondes','bonus_objets','consommable_id','consommable_quantite','consommables_supplementaires','texte_reussite','texte_echec','complement_secondes','soin_pv','niveau_reanimation','convalescence_secondes','recuperation_patient_secondes'],
 };
-export const masterCollections={Personnages:'characters',Objets:'items',Competences:'skills',Classes:'classes',Groupes:'groups',Connaissances:'knowledge',Lieux:'fieldTargets',Interactions:'personProfiles',Entrepots:'warehouses'};
+export const masterCollections={Personnages:'characters',Objets:'items',Competences:'skills',Classes:'classes',Groupes:'groups',Connaissances:'knowledge',Lieux:'fieldTargets',Interactions:'personProfiles',Entrepots:'warehouses',Vaisseaux:'ships',Routes:'routes'};
 export const masterIgnoredSheets=['Guide','Dictionnaire'];
-export const masterParameters=['titre','resume','date','horaires','lieu','infos_pratiques','confidentialite','capacite','groupes_actifs','pa_actifs','pa_niveau_1','pa_niveau_2','pa_renouvellement_minutes','pa_cout','pa_recuperation_secondes','pa_recuperation_patient_secondes','economie_active','monnaie_nom','monnaie_unite','sante_active','pv_max_defaut'];
+export const masterParameters=['titre','resume','date','horaires','lieu','infos_pratiques','confidentialite','capacite','groupes_actifs','pa_actifs','pa_niveau_1','pa_niveau_2','pa_renouvellement_minutes','pa_cout','pa_recuperation_secondes','pa_recuperation_patient_secondes','economie_active','monnaie_nom','monnaie_unite','sante_active','pv_max_defaut','astroport_id'];
 export const masterHints={
  operation:'CREER, MODIFIER ou ARCHIVER. Une ligne absente reste inchangée.',version:'Entier positif. Augmenter après une modification. Une même version ne peut changer de contenu.',
  publication:'DRAFT, READY ou PUBLISHED. Objectifs, relations et attributions : OUI ou NON.',publication_publique:'DRAFT, READY ou PUBLISHED.',
@@ -67,12 +69,14 @@ export const masterHints={
  recuperation_patient_secondes:'Récupération commune du patient après soin, de 0 à 86400 secondes de jeu. Valeur initiale : 600.',
 };
 export const masterSheetHints={
+ Vaisseaux:{proprietaire_type:'CHARACTER ou GROUP.',capacite_volume:'Capacité de soute, entier positif.',a_quai:'OUI ou NON. Un voyage actif interdit la modification.',carburant_objet_id:'Modèle STACKABLE consommable, sans effet recharge laser. Une unité du lot fournit une unité de réservoir.',capacite_reservoir:'Capacité en unités du carburant accepté. Entier positif.',carburant_initial:'Entier positif ou nul. Appliqué à la création ou à la première activation, jamais au réimport d’un vaisseau déjà navigable.',port_initial:'Identifiant stable du port initial. Un master SESSION ne déplace pas un vaisseau existant.'},
+ Routes:{depart_port:'Identifiant stable du port de départ.',arrivee_port:'Autre port. Créer une route distincte pour le retour.',duree_secondes:'Durée de jeu entière positive. La pause suspend les trajets.',carburant_cout:'Entier positif ou nul, en unités du réservoir. Prélevé une seule fois au départ.',ouvert:'OUI ou NON. ARCHIVER ferme la route sans modifier un voyage parti.'},
  ActionsTerrain:{operation:'CREER ou MODIFIER. Le profil est obligatoire : pour le désactiver, archiver son lieu.',recuperation_secondes:'0 à 86400. Vide à la création ou !EFFACER : récupération de session. Fouilles : famille FOUILLE commune.',test:'AUTO sans jet, D6 pour D6 + niveau + bonus. Obligatoire à la création.'},
  Recompenses:{quantite:'Crédits ou unités par découverte, entier positif. ITEM individuel : 1. KNOWLEDGE : utiliser 1.',objet_id:'Requis pour ITEM uniquement. Une autre référence doit être effacée si le type change.',connaissance_id:'Requise pour KNOWLEDGE uniquement. Une autre référence doit être effacée si le type change.'},
  Interactions:{recuperation_secondes:'Pillage : 0 à 86400, vide à la création ou !EFFACER = règle de session. Soins : 0 ; utiliser recuperation_patient_secondes.',soin_pv:'Soin de terrain : PV rendus, de 1 à 1000. Valeur initiale : 1. Clinique : retour au maximum.'},
 };
 export const masterGuide=[
- ['GN Engine 0.29 — logistique','Format 1 étendu. Les anciens masters restent acceptés.'],
+ ['GN Engine 0.31 — navigation','Format 1 étendu. Les anciens masters restent acceptés.'],
  ['Destination','CAMPAGNE se charge dans un scénario modèle. SESSION se charge dans un épisode en PREPARATION, avant le premier lancement.'],
  ['Parcours','Importer le XLSX, corriger les erreurs, relire l’aperçu, saisir un motif puis confirmer. Le chargement seul ne modifie rien.'],
  ['Réimport','Identifiants durables. Même version et même contenu = inchangé. Pour une nouvelle modification, augmenter la version.'],
@@ -101,6 +105,11 @@ export const masterGuide=[
  ['Continuité logistique','Le master SESSION conserve le locataire, le temps payé, les lots et leurs propriétaires. Les modifications de tarif concernent le prochain paiement.'],
  ['Stocks de bande','Droits explicites dans Membres : readStock, depositStock, withdrawStock, manageStorage. Retrait : lecture et retrait requis. La caisse reste un droit distinct.'],
  ['Recharges laser','Objets → billes_par_recharge configure le conditionnement. Consommable = OUI. Les dotations utilisent ensuite ce modèle, sans modifier les anciens lots.'],
- ['Modules à venir','Vaisseaux, XP et effets avancés : non importables. Les onglets ou colonnes inconnus sont refusés.'],
+ ['Vaisseaux','Vaisseaux configure la soute, le propriétaire et la navigation. Le plein initial ne s’applique qu’à la création ou à la première activation de navigation.'],
+ ['Routes','Sens unique. depart_port et arrivee_port sont des identifiants stables. Durée en secondes de jeu, coût en unités du carburant accepté par le vaisseau. Prévoir le retour.'],
+ ['Port local','Parametres → astroport_id désigne le site de jeu. Sacs, entrepôts, chargements et pleins y sont rattachés. Un vaisseau distant doit revenir pour échanger.'],
+ ['Pilotage','Membres → droits : pilotShip autorise les pleins et voyages. Retirer du carburant collectif exige aussi readStock et withdrawStock.'],
+ ['Continuité des voyages','Le master SESSION conserve le carburant restant et la position des vaisseaux existants. Les voyages en cours bloquent la clôture de campagne.'],
+ ['Modules à venir','XP et effets avancés : non importables. Les onglets ou colonnes inconnus sont refusés.'],
  ['Source','Contrat du moteur : src/shared/master-schema.mjs et docs/MASTERS.md, 21 octobre 2026. Les données des exemples sont fictives.'],
 ];

@@ -1,3 +1,4 @@
+import {shipInput,routeInput,transportRulesInput,validateNavigationReferences} from './navigation-state.mjs';
 import {personProfileInput,validatePersonReferences} from './person-state.mjs';
 import {fieldTargetInput,validateFieldReferences} from './field-state.mjs';
 import {actionPointRulesInput,actionPointMaximum,globalLevel} from './action-point-state.mjs';
@@ -14,7 +15,7 @@ import {warehouseInput} from './storage-state.mjs';
 import {imageReferences,mediaHash,mediaLimits} from './media-state.mjs';
 
 export const packageLimits=Object.freeze({manifestBytes:2*1024*1024,archiveBytes:128*1024*1024,records:500,images:250});
-export const scenarioCollections=['characters','groups','knowledge','skills','classes','items','fieldTargets','personProfiles','warehouses'];
+export const scenarioCollections=['characters','groups','knowledge','skills','classes','items','fieldTargets','personProfiles','warehouses','ships','routes'];
 const fail=c=>requireThat(c,'INVALID_SCENARIO_PACKAGE');
 const object=v=>{fail(v&&typeof v==='object'&&!Array.isArray(v));return v;};
 const text=(v,max,required=false)=>{fail(typeof v==='string'&&v.length<=max&&(!required||v.trim()));return v.trim();};
@@ -59,10 +60,13 @@ function group(v){const g=groupInput(object(v),documentId(v.id));g.revision=revi
 export function cleanScenarioSnapshot(input){
   object(input);const root=object(input.scenario),records=object(input.records);
   const scenario={title:text(root.title,150,true),summary:text(root.summary??'',4000),economyRules:root.economyRules==null?null:economyRulesInput(root.economyRules),healthRules:root.healthRules==null?null:healthRulesInput(root.healthRules)};
+  if(root.transportRules)scenario.transportRules=transportRulesInput(root.transportRules);
   if(root.actionPointRules)scenario.actionPointRules=actionPointRulesInput(root.actionPointRules);
   const cleaners={characters:character,groups:group,knowledge:v=>({...knowledgeInput(object(v),documentId(v.id)),revision:revision(v.revision)}),skills:v=>({...skillInput(object(v),documentId(v.id)),healing:healing(v),revision:revision(v.revision)}),classes:v=>({...classInput(object(v),documentId(v.id)),revision:revision(v.revision)}),items:item,personProfiles:v=>({...personProfileInput(v,documentId(v.id)),revision:revision(v.revision)}),fieldTargets:v=>({...fieldTargetInput(v,documentId(v.id)),revision:revision(v.revision)})};
+  cleaners.ships=v=>({...shipInput(object(v),documentId(v.id)),revision:revision(v.revision)});
+  cleaners.routes=v=>({...routeInput(object(v),documentId(v.id)),revision:revision(v.revision)});
   cleaners.warehouses=v=>({...warehouseInput(object(v),documentId(v.id)),revision:revision(v.revision)});
-  const clean={};let count=0;for(const kind of scenarioCollections){clean[kind]=unique(array(records[kind]??(['fieldTargets','personProfiles','warehouses'].includes(kind)?[]:undefined)).map(v=>cleaners[kind](v))).sort((a,b)=>a.id.localeCompare(b.id));count+=clean[kind].length;for(const record of clean[kind])requireThat(Buffer.byteLength(JSON.stringify(record))<750000,'SCENARIO_PACKAGE_TOO_LARGE');}
+  const clean={};let count=0;for(const kind of scenarioCollections){clean[kind]=unique(array(records[kind]??(['fieldTargets','personProfiles','warehouses','ships','routes'].includes(kind)?[]:undefined)).map(v=>cleaners[kind](v))).sort((a,b)=>a.id.localeCompare(b.id));count+=clean[kind].length;for(const record of clean[kind])requireThat(Buffer.byteLength(JSON.stringify(record))<750000,'SCENARIO_PACKAGE_TOO_LARGE');}
   requireThat(count<=packageLimits.records,'SCENARIO_PACKAGE_TOO_LARGE');
   const sets=Object.fromEntries(scenarioCollections.map(k=>[k,new Set(clean[k].map(x=>x.id))]));
   const checkCost=s=>{if(s.healing?.consumable){const x=s.healing.consumable;ref(x.itemId,sets.items);const model=clean.items.find(i=>i.id===x.itemId);if(model.revision===x.itemRevision){fail(model.consumable);itemQuantity(model,x.quantity);}}};
@@ -72,6 +76,7 @@ export function cleanScenarioSnapshot(input){
     const p=c.abilityProfile;if(p){if(p.class)ref(p.class.id,sets.classes);if(p.choices.classId)ref(p.choices.classId,sets.classes);for(const o of p.choices.overrides)ref(o.skillId,sets.skills);for(const s of p.skills){ref(s.id,sets.skills);checkCost(s);}}
     for(const x of c.startingInventory?.items??[])ref(x.item.id,sets.items);
   }
+  for(const ship of clean.ships)validateNavigationReferences(ship,clean);
   for(const g of clean.groups)for(const m of g.members)ref(m.characterId,sets.characters);
   for(const w of clean.warehouses)if(w.rentAccountId)fail(clean.groups.some(g=>g.walletConfig&&groupAccountId(g.id)===w.rentAccountId));
   for(const k of clean.knowledge){for(const id of [...k.initialCharacterIds,...k.qrCharacterIds])ref(id,sets.characters);if(k.qrSkillId)ref(k.qrSkillId,sets.skills);}

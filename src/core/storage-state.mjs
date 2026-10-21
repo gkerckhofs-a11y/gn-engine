@@ -10,7 +10,7 @@ export function warehouseInput(input,id,old={}){
 }
 export const stockPermissions=['readStock','depositStock','withdrawStock','manageStorage'];
 export function storageGroups(s,groups,cid){
-  return s.modules?.groups===true?groups.filter(g=>groupVisible(g,cid)).map(g=>({id:g.id,name:g.name,revision:g.revision,permissions:Object.fromEntries(stockPermissions.map(k=>[k,memberFor(g,cid).permissions[k]===true]))})):[];
+  return s.modules?.groups===true?groups.filter(g=>groupVisible(g,cid)).map(g=>({id:g.id,name:g.name,revision:g.revision,permissions:Object.fromEntries([...stockPermissions,'pilotShip'].map(k=>[k,memberFor(g,cid).permissions[k]===true]))})):[];
 }
 export function warehouseAccess(w,cid,groups){
   if(!w.tenantId)return {access:false,read:false,deposit:false,withdraw:false,manage:false,group:null};

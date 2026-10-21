@@ -13,6 +13,8 @@ import {cleanScenarioSnapshot} from './scenario-package.mjs';
 import {recordPublication} from './narrative.mjs';
 import {imageReferences} from './media-state.mjs';
 import {gameTime} from './clock.mjs';
+import {importNavigation} from './master-navigation.mjs';
+import {transportRulesInput} from './navigation-state.mjs';
 import {importTerrain} from './master-terrain.mjs';
 
 export const masterCommands=['prepareMasterImport','applyMasterImport','masterImportHistory'];
@@ -74,6 +76,7 @@ function parameters(parent,rows,session){
   for(const [key,field] of Object.entries({pa_renouvellement_minutes:'renewalMinutes',pa_cout:'cost',pa_recuperation_secondes:'cooldownSeconds',pa_recuperation_patient_secondes:'patientCooldownSeconds'}))if(p[key]!==undefined)r[field]=num(p[key],key,key==='pa_renouvellement_minutes');
   next.actionPointRules=actionPointRulesInput(r);
  }
+ if(p.astroport_id!==undefined)next.transportRules=transportRulesInput({homePort:p.astroport_id});
  const moneyKeys=['economie_active','monnaie_nom','monnaie_unite'],healthKeys=['sante_active','pv_max_defaut'];
  if(session&&[...moneyKeys,...healthKeys].some(k=>p[k]!==undefined))issue('cle','La santé et la monnaie de session se modifient avec leurs outils MJ dédiés.');
  if(moneyKeys.some(k=>p[k]!==undefined))next.economyRules=economyRulesInput({...next.economyRules,...(p.economie_active!==undefined?{enabled:bool(p.economie_active,'economie_active')}:{}),...(p.monnaie_nom!==undefined?{name:p.monnaie_nom}:{}),...(p.monnaie_unite!==undefined?{unit:p.monnaie_unite}:{})});
@@ -92,7 +95,7 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
   const {rows,errors}=cleanRows(input.sheets),changes=[],stamps=[],writes=new Map(),put=(path,value)=>writes.set(path,value),sink={set:put};
   const records=Object.fromEntries(await Promise.all(kinds.map(async k=>[k,(await tx.list(`${base}/${k}`)).sort((a,b)=>a.id.localeCompare(b.id))]))),m=mapsFor(records);
   const fieldStates=session?(await tx.list(`${base}/fieldStates`)).sort((a,b)=>a.id.localeCompare(b.id)):[];
-  const storedInventory=session?(await tx.list(`${base}/inventory`)).filter(l=>l.location?.kind==='WAREHOUSE'&&l.quantity>0&&!['CONSUMED','DESTROYED'].includes(l.status)).sort((a,b)=>a.id.localeCompare(b.id)):[];
+  const storedInventory=session?(await tx.list(`${base}/inventory`)).filter(l=>['WAREHOUSE','HOLD'].includes(l.location?.kind)&&l.quantity>0&&!['CONSUMED','DESTROYED'].includes(l.status)).sort((a,b)=>a.id.localeCompare(b.id)):[];
   const rentAccounts=[];
   const prior=new Map([...(parent.masterRowBaseline??[]),...await tx.list(`${base}/masterRows`)].map(x=>[x.id,x])),receipts=[...prior.values()];
   let nextParent=parent;const created=new Set(),newKnowledge=new Set(),changedRecords=new Set(),seen=new Set(),targetSeen=new Set(),archives=[];
@@ -211,6 +214,7 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
    }
    m.warehouses.set(r.id,d);mark('warehouses',r.id);summary('Entrepots',r,old,d);
   }catch(e){addError('Entrepots',r,e);}}
+  importNavigation({rows,m,session,storedInventory,stamp,checkOperation,summary,mark,addError,issue,num,empty,patch});
   // Validate the combined graph; a broken reference cannot leave half an import behind.
   try{
    cleanScenarioSnapshot({scenario:nextParent,records:rowsRecord(m)});
@@ -225,6 +229,8 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
    if(kind==='skills')used=[...m.classes.values()].some(c=>c.skills.some(x=>x.skillId===rid))||[...m.characters.values()].some(c=>c.abilityProfile?.skills.some(s=>s.id===rid))||[...m.knowledge.values()].some(k=>k.qrSkillId===rid);
    if(kind==='classes')used=[...m.characters.values()].some(c=>c.abilityProfile?.class?.id===rid);
    if(kind==='groups')used=m.groups.get(rid).members.some(x=>x.active);
+   if(kind==='items')used=used||[...m.ships.values()].some(s=>s.navigation?.fuelItemId===rid);
+   if(['characters','groups'].includes(kind))used=used||[...m.ships.values()].some(s=>s.ownerId===rid&&s.ownerType===(kind==='groups'?'GROUP':'CHARACTER'));
    if(session&&kind==='knowledge')for(const c of records.characters){const receipt=await tx.get(`${base}/characters/${c.id}/knowledge/${rid}`);if(receipt?.active)used=true;}
    if(used)issue('id','Ce contenu est encore référencé. Retirer ses dépendances avec les outils adaptés avant de l’archiver.');
   }catch(e){addError(a.sheet,a.r,e);}}

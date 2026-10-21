@@ -1,3 +1,4 @@
+import {seedShip} from './navigation-state.mjs';
 import {seedFieldTargets} from './field-state.mjs';
 import {documentId,whole,requireThat} from './validation.mjs';
 import {createClock} from './clock.mjs';
@@ -10,11 +11,11 @@ import {seedKnowledge} from './knowledge.mjs';
 const text=(v,max,required=false)=>{requireThat(typeof v==='string'&&v.length<=max&&(!required||v.trim()),'INVALID_TEXT');return v.trim();};
 const optional=(v,max)=>text(v??'',max);
 const charPath=(sid,cid)=>`sessions/${sid}/characters/${cid}`;
-export const scenarioCollections=['characters','groups','knowledge','skills','classes','items','fieldTargets','personProfiles','warehouses'];
+export const scenarioCollections=['characters','groups','knowledge','skills','classes','items','fieldTargets','personProfiles','warehouses','ships','routes'];
 export async function readScenarioVersion(tx,id,vid){
  const v=await tx.get(`scenarios/${id}/versions/${vid}`);requireThat(v,'NOT_FOUND');
-  const [chars,groups,knowledge,skills,classes,items,fieldTargets,personProfiles,warehouses]=await Promise.all(scenarioCollections.map(k=>tx.list(`scenarios/${id}/versions/${vid}/${k}`)));
- return {v,chars,groups,knowledge,skills,classes,items,fieldTargets,personProfiles,warehouses};
+  const [chars,groups,knowledge,skills,classes,items,fieldTargets,personProfiles,warehouses,ships,routes]=await Promise.all(scenarioCollections.map(k=>tx.list(`scenarios/${id}/versions/${vid}/${k}`)));
+ return {v,chars,groups,knowledge,skills,classes,items,fieldTargets,personProfiles,warehouses,ships,routes};
 }
 export function sessionFromVersion(input,data,newId,actor,at){
  const {v,chars,groups}=data,id=documentId(input.scenarioId),vid=documentId(input.versionId);
@@ -25,7 +26,7 @@ export function sessionFromVersion(input,data,newId,actor,at){
         const s={id:newId,ownerUid:actor.uid,scenarioId:id,versionId:vid,title:text(input.title,150,true),summary:v.summary,
           date:optional(input.date,40),time:optional(input.time,80),place:optional(input.place,500),practical:optional(input.practical,4000),
           privacy:text(input.privacy,4000,true),capacity,accepted:0,registrationOpen:false,stage:'PREPARATION',fields:cleanFields,
-          clock:createClock(),revision:1,createdAt:at,economyRules:v.economyRules??null,healthRules:v.healthRules??null,modules:{groups:groups.length>0}};
+          transportRules:v.transportRules??null,clock:createClock(),revision:1,createdAt:at,economyRules:v.economyRules??null,healthRules:v.healthRules??null,modules:{groups:groups.length>0}};
         if(v.masterRowBaseline?.length)s.masterRowBaseline=v.masterRowBaseline;
         if(v.actionPointRules){s.actionPointRules=v.actionPointRules;s.actionPointRulesRevision=1;s.actionPointSchedule={nextAtGameMs:v.actionPointRules.renewalMinutes*60000};for(const c of chars)actionPointMaximum(v.actionPointRules,c);}
         return s;
@@ -48,6 +49,8 @@ export function seedScenarioSession(tx,s,data,actor,at){
         seedFieldTargets(tx,s,data.fieldTargets);
         for(const p of data.personProfiles??[])tx.set(`sessions/${newId}/personProfiles/${p.id}`,p);
         for(const w of data.warehouses??[])tx.set(`sessions/${newId}/warehouses/${w.id}`,{...w,tenantType:'CHARACTER',tenantId:null,expiresAtGameMs:null,revision:1});
+        for(const ship of data.ships??[])tx.set(`sessions/${newId}/ships/${ship.id}`,seedShip(ship));
+        for(const route of data.routes??[])tx.set(`sessions/${newId}/routes/${route.id}`,route);
         seedWallets(tx,s,chars,at,actor.uid,groups);
         seedInventory(tx,newId,chars,at,actor.uid);
         seedKnowledge(tx,newId,knowledge,at);

@@ -2,9 +2,13 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.30.0 publiée : QR de cargaisons, soutes et chargements.**
+**Version 0.31.0 : réservoirs, ravitaillement et voyages — validation en cours.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
+
+## Réservoirs et voyages — 0.31
+
+Carburant pris dans l’inventaire, réservoirs configurables, routes à sens unique, aperçu du coût, départ transactionnel et arrivée confirmée après le temps de jeu. Les soutes sont bloquées en transit ; les échanges locaux reprennent au retour à l’astroport. Droit explicite de pilotage pour les bandes, arbitrage MJ et continuité de campagne. Les quatre masters incluent vaisseaux, routes et port local ; les archives conservent les définitions initiales sans état joué. Aucun barème de jeu n’est activé en production. [Guide](docs/LOGISTIQUE.md) · [Imports](docs/MASTERS.md).
 
 ## QR, soutes et carburant — 0.30
 

@@ -8,7 +8,7 @@ import {masterFixture} from './support/masters-suite.mjs';
 import {MemoryStore} from './support/memory.mjs';
 const file=name=>readFile(new URL(`../assets/masters/GN_Engine_${name}.xlsx`,import.meta.url));
 test('XLSX : les quatre fichiers livrés sont lisibles et les deux exemples importables',async()=>{
- for(const name of await readdir(new URL('../assets/masters/',import.meta.url))){const sheets=readMasterXlsx(new Uint8Array(await readFile(new URL(`../assets/masters/${name}`,import.meta.url))));assert.equal(sheets.Meta[0].version,'1');for(const tab of ['Lieux','ActionsTerrain','Recompenses','Interactions','Entrepots'])assert.ok(Array.isArray(sheets[tab]));}
+ for(const name of await readdir(new URL('../assets/masters/',import.meta.url))){const sheets=readMasterXlsx(new Uint8Array(await readFile(new URL(`../assets/masters/${name}`,import.meta.url))));assert.equal(sheets.Meta[0].version,'1');for(const tab of ['Lieux','ActionsTerrain','Recompenses','Interactions','Entrepots','Vaisseaux','Routes'])assert.ok(Array.isArray(sheets[tab]));}
  const f=await masterFixture(()=>new MemoryStore());await f.apply(readMasterXlsx(new Uint8Array(await file('Exemple_Campagne'))));const start=await f.session();
  const sheets=readMasterXlsx(new Uint8Array(await file('Exemple_Session')));sheets.Meta[0].campaign_id=start.campaignId;await f.apply(sheets,{scenarioId:undefined,sessionId:start.id});const s=await f.read('session',{sessionId:start.id});assert.equal(s.characters.length,2);assert.equal((await f.store.get(`sessions/${start.id}/warehouses/hangar-demo`)).capacity,25);assert.equal(s.items.find(i=>i.id==='recharge-demo').laserRecharge.pelletsPerUnit,500);assert.equal(s.inventory.reduce((n,l)=>n+l.quantity,0),5);assert.equal(s.accounts.reduce((n,a)=>n+a.balance,0),120);assert.equal((await f.store.list(`sessions/${start.id}/fieldTargets`)).length,3);assert.equal((await f.store.get(`sessions/${start.id}/fieldStates/cache-episode`)).stock['reserve-episode'],2);assert.equal((await f.store.list(`sessions/${start.id}/personProfiles`)).length,5);
 });
@@ -19,7 +19,7 @@ test('XLSX : formules, entités, colonnes et feuilles étrangères sont refusée
  assert.ok(worksheet);
  assert.throws(()=>readMasterXlsx(mutated(f=>f[worksheet]=strToU8(strFromU8(f[worksheet]).replace('<x:v>1</x:v>','<x:f>1+1</x:f><x:v>1</x:v>')))),/formule/);
  assert.throws(()=>readMasterXlsx(mutated(f=>f['xl/workbook.xml']=strToU8(strFromU8(f['xl/workbook.xml']).replace('?>','?><!DOCTYPE w [<!ENTITY x SYSTEM "file:///etc/passwd">]>')))),/XML/);
- assert.throws(()=>readMasterXlsx(mutated(f=>f['xl/workbook.xml']=strToU8(strFromU8(f['xl/workbook.xml']).replace('name="Personnages"','name="Vaisseaux"')))),/Onglet/);
+ assert.throws(()=>readMasterXlsx(mutated(f=>f['xl/workbook.xml']=strToU8(strFromU8(f['xl/workbook.xml']).replace('name="Personnages"','name="OngletInconnu"')))),/Onglet/);
  assert.throws(()=>readMasterXlsx(mutated(f=>f[worksheet]=strToU8(strFromU8(f[worksheet]).replace('destination_id','balance')))),/Colonne/);
  assert.throws(()=>readMasterXlsx(new Uint8Array(8*1024*1024+1)),/8 Mio/);
 });

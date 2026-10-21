@@ -14,7 +14,7 @@ const digest=v=>hash(JSON.stringify(canonical(v)));
 const text=(v,max=500)=>{requireThat(typeof v==='string'&&v.trim()&&v.length<=max,'INVALID_CAMPAIGN');return v.trim();};
 const sorted=rows=>rows.sort((a,b)=>a.id.localeCompare(b.id));
 const root=id=>`campaigns/${documentId(id)}`;
-const collections=['characters','groups','knowledge','skills','classes','items','accounts','inventory','masterRows','fieldTargets','fieldStates','personProfiles','warehouses','ships'];
+const collections=['characters','groups','knowledge','skills','classes','items','accounts','inventory','masterRows','fieldTargets','fieldStates','personProfiles','warehouses','ships','routes'];
 const reads=['campaign','prepareCampaignStart','prepareCampaignClosure','prepareCampaignEpisode'];
 const writes=['startCampaign','closeCampaignSession','beginCampaignEpisode','advanceCampaignEpisode','reopenCampaignSession'];
 export const campaignCommands=[...reads,...writes];
@@ -46,10 +46,10 @@ function stateSummary(data,healthPolicy='PRESERVE'){
   groups:data.groups.length,lots:data.inventory.length,quantity:data.inventory.reduce((n,l)=>n+l.quantity,0),receipts:Object.values(data.receipts).reduce((n,r)=>n+r.length,0)};
 }
 const cpSummary=c=>({id:c.id,title:c.title,revision:c.revision,activeSessionId:c.activeSessionId,activeBuildId:c.activeBuildId,latestSessionId:c.latestSessionId,episodeCount:c.episodeCount});
-const sourceIdentity=s=>({id:s.id,revision:s.revision,scenarioId:s.scenarioId,versionId:s.versionId,actionPointRules:s.actionPointRules??null,healthRules:s.healthRules??null,economyRules:s.economyRules??null,modules:s.modules??{}});
+const sourceIdentity=s=>({id:s.id,revision:s.revision,scenarioId:s.scenarioId,versionId:s.versionId,actionPointRules:s.actionPointRules??null,healthRules:s.healthRules??null,economyRules:s.economyRules??null,modules:s.modules??{},transportRules:s.transportRules??null});
 function episodeHeader(input,source,campaign,newId,actor,at){
  requireThat(['PRESERVE','RESTORE'].includes(input.healthPolicy),'CAMPAIGN_HEALTH_POLICY_REQUIRED');
- const template={v:{masterRowBaseline:source.masterRowBaseline??[],summary:source.summary,economyRules:source.economyRules??null,healthRules:null,actionPointRules:source.actionPointRules??null},chars:[],groups:[]};
+ const template={v:{transportRules:source.transportRules??null,masterRowBaseline:source.masterRowBaseline??[],summary:source.summary,economyRules:source.economyRules??null,healthRules:null,actionPointRules:source.actionPointRules??null},chars:[],groups:[]};
  const s=sessionFromVersion({...input,scenarioId:source.scenarioId,versionId:source.versionId},template,newId,actor,at);
  return {...s,healthRules:source.healthRules??null,modules:source.modules??{},campaignId:campaign.id,campaignEpisode:campaign.episodeCount+1,
   previousSessionId:source.id,campaignSealed:false,campaignHealthPolicy:input.healthPolicy};
@@ -68,7 +68,7 @@ function episodeEntries(data,source,s,actor,at){
   recordPublication({set:(path,value)=>put(path.slice(`sessions/${s.id}/`.length),value)},`sessions/${s.id}/characters`,null,next,{id:s.id,at,actorUid:actor.uid,reason,stage:'PREPARATION'});
   for(const r of data.receipts[c.id]??[])put(`characters/${c.id}/knowledge/${r.id}`,r);
  }
- for(const key of ['groups','knowledge','skills','classes','items','masterRows','fieldTargets','personProfiles','ships'])for(const row of data[key])put(`${key}/${row.id}`,row);
+ for(const key of ['groups','knowledge','skills','classes','items','masterRows','fieldTargets','personProfiles','ships','routes'])for(const row of data[key])put(`${key}/${row.id}`,row);
  for(const w of data.warehouses)put(`warehouses/${w.id}`,{...w,revision:1,expiresAtGameMs:w.tenantId?Math.max(0,w.expiresAtGameMs-gameTime(source.clock,at)):null});
  for(const row of data.fieldStates){const state=effectiveFieldState(source,row,at),time=gameTime(source.clock,at);put(`fieldStates/${row.id}`,{...state,activeActionId:null,offlineUntilGameMs:state.offlineUntilGameMs===null?null:Math.max(0,state.offlineUntilGameMs-time),lockedUntilGameMs:Math.max(0,state.lockedUntilGameMs-time),protectedUntilGameMs:Math.max(0,state.protectedUntilGameMs-time)});}
  for(const g of data.groups)for(const u of data.updates[g.id]??[]){
@@ -110,9 +110,10 @@ export function createCampaignService({store,signed,admin,checkScenario,checkSes
   const [contracts,bounties,sales,transfers,listings,resources]=await Promise.all([
    tx.list(`${base}/contracts`),tx.list(`${base}/bounties`),tx.list(`${base}/lotSales`),tx.list(`${base}/lotTransfers`),tx.list(`${base}/marketListings`),
    Promise.all(data.characters.map(ch=>tx.get(actionPointPath(s.id,ch.id))))]);
-  const block=(kind,rows)=>{for(const r of rows)blocks.push({kind,id:r.id,title:r.terms?.title??r.item?.name??r.label??r.id});};
+  const block=(kind,rows)=>{for(const r of rows)blocks.push({kind,id:r.id,title:r.terms?.title??r.item?.name??r.label??r.name??r.id});};
   const personActions=await tx.list(`${base}/personActions`);block('PERSON_ACTION',personActions.filter(personOpen));
   const fieldActions=await tx.list(`${base}/fieldActions`);block('FIELD_ACTION',fieldActions.filter(a=>a.status==='ACTIVE'));
+  block('VOYAGE',data.ships.filter(sh=>sh.journey));
   block('CARGO_RESERVED',data.inventory.filter(l=>l.status==='CARGO_RESERVED'));
   const cargoTransfers=await tx.list(`${base}/cargoTransfers`);block('CARGO_TRANSFER',cargoTransfers.filter(t=>t.status==='LOADING'));
   block('FIELD_RESERVED',data.inventory.filter(l=>l.status==='FIELD_RESERVED'));

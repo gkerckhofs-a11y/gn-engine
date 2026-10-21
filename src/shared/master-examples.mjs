@@ -56,3 +56,20 @@ export function logisticsSessionMasterExample(){
  s.Membres[0].droits+=';readStock;withdrawStock';
  return s;
 }
+
+// Fictitious navigation training values. Blank masters activate no route or tank.
+export function navigationMasterExample(){
+ const s=logisticsMasterExample();
+ s.Parametres.push({cle:'astroport_id',valeur:'port-demo'});
+ s.Objets.push({id:'carburant-demo',operation:'CREER',version:'1',nom:'Carburant de démonstration',description:'Une unité de ce lot remplit une unité du réservoir.',categorie:'Carburant',unite:'unité de carburant',type:'STACKABLE',consommable:'OUI',volume_unitaire:'1',publication:'PUBLISHED'});
+ s.Membres[0].droits+=';pilotShip';
+ s.Vaisseaux=[{id:'cargo-demo',operation:'CREER',version:'1',nom:'Cargo de démonstration',description:'Réservoir vide. Valeurs fictives à remplacer.',proprietaire_type:'GROUP',proprietaire_id:'equipage',capacite_volume:'30',a_quai:'OUI',ouvert:'OUI',carburant_objet_id:'carburant-demo',capacite_reservoir:'20',carburant_initial:'0',port_initial:'port-demo'}];
+ s.Routes=[{id:'aller-demo',operation:'CREER',version:'1',nom:'Vers le relais de démonstration',depart_port:'port-demo',arrivee_port:'relais-demo',duree_secondes:'300',carburant_cout:'3',ouvert:'OUI'},{id:'retour-demo',operation:'CREER',version:'1',nom:'Retour de démonstration',depart_port:'relais-demo',arrivee_port:'port-demo',duree_secondes:'300',carburant_cout:'3',ouvert:'OUI'}];
+ return s;
+}
+export function navigationSessionMasterExample(){
+ const s=logisticsSessionMasterExample();
+ s.Vaisseaux=[{id:'cargo-demo',operation:'MODIFIER',version:'2',capacite_reservoir:'25'}];
+ s.Routes=[{id:'retour-demo',operation:'MODIFIER',version:'2',carburant_cout:'4'}];
+ return s;
+}

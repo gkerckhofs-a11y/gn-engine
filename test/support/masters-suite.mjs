@@ -1,3 +1,4 @@
+import {masterNavigationSuite} from './master-navigation-suite.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
@@ -17,6 +18,7 @@ export async function masterFixture(makeStore){
  return {store,owner,player,read,cmd,scenarioId,prepare,apply,session};
 }
 export function mastersSuite(makeStore,prefix='Masters'){
+ masterNavigationSuite(()=>masterFixture(makeStore),prefix);
  masterLogisticsSuite(()=>masterFixture(makeStore),prefix);
  test(`${prefix} : terrain et interactions complets, aperçus sans écriture et états initiaux uniques`,async()=>{
   const f=await masterFixture(makeStore),sheets=terrainMasterExample(),p=await f.prepare(sheets);assert.deepEqual(p.errors,[]);assert.ok(p.changes.some(c=>c.sheet==='Recompenses'));assert.equal((await f.store.list(`scenarios/${f.scenarioId}/fieldTargets`)).length,0);
@@ -104,7 +106,7 @@ export function mastersSuite(makeStore,prefix='Masters'){
  });
  test(`${prefix} : références, doublons, colonnes inconnues et ensembles atomiques`,async()=>{
   const f=await masterFixture(makeStore),broken=masterExample();broken.Relations=[{id:'r1',operation:'CREER',version:'1',personnage_id:'pilote',cible_id:'absent',titre:'Contact'}];let p=await f.prepare(broken);assert.equal(p.canApply,false);await assert.rejects(f.cmd('applyMasterImport',{scenarioId:f.scenarioId,sheets:broken,reason:'Test',confirmation:p.confirmation}),{code:'INVALID_MASTER'});assert.equal((await f.read('scenario',{scenarioId:f.scenarioId})).characters.length,0);
-  for(const edit of [s=>s.Personnages.push({...s.Personnages[0]}),s=>s.Personnages[0].balance='999',s=>s.Vaisseaux=[]]){const sheets=masterExample();edit(sheets);assert.equal((await f.prepare(sheets)).canApply,false);}
+  for(const edit of [s=>s.Personnages.push({...s.Personnages[0]}),s=>s.Personnages[0].balance='999',s=>s.OngletInconnu=[]]){const sheets=masterExample();edit(sheets);assert.equal((await f.prepare(sheets)).canApply,false);}
  });
  test(`${prefix} : aperçu périmé, destination incorrecte, droits et phase de session`,async()=>{
   const f=await masterFixture(makeStore),sheets=masterExample(),p=await f.prepare(sheets);await f.cmd('saveCharacter',{scenarioId:f.scenarioId,revision:1,displayName:'Autre',publicationState:'DRAFT',publicState:'DRAFT'});
