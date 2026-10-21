@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "0c3531dfac256cd3265fa8f7097d983249645128",
-  "version": "0.34.0",
-  "requestedAt": "2026-10-21T14:13:43.902Z",
-  "reason": "Négociation commerciale : offres privées, contre-offres, accord et paiement transactionnel."
+  "sourceCommit": "30b7d302c8b7cf18c42e4540ee266262024f2db1",
+  "version": "0.35.0",
+  "requestedAt": "2026-10-21T15:31:53.150Z",
+  "reason": "Publier les droits de douane et frais de corruption des cargaisons après compilation, tests applicatifs et validation Firebase."
 }
