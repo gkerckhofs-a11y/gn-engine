@@ -2,13 +2,15 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.32.0 : cours des marchandises et ventes indexées — validation en cours.**
+**Version 0.32.0 publiée : cours des marchandises et ventes indexées.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
 ## Cours et événements — 0.32
 
 Cours unitaires configurables en régie, variations manuelles ou liées à une panne d’installation, tableau public aux joueurs actifs et annonces au prix fixe ou indexé. Montant recalculé avant confirmation, paiement atomique et reçu figé après achat. Les réglages suivent les campagnes, sans import XLSX dans ce lot. Aucun barème ni stock de production créé. [Guide](docs/COURS-MARCHANDISES.md).
+
+Compilation et **1 081 tests réussis** (599 applicatifs, 482 intégrations Firebase). Publication, quatre masters et refus anonymes vérifiés le 21 octobre 2026 à 13:32:05, heure de Bruxelles ; accueil 0.32.0 confirmé dans le navigateur. [Validation et limites](docs/VALIDATION-0.32.md). Recette privée sur téléphones et charge réelle encore ouverte.
 
 ## Réservoirs et voyages — 0.31
 

@@ -6,6 +6,8 @@ Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, co
 
 Cours configurables par marchandise, événements manuels ou liés aux pannes, annonces indexées facultatives, confirmation avant débit et conservation des prix payés. Paramètres repris en campagne ; import/export de ces nouveaux réglages encore à ajouter. [Guide](COURS-MARCHANDISES.md).
 
+1 081 tests réussis : 599 applicatifs et 482 intégrations Firebase. Publication et contrôles terminés le 21 octobre 2026 à 13:32:05, heure de Bruxelles. Accueil 0.32.0 confirmé. [Validation et limites](VALIDATION-0.32.md).
+
 ## Lot 0.28 : entrepôts et recharges laser
 
 Locations personnelles, volume contrôlé, paiement personnel ou par caisse autorisée, loyers vers une caisse ou retirés de la circulation, dépôts/retraits, échéance suspendue en pause et conservation en campagne. Ouverture confirmée de recharges reçues et comptabilisation des lots scellés consommés. Configuration par la régie ; import XLSX et stocks collectifs restent ouverts. [Guide](LOGISTIQUE.md) · [Validation](VALIDATION-0.28.md).
