@@ -1,4 +1,4 @@
-import {readPriceBook,commodityQuote,priceBoard,indexedListing} from './price-state.mjs';
+import {readPriceBook,commodityQuote,priceBoard,indexedListing,commodityTrade,tradeBoard} from './price-state.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {inventoryHash as hash,itemQuantity,publicItem,personalLot,lotState,readLot} from './inventory-state.mjs';
 import {inventoryParty,inventoryPlayer} from './inventory-transfers.mjs';
@@ -20,7 +20,7 @@ async function state(tx,s,p,at){
 function project(s,c,p,x,admin=false,book=null){
   const priced=indexedListing({...p,status:x.status},book);
   const own=c?.id===p.sellerId,manage=admin||own;
-  return {...view(priced),priceAvailable:priced.priceAvailable,status:x.status,own:!!own,canBuy:priced.priceAvailable&&!admin&&!own&&x.status==='ACTIVE'&&s.stage==='EN_JEU'&&s.economyRules?.enabled===true&&canGameAction(s,x.seller.c,'transfer')&&canGameAction(s,c,'pay'),
+  return {...view(priced),priceAvailable:priced.priceAvailable,trade:priced.trade,status:x.status,own:!!own,canBuy:!priced.trade.blocked&&priced.priceAvailable&&!admin&&!own&&x.status==='ACTIVE'&&s.stage==='EN_JEU'&&s.economyRules?.enabled===true&&canGameAction(s,x.seller.c,'transfer')&&canGameAction(s,c,'pay'),
     ...(manage?{lotId:p.lotId,confirmation:proof(p),canWithdraw:p.status==='ACTIVE',saleId:p.saleId??null}:{})};
 }
 export function createMarketService({store,signed,checkSession,now,uuid}){
@@ -29,20 +29,21 @@ export function createMarketService({store,signed,checkSession,now,uuid}){
     const lot=await readLot(tx,s.id,documentId(input.lotId),at);requireThat(lot&&personalLot(lot,c.id),'FORBIDDEN');
     const quantity=itemQuantity(lot.item,input.quantity);requireThat(lot.status==='AVAILABLE'&&lot.quantity>=quantity,'INSUFFICIENT_STOCK');
     const pricing=input.pricing??'FIXED';requireThat(['FIXED','INDEXED'].includes(pricing),'INVALID_PRICE');
-    const priceQuote=pricing==='INDEXED'?commodityQuote(await readPriceBook(tx,s,at),lot.item):null;requireThat(pricing!=='INDEXED'||priceQuote,'PRICE_UNAVAILABLE');
+    const book=await readPriceBook(tx,s,at),trade=commodityTrade(book,lot.item);requireThat(!trade.blocked,'TRADE_SUSPENDED');
+    const priceQuote=pricing==='INDEXED'?commodityQuote(book,lot.item):null;requireThat(pricing!=='INDEXED'||priceQuote,'PRICE_UNAVAILABLE');
     const amount=pricing==='INDEXED'?whole(priceQuote.unitPrice*quantity,'BALANCE_OVERFLOW'):amountInput(input.amount),minutes=whole(input.minutes,'INVALID_SALE');requireThat(minutes>=1&&minutes<=10080,'INVALID_SALE');
-    const result={seller:{id:c.id,name:c.public.displayName},item:publicItem(lot.item),quantity,amount,pricing,priceQuote,currency:currencyView(s.economyRules),minutes,pickupPlace:moneyText(input.pickupPlace,200),conditions:moneyText(input.conditions,2000)};
+    const result={seller:{id:c.id,name:c.public.displayName},item:publicItem(lot.item),quantity,amount,pricing,priceQuote,trade,currency:currencyView(s.economyRules),minutes,pickupPlace:moneyText(input.pickupPlace,200),conditions:moneyText(input.conditions,2000)};
     return {lot,result:{...result,confirmation:hash(JSON.stringify([s.id,version,lot.revision,s.healthRules,result]))}};
   }
   async function purchase(tx,ctx,p,from,at){
     const {s,c,version}=ctx;requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireThat(p.status==='ACTIVE','LISTING_CLOSED');requireThat(at<p.expiresAt,'LISTING_EXPIRED');
     const x=await state(tx,s,p,at);requireThat(x.valid,'STALE_LISTING');
-    p=indexedListing(p,p.pricing==='INDEXED'?await readPriceBook(tx,s,at):null);requireThat(p.priceAvailable,'PRICE_UNAVAILABLE');requireGameAction(s,x.seller.c,'transfer');requireGameAction(s,c,'pay');
+    p=indexedListing(p,await readPriceBook(tx,s,at));requireThat(!p.trade.blocked,'TRADE_SUSPENDED');requireThat(p.priceAvailable,'PRICE_UNAVAILABLE');requireGameAction(s,x.seller.c,'transfer');requireGameAction(s,c,'pay');
     const a=await tx.get(`sessions/${s.id}/accounts/${accountId(p.sellerId)}`);requireThat(a?.sessionId===s.id&&a.ownerType==='CHARACTER'&&a.characterId===p.sellerId,'ACCOUNT_UNAVAILABLE');moneyState(a);
     const before=moneyState(from.a);requireThat(before.available>=p.amount,'INSUFFICIENT_FUNDS');whole(a.balance+p.amount,'BALANCE_OVERFLOW');
     const to={a,name:p.sellerName},after={...before,balance:before.balance-p.amount,available:before.available-p.amount,revision:before.revision+1};
     const sale={...p,id:hash(`market:${p.id}`),listingId:p.id,status:'PENDING',revision:1,buyerId:c.id,buyerName:c.public.displayName,buyerVersion:version};
-    const result={sale:saleView(sale),source:accountParty(from),recipient:accountParty(to),fees:0,total:p.amount,...(from.read?{before,after}:{})};
+    const result={trade:p.trade,sale:saleView(sale),source:accountParty(from),recipient:accountParty(to),fees:0,total:p.amount,...(from.read?{before,after}:{})};
     return {...x,sale,to,result:{...result,confirmation:hash(JSON.stringify([s.id,proof(p),x.seller.version,from.guard,from.a.revision,s.healthRules,result]))}};
   }
   return async(action,actor,input)=>{
@@ -54,13 +55,13 @@ export function createMarketService({store,signed,checkSession,now,uuid}){
         const book=await readPriceBook(tx,s,at);
         const all=(await tx.list(`${base}/marketListings`)).sort((a,b)=>b.createdAt-a.createdAt||a.id.localeCompare(b.id)),listings=[];let closed=0;
         for(const p of all){const x=await state(tx,s,p,at);if(!admin&&p.sellerId!==c.id&&x.status!=='ACTIVE')continue;if(!admin&&x.status!=='ACTIVE'&&p.status!=='ACTIVE'&&closed++>=30)continue;listings.push(project(s,c,p,x,admin,book));}
-        return {session:{id:s.id,stage:s.stage},admin,economyEnabled:s.economyRules?.enabled===true,currency:s.economyRules?currencyView(s.economyRules):null,prices:priceBoard(book),listings};
+        return {session:{id:s.id,stage:s.stage},admin,economyEnabled:s.economyRules?.enabled===true,currency:s.economyRules?currencyView(s.economyRules):null,prices:priceBoard(book),restrictions:tradeBoard(book),listings};
       }
       if(action==='prepareMarketListing')return (await prepare(tx,ctx,input,at)).result;
       let p,from;
       if(action!=='publishMarketListing'){
         p=await tx.get(`${base}/marketListings/${documentId(input.listingId)}`);requireThat(p,'NOT_FOUND');
-        if(action==='marketListing'){const x=await state(tx,s,p,at);requireThat(c.id===p.sellerId||x.status==='ACTIVE','NOT_FOUND');return project(s,c,p,x,false,p.pricing==='INDEXED'?await readPriceBook(tx,s,at):null);}
+        if(action==='marketListing'){const x=await state(tx,s,p,at);requireThat(c.id===p.sellerId||x.status==='ACTIVE','NOT_FOUND');return project(s,c,p,x,false,await readPriceBook(tx,s,at));}
         if(action==='withdrawMarketListing')requireThat(c.id===p.sellerId,'FORBIDDEN');
         if(['prepareMarketPurchase','buyMarketListing'].includes(action)){
           requireThat(c.id!==p.sellerId,'FORBIDDEN');requireThat(s.economyRules?.enabled,'ECONOMY_DISABLED');from=await accessAccount(tx,{...ctx,guard:version},input.fromAccountId);requireThat(from.spend,'FORBIDDEN');

@@ -14,6 +14,7 @@ import {recordPublication} from './narrative.mjs';
 import {imageReferences} from './media-state.mjs';
 import {gameTime} from './clock.mjs';
 import {importNavigation} from './master-navigation.mjs';
+import {importEconomics} from './master-economics.mjs';
 import {transportRulesInput} from './navigation-state.mjs';
 import {importTerrain} from './master-terrain.mjs';
 
@@ -215,6 +216,7 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
    m.warehouses.set(r.id,d);mark('warehouses',r.id);summary('Entrepots',r,old,d);
   }catch(e){addError('Entrepots',r,e);}}
   importNavigation({rows,m,session,storedInventory,stamp,checkOperation,summary,mark,addError,issue,num,empty,patch});
+  importEconomics({rows,m,stamp,checkOperation,summary,mark,addError,issue,num,empty,patch});
   // Validate the combined graph; a broken reference cannot leave half an import behind.
   try{
    cleanScenarioSnapshot({scenario:nextParent,records:rowsRecord(m)});

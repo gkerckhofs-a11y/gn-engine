@@ -47,6 +47,6 @@ Les cours et événements sont conservés lors de la reprise d’une campagne. L
 
 Les modifications MJ sont historisées avec leur motif privé et leurs valeurs avant/après ; la régie affiche les 30 dernières. Les événements automatiques sont évalués à la consultation et au paiement, sans tâche planifiée. Le journal de terrain reste la trace du sabotage et de la réparation ; leur activation ne crée pas une nouvelle entrée dans l’historique de configuration des cours.
 
-Ce lot configure les cours dans la régie de session. Leur import par les masters, leur préparation dans un scénario et leur export dans une archive de scénario restent à ajouter. Les quatre masters 0.31 restent inchangés et utilisables. Les cours ne varient pas encore selon les volumes achetés ou vendus. Négociation commerciale, taxes, corruption, achats/ventes distants et comptoirs PNJ restent à développer.
+Depuis la 0.33, les cours et événements se préparent aussi dans les masters et sont conservés dans les versions et archives de scénario. La régie ajoute les suspensions commerciales et les conséquences sur les routes : [guide des événements économiques](EVENEMENTS-ECONOMIQUES.md). Les cours ne varient pas encore selon les volumes achetés ou vendus. Négociation commerciale, taxes, corruption, achats/ventes distants et comptoirs PNJ restent à développer.
 
 Les essais automatiques couvrent les règles et les transactions. La recette des écrans privés sur de vrais téléphones et la charge simultanée de 60 joueurs restent à réaliser.

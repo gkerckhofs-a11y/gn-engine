@@ -2,6 +2,12 @@
 
 Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, conservées dans [la note source](source/port-breche-engine-note-v03.md). Base inspectée : commit GitHub `bd670dea159c5c7f01cfe83f8fcba9b81657dd44`, version 0.20. Les statuts ci-dessous décrivent le code, pas une validation terrain. Les lots 0.22 et 0.23, publiés et vérifiés le 20 octobre 2026, ajoutent la continuité décrite dans [Campagnes](CAMPAGNES.md) et les [masters complémentaires](MASTERS.md).
 
+## Lot 0.33 : conséquences économiques et masters
+
+Ventes suspendues par marchandise, carburant et durée modifiés par événement, départs bloqués, déclenchement pendant les pannes. Paiements et départs confirmés conservent leurs conditions. Onglets Cours et EvenementsEco dans les quatre masters, définitions reprises dans les versions et archives. [Guide](EVENEMENTS-ECONOMIQUES.md).
+
+605 tests applicatifs locaux réussis. Firebase et publication en attente. [Validation](VALIDATION-0.33.md).
+
 ## Lot 0.32 : cours et événements
 
 Cours configurables par marchandise, événements manuels ou liés aux pannes, annonces indexées facultatives, confirmation avant débit et conservation des prix payés. Paramètres repris en campagne ; import/export de ces nouveaux réglages encore à ajouter. [Guide](COURS-MARCHANDISES.md).

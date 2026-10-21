@@ -1,3 +1,4 @@
+import {validateEconomicReferences} from './price-state.mjs';
 import {createPriceService,priceAction} from './prices.mjs';
 import {validateNavigationReferences} from './navigation-state.mjs';
 import {createVoyageService,voyageAction} from './voyages.mjs';
@@ -378,6 +379,8 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         const personProfiles=await tx.list(`scenarios/${id}/personProfiles`);for(const p of personProfiles)validatePersonReferences(p,{skills,items});
         const warehouses=await tx.list(`scenarios/${id}/warehouses`),ships=await tx.list(`scenarios/${id}/ships`),routes=await tx.list(`scenarios/${id}/routes`);
         for(const ship of ships)validateNavigationReferences(ship,{characters:chars,groups,items});
+        const commodityPrices=await tx.list(`scenarios/${id}/commodityPrices`),priceEvents=await tx.list(`scenarios/${id}/priceEvents`);
+        validateEconomicReferences({commodityPrices,priceEvents,items,fieldTargets,routes});
         const masterRows=await tx.list(`scenarios/${id}/masterRows`);
         const version={id:newId,transportRules:s.transportRules??null,masterRowBaseline:masterRows,title:s.title,summary:s.summary,sourceRevision:s.revision,createdAt:at,characterCount:chars.length,groupCount:groups.length,knowledgeCount:knowledge.length,skillCount:skills.length,classCount:classes.length,itemCount:items.length,actionPointRules:s.actionPointRules??null,economyRules:s.economyRules??null,healthRules:s.healthRules??null};
         tx.set(`scenarios/${id}/versions/${newId}`,version);
@@ -392,6 +395,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         for(const sh of ships)tx.set(`scenarios/${id}/versions/${newId}/ships/${sh.id}`,sh);
         for(const rt of routes)tx.set(`scenarios/${id}/versions/${newId}/routes/${rt.id}`,rt);
         for(const w of warehouses)tx.set(`scenarios/${id}/versions/${newId}/warehouses/${w.id}`,w);
+        for(const [kind,records] of [['commodityPrices',commodityPrices],['priceEvents',priceEvents]])for(const r of records)tx.set(`scenarios/${id}/versions/${newId}/${kind}/${r.id}`,r);
         result={id:newId};
       } else if(action==='createSession') {
         const id=documentId(input.scenarioId),vid=documentId(input.versionId);await checkScenario(tx,actor,id);

@@ -1,3 +1,4 @@
+import {readPriceBook,routeQuote} from './price-state.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {inventoryPlayer} from './inventory-transfers.mjs';
 import {inventoryHash as hash,readLot,publicLot,itemQuantity,personalLot} from './inventory-state.mjs';
@@ -45,9 +46,9 @@ export function createVoyageService({store,signed,checkSession,now,uuid}){
    const fuelAllowed=lot=>lot.status==='AVAILABLE'&&lot.quantity>0&&lot.item.id===ship.navigation?.fuelItemId&&lot.item.consumable===true&&lot.item.kind==='STACKABLE'&&!lot.item.laserRecharge&&(
     lot.location?.kind==='CHARACTER'&&personalLot(lot,c.id)||access.withdraw&&lot.location?.kind==='HOLD'&&lot.location.id===ship.id&&(lot.ownerType??'CHARACTER')===ship.ownerType&&lot.ownerId===ship.ownerId);
    if(action==='shipNavigation'){
-    const routes=(await tx.list(`${base}/routes`)).filter(r=>r.enabled&&r.fromPort===ship.portId);
+    const book=await readPriceBook(tx,s,at),routes=(await tx.list(`${base}/routes`)).filter(r=>r.enabled&&r.fromPort===ship.portId).map(r=>routeQuote(book,r));
     const lots=allowed&&localShip(s,ship)&&ship.navigation?(await tx.list(`${base}/inventory`)).filter(fuelAllowed).map(publicLot):[];
-    return {session:{id:sid,stage:s.stage},ship:view,canPilot:access.pilot,canAct:allowed,confirmation,fuelName:fuelItem?.name??null,fuelUnit:fuelItem?.unit??null,lots,routes:routes.map(r=>({...r,affordable:ship.fuel>=r.fuelCost})),canArrive:allowed&&!!ship.journey&&time>=ship.journey.arrivesAtGameMs};
+    return {session:{id:sid,stage:s.stage},ship:view,canPilot:access.pilot,canAct:allowed,confirmation,fuelName:fuelItem?.name??null,fuelUnit:fuelItem?.unit??null,lots,routes:routes.map(r=>({...r,affordable:r.available&&ship.fuel>=r.fuelCost})),canArrive:allowed&&!!ship.journey&&time>=ship.journey.arrivesAtGameMs};
    }
    if(action==='resolveVoyageAdmin'){
     requireThat(input.shipRevision===ship.revision,'STALE_REVISION');requireThat(ship.journey,'VOYAGE_CLOSED');requireThat(['ARRIVE','RETURN'].includes(input.outcome),'INVALID_NAVIGATION');
@@ -68,13 +69,14 @@ export function createVoyageService({store,signed,checkSession,now,uuid}){
    }
    if(['prepareVoyage','departShip'].includes(action)){
     requireThat(!ship.journey&&ship.docked&&ship.enabled,'SHIP_UNAVAILABLE');
-    const route=await tx.get(`${base}/routes/${documentId(input.routeId)}`);requireThat(route?.enabled&&route.fromPort===ship.portId,'ROUTE_UNAVAILABLE');
+    const definition=await tx.get(`${base}/routes/${documentId(input.routeId)}`);requireThat(definition?.enabled&&definition.fromPort===ship.portId,'ROUTE_UNAVAILABLE');
+    const route=routeQuote(await readPriceBook(tx,s,at),definition);requireThat(!route.blocked,'DEPARTURE_SUSPENDED');requireThat(route.available,'ROUTE_UNAVAILABLE');
     requireThat(ship.fuel>=route.fuelCost,'INSUFFICIENT_FUEL');
     const loads=(await tx.list(`${base}/cargoTransfers`)).filter(t=>t.status==='LOADING'&&[t.source,t.destination].some(p=>p.kind==='HOLD'&&p.id===ship.id));requireThat(!loads.length,'CARGO_TRANSFERS_OPEN');
     const stock=await warehouseStock(tx,sid,ship.id,'HOLD');requireThat(stock.every(l=>l.status==='AVAILABLE'||l.status==='SEIZED'),'CARGO_TRANSFERS_OPEN');
     const consent=hash(JSON.stringify([confirmation,route,stock,loads]));
     if(action==='prepareVoyage')return {shipName:ship.name,route,remainingFuel:ship.fuel-route.fuelCost,confirmation:consent};
-    requireThat(input.confirmation===consent,'STALE_REVISION');const j={id:eventId,routeId:route.id,name:route.name,fromPort:route.fromPort,toPort:route.toPort,fuelCost:route.fuelCost,durationSeconds:route.durationSeconds,departedAt:at,departedAtGameMs:time,arrivesAtGameMs:whole(time+route.durationSeconds*1000,'INVALID_NAVIGATION')};
+    requireThat(input.confirmation===consent,'STALE_REVISION');const j={id:eventId,routeId:route.id,name:route.name,fromPort:route.fromPort,toPort:route.toPort,fuelCost:route.fuelCost,durationSeconds:route.durationSeconds,baseFuelCost:route.baseFuelCost,baseDurationSeconds:route.baseDurationSeconds,effects:route.effects,departedAt:at,departedAtGameMs:time,arrivesAtGameMs:whole(time+route.durationSeconds*1000,'INVALID_NAVIGATION')};
     const next={...ship,fuel:ship.fuel-route.fuelCost,docked:false,journey:j,revision:ship.revision+1};
     tx.set(`${base}/ships/${ship.id}`,next);tx.set(`${base}/voyages/${j.id}`,{...j,shipId:ship.id,status:'IN_TRANSIT',actorUid:actor.uid});return audit({id:j.id,status:'IN_TRANSIT'},{id:eventId,kind:'SHIP_DEPARTED',at,actorUid:actor.uid,before:ship,after:next});
    }

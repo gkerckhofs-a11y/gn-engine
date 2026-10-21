@@ -22,6 +22,20 @@ export function voyagesSuite(makeStore,prefix='Navigation'){
   const receive=async id=>f.logCmd('receiveCargoTransfer',{transferId:id,received:true,confirmation:(await f.logRead('cargoTransfer',{transferId:id})).confirmation});
   return {...f,get sid(){return f.sid;},admin,ship,route,hid,rid,back,fuelItem,fuelLot,nav,refuelInput,refuel,depart,arrive,load,receive};
  }
+ test(`${prefix} : événements de route, devis périmé, cumul, blocus et voyage figé`,async()=>{
+  const f=await fixture();await f.refuel(10);
+  const event=async(patch={})=>{const d=await f.logRead('priceAdmin',{},f.owner),old=d.events.find(e=>e.id===patch.eventId),p={targetKind:'ROUTE',routeId:f.rid,title:'Détour test',description:'Information publique',fuelPercent:50,durationPercent:25,trigger:'MANUAL',enabled:true,...old,...patch,recordRevision:old?.revision??0,revision:d.session.revision,reason:'ORIGINE_MJ'};return f.logCmd('savePriceEvent',await f.prepared('preparePriceEvent',p,f.owner),f.owner);};
+  const ready=await f.prepared('prepareVoyage',{shipId:f.hid,routeId:f.rid}),e=await event();
+  let r=(await f.nav()).routes.find(r=>r.id===f.rid);assert.equal(r.fuelCost,5);assert.equal(r.durationSeconds,75);assert.equal(r.baseFuelCost,3);
+  assert.equal(JSON.stringify(await f.nav()).includes('ORIGINE_MJ'),false);
+  await assert.rejects(f.logCmd('departShip',ready),{code:'STALE_REVISION'});assert.equal((await f.nav()).ship.fuel,10);
+  const e2=await event({fuelPercent:-25,durationPercent:25});r=(await f.nav()).routes.find(r=>r.id===f.rid);assert.equal(r.fuelCost,4);assert.equal(r.durationSeconds,90);
+  await event({eventId:e2.id,departureBlocked:true});assert.equal((await f.nav()).routes[0].affordable,false);await assert.rejects(f.depart(),{code:'DEPARTURE_SUSPENDED'});
+  await event({eventId:e2.id,enabled:false});const q={...await f.prepared('prepareVoyage',{shipId:f.hid,routeId:f.rid}),requestId:randomUUID()};
+  const result=await f.logCmd('departShip',q);assert.deepEqual(await f.logCmd('departShip',q),result);assert.equal((await f.nav()).ship.fuel,5);
+  await event({eventId:e.id,departureBlocked:true,fuelPercent:1000,durationPercent:1000});let j=(await f.nav()).ship.journey;assert.equal(j.durationSeconds,75);assert.equal(j.fuelCost,5);assert.equal(j.effects[0].fuelPercent,50);
+  f.advance(75000);await f.arrive();await f.depart(f.back);assert.equal((await f.nav()).ship.fuel,2);
+ });
  test(`${prefix} : carburant acheté, remise reçue puis plein et départ`,async()=>{
   const f=await fixture(),lotId=(await f.grant(f.fuelItem,6,f.characters[1])).id;
   const input={lotId,quantity:6,buyerId:f.characters[0],amount:9,minutes:10,conditions:'Remise au comptoir',pickupPlace:'Quai'},sale=await f.logCmd('proposeLotSale',await f.prepared('prepareLotSale',input,f.bob),f.bob);

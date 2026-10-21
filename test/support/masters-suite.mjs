@@ -1,4 +1,5 @@
 import {masterNavigationSuite} from './master-navigation-suite.mjs';
+import {masterEconomicsSuite} from './master-economics-suite.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
@@ -18,6 +19,7 @@ export async function masterFixture(makeStore){
  return {store,owner,player,read,cmd,scenarioId,prepare,apply,session};
 }
 export function mastersSuite(makeStore,prefix='Masters'){
+ masterEconomicsSuite(()=>masterFixture(makeStore),prefix);
  masterNavigationSuite(()=>masterFixture(makeStore),prefix);
  masterLogisticsSuite(()=>masterFixture(makeStore),prefix);
  test(`${prefix} : terrain et interactions complets, aperçus sans écriture et états initiaux uniques`,async()=>{

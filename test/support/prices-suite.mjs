@@ -32,6 +32,31 @@ export function pricesSuite(makeStore,prefix='Cours'){
   const balance=async who=>(await p.read('myWallet',{},who)).account.balance;
   return {...f,p,publish,purchase,balance,listingInput};
  }
+ test(`${prefix} : suspension commerciale sans cours, ventes fixes et privées, reprise et retraits payés`,async()=>{
+  const f=await fixture(),{p}=f;
+  const fixed=await f.publish({quantity:1,pricing:'FIXED',amount:7}),ready=await f.purchase(fixed.id);
+  const lot=await f.lot(),offer={lotId:lot.id,quantity:1,amount:9,buyerId:f.characters[1],minutes:30,conditions:'Retrait',pickupPlace:'Quai'};
+  const pre=await p.read('prepareLotSale',offer,f.alice),sale=await p.cmd('proposeLotSale',{...offer,confirmation:pre.confirmation},f.alice);
+  const buy={saleId:sale.id,fromAccountId:accountId(f.characters[1])},before=await p.read('prepareLotPurchase',buy,f.bob);
+  const e=await p.event({percent:0,tradeBlocked:true});
+  assert.equal((await p.board()).restrictions[0].item.id,f.items[0]);assert.equal((await p.board()).prices.length,0);
+  assert.equal((await p.read('marketListing',{listingId:fixed.id},f.bob)).trade.blocked,true);
+  assert.equal((await p.read('lotSaleDetail',{saleId:sale.id},f.bob)).canBuy,false);
+  await assert.rejects(p.cmd('buyMarketListing',ready,f.bob),{code:'TRADE_SUSPENDED'});
+  await assert.rejects(p.cmd('buyLot',{...buy,confirmation:before.confirmation},f.bob),{code:'TRADE_SUSPENDED'});
+  await assert.rejects(f.publish({quantity:1,pricing:'FIXED',amount:1}),{code:'TRADE_SUSPENDED'});
+  await assert.rejects(p.read('prepareLotSale',offer,f.alice),{code:'TRADE_SUSPENDED'});
+  assert.equal(await f.balance(f.bob),100);assert.equal((await f.lot()).quantity,2);
+  await p.event({eventId:e.id,enabled:false});
+  await assert.rejects(p.cmd('buyMarketListing',ready,f.bob),{code:'STALE_REVISION'});
+  const paid=await p.cmd('buyMarketListing',await f.purchase(fixed.id),f.bob);
+  await p.event({eventId:e.id,enabled:true});
+  let detail=await p.read('lotSaleDetail',{saleId:paid.id},f.alice);assert.equal(detail.canOfferPickup,true);
+  await p.cmd('offerSalePickup',{saleId:paid.id,confirmation:detail.pickupConfirmation},f.alice);
+  detail=await p.read('lotSaleDetail',{saleId:paid.id},f.bob);await p.cmd('confirmSalePickup',{saleId:paid.id,confirmation:detail.pickupConfirmation,received:true},f.bob);
+  assert.equal(await f.balance(f.bob),93);assert.ok((await f.bag(f.bob)).lots.some(l=>l.id===paid.purchasedLotId));
+  const pending=await p.read('lotSaleDetail',{saleId:sale.id},f.alice);await p.cmd('cancelLotSale',{saleId:sale.id,confirmation:pending.confirmation},f.alice);
+ });
  test(`${prefix} : configuration explicite, projection publique, cumul arrondi et minimum`,async()=>{
   const f=await fixture(),{p}=f;assert.deepEqual((await p.board()).prices,[]);
   const input=await p.prepare('CommodityPrice',{baseUnitPrice:11});assert.equal((await p.admin()).prices.length,0);
@@ -85,11 +110,16 @@ export function pricesSuite(makeStore,prefix='Cours'){
  });
  test(`${prefix} : sabotage, réparation, expiration suspendue et continuité de campagne`,async()=>{
   const f=await fieldFixture(makeStore),item=await f.item(true),p=attach(f,()=>f.sid,item.id);await p.price();
-  const t=await f.installation({title:'INSTALLATION_SECRETE',offlineSeconds:60}),e=await p.event({trigger:'INSTALLATION_OFFLINE',targetId:t.id});assert.equal((await p.board()).prices[0].unitPrice,10);
+  const t=await f.installation({title:'INSTALLATION_SECRETE',offlineSeconds:60}),e=await p.event({trigger:'INSTALLATION_OFFLINE',targetId:t.id,tradeBlocked:true});assert.equal((await p.board()).prices[0].unitPrice,10);
+  const route=await p.cmd('saveRoute',{revision:(await p.admin()).session.revision,name:'Route test',fromPort:'local',toPort:'distant',durationSeconds:60,fuelCost:3,enabled:true,reason:'Test'});
+  await p.event({targetKind:'ROUTE',itemId:null,routeId:route.id,percent:0,fuelPercent:50,durationPercent:50,trigger:'INSTALLATION_OFFLINE',targetId:t.id});
   let a=await f.start(t.id,'SABOTAGE');f.advance(30000);await f.finish(a);assert.equal((await p.board()).prices[0].unitPrice,15);assert.equal(JSON.stringify(await p.board()).includes('INSTALLATION_SECRETE'),false);assert.equal(JSON.stringify(await p.board()).includes(t.id),false);
-  a=await f.start(t.id,'REPAIR',{},f.bob);f.advance(30000);await f.finish(a,{},f.bob);assert.equal((await p.board()).prices[0].unitPrice,10);
+  assert.equal((await p.board()).restrictions.length,1);
+  assert.equal((await p.admin()).routes[0].fuelCost,5);assert.equal((await p.admin()).routes[0].durationSeconds,90);
+  a=await f.start(t.id,'REPAIR',{},f.bob);f.advance(30000);await f.finish(a,{},f.bob);assert.equal((await p.board()).prices[0].unitPrice,10);assert.equal((await p.board()).restrictions.length,0);
+  assert.equal((await p.admin()).routes[0].fuelCost,3);
   f.advance(60000);a=await f.start(t.id,'SABOTAGE',{},f.eve);f.advance(30000);await f.finish(a,{},f.eve);await f.stage('PAUSE');f.advance(600000);assert.equal((await p.board()).prices[0].unitPrice,15);await f.stage('EN_JEU');f.advance(60000);assert.equal((await p.board()).prices[0].unitPrice,10);
-  await p.event({eventId:e.id,trigger:'MANUAL',targetId:null});const oldSid=f.sid;await f.close();await f.resume(await f.begin());const d=await p.admin();assert.equal(d.prices[0].baseUnitPrice,10);assert.equal(d.events[0].percent,50);assert.equal(d.board[0].unitPrice,15);
+  await p.event({eventId:e.id,trigger:'MANUAL',targetId:null});const oldSid=f.sid;await f.close();await f.resume(await f.begin());const d=await p.admin();assert.equal(d.prices[0].baseUnitPrice,10);assert.equal(d.events.find(x=>x.id===e.id).percent,50);assert.equal(d.board[0].unitPrice,15);assert.equal(d.events.some(e=>e.routeId===route.id),true);
   await assert.rejects(f.cmd('saveCommodityPrice',f.owner,{sessionId:oldSid,...await p.prepare('CommodityPrice')}));
  });
 }

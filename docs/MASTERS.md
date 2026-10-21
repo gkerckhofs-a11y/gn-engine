@@ -187,3 +187,12 @@ Les quatre téléchargements incluent maintenant **Vaisseaux** et **Routes**. Le
 Les quatre champs de navigation d’un vaisseau se renseignent ensemble à sa première activation. Un réimport ne réinitialise ni le carburant restant ni le port actuel. Il protège les capacités occupées et interdit un changement de propriétaire si la soute contient des biens. ARCHIVER ferme le vaisseau ou la route sans supprimer de stock ou de carburant. Un voyage commencé conserve sa définition de départ et doit être terminé avant la clôture de campagne.
 
 Les exemples sont fictifs, avec réservoir vide et sans distribution de carburant. L’organisation choisit ses propres barèmes et attribue les stocks au comptoir. Les imports ne créent aucune dotation supplémentaire sur un personnage existant. Voir [le parcours de navigation](LOGISTIQUE.md#réservoirs-et-voyages--031).
+
+
+## Économie — extension 0.33, format 1 conservé
+
+Les quatre fichiers incluent **Cours** et **EvenementsEco**. Le premier définit le prix unitaire de base d’un modèle et l’ouverture de son cours. Le second cible une marchandise ou une route, avec pourcentages entiers, suspensions, activation et déclenchement manuel ou lié à une installation hors service.
+
+Les références sont contrôlées sur l’ensemble du master, y compris les objets, installations et routes créés dans le même import. Les versions publiées, les archives et les campagnes conservent ces définitions. ARCHIVER désactive. Les soldes, lots et voyages joués ne sont pas recalculés par un import. Les exemples proposent trois événements désactivés.
+
+Le [guide des conséquences économiques](EVENEMENTS-ECONOMIQUES.md) détaille les colonnes, le cumul, les arrondis et les cas de suspension. Les paramètres et opérations des onglets existants restent identiques.

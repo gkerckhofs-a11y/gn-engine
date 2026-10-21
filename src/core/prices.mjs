@@ -2,7 +2,7 @@ import {documentId,requireThat} from './validation.mjs';
 import {inventoryHash as hash} from './inventory-state.mjs';
 import {inventoryPlayer} from './inventory-transfers.mjs';
 import {currencyView,moneyText} from './economy-state.mjs';
-import {priceInput,priceEventInput,readPriceBook,priceBoard} from './price-state.mjs';
+import {priceInput,priceEventInput,readPriceBook,priceBoard,tradeBoard,routeQuote,validateEconomicReferences} from './price-state.mjs';
 
 export const priceCommands=['commodityMarket','priceAdmin','prepareCommodityPrice','saveCommodityPrice','preparePriceEvent','savePriceEvent'];
 export const priceAction=a=>priceCommands.includes(a);
@@ -13,8 +13,9 @@ export function createPriceService({store,signed,checkSession,now,uuid}){
    const player=action==='commodityMarket',s=player?(await inventoryPlayer(tx,actor,input)).s:await checkSession(tx,actor,sid);
    requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
    const book=await readPriceBook(tx,s,at),currency=s.economyRules?currencyView(s.economyRules):null;
-   if(player)return {session:{id:sid,stage:s.stage},currency,enabled:s.economyRules?.enabled===true,prices:priceBoard(book)};
-   if(action==='priceAdmin')return {session:{id:sid,revision:s.revision,stage:s.stage},currency,enabled:s.economyRules?.enabled===true,prices:book.prices,events:book.events,board:priceBoard(book),items:book.items.filter(i=>i.publicationState==='PUBLISHED').map(i=>({id:i.id,name:i.name,unit:i.unit,kind:i.kind})),targets:(await tx.list(`${base}/fieldTargets`)).filter(t=>t.kind==='INSTALLATION'&&t.publicationState==='PUBLISHED').map(t=>({id:t.id,title:t.title})),history:(await tx.list(`${base}/priceHistory`)).sort((a,b)=>b.at-a.at||a.id.localeCompare(b.id)).slice(0,30)};
+   if(player)return {session:{id:sid,stage:s.stage},currency,enabled:s.economyRules?.enabled===true,prices:priceBoard(book),restrictions:tradeBoard(book)};
+   const routes=await tx.list(`${base}/routes`),targets=await tx.list(`${base}/fieldTargets`);
+   if(action==='priceAdmin')return {session:{id:sid,revision:s.revision,stage:s.stage},currency,enabled:s.economyRules?.enabled===true,prices:book.prices,events:book.events,board:priceBoard(book),restrictions:tradeBoard(book),routes:routes.map(r=>routeQuote(book,r)),eventItems:book.items.map(i=>({id:i.id,name:i.name,publicationState:i.publicationState})),items:book.items.filter(i=>i.publicationState==='PUBLISHED').map(i=>({id:i.id,name:i.name,unit:i.unit,kind:i.kind})),targets:targets.filter(t=>t.kind==='INSTALLATION').map(t=>({id:t.id,title:t.title,publicationState:t.publicationState})),history:(await tx.list(`${base}/priceHistory`)).sort((a,b)=>b.at-a.at||a.id.localeCompare(b.id)).slice(0,30)};
    const save=action.startsWith('save'),op=save?`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`:null,fingerprint=hash(JSON.stringify([action,input]));
    if(save){const previous=await tx.get(op);if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');return previous.result;}}
    requireThat(input.revision===s.revision,'STALE_REVISION');
@@ -24,11 +25,11 @@ export function createPriceService({store,signed,checkSession,now,uuid}){
    const after=isPrice?priceInput(input,book.items.find(i=>i.id===id),old??{}):priceEventInput(input,id,old??{});
    let installationTitle=null;
    if(!isPrice){
-    requireThat(book.prices.some(p=>p.id===after.itemId),'PRICE_REQUIRED');
+    validateEconomicReferences({priceEvents:[after],items:book.items,fieldTargets:targets,routes});
     if(after.trigger==='INSTALLATION_OFFLINE'){const t=await tx.get(`${base}/fieldTargets/${after.targetId}`);requireThat(t?.kind==='INSTALLATION'&&(!after.enabled||t.publicationState==='PUBLISHED'),'INVALID_PRICE_EVENT');installationTitle=t.title;}
    }
    const before=old?Object.fromEntries(Object.entries(old).filter(([k])=>k!=='active')):null,reason=moneyText(input.reason);
-   const result={before,after,reason,commodityName:isPrice?after.item.name:book.prices.find(p=>p.id===after.itemId).item.name,installationTitle,confirmation:hash(JSON.stringify([sid,s.revision,before,after,reason]))};
+   const result={before,after,reason,commodityName:isPrice?after.item.name:after.targetKind==='ROUTE'?routes.find(r=>r.id===after.routeId).name:book.items.find(p=>p.id===after.itemId).name,installationTitle,confirmation:hash(JSON.stringify([sid,s.revision,before,after,reason]))};
    if(!save)return result;
    requireThat(input.confirmation===result.confirmation,'STALE_REVISION');
    const record={...after,id:!isPrice&&!input.eventId?eventId:id};

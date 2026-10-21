@@ -2,9 +2,15 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.32.0 publiée : cours des marchandises et ventes indexées.**
+**Version 0.33.0 en validation : conséquences économiques et masters.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
+
+## Conséquences économiques — 0.33
+
+Suspension du commerce par marchandise, perturbations des routes (carburant, durée, départs), déclenchement manuel ou lié à une panne. Conditions figées au paiement et au départ. Cours et événements importables dans les quatre masters, versions de scénario, archives et campagnes. [Guide](docs/EVENEMENTS-ECONOMIQUES.md).
+
+Compilation et 605 tests applicatifs locaux réussis. Validation Firebase et publication en attente. [Validation et limites](docs/VALIDATION-0.33.md).
 
 ## Cours et événements — 0.32
 

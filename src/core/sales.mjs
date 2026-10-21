@@ -1,3 +1,4 @@
+import {readPriceBook,commodityTrade} from './price-state.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {inventoryHash as hash,itemQuantity,publicItem,personalLot,readLot} from './inventory-state.mjs';
 import {inventoryParty,inventoryPlayer} from './inventory-transfers.mjs';
@@ -28,11 +29,11 @@ async function state(tx,s,p,at){
     canBuy:status==='PENDING'&&running&&s.economyRules?.enabled===true&&canGameAction(s,seller.c,'transfer')&&canGameAction(s,buyer.c,'pay'),
     pickupConfirmation:hash(JSON.stringify([view(p),lot?.revision??null,seller.version,buyer.version]))};
 }
-async function projection(tx,s,c,p,at,preview=false){
-  const x=await state(tx,s,p,at),seller=c.id===p.sellerId;
-  return {...view(p),status:x.status,direction:seller?'OUT':'IN',confirmation:proof(p),pickupConfirmation:x.pickupConfirmation,
+async function projection(tx,s,c,p,at,preview=false,book=null){
+  const x=await state(tx,s,p,at),seller=c.id===p.sellerId,trade=p.status==='PENDING'?commodityTrade(book??await readPriceBook(tx,s,at),p.item):{blocked:false,effects:[]};
+  return {...view(p),trade,status:x.status,direction:seller?'OUT':'IN',confirmation:proof(p),pickupConfirmation:x.pickupConfirmation,
     ...(p.status==='SOLD'&&x.seller.active&&x.buyer.active?{pickupParties:{seller:{id:x.seller.c.id,name:x.seller.c.public.displayName},buyer:{id:x.buyer.c.id,name:x.buyer.c.public.displayName}}}:{}),
-    canBuy:!preview&&!seller&&x.canBuy,
+    canBuy:!trade.blocked&&!preview&&!seller&&x.canBuy,
     canClose:!preview&&p.status==='PENDING'&&(seller?x.seller.version===p.sellerVersion:x.buyer.version===p.buyerVersion),
     canOfferPickup:!preview&&seller&&p.status==='SOLD'&&p.pickupStatus!=='RECEIVED'&&x.pickupAllowed&&!x.ready,
     canPickup:!preview&&!seller&&p.status==='SOLD'&&x.ready&&x.pickupAllowed,
@@ -42,7 +43,8 @@ export async function listLotSales(tx,s,c,at,preview=false){
   const base=`sessions/${s.id}/lotSales`,sent=await tx.list(base,['sellerId',c.id]),received=await tx.list(base,['buyerId',c.id]);
   const all=[...sent,...received].sort((a,b)=>b.createdAt-a.createdAt||a.id.localeCompare(b.id));
   const ongoing=p=>p.status==='PENDING'||p.status==='SOLD'&&p.pickupStatus!=='RECEIVED';
-  return Promise.all([...all.filter(ongoing),...all.filter(p=>!ongoing(p)).slice(0,30)].map(p=>projection(tx,s,c,p,at,preview)));
+  const book=all.some(p=>p.status==='PENDING')?await readPriceBook(tx,s,at):null;
+  return Promise.all([...all.filter(ongoing),...all.filter(p=>!ongoing(p)).slice(0,30)].map(p=>projection(tx,s,c,p,at,preview,book)));
 }
 export function settleLotSale(tx,s,c,p,x,from,at,id,actor){
   const base=`sessions/${s.id}`;
@@ -66,20 +68,22 @@ export function createSaleService({store,signed,now,uuid}){
     const buyer=await inventoryParty(tx,s.id,buyerId);requireThat(buyer.active,'INVALID_RECIPIENT');
     const lot=await readLot(tx,s.id,documentId(input.lotId),at);requireThat(lot&&personalLot(lot,c.id),'FORBIDDEN');
     const quantity=itemQuantity(lot.item,input.quantity);requireThat(lot.status==='AVAILABLE'&&lot.quantity>=quantity,'INSUFFICIENT_STOCK');
+    const trade=commodityTrade(await readPriceBook(tx,s,at),lot.item);requireThat(!trade.blocked,'TRADE_SUSPENDED');
     const amount=amountInput(input.amount),minutes=whole(input.minutes,'INVALID_SALE');requireThat(minutes>=1&&minutes<=10080,'INVALID_SALE');
     const conditions=moneyText(input.conditions,2000),pickupPlace=moneyText(input.pickupPlace,200);
-    const result={seller:{id:c.id,name:c.public.displayName},buyer:{id:buyerId,name:buyer.c.public.displayName},item:publicItem(lot.item),lotId:lot.id,quantity,amount,currency:currencyView(s.economyRules),minutes,conditions,pickupPlace};
+    const result={seller:{id:c.id,name:c.public.displayName},buyer:{id:buyerId,name:buyer.c.public.displayName},item:publicItem(lot.item),lotId:lot.id,quantity,amount,trade,currency:currencyView(s.economyRules),minutes,conditions,pickupPlace};
     return {lot,buyer,result:{...result,confirmation:hash(JSON.stringify([s.id,version,buyer.version,lot.revision,result]))}};
   }
   async function purchase(tx,ctx,p,from,at){
     const {s,c}=ctx;requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireThat(p.status==='PENDING','SALE_CLOSED');
     requireThat(at<p.expiresAt,'SALE_EXPIRED');const x=await state(tx,s,p,at);requireThat(x.valid,'STALE_SALE');
     requireGameAction(s,x.seller.c,'transfer');requireGameAction(s,c,'pay');
+    const trade=commodityTrade(await readPriceBook(tx,s,at),p.item);requireThat(!trade.blocked,'TRADE_SUSPENDED');
     const a=await tx.get(`sessions/${s.id}/accounts/${accountId(p.sellerId)}`);
     requireThat(a?.sessionId===s.id&&a.ownerType==='CHARACTER'&&a.characterId===p.sellerId,'ACCOUNT_UNAVAILABLE');moneyState(a);
     const before=moneyState(from.a);requireThat(before.available>=p.amount,'INSUFFICIENT_FUNDS');whole(a.balance+p.amount,'BALANCE_OVERFLOW');
     const to={a,name:p.sellerName},after={...before,balance:before.balance-p.amount,available:before.available-p.amount,revision:before.revision+1};
-    const result={sale:view(p),source:accountParty(from),recipient:accountParty(to),fees:0,total:p.amount,...(from.read?{before,after}:{})};
+    const result={trade,sale:view(p),source:accountParty(from),recipient:accountParty(to),fees:0,total:p.amount,...(from.read?{before,after}:{})};
     return {...x,to,result:{...result,confirmation:hash(JSON.stringify([s.id,proof(p),from.guard,from.a.revision,s.healthRules,result]))}};
   }
   return async(action,actor,input)=>{

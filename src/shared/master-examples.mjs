@@ -73,3 +73,19 @@ export function navigationSessionMasterExample(){
  s.Routes=[{id:'retour-demo',operation:'MODIFIER',version:'2',carburant_cout:'4'}];
  return s;
 }
+
+// Economic effects remain disabled in training data until an organizer activates them.
+export function economicMasterExample(){
+ const s=navigationMasterExample(),row=(id,extra)=>({id,operation:'CREER',version:'1',...extra});
+ s.Cours=[row('carburant-demo',{prix_base:'10',actif:'OUI'})];
+ s.EvenementsEco=[
+  row('penurie-demo',{titre:'Pénurie de carburant de démonstration',description:'Exemple fictif : les arrivages de carburant diminuent.',cible_type:'COMMODITY',objet_id:'carburant-demo',variation_prix_pct:'25',commerce_suspendu:'NON',declenchement:'INSTALLATION_OFFLINE',installation_id:'generateur',actif:'NON'}),
+  row('embargo-demo',{titre:'Commerce suspendu de démonstration',description:'Exemple fictif : aucun nouveau paiement de carburant.',cible_type:'COMMODITY',objet_id:'carburant-demo',variation_prix_pct:'0',commerce_suspendu:'OUI',declenchement:'MANUAL',actif:'NON'}),
+  row('detour-demo',{titre:'Détour de démonstration',description:'Exemple fictif : le trajet exige davantage de carburant et de temps.',cible_type:'ROUTE',route_id:'aller-demo',variation_carburant_pct:'50',variation_duree_pct:'25',depart_suspendu:'NON',declenchement:'INSTALLATION_OFFLINE',installation_id:'generateur',actif:'NON'})
+ ];return s;
+}
+export function economicSessionMasterExample(){
+ const s=navigationSessionMasterExample();
+ s.Cours=[{id:'carburant-demo',operation:'MODIFIER',version:'2',prix_base:'12'}];
+ s.EvenementsEco=[{id:'detour-demo',operation:'MODIFIER',version:'2',variation_carburant_pct:'25',actif:'NON'}];return s;
+}

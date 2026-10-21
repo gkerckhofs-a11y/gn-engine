@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {createPriceUi,priceBoardHtml} from '../web/prices.mjs';
 import {createMarketUi} from '../web/market.mjs';
-import {commodityQuote,indexedListing} from '../src/core/price-state.mjs';
+import {commodityQuote,indexedListing,routeQuote,priceEventInput} from '../src/core/price-state.mjs';
 const helpers={button:(l,a,x='')=>`<button data-action="${a}" ${x}>${l}</button>`,link:(l,u)=>`<a href="#/${u}">${l}</a>`};
 const evil='<img src=x onerror="bad()">',item={id:'fuel',name:evil,unit:'bidon',kind:'STACKABLE',publicationState:'PUBLISHED'},price={id:'fuel',item,baseUnitPrice:10,enabled:true,revision:1};
 const event={id:'event',itemId:'fuel',title:evil,description:evil,percent:50,enabled:true,active:true,trigger:'INSTALLATION_OFFLINE',targetId:'installation',revision:1};
@@ -27,4 +27,15 @@ test('cours : calcul entier exact, dépassement fermé et anciennes annonces fix
 test('cours UI : branchements de régie et bascule des champs requis',async()=>{
  const app=await readFile(new URL('../web/app.mjs',import.meta.url),'utf8'),inventory=await readFile(new URL('../web/inventory.mjs',import.meta.url),'utf8');
  assert.match(app,/prices-admin.*priceAdminPage/);assert.match(app,/amount\.required=!indexed/);assert.match(app,/field\.required=linked/);assert.match(inventory,/Cours et événements/);
+});
+test('événements : bornes du transport et effets incompatibles fermés',()=>{
+ const r={id:'route',fuelCost:3,durationSeconds:61},e={id:'e',targetKind:'ROUTE',routeId:'route',active:true,revision:1,fuelPercent:50,durationPercent:50};
+ let q=routeQuote({events:[e]},r);assert.equal(q.fuelCost,5);assert.equal(q.durationSeconds,92);
+ q=routeQuote({events:[{...e,fuelPercent:-100,durationPercent:-100}]},r);assert.equal(q.fuelCost,0);assert.equal(q.durationSeconds,1);
+ q=routeQuote({events:[e]},{...r,fuelCost:Number.MAX_SAFE_INTEGER});assert.equal(q.available,false);assert.equal(q.fuelCost,null);
+ assert.throws(()=>priceEventInput({...event,targetKind:'ROUTE',routeId:'route'},'e'),{code:'INVALID_PRICE_EVENT'});
+});
+test('événements UI : cible distincte, effets visibles et sources de sabotage privées',()=>{
+ const ui=createPriceUi(helpers),e={...event,targetKind:'ROUTE',itemId:null,routeId:'r',fuelPercent:25,durationPercent:50,departureBlocked:true},d={session:{id:'s',revision:1},items:[item],routes:[{id:'r',name:evil}],targets:[],events:[e]};
+ const form=ui.eventForm(d,e);assert.match(form,/data-economic-fields="COMMODITY" hidden disabled/);assert.match(form,/data-economic-fields="ROUTE" >/);for(const name of ['targetKind','routeId','tradeBlocked','departureBlocked','fuelPercent','durationPercent'])assert.ok(form.includes(`name="${name}"`));assert.doesNotMatch(form,/<img/);
 });
