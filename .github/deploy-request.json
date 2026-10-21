@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "65b9728a1cfdd77113c1a20fd49892f1f3ca1df3",
-  "version": "0.32.0",
-  "requestedAt": "2026-10-21T11:15:01.235Z",
-  "reason": "Cours des marchandises, événements manuels ou liés aux pannes, ventes indexées ; publication après validation complète."
+  "sourceCommit": "ea78b90b4e471bac00ea68ec78e9bd6e8a32a4dc",
+  "version": "0.33.0",
+  "requestedAt": "2026-10-21T11:58:47.957Z",
+  "reason": "Conséquences économiques des événements, cours et événements dans les masters ; publication après validation complète."
 }
