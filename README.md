@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.33.0 en validation : conséquences économiques et masters.**
+**Version 0.33.0 publiée : conséquences économiques et masters.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -10,7 +10,7 @@ Application : **https://gn-engine.web.app/**. Le compte organisateur configuré 
 
 Suspension du commerce par marchandise, perturbations des routes (carburant, durée, départs), déclenchement manuel ou lié à une panne. Conditions figées au paiement et au départ. Cours et événements importables dans les quatre masters, versions de scénario, archives et campagnes. [Guide](docs/EVENEMENTS-ECONOMIQUES.md).
 
-Compilation et 605 tests applicatifs locaux réussis. Validation Firebase et publication en attente. [Validation et limites](docs/VALIDATION-0.33.md).
+Compilation et **1 091 tests réussis** (605 applicatifs, 486 intégrations Firebase). Publication, quatre masters et refus anonymes vérifiés le 21 octobre 2026 à 14:18:18, heure de Bruxelles. Accueil 0.33.0 confirmé dans le navigateur. [Validation et limites](docs/VALIDATION-0.33.md).
 
 ## Cours et événements — 0.32
 

@@ -1,6 +1,6 @@
 # Validation de la version 0.33.0
 
-État : compilation locale et 605 tests applicatifs réussis. Validation Firebase et publication en attente.
+État : version publiée et vérifiée le 21 octobre 2026. Compilation, 605 tests applicatifs et 486 tests Firebase réussis.
 
 ## Périmètre vérifié
 
@@ -24,4 +24,16 @@ Quatre nouveaux scénarios sont partagés entre MemoryStore et Firestore. Le sc�
 
 Les tests de règles et transactions ne remplacent pas la recette privée sur téléphones ni un essai à 60 joueurs. Aucun compte, événement ou stock réel de production n’a été créé pour la validation. La suspension du commerce laisse possibles les dons et virements séparés, conformément au périmètre décrit dans le [guide](EVENEMENTS-ECONOMIQUES.md).
 
-Les preuves de publication et les résultats Firebase seront ajoutés après réussite de la chaîne de livraison.
+## Traçabilité de publication
+
+- Commit source : `ea78b90b4e471bac00ea68ec78e9bd6e8a32a4dc`.
+- Demande de publication : `b021683c87f68ac44c25c83d059e1e69fcfa17ce`.
+- [Chaîne GitHub Actions réussie](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/39595995754), validation `119208320136`, publication `119215710808`.
+- Compilation terminée à 13:59:11, 605 tests applicatifs à 13:59:19, 486 tests Firebase à 14:15:42. Horaires du 21 octobre 2026, heure de Bruxelles.
+- Firebase Hosting publié à 14:17:40.
+- Quatre téléchargements XLSX vérifiés à 14:17:41, identiques octet par octet aux fichiers validés du dépôt.
+- Version 0.33.0 accessible et refus des accès anonymes aux commandes privées vérifiés à 14:18:18.
+- Accueil rechargé dans Chrome : pied de page « GN Engine · 0.33.0 » visible à l’adresse `https://gn-engine.web.app/#/`.
+- La capture atteste la version publique ; elle ne constitue pas une recette visuelle des écrans privés.
+
+![Accueil publié affichant GN Engine 0.33.0](images/evenements-0.33.0.jpg)
