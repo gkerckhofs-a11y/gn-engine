@@ -1,3 +1,4 @@
+import {createCargoService,cargoAction} from './cargo.mjs';
 import {createLogisticsService,logisticsAction} from './logistics.mjs';
 import {createPersonService,personAction} from './person-actions.mjs';
 import {playerRules} from './player-rules.mjs';
@@ -132,6 +133,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     }
     return record.mediaImages?.[slot]??null;
   }});
+  const cargoService=createCargoService({store,signed,checkSession,now,uuid});
   const logisticsService=createLogisticsService({store,signed,checkSession,now,uuid});
   const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,now,uuid});
   const personService=createPersonService({store,signed,checkSession,checkScenario,now,uuid,rollD6});
@@ -154,6 +156,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(cargoAction(action))return cargoService(action,actor,input);
     if(logisticsAction(action))return logisticsService(action,actor,input);
     if(personAction(action))return personService(action,actor,input);
     if(fieldAction(action))return fieldService(action,actor,input);
@@ -407,6 +410,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
           requireThat(transitions[s.stage].includes(input.stage),'INVALID_TRANSITION');
           if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/personActions`)).some(personOpen),'PERSON_ACTIONS_OPEN');
           if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/fieldActions`)).some(a=>a.status==='ACTIVE'),'FIELD_ACTIONS_OPEN');
+          if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/cargoTransfers`)).some(t=>t.status==='LOADING'),'CARGO_TRANSFERS_OPEN');
           if(input.stage==='ARCHIVED')requireThat(!s.campaignId,'CAMPAIGN_CLOSE_REQUIRED');
           if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/bounties`)).some(b=>b.status==='OPEN'),'BOUNTIES_OPEN');
           if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/contracts`)).some(c=>['PROPOSED','ACTIVE','SUBMITTED'].includes(c.status)),'CONTRACTS_OPEN');

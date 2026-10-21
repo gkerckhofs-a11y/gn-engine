@@ -19,9 +19,15 @@ export function warehouseAccess(w,cid,groups){
   return {access:stockPermissions.some(k=>p[k]),read:!!p.readStock,deposit:!!p.depositStock,withdraw:!!p.readStock&&!!p.withdrawStock,manage:!!p.manageStorage,group};
 }
 
-export const storedIn=(lot,id)=>lot.location?.kind==='WAREHOUSE'&&lot.location.id===id;
-export async function warehouseStock(tx,sid,id){
-  return (await tx.list(`sessions/${sid}/inventory`)).filter(l=>storedIn(l,id)&&l.quantity>0&&!['CONSUMED','DESTROYED'].includes(l.status));
+export const storedIn=(lot,id,kind='WAREHOUSE')=>lot.location?.kind===kind&&lot.location.id===id;
+export async function warehouseStock(tx,sid,id,kind='WAREHOUSE'){
+  return (await tx.list(`sessions/${sid}/inventory`)).filter(l=>storedIn(l,id,kind)&&l.quantity>0&&!['CONSUMED','DESTROYED'].includes(l.status));
+}
+export async function incomingTransfers(tx,sid,id,kind='WAREHOUSE'){
+  return (await tx.list(`sessions/${sid}/cargoTransfers`)).filter(t=>t.status==='LOADING'&&t.destination.kind===kind&&t.destination.id===id);
+}
+export async function incomingVolume(tx,sid,id,kind='WAREHOUSE'){
+  return (await incomingTransfers(tx,sid,id,kind)).reduce((n,t)=>whole(n+t.volume,'STORAGE_OVERFLOW'),0);
 }
 export function stockVolume(lots){
   return lots.reduce((total,l)=>{
@@ -30,10 +36,11 @@ export function stockVolume(lots){
   },0);
 }
 export async function checkStoredCorrection(tx,sid,lot,next){
-  if(lot.location?.kind!=='WAREHOUSE')return;
-  const w=await tx.get(`sessions/${sid}/warehouses/${lot.location.id}`);requireThat(w,'WAREHOUSE_UNAVAILABLE');
-  const stock=await warehouseStock(tx,sid,w.id),updated=stock.filter(l=>l.id!==lot.id);
+  if(!['WAREHOUSE','HOLD'].includes(lot.location?.kind))return;
+  const kind=lot.location.kind,collection=kind==='HOLD'?'ships':'warehouses';
+  const w=await tx.get(`sessions/${sid}/${collection}/${lot.location.id}`);requireThat(w,'WAREHOUSE_UNAVAILABLE');
+  const stock=await warehouseStock(tx,sid,w.id,kind),updated=stock.filter(l=>l.id!==lot.id);
   if(next.quantity>0&&next.status!=='DESTROYED')updated.push(next);
-  requireThat(stockVolume(updated)<=w.capacity,'WAREHOUSE_FULL');
-  tx.set(`sessions/${sid}/warehouses/${w.id}`,{...w,revision:w.revision+1});
+  requireThat(stockVolume(updated)+await incomingVolume(tx,sid,w.id,kind)<=w.capacity,'WAREHOUSE_FULL');
+  tx.set(`sessions/${sid}/${collection}/${w.id}`,{...w,revision:w.revision+1});
 }

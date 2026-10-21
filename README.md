@@ -2,15 +2,21 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.29.0 publiée : stocks de bande et masters logistiques.**
+**Version 0.30.0 en validation : QR de cargaisons, soutes et chargements.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
+
+## QR, soutes et carburant — 0.30
+
+QR privés pour les lots et les destinations, soutes personnelles ou de bande, transferts directs conservant la propriété, réservation de la quantité et du volume, réception explicite et annulation tracée. Le catalogue propose la préparation d’un modèle de carburant pour les achats, ventes et chargements existants. Aucun stock de production ni tarif de transport n’est créé implicitement. [Guide](docs/LOGISTIQUE.md) · [Validation](docs/VALIDATION-0.30.md).
+
+Compilation et **571 tests applicatifs réussis** localement. Validation Firebase et publication en cours. Les pleins, trajets et consommation restent à développer ; les soutes se configurent dans la régie et suivent les campagnes. Recette privée sur téléphones et charge réelle encore ouverte.
 
 ## Stocks collectifs et masters logistiques — 0.29
 
 Location au nom du personnage ou de sa bande, titulaire distinct du compte payeur, droits de lecture/dépôt/retrait/gestion du bail et transferts de propriété confirmés. Les stocks, baux et droits suivent les épisodes. Les quatre modèles XLSX incluent Entrepots, le conditionnement des recharges et les permissions de stockage. [Guide](docs/LOGISTIQUE.md) · [Imports](docs/MASTERS.md) · [Validation](docs/VALIDATION-0.29.md).
 
-Compilation et **1 003 tests réussis** (555 applicatifs, 448 intégrations Firebase). Publication, quatre masters et refus anonymes vérifiés le 21 octobre 2026 ; accueil 0.29.0 confirmé dans le navigateur. Les QR de cargaisons, transferts directs vers une soute et cours dynamiques restent à développer. Recette privée sur téléphones et charge réelle encore ouverte.
+Compilation et **1 003 tests réussis** (555 applicatifs, 448 intégrations Firebase). Publication, quatre masters et refus anonymes vérifiés le 21 octobre 2026 ; accueil 0.29.0 confirmé dans le navigateur. Les QR de cargaisons et transferts vers une soute sont ajoutés en 0.30 ; les cours dynamiques restent à développer. Recette privée sur téléphones et charge réelle encore ouverte.
 
 ## Entrepôts et recharges laser — 0.28
 

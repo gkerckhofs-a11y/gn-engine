@@ -1,4 +1,4 @@
-# Entrepôts personnels et collectifs, recharges laser — 0.29
+# Entrepôts, soutes, cargaisons et carburant — 0.30
 
 ## Parcours joueur
 
@@ -58,20 +58,42 @@ Toutes les écritures sont authentifiées, vérifiées côté serveur, transacti
 
 Les transactions de stockage, location et ouverture sont disponibles en jeu selon les permissions de santé pour les échanges ; payer un loyer exige aussi le droit de paiement. Elles ne lancent pas de dé et ne consomment pas de PA ou de récupération de compétence. Les actions de terrain et de soin gardent leurs propres règles existantes.
 
+## QR des cargaisons et destinations — 0.30
+
+Chaque lot possède une fiche privée et une étiquette QR téléchargeable : **Sac → Cargaison, transfert et QR**, ou le même lien dans un entrepôt et une soute. Le QR pointe vers le lot ; il ne contient ni quantité, ni prix, ni secret. La fiche lit l’état courant et vérifie l’accès du personnage connecté. Photographier un QR ne donne aucun droit de retrait. Un visiteur sans droit ne reçoit pas la nature du lot. Les QR d’entrepôts et de soutes ouvrent leurs fiches et peuvent servir de destinations de chargement.
+
+La fiche présente nature, description, catégorie, quantité, volume, statut légal configuré, propriétaire et emplacement. Le prix de l’offre commerciale est géré au marché ; le module logistique ne fournit pas encore de valeur de référence ni de cours dynamique. Ne pas confondre un statut légal configuré par l’organisation avec une détection automatique de contrebande.
+
+**Action** accepte désormais les liens QR de cargaisons, d’entrepôts et de soutes, en plus des personnages, lieux et informations. Scanner avec l’appareil photo du téléphone, ou coller le lien dans l’application ; il n’y a pas encore de caméra intégrée. Les liens sont liés à la session. L’identifiant d’un lot est conservé entre épisodes, mais les étiquettes URL de la nouvelle session doivent être rééditées : un lien de l’ancien épisode scellé ne donne pas accès au nouveau.
+
+## Soutes et chargements — 0.30
+
+**Organisation → Objets et inventaires → Vaisseaux et cargaisons** permet de créer une soute, d’attribuer son vaisseau à un personnage ou à une bande, de choisir sa capacité, son état à quai et l’ouverture des chargements. Aucune capacité n’est imposée. Ces réglages sont actuellement faits dans la régie de session ; les masters et archives de scénario n’importent pas encore les vaisseaux. Les soutes et leur cargaison sont conservées lors de la reprise d’une campagne.
+
+**Terminal / Mon groupe → Vaisseaux et cargaisons** réunit les soutes autorisées et les chargements en attente. Pour une bande, les droits existants s’appliquent : lecture du stock, dépôt, retrait. Un droit de bail ne permet pas de configurer un vaisseau. Un vaisseau absent du quai bloque chargement et déchargement. Fermer seulement le chargement conserve les sorties possibles à quai.
+
+Le déplacement direct conserve toujours le propriétaire : sac personnel ↔ entrepôt personnel ↔ soute personnelle, ou entrepôts et soutes d’une même bande. Le moteur refuse une destination appartenant à quelqu’un d’autre. Le don à une bande ou la sortie de ses biens vers un patrimoine personnel restent les opérations explicites du parcours sac/entrepôt existant. Le transport pour compte de tiers n’est pas encore proposé.
+
+1. Ouvrir ou scanner le lot ; choisir la quantité et la destination autorisée. Il est aussi possible de coller le lien QR d’un entrepôt ou d’une soute dans le champ destination, prioritaire sur la sélection.
+2. Vérifier le récapitulatif et **réserver le chargement**. Le serveur contrôle les droits de retrait et de dépôt, la présence à quai, le bail, le volume et les réservations existantes.
+3. Les unités réservées restent comptées à la source, avec le statut « chargement réservé ». Elles ne peuvent plus être vendues, utilisées, cédées ou corrigées. La place à destination est réservée simultanément. Le reste d’un lot partiel reste disponible.
+4. Déplacer les caisses selon les consignes de l’organisation, puis **confirmer la réception**. Le joueur qui réceptionne doit avoir les droits de lecture et de dépôt à destination ; un autre membre autorisé de la même bande peut le faire. L’emplacement change sans transfert de propriété ni nouveau paiement.
+5. En cas d’abandon, **annuler** libère les unités et le volume réservé. Les biens restent à la source ; ramener physiquement les caisses si elles ont déjà été déplacées. L’annulation reste possible en pause. Un MJ peut annuler avec motif même si les droits du joueur ont disparu.
+
+Un lot entièrement transféré conserve son identifiant et son QR. Un chargement partiel crée un lot fils dès la réservation, avec filiation et nouveau QR affiché dans le suivi ; le lot source garde le sien. Une annulation ne fusionne pas les deux lots. Les nouvelles étiquettes doivent être placées sur les bonnes unités physiques. L’application n’observe ni le déplacement ni la réception réels : elle enregistre la déclaration du joueur. Le fret virtuel suit le même parcours de confirmation selon les consignes du GN.
+
+Exemple sans barème : dix caisses appartenant à une bande, quatre chargées. Pendant la préparation, six restent disponibles et quatre sont réservées dans l’entrepôt. Après réception, six sont dans l’entrepôt et quatre dans la soute, toutes au même propriétaire. Ni vente ni attribution au manutentionnaire.
+
+Une réservation, même de volume nul, empêche de rendre le bail destinataire. La capacité d’une soute ou d’un entrepôt inclut les arrivées réservées, y compris lors d’un ancien dépôt depuis le sac ou d’une correction MJ. Il faut terminer ou annuler les opérations avant d’indiquer le départ d’un vaisseau, d’archiver une session ou de sceller un épisode. L’historique du lot et le journal logistique enregistrent réservation, réception et annulation. Aucun délai automatique d’expiration, coût en PA ou consommation de carburant n’est ajouté à ces manutentions.
+
+## Carburant à acheter et revendre — 0.30
+
+**Objets et inventaires → Préparer du carburant** ouvre un nouveau modèle en brouillon, catégorie « Carburant », empilable et consommable. L’organisation précise le nom, le type et le conditionnement dans la description et l’unité, puis le volume et le statut légal. Aucun stock, prix, type canonique de carburant ou quantité par bidon n’est créé automatiquement. Il faut publier le modèle et attribuer les lots au vendeur ou au personnage de comptoir.
+
+Le carburant utilise le commerce existant : publication au marché ou vente privée, paiement, remise et réception, revente depuis le sac. Il se stocke et se charge comme les autres marchandises. Un achat payé mais non remis ne peut pas être embarqué. Les quantités commerciales sont celles de l’unité configurée ; changer le catalogue ne modifie pas les lots déjà distribués.
+
+Il peut aussi être préparé dans l’onglet **Objets** des masters existants, avec `categorie = Carburant`, `type = STACKABLE`, `consommable = OUI`, une `unite`, un `volume_unitaire` et la publication souhaitée. Vérifier les intitulés exacts dans le dictionnaire du fichier utilisé. La catégorie reste un libellé commercial ; elle ne déclenche aucun effet caché de voyage. Le plein d’un réservoir, les carburants compatibles, l’entretien, les distances et la consommation par trajet restent à implémenter après choix des règles.
+
 ## Suite ouverte
 
-### Prolongement demandé : QR des cargaisons et chargement des vaisseaux
-
-Ce parcours est une proposition pour le prochain lot ; les QR de lots, les soutes et les transferts directs entre entrepôts ne sont pas implémentés en 0.29.
-
-- Chaque lot traçable ou caisse possède un identifiant durable et un QR qui le référence. La nature, la quantité, le volume, la légalité, la propriété et l’emplacement sont lus dans la base selon les droits du joueur. Le QR ne contient pas les secrets de la cargaison et n’accorde pas de droit de retrait à celui qui le photographie.
-- La valeur de référence du modèle, l’estimation au cours courant et le prix négocié sont distincts. Une étiquette imprimée ne fige pas un cours futur. Aucun montant ne sera inventé si le barème n’est pas configuré. Les cours dynamiques restent à développer.
-- Les sacs, entrepôts et futures soutes sont des destinations de stockage. Chaque destination indique son type, sa capacité, ses droits de dépôt/retrait et ses éventuelles restrictions configurées. Un QR de destination identifie le lieu où déposer ; il ne remplace pas les droits d’accès.
-- Parcours proposé : scanner la cargaison, choisir la quantité, scanner ou sélectionner une destination autorisée, vérifier puis confirmer. Le serveur contrôle disponibilité, emplacement source, droits des deux côtés et volume libre. Le mouvement et sa trace sont atomiques et protégés contre les doubles requêtes.
-- Déplacer un lot entier conserve son identifiant et son QR. Un déplacement partiel conserve le lot source avec sa quantité restante et crée un lot fils avec un nouveau QR. Les étiquettes physiques des nouvelles caisses doivent être remises par le parcours prévu avec l’organisation.
-- Un déplacement entre l’entrepôt et le vaisseau d’une même bande conserve la propriété. Un changement de propriétaire relève d’une cession distincte et explicite. Transporter pour autrui devra également distinguer propriétaire, gardien et emplacement.
-- Pour une caisse physique, le QR ne prouve pas son déplacement. Prévoir une confirmation de réception à destination et une réservation des unités pendant le chargement. Pour un fret entièrement virtuel, la règle de déplacement devra être configurée ; aucune durée, taxe, consommation de carburant ou jet spatial n’est fixée ici.
-
-Exemple fonctionnel, sans barème : une bande possède dix caisses dans son entrepôt et en charge quatre dans sa soute. Le résultat doit être six dans l’entrepôt, quatre dans la soute, dix toujours à la même bande et un mouvement consultable dans l’historique. Un vaisseau absent, inaccessible ou plein doit bloquer le chargement avant toute sortie du stock.
-
-Boutique organisation sans personnage vendeur, dotations directement collectives, rapprochement physique du stock au comptoir, douanes/corruption automatiques, cours variables et vente directement depuis un entrepôt restent à développer. Le commerce existant permet déjà de vendre des quantités de lots ; cette livraison ne crée pas un marché de gros avec cours et frais de transport. La recette sur vrais téléphones, plusieurs comptes et environ 60 connexions reste nécessaire avant un GN.
+Vaisseaux dans les masters et archives de scénario, transport pour autrui, vente directement depuis un entrepôt ou une soute, dotations directement collectives, cours variables, boutique organisation sans personnage vendeur, frais de douane/corruption et rapprochement réel du stock restent à développer. La recette sur vrais téléphones, plusieurs comptes et environ 60 connexions reste nécessaire avant un GN.

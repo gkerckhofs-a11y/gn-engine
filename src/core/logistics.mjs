@@ -1,7 +1,7 @@
 import {documentId,requireThat,whole} from './validation.mjs';
 import {inventoryPlayer} from './inventory-transfers.mjs';
 import {inventoryHash as hash,readLot,publicLot,personalLot,itemQuantity,lotState,effectiveLot} from './inventory-state.mjs';
-import {warehouseStock,storedIn,stockVolume,warehouseInput,warehouseAccess,storageGroups} from './storage-state.mjs';
+import {warehouseStock,storedIn,stockVolume,warehouseInput,warehouseAccess,storageGroups,incomingVolume,incomingTransfers} from './storage-state.mjs';
 import {gameTime} from './clock.mjs';
 import {canGameAction,requireGameAction} from './health-state.mjs';
 import {accessAccount,accountEntry,accountParty} from './collective-accounts.mjs';
@@ -47,7 +47,7 @@ export function createLogisticsService({store,signed,checkSession,now,uuid}){
         const config=warehouseInput(input,id,old??{});
         const rentAccountId=input.rentAccountId?documentId(input.rentAccountId):null;
         if(rentAccountId){const a=await tx.get(`${base}/accounts/${rentAccountId}`);requireThat(a?.sessionId===sid&&a.ownerType==='GROUP','INVALID_ACCOUNT');moneyState(a);}
-        requireThat(stockVolume(await warehouseStock(tx,sid,id))<=config.capacity,'WAREHOUSE_FULL');
+        requireThat(stockVolume(await warehouseStock(tx,sid,id))+await incomingVolume(tx,sid,id)<=config.capacity,'WAREHOUSE_FULL');
         const next={...config,rentAccountId,tenantType:old?.tenantType??'CHARACTER',tenantId:old?.tenantId??null,expiresAtGameMs:old?.expiresAtGameMs??null};
         const reason=moneyText(input.reason);tx.set(`${base}/warehouses/${id}`,next);tx.set(base,{...s,revision:s.revision+1});
         tx.set(`${base}/logisticsHistory/${eventId}`,{id:eventId,at,kind:'CONFIGURE',warehouseId:id,name:next.name,actorUid:actor.uid,reason,before:old,after:next});
@@ -80,8 +80,8 @@ export function createLogisticsService({store,signed,checkSession,now,uuid}){
         const stock=access.access?await warehouseStock(tx,sid,wid):[];
         const bag=access.deposit?(await tx.list(`${base}/inventory`,['ownerId',c.id])).map(l=>publicLot(effectiveLot(l,at))).filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.quantity>0):[];
         const rentChoices=w.tenantId?(access.manage?[{type:w.tenantType??'CHARACTER',id:w.tenantId,name:access.group?.name??c.public.displayName}]:[]):[{type:'CHARACTER',id:c.id,name:c.public.displayName},...groups.filter(g=>g.permissions.manageStorage).map(g=>({type:'GROUP',id:g.id,name:g.name}))];
-        return {session:{id:sid,stage:s.stage},currency:s.economyRules?currencyView(s.economyRules):null,warehouse:viewWarehouse,used:access.access?stockVolume(stock):null,stock:access.read?stock.map(publicLot):[],bag,canReadStock:access.read,rentChoices,
-          canMove:access.withdraw&&canMove,canDeposit:access.deposit&&canMove&&w.enabled&&time<w.expiresAtGameMs,canRelease:access.manage&&canMove&&stock.length===0,canRent:canMove&&canGameAction(s,c,'pay')&&s.economyRules?.enabled===true&&w.enabled&&rentChoices.length>0};
+        return {session:{id:sid,stage:s.stage},currency:s.economyRules?currencyView(s.economyRules):null,warehouse:viewWarehouse,used:access.access?stockVolume(stock):null,incoming:access.access?await incomingVolume(tx,sid,wid):null,stock:access.read?stock.map(publicLot):[],bag,canReadStock:access.read,rentChoices,
+          canMove:access.withdraw&&canMove,canDeposit:access.deposit&&canMove&&w.enabled&&time<w.expiresAtGameMs,canRelease:access.manage&&canMove&&stock.length===0&&(await incomingTransfers(tx,sid,wid)).length===0,canRent:canMove&&canGameAction(s,c,'pay')&&s.economyRules?.enabled===true&&w.enabled&&rentChoices.length>0};
       }
       requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,c,'transfer');
       if(['prepareWarehouseRent','rentWarehouse'].includes(action)){
@@ -114,7 +114,7 @@ export function createLogisticsService({store,signed,checkSession,now,uuid}){
       const stock=await warehouseStock(tx,sid,wid);
       if(['prepareWarehouseRelease','releaseWarehouse'].includes(action)){
         requireThat(access.manage,'FORBIDDEN');
-        requireThat(stock.length===0,'WAREHOUSE_NOT_EMPTY');const confirmation=hash(JSON.stringify([sid,ctx.version,w]));
+        requireThat(stock.length===0&&(await incomingTransfers(tx,sid,wid)).length===0,'WAREHOUSE_NOT_EMPTY');const confirmation=hash(JSON.stringify([sid,ctx.version,w]));
         if(action==='prepareWarehouseRelease')return {name:w.name,confirmation};requireThat(input.confirmation===confirmation,'STALE_REVISION');
         tx.set(`${base}/warehouses/${wid}`,{...w,tenantType:'CHARACTER',tenantId:null,expiresAtGameMs:null,revision:w.revision+1});
         tx.set(`${base}/logisticsHistory/${eventId}`,{id:eventId,at,kind:'RELEASE',warehouseId:wid,name:w.name,characterId:c.id,characterName:c.public.displayName,actorUid:actor.uid});
@@ -127,7 +127,7 @@ export function createLogisticsService({store,signed,checkSession,now,uuid}){
       requireThat(lot&&(deposit?personalLot(lot,c.id):storedIn(lot,wid)&&(collective?lot.ownerType==='GROUP'&&lot.ownerId===w.tenantId&&lot.holderId===null:lot.ownerType!=='GROUP'&&lot.ownerId===c.id&&lot.holderId===c.id)),'FORBIDDEN');
       requireThat(lot.status==='AVAILABLE','INSUFFICIENT_STOCK');const quantity=itemQuantity(lot.item,input.quantity);requireThat(lot.quantity>=quantity,'INSUFFICIENT_STOCK');
       const volume=stockVolume([{...lot,quantity}]),used=stockVolume(stock),afterVolume=deposit?whole(used+volume,'STORAGE_OVERFLOW'):used-volume;
-      if(deposit){requireThat(w.enabled,'WAREHOUSE_UNAVAILABLE');requireThat(time<w.expiresAtGameMs,'WAREHOUSE_EXPIRED');requireThat(afterVolume<=w.capacity,'WAREHOUSE_FULL');}
+      if(deposit){requireThat(w.enabled,'WAREHOUSE_UNAVAILABLE');requireThat(time<w.expiresAtGameMs,'WAREHOUSE_EXPIRED');requireThat(afterVolume+await incomingVolume(tx,sid,wid)<=w.capacity,'WAREHOUSE_FULL');}
       const view={warehouseName:w.name,lotId:lot.id,name:lot.item.name,quantity,direction:input.direction,volume,used,afterVolume,capacity:w.capacity,ownershipTransfer:collective?{from:deposit?c.public.displayName:access.group.name,to:deposit?access.group.name:c.public.displayName}:null};
       const confirmation=hash(JSON.stringify([sid,ctx.version,w,lot,view,s.healthRules]));
       if(action==='prepareWarehouseMove')return {...view,confirmation};requireThat(input.confirmation===confirmation,'STALE_REVISION');
