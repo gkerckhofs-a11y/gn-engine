@@ -6,6 +6,7 @@ import {accessAccount,accountParty} from './collective-accounts.mjs';
 import {accountId,amountInput,currencyView,moneyState,moneyText} from './economy-state.mjs';
 import {canGameAction,requireGameAction} from './health-state.mjs';
 import {settleLotSale,saleView} from './sales.mjs';
+import {negotiationState,negotiationProof} from './market-negotiation-state.mjs';
 
 const actions=new Set(['market','marketListing','prepareMarketListing','publishMarketListing','prepareMarketPurchase','buyMarketListing','withdrawMarketListing','sessionMarket','withdrawSessionListing']);
 export const marketAction=a=>actions.has(a);
@@ -19,8 +20,8 @@ async function state(tx,s,p,at){
 }
 function project(s,c,p,x,admin=false,book=null){
   const priced=indexedListing({...p,status:x.status},book);
-  const own=c?.id===p.sellerId,manage=admin||own;
-  return {...view(priced),priceAvailable:priced.priceAvailable,trade:priced.trade,status:x.status,own:!!own,canBuy:!priced.trade.blocked&&priced.priceAvailable&&!admin&&!own&&x.status==='ACTIVE'&&s.stage==='EN_JEU'&&s.economyRules?.enabled===true&&canGameAction(s,x.seller.c,'transfer')&&canGameAction(s,c,'pay'),
+  const own=c?.id===p.sellerId,manage=admin||own,canNegotiate=!priced.trade.blocked&&!admin&&!own&&x.status==='ACTIVE'&&s.stage==='EN_JEU'&&s.economyRules?.enabled===true&&canGameAction(s,x.seller.c,'transfer')&&canGameAction(s,c,'pay');
+  return {...view(priced),priceAvailable:priced.priceAvailable,trade:priced.trade,status:x.status,own:!!own,canNegotiate,canBuy:canNegotiate&&priced.priceAvailable,
     ...(manage?{lotId:p.lotId,confirmation:proof(p),canWithdraw:p.status==='ACTIVE',saleId:p.saleId??null}:{})};
 }
 export function createMarketService({store,signed,checkSession,now,uuid}){
@@ -35,16 +36,21 @@ export function createMarketService({store,signed,checkSession,now,uuid}){
     const result={seller:{id:c.id,name:c.public.displayName},item:publicItem(lot.item),quantity,amount,pricing,priceQuote,trade,currency:currencyView(s.economyRules),minutes,pickupPlace:moneyText(input.pickupPlace,200),conditions:moneyText(input.conditions,2000)};
     return {lot,result:{...result,confirmation:hash(JSON.stringify([s.id,version,lot.revision,s.healthRules,result]))}};
   }
-  async function purchase(tx,ctx,p,from,at){
+  async function purchase(tx,ctx,p,from,at,negotiation=null){
     const {s,c,version}=ctx;requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireThat(p.status==='ACTIVE','LISTING_CLOSED');requireThat(at<p.expiresAt,'LISTING_EXPIRED');
     const x=await state(tx,s,p,at);requireThat(x.valid,'STALE_LISTING');
-    p=indexedListing(p,await readPriceBook(tx,s,at));requireThat(!p.trade.blocked,'TRADE_SUSPENDED');requireThat(p.priceAvailable,'PRICE_UNAVAILABLE');requireGameAction(s,x.seller.c,'transfer');requireGameAction(s,c,'pay');
+    const book=await readPriceBook(tx,s,at);
+    if(negotiation){
+      const q=await negotiationState(tx,s,p,x,negotiation,at);requireThat(q.status==='ACCEPTED','NEGOTIATION_CLOSED');
+      p={...p,amount:negotiation.amount,pricing:'FIXED',priceQuote:null,trade:commodityTrade(book,p.item),priceAvailable:true};
+    }else p=indexedListing(p,book);
+    requireThat(!p.trade.blocked,'TRADE_SUSPENDED');requireThat(p.priceAvailable,'PRICE_UNAVAILABLE');requireGameAction(s,x.seller.c,'transfer');requireGameAction(s,c,'pay');
     const a=await tx.get(`sessions/${s.id}/accounts/${accountId(p.sellerId)}`);requireThat(a?.sessionId===s.id&&a.ownerType==='CHARACTER'&&a.characterId===p.sellerId,'ACCOUNT_UNAVAILABLE');moneyState(a);
     const before=moneyState(from.a);requireThat(before.available>=p.amount,'INSUFFICIENT_FUNDS');whole(a.balance+p.amount,'BALANCE_OVERFLOW');
     const to={a,name:p.sellerName},after={...before,balance:before.balance-p.amount,available:before.available-p.amount,revision:before.revision+1};
-    const sale={...p,id:hash(`market:${p.id}`),listingId:p.id,status:'PENDING',revision:1,buyerId:c.id,buyerName:c.public.displayName,buyerVersion:version};
+    const sale={...p,id:hash(`market:${p.id}`),listingId:p.id,status:'PENDING',revision:1,buyerId:c.id,buyerName:c.public.displayName,buyerVersion:version,...(negotiation?{negotiationId:negotiation.id}: {})};
     const result={trade:p.trade,sale:saleView(sale),source:accountParty(from),recipient:accountParty(to),fees:0,total:p.amount,...(from.read?{before,after}:{})};
-    return {...x,sale,to,result:{...result,confirmation:hash(JSON.stringify([s.id,proof(p),x.seller.version,from.guard,from.a.revision,s.healthRules,result]))}};
+    return {...x,sale,to,result:{...result,confirmation:hash(JSON.stringify([s.id,proof(p),negotiation?negotiationProof(negotiation):null,x.seller.version,from.guard,from.a.revision,s.healthRules,result]))}};
   }
   return async(action,actor,input)=>{
     signed(actor);const at=now(),id=uuid();return store.runTransaction(async tx=>{
@@ -58,14 +64,15 @@ export function createMarketService({store,signed,checkSession,now,uuid}){
         return {session:{id:s.id,stage:s.stage},admin,economyEnabled:s.economyRules?.enabled===true,currency:s.economyRules?currencyView(s.economyRules):null,prices:priceBoard(book),restrictions:tradeBoard(book),listings};
       }
       if(action==='prepareMarketListing')return (await prepare(tx,ctx,input,at)).result;
-      let p,from;
+      let p,from,negotiation;
       if(action!=='publishMarketListing'){
         p=await tx.get(`${base}/marketListings/${documentId(input.listingId)}`);requireThat(p,'NOT_FOUND');
         if(action==='marketListing'){const x=await state(tx,s,p,at);requireThat(c.id===p.sellerId||x.status==='ACTIVE','NOT_FOUND');return project(s,c,p,x,false,await readPriceBook(tx,s,at));}
         if(action==='withdrawMarketListing')requireThat(c.id===p.sellerId,'FORBIDDEN');
         if(['prepareMarketPurchase','buyMarketListing'].includes(action)){
           requireThat(c.id!==p.sellerId,'FORBIDDEN');requireThat(s.economyRules?.enabled,'ECONOMY_DISABLED');from=await accessAccount(tx,{...ctx,guard:version},input.fromAccountId);requireThat(from.spend,'FORBIDDEN');
-          if(action==='prepareMarketPurchase')return (await purchase(tx,ctx,p,from,at)).result;
+          if(input.negotiationId){negotiation=await tx.get(`${base}/marketNegotiations/${documentId(input.negotiationId)}`);requireThat(negotiation&&negotiation.buyerId===c.id&&negotiation.listingId===p.id,'FORBIDDEN');}
+          if(action==='prepareMarketPurchase')return (await purchase(tx,ctx,p,from,at,negotiation)).result;
         }
       }
       const op=`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`,fingerprint=hash(JSON.stringify([action,input])),previous=await tx.get(op);
@@ -82,9 +89,15 @@ export function createMarketService({store,signed,checkSession,now,uuid}){
         if(!wholeLot){tx.set(`${base}/inventory/${lotId}`,locked);tx.set(`${base}/inventory/${lotId}/history/${id}`,{...event,before:null,after:lotState(locked),sourceLotId:x.lot.id});}
         tx.set(`${base}/marketListings/${p.id}`,p);result={id:p.id,status:p.status,lotId};
       }else if(action==='buyMarketListing'){
-        const x=await purchase(tx,ctx,p,from,at);requireThat(input.confirmation===x.result.confirmation,'STALE_REVISION');
+        const x=await purchase(tx,ctx,p,from,at,negotiation);requireThat(input.confirmation===x.result.confirmation,'STALE_REVISION');
         result={...settleLotSale(tx,s,c,x.sale,x,from,at,id,actor),listingId:p.id};
-        tx.set(`${base}/marketListings/${p.id}`,{...p,amount:x.sale.amount,priceQuote:x.sale.priceQuote??null,status:'SOLD',revision:p.revision+1,saleId:result.id,soldAt:at});
+        // Keep a privately negotiated price on the receipt, never on the public listing
+        // that other negotiating buyers may still see in their closed thread.
+        tx.set(`${base}/marketListings/${p.id}`,{...p,...(!negotiation?{amount:x.sale.amount,pricing:x.sale.pricing,priceQuote:x.sale.priceQuote??null}:{}),status:'SOLD',revision:p.revision+1,saleId:result.id,soldAt:at});
+        if(negotiation){
+          const revision=negotiation.revision+1;tx.set(`${base}/marketNegotiations/${negotiation.id}`,{...negotiation,status:'PAID',revision,updatedAt:at,saleId:result.id});
+          tx.set(`${base}/marketNegotiations/${negotiation.id}/history/${id}`,{id,revision,at,kind:'PAY',author:{id:c.id,name:c.public.displayName},amount:x.sale.amount,message:''});
+        }
       }else{
         requireThat(p.status==='ACTIVE','LISTING_CLOSED');requireThat(input.confirmation===proof(p),'STALE_LISTING');
         reason=admin?moneyText(input.reason):'Annonce retirée par le vendeur';
@@ -101,3 +114,4 @@ export function createMarketService({store,signed,checkSession,now,uuid}){
     });
   };
 }
+export {state as marketState,view as marketView};

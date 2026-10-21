@@ -21,6 +21,7 @@ import {createBountyService,bountyAction} from './bounties.mjs';
 import {createContractService,contractAction} from './contracts.mjs';
 import {createAnnouncementService,announcementAction} from './announcements.mjs';
 import {createMarketService,marketAction} from './market.mjs';
+import {createNegotiationService,negotiationAction} from './market-negotiations.mjs';
 import {createSaleService,saleAction} from './sales.mjs';
 import {createCollectiveService,collectiveAction} from './collective-accounts.mjs';
 import {createEconomyService,economyAction} from './economy.mjs';
@@ -151,6 +152,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const contractService=createContractService({store,signed,checkSession,now,uuid});
   const announcementService=createAnnouncementService({store,signed,checkSession,now,uuid});
   const marketService=createMarketService({store,signed,checkSession,now,uuid});
+  const negotiationService=createNegotiationService({store,signed,now,uuid});
   const saleService=createSaleService({store,signed,now,uuid});
   const collectiveService=createCollectiveService({store,signed,checkSession,checkScenario,now,uuid});
   const economyService=createEconomyService({store,signed,checkSession,checkScenario,now,uuid});
@@ -180,6 +182,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(contractAction(action))return contractService(action,actor,input);
     if(announcementAction(action))return announcementService(action,actor,input);
     if(marketAction(action))return marketService(action,actor,input);
+    if(negotiationAction(action))return negotiationService(action,actor,input);
     if(saleAction(action))return saleService(action,actor,input);
     if(collectiveAction(action))return collectiveService(action,actor,input);
     if(economyAction(action))return economyService(action,actor,input);

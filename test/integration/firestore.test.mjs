@@ -14,6 +14,7 @@ import {bountiesSuite} from '../support/bounties-suite.mjs';
 import {contractsSuite} from '../support/contracts-suite.mjs';
 import {announcementsSuite} from '../support/announcements-suite.mjs';
 import {marketSuite} from '../support/market-suite.mjs';
+import {negotiationsSuite} from '../support/negotiations-suite.mjs';
 import {salesSuite} from '../support/sales-suite.mjs';
 import {collectiveSuite} from '../support/collective-suite.mjs';
 import {economySuite} from '../support/economy-suite.mjs';
@@ -49,6 +50,7 @@ economySuite(()=>firestoreStore(firestore),'Crédits sur Firestore');
 collectiveSuite(()=>firestoreStore(firestore),'Caisses sur Firestore');
 salesSuite(()=>firestoreStore(firestore),'Ventes sur Firestore');
 marketSuite(()=>firestoreStore(firestore),'Marché sur Firestore');
+negotiationsSuite(()=>firestoreStore(firestore),'Négociation sur Firestore');
 announcementsSuite(()=>firestoreStore(firestore),'Petites annonces sur Firestore');
 contractsSuite(()=>firestoreStore(firestore),'Contrats sur Firestore');
 test('règles Firestore : un client non authentifié ne peut lire ni écrire les secrets',async()=>{

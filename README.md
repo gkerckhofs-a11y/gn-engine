@@ -2,9 +2,15 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.33.0 publiée : conséquences économiques et masters.**
+**Version 0.34.0 en validation : négociation commerciale. Dernière publication vérifiée : 0.33.0.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
+
+## Négociation commerciale — 0.34
+
+Offres privées, contre-offres à tour de rôle, accord sur un prix fixe et confirmation séparée du paiement. Portefeuille personnel ou caisse autorisée, historique, échéance et restrictions économiques. L’accord n’est pas exclusif : seul le paiement attribue le lot. Les quatre masters restent inchangés. [Guide](docs/NEGOCIATION-COMMERCIALE.md).
+
+625 tests applicatifs et compilation réussis localement. Vérification Firebase et publication en attente. La recette privée sur téléphone reste à effectuer.
 
 ## Conséquences économiques — 0.33
 

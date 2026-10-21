@@ -10,7 +10,7 @@ const actions=new Set(['prepareLotSale','proposeLotSale','lotSaleDetail','prepar
 export const saleAction=a=>actions.has(a);
 export const saleView=p=>({id:p.id,status:p.status,revision:p.revision,createdAt:p.createdAt,expiresAt:p.expiresAt,
   seller:{id:p.sellerId,name:p.sellerName},buyer:{id:p.buyerId,name:p.buyerName},item:publicItem(p.item),quantity:p.quantity,
-  lotId:p.lotId,amount:p.amount,pricing:p.pricing??'FIXED',priceQuote:p.priceQuote??null,currency:p.currency,conditions:p.conditions,pickupPlace:p.pickupPlace,
+  lotId:p.lotId,amount:p.amount,pricing:p.pricing??'FIXED',priceQuote:p.priceQuote??null,negotiationId:p.negotiationId??null,currency:p.currency,conditions:p.conditions,pickupPlace:p.pickupPlace,
   purchasedLotId:p.purchasedLotId??null,paymentId:p.paymentId??null,paidAt:p.paidAt??null,payer:p.payer??null,
   pickupStatus:p.pickupStatus??null,pickedUpAt:p.pickedUpAt??null});
 const view=saleView;

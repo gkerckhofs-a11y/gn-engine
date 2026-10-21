@@ -3,8 +3,7 @@ import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 import {inventoryFixture} from './inventory-suite.mjs';
 import {accountId,groupAccountId} from '../../src/core/economy-state.mjs';
-export function marketSuite(makeStore,prefix='Marché'){
-  async function fixture(quantity=3){
+export async function marketFixture(makeStore,quantity=3){
     const f=await inventoryFixture(makeStore,quantity),currency={enabled:true,name:'Monnaie fictive de test',unit:'crédit'};
     const rules=async patch=>f.cmd('saveSessionEconomy',f.owner,{sessionId:f.sessionId,revision:(await f.session()).revision,rules:{...currency,...patch},reason:'Test'});await rules({});
     const adjust=async(patch={})=>{const input={sessionId:f.sessionId,revision:(await f.session()).revision,characterId:f.characters[1],amount:100,mode:'CREDIT',memo:'Dotation fictive',reason:'SECRET_FINANCE_MJ',...patch},p=await f.read('prepareCreditAdjustment',f.owner,input);return f.cmd('applyCreditAdjustment',f.owner,{...input,confirmation:p.confirmation});};await adjust();await adjust({characterId:f.characters[2]});
@@ -20,6 +19,8 @@ export function marketSuite(makeStore,prefix='Marché'){
     const group=async()=>{const member={characterId:f.characters[1],active:true,revealed:true,permissions:{payWallet:true}},r=()=>f.session();const {id}=await f.cmd('saveSessionGroup',f.owner,{sessionId:f.sessionId,revision:(await r()).revision,name:'GROUPE_SECRET',visibility:'SECRET',publicationState:'PUBLISHED',members:[member],reason:'Test'});await f.cmd('setGroupModule',f.owner,{sessionId:f.sessionId,revision:(await r()).revision,enabled:true,reason:'Test'});const input={sessionId:f.sessionId,groupId:id,revision:(await r()).revision,label:'Comptoir neutre',reason:'Test'},p=await f.read('prepareGroupWallet',f.owner,input);await f.cmd('setGroupWallet',f.owner,{...input,confirmation:p.confirmation});await adjust({groupId:id});return {accountId:groupAccountId(id),revoke:async()=>{const s=await r(),g=s.groups.find(g=>g.id===id);await f.cmd('saveSessionGroup',f.owner,{...g,sessionId:f.sessionId,groupId:id,revision:s.revision,members:[{...member,permissions:{readWallet:true}}],reason:'Retrait du droit de payer'});}};};
     return {...f,rules,adjust,wallet,prepareListing,publish,listing,market,purchase,buy,withdraw,pickup,ledger,group};
   }
+export function marketSuite(makeStore,prefix='Marché'){
+  const fixture=(quantity=3)=>marketFixture(makeStore,quantity);
   test(`${prefix} : publication confirmée, réservation entière et projection publique minimale`,async()=>{
     const f=await fixture(),p=await f.prepareListing();assert.equal((await f.lot()).status,'AVAILABLE');assert.equal((await f.market()).listings.length,0);
     const requestId=randomUUID(),r=await f.publish(p,f.alice,{requestId});assert.deepEqual(await f.publish(p,f.alice,{requestId}),r);assert.equal(r.lotId,p.input.lotId);assert.equal((await f.lot()).status,'RESERVED');assert.equal((await f.lot()).quantity,3);assert.equal((await f.wallet()).account.balance,100);

@@ -2,6 +2,12 @@
 
 Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, conservées dans [la note source](source/port-breche-engine-note-v03.md). Base inspectée : commit GitHub `bd670dea159c5c7f01cfe83f8fcba9b81657dd44`, version 0.20. Les statuts ci-dessous décrivent le code, pas une validation terrain. Les lots 0.22 et 0.23, publiés et vérifiés le 20 octobre 2026, ajoutent la continuité décrite dans [Campagnes](CAMPAGNES.md) et les [masters complémentaires](MASTERS.md).
 
+## Lot 0.34 : négociation commerciale
+
+Offres et contre-offres privées sur un lot entier, acceptation sans débit, prix fixe jusqu’à l’échéance, choix du compte et paiement atomique. Accord non exclusif, historique et reprise d’un échange clos ; événements commerciaux et permissions vérifiés à l’action. Aucun nouveau master requis. [Guide](NEGOCIATION-COMMERCIALE.md).
+
+625 tests applicatifs et compilation réussis localement. Vérification Firebase et publication en attente ; recette privée sur téléphone non effectuée.
+
 ## Lot 0.33 : conséquences économiques et masters
 
 Ventes suspendues par marchandise, carburant et durée modifiés par événement, départs bloqués, déclenchement pendant les pannes. Paiements et départs confirmés conservent leurs conditions. Onglets Cours et EvenementsEco dans les quatre masters, définitions reprises dans les versions et archives. [Guide](EVENEMENTS-ECONOMIQUES.md).
@@ -90,7 +96,7 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 | GN-08 | Réglages en session, aperçu, échéances stables, corrections | Migration explicite des actions engagées, journal consultable dédié et reçus hors réseau. |
 | GN-09 | Actions de terrain avec durée, D6 serveur, bonus, réservations, interruption, effets atomiques et règles figées au lancement | Aide et clinique en deux étapes ajoutées en 0.25 ; catalogue général d’effets et reprise partielle de durée ouverts. |
 | GN-10 | Fouilles à stock fini et plafonds individuels, sabotage, réparation, protection, récupération du patient et doubles dépenses contrôlées | Pillage, soins en deux étapes et aide ajoutés en 0.25 ; réserves par groupe, capture complète, DIRECT/DISCRET et effets économiques ouverts. |
-| GN-11 | Marché, comptes, ventes et retrait physique ; locations personnelles, capacité des entrepôts et loyers en 0.28 | Stocks collectifs et import logistique ajoutés en 0.29 ; cours et ventes indexées ajoutés en 0.32, conséquences économiques et masters en 0.33 ; gros/détail, négociation commerciale, douanes et corruption à compléter. |
+| GN-11 | Marché, comptes, ventes et retrait physique ; locations personnelles, capacité des entrepôts et loyers en 0.28 | Stocks collectifs et import logistique ajoutés en 0.29 ; cours et ventes indexées ajoutés en 0.32, conséquences économiques et masters en 0.33 ; négociation commerciale ajoutée en 0.34 ; gros/détail, douanes et corruption à compléter. |
 | GN-12 | Lots, remises et ouverture explicite des recharges reçues en 0.28 | Conditionnement importable en 0.29 ; rapprochement du stock physique au comptoir à compléter. |
 | GN-13 | Groupes, caisses et mandat de mission existants | Droits de stock et de bail ajoutés en 0.29, pilotage en 0.31 ; ventes au nom du groupe à compléter. |
 | GN-14 | Annonces, candidatures, preuves et paiement personnel/collectif existants | Compléter selon la recette finale de la note. |
@@ -107,6 +113,6 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 3. Masters XLSX et imports complémentaires implémentés en 0.23 ; compléter les nouveaux modules au fil de leur développement.
 4. Exécuteur de terrain implémenté en 0.24 : fouilles, durée, D6, bonus, sabotage/réparation et réservations. Soins en deux étapes, aide et pillage ajoutés en 0.25 ; masters de lieux et profils complétés en 0.26.
 5. Quatre espaces joueur livrés en 0.27 ; entrepôts personnels et recharges en 0.28. Stocks collectifs et import de la logistique ajoutés en 0.29. Prolongement implémenté en 0.30 : QR des lots et destinations, réservations et réceptions, transferts directs conservant la propriété, soutes comme espaces de stockage, préparation de carburant commercial. Vaisseaux dans les masters, réservoirs et voyages ajoutés en 0.31 ; cours et annonces indexées en 0.32 ; frais du commerce à suivre.
-6. Imports des cours et conséquences économiques livrés en 0.33. Compléter la négociation commerciale et les frais, puis traiter l’entretien et les combats spatiaux après définition de leurs règles. Réaliser la recette terrain.
+6. Imports des cours et conséquences économiques livrés en 0.33. Négociation commerciale ajoutée en 0.34. Définir et intégrer les frais, puis traiter l’entretien et les combats spatiaux après définition de leurs règles. Réaliser la recette terrain.
 
 Les montants économiques, les plafonds au-delà du niveau 2, les durées du GN, la portion de billes par recharge et les barèmes spatiaux restent des décisions de jeu. Cette reprise n’en fixe aucune implicitement.
