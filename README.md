@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.30.0 en validation : QR de cargaisons, soutes et chargements.**
+**Version 0.30.0 publiée : QR de cargaisons, soutes et chargements.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -10,7 +10,7 @@ Application : **https://gn-engine.web.app/**. Le compte organisateur configuré 
 
 QR privés pour les lots et les destinations, soutes personnelles ou de bande, transferts directs conservant la propriété, réservation de la quantité et du volume, réception explicite et annulation tracée. Le catalogue propose la préparation d’un modèle de carburant pour les achats, ventes et chargements existants. Aucun stock de production ni tarif de transport n’est créé implicitement. [Guide](docs/LOGISTIQUE.md) · [Validation](docs/VALIDATION-0.30.md).
 
-Compilation et **571 tests applicatifs réussis** localement. Validation Firebase et publication en cours. Les pleins, trajets et consommation restent à développer ; les soutes se configurent dans la régie et suivent les campagnes. Recette privée sur téléphones et charge réelle encore ouverte.
+Compilation et **1 032 tests réussis** (571 applicatifs, 461 intégrations Firebase). Publication, quatre masters et refus anonymes vérifiés le 21 octobre 2026 à 07:06:59 UTC ; accueil 0.30.0 confirmé dans le navigateur. Les pleins, trajets et consommation restent à développer ; les soutes se configurent dans la régie et suivent les campagnes. Recette privée sur téléphones et charge réelle encore ouverte.
 
 ## Stocks collectifs et masters logistiques — 0.29
 
