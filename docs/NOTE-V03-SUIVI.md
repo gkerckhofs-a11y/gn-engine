@@ -6,7 +6,7 @@ Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, co
 
 Offres et contre-offres privées sur un lot entier, acceptation sans débit, prix fixe jusqu’à l’échéance, choix du compte et paiement atomique. Accord non exclusif, historique et reprise d’un échange clos ; événements commerciaux et permissions vérifiés à l’action. Aucun nouveau master requis. [Guide](NEGOCIATION-COMMERCIALE.md).
 
-625 tests applicatifs et compilation réussis localement. Vérification Firebase et publication en attente ; recette privée sur téléphone non effectuée.
+1 127 tests réussis : 625 applicatifs et 502 intégrations Firebase. Publication et contrôles terminés le 21 octobre 2026 à 16:33:30, heure de Bruxelles. Accueil 0.34.0 confirmé. [Validation](VALIDATION-0.34.md). Recette privée sur téléphone non effectuée.
 
 ## Lot 0.33 : conséquences économiques et masters
 

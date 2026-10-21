@@ -56,6 +56,6 @@ Les exemples sont fictifs. Le cours de démonstration est ouvert, les trois év�
 
 ## Périmètre restant
 
-La négociation avec contre-offres, les taxes et droits de douane, la corruption, les frais d’entretien, les vendeurs PNJ et les variations automatiques selon les volumes échangés restent à développer. Les événements de ce lot ne créent aucun stock ni crédit et ne changent aucun loyer.
+La 0.34 ajoute la [négociation avec contre-offres](NEGOCIATION-COMMERCIALE.md). La suspension commerciale bloque aussi les nouvelles offres, contre-offres, acceptations et paiements négociés ; elle permet toujours leur clôture et la remise des lots déjà payés. Les taxes et droits de douane, la corruption, les frais d’entretien, les vendeurs PNJ et les variations automatiques selon les volumes échangés restent à développer. Les événements de ce lot ne créent aucun stock ni crédit et ne changent aucun loyer.
 
 La validation automatique couvre règles, transactions et imports. La recette privée sur téléphones, les QR physiques et un essai simultané avec 60 joueurs restent nécessaires avant la partie.

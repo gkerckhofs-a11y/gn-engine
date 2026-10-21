@@ -46,4 +46,4 @@ Les reçus de ventes négociées conservent `negotiationId` et le prix fixe pay�
 
 ## Recette à effectuer sur le terrain
 
-Avec deux comptes joueurs actifs sur téléphone : envoyer une offre, actualiser côté vendeur, faire une contre-offre, accepter côté acheteur, payer, puis confirmer la remise physique. Vérifier aussi un accord expiré, un achat concurrent et une caisse dont le droit de dépense a été retiré. La preuve de validation automatisée et de publication est conservée séparément.
+Avec deux comptes joueurs actifs sur téléphone : envoyer une offre, actualiser côté vendeur, faire une contre-offre, accepter côté acheteur, payer, puis confirmer la remise physique. Vérifier aussi un accord expiré, un achat concurrent et une caisse dont le droit de dépense a été retiré. La [preuve de validation automatisée et de publication](VALIDATION-0.34.md) précise les résultats et les limites.

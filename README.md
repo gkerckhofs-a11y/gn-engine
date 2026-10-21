@@ -2,7 +2,7 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.34.0 en validation : négociation commerciale. Dernière publication vérifiée : 0.33.0.**
+**Version 0.34.0 publiée : négociation commerciale.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
@@ -10,7 +10,7 @@ Application : **https://gn-engine.web.app/**. Le compte organisateur configuré 
 
 Offres privées, contre-offres à tour de rôle, accord sur un prix fixe et confirmation séparée du paiement. Portefeuille personnel ou caisse autorisée, historique, échéance et restrictions économiques. L’accord n’est pas exclusif : seul le paiement attribue le lot. Les quatre masters restent inchangés. [Guide](docs/NEGOCIATION-COMMERCIALE.md).
 
-625 tests applicatifs et compilation réussis localement. Vérification Firebase et publication en attente. La recette privée sur téléphone reste à effectuer.
+Compilation et **1 127 tests réussis** (625 applicatifs, 502 intégrations Firebase). Publication, quatre masters et refus anonymes vérifiés le 21 octobre 2026 à 16:33:30, heure de Bruxelles. Accueil 0.34.0 confirmé dans le navigateur. [Validation et limites](docs/VALIDATION-0.34.md). Recette privée sur téléphone et charge réelle encore ouvertes.
 
 ## Conséquences économiques — 0.33
 
