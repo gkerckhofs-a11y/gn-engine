@@ -94,7 +94,7 @@ Les primitives de réservation, résolution et libération des PA sont testées,
 2. Continuité de campagne implémentée en 0.22 : bilan, clôture et reprise sans remettre les soldes à zéro ; voir le rapport de validation.
 3. Masters XLSX et imports complémentaires implémentés en 0.23 ; compléter les nouveaux modules au fil de leur développement.
 4. Exécuteur de terrain implémenté en 0.24 : fouilles, durée, D6, bonus, sabotage/réparation et réservations. Soins en deux étapes, aide et pillage ajoutés en 0.25 ; masters de lieux et profils complétés en 0.26.
-5. Quatre espaces joueur livrés en 0.27 ; entrepôts personnels et recharges en 0.28. Stocks collectifs et import de la logistique ajoutés en 0.29. Poursuivre avec frais et cours du commerce.
-6. Traiter le spatial après définition de ses règles, puis réaliser la recette terrain.
+5. Quatre espaces joueur livrés en 0.27 ; entrepôts personnels et recharges en 0.28. Stocks collectifs et import de la logistique ajoutés en 0.29. Prolongement proposé après l’échange du 21 octobre : QR des lots et destinations, transferts directs conservant la propriété, soutes comme espaces de stockage. Frais et cours du commerce à suivre.
+6. Traiter les trajets et combats spatiaux après définition de leurs règles, puis réaliser la recette terrain. Une soute de stockage n’implique pas encore un moteur de voyage ou de combat.
 
 Les montants économiques, les plafonds au-delà du niveau 2, les durées du GN, la portion de billes par recharge et les barèmes spatiaux restent des décisions de jeu. Cette reprise n’en fixe aucune implicitement.
