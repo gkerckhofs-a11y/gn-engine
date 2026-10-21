@@ -2,9 +2,15 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.34.0 publiée : négociation commerciale.**
+**Version 0.35.0 : douanes et corruption locale — publication en cours de validation.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
+
+## Douanes et corruption — 0.35
+
+Tarifs configurables en régie selon le mouvement de cargaison et la marchandise. Montant fixe et par unité, bénéficiaires personnels ou caisses, paiement atomique à réception, annulation gratuite et tarif conservé à la réservation. Les définitions suivent la campagne ; leur import dans les masters reste à ajouter. Aucun tarif activé en production. [Guide](docs/DOUANES-CORRUPTION.md).
+
+Compilation et 641 tests applicatifs réussis localement. Validation Firebase et publication encore attendues.
 
 ## Négociation commerciale — 0.34
 

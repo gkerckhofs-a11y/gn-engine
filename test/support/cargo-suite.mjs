@@ -5,8 +5,7 @@ import {logisticsFixture} from './logistics-suite.mjs';
 import {cargoCommands} from '../../src/core/cargo.mjs';
 import {accountId} from '../../src/core/economy-state.mjs';
 
-export function cargoSuite(makeStore,prefix='Cargaisons'){
- async function fixture(campaign=false){
+export async function cargoFixture(makeStore,campaign=false){
   const f=await logisticsFixture(makeStore,campaign);
   const admin=()=>f.logRead('cargoAdmin',{},f.owner);
   const ship=async(patch={},shipId)=>{const d=await admin(),old=d.ships.find(x=>x.id===shipId);return f.logCmd('saveShip',{name:'Soute test',description:'Fret',ownerType:'CHARACTER',ownerId:f.characters[0],capacity:8,docked:true,enabled:true,...old,...patch,shipId,shipRevision:old?.revision,revision:d.session.revision,reason:'Configuration test'},f.owner);};
@@ -17,6 +16,8 @@ export function cargoSuite(makeStore,prefix='Cargaisons'){
   const finish=async(id,receive=true,who=f.alice)=>{const d=await transfer(id,who);return f.logCmd(receive?'receiveCargoTransfer':'cancelCargoTransfer',{transferId:id,confirmation:d.confirmation,...(receive?{received:true}:{})},who);};
   return {...f,get sid(){return f.sid;},cargoAdmin:admin,ship,hid,hold,cargoInput:input,start,transfer,finish};
  }
+export function cargoSuite(makeStore,prefix='Cargaisons'){
+ const fixture=(campaign=false)=>cargoFixture(makeStore,campaign);
  test(`${prefix} : QR privé, réservation partielle, réception et conservation de propriété`,async()=>{
   const f=await fixture(),p=await f.logRead('cargoLot',{lotId:f.lotId});assert.equal(p.canMove,true);assert.equal(p.destinations[0].location.id,f.hid);
   await assert.rejects(f.logRead('cargoLot',{lotId:f.lotId},f.bob),{code:'FORBIDDEN'});

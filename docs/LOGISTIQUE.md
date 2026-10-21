@@ -125,6 +125,10 @@ Les voyages actifs bloquent l’archivage et le scellement d’un épisode. Une 
 
 Les historiques de lots et de logistique enregistrent pleins, départs, arrivées et arbitrages. Chaque opération est transactionnelle et protégée contre les doubles requêtes. Le serveur contrôle à nouveau droits, état, disponibilité et confirmation au moment de l’écriture.
 
+## Frais de passage — 0.35
+
+Les mouvements impliquant une soute peuvent porter des droits de douane et des frais de corruption configurés en régie. Le détail est annoncé avant réservation puis conservé. Le paiement personnel ou collectif intervient à la réception, dans la même transaction que le déplacement du stock. Annuler est gratuit. Voir le [guide douanes et corruption](DOUANES-CORRUPTION.md) pour les bénéficiaires, les cas bloquants et la continuité en campagne.
+
 ## Suite ouverte
 
-Entretien, combat spatial, ravitaillement et commerce à distance, transport pour autrui, vente directement depuis un entrepôt ou une soute, dotations directement collectives, cours variables, boutique organisation sans personnage vendeur, frais de douane/corruption et rapprochement réel du stock restent à développer. La recette sur vrais téléphones, plusieurs comptes et environ 60 connexions reste nécessaire avant un GN.
+Entretien, combat spatial, ravitaillement et commerce à distance, transport pour autrui, vente directement depuis un entrepôt ou une soute, dotations directement collectives, boutique organisation sans personnage vendeur, import des tarifs douaniers et rapprochement réel du stock restent à développer. La recette sur vrais téléphones, plusieurs comptes et environ 60 connexions reste nécessaire avant un GN.

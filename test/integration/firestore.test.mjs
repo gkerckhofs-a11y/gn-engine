@@ -1,6 +1,7 @@
 import {pricesSuite} from '../support/prices-suite.mjs';
 import {voyagesSuite} from '../support/voyages-suite.mjs';
 import {cargoSuite} from '../support/cargo-suite.mjs';
+import {customsSuite} from '../support/customs-suite.mjs';
 import {logisticsSuite} from '../support/logistics-suite.mjs';
 import {personSuite} from '../support/person-suite.mjs';
 import {fieldSuite} from '../support/field-suite.mjs';
@@ -44,6 +45,7 @@ inventorySuite(()=>firestoreStore(firestore),'Inventaire sur Firestore');
 pricesSuite(()=>firestoreStore(firestore),'Cours sur Firestore');
 voyagesSuite(()=>firestoreStore(firestore),'Navigation sur Firestore');
 cargoSuite(()=>firestoreStore(firestore),'Cargaisons sur Firestore');
+customsSuite(()=>firestoreStore(firestore),'Douanes sur Firestore');
 logisticsSuite(()=>firestoreStore(firestore),'Logistique sur Firestore');
 transfersSuite(()=>firestoreStore(firestore),'Remises sur Firestore');
 economySuite(()=>firestoreStore(firestore),'Crédits sur Firestore');
