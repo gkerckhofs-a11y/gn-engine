@@ -6,7 +6,7 @@ Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, co
 
 Tarifs de session pour les mouvements vers, depuis ou entre soutes. Frais fixes et unitaires cumulés, devis conservé à la réservation, paiement personnel ou collectif à réception, bénéficiaires ou retrait monétaire explicites, annulation gratuite et journal comptable. Reprise des tarifs en campagne. Aucun montant de jeu imposé ; masters et archives de scénario à compléter. [Guide](DOUANES-CORRUPTION.md).
 
-Compilation et 641 tests applicatifs réussis localement ; validation Firebase et publication en attente.
+1 156 tests réussis : 641 applicatifs et 515 intégrations Firebase. Publication et contrôles terminés le 21 octobre 2026 à 17:51:30, heure de Bruxelles. Accueil 0.35.0 confirmé. [Validation](VALIDATION-0.35.md). Recette privée sur téléphone non effectuée.
 
 ## Lot 0.34 : négociation commerciale
 
