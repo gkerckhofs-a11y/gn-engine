@@ -1,4 +1,4 @@
-import {masterEditor} from '../src/shared/master-editors.mjs';
+import {masterEditor,masterEditorsFor} from '../src/shared/master-editors.mjs';
 import {escapeHtml as esc} from './groups.mjs';
 import {workshopModules,workshopModule} from '../src/shared/workshop-modules.mjs';
 export function workshopDashboard(s,scope){
@@ -6,7 +6,7 @@ export function workshopDashboard(s,scope){
  const w=s.masterWorkspace;
  return `<section class="panel workshop-context" tabindex="-1"><p class="eyebrow">Atelier · six modules</p><h2>Préparer votre jeu</h2><p><strong>${esc(s.title)}</strong> · ${scope==='session'?'Session':'Scénario'} · révision ${s.revision} · ${esc(s.role??'OWNER')}${s.campaignId?` · campagne ${esc(s.campaignId)} · épisode ${s.campaignEpisode??'—'}`:''}${s.versionId?` · version ${esc(s.versionId)}`:''}</p><p class="muted">${w?(w.editable?'Masters modifiables en préparation. Chaque import demande un aperçu et une confirmation.':'Masters en lecture seule. Les opérations de régie conservent leurs règles et autorisations.'):'Les Masters sont réservés au propriétaire. Vos outils de régie restent accessibles selon votre rôle.'}</p><div class="grid workshop-grid">${workshopModules.map(m=>{
   const counts=w?.modules.find(x=>x.id===m.id)?.counts;
-  return `<article class="card"><h3>${m.label}</h3><p>${m.description}</p>${counts?`<p class="muted">${Object.entries(counts).filter(([,n])=>n!==null).map(([k,n])=>`${esc(k)} : ${n}`).join(' · ')||'Aucun catalogue compté dans cette tranche.'}</p>`:''}<button type="button" class="quiet" data-workshop-jump="${m.id}">Ouvrir les outils</button>${w?`<button type="button" class="quiet" data-master-action="moduleMaster" data-scope="${scope}" data-module="${m.id}">Master · ${masterEditor(m.id).title}</button>`:''}${w?.editable?`<button type="button" class="quiet" data-master-action="open" data-scope="${scope}" data-module="${m.id}">Importer ce module</button>`:''}</article>`;
+  return `<article class="card"><h3>${m.label}</h3><p>${m.description}</p>${counts?`<p class="muted">${Object.entries(counts).filter(([,n])=>n!==null).map(([k,n])=>`${esc(k)} : ${n}`).join(' · ')||'Aucun catalogue compté dans cette tranche.'}</p>`:''}<button type="button" class="quiet" data-workshop-jump="${m.id}">Ouvrir les outils</button>${w?`<button type="button" class="quiet" data-master-action="moduleMaster" data-scope="${scope}" data-module="${m.id}">${masterEditorsFor(m.id).length>1?'Masters du module':`Master · ${masterEditor(m.id).title}`}</button>`:''}${w?.editable?`<button type="button" class="quiet" data-master-action="open" data-scope="${scope}" data-module="${m.id}">Importer ce module</button>`:''}</article>`;
  }).join('')}</div></section>`;
 }
 export function workshopSection(id,body,scope){

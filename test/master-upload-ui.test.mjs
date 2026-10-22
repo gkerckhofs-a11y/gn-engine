@@ -34,8 +34,8 @@ function controllerFixture(options={}){
  const events={},dialogEvents={},status={textContent:''},calls=[],notices=[];
  const dialog={innerHTML:'',open:false,close(){this.open=false;},showModal(){this.open=true;},addEventListener:(event,fn)=>dialogEvents[event]=fn,querySelector:()=>status};
  const doc={body:{append(){}},addEventListener:(event,fn)=>events[event]=fn,createElement:()=>dialog};
- const ui=createMasterController({document:doc,getContext:scope=>({id:`${scope}-id`,title:'Destination',revision:1}),api:async(command,payload)=>{calls.push({command,payload});if(command==='masterWorkspace')return options.workspace;return {errors:[],changes:[],canApply:true,confirmation:'confirmed'};},mutate:async(command,payload)=>{calls.push({command,payload});return {id:'saved'};},notice:message=>notices.push(message),onApplied:async()=>{}});
- return {ui,dialog,status,calls,notices,click(action,dataset={}){return events.click({target:{closest:()=>({dataset:{masterAction:action,...dataset}})}});},select(scope,file){const input={files:[file],value:'chosen.xlsx',dataset:{scope}};events.change({target:{closest:()=>input}});assert.equal(input.value,'');},submit(kind='upload',values={reason:'Préparer le jeu'},dataset={}){const form={dataset:{masterForm:kind,...dataset},values,querySelector:()=>({disabled:false})};return dialogEvents.submit({target:{closest:()=>form},preventDefault(){}});}};
+ const ui=createMasterController({document:doc,getContext:scope=>({id:`${scope}-id`,title:'Destination',revision:1}),api:async(command,payload)=>{calls.push({command,payload});if(command==='masterWorkspace')return typeof options.workspace==='function'?options.workspace(payload):options.workspace;return {errors:[],changes:[],canApply:true,confirmation:'confirmed'};},mutate:async(command,payload)=>{calls.push({command,payload});return {id:'saved'};},notice:message=>notices.push(message),onApplied:async()=>{}});
+ return {ui,dialog,status,calls,notices,refresh(values,name='type'){const form={values};return dialogEvents.change({target:{name,closest:selector=>selector==='[data-master-refresh]'?{}:form}});},click(action,dataset={}){return events.click({target:{closest:()=>({dataset:{masterAction:action,...dataset}})}});},select(scope,file){const input={files:[file],value:'chosen.xlsx',dataset:{scope}};events.change({target:{closest:()=>input}});assert.equal(input.value,'');},submit(kind='upload',values={reason:'Préparer le jeu'},dataset={}){const form={dataset:{masterForm:kind,...dataset},values,querySelector:()=>({disabled:false})};return dialogEvents.submit({target:{closest:()=>form},preventDefault(){}});}};
 }
 async function workbook(type,name='fichier-renommé.xlsx'){
  const bytes=await readFile(new URL(`../assets/masters/GN_Engine_Exemple_${type}.xlsx`,import.meta.url));
@@ -103,4 +103,23 @@ test('Masters en ligne : filtrer, corriger la saisie après aperçu et confirmer
  f.click('moduleBack');assert.ok(f.dialog.innerHTML.includes('Route test'));assert.ok(f.dialog.innerHTML.includes('Préparation fictive'));
  await f.submit('moduleRow',{...values,duree_secondes:'90'});assert.equal(f.calls[2].payload.sheets.Routes[0].duree_secondes,'90');assert.equal(f.calls.length,3);
  await f.submit('confirm',{});assert.equal(f.calls[3].command,'applyMasterImport');assert.equal(f.calls[3].payload.module,'spatioport');assert.equal(f.dialog.open,false);
+}));
+
+test('Catalogues en ligne : changer de feuille et de type conserve la saisie, puis confirme la bonne feuille',async()=>withFormData(async()=>{
+ const w={module:'personnages',sheet:'Personnages',session:false,editable:true,errors:[],references:{consumables:[],allSkills:[]},newRow:{id:'catalogue-id',operation:'CREER',version:'1'},meta:[{format:'gn-engine-master',version:'1',type:'CAMPAGNE',destination_id:'scenario-id',base_revision:'1',module:'personnages'}],rows:[]};
+ const f=controllerFixture({workspace:input=>({...w,sheet:input.sheet??'Personnages'})});
+ f.click('moduleMaster',{scope:'scenario',module:'personnages'});await new Promise(resolve=>setImmediate(resolve));
+ f.click('moduleSheet',{sheet:'Competences'});await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(f.calls[1].payload.sheet,'Competences');assert.equal(f.calls[1].payload.module,'personnages');f.click('moduleEdit');
+ const values={nom:'Soin fictif',type:'ACTIVE_TARGET',publication:'DRAFT',reason:'Motif maintenu'};
+ f.refresh(values);assert.ok(f.dialog.innerHTML.includes('name="soin_pv"'));assert.ok(f.dialog.innerHTML.includes('Soin fictif'));assert.ok(f.dialog.innerHTML.includes('Motif maintenu'));
+ await f.submit('moduleRow',{...values,soin_pv:'2',recuperation_secondes:'20',portee_recuperation:'ACTOR'});
+ assert.deepEqual(Object.keys(f.calls[2].payload.sheets),['Meta','Competences']);assert.equal(f.calls[2].payload.sheets.Competences[0].soin_pv,'2');
+ f.click('moduleBack');assert.ok(f.dialog.innerHTML.includes('Motif maintenu'));
+ await f.submit('moduleRow',{...values,type:'PASSIVE'});assert.ok(!Object.hasOwn(f.calls[3].payload.sheets.Competences[0],'soin_pv'));
+ await f.submit('confirm',{});assert.deepEqual(f.calls[4].payload.sheets,f.calls[3].payload.sheets);assert.equal(f.calls[4].command,'applyMasterImport');
+ f.click('moduleMaster',{scope:'scenario',module:'personnages'});await new Promise(resolve=>setImmediate(resolve));
+ f.click('moduleSheet',{sheet:'Classes'});await new Promise(resolve=>setImmediate(resolve));f.click('moduleEdit');
+ await f.submit('moduleRow',{nom:'Classe fictive',publication:'DRAFT',competences__levels:'1',competences__skill__savoir:'OUI',competences__level__savoir:'2',reason:'Sélection'});
+ assert.deepEqual(Object.keys(f.calls.at(-1).payload.sheets),['Meta','Classes']);assert.equal(f.calls.at(-1).payload.sheets.Classes[0].competences,'savoir:2');
 }));

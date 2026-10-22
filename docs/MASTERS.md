@@ -241,3 +241,7 @@ Ce lot ne fournit pas encore l’export complet des six modules. Les nouveaux ma
 ## Édition en ligne et exports ciblés — L1b (candidat 0.37)
 
 Les six cartes proposent un premier éditeur/export pour **Personnages, Objectifs, Objets, Routes, Entrepots, Connaissances**. La recherche et le filtre déterminent les fiches exportées. Meta fixe la destination, la campagne, la révision et le module. La création, la modification et la duplication passent par le même aperçu et la même confirmation que le XLSX. Les champs acquis d’une session ne sont pas réimportés. Les autres feuilles conservent leurs outils et le Master global. [Détail des champs, protections et limites](L1B-EDITEURS-MODULAIRES.md).
+
+## Catalogues Personnages — L1c (candidat 0.37)
+
+**Personnages → Masters du module** permet aussi de choisir **Competences, Classes et Groupes**. Les soins affichent leurs seuls paramètres applicables ; les classes proposent des compétences à cocher avec un niveau explicite. L’export contient Meta et la feuille choisie, pour les fiches filtrées. Les profils attribués et les usages restent indépendants du catalogue. Un groupe dupliqué est secret, en brouillon, sans membre ni caisse. [Parcours, preuves et limites L1c](L1C-CATALOGUES-PERSONNAGES.md).

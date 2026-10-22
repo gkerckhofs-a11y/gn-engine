@@ -41,5 +41,34 @@ export const masterEditors={
   text('qr_personnages','Personnages autorisés au QR',{help:'Identifiants séparés par ;. Utilisés pour l’audience sélectionnée.'}),reference('qr_competence_id','Compétence requise au QR','skills'),number('qr_niveau','Niveau de compétence requis',1)],
   note:'L’export porte sur les définitions, sans les reçus des joueurs. Une duplication désactive le QR et vide les destinataires initiaux.'},
 };
-export const masterEditor=id=>Object.hasOwn(masterEditors,id)?masterEditors[id]:null;
-export const editorFields=(module,session,existing)=>masterEditor(module).fields.filter(f=>!(f.initialOnly&&session&&existing));
+const activeSkill={type:['ACTIVE_SELF','ACTIVE_TARGET']};
+const catalogueEditors={personnages:{
+ Competences:{sheet:'Competences',title:'Compétences',name:'nom',collection:'skills',fields:[
+  required('nom','Nom'),long('description','Description',6000),long('instructions','Instructions',6000),text('categorie','Catégorie',{max:150}),
+  {...choice('type','Type',[['PASSIVE','Expertise passive'],['ACTIVE_SELF','Soin sur soi'],['ACTIVE_TARGET','Soin sur une cible']],'PASSIVE'),refresh:true},publication(),long('notes_mj','Notes réservées au MJ'),
+  number('soin_pv','PV rendus',1,{required:true,when:activeSkill}),number('usages','Nombre d’usages',1,{clear:true,when:activeSkill,help:'Vide : aucun plafond d’usages. Les usages déjà consommés restent conservés.'}),
+  number('recuperation_secondes','Récupération en secondes de jeu',0,{required:true,when:activeSkill,help:'Les règles PA de la session remplacent cette durée lorsqu’elles sont actives. La portée « Aucune récupération » impose zéro en jeu.'}),
+  {...choice('portee_recuperation','Récupération portée par',[['ACTOR','Le soignant'],['PATIENT','Le patient'],['NONE','Aucune récupération']],'ACTOR'),when:activeSkill},
+  reference('consommable_id','Consommable requis','consumables',{when:activeSkill,refresh:true}),
+  number('consommable_quantite','Quantité consommée',1,{required:true,when:{...activeSkill,consommable_id:'present'}})],
+  note:'Définition du catalogue : les profils déjà attribués et leurs usages ne sont pas remplacés. Le moteur importe actuellement les expertises passives et les soins en PV. Les autres effets restent dans leurs outils dédiés.'},
+ Classes:{sheet:'Classes',title:'Classes',name:'nom',collection:'classes',fields:[
+  required('nom','Nom'),long('description','Description',6000),publication(),long('notes_mj','Notes réservées au MJ'),
+  field('competences','Compétences de la classe',{type:'levels',ref:'allSkills',clear:true,help:'Cochez les compétences puis renseignez leur niveau. Une classe publiée exige des compétences publiées. Maximum 60 compétences.'})],
+  note:'Les compétences sélectionnées référencent le catalogue commun. Modifier la classe ne change pas les profils déjà attribués ; leur réattribution conserve son aperçu et ses contrôles dédiés.'},
+ Groupes:{sheet:'Groupes',title:'Groupes',name:'nom',collection:'groups',fields:[
+  required('nom','Nom'),long('description','Description',4000),long('briefing','Briefing du groupe',20000),
+  choice('visibilite','Visibilité',[['SECRET','Secret'],['PUBLIC','Public']],'SECRET'),publication(),long('notes_mj','Notes réservées au MJ',20000)],
+  note:'Définition uniquement : les membres et leurs droits, la caisse, les stocks et les messages restent dans leurs outils. Une duplication crée un groupe secret en brouillon, sans membre ni caisse.'},
+}};
+// Existing callers without a sheet keep their original editor (or the separate tariff workspace).
+export function masterEditor(module,sheet){
+ const first=Object.hasOwn(masterEditors,module)?masterEditors[module]:null;
+ if(!first)return null;
+ if(sheet===undefined||sheet===first.sheet)return first;
+ const extra=Object.hasOwn(catalogueEditors,module)?catalogueEditors[module]:{};
+ return Object.hasOwn(extra,sheet)?extra[sheet]:null;
+}
+export const masterEditorsFor=module=>masterEditor(module)?[masterEditor(module),...Object.values(catalogueEditors[module]??{})]:[];
+export const editorFields=(module,session,existing,sheet)=>masterEditor(module,sheet).fields.filter(f=>!(f.initialOnly&&session&&existing));
+export const editorFieldVisible=(field,row)=>Object.entries(field.when??{}).every(([key,allowed])=>allowed==='present'?!!row[key]&&row[key]!=='!EFFACER':allowed.includes(row[key]));

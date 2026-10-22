@@ -11,11 +11,12 @@ export function moduleMeta(ctx,module){
  return [{format:'gn-engine-master',version:'1',type:ctx.session?'SESSION':'CAMPAGNE',destination_id:ctx.id,campaign_id:ctx.parent.campaignId??'',base_revision:String(ctx.parent.revision),module}];
 }
 // An authenticated owner-only projection of existing definitions, never balances or played state.
-export async function masterWorkspace(tx,ctx,at,newId,module){
+export async function masterWorkspace(tx,ctx,at,newId,module,sheet){
  if(module!==undefined)requireThat(masterEditor(module),'INVALID_MASTER_MODULE');
+ if(sheet!==undefined)requireThat(typeof sheet==='string'&&masterEditor(module,sheet),'INVALID_MASTER_SHEET');
  const records=Object.fromEntries(await Promise.all(Object.values(masterCollections).map(async k=>[k,await tx.list(`${ctx.base}/${k}`)])));
  const allStamps=[...(ctx.parent.masterRowBaseline??[]),...await tx.list(`${ctx.base}/masterRows`)];
- if(module!==undefined)return {...masterEditorProjection({module,records,stamps:allStamps,session:ctx.session,newId}),meta:moduleMeta(ctx,module),revision:ctx.parent.revision,editable:masterEditable(ctx,at)};
+ if(module!==undefined)return {...masterEditorProjection({module,sheet,records,stamps:allStamps,session:ctx.session,newId}),meta:moduleMeta(ctx,module),revision:ctx.parent.revision,editable:masterEditable(ctx,at)};
  const stamps=new Map(allStamps.filter(r=>r.sheet==='Tarifs').map(r=>[r.rowId,r.version]));
  const count=sheet=>masterCollections[sheet]?records[masterCollections[sheet]].length:
   sheet==='Objectifs'?records.characters.reduce((n,c)=>n+(c.objectives?.length??0),0):null;
