@@ -2,13 +2,15 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.36.0 en validation : tarifs de douane et de corruption dans les masters.**
+**Version 0.36.0 publiée : tarifs de douane et de corruption dans les masters.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
 ## Tarifs dans les masters — 0.36
 
 Les quatre fichiers XLSX proposent l’onglet **Tarifs** : mouvements, marchandises, montants fixe et unitaire, bénéficiaires et activation. Contrôle des références, aperçu lisible, imports atomiques et historiques ; définitions reprises dans les versions, archives et sessions. Les exemples restent désactivés. [Guide des masters](docs/MASTERS.md) · [Validation](docs/VALIDATION-0.36.md).
+
+Compilation et **1 170 tests réussis** (648 applicatifs, 522 intégrations Firebase). Publication, quatre masters et refus anonymes vérifiés le 22 octobre 2026 à 08:24:24, heure de Bruxelles. Accueil 0.36.0 confirmé dans le navigateur. [Validation et limites](docs/VALIDATION-0.36.md). Recette privée sur téléphone et charge réelle encore ouvertes.
 
 ## Douanes et corruption — 0.35
 

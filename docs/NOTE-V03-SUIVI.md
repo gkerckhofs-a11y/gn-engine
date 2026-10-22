@@ -8,6 +8,8 @@ Source : demande et note fonctionnelle fournies par Guilz le 20 octobre 2026, co
 Implémentation : onglet Tarifs dans les quatre XLSX, montants explicites, choix du mouvement et de la marchandise, bénéficiaire personnage/caisse/retrait de circulation, activation et archivage. Validation atomique des références et comptes, aperçu du bénéficiaire, réimports sans redistribution. Définitions incluses dans les versions, archives et nouvelles sessions ; continuité de campagne conservée. Une caisse de bande doit être configurée avant d’être référencée. Aucun tarif installé en production par ce lot. Guide : [MASTERS.md](MASTERS.md). Validation et publication : [VALIDATION-0.36.md](VALIDATION-0.36.md).
 
 
+1 170 tests réussis : 648 applicatifs et 522 intégrations Firebase. Publication et contrôles terminés le 22 octobre 2026 à 08:24:24, heure de Bruxelles. Quatre masters publiés identiques aux fichiers testés ; accueil 0.36.0 confirmé. Recette privée sur téléphone non effectuée.
+
 ## Lot 0.35 : douanes et corruption locale
 
 Tarifs de session pour les mouvements vers, depuis ou entre soutes. Frais fixes et unitaires cumulés, devis conservé à la réservation, paiement personnel ou collectif à réception, bénéficiaires ou retrait monétaire explicites, annulation gratuite et journal comptable. Reprise des tarifs en campagne. Aucun montant de jeu imposé ; masters et archives de scénario à compléter. [Guide](DOUANES-CORRUPTION.md).
