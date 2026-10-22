@@ -89,3 +89,16 @@ export function economicSessionMasterExample(){
  s.Cours=[{id:'carburant-demo',operation:'MODIFIER',version:'2',prix_base:'12'}];
  s.EvenementsEco=[{id:'detour-demo',operation:'MODIFIER',version:'2',variation_carburant_pct:'25',actif:'NON'}];return s;
 }
+
+export function customsMasterExample(){
+ const s=economicMasterExample();s.Tarifs=[
+  {id:'douane-demo',operation:'CREER',version:'1',titre:'Droit de chargement — exemple',description:'Barème fictif désactivé : 2 crédits par transfert et 1 par unité.',nature:'CUSTOMS',mouvement:'LOAD',objet_id:'',montant_fixe:'2',montant_unitaire:'1',beneficiaire_type:'SINK',beneficiaire_id:'',actif:'NON'},
+  {id:'arrangement-demo',operation:'CREER',version:'1',titre:'Arrangement du quai — exemple',description:'Barème fictif désactivé : 3 crédits pour décharger du carburant.',nature:'CORRUPTION',mouvement:'UNLOAD',objet_id:'carburant-demo',montant_fixe:'3',montant_unitaire:'0',beneficiaire_type:'CHARACTER',beneficiaire_id:'pilote',actif:'NON'}
+ ];return s;
+}
+export function customsSessionMasterExample(){
+ const s=economicSessionMasterExample();s.Tarifs=[
+  {id:'douane-demo',operation:'MODIFIER',version:'2',montant_fixe:'4'},
+  {id:'transbordement-demo',operation:'CREER',version:'1',titre:'Transbordement — exemple',description:'Barème fictif désactivé : 1 crédit par unité entre soutes.',nature:'CUSTOMS',mouvement:'TRANSSHIP',montant_fixe:'0',montant_unitaire:'1',beneficiaire_type:'SINK',actif:'NON'}
+ ];return s;
+}

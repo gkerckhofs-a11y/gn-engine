@@ -196,3 +196,34 @@ Les quatre fichiers incluent **Cours** et **EvenementsEco**. Le premier définit
 Les références sont contrôlées sur l’ensemble du master, y compris les objets, installations et routes créés dans le même import. Les versions publiées, les archives et les campagnes conservent ces définitions. ARCHIVER désactive. Les soldes, lots et voyages joués ne sont pas recalculés par un import. Les exemples proposent trois événements désactivés.
 
 Le [guide des conséquences économiques](EVENEMENTS-ECONOMIQUES.md) détaille les colonnes, le cumul, les arrondis et les cas de suspension. Les paramètres et opérations des onglets existants restent identiques.
+
+
+## Douanes et corruption — extension 0.36, format 1 conservé
+
+L’onglet **Tarifs** figure dans les quatre XLSX. Il configure les définitions de droits de passage du scénario ou de la session, sans paiement immédiat. Les anciens fichiers sans cet onglet restent valides et conservent les tarifs existants.
+
+| Colonnes | Règle |
+| --- | --- |
+| `id`, `operation`, `version` | Identifiant stable ; CREER, MODIFIER ou ARCHIVER ; version entière à augmenter lorsque le contenu change. |
+| `titre`, `description` | Titre obligatoire, 150 caractères maximum ; description facultative, 2 000 caractères. Visibles dans le devis joueur. |
+| `nature` | CUSTOMS (douane) ou CORRUPTION (pot-de-vin). Aucun effet automatique d’exemption. |
+| `mouvement` | LOAD vers une soute, UNLOAD depuis une soute, TRANSSHIP entre soutes. |
+| `objet_id` | Modèle existant, publié si le tarif est actif. Vide à la création : tous les objets. En modification, vide conserve ; `!EFFACER` vise tous les objets. |
+| `montant_fixe`, `montant_unitaire` | Entiers positifs ou nuls, tous deux obligatoires à la création, même pour zéro. Total : fixe + unitaire × quantité commerciale. |
+| `beneficiaire_type` | CHARACTER, GROUP ou SINK. Obligatoire à la création. |
+| `beneficiaire_id` | Identifiant du personnage ou du groupe dans le master. Jamais l’identifiant technique du compte. Changer vers CHARACTER ou GROUP exige de renseigner cet identifiant. |
+| `actif` | OUI ou NON ; NON par défaut. Économie configurée et références publiées pour activer. |
+
+Pour **GROUP**, configurer d’abord la caisse dans l’éditeur de scénario ou dans la régie, puis importer le tarif. Créer un groupe dans le master ne suffit pas à lui ouvrir une caisse. Pour **SINK**, laisser le bénéficiaire vide ou utiliser `!EFFACER` : les crédits seront retirés de la circulation au paiement. Aucun compte ni crédit n’est créé par une ligne Tarifs. Un nouveau personnage créé dans le même import de session peut recevoir les paiements : son compte est initialisé par le mécanisme de création du personnage.
+
+Toutes les règles applicables se cumulent. Maximum **50 définitions**, désactivées comprises. Un transfert sac ↔ entrepôt ne passe pas par une soute et reste hors de ces droits. Le carburant et les recharges laser peuvent être visés comme toute autre marchandise ; remplir un réservoir n’est pas un transfert de cargaison.
+
+**ARCHIVER** ne contient que `id`, `operation` et `version` : il désactive sans supprimer. MODIFIER avec `actif=OUI` peut réactiver. Une ligne absente ne supprime rien. Les montants vides en modification conservent leur valeur. Une référence active empêche de dépublier son objet ou bénéficiaire ; désactiver le tarif dans le même import permet de retirer cette dépendance, sous réserve des autres usages.
+
+Le contrôle serveur porte sur l’ensemble des données après import : montants, références, bénéficiaires et comptes existants de session. L’aperçu montre le bénéficiaire lisible en plus des différences. Si les données ou le compte bénéficiaire changent après l’aperçu, une nouvelle confirmation est nécessaire. Le motif et les différences sont conservés dans l’historique d’import et celui de la ligne ; le journal de la régie conserve ses propres modifications.
+
+Les tarifs suivent la version publiée, les nouvelles sessions indépendantes ou de campagne et les archives de scénario. Les anciennes versions et archives sans tarifs restent valides. Les archives contiennent les définitions, sans soldes ni reçus de paiement.
+
+Le master SESSION reste réservé à **PREPARATION, avant le premier lancement**. Pendant la partie, utiliser **Régie → Vaisseaux et chargements → Douanes et corruption**. Un import ne modifie ni les soldes, ni les lots, ni les reçus, ni les devis des transferts déjà réservés. Le paiement conserve le montant annoncé à la réservation et intervient à réception.
+
+Les exemples sont **fictifs et désactivés** : droit de chargement de 2 + 1 par unité, arrangement de déchargement du carburant de 3 + 0 par unité. L’exemple session modifie le fixe du premier à 4 et ajoute un droit de transbordement de 0 + 1 par unité. Le modèle vierge n’impose aucun montant.

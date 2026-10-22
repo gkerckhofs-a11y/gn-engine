@@ -1,4 +1,4 @@
-# Douanes et corruption locale — 0.35
+# Douanes et corruption locale — 0.36
 
 Les frais de passage relient les cargaisons à l’économie du GN. Un chargement affiche son tarif avant réservation ; sa réception déplace le stock et règle les bénéficiaires dans la même transaction. Aucun tarif, bénéficiaire ni montant de jeu n’est créé automatiquement.
 
@@ -57,7 +57,7 @@ Le reçu apparaît sur le chargement. Le journal des comptes concernés affiche 
 
 Les tarifs se règlent dans la **régie de session**. Ils suivent la continuité d’une campagne avec les comptes et les soldes. Les écritures historiques restent dans l’épisode où elles ont été effectuées ; le nouvel épisode reprend les soldes sans refaire les paiements. Tout chargement ouvert doit être reçu et payé ou annulé avant clôture de campagne.
 
-Les quatre masters XLSX, les versions de scénario et leurs archives n’intègrent pas encore la création de ces tarifs. Une session indépendante démarre sans tarif ; son organisation les configure en régie. Un import des masters existants ne sert pas à gérer les tarifs et ne les remplace pas. Leur ajout aux masters constitue la prochaine extension de configuration.
+Depuis la version 0.36, l’onglet **Tarifs** des quatre masters XLSX configure aussi les douanes et la corruption. Les définitions suivent la version publiée du scénario, ses archives et les nouvelles sessions. Un ancien master sans cet onglet conserve les règles présentes. Le master SESSION se charge en préparation avant le premier lancement ; les modifications pendant le jeu restent disponibles en régie. Les exemples sont fictifs et désactivés. Voir le [contrat des masters](MASTERS.md#douanes-et-corruption--extension-036-format-1-conservé).
 
 Ce lot ne modifie pas le prix négocié des marchandises, les loyers, les coûts de carburant des trajets ni les effets économiques existants. Une suspension du commerce bloque les ventes selon ses règles ; elle ne bloque pas implicitement les déplacements de stock. Les interdictions de départ s’appliquent aux voyages. Les contrôles douaniers avec détection, saisie, exemption, pot-de-vin négocié ou compétence de contrebande restent des règles à définir.
 

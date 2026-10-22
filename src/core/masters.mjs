@@ -5,7 +5,7 @@ import {skillInput,classInput} from './abilities.mjs';
 import {groupInput,groupPermissions} from './groups.mjs';
 import {knowledgeInput,initialReceipt} from './knowledge.mjs';
 import {itemInput,publicItem,itemQuantity,seedInventory} from './inventory-state.mjs';
-import {seedWallets,economyRulesInput,groupAccountId,moneyState} from './economy-state.mjs';
+import {seedWallets,economyRulesInput,accountId,groupAccountId,moneyState} from './economy-state.mjs';
 import {warehouseInput,stockVolume,storedIn} from './storage-state.mjs';
 import {healthRulesInput,initialHealth} from './health-state.mjs';
 import {actionPointRulesInput,actionPointMaximum,actionPointPath} from './action-point-state.mjs';
@@ -14,6 +14,7 @@ import {recordPublication} from './narrative.mjs';
 import {imageReferences} from './media-state.mjs';
 import {gameTime} from './clock.mjs';
 import {importNavigation} from './master-navigation.mjs';
+import {importCustoms} from './master-customs.mjs';
 import {importEconomics} from './master-economics.mjs';
 import {transportRulesInput} from './navigation-state.mjs';
 import {importTerrain} from './master-terrain.mjs';
@@ -97,7 +98,7 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
   const records=Object.fromEntries(await Promise.all(kinds.map(async k=>[k,(await tx.list(`${base}/${k}`)).sort((a,b)=>a.id.localeCompare(b.id))]))),m=mapsFor(records);
   const fieldStates=session?(await tx.list(`${base}/fieldStates`)).sort((a,b)=>a.id.localeCompare(b.id)):[];
   const storedInventory=session?(await tx.list(`${base}/inventory`)).filter(l=>['WAREHOUSE','HOLD'].includes(l.location?.kind)&&l.quantity>0&&!['CONSUMED','DESTROYED'].includes(l.status)).sort((a,b)=>a.id.localeCompare(b.id)):[];
-  const rentAccounts=[];
+  const rentAccounts=[],tariffAccounts=[];
   const prior=new Map([...(parent.masterRowBaseline??[]),...await tx.list(`${base}/masterRows`)].map(x=>[x.id,x])),receipts=[...prior.values()];
   let nextParent=parent;const created=new Set(),newKnowledge=new Set(),changedRecords=new Set(),seen=new Set(),targetSeen=new Set(),archives=[];
   const addError=(sheet,r,e)=>errors.push({sheet,row:r?._row??1,column:e.column??'',message:e.masterMessage??e.code??'Valeur ou référence invalide.'});
@@ -119,7 +120,8 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
   };
   const mark=(kind,id)=>changedRecords.add(`${kind}/${id}`);
   const checkOperation=(r,old)=>{if(r.operation==='CREER'&&old)issue('id','Cet identifiant existe déjà. Utiliser MODIFIER avec une nouvelle version.');if(r.operation!=='CREER'&&!old)issue('id','Cet identifiant n’existe pas. Utiliser CREER.');};
-  const summary=(sheet,r,before,after)=>changes.push({sheet,row:r._row,id:r.id,status:r.operation==='CREER'?'CREATE':r.operation==='ARCHIVER'?'ARCHIVE':'UPDATE',fields:changed(before,after)});
+  const tariffBeneficiary=t=>{if(!t?.recipientAccountId)return 'Retrait de la circulation';const c=[...m.characters.values()].find(c=>accountId(c.id)===t.recipientAccountId),g=[...m.groups.values()].find(g=>groupAccountId(g.id)===t.recipientAccountId);return c?`Personnage : ${c.public.displayName} (${c.id})`:g?`Caisse : ${g.walletConfig?.label??g.name} (${g.id})`:'Bénéficiaire indisponible';};
+  const summary=(sheet,r,before,after)=>changes.push({sheet,row:r._row,id:r.id,status:r.operation==='CREER'?'CREATE':r.operation==='ARCHIVER'?'ARCHIVE':'UPDATE',fields:changed(before,after),...(sheet==='Tarifs'?{beneficiary:{before:before?tariffBeneficiary(before):null,after:tariffBeneficiary(after)}}:{})});
   const order=['Objets','Competences','Classes','Personnages','Groupes','Connaissances'];
   for(const sheet of order)for(const r of rows[sheet]??[]){try{
    if(!stamp(sheet,r))continue;const kind=masterCollections[sheet],old=m[kind].get(r.id);checkOperation(r,old);let d;
@@ -217,9 +219,19 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
   }catch(e){addError('Entrepots',r,e);}}
   importNavigation({rows,m,session,storedInventory,stamp,checkOperation,summary,mark,addError,issue,num,empty,patch});
   importEconomics({rows,m,stamp,checkOperation,summary,mark,addError,issue,num,empty,patch});
+  importCustoms({rows,m,stamp,checkOperation,summary,mark,addError,issue,num,empty,patch});
   // Validate the combined graph; a broken reference cannot leave half an import behind.
   try{
    cleanScenarioSnapshot({scenario:nextParent,records:rowsRecord(m)});
+   if(session)for(const t of m.cargoTariffs.values())if(t.enabled&&t.recipientAccountId){
+    const a=await tx.get(`${base}/accounts/${t.recipientAccountId}`);tariffAccounts.push(a);
+    if(!a&&[...created].some(cid=>accountId(cid)===t.recipientAccountId)&&nextParent.economyRules)continue;
+    if(a?.sessionId!==id)issue('beneficiaire_id','Compte bénéficiaire indisponible dans cette session.');moneyState(a);
+    const c=[...m.characters.values()].find(c=>accountId(c.id)===a.id);
+    if(c&&(a.ownerType!=='CHARACTER'||a.characterId!==c.id))issue('beneficiaire_id','Le compte bénéficiaire ne correspond plus à son personnage.');
+    const g=[...m.groups.values()].find(g=>groupAccountId(g.id)===a.id);
+    if(g&&(a.ownerType!=='GROUP'||a.groupId!==g.id||a.label!==g.walletConfig?.label))issue('beneficiaire_id','La caisse bénéficiaire ne correspond plus à son groupe.');
+   }
    for(const s of m.skills.values())if(s.healing?.consumable){const item=ref(m.items,s.healing.consumable.itemId,'consommable_id');if(s.publicationState==='PUBLISHED'&&(item.publicationState!=='PUBLISHED'||!item.consumable))issue('consommable_id','Un soin publié doit référencer un consommable publié.');}
    for(const cl of m.classes.values())for(const x of cl.skills)if(cl.publicationState==='PUBLISHED'&&ref(m.skills,x.skillId,'competences').publicationState!=='PUBLISHED')issue('competences','Une classe publiée dépend d’une compétence non publiée.');
    for(const k of m.knowledge.values())if(k.qrSkillId&&k.qrEnabled){const s=ref(m.skills,k.qrSkillId,'qr_competence_id');if(s.kind!=='PASSIVE'||s.publicationState!=='PUBLISHED')issue('qr_competence_id','La condition QR exige une compétence passive publiée.');}
@@ -262,7 +274,7 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
   let indexWrites=0;const changedMedia=new Set();
   for(const [path,data] of writes){const after=imageReferences(data);if(!JSON.stringify(data).includes('\"mediaImages\"'))continue;const before=imageReferences(await tx.get(path));for(const mid of new Set([...before.keys(),...after.keys()]))if(before.has(mid)!==after.has(mid)){indexWrites++;changedMedia.add(mid);}}
   if(writes.size>masterLimits.writes||writes.size+indexWrites+changedMedia.size+1>480||[...writes.values()].some(v=>Buffer.byteLength(JSON.stringify(v))>800000)||Buffer.byteLength(JSON.stringify([...writes.values()]))>3*1024*1024)errors.push({sheet:'Meta',row:1,column:'',message:'Trop de changements ou de publications dans une transaction. Fractionner le classeur.'});
-  const confirmation=digest({actor:actor.uid,base,parent,records,fieldStates,storedInventory,rentAccounts,prior:receipts.sort((a,b)=>a.id.localeCompare(b.id)),rows,reason,mediaState,resources});
+  const confirmation=digest({actor:actor.uid,base,parent,records,fieldStates,storedInventory,rentAccounts,tariffAccounts,prior:receipts.sort((a,b)=>a.id.localeCompare(b.id)),rows,reason,mediaState,resources});
   return {errors,changes,canApply:!errors.length,confirmation,receipt,writes,applied:applied.length,newCharacters:[...created],destination:{id,title:parent.title,type:session?'SESSION':'CAMPAGNE',campaignId:parent.campaignId??null}};
  }
  return async(action,actor,input)=>{

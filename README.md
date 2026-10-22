@@ -2,13 +2,17 @@
 
 Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
-**Version 0.35.0 publiée : douanes et corruption locale.**
+**Version 0.36.0 en validation : tarifs de douane et de corruption dans les masters.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
 
+## Tarifs dans les masters — 0.36
+
+Les quatre fichiers XLSX proposent l’onglet **Tarifs** : mouvements, marchandises, montants fixe et unitaire, bénéficiaires et activation. Contrôle des références, aperçu lisible, imports atomiques et historiques ; définitions reprises dans les versions, archives et sessions. Les exemples restent désactivés. [Guide des masters](docs/MASTERS.md) · [Validation](docs/VALIDATION-0.36.md).
+
 ## Douanes et corruption — 0.35
 
-Tarifs configurables en régie selon le mouvement de cargaison et la marchandise. Montant fixe et par unité, bénéficiaires personnels ou caisses, paiement atomique à réception, annulation gratuite et tarif conservé à la réservation. Les définitions suivent la campagne ; leur import dans les masters reste à ajouter. Aucun tarif activé en production. [Guide](docs/DOUANES-CORRUPTION.md).
+Tarifs configurables en régie selon le mouvement de cargaison et la marchandise. Montant fixe et par unité, bénéficiaires personnels ou caisses, paiement atomique à réception, annulation gratuite et tarif conservé à la réservation. Les définitions suivent la campagne ; la version 0.36 ajoute leur import dans les masters. Aucun tarif activé en production. [Guide](docs/DOUANES-CORRUPTION.md).
 
 Compilation et **1 156 tests réussis** (641 applicatifs, 515 intégrations Firebase). Publication, quatre masters et refus anonymes vérifiés le 21 octobre 2026 à 17:51:30, heure de Bruxelles. Accueil 0.35.0 confirmé dans le navigateur. [Validation et limites](docs/VALIDATION-0.35.md). Recette privée sur téléphone et charge réelle encore ouvertes.
 

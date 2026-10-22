@@ -9,6 +9,17 @@ export function cargoTariffInput(v,id,old={}){
   return {id,kind:v.kind,direction:v.direction,itemId:v.itemId?documentId(v.itemId):null,title:text(v.title,150,true),description:text(v.description??'',2000),
     flatAmount:whole(v.flatAmount,'INVALID_CARGO_TARIFF'),unitAmount:whole(v.unitAmount,'INVALID_CARGO_TARIFF'),recipientAccountId:v.recipientAccountId?documentId(v.recipientAccountId):null,enabled:v.enabled,revision:(old.revision??0)+1};
 }
+export function validateCargoTariffReferences({cargoTariffs=[],characters=[],groups=[],items=[],economyRules=null}){
+  requireThat(cargoTariffs.length<=50,'CARGO_TARIFF_LIMIT');
+  for(const t of cargoTariffs){
+    if(t.enabled)requireThat(economyRules,'ECONOMY_DISABLED');
+    if(t.itemId){const i=items.find(i=>i.id===t.itemId);requireThat(i&&(!t.enabled||i.publicationState==='PUBLISHED'),'INVALID_CARGO_TARIFF');}
+    if(t.recipientAccountId){
+      const c=characters.find(c=>accountId(c.id)===t.recipientAccountId),g=groups.find(g=>groupAccountId(g.id)===t.recipientAccountId);
+      requireThat(c?(!t.enabled||c.publicationState==='PUBLISHED'&&c.public?.publicationState==='PUBLISHED'):g?.walletConfig&&(!t.enabled||g.publicationState==='PUBLISHED'),'ACCOUNT_UNAVAILABLE');
+    }
+  }
+}
 export const cargoDirection=(source,destination)=>source.kind==='HOLD'?(destination.kind==='HOLD'?'TRANSSHIP':'UNLOAD'):destination.kind==='HOLD'?'LOAD':null;
 export async function feeRecipient(tx,sid,id){
   if(!id)return {a:null,name:'Retrait de la circulation',party:{kind:'SINK',id:null,name:'Retrait de la circulation'}};
