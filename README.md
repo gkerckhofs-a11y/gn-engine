@@ -12,6 +12,8 @@ Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
 **L1g — interactions entre personnages.** Éditeur des cinq profils de soin et de fouille existants, avec prérequis, consommables et contrôles communs aux imports. [Guide et validation](docs/L1G-INTERACTIONS.md). Dix-sept parcours couvrent dix-neuf feuilles sur branche ; aucune publication.
 
+**L1h — création groupée de personnage.** Classe, compétences et dotations initiales explicites dans un seul aperçu et une confirmation. Acquis conservés, duplication sans redistribution. [Guide et validation](docs/L1H-CREATION-PERSONNAGE.md). Export de la liste toujours limité aux fiches ; L1 reste ouvert.
+
 **L1f — lieux, actions et récompenses groupés.** Création et modification atomiques des trois feuilles dans Informations / Fouilles, identités historiques et états de session conservés. [Guide, validation et limites](docs/L1F-TERRAIN-GROUPE.md). Seize parcours couvrent dix-huit feuilles sur branche ; aucune publication.
 
 **L1e — relations et membres des groupes.** Deux Masters supplémentaires dans Personnages, droits de jeu sélectionnés par cases et identités historiques conservées. [Guide, validation et limites](docs/L1E-RELATIONS-MEMBRES.md). Quinze éditeurs sur branche ; aucune publication.

@@ -16,8 +16,8 @@ export function masterFieldsHtml(w,draft,fields,readOnly=false,prefix=''){
    for(const id of selected.keys())if(!choices.some(x=>x.id===id))choices.push({id,name:'Référence indisponible'});
    return `<fieldset ${readOnly?'disabled':''}><legend>${esc(f.label)}</legend><p>${esc(f.help)}</p><input type="hidden" name="${prefix}${f.name}__levels" value="1">${choices.map(x=>{
     const included=selected.has(x.id),label=`${x.name} (${x.id})${x.publication?` — ${x.publication==='PUBLISHED'?'Publiée':x.publication==='READY'?'Prête':'Brouillon'}`:''}`;
-    return `<div class="two"><label class="check"><input type="checkbox" name="${prefix}${f.name}__skill__${esc(x.id)}" value="OUI" data-master-refresh="levels" ${included?'checked':''}>${esc(label)}</label><label>Niveau<input aria-label="${esc(`Niveau de ${x.name}`)}" name="${prefix}${f.name}__level__${esc(x.id)}" type="number" min="1" step="1" value="${esc(selected.get(x.id)??'')}" ${included?'required':'disabled'}></label></div>`;
-   }).join('')||'<p>Aucune compétence disponible. Créez les compétences dans leur feuille avant de les sélectionner ici.</p>'}</fieldset>`;
+    return `<div class="two"><label class="check"><input type="checkbox" name="${prefix}${f.name}__skill__${esc(x.id)}" value="OUI" data-master-refresh="levels" ${included?'checked':''}>${esc(label)}</label><label>${esc(f.valueLabel??'Niveau')}<input aria-label="${esc(`${f.valueLabel??'Niveau'} de ${x.name}`)}" name="${prefix}${f.name}__level__${esc(x.id)}" type="number" min="${f.min??1}" step="1" value="${esc(selected.get(x.id)??'')}" ${included?'required':'disabled'}></label></div>`;
+   }).join('')||`<p>${esc(f.emptyLabel??'Aucune compétence disponible. Créez les compétences dans leur feuille avant de les sélectionner ici.')}</p>`}</fieldset>`;
   }else if(f.choices||f.ref){
    const ref=!draft.existing&&f.createRef?f.createRef:referenceName(f,r);
    const choices=f.choices??[...(!f.required?[['',f.emptyLabel??'Aucun']]:[['','Choisir…']]),...(w.references[ref]??[]).map(x=>[x.id,`${x.name} (${x.id})`])];

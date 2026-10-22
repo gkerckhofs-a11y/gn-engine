@@ -72,7 +72,7 @@ export function createMasterController({api,mutate,notice,getContext,onApplied,d
    let sheets,filename;if(form.dataset.masterForm==='upload'){
     const file=s.file??v.file;if(!file||!file.size||file.size>masterLimits.fileBytes)throw new Error('Choisissez un fichier XLSX de 8 Mio maximum.');status('Lecture du classeur…');sheets=readMasterXlsx(new Uint8Array(await file.arrayBuffer()));assertMasterType(sheets,s.scope);const errors=masterModuleErrors(sheets,s.module);if(errors.length)throw Object.assign(new Error(errors[0].message),errors[0]);filename=file.name;
    }else if(form.dataset.masterForm==='moduleRow'){
-    sheets=moduleFormSheets(s.workspace,s.draft,v);s.draft=s.workspace.sheet==='Lieux'?moduleRefreshDraft(s.workspace,s.draft,v):{...s.draft,row:sheets[s.workspace.sheet][0],reason:v.reason};filename=`Édition en ligne : ${s.workspace.sheet}`;
+    sheets=moduleFormSheets(s.workspace,s.draft,v);s.draft=['Lieux','Personnages'].includes(s.workspace.sheet)?moduleRefreshDraft(s.workspace,s.draft,v):{...s.draft,row:sheets[s.workspace.sheet][0],reason:v.reason};filename=`Édition en ligne : ${s.workspace.sheet}`;
    }else if(form.dataset.masterForm==='tariff'){
     sheets={Meta:s.workspace.meta,Tarifs:[tariffFormRow(s.workspace,form.dataset.id,form.dataset.archive==='true',v)]};filename='Édition en ligne des tarifs';
    }else{

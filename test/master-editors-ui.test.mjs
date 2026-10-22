@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {masterEditors,masterEditor,masterEditorsFor} from '../src/shared/master-editors.mjs';
-import {moduleDraft,moduleFormRow,moduleListHtml,moduleEditorHtml,filteredMasterRows,moduleMasterSheets,moduleRefreshDraft} from '../web/master-editor.mjs';
+import {moduleDraft,moduleFormRow,moduleListHtml,moduleEditorHtml,filteredMasterRows,moduleMasterSheets,moduleRefreshDraft,moduleFormSheets} from '../web/master-editor.mjs';
 const workspace=module=>({module,sheet:masterEditors[module].sheet,session:false,editable:true,errors:[],meta:[{module}],newRow:{id:'server-id',operation:'CREER',version:'1'},rows:[],references:{characters:[{id:'p',name:'<nom>'}],wallets:[],skills:[]}});
 test('Masters en ligne : six formulaires sans barème imposé, affichage échappé et lecture seule',()=>{
  for(const module of Object.keys(masterEditors)){
@@ -119,4 +119,24 @@ test('Interactions en ligne : correction des champs inactifs, copie non publiée
  const d=moduleDraft(w,'i'),row=moduleFormRow(w,d,{...d.row,type:'FIELD_CARE',soin_pv:'2',niveau_reanimation:'3',convalescence_secondes:'0',recuperation_patient_secondes:'11',prerequis__levels:'1'});assert.equal(row.recuperation_secondes,'0');assert.equal(row.prerequis,'!EFFACER');
  assert.deepEqual(moduleFormRow(w,moduleDraft(w,'i','archive'),{}),{id:'i',operation:'ARCHIVER',version:'4'});const copy=moduleDraft(w,'i','duplicate');assert.equal(copy.row.publication,'DRAFT');assert.notEqual(copy.row.id,'i');
  assert.throws(()=>moduleFormRow(w,moduleDraft(w),{nom:'Incomplet',type:'FIELD_CARE'}),/obligatoire/);
+});
+
+
+test('Création personnage : profil conditionnel, quantités explicites et trois feuilles du contrat',()=>{
+ const w={...workspace('personnages'),references:{publishedClasses:[{id:'c',name:'Classe <test>'}],publishedSkills:[{id:'s',name:'Savoir'}],publishedItems:[{id:'kit',name:'Kit <test>'}]}},d=moduleDraft(w);
+ let html=moduleEditorHtml(w,d);assert.ok(!html.includes('name="initial_class"'));assert.match(html,/name="initial_credits"[^>]*value=""/);assert.ok(html.includes('Quantité de Kit &lt;test&gt;'));
+ const values={nom:'Nouveau',initial_profile:'OUI',initial_class:'c',initial_profile_publication:'NON',initial_skills__levels:'1',initial_skills__skill__s:'OUI',initial_skills__level__s:'3',initial_items__levels:'1',initial_items__skill__kit:'OUI',initial_items__level__kit:'2',initial_credits:'11',reason:'Choix explicites'};
+ const refreshed=moduleRefreshDraft(w,d,values);html=moduleEditorHtml(w,refreshed);assert.ok(html.includes('Classe &lt;test&gt;'));assert.match(html,/name="initial_skills__level__s"[^>]*min="1"[^>]*value="3" required/);assert.ok(html.includes('Choix explicites'));
+ const sheets=moduleFormSheets(w,refreshed,values);assert.deepEqual(Object.keys(sheets),['Meta','Personnages','Attributions','Dotations']);assert.equal(sheets.Attributions[0].competences,'s:3');assert.equal(sheets.Dotations[1].quantite,'2');assert.equal(sheets.Dotations[1].personnage_id,'server-id');assert.ok(!Object.keys(sheets.Personnages[0]).some(k=>k.startsWith('initial_')));
+ const off=moduleFormSheets(w,refreshed,{...values,initial_profile:'NON',initial_items__skill__kit:'NON',initial_credits:'0'});assert.deepEqual(Object.keys(off),['Meta','Personnages']);assert.ok(!moduleEditorHtml(w,refreshed,true).includes('data-master-form='));
+});
+test('Création personnage : édition et export excluent toute redistribution, copie sans choix hérités',()=>{
+ const w=workspace('personnages');w.rows=[{row:{id:'p',version:'2',nom:'Existant',publication:'PUBLISHED',initial_profile:'OUI',initial_credits:'99',initial_items:'kit:7'},title:'Existant'}];
+ for(const session of [false,true]){
+  w.session=session;const d=moduleDraft(w,'p'),html=moduleEditorHtml(w,d);assert.ok(!html.includes('name="initial_credits"'));assert.ok(!html.includes('name="initial_profile"'));
+  assert.deepEqual(Object.keys(moduleFormSheets(w,d,{...d.row,initial_items:'kit:99'})),['Meta','Personnages']);
+  const copy=moduleDraft(w,'p','duplicate');assert.equal(copy.row.initial_profile,'NON');assert.equal(copy.row.initial_credits,'');assert.equal(copy.row.initial_items,'');assert.deepEqual(Object.keys(moduleFormSheets(w,copy,copy.row)),['Meta','Personnages']);
+  const archived=moduleDraft(w,'p','archive');assert.deepEqual(Object.keys(moduleFormSheets(w,archived,{initial_credits:'99'})),['Meta','Personnages']);
+ }
+ assert.throws(()=>moduleFormSheets({...w,editable:false},moduleDraft(w),{nom:'Interdit'}),/ne peut pas être modifié/);
 });

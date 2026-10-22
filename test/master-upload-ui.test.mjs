@@ -169,3 +169,14 @@ test('Interactions en ligne : choix du type, aperçu, correction et confirmation
  const changed={...values,type:'CLINIC_FAST',competence_id:'s',niveau_minimum:'1',seuil:'6',complement_secondes:'30'};f.refresh(changed);assert.ok(f.dialog.innerHTML.includes('name="complement_secondes"'));await f.submit('moduleRow',changed);const sheets=f.calls.at(-1).payload.sheets;assert.equal(sheets.Interactions[0].recuperation_secondes,'0');assert.ok(f.calls.every(c=>c.command!=='applyMasterImport'));
  await f.submit('confirm',{});assert.deepEqual(f.calls.at(-1).payload.sheets,sheets);assert.equal(f.calls.at(-1).command,'applyMasterImport');assert.equal(f.calls.at(-1).payload.module,'personnages');
 }));
+
+
+test('Création groupée personnage : retour depuis aperçu conserve profil et dotations, confirmation unique',async()=>withFormData(async()=>{
+ const w={module:'personnages',sheet:'Personnages',session:false,editable:true,errors:[],references:{publishedClasses:[{id:'c',name:'Classe'}],publishedSkills:[{id:'s',name:'Savoir'}],publishedItems:[{id:'kit',name:'Kit'}]},newRow:{id:'personnage-id',operation:'CREER',version:'1'},meta:[{format:'gn-engine-master',version:'1',type:'CAMPAGNE',module:'personnages'}],rows:[]},f=controllerFixture({workspace:w});
+ f.click('moduleMaster',{scope:'scenario',module:'personnages'});await new Promise(resolve=>setImmediate(resolve));f.click('moduleEdit');
+ const values={nom:'Renfort fictif',initial_profile:'OUI',initial_class:'c',initial_profile_publication:'NON',initial_skills__levels:'1',initial_skills__skill__s:'OUI',initial_skills__level__s:'2',initial_items__levels:'1',initial_items__skill__kit:'OUI',initial_items__level__kit:'3',initial_credits:'17',reason:'Création complète'};
+ f.refresh(values);await f.submit('moduleRow',values);const first=f.calls.at(-1).payload.sheets;assert.deepEqual(Object.keys(first),['Meta','Personnages','Attributions','Dotations']);assert.ok(f.calls.every(c=>c.command!=='applyMasterImport'));
+ f.click('moduleBack');assert.ok(f.dialog.innerHTML.includes('Création complète'));assert.match(f.dialog.innerHTML,/name="initial_items__level__kit"[^>]*value="3" required/);assert.match(f.dialog.innerHTML,/name="initial_skills__level__s"[^>]*value="2" required/);assert.match(f.dialog.innerHTML,/name="initial_credits"[^>]*value="17"/);
+ await f.submit('moduleRow',{...values,initial_credits:'19'});const sheets=f.calls.at(-1).payload.sheets;assert.equal(sheets.Dotations[0].quantite,'19');assert.equal(sheets.Dotations[0].id,first.Dotations[0].id);
+ await f.submit('confirm',{});assert.equal(f.calls.at(-1).command,'applyMasterImport');assert.equal(f.calls.at(-1).payload.module,'personnages');assert.deepEqual(f.calls.at(-1).payload.sheets,sheets);assert.equal(f.calls.filter(c=>c.command==='applyMasterImport').length,1);
+}));

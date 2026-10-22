@@ -75,9 +75,11 @@ La [tranche L1f](L1F-TERRAIN-GROUPE.md) réunit Lieux, ActionsTerrain et Recompe
 
 La [tranche L1g](L1G-INTERACTIONS.md) ajoute Interactions au module Personnages : cinq types existants, champs adaptés, prérequis guidés, duplication en brouillon et export ciblé. Les acquis et historiques restent conservés. Dix-sept parcours couvrent dix-neuf feuilles.
 
-## Suite de L1 après L1g
+## L1h — création groupée de personnage
 
-- Priorité : création de personnage groupée avec Attributions et Dotations, sans redistribution des acquis.
+La [tranche L1h](L1H-CREATION-PERSONNAGE.md) enrichit la création Personnages avec un profil et des dotations explicitement choisis, puis vérifiés dans un import atomique. Les champs sont réservés aux nouveaux personnages ; duplication, modification et épisode suivant ne redistribuent pas les acquis. Les dix-neuf feuilles déjà éditables/exportables sont complétées par la création groupée d’Attributions et Dotations. Leur édition/export complet reste ouvert.
+
+## Suite de L1 après L1h
 - Export et édition structurée des autres feuilles, y compris attributions, dotations et paramètres ; générer leurs identités et versions sans collisions.
 - Interface de dépendances et comparateur de versions/rapport de préparation d’épisode ; publication/test isolés explicitement.
 - Consolidation des historiques et diagnostics par module. Aucune erreur fictive « 0 » n’est affichée avant un vrai contrôle.

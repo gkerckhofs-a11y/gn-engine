@@ -1,3 +1,4 @@
+import {characterCreationSheets} from '../src/shared/master-character-creation.mjs';
 import {terrainDraft,terrainRefreshDraft,terrainFormSheets,terrainMasterSheets,terrainEditorHtml} from './master-terrain-editor.mjs';
 import {masterFieldsHtml} from './master-fields.mjs';
 import {masterEditor,masterEditorsFor,editorFields,editorFieldVisible} from '../src/shared/master-editors.mjs';
@@ -27,6 +28,7 @@ export function moduleDraft(w,id='',mode='edit'){
  if(!source||copy){
   if(copy)Object.assign(row,w.newRow);
   for(const f of editorFields(w.module,w.session,false,w.sheet))if(f.initial!==undefined&&(!source||['publication','publication_publique','ouvert','qr_actif','visibilite','actif','a_quai'].includes(f.name)))row[f.name]=f.initial;
+  if(copy&&w.sheet==='Personnages')for(const f of masterEditor(w.module,w.sheet).fields.filter(f=>f.virtual))row[f.name]=f.initial??'';
   if(copy&&w.sheet==='Connaissances'){row.personnages_initiaux='!EFFACER';row.qr_personnages='!EFFACER';}
   if(copy&&w.sheet==='Vaisseaux'){delete row.carburant_initial;delete row.port_initial;}
  }
@@ -61,7 +63,7 @@ export function moduleFormRow(w,draft,values){
  values=moduleFormValues(w,values);
  const row={id:draft.row.id,operation:draft.mode==='archive'?'ARCHIVER':draft.existing?'MODIFIER':'CREER',version:draft.row.version};
  if(draft.mode==='archive'){if(draft.row.personnage_id)row.personnage_id=draft.row.personnage_id;if(draft.row.groupe_id)row.groupe_id=draft.row.groupe_id;return row;}
- for(const f of draftFields(w,draft)){
+ for(const f of draftFields(w,draft).filter(f=>!f.virtual)){
   if(!editorFieldVisible(f,{...draft.row,...values})){if(f.inactiveValue!==undefined)row[f.name]=f.inactiveValue;continue;}
   const v=f.immutable&&draft.existing?draft.row[f.name]:(values[f.name]??'');
   if(f.required&&!v.trim())throw new Error(`${f.label} : valeur obligatoire.`);
@@ -78,5 +80,7 @@ export function moduleEditorHtml(w,draft,readOnly=false){
 }
 
 export function moduleFormSheets(w,draft,values){
- return w.sheet==='Lieux'?terrainFormSheets(w,draft,values):{Meta:w.meta,[w.sheet]:[moduleFormRow(w,draft,values)]};
+ if(w.sheet==='Lieux')return terrainFormSheets(w,draft,values);
+ const row=moduleFormRow(w,draft,values);
+ return {Meta:w.meta,[w.sheet]:[row],...(w.sheet==='Personnages'?characterCreationSheets(row,moduleFormValues(w,values)):{})};
 }

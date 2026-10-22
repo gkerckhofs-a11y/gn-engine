@@ -1,3 +1,4 @@
+import {characterCreationFields} from './master-character-creation.mjs';
 import {interactionEditor} from './master-interaction-editor.mjs';
 import {terrainEditor} from './master-terrain-editor.mjs';
 // Form metadata for existing Master sheets; no domain data is stored here.
@@ -16,8 +17,8 @@ export const masterEditors={
   choice('publication_publique','Publication du badge',[['DRAFT','Brouillon'],['READY','Prêt'],['PUBLISHED','Publié']],'DRAFT'),publication(),
   long('histoire','Histoire',20000),long('interpretation','Interprétation'),long('secrets_joueur','Secrets du personnage',20000),long('notes_mj','Notes réservées au MJ',20000),
   number('niveau_global','Niveau initial',1,{initialOnly:true}),number('pv_max_initiaux','PV maximum initiaux',1,{initialOnly:true}),
-  text('portrait_media_id','Portrait : identifiant du média'),text('image_privee_media_id','Image privée : identifiant du média')],
-  note:'Cette fiche ne copie ni dotations, ni compétences, ni relations, ni objectifs. Les outils dédiés restent disponibles.'},
+  text('portrait_media_id','Portrait : identifiant du média'),text('image_privee_media_id','Image privée : identifiant du média'),...characterCreationFields],
+  note:'À la création, choisissez explicitement le profil et les dotations : tout est vérifié et confirmé ensemble. Une duplication copie uniquement la fiche, sans compétences, crédits, objets, relations ou objectifs. Les acquis existants conservent leurs outils dédiés.'},
  communication:{sheet:'Objectifs',title:'Objectifs des personnages',name:'titre',archiveLabel:'Dépublier',fields:[
   reference('personnage_id','Personnage','characters',{required:true,clear:false,immutable:true}),required('titre','Titre',200),long('description','Description'),yesNo('publication','Visible dans la fiche'),long('notes_mj','Notes réservées au MJ',4000)],
   note:'Les étapes détaillées restent dans l’éditeur de fiche. Modifier ou exporter un objectif conserve ses étapes ; dupliquer copie seulement les champs affichés.'},
@@ -111,5 +112,5 @@ export function masterEditor(module,sheet){
  return Object.hasOwn(extra,sheet)?extra[sheet]:null;
 }
 export const masterEditorsFor=module=>masterEditor(module)?[masterEditor(module),...Object.values(catalogueEditors[module]??{})]:[];
-export const editorFields=(module,session,existing,sheet)=>masterEditor(module,sheet).fields.filter(f=>!(f.initialOnly&&session&&existing));
+export const editorFields=(module,session,existing,sheet)=>masterEditor(module,sheet).fields.filter(f=>!(f.initialOnly&&session&&existing)&&!(f.creationOnly&&existing));
 export const editorFieldVisible=(field,row)=>Object.entries(field.when??{}).every(([key,allowed])=>allowed==='present'?!!row[key]&&row[key]!=='!EFFACER':allowed.includes(row[key]));
