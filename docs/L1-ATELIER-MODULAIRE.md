@@ -59,7 +59,11 @@ La [tranche L1b](L1B-EDITEURS-MODULAIRES.md) ajoute un parcours complet dans cha
 
 La [tranche L1c](L1C-CATALOGUES-PERSONNAGES.md) ajoute les feuilles Compétences, Classes et Groupes au même espace Master du module Personnages. Sélection guidée des compétences et niveaux, champs de soin conditionnels, duplication, archivage et export ciblé réutilisent les imports existants. Profils acquis, membres, droits et caisses ne sont pas remplacés. Les quatre Masters globaux restent inchangés.
 
-## Suite de L1 après L1c
+## L1d — vaisseaux et économie
+
+La [tranche L1d](L1D-VAISSEAUX-ECONOMIE.md) ajoute Vaisseaux dans Spatioport, Cours et EvenementsEco dans Économie / Stockage. Les trois parcours réutilisent les imports et les collections existants. Les cours restent liés à leur objet ; les changements de cible d’événement retirent les effets incompatibles ; carburant, position et cargaison acquis sont conservés. Treize feuilles disposent maintenant d’un éditeur ; les quatre Masters globaux restent inchangés.
+
+## Suite de L1 après L1d
 
 - Export et édition structurée des autres feuilles, y compris relations, membres, profils, récompenses et paramètres ; générer leurs identités et versions sans collisions.
 - Interface de dépendances et comparateur de versions/rapport de préparation d’épisode ; publication/test isolés explicitement.

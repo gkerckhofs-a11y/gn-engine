@@ -60,3 +60,28 @@ test('Classes en ligne : sélection et niveaux explicites, références absentes
  assert.equal(moduleFormRow(w,d,{nom:'Sans compétence',competences__levels:'1'}).competences,'!EFFACER');
  const readOnly=moduleEditorHtml(w,d,true);assert.ok(readOnly.includes('<fieldset disabled>'));assert.ok(!readOnly.includes('data-master-form='));
 });
+
+test('Cours en ligne : choix d’un objet non coté, pas de duplication et identité figée à la modification',()=>{
+ const w={...workspace('economie'),sheet:'Cours',newRow:{id:'',version:'1'},references:{items:[{id:'kit',name:'Kit <test>'}],unpricedItems:[{id:'fuel',name:'Carburant'}]},rows:[{row:{id:'kit',version:'2',prix_base:'7',actif:'OUI'},title:'Kit',state:'active'}]};
+ const html=moduleEditorHtml(w,moduleDraft(w));assert.match(html,/value="fuel"/);assert.ok(!html.includes('value="kit"'));assert.match(html,/name="prix_base"[^>]*value=""/);
+ assert.ok(!moduleListHtml(w).includes('data-master-action="moduleDuplicate"'));
+ const d=moduleDraft(w,'kit'),existing=moduleEditorHtml(w,d);assert.match(existing,/name="id" disabled/);assert.ok(existing.includes('Kit &lt;test&gt;'));
+ assert.equal(moduleFormRow(w,d,{id:'fuel',prix_base:'9',actif:'OUI'}).id,'kit');assert.throws(()=>moduleDraft(w,'kit','duplicate'),/unique/);
+ assert.equal(moduleFormRow(w,moduleDraft(w),{id:'fuel',prix_base:'13',actif:'NON'}).id,'fuel');
+});
+test('Vaisseaux en ligne : propriétaire lié au type, première navigation et états acquis masqués',()=>{
+ const w={...workspace('spatioport'),sheet:'Vaisseaux',references:{characters:[{id:'p',name:'Pilote'}],groups:[{id:'g',name:'Équipage'}],fuels:[{id:'fuel',name:'Carburant'}]}};
+ let d=moduleDraft(w),html=moduleEditorHtml(w,d);assert.ok(html.includes('Équipage'));assert.ok(!html.includes('Pilote'));assert.ok(!html.includes('name="carburant_initial"'));
+ d=moduleRefreshDraft(w,d,{nom:'Cargo',proprietaire_id:'g',proprietaire_type:'CHARACTER',reason:'Choisir le propriétaire'});assert.equal(d.row.proprietaire_id,'');assert.ok(moduleEditorHtml(w,d).includes('Pilote'));
+ d=moduleRefreshDraft(w,d,{proprietaire_id:'p',carburant_objet_id:'fuel'});html=moduleEditorHtml(w,d);assert.match(html,/name="carburant_initial"[^>]*required[^>]*value=""/);assert.ok(html.includes('Choisir le propriétaire'));
+ w.session=true;w.rows=[{row:{...d.row,id:'ship',version:'2',capacite_volume:'5',capacite_reservoir:'8'},navigationInitialized:true}];
+ const existing=moduleDraft(w,'ship');html=moduleEditorHtml(w,existing);for(const f of ['carburant_initial','port_initial','a_quai'])assert.ok(!html.includes(`name="${f}"`));
+ const row=moduleFormRow(w,existing,{...existing.row,carburant_initial:'100',port_initial:'ailleurs',a_quai:'OUI'});assert.ok(!Object.hasOwn(row,'carburant_initial'));assert.ok(!Object.hasOwn(row,'port_initial'));assert.ok(!Object.hasOwn(row,'a_quai'));
+ w.rows[0].navigationInitialized=false;html=moduleEditorHtml(w,moduleDraft(w,'ship'));assert.ok(html.includes('name="carburant_initial"'));assert.ok(html.includes('name="port_initial"'));
+});
+test('Événements en ligne : effets conditionnels, bornes existantes et motif conservé',()=>{
+ const w={...workspace('economie'),sheet:'EvenementsEco',references:{items:[],routes:[],installations:[]}},d=moduleDraft(w);
+ let html=moduleEditorHtml(w,d);assert.match(html,/name="variation_prix_pct"[^>]*max="1000"[^>]*min="-100"[^>]*value=""/);assert.ok(!html.includes('name="route_id"'));assert.ok(!html.includes('name="installation_id"'));
+ const route=moduleRefreshDraft(w,d,{titre:'Détour',cible_type:'ROUTE',declenchement:'INSTALLATION_OFFLINE',reason:'Essai'});html=moduleEditorHtml(w,route);assert.ok(!html.includes('name="objet_id"'));assert.ok(html.includes('name="route_id"'));assert.ok(html.includes('name="installation_id"'));assert.ok(html.includes('Essai'));
+ const row=moduleFormRow(w,route,{...route.row,route_id:'r',installation_id:'i',variation_carburant_pct:'0',variation_duree_pct:'12',depart_suspendu:'OUI'});assert.equal(row.objet_id,'!EFFACER');assert.equal(row.commerce_suspendu,'NON');assert.equal(row.variation_prix_pct,'0');
+});

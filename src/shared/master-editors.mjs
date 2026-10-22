@@ -28,7 +28,7 @@ export const masterEditors={
  spatioport:{sheet:'Routes',title:'Routes',name:'nom',collection:'routes',fields:[
   required('nom','Nom'),long('description','Description',4000),required('depart_port','Code du port de départ',128),required('arrivee_port','Code du port d’arrivée',128),
   number('duree_secondes','Durée en secondes de jeu',1,{required:true}),number('carburant_cout','Carburant consommé',0,{required:true}),yesNo('ouvert','Route ouverte')],
-  note:'Une route a un seul sens ; prévoir séparément le retour. Les trajets déjà partis conservent leurs conditions. Les vaisseaux restent dans leurs outils et imports existants.'},
+  note:'Une route a un seul sens ; prévoir séparément le retour. Les trajets déjà partis conservent leurs conditions. La feuille Vaisseaux est accessible dans ce même module.'},
  economie:{sheet:'Entrepots',title:'Entrepôts',name:'nom',collection:'warehouses',fields:[
   required('nom','Nom'),long('description','Description',4000),number('capacite_volume','Capacité en volume',1,{required:true}),number('loyer','Loyer en crédits de jeu',0,{required:true}),
   number('periode_minutes','Période de location en minutes de jeu',1,{required:true}),yesNo('ouvert','Ouvert'),reference('loyer_groupe_id','Caisse bénéficiaire du loyer','wallets',{emptyLabel:'Retrait de la circulation'})],
@@ -60,6 +60,35 @@ const catalogueEditors={personnages:{
   required('nom','Nom'),long('description','Description',4000),long('briefing','Briefing du groupe',20000),
   choice('visibilite','Visibilité',[['SECRET','Secret'],['PUBLIC','Public']],'SECRET'),publication(),long('notes_mj','Notes réservées au MJ',20000)],
   note:'Définition uniquement : les membres et leurs droits, la caisse, les stocks et les messages restent dans leurs outils. Une duplication crée un groupe secret en brouillon, sans membre ni caisse.'},
+},spatioport:{
+ Vaisseaux:{sheet:'Vaisseaux',title:'Vaisseaux',name:'nom',collection:'ships',fields:[
+  required('nom','Nom'),long('description','Description',4000),
+  {...choice('proprietaire_type','Propriétaire',[['CHARACTER','Personnage'],['GROUP','Groupe']],'GROUP'),refresh:true},
+  reference('proprietaire_id','Nom du propriétaire',{field:'proprietaire_type',values:{CHARACTER:'characters',GROUP:'groups'}},{required:true,clear:false,dependsOn:'proprietaire_type'}),
+  number('capacite_volume','Capacité de soute en volume',1,{required:true}),{...yesNo('a_quai','Initialement à quai'),initialOnly:true},yesNo('ouvert','Vaisseau ouvert'),
+  reference('carburant_objet_id','Objet utilisé comme carburant','fuels',{refresh:true,help:'Vide : soute sans navigation. Une navigation déjà configurée ne peut pas être supprimée.'}),
+  number('capacite_reservoir','Capacité du réservoir',1,{required:true,when:{carburant_objet_id:'present'}}),
+  number('carburant_initial','Carburant initial',0,{required:true,navigationInitialOnly:true,when:{carburant_objet_id:'present'}}),
+  {...required('port_initial','Code du port initial',128),navigationInitialOnly:true,when:{carburant_objet_id:'present'}}],
+  note:'Vaisseaux possédés du moteur actuel. Les stocks ne sont jamais copiés. En session, carburant et position acquis restent conservés ; une première activation de navigation demande ses valeurs initiales. Un vaisseau en trajet ne peut pas être modifié. Les modèles commerciaux et combats restent à développer.'},
+},economie:{
+ Cours:{sheet:'Cours',title:'Cours des marchandises',name:'id',collection:'commodityPrices',identity:true,duplicate:false,fields:[
+  reference('id','Objet coté','items',{createRef:'unpricedItems',required:true,clear:false,immutable:true}),
+  number('prix_base','Prix de base par unité en crédits de jeu',1,{required:true}),yesNo('actif','Cours actif')],
+  note:'Un seul cours par objet du catalogue commun. Pour ajouter un cours, choisissez un objet publié sans cours existant. Un cours archivé se réactive depuis sa fiche. Les prix et transactions passés ne sont pas recalculés.'},
+ EvenementsEco:{sheet:'EvenementsEco',title:'Événements économiques',name:'titre',collection:'priceEvents',fields:[
+  required('titre','Titre'),long('description','Description',2000),
+  {...choice('cible_type','Effet sur',[['COMMODITY','Une marchandise'],['ROUTE','Une route']],'COMMODITY'),refresh:true},
+  reference('objet_id','Marchandise','items',{required:true,clear:false,when:{cible_type:['COMMODITY']},inactiveValue:'!EFFACER'}),
+  number('variation_prix_pct','Variation du prix en %',-100,{max:1000,required:true,when:{cible_type:['COMMODITY']},inactiveValue:'0'}),
+  {...yesNo('commerce_suspendu','Commerce suspendu'),when:{cible_type:['COMMODITY']},inactiveValue:'NON'},
+  reference('route_id','Route','routes',{required:true,clear:false,when:{cible_type:['ROUTE']},inactiveValue:'!EFFACER'}),
+  number('variation_carburant_pct','Variation du carburant en %',-100,{max:1000,required:true,when:{cible_type:['ROUTE']},inactiveValue:'0'}),
+  number('variation_duree_pct','Variation de la durée en %',-100,{max:1000,required:true,when:{cible_type:['ROUTE']},inactiveValue:'0'}),
+  {...yesNo('depart_suspendu','Départs suspendus'),when:{cible_type:['ROUTE']},inactiveValue:'NON'},
+  {...choice('declenchement','Déclenchement',[['MANUAL','Manuel'],['INSTALLATION_OFFLINE','Installation hors service']],'MANUAL'),refresh:true},
+  reference('installation_id','Installation déclencheuse','installations',{required:true,clear:false,when:{declenchement:['INSTALLATION_OFFLINE']},inactiveValue:'!EFFACER'}),yesNo('actif','Événement activé')],
+  note:'Les effets utilisent les règles économiques existantes. Renseignez explicitement chaque variation, y compris zéro. Changer de type retire les effets de l’ancien type. Un événement dupliqué est désactivé.'},
 }};
 // Existing callers without a sheet keep their original editor (or the separate tariff workspace).
 export function masterEditor(module,sheet){

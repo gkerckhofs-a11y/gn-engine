@@ -123,3 +123,17 @@ test('Catalogues en ligne : changer de feuille et de type conserve la saisie, pu
  await f.submit('moduleRow',{nom:'Classe fictive',publication:'DRAFT',competences__levels:'1',competences__skill__savoir:'OUI',competences__level__savoir:'2',reason:'Sélection'});
  assert.deepEqual(Object.keys(f.calls.at(-1).payload.sheets),['Meta','Classes']);assert.equal(f.calls.at(-1).payload.sheets.Classes[0].competences,'savoir:2');
 }));
+
+test('Économie en ligne : changement de cible corrigé dans l’aperçu, cours lié à l’objet et confirmation',async()=>withFormData(async()=>{
+ const w={module:'economie',sheet:'Entrepots',session:false,editable:true,errors:[],references:{items:[{id:'kit',name:'Kit'}],unpricedItems:[{id:'kit',name:'Kit'}],routes:[{id:'r',name:'Route'}],installations:[]},newRow:{id:'event-id',operation:'CREER',version:'1'},meta:[{format:'gn-engine-master',version:'1',type:'CAMPAGNE',destination_id:'scenario-id',base_revision:'1',module:'economie'}],rows:[]};
+ const f=controllerFixture({workspace:input=>({...w,sheet:input.sheet??'Entrepots',...(input.sheet==='Cours'?{newRow:{id:'',operation:'CREER',version:'1'}}:{})})});
+ f.click('moduleMaster',{scope:'scenario',module:'economie'});await new Promise(resolve=>setImmediate(resolve));f.click('moduleSheet',{sheet:'EvenementsEco'});await new Promise(resolve=>setImmediate(resolve));f.click('moduleEdit');
+ const values={titre:'Test',cible_type:'COMMODITY',objet_id:'kit',variation_prix_pct:'25',commerce_suspendu:'OUI',declenchement:'MANUAL',actif:'NON',reason:'Réglage fictif'};
+ f.refresh(values,'cible_type');f.refresh({...values,cible_type:'ROUTE'},'cible_type');assert.ok(!f.dialog.innerHTML.includes('name="objet_id"'));assert.ok(f.dialog.innerHTML.includes('Réglage fictif'));
+ const route={...values,cible_type:'ROUTE',route_id:'r',variation_carburant_pct:'0',variation_duree_pct:'20',depart_suspendu:'NON'};
+ await f.submit('moduleRow',route);const preview=f.calls.at(-1);assert.equal(preview.command,'prepareMasterImport');assert.equal(preview.payload.sheets.EvenementsEco[0].objet_id,'!EFFACER');assert.equal(preview.payload.sheets.EvenementsEco[0].variation_prix_pct,'0');
+ f.click('moduleBack');assert.ok(f.dialog.innerHTML.includes('name="route_id"'));await f.submit('moduleRow',route);await f.submit('confirm',{});assert.equal(f.calls.at(-1).command,'applyMasterImport');assert.equal(f.calls.at(-1).payload.module,'economie');
+ f.click('moduleMaster',{scope:'scenario',module:'economie'});await new Promise(resolve=>setImmediate(resolve));f.click('moduleSheet',{sheet:'Cours'});await new Promise(resolve=>setImmediate(resolve));f.click('moduleEdit');
+ await f.submit('moduleRow',{id:'kit',prix_base:'9',actif:'NON',reason:'Prix choisi'});assert.deepEqual(Object.keys(f.calls.at(-1).payload.sheets),['Meta','Cours']);assert.equal(f.calls.at(-1).payload.sheets.Cours[0].id,'kit');
+ await f.submit('confirm',{});assert.equal(f.calls.at(-1).payload.sheets.Cours[0].id,'kit');
+}));

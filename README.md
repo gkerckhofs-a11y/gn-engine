@@ -8,6 +8,8 @@ Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
 **L1c — catalogues du module Personnages.** Masters Compétences, Classes et Groupes, choix guidé des compétences d’une classe, paramètres de soin conditionnels et exports ciblés. Profils attribués, membres et caisses conservés. [Guide, validation et recette restante](docs/L1C-CATALOGUES-PERSONNAGES.md). Toujours sur branche, sans publication.
 
+**L1d — vaisseaux et économie.** Masters Vaisseaux, Cours et Événements économiques, références guidées et effets conditionnels. Identité des cours et acquis de session conservés. [Guide, validation et recette restante](docs/L1D-VAISSEAUX-ECONOMIE.md). Treize éditeurs sur branche ; L1 reste ouvert.
+
 **Version 0.36.0 publiée : tarifs de douane et de corruption dans les masters.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.
