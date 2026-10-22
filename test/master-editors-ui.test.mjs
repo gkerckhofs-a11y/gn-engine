@@ -32,10 +32,10 @@ test('Masters en ligne : les champs acquis restent absents des formulaires de se
 
 const catalogue=sheet=>({...workspace('personnages'),sheet,references:{allSkills:[{id:'savoir',name:'Savoir <privé>',publication:'PUBLISHED'},{id:'futur',name:'En préparation',publication:'DRAFT'}],consumables:[{id:'kit',name:'Kit de test'}]}});
 test('Catalogues en ligne : choix des feuilles, types de soin et valeurs laissées à configurer',()=>{
- assert.deepEqual(masterEditorsFor('personnages').map(e=>e.sheet),['Personnages','Competences','Classes','Groupes']);
+ assert.deepEqual(masterEditorsFor('personnages').map(e=>e.sheet),['Personnages','Competences','Classes','Groupes','Relations','Membres']);
  assert.equal(masterEditor('personnages','__proto__'),null);assert.equal(masterEditor('spatioport','Classes'),null);
  const w=catalogue('Competences'),d=moduleDraft(w),list=moduleListHtml(w);
- for(const sheet of ['Personnages','Competences','Classes','Groupes'])assert.ok(list.includes(`data-sheet="${sheet}"`));
+ for(const sheet of ['Personnages','Competences','Classes','Groupes','Relations','Membres'])assert.ok(list.includes(`data-sheet="${sheet}"`));
  assert.match(list,/data-sheet="Competences" aria-current="page" disabled/);
  assert.ok(!moduleEditorHtml(w,d).includes('name="soin_pv"'));
  for(const type of ['ACTIVE_SELF','ACTIVE_TARGET']){
@@ -84,4 +84,25 @@ test('Événements en ligne : effets conditionnels, bornes existantes et motif c
  let html=moduleEditorHtml(w,d);assert.match(html,/name="variation_prix_pct"[^>]*max="1000"[^>]*min="-100"[^>]*value=""/);assert.ok(!html.includes('name="route_id"'));assert.ok(!html.includes('name="installation_id"'));
  const route=moduleRefreshDraft(w,d,{titre:'Détour',cible_type:'ROUTE',declenchement:'INSTALLATION_OFFLINE',reason:'Essai'});html=moduleEditorHtml(w,route);assert.ok(!html.includes('name="objet_id"'));assert.ok(html.includes('name="route_id"'));assert.ok(html.includes('name="installation_id"'));assert.ok(html.includes('Essai'));
  const row=moduleFormRow(w,route,{...route.row,route_id:'r',installation_id:'i',variation_carburant_pct:'0',variation_duree_pct:'12',depart_suspendu:'OUI'});assert.equal(row.objet_id,'!EFFACER');assert.equal(row.commerce_suspendu,'NON');assert.equal(row.variation_prix_pct,'0');
+});
+
+test('Membres en ligne : droits guidés, aucune permission par défaut et retrait explicite de toutes les cases',()=>{
+ const w={...workspace('personnages'),sheet:'Membres',references:{characters:[{id:'c',name:'Personnage'}],groups:[{id:'g',name:'Groupe'}],groupPermissions:[{id:'readWallet',name:'readWallet'},{id:'payWallet',name:'payWallet'}]}};
+ const d=moduleDraft(w),html=moduleEditorHtml(w,d);assert.ok(!html.includes('checked'));assert.ok(html.includes('Consulter la caisse'));assert.ok(html.includes('Payer avec la caisse'));
+ const values={...d.row,groupe_id:'g',personnage_id:'c',droits__checks:'1',droits__choice__readWallet:'OUI',droits__choice__payWallet:'NON'};
+ assert.equal(moduleFormRow(w,d,values).droits,'readWallet');assert.equal(moduleFormRow(w,d,{...values,droits__choice__readWallet:'NON'}).droits,'!EFFACER');
+ w.rows=[{row:{id:'m',version:'2',groupe_id:'g',personnage_id:'c',droits:'readWallet'},title:'Personnage — Groupe',state:'draft'}];const existing=moduleDraft(w,'m'),read=moduleEditorHtml(w,existing,true);assert.ok(read.includes('<fieldset disabled>'));assert.ok(!read.includes('data-master-form='));
+ assert.ok(!moduleListHtml(w).includes('moduleDuplicate'));assert.ok(moduleListHtml(w).includes('Appartenance inactive'));assert.ok(moduleListHtml(w).includes('Désactiver'));
+ assert.throws(()=>moduleDraft(w,'m','duplicate'),/appartenance est unique/);
+});
+test('Liens sociaux en ligne : identités non déplaçables, archivage ciblé et copie de relation non publiée',()=>{
+ const w={...workspace('personnages'),sheet:'Membres',references:{},rows:[{row:{id:'m',version:'2',groupe_id:'g',personnage_id:'c',role:'Ancien'}}]};
+ const d=moduleDraft(w,'m'),refreshed=moduleRefreshDraft(w,d,{groupe_id:'intrus',personnage_id:'autre',role:'Nouveau',reason:'Motif'});assert.equal(refreshed.row.groupe_id,'g');assert.equal(refreshed.row.personnage_id,'c');assert.equal(refreshed.row.role,'Nouveau');
+ assert.deepEqual(moduleFormRow(w,moduleDraft(w,'m','archive'),{}),{id:'m',version:'2',operation:'ARCHIVER',personnage_id:'c',groupe_id:'g'});
+ const relation={...workspace('personnages'),sheet:'Relations',rows:[{row:{id:'r',version:'3',personnage_id:'c',cible_id:'x',titre:'<Lien>',publication:'OUI',notes_mj:'Note privée'},title:'<Lien>',ownerLabel:'Personnage',state:'active'}]};
+ const copy=moduleDraft(relation,'r','duplicate');assert.notEqual(copy.row.id,'r');assert.equal(copy.row.publication,'NON');assert.ok(moduleEditorHtml(relation,copy).includes('&lt;Lien&gt;'));assert.equal(copy.row.notes_mj,'Note privée');
+});
+test('Membres en ligne : ambiguïté historique interdit les actions et l’export sans masquer le diagnostic',()=>{
+ const w={...workspace('personnages'),sheet:'Membres',references:{},errors:['Plusieurs identifiants <anciens>'],rows:[]};
+ const html=moduleListHtml(w);assert.ok(html.includes('Plusieurs identifiants &lt;anciens&gt;'));assert.ok(!html.includes('data-master-action="moduleEdit"'));assert.ok(!html.includes('data-master-action="moduleExport"'));assert.throws(()=>moduleMasterSheets(w),/Plusieurs identifiants/);
 });

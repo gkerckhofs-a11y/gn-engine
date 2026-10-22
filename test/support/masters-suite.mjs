@@ -1,3 +1,4 @@
+import {masterSocialEditorsSuite} from './master-social-editors-suite.mjs';
 import {masterTransportEconomicsEditorsSuite} from './master-transport-economics-editors-suite.mjs';
 import {masterWorkspaceSuite} from './master-workspace-suite.mjs';
 import {masterEditorsSuite} from './master-editors-suite.mjs';
@@ -24,6 +25,7 @@ export async function masterFixture(makeStore){
  return {store,owner,player,read,cmd,scenarioId,prepare,apply,session};
 }
 export function mastersSuite(makeStore,prefix='Masters'){
+ masterSocialEditorsSuite(()=>masterFixture(makeStore),prefix);
  masterTransportEconomicsEditorsSuite(()=>masterFixture(makeStore),prefix);
  masterCatalogEditorsSuite(()=>masterFixture(makeStore),prefix);
  masterEditorsSuite(()=>masterFixture(makeStore),prefix);

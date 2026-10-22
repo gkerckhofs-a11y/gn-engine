@@ -137,3 +137,12 @@ test('Économie en ligne : changement de cible corrigé dans l’aperçu, cours 
  await f.submit('moduleRow',{id:'kit',prix_base:'9',actif:'NON',reason:'Prix choisi'});assert.deepEqual(Object.keys(f.calls.at(-1).payload.sheets),['Meta','Cours']);assert.equal(f.calls.at(-1).payload.sheets.Cours[0].id,'kit');
  await f.submit('confirm',{});assert.equal(f.calls.at(-1).payload.sheets.Cours[0].id,'kit');
 }));
+
+test('Membres en ligne : droits choisis dans l’aperçu, identités conservées et confirmation dans Personnages',async()=>withFormData(async()=>{
+ const w={module:'personnages',sheet:'Personnages',session:false,editable:true,errors:[],references:{characters:[{id:'c',name:'Personnage'}],groups:[{id:'g',name:'Groupe'}],groupPermissions:[{id:'readStock',name:'readStock'},{id:'withdrawStock',name:'withdrawStock'}]},newRow:{id:'membre-serveur',operation:'CREER',version:'1'},meta:[{format:'gn-engine-master',version:'1',type:'CAMPAGNE',destination_id:'scenario-id',base_revision:'1',module:'personnages'}],rows:[]};
+ const f=controllerFixture({workspace:input=>({...w,sheet:input.sheet??'Personnages'})});f.click('moduleMaster',{scope:'scenario',module:'personnages'});await new Promise(resolve=>setImmediate(resolve));f.click('moduleSheet',{sheet:'Membres'});await new Promise(resolve=>setImmediate(resolve));f.click('moduleEdit');
+ const v={groupe_id:'g',personnage_id:'c',role:'Intendant',actif:'NON',revele:'NON',visible_membres:'NON',affiliation_publique:'NON',droits__checks:'1',droits__choice__readStock:'OUI',droits__choice__withdrawStock:'OUI',reason:'Attribution explicite'};
+ await f.submit('moduleRow',v);const p=f.calls.at(-1);assert.equal(p.command,'prepareMasterImport');assert.deepEqual(Object.keys(p.payload.sheets),['Meta','Membres']);assert.equal(p.payload.sheets.Membres[0].droits,'readStock;withdrawStock');assert.ok(!f.calls.some(c=>c.command==='applyMasterImport'));
+ f.click('moduleBack');assert.ok(f.dialog.innerHTML.includes('Intendant'));assert.ok(f.dialog.innerHTML.includes('Attribution explicite'));await f.submit('moduleRow',{...v,droits__choice__withdrawStock:'NON'});await f.submit('confirm',{});
+ assert.equal(f.calls.at(-1).command,'applyMasterImport');assert.equal(f.calls.at(-1).payload.module,'personnages');assert.equal(f.calls.at(-1).payload.sheets.Membres[0].droits,'readStock');assert.equal(f.calls.at(-1).payload.sheets.Membres[0].id,'membre-serveur');
+}));

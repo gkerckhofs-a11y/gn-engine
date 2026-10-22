@@ -59,7 +59,16 @@ const catalogueEditors={personnages:{
  Groupes:{sheet:'Groupes',title:'Groupes',name:'nom',collection:'groups',fields:[
   required('nom','Nom'),long('description','Description',4000),long('briefing','Briefing du groupe',20000),
   choice('visibilite','Visibilité',[['SECRET','Secret'],['PUBLIC','Public']],'SECRET'),publication(),long('notes_mj','Notes réservées au MJ',20000)],
-  note:'Définition uniquement : les membres et leurs droits, la caisse, les stocks et les messages restent dans leurs outils. Une duplication crée un groupe secret en brouillon, sans membre ni caisse.'},
+  note:'Définition du groupe : les membres et leurs droits se règlent dans la feuille Membres. La caisse, les stocks et les messages conservent leurs outils. Une duplication crée un groupe secret en brouillon, sans membre ni caisse.'},
+ Relations:{sheet:'Relations',title:'Relations',name:'titre',archiveLabel:'Dépublier',fields:[
+  reference('personnage_id','Personnage qui connaît la relation','characters',{required:true,clear:false,immutable:true}),reference('cible_id','Personnage concerné','characters'),
+  required('titre','Titre',200),long('description','Description'),yesNo('publication','Visible dans la fiche'),long('notes_mj','Notes réservées au MJ',4000)],
+  note:'La relation appartient à une seule fiche : elle n’est pas réciproque automatiquement. Les notes MJ restent privées. Dupliquer crée une relation non publiée, avec un nouvel identifiant.'},
+ Membres:{sheet:'Membres',title:'Membres des groupes',name:'role',stateLabels:{active:'Appartenance active',draft:'Appartenance inactive'},archiveLabel:'Désactiver',duplicate:false,duplicateMessage:'Une appartenance est unique par personnage et groupe. Créez une appartenance en choisissant ce couple, ou réactivez celle qui existe.',fields:[
+  reference('groupe_id','Groupe','groups',{required:true,clear:false,immutable:true}),reference('personnage_id','Personnage','characters',{required:true,clear:false,immutable:true}),text('role','Rôle dans le groupe',{max:150}),
+  yesNo('actif','Appartenance active'),yesNo('revele','Révéler le groupe au personnage'),yesNo('visible_membres','Nom visible aux membres autorisés'),yesNo('affiliation_publique','Affiliation sur le badge public'),
+  field('droits','Droits de jeu dans le groupe',{type:'checks',ref:'groupPermissions',clear:true,help:'Aucun droit à la création. Les droits prennent effet avec une appartenance active, révélée et un groupe publié. Retirer du stock exige aussi sa lecture. Une affiliation publique exige un groupe public et révélé.'})],
+  note:'Une appartenance ne révèle rien automatiquement. Désactiver conserve la fiche et ses réglages ; la réactivation est explicite. Les comptes, caisses, stocks et messages existants sont conservés. Ces droits concernent le jeu, jamais les accès organisateurs ou Firebase.'},
 },spatioport:{
  Vaisseaux:{sheet:'Vaisseaux',title:'Vaisseaux',name:'nom',collection:'ships',fields:[
   required('nom','Nom'),long('description','Description',4000),

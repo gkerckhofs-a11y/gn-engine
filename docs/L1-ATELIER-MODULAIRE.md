@@ -63,9 +63,15 @@ La [tranche L1c](L1C-CATALOGUES-PERSONNAGES.md) ajoute les feuilles Compétences
 
 La [tranche L1d](L1D-VAISSEAUX-ECONOMIE.md) ajoute Vaisseaux dans Spatioport, Cours et EvenementsEco dans Économie / Stockage. Les trois parcours réutilisent les imports et les collections existants. Les cours restent liés à leur objet ; les changements de cible d’événement retirent les effets incompatibles ; carburant, position et cargaison acquis sont conservés. Treize feuilles disposent maintenant d’un éditeur ; les quatre Masters globaux restent inchangés.
 
-## Suite de L1 après L1d
+## L1e — relations et membres des groupes
 
-- Export et édition structurée des autres feuilles, y compris relations, membres, profils, récompenses et paramètres ; générer leurs identités et versions sans collisions.
+La [tranche L1e](L1E-RELATIONS-MEMBRES.md) ajoute Relations et Membres au module Personnages. Les droits de jeu utilisent des cases explicites, sans autorisation par défaut. Les identifiants importés sont préservés ; les ambiguïtés sont signalées sans renommage. Caisses, stocks, profils et messages restent conservés, avec reprise des réglages dans l’épisode suivant. Quinze feuilles disposent d’un éditeur en ligne.
+
+## Suite de L1 après L1e
+
+- Priorité suivante : parcours groupé Lieux / ActionsTerrain / Recompenses. Un lieu doit être créé avec ses profils et récompenses dans le même import ; les réserves de session déjà créées restent protégées.
+
+- Export et édition structurée des autres feuilles, y compris profils, dotations, interactions, récompenses et paramètres ; générer leurs identités et versions sans collisions.
 - Interface de dépendances et comparateur de versions/rapport de préparation d’épisode ; publication/test isolés explicitement.
 - Consolidation des historiques et diagnostics par module. Aucune erreur fictive « 0 » n’est affichée avant un vrai contrôle.
 - Définition d’Univers/bibliothèques si elle devient nécessaire, avec migration préalable documentée et autorisée.

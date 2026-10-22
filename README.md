@@ -10,6 +10,8 @@ Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
 **L1d — vaisseaux et économie.** Masters Vaisseaux, Cours et Événements économiques, références guidées et effets conditionnels. Identité des cours et acquis de session conservés. [Guide, validation et recette restante](docs/L1D-VAISSEAUX-ECONOMIE.md). Treize éditeurs sur branche ; L1 reste ouvert.
 
+**L1e — relations et membres des groupes.** Deux Masters supplémentaires dans Personnages, droits de jeu sélectionnés par cases et identités historiques conservées. [Guide, validation et limites](docs/L1E-RELATIONS-MEMBRES.md). Quinze éditeurs sur branche ; aucune publication.
+
 **Version 0.36.0 publiée : tarifs de douane et de corruption dans les masters.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.

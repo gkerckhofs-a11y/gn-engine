@@ -1,6 +1,8 @@
 import {masterEditor} from '../shared/master-editors.mjs';
 import {groupAccountId} from './economy-state.mjs';
 import {requireThat} from './validation.mjs';
+import {groupPermissions} from './groups.mjs';
+import {memberMasterRows} from './master-member-identity.mjs';
 
 const blank=v=>v==null||v===''?'!EFFACER':String(v);
 const yn=v=>v===true?'OUI':'NON';
@@ -9,11 +11,14 @@ const list=v=>blank((v??[]).join(';'));
 export function masterEditorProjection({module,sheet,records,stamps,session,newId}){
  const def=masterEditor(module,sheet);requireThat(def,'INVALID_MASTER_SHEET');
  const versions=new Map(stamps.filter(s=>s.sheet===def.sheet).map(s=>[s.rowId,s.version]));
- const source=def.sheet==='Objectifs'?records.characters.flatMap(c=>(c.objectives??[]).map(o=>({...o,characterId:c.id,characterName:c.public.displayName}))):records[def.collection];
+ const members=def.sheet==='Membres'?memberMasterRows(records.groups,records.characters,stamps):null;
+ const source=members?.rows??(['Objectifs','Relations'].includes(def.sheet)?records.characters.flatMap(c=>(c[def.sheet==='Objectifs'?'objectives':'relations']??[]).map(o=>({...o,characterId:c.id,characterName:c.public.displayName}))):records[def.collection]);
  const rows=source.map(d=>{
   const row={id:d.id,operation:'MODIFIER',version:String((versions.get(d.id)??0)+1)};
   if(def.sheet==='Personnages')Object.assign(row,{nom:d.public.displayName,metier:blank(d.public.profession),description_publique:blank(d.public.description),publication_publique:d.public.publicationState,publication:d.publicationState,histoire:blank(d.biography),interpretation:blank(d.roleplay),secrets_joueur:blank(d.playerSecrets),notes_mj:blank(d.gmNotes),portrait_media_id:blank(d.mediaImages?.portrait?.id),image_privee_media_id:blank(d.mediaImages?.private?.id),...(!session?{...(d.globalLevel!=null?{niveau_global:String(d.globalLevel)}:{}),...(d.initialMaxHp!=null?{pv_max_initiaux:String(d.initialMaxHp)}:{})}:{})});
   if(def.sheet==='Objectifs')Object.assign(row,{personnage_id:d.characterId,titre:d.title,description:blank(d.description),publication:yn(d.published),notes_mj:blank(d.gmNotes)});
+  if(def.sheet==='Relations')Object.assign(row,{personnage_id:d.characterId,cible_id:blank(d.targetId),titre:d.title,description:blank(d.description),publication:yn(d.published),notes_mj:blank(d.gmNotes)});
+  if(def.sheet==='Membres')Object.assign(row,{groupe_id:d.groupId,personnage_id:d.characterId,role:blank(d.role),actif:yn(d.active),revele:yn(d.revealed),visible_membres:yn(d.visibleToMembers),affiliation_publique:yn(d.publicAffiliation),droits:list(groupPermissions.filter(k=>d.permissions[k]===true))});
   if(def.sheet==='Objets')Object.assign(row,{nom:d.name,description:blank(d.description),categorie:blank(d.category),unite:d.unit,type:d.kind,consommable:yn(d.consumable),volume_unitaire:blank(d.unitVolume),legalite:d.legality,publication:d.publicationState,notes_mj:blank(d.gmNotes),image_media_id:blank(d.mediaImages?.illustration?.id),pillable:yn(d.pillable),billes_par_recharge:blank(d.laserRecharge?.pelletsPerUnit)});
   if(def.sheet==='Competences')Object.assign(row,{nom:d.name,description:blank(d.description),instructions:blank(d.instructions),categorie:blank(d.category),type:d.kind,publication:d.publicationState,notes_mj:blank(d.gmNotes),...(d.kind!=='PASSIVE'?{
    soin_pv:String(d.healing.amount),usages:blank(d.healing.uses),recuperation_secondes:String(d.healing.cooldownSeconds),portee_recuperation:d.healing.cooldownScope??'ACTOR',consommable_id:blank(d.healing.consumable?.itemId),...(d.healing.consumable?{consommable_quantite:String(d.healing.consumable.quantity)}:{})}:{} )});
@@ -28,11 +33,12 @@ export function masterEditorProjection({module,sheet,records,stamps,session,newI
    Object.assign(row,{nom:d.name,description:blank(d.description),capacite_volume:String(d.capacity),loyer:String(d.rent),periode_minutes:String(d.periodMinutes),ouvert:yn(d.enabled),loyer_groupe_id:blank(group?.id)});
   }
   if(def.sheet==='Connaissances')Object.assign(row,{titre:d.title,texte:d.body,origine:blank(d.origin),type:d.kind,publication:d.publicationState,partage:d.shareMode,verite_mj:blank(d.gmTruth),notes_mj:blank(d.gmNotes),...(!session?{personnages_initiaux:list(d.initialCharacterIds)}:{}),qr_actif:yn(d.qrEnabled),qr_audience:d.qrAudience,qr_personnages:list(d.qrCharacterIds),qr_competence_id:blank(d.qrSkillId),...(d.qrSkillId?{qr_niveau:String(d.qrSkillLevel)}:{})});
-  return {row,...(def.sheet==='Vaisseaux'?{navigationInitialized:!!d.navigation}:{}),archived:d.masterArchived===true,title:def.sheet==='Cours'?(records.items.find(i=>i.id===d.id)?.name??d.item.name):row[def.name],ownerLabel:d.characterName??'',state:d.masterArchived===true?'archived':(row.publication==='PUBLISHED'||row.publication==='OUI'||row.ouvert==='OUI'||row.actif==='OUI')?'active':'draft'};
+  return {row,...(def.sheet==='Vaisseaux'?{navigationInitialized:!!d.navigation}:{}),archived:d.masterArchived===true,title:def.sheet==='Cours'?(records.items.find(i=>i.id===d.id)?.name??d.item.name):def.sheet==='Membres'?`${d.characterName} — ${d.groupName}`:row[def.name],ownerLabel:def.sheet==='Membres'?d.role:d.characterName??'',state:d.masterArchived===true?'archived':(row.publication==='PUBLISHED'||row.publication==='OUI'||row.ouvert==='OUI'||row.actif==='OUI')?'active':'draft'};
  }).sort((a,b)=>a.title.localeCompare(b.title)||a.row.id.localeCompare(b.row.id));
- // Legacy objectives can share an id across characters; never silently rename or export ambiguous identities.
+ // Legacy narrative rows can share an id across characters; never silently rename ambiguous identities.
  const seen=new Set(),collisions=new Set();for(const {row} of rows){if(seen.has(row.id))collisions.add(row.id);seen.add(row.id);}
- return {module,sheet:def.sheet,session,newRow:{id:def.identity?'':newId,operation:'CREER',version:'1'},rows,errors:[...collisions].map(id=>`Identifiant répété : ${id}. Corrigez les objectifs dans les fiches avant d’utiliser ce Master.`),references:{
+ return {module,sheet:def.sheet,session,newRow:{id:def.identity?'':newId,operation:'CREER',version:'1'},rows,errors:[...(members?.errors??[]),...[...collisions].map(id=>`Identifiant répété : ${id}. Corrigez les fiches concernées dans leurs outils avant d’utiliser ce Master.`)],references:{
+  groupPermissions:groupPermissions.map(id=>({id,name:id})),
   characters:records.characters.map(c=>({id:c.id,name:c.public.displayName})),
   groups:records.groups.map(g=>({id:g.id,name:g.name})),
   items:records.items.map(i=>({id:i.id,name:`${i.name} — ${i.unit}`})),

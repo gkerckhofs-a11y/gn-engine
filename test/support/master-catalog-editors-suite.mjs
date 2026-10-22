@@ -20,7 +20,7 @@ export function masterCatalogEditorsSuite(fixture,prefix){
    for(const {row} of w.rows)assert.ok(Object.keys(row).every(k=>masterSheets[sheet].includes(k)));
    await assert.rejects(f.read('masterWorkspace',{scenarioId:f.scenarioId,module:'personnages',sheet},f.player),{code:'FORBIDDEN'});
   }
-  for(const sheet of ['Routes','Membres','__proto__','',null,{}])await assert.rejects(view(f,sheet),{code:'INVALID_MASTER_SHEET'});
+  for(const sheet of ['Routes','Attributions','__proto__','',null,{}])await assert.rejects(view(f,sheet),{code:'INVALID_MASTER_SHEET'});
   await assert.rejects(view(f,'Classes',{module:'spatioport'}),{code:'INVALID_MASTER_SHEET'});
   await assert.rejects(view(f,'Classes',{module:undefined}),{code:'INVALID_MASTER_SHEET'});
   assert.equal((await view(f,undefined)).sheet,'Personnages');
