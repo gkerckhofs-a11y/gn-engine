@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "30b7d302c8b7cf18c42e4540ee266262024f2db1",
-  "version": "0.35.0",
-  "requestedAt": "2026-10-21T15:31:53.150Z",
-  "reason": "Publier les droits de douane et frais de corruption des cargaisons après compilation, tests applicatifs et validation Firebase."
+  "sourceCommit": "9db9043f84eed016fe6777308de8afde9cd1da9d",
+  "version": "0.36.0",
+  "requestedAt": "2026-10-22T06:05:08.993Z",
+  "reason": "Tarifs de douane et corruption dans les masters ; validation Firebase obligatoire avant publication."
 }
