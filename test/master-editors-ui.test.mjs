@@ -32,10 +32,10 @@ test('Masters en ligne : les champs acquis restent absents des formulaires de se
 
 const catalogue=sheet=>({...workspace('personnages'),sheet,references:{allSkills:[{id:'savoir',name:'Savoir <privé>',publication:'PUBLISHED'},{id:'futur',name:'En préparation',publication:'DRAFT'}],consumables:[{id:'kit',name:'Kit de test'}]}});
 test('Catalogues en ligne : choix des feuilles, types de soin et valeurs laissées à configurer',()=>{
- assert.deepEqual(masterEditorsFor('personnages').map(e=>e.sheet),['Personnages','Competences','Classes','Groupes','Relations','Membres']);
+ assert.deepEqual(masterEditorsFor('personnages').map(e=>e.sheet),['Personnages','Interactions','Competences','Classes','Groupes','Relations','Membres']);
  assert.equal(masterEditor('personnages','__proto__'),null);assert.equal(masterEditor('spatioport','Classes'),null);
  const w=catalogue('Competences'),d=moduleDraft(w),list=moduleListHtml(w);
- for(const sheet of ['Personnages','Competences','Classes','Groupes','Relations','Membres'])assert.ok(list.includes(`data-sheet="${sheet}"`));
+ for(const sheet of ['Personnages','Interactions','Competences','Classes','Groupes','Relations','Membres'])assert.ok(list.includes(`data-sheet="${sheet}"`));
  assert.match(list,/data-sheet="Competences" aria-current="page" disabled/);
  assert.ok(!moduleEditorHtml(w,d).includes('name="soin_pv"'));
  for(const type of ['ACTIVE_SELF','ACTIVE_TARGET']){
@@ -105,4 +105,18 @@ test('Liens sociaux en ligne : identités non déplaçables, archivage ciblé et
 test('Membres en ligne : ambiguïté historique interdit les actions et l’export sans masquer le diagnostic',()=>{
  const w={...workspace('personnages'),sheet:'Membres',references:{},errors:['Plusieurs identifiants <anciens>'],rows:[]};
  const html=moduleListHtml(w);assert.ok(html.includes('Plusieurs identifiants &lt;anciens&gt;'));assert.ok(!html.includes('data-master-action="moduleEdit"'));assert.ok(!html.includes('data-master-action="moduleExport"'));assert.throws(()=>moduleMasterSheets(w),/Plusieurs identifiants/);
+});
+
+test('Interactions en ligne : paramètres adaptés au type, valeurs explicites et prérequis guidés',()=>{
+ const w={...workspace('personnages'),sheet:'Interactions',references:{skills:[{id:'secours',name:'Secours <fictifs>'}],fieldConsumables:[{id:'kit',name:'Kit'}]}},d=moduleDraft(w);
+ let html=moduleEditorHtml(w,d);for(const name of ['duree_secondes','soin_pv','niveau_reanimation','convalescence_secondes','recuperation_patient_secondes'])assert.match(html,new RegExp(`name="${name}"[^>]*value=""`));assert.ok(!html.includes('name="recuperation_secondes"'));assert.ok(html.includes('Secours &lt;fictifs&gt;'));
+ const fast=moduleRefreshDraft(w,d,{nom:'Clinique',type:'CLINIC_FAST',reason:'Motif'});html=moduleEditorHtml(w,fast);assert.ok(html.includes('name="seuil"'));assert.ok(html.includes('name="complement_secondes"'));assert.ok(!html.includes('name="soin_pv"'));
+ const loot=moduleRefreshDraft(w,fast,{type:'LOOT_COMMON'});html=moduleEditorHtml(w,loot);assert.ok(html.includes('name="recuperation_secondes"'));assert.ok(!html.includes('name="consommable_id"'));assert.ok(!html.includes('name="competence_id"'));assert.ok(html.includes('Motif'));assert.ok(!moduleEditorHtml(w,loot,true).includes('data-master-form='));
+ const row=moduleFormRow(w,loot,{...loot.row,duree_secondes:'0',recuperation_secondes:'',prerequis__levels:'1',prerequis__skill__secours:'OUI',prerequis__level__secours:'2'});assert.equal(row.prerequis,'secours:2');assert.equal(row.recuperation_secondes,'!EFFACER');assert.equal(row.consommable_id,'!EFFACER');assert.equal(row.competence_id,'!EFFACER');
+});
+test('Interactions en ligne : correction des champs inactifs, copie non publiée et archivage ciblé',()=>{
+ const w={...workspace('personnages'),sheet:'Interactions',references:{skills:[],fieldConsumables:[]},rows:[{row:{id:'i',version:'4',nom:'Test',type:'LOOT_METHODICAL',publication:'PUBLISHED',competence_id:'secours',niveau_minimum:'1',duree_secondes:'7',recuperation_secondes:'99'}}]};
+ const d=moduleDraft(w,'i'),row=moduleFormRow(w,d,{...d.row,type:'FIELD_CARE',soin_pv:'2',niveau_reanimation:'3',convalescence_secondes:'0',recuperation_patient_secondes:'11',prerequis__levels:'1'});assert.equal(row.recuperation_secondes,'0');assert.equal(row.prerequis,'!EFFACER');
+ assert.deepEqual(moduleFormRow(w,moduleDraft(w,'i','archive'),{}),{id:'i',operation:'ARCHIVER',version:'4'});const copy=moduleDraft(w,'i','duplicate');assert.equal(copy.row.publication,'DRAFT');assert.notEqual(copy.row.id,'i');
+ assert.throws(()=>moduleFormRow(w,moduleDraft(w),{nom:'Incomplet',type:'FIELD_CARE'}),/obligatoire/);
 });

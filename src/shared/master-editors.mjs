@@ -1,3 +1,4 @@
+import {interactionEditor} from './master-interaction-editor.mjs';
 import {terrainEditor} from './master-terrain-editor.mjs';
 // Form metadata for existing Master sheets; no domain data is stored here.
 const field=(name,label,extra={})=>({name,label,...extra});
@@ -44,6 +45,7 @@ export const masterEditors={
 };
 const activeSkill={type:['ACTIVE_SELF','ACTIVE_TARGET']};
 const catalogueEditors={informations:{Lieux:terrainEditor},personnages:{
+ Interactions:interactionEditor,
  Competences:{sheet:'Competences',title:'Compétences',name:'nom',collection:'skills',fields:[
   required('nom','Nom'),long('description','Description',6000),long('instructions','Instructions',6000),text('categorie','Catégorie',{max:150}),
   {...choice('type','Type',[['PASSIVE','Expertise passive'],['ACTIVE_SELF','Soin sur soi'],['ACTIVE_TARGET','Soin sur une cible']],'PASSIVE'),refresh:true},publication(),long('notes_mj','Notes réservées au MJ'),

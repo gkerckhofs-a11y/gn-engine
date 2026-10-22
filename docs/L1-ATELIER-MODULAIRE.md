@@ -71,9 +71,14 @@ La [tranche L1e](L1E-RELATIONS-MEMBRES.md) ajoute Relations et Membres au module
 
 La [tranche L1f](L1F-TERRAIN-GROUPE.md) réunit Lieux, ActionsTerrain et Recompenses dans un seul parcours Informations / Fouilles. Création complète, modification, duplication en brouillon, archivage et export passent par les imports existants. Les identités historiques et les réserves de session sont conservées ; les ambiguïtés bloquent le parcours sans renommage. Seize parcours couvrent dix-huit feuilles.
 
-## Suite de L1 après L1f
+## L1g — interactions entre personnages
 
-- Export et édition structurée des autres feuilles, y compris profils, dotations, interactions et paramètres ; générer leurs identités et versions sans collisions.
+La [tranche L1g](L1G-INTERACTIONS.md) ajoute Interactions au module Personnages : cinq types existants, champs adaptés, prérequis guidés, duplication en brouillon et export ciblé. Les acquis et historiques restent conservés. Dix-sept parcours couvrent dix-neuf feuilles.
+
+## Suite de L1 après L1g
+
+- Priorité : création de personnage groupée avec Attributions et Dotations, sans redistribution des acquis.
+- Export et édition structurée des autres feuilles, y compris attributions, dotations et paramètres ; générer leurs identités et versions sans collisions.
 - Interface de dépendances et comparateur de versions/rapport de préparation d’épisode ; publication/test isolés explicitement.
 - Consolidation des historiques et diagnostics par module. Aucune erreur fictive « 0 » n’est affichée avant un vrai contrôle.
 - Définition d’Univers/bibliothèques si elle devient nécessaire, avec migration préalable documentée et autorisée.

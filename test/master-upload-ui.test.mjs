@@ -160,3 +160,12 @@ test('Terrain en ligne : création groupée, ajout/retrait conservés après ape
  await f.submit('moduleRow',{...second,action_SEARCH__duree_secondes:'9'});sheets=f.calls.at(-1).payload.sheets;assert.equal(sheets.ActionsTerrain[0].duree_secondes,'9');assert.ok(f.calls.every(c=>c.command!=='applyMasterImport'));
  await f.submit('confirm',{});assert.equal(f.calls.at(-1).command,'applyMasterImport');assert.deepEqual(f.calls.at(-1).payload.sheets,sheets);assert.equal(f.calls.at(-1).payload.module,'informations');assert.equal(f.dialog.open,false);
 }));
+
+test('Interactions en ligne : choix du type, aperçu, correction et confirmation sans écriture anticipée',async()=>withFormData(async()=>{
+ const w={module:'personnages',sheet:'Interactions',session:false,editable:true,errors:[],references:{skills:[{id:'s',name:'Expertise'}],fieldConsumables:[]},newRow:{id:'interaction-id',operation:'CREER',version:'1'},meta:[{format:'gn-engine-master',version:'1',type:'CAMPAGNE',module:'personnages'}],rows:[]},f=controllerFixture({workspace:w});
+ f.click('moduleMaster',{scope:'scenario',module:'personnages'});await new Promise(resolve=>setImmediate(resolve));f.click('moduleEdit');
+ const values={nom:'Interaction fictive',type:'LOOT_COMMON',publication:'DRAFT',duree_secondes:'12',recuperation_secondes:'15',reason:'Motif fictif'};f.refresh(values);assert.ok(!f.dialog.innerHTML.includes('name="consommable_id"'));
+ await f.submit('moduleRow',values);assert.equal(f.calls.at(-1).command,'prepareMasterImport');assert.equal(f.calls.at(-1).payload.sheets.Interactions[0].consommables_supplementaires,'!EFFACER');f.click('moduleBack');assert.ok(f.dialog.innerHTML.includes('Motif fictif'));
+ const changed={...values,type:'CLINIC_FAST',competence_id:'s',niveau_minimum:'1',seuil:'6',complement_secondes:'30'};f.refresh(changed);assert.ok(f.dialog.innerHTML.includes('name="complement_secondes"'));await f.submit('moduleRow',changed);const sheets=f.calls.at(-1).payload.sheets;assert.equal(sheets.Interactions[0].recuperation_secondes,'0');assert.ok(f.calls.every(c=>c.command!=='applyMasterImport'));
+ await f.submit('confirm',{});assert.deepEqual(f.calls.at(-1).payload.sheets,sheets);assert.equal(f.calls.at(-1).command,'applyMasterImport');assert.equal(f.calls.at(-1).payload.module,'personnages');
+}));
