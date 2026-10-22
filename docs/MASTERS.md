@@ -236,3 +236,8 @@ Les six entrées de l’atelier acceptent des imports limités à leur module. L
 Le premier éditeur/export complet concerne **Tarifs**, dans Économie / Stockage. Ses formulaires et XLSX passent par le même plan et la même confirmation que les anciens imports. Les identifiants des nouveaux tarifs et versions suivantes viennent du serveur. Un export contient le contexte et la révision : réexporter après une autre modification. Un réimport strictement identique déjà appliqué reste sans effet, même si cette première application a fait avancer la révision.
 
 Ce lot ne fournit pas encore l’export complet des six modules. Les nouveaux magasins, rendez-vous, achats de vaisseaux et combats ne sont pas simulés. Voir le [périmètre L1](L1-ATELIER-MODULAIRE.md) et la [recette distincte des tests](VALIDATION-0.37.md).
+
+
+## Édition en ligne et exports ciblés — L1b (candidat 0.37)
+
+Les six cartes proposent un premier éditeur/export pour **Personnages, Objectifs, Objets, Routes, Entrepots, Connaissances**. La recherche et le filtre déterminent les fiches exportées. Meta fixe la destination, la campagne, la révision et le module. La création, la modification et la duplication passent par le même aperçu et la même confirmation que le XLSX. Les champs acquis d’une session ne sont pas réimportés. Les autres feuilles conservent leurs outils et le Master global. [Détail des champs, protections et limites](L1B-EDITEURS-MODULAIRES.md).

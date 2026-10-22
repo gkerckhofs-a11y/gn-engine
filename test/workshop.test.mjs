@@ -6,9 +6,9 @@ import {readMasterXlsx} from '../web/master-xlsx.mjs';
 import {workshopModules,masterModuleErrors} from '../src/shared/workshop-modules.mjs';
 test('Atelier : six modules, état honnête et imports réservés à la préparation du propriétaire',()=>{
  const base={id:'s',title:'<secret>',revision:1,role:'OWNER',permissions:{content:true},masterWorkspace:{editable:true,modules:workshopModules.map(m=>({id:m.id,counts:{}}))}};
- const html=workshopDashboard(base,'session');assert.equal((html.match(/data-workshop-jump=/g)||[]).length,6);assert.equal((html.match(/data-module=/g)||[]).length,6);assert.ok(html.includes('&lt;secret&gt;'));assert.ok(html.includes('restent à développer'));
- assert.ok(!workshopDashboard({...base,masterWorkspace:{...base.masterWorkspace,editable:false}},'session').includes('data-module='));
- assert.ok(!workshopDashboard({...base,role:'MJ',masterWorkspace:undefined},'session').includes('data-module='));
+ const html=workshopDashboard(base,'session');assert.equal((html.match(/data-workshop-jump=/g)||[]).length,6);assert.equal((html.match(/data-master-action="moduleMaster"/g)||[]).length,6);assert.equal((html.match(/data-master-action="open"/g)||[]).length,6);assert.ok(html.includes('&lt;secret&gt;'));assert.ok(html.includes('restent à développer'));
+ assert.ok(!workshopDashboard({...base,masterWorkspace:{...base.masterWorkspace,editable:false}},'session').includes('data-master-action="open"'));
+ assert.ok(!workshopDashboard({...base,role:'MJ',masterWorkspace:undefined},'session').includes('data-master-action="open"'));
  assert.equal(workshopDashboard({...base,permissions:{content:false}},'session'),'');
  for(const m of workshopModules)assert.ok(workshopSection(m.id,'outils','scenario').includes(`id="workshop-${m.id}"`));
 });

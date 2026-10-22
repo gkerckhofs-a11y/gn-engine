@@ -51,7 +51,11 @@ Dans le module Économie / Stockage, ouvrir **Master des tarifs**. Choisir Crée
 
 Une autre modification entre export/aperçu et application oblige à actualiser. Un fichier déjà appliqué à l’identique est reconnu inchangé, sans dotation ou historique répété. Les opérations de régie sur les tarifs d’une session en jeu restent dans leur écran existant, avec leurs propres contrôles.
 
-## Suite de L1 après cette tranche
+## L1b — six premiers éditeurs spécialisés
+
+La [tranche L1b](L1B-EDITEURS-MODULAIRES.md) ajoute un parcours complet dans chaque module pour Personnages, Objectifs, Objets, Routes, Entrepots et Connaissances : recherche, édition, duplication en brouillon et export ciblé. Le Master Tarifs reste disponible. Les exports portent sur ces feuilles, pas encore sur toutes les feuilles du module. Le rapport L1b distingue les contrôles locaux, la CI sur le commit exact et les recettes humaines non exécutées.
+
+## Suite de L1 après L1b
 
 - Export et édition structurée des autres feuilles, y compris relations, membres, profils, récompenses et paramètres ; générer leurs identités et versions sans collisions.
 - Interface de dépendances et comparateur de versions/rapport de préparation d’épisode ; publication/test isolés explicitement.

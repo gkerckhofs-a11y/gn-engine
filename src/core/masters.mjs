@@ -282,7 +282,7 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
  return async(action,actor,input)=>{
   admin(actor);const at=now(),eventId=uuid();return store.runTransaction(async tx=>{
    const ctx=await context(tx,actor,input);
-   if(action==='masterWorkspace')return masterWorkspace(tx,ctx,at,eventId);
+   if(action==='masterWorkspace')return masterWorkspace(tx,ctx,at,eventId,input.module);
    if(action==='masterImportHistory')return {imports:await tx.list(`${ctx.base}/masterImports`,null,{orderBy:'at',direction:'desc',limit:30})};
    let op,fingerprint;if(action==='applyMasterImport'){op=`operations/${digest([actor.uid,documentId(input.requestId)])}`;fingerprint=digest([action,input]);const old=await tx.get(op);if(old){requireThat(old.fingerprint===fingerprint,'REQUEST_ID_REUSED');return old.result;}}
    let p;try{p=await plan(tx,actor,input,ctx,at,eventId);}catch(e){if(!e.masterMessage)throw e;p={errors:[{sheet:'Meta',row:1,column:e.column??'',message:e.masterMessage}],changes:[],canApply:false};}

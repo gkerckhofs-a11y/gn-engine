@@ -4,6 +4,8 @@ Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
 **Reprise V2 — candidat 0.37.0 sur branche/PR, non déployé.** [Audit L0](docs/AUDIT-V2-L0.md), [matrice des 119 exigences et 27 recettes](docs/MATRICE-V2.md), [périmètre L1 et tranche L1a](docs/L1-ATELIER-MODULAIRE.md), [preuves et recette](docs/VALIDATION-0.37.md). Les sections historiques ci-dessous décrivent les livraisons antérieures ; leurs anciennes listes « restant » doivent être lues avec la matrice de reprise.
 
+**L1b — éditeurs dans les six modules, sur la même branche.** Fiches personnages, objectifs, catalogue objets, routes, entrepôts et connaissances : recherche, édition, duplication en brouillon, aperçu commun et export des fiches filtrées. [Périmètre, contrôles et limites](docs/L1B-EDITEURS-MODULAIRES.md). L1 reste ouvert.
+
 **Version 0.36.0 publiée : tarifs de douane et de corruption dans les masters.**
 
 Application : **https://gn-engine.web.app/**. Le compte organisateur configuré est `gkerckhofs@gmail.com`. La recette complète avec plusieurs comptes joueurs reste à faire.

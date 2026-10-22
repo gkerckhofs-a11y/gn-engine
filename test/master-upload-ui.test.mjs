@@ -92,3 +92,15 @@ test('Tarifs en ligne : aucun enregistrement avant aperçu puis confirmation com
  assert.equal(f.calls[1].command,'prepareMasterImport');assert.equal(f.calls[1].payload.sheets.Tarifs[0].id,'serveur-id');assert.equal(f.calls.length,2);
  await f.submit('confirm',{});assert.equal(f.calls[2].command,'applyMasterImport');assert.equal(f.calls[2].payload.module,'economie');assert.equal(f.dialog.open,false);
 }));
+
+test('Masters en ligne : filtrer, corriger la saisie après aperçu et confirmer le bon module',async()=>withFormData(async()=>{
+ const workspace={module:'spatioport',sheet:'Routes',session:false,editable:true,errors:[],references:{},newRow:{id:'route-serveur',operation:'CREER',version:'1'},meta:[{format:'gn-engine-master',version:'1',type:'CAMPAGNE',destination_id:'scenario-id',base_revision:'1',module:'spatioport'}],rows:[]},f=controllerFixture({workspace});
+ f.click('moduleMaster',{scope:'scenario',module:'spatioport'});await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(f.calls[0].payload.module,'spatioport');await f.submit('moduleFilter',{query:'test',state:'draft'});assert.equal(f.calls.length,1);
+ f.click('moduleEdit');assert.ok(f.dialog.innerHTML.includes('route-serveur'));
+ const values={nom:'Route test',description:'',depart_port:'a',arrivee_port:'b',duree_secondes:'60',carburant_cout:'0',ouvert:'NON',reason:'Préparation fictive'};
+ await f.submit('moduleRow',values);assert.equal(f.calls[1].command,'prepareMasterImport');assert.equal(f.calls[1].payload.module,'spatioport');assert.deepEqual(Object.keys(f.calls[1].payload.sheets),['Meta','Routes']);
+ f.click('moduleBack');assert.ok(f.dialog.innerHTML.includes('Route test'));assert.ok(f.dialog.innerHTML.includes('Préparation fictive'));
+ await f.submit('moduleRow',{...values,duree_secondes:'90'});assert.equal(f.calls[2].payload.sheets.Routes[0].duree_secondes,'90');assert.equal(f.calls.length,3);
+ await f.submit('confirm',{});assert.equal(f.calls[3].command,'applyMasterImport');assert.equal(f.calls[3].payload.module,'spatioport');assert.equal(f.dialog.open,false);
+}));
