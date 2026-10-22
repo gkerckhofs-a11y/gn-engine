@@ -1,13 +1,19 @@
+import {dotationsReportColumns,dotationsReportSheets} from './master-dotations-report.mjs';
 import {zipSync,strToU8} from 'fflate';
 import {masterSheets,masterLimits} from '../src/shared/master-schema.mjs';
 const xml=value=>String(value).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&apos;');
 const col=n=>n<26?String.fromCharCode(65+n):col(Math.floor(n/26)-1)+col(n%26);
 // All cells are literal strings, including values beginning with =, +, - or @.
 export function writeMasterXlsx(sheets){
- if(!sheets.Meta||Object.values(sheets).reduce((n,rows)=>n+rows.length,0)>masterLimits.rows||strToU8(JSON.stringify(sheets)).length>masterLimits.payloadBytes)throw new Error('Le Master dépasse les limites d’export.');
+ if(!sheets.Meta)throw new Error('Meta requis.');
+ return writeWorkbook(sheets,masterSheets);
+}
+export function writeDotationsReportXlsx(workspace,rows){return writeWorkbook(dotationsReportSheets(workspace,rows),dotationsReportColumns);}
+function writeWorkbook(sheets,schema){
+ if(Object.values(sheets).reduce((n,rows)=>n+rows.length,0)>masterLimits.rows||strToU8(JSON.stringify(sheets)).length>masterLimits.payloadBytes)throw new Error('Le Master dépasse les limites d’export.');
  const files={},names=Object.keys(sheets),put=(path,body)=>{files[path]=strToU8('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+body);};
  names.forEach((name,i)=>{
-  const columns=masterSheets[name];if(!columns)throw new Error('Onglet inconnu.');
+  const columns=Object.hasOwn(schema,name)?schema[name]:null;if(!columns)throw new Error('Onglet inconnu.');
   for(const r of sheets[name])if(Object.keys(r).some(k=>k!=='_row'&&!columns.includes(k)))throw new Error('Colonne inconnue.');
   const rows=[columns,...sheets[name].map(r=>columns.map(c=>r[c]??''))];
   for(const row of rows)for(const v of row)if(!['string','number','boolean'].includes(typeof v)||/[\x00-\x08\x0B\x0C\x0E-\x1F]/.test(String(v)))throw new Error('Valeur non exportable en XLSX.');

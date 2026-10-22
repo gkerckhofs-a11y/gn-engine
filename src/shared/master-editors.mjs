@@ -109,15 +109,17 @@ const catalogueEditors={informations:{Lieux:terrainEditor},personnages:{
   reference('installation_id','Installation déclencheuse','installations',{required:true,clear:false,when:{declenchement:['INSTALLATION_OFFLINE']},inactiveValue:'!EFFACER'}),yesNo('actif','Événement activé')],
   note:'Les effets utilisent les règles économiques existantes. Renseignez explicitement chaque variation, y compris zéro. Changer de type retire les effets de l’ancien type. Un événement dupliqué est désactivé.'},
 }};
+const dotationsEditor={sheet:'Dotations',title:'Relevé des dotations',readOnly:true,fields:[]};
 // Existing callers without a sheet keep their original editor (or the separate tariff workspace).
 export function masterEditor(module,sheet){
  const first=Object.hasOwn(masterEditors,module)?masterEditors[module]:null;
  if(!first)return null;
+ if(sheet==='Dotations')return module==='personnages'?dotationsEditor:null;
  if(sheet==='Parametres')return parameterEditors[module]??null;
  if(sheet===undefined||sheet===first.sheet)return first;
  const extra=Object.hasOwn(catalogueEditors,module)?catalogueEditors[module]:{};
  return Object.hasOwn(extra,sheet)?extra[sheet]:null;
 }
-export const masterEditorsFor=module=>masterEditor(module)?[masterEditor(module),...Object.values(catalogueEditors[module]??{}),...(parameterEditors[module]?[parameterEditors[module]]:[])]:[];
+export const masterEditorsFor=module=>masterEditor(module)?[masterEditor(module),...Object.values(catalogueEditors[module]??{}),...(module==='personnages'?[dotationsEditor]:[]),...(parameterEditors[module]?[parameterEditors[module]]:[])]:[];
 export const editorFields=(module,session,existing,sheet)=>masterEditor(module,sheet).fields.filter(f=>!(f.initialOnly&&session&&existing)&&!(f.creationOnly&&existing));
 export const editorFieldVisible=(field,row)=>Object.entries(field.when??{}).every(([key,allowed])=>allowed==='present'?!!row[key]&&row[key]!=='!EFFACER':allowed.includes(row[key]));

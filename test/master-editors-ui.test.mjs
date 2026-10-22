@@ -32,10 +32,10 @@ test('Masters en ligne : les champs acquis restent absents des formulaires de se
 
 const catalogue=sheet=>({...workspace('personnages'),sheet,references:{allSkills:[{id:'savoir',name:'Savoir <privé>',publication:'PUBLISHED'},{id:'futur',name:'En préparation',publication:'DRAFT'}],consumables:[{id:'kit',name:'Kit de test'}]}});
 test('Catalogues en ligne : choix des feuilles, types de soin et valeurs laissées à configurer',()=>{
- assert.deepEqual(masterEditorsFor('personnages').map(e=>e.sheet),['Personnages','Attributions','Interactions','Competences','Classes','Groupes','Relations','Membres','Parametres']);
+ assert.deepEqual(masterEditorsFor('personnages').map(e=>e.sheet),['Personnages','Attributions','Interactions','Competences','Classes','Groupes','Relations','Membres','Dotations','Parametres']);
  assert.equal(masterEditor('personnages','__proto__'),null);assert.equal(masterEditor('spatioport','Classes'),null);
  const w=catalogue('Competences'),d=moduleDraft(w),list=moduleListHtml(w);
- for(const sheet of ['Personnages','Attributions','Interactions','Competences','Classes','Groupes','Relations','Membres','Parametres'])assert.ok(list.includes(`data-sheet="${sheet}"`));
+ for(const sheet of ['Personnages','Attributions','Interactions','Competences','Classes','Groupes','Relations','Membres','Dotations','Parametres'])assert.ok(list.includes(`data-sheet="${sheet}"`));
  assert.match(list,/data-sheet="Competences" aria-current="page" disabled/);
  assert.ok(!moduleEditorHtml(w,d).includes('name="soin_pv"'));
  for(const type of ['ACTIVE_SELF','ACTIVE_TARGET']){

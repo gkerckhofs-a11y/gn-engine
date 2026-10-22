@@ -18,6 +18,8 @@ Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
 **L1j — paramètres modulaires.** PA, santé de scénario, groupes de session, monnaie de scénario et port local : édition avec aperçu/confirmation et export ciblé selon la destination. [Guide et validation](docs/L1J-PARAMETRES-MODULAIRES.md). Aucun barème ajouté ; L1 reste ouvert.
 
+**L1k — relevé des dotations de départ.** Consultation et export XLSX en lecture seule des réglages enregistrés, distincts des acquis et des lignes d’import historiques. Rapport non réimportable ; aucune redistribution. [Guide et validation](docs/L1K-RELEVE-DOTATIONS.md). Exports Master complets toujours à développer.
+
 **L1f — lieux, actions et récompenses groupés.** Création et modification atomiques des trois feuilles dans Informations / Fouilles, identités historiques et états de session conservés. [Guide, validation et limites](docs/L1F-TERRAIN-GROUPE.md). Seize parcours couvrent dix-huit feuilles sur branche ; aucune publication.
 
 **L1e — relations et membres des groupes.** Deux Masters supplémentaires dans Personnages, droits de jeu sélectionnés par cases et identités historiques conservées. [Guide, validation et limites](docs/L1E-RELATIONS-MEMBRES.md). Quinze éditeurs sur branche ; aucune publication.

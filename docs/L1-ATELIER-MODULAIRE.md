@@ -87,8 +87,12 @@ La [tranche L1i](L1I-ATTRIBUTIONS-SCENARIO.md) ajoute l’édition et l’export
 
 La [tranche L1j](L1J-PARAMETRES-MODULAIRES.md) ajoute les paramètres de Personnages, Économie/Stockage et Spatioport, avec les restrictions scénario/session du contrat existant. Consultation, édition, aperçu/confirmation et export utilisent la feuille Parametres commune. Vingt et un parcours couvrent vingt et une feuilles distinctes. Les métadonnées générales et options hors contrat gardent leurs outils dédiés.
 
-## Suite de L1 après L1j
-- Export et édition structurée des autres feuilles, notamment la restitution des dotations initiales et les exports complets ; générer leurs identités et versions sans collisions.
+## L1k — relevé des dotations
+
+La [tranche L1k](L1K-RELEVE-DOTATIONS.md) ajoute la consultation des définitions de départ enregistrées et leur relevé XLSX filtré, en scénario/session. Rapport en lecture seule, distinct des stocks acquis et non réimportable. Les lignes historiques ne sont pas reconstituées. Les vingt et un parcours précédents sont complétés par ce relevé, sans nouveau parcours d’édition.
+
+## Suite de L1 après L1k
+- Export et édition structurée des autres feuilles, notamment les exports Master complets incluant les dotations (leur relevé en lecture seule est livré) ; générer leurs identités et versions sans collisions.
 - Interface de dépendances et comparateur de versions/rapport de préparation d’épisode ; publication/test isolés explicitement.
 - Consolidation des historiques et diagnostics par module. Aucune erreur fictive « 0 » n’est affichée avant un vrai contrôle.
 - Définition d’Univers/bibliothèques si elle devient nécessaire, avec migration préalable documentée et autorisée.

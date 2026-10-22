@@ -33,7 +33,7 @@ test('Imports : un type inversé ou absent indique le bon emplacement sans le co
 function controllerFixture(options={}){
  const events={},dialogEvents={},status={textContent:''},calls=[],notices=[];
  const dialog={innerHTML:'',open:false,close(){this.open=false;},showModal(){this.open=true;},addEventListener:(event,fn)=>dialogEvents[event]=fn,querySelector:()=>status};
- const doc={body:{append(){}},addEventListener:(event,fn)=>events[event]=fn,createElement:()=>dialog};
+ const doc={body:{append(){}},addEventListener:(event,fn)=>events[event]=fn,createElement:name=>name==='a'&&options.anchor?options.anchor:dialog};
  const ui=createMasterController({document:doc,getContext:scope=>({id:`${scope}-id`,title:'Destination',revision:1}),api:async(command,payload)=>{calls.push({command,payload});if(command==='masterWorkspace')return typeof options.workspace==='function'?options.workspace(payload):options.workspace;return {errors:[],changes:[],canApply:true,confirmation:'confirmed'};},mutate:async(command,payload)=>{calls.push({command,payload});return {id:'saved'};},notice:message=>notices.push(message),onApplied:async()=>{}});
  return {ui,dialog,status,calls,notices,refresh(values,name='type'){const form={values};return dialogEvents.change({target:{name,closest:selector=>selector==='[data-master-refresh]'?{}:form}});},click(action,dataset={},values={}){return events.click({target:{closest:selector=>selector==='[data-master-action]'?{dataset:{masterAction:action,...dataset}}:{values}}});},select(scope,file){const input={files:[file],value:'chosen.xlsx',dataset:{scope}};events.change({target:{closest:()=>input}});assert.equal(input.value,'');},submit(kind='upload',values={reason:'Préparer le jeu'},dataset={}){const form={dataset:{masterForm:kind,...dataset},values,querySelector:()=>({disabled:false})};return dialogEvents.submit({target:{closest:()=>form},preventDefault(){}});}};
 }
@@ -187,4 +187,14 @@ test('Paramètres modulaires : aperçu, retour avec motif et correction, une seu
  await f.submit('moduleRow',{astroport_id:'port-suivant',reason:'Choix du port'});assert.equal(f.calls.at(-1).command,'prepareMasterImport');assert.deepEqual(f.calls.at(-1).payload.sheets.Parametres,[{cle:'astroport_id',valeur:'port-suivant'}]);assert.ok(f.calls.every(c=>c.command!=='applyMasterImport'));
  f.click('moduleBack');assert.ok(f.dialog.innerHTML.includes('port-suivant'));assert.ok(f.dialog.innerHTML.includes('Choix du port'));await f.submit('moduleRow',{astroport_id:'port-corrige',reason:'Correction'});const sheets=f.calls.at(-1).payload.sheets;
  await f.submit('confirm',{});assert.equal(f.calls.at(-1).command,'applyMasterImport');assert.equal(f.calls.at(-1).payload.module,'spatioport');assert.deepEqual(f.calls.at(-1).payload.sheets,sheets);assert.equal(sheets.Parametres[0].valeur,'port-corrige');assert.equal(f.calls.filter(c=>c.command==='applyMasterImport').length,1);
+}));
+
+
+test('Relevé dotations : navigation, filtre et téléchargement sans commande de modification',async()=>withFormData(async()=>{
+ const {dotationsProjection}=await import('../src/core/master-dotations-projection.mjs');
+ let downloads=0;const anchor={click(){downloads++;}},w={...dotationsProjection([{id:'a',public:{displayName:'Un personnage'},startingCredits:{amount:12,revision:1}}]),meta:[{type:'CAMPAGNE',destination_id:'scenario-id',campaign_id:'',base_revision:'1'}]};
+ const f=controllerFixture({workspace:w,anchor});f.click('moduleMaster',{scope:'scenario',module:'personnages'});await new Promise(resolve=>setTimeout(resolve,0));
+ assert.match(f.dialog.innerHTML,/Dotations de départ/);await f.submit('moduleFilter',{query:'personnage',state:'all'});
+ f.click('moduleEdit');f.click('moduleDuplicate');f.click('moduleArchive');assert.equal(f.calls.length,1);
+ f.click('moduleExport');assert.equal(downloads,1);assert.match(anchor.download,/GN_Engine_Releve_Dotations_Campagne_scenario-id.xlsx/);assert.match(f.status.textContent,/ne peut pas être réimporté/);assert.equal(f.calls.length,1);assert.deepEqual(f.notices,[]);
 }));
