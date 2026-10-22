@@ -1,3 +1,4 @@
+import {parameterEditors} from './master-parameters-editor.mjs';
 import {characterCreationFields} from './master-character-creation.mjs';
 import {interactionEditor} from './master-interaction-editor.mjs';
 import {terrainEditor} from './master-terrain-editor.mjs';
@@ -112,10 +113,11 @@ const catalogueEditors={informations:{Lieux:terrainEditor},personnages:{
 export function masterEditor(module,sheet){
  const first=Object.hasOwn(masterEditors,module)?masterEditors[module]:null;
  if(!first)return null;
+ if(sheet==='Parametres')return parameterEditors[module]??null;
  if(sheet===undefined||sheet===first.sheet)return first;
  const extra=Object.hasOwn(catalogueEditors,module)?catalogueEditors[module]:{};
  return Object.hasOwn(extra,sheet)?extra[sheet]:null;
 }
-export const masterEditorsFor=module=>masterEditor(module)?[masterEditor(module),...Object.values(catalogueEditors[module]??{})]:[];
+export const masterEditorsFor=module=>masterEditor(module)?[masterEditor(module),...Object.values(catalogueEditors[module]??{}),...(parameterEditors[module]?[parameterEditors[module]]:[])]:[];
 export const editorFields=(module,session,existing,sheet)=>masterEditor(module,sheet).fields.filter(f=>!(f.initialOnly&&session&&existing)&&!(f.creationOnly&&existing));
 export const editorFieldVisible=(field,row)=>Object.entries(field.when??{}).every(([key,allowed])=>allowed==='present'?!!row[key]&&row[key]!=='!EFFACER':allowed.includes(row[key]));

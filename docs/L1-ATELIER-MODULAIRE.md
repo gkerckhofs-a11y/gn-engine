@@ -83,8 +83,12 @@ La [tranche L1h](L1H-CREATION-PERSONNAGE.md) enrichit la création Personnages a
 
 La [tranche L1i](L1I-ATTRIBUTIONS-SCENARIO.md) ajoute l’édition et l’export des Attributions aux scénarios. Les reçus historiques fournissent leurs identités ; ambiguïtés et retraits non représentables bloquent le parcours. Les sessions existantes restent protégées. Dix-huit parcours couvrent vingt feuilles, avec ce périmètre scénario explicite.
 
-## Suite de L1 après L1i
-- Export et édition structurée des autres feuilles, notamment la restitution des dotations initiales et les paramètres ; générer leurs identités et versions sans collisions.
+## L1j — paramètres modulaires
+
+La [tranche L1j](L1J-PARAMETRES-MODULAIRES.md) ajoute les paramètres de Personnages, Économie/Stockage et Spatioport, avec les restrictions scénario/session du contrat existant. Consultation, édition, aperçu/confirmation et export utilisent la feuille Parametres commune. Vingt et un parcours couvrent vingt et une feuilles distinctes. Les métadonnées générales et options hors contrat gardent leurs outils dédiés.
+
+## Suite de L1 après L1j
+- Export et édition structurée des autres feuilles, notamment la restitution des dotations initiales et les exports complets ; générer leurs identités et versions sans collisions.
 - Interface de dépendances et comparateur de versions/rapport de préparation d’épisode ; publication/test isolés explicitement.
 - Consolidation des historiques et diagnostics par module. Aucune erreur fictive « 0 » n’est affichée avant un vrai contrôle.
 - Définition d’Univers/bibliothèques si elle devient nécessaire, avec migration préalable documentée et autorisée.

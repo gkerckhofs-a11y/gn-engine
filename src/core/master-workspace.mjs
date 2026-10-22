@@ -1,3 +1,4 @@
+import {parameterProjection} from './master-parameters-projection.mjs';
 import {masterCollections} from '../shared/master-schema.mjs';
 import {workshopModules} from '../shared/workshop-modules.mjs';
 import {accountId,groupAccountId} from './economy-state.mjs';
@@ -15,6 +16,7 @@ export async function masterWorkspace(tx,ctx,at,newId,module,sheet){
  if(module!==undefined)requireThat(masterEditor(module),'INVALID_MASTER_MODULE');
  if(sheet!==undefined)requireThat(typeof sheet==='string'&&masterEditor(module,sheet),'INVALID_MASTER_SHEET');
  if(module!==undefined)requireThat(!ctx.session||!masterEditor(module,sheet).scenarioOnly,'INVALID_MASTER_SHEET');
+ if(sheet==='Parametres')return {...parameterProjection(ctx.parent,module,ctx.session),meta:moduleMeta(ctx,module),revision:ctx.parent.revision,editable:masterEditable(ctx,at)};
  const records=Object.fromEntries(await Promise.all(Object.values(masterCollections).map(async k=>[k,await tx.list(`${ctx.base}/${k}`)])));
  const allStamps=[...(ctx.parent.masterRowBaseline??[]),...await tx.list(`${ctx.base}/masterRows`)];
  if(module!==undefined)return {...masterEditorProjection({module,sheet,records,stamps:allStamps,session:ctx.session,newId}),meta:moduleMeta(ctx,module),revision:ctx.parent.revision,editable:masterEditable(ctx,at)};

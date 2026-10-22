@@ -32,10 +32,10 @@ test('Masters en ligne : les champs acquis restent absents des formulaires de se
 
 const catalogue=sheet=>({...workspace('personnages'),sheet,references:{allSkills:[{id:'savoir',name:'Savoir <privé>',publication:'PUBLISHED'},{id:'futur',name:'En préparation',publication:'DRAFT'}],consumables:[{id:'kit',name:'Kit de test'}]}});
 test('Catalogues en ligne : choix des feuilles, types de soin et valeurs laissées à configurer',()=>{
- assert.deepEqual(masterEditorsFor('personnages').map(e=>e.sheet),['Personnages','Attributions','Interactions','Competences','Classes','Groupes','Relations','Membres']);
+ assert.deepEqual(masterEditorsFor('personnages').map(e=>e.sheet),['Personnages','Attributions','Interactions','Competences','Classes','Groupes','Relations','Membres','Parametres']);
  assert.equal(masterEditor('personnages','__proto__'),null);assert.equal(masterEditor('spatioport','Classes'),null);
  const w=catalogue('Competences'),d=moduleDraft(w),list=moduleListHtml(w);
- for(const sheet of ['Personnages','Attributions','Interactions','Competences','Classes','Groupes','Relations','Membres'])assert.ok(list.includes(`data-sheet="${sheet}"`));
+ for(const sheet of ['Personnages','Attributions','Interactions','Competences','Classes','Groupes','Relations','Membres','Parametres'])assert.ok(list.includes(`data-sheet="${sheet}"`));
  assert.match(list,/data-sheet="Competences" aria-current="page" disabled/);
  assert.ok(!moduleEditorHtml(w,d).includes('name="soin_pv"'));
  for(const type of ['ACTIVE_SELF','ACTIVE_TARGET']){
@@ -147,4 +147,19 @@ test('Attributions : scénario seul, personnage verrouillé, niveaux et export c
  assert.ok(moduleEditorHtml(w,moduleDraft(w)).includes('Nouveau (n)'));const d=moduleDraft(w,'a');assert.match(moduleEditorHtml(w,d),/name="personnage_id" disabled/);
  const sheets=moduleFormSheets(w,d,{personnage_id:'n',competences__levels:'1',competences__skill__s:'OUI',competences__level__s:'4',publication:'NON'});assert.equal(sheets.Attributions[0].personnage_id,'p');assert.equal(sheets.Attributions[0].competences,'s:4');assert.deepEqual(Object.keys(moduleMasterSheets(w)),['Meta','Attributions']);
  assert.ok(!moduleListHtml({...workspace('personnages'),session:true}).includes('data-sheet="Attributions"'));assert.throws(()=>moduleMasterSheets({...w,session:true}),/réservé au scénario/);assert.throws(()=>moduleFormSheets({...w,session:true},d,d.row),/réservé au scénario/);
+});
+
+test('Paramètres : formulaire sans barème, export ciblé et refus de configuration incomplète',()=>{
+ const w={...workspace('personnages'),sheet:'Parametres',values:{},configured:{pa:false,health:false,money:false}},d=moduleDraft(w),html=moduleEditorHtml(w,d);
+ assert.ok(!html.includes('name="groupes_actifs"'));assert.match(html,/name="pa_cout"[^>]*value=""/);assert.ok(!moduleListHtml(w).includes('moduleArchive'));assert.ok(!moduleListHtml(w).includes('moduleDuplicate'));
+ assert.throws(()=>moduleFormSheets(w,d,{pa_actifs:'OUI'}),/Première configuration/);assert.throws(()=>moduleFormSheets(w,d,{}),/au moins un paramètre/);
+ const v={sante_active:'OUI',pv_max_defaut:'9',monnaie_nom:'Hors module',reason:'Choix explicite'},r=moduleRefreshDraft(w,d,v);assert.equal(r.row.pv_max_defaut,'9');assert.equal(r.reason,'Choix explicite');
+ assert.deepEqual(moduleFormSheets(w,r,v),{Meta:w.meta,Parametres:[{cle:'sante_active',valeur:'OUI'},{cle:'pv_max_defaut',valeur:'9'}]});
+ assert.deepEqual(moduleMasterSheets({...w,values:{pa_cout:'0',sante_active:'NON'}}).Parametres,[{cle:'pa_cout',valeur:'0'},{cle:'sante_active',valeur:'NON'}]);assert.throws(()=>moduleDraft(w,'','archive'));
+});
+test('Paramètres : restrictions de session visibles, lecture seule et valeurs échappées',()=>{
+ const w={...workspace('personnages'),sheet:'Parametres',session:true,editable:false,values:{groupes_actifs:'NON',pa_cout:'0'},configured:{pa:true}},html=moduleEditorHtml(w,moduleDraft(w),true);
+ assert.ok(html.includes('name="groupes_actifs"'));assert.ok(!html.includes('name="sante_active"'));assert.ok(!html.includes('data-master-form='));assert.ok(!moduleListHtml(w).includes('moduleEdit'));
+ assert.throws(()=>moduleFormSheets(w,moduleDraft(w),{pa_cout:'1'}),/ne peut pas être modifié/);assert.ok(!moduleListHtml({...workspace('economie'),session:true}).includes('data-sheet="Parametres"'));
+ const port={...w,module:'spatioport',values:{astroport_id:'<port>'}};assert.ok(moduleListHtml(port).includes('&lt;port&gt;'));assert.deepEqual(moduleMasterSheets(port).Parametres,[{cle:'astroport_id',valeur:'<port>'}]);
 });

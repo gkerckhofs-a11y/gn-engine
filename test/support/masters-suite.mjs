@@ -1,3 +1,4 @@
+import {masterParametersEditorsSuite} from './master-parameters-editors-suite.mjs';
 import {masterAttributionEditorsSuite} from './master-attribution-editors-suite.mjs';
 import {masterCharacterCreationSuite} from './master-character-creation-suite.mjs';
 import {masterInteractionEditorsSuite} from './master-interaction-editors-suite.mjs';
@@ -29,6 +30,7 @@ export async function masterFixture(makeStore){
  return {store,owner,player,read,cmd,scenarioId,prepare,apply,session};
 }
 export function mastersSuite(makeStore,prefix='Masters'){
+ masterParametersEditorsSuite(()=>masterFixture(makeStore),prefix);
  masterAttributionEditorsSuite(()=>masterFixture(makeStore),prefix);
  masterCharacterCreationSuite(()=>masterFixture(makeStore),prefix);
  masterInteractionEditorsSuite(()=>masterFixture(makeStore),prefix);

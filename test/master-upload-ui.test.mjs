@@ -180,3 +180,11 @@ test('Création groupée personnage : retour depuis aperçu conserve profil et d
  await f.submit('moduleRow',{...values,initial_credits:'19'});const sheets=f.calls.at(-1).payload.sheets;assert.equal(sheets.Dotations[0].quantite,'19');assert.equal(sheets.Dotations[0].id,first.Dotations[0].id);
  await f.submit('confirm',{});assert.equal(f.calls.at(-1).command,'applyMasterImport');assert.equal(f.calls.at(-1).payload.module,'personnages');assert.deepEqual(f.calls.at(-1).payload.sheets,sheets);assert.equal(f.calls.filter(c=>c.command==='applyMasterImport').length,1);
 }));
+
+test('Paramètres modulaires : aperçu, retour avec motif et correction, une seule confirmation',async()=>withFormData(async()=>{
+ const w={module:'spatioport',sheet:'Parametres',session:false,editable:true,errors:[],references:{},configured:{},values:{astroport_id:'port-initial'},meta:[{format:'gn-engine-master',version:'1',type:'CAMPAGNE',module:'spatioport'}],rows:[]},f=controllerFixture({workspace:w});
+ f.click('moduleMaster',{scope:'scenario',module:'spatioport'});await new Promise(resolve=>setImmediate(resolve));f.click('moduleEdit');
+ await f.submit('moduleRow',{astroport_id:'port-suivant',reason:'Choix du port'});assert.equal(f.calls.at(-1).command,'prepareMasterImport');assert.deepEqual(f.calls.at(-1).payload.sheets.Parametres,[{cle:'astroport_id',valeur:'port-suivant'}]);assert.ok(f.calls.every(c=>c.command!=='applyMasterImport'));
+ f.click('moduleBack');assert.ok(f.dialog.innerHTML.includes('port-suivant'));assert.ok(f.dialog.innerHTML.includes('Choix du port'));await f.submit('moduleRow',{astroport_id:'port-corrige',reason:'Correction'});const sheets=f.calls.at(-1).payload.sheets;
+ await f.submit('confirm',{});assert.equal(f.calls.at(-1).command,'applyMasterImport');assert.equal(f.calls.at(-1).payload.module,'spatioport');assert.deepEqual(f.calls.at(-1).payload.sheets,sheets);assert.equal(sheets.Parametres[0].valeur,'port-corrige');assert.equal(f.calls.filter(c=>c.command==='applyMasterImport').length,1);
+}));

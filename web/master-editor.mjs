@@ -1,3 +1,4 @@
+import {parameterSheets,parameterListHtml,parameterEditorHtml} from './master-parameters-editor.mjs';
 import {characterCreationSheets} from '../src/shared/master-character-creation.mjs';
 import {terrainDraft,terrainRefreshDraft,terrainFormSheets,terrainMasterSheets,terrainEditorHtml} from './master-terrain-editor.mjs';
 import {masterFieldsHtml} from './master-fields.mjs';
@@ -10,6 +11,7 @@ export function filteredMasterRows(w,query='',state='all'){
  return w.rows.filter(r=>(state==='all'||r.state===state)&&`${r.title} ${r.ownerLabel} ${r.row.id}`.toLocaleLowerCase('fr').includes(q));
 }
 export function moduleMasterSheets(w,rows=w.rows){
+ if(w.sheet==='Parametres')return parameterSheets(w);
  if(w.session&&masterEditor(w.module,w.sheet).scenarioOnly)throw new Error('Ce Master est réservé au scénario.');
  if(w.sheet==='Lieux')return terrainMasterSheets(w,rows);
  if(w.errors.length)throw new Error(w.errors.join(' '));
@@ -18,9 +20,11 @@ export function moduleMasterSheets(w,rows=w.rows){
 export function moduleListHtml(w,query='',state='all'){
  const def=masterEditor(w.module,w.sheet),rows=filteredMasterRows(w,query,state),usable=!w.errors.length;
  const editors=masterEditorsFor(w.module).filter(e=>!w.session||!e.scenarioOnly),navigation=editors.length>1?`<nav class="row" aria-label="Feuilles Master">${editors.map(e=>button(esc(e.title),'moduleSheet',`data-sheet="${e.sheet}" ${e.sheet===w.sheet?'aria-current="page" disabled':''}`)).join('')}</nav>`:'';
+ if(w.sheet==='Parametres')return parameterListHtml(w,navigation);
  return `${navigation}<h2>Master · ${def.title}</h2><p>${def.note}</p><p>${w.editable?'Créez ou modifiez une fiche, puis relisez l’aperçu avant confirmation.':'Lecture et export uniquement : la session a quitté la préparation initiale.'}</p><p>Export limité à <strong>${def.groupedTerrain?'Lieux + ActionsTerrain + Recompenses des lieux affichés':def.sheet}</strong>. Les autres contenus du module conservent leurs outils actuels.</p>${w.errors.length?`<p class="error-panel">${w.errors.map(esc).join('<br>')}</p>`:''}<form data-master-form="moduleFilter"><label>Rechercher un nom, un personnage ou un identifiant<input name="query" value="${esc(query)}"></label><label>État<select name="state">${[['all','Tous'],['active',def.stateLabels?.active??'Publiés, ouverts ou activés'],['draft',def.stateLabels?.draft??'Brouillons, fermés ou désactivés'],['archived','Archivés']].map(([v,l])=>`<option value="${v}" ${v===state?'selected':''}>${l}</option>`).join('')}</select></label><button class="quiet">Filtrer</button></form><p>${rows.length} / ${w.rows.length} fiches affichées.</p><div class="row">${w.editable&&usable?button('Créer une fiche','moduleEdit'):''}${usable?button('Exporter les fiches affichées (.xlsx)','moduleExport'):''}</div><div class="stack">${rows.map(r=>`<article class="panel"><h3>${esc(r.title)}</h3><p>${esc(r.ownerLabel)} · ${esc(r.row.id)} · ${esc(def.stateLabels?.[r.state]??(r.state==='archived'?'Archivé':r.state==='active'?'Publié / ouvert / activé':'Brouillon / fermé / désactivé'))}</p>${button('Consulter','moduleView',`data-id="${esc(r.row.id)}"`)}${w.editable&&usable?button(r.archived?'Modifier / réactiver':'Modifier','moduleEdit',`data-id="${esc(r.row.id)}"`)+(def.duplicate===false?'':button('Dupliquer en brouillon','moduleDuplicate',`data-id="${esc(r.row.id)}"`))+(r.archived?'':button(def.archiveLabel??'Archiver','moduleArchive',`data-id="${esc(r.row.id)}"`)):''}</article>`).join('')||'<p>Aucune fiche ne correspond à ce filtre.</p>'}</div><p data-master-status role="status" aria-live="polite"></p>`;
 }
 export function moduleDraft(w,id='',mode='edit'){
+ if(w.sheet==='Parametres'){if(['duplicate','archive'].includes(mode))throw new Error('Les paramètres ne se dupliquent pas et ne s’archivent pas.');return {row:{...w.values},existing:true,mode:'edit'};}
  if(w.sheet==='Lieux')return terrainDraft(w,id,mode);
  if(mode==='duplicate'&&masterEditor(w.module,w.sheet).duplicate===false)throw new Error(masterEditor(w.module,w.sheet).duplicateMessage??'Un cours est unique par objet. Créez un cours pour un autre objet ou réactivez le cours existant.');
  if(id&&w.rows.filter(e=>e.row.id===id).length>1)throw new Error('Identifiant ambigu. Consultez les fiches concernées depuis leurs outils.');
@@ -75,6 +79,7 @@ export function moduleFormRow(w,draft,values){
  return row;
 }
 export function moduleEditorHtml(w,draft,readOnly=false){
+ if(w.sheet==='Parametres')return parameterEditorHtml(w,draft,readOnly);
  if(w.sheet==='Lieux')return terrainEditorHtml(w,draft,readOnly);
  const def=masterEditor(w.module,w.sheet),r=draft.row,archive=draft.mode==='archive',fields=draftFields(w,draft);
 
@@ -82,6 +87,7 @@ export function moduleEditorHtml(w,draft,readOnly=false){
 }
 
 export function moduleFormSheets(w,draft,values){
+ if(w.sheet==='Parametres')return parameterSheets(w,values,true);
  if(w.sheet==='Lieux')return terrainFormSheets(w,draft,values);
  const row=moduleFormRow(w,draft,values);
  return {Meta:w.meta,[w.sheet]:[row],...(w.sheet==='Personnages'?characterCreationSheets(row,moduleFormValues(w,values)):{})};
