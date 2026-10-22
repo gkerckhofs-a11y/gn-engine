@@ -91,7 +91,11 @@ La [tranche L1j](L1J-PARAMETRES-MODULAIRES.md) ajoute les paramètres de Personn
 
 La [tranche L1k](L1K-RELEVE-DOTATIONS.md) ajoute la consultation des définitions de départ enregistrées et leur relevé XLSX filtré, en scénario/session. Rapport en lecture seule, distinct des stocks acquis et non réimportable. Les lignes historiques ne sont pas reconstituées. Les vingt et un parcours précédents sont complétés par ce relevé, sans nouveau parcours d’édition.
 
-## Suite de L1 après L1k
+## L1l — exports groupés
+
+La [tranche L1l](L1L-EXPORTS-GROUPES.md) réunit les feuilles exportables de chacun des six modules dans une transaction de lecture commune. L’écran annonce les comptes de lignes et exclusions avant téléchargement. Les dotations restent séparées et les références extérieures préexistantes. Les exports filtrés par feuille restent disponibles.
+
+## Suite de L1 après L1l
 - Export et édition structurée des autres feuilles, notamment les exports Master complets incluant les dotations (leur relevé en lecture seule est livré) ; générer leurs identités et versions sans collisions.
 - Interface de dépendances et comparateur de versions/rapport de préparation d’épisode ; publication/test isolés explicitement.
 - Consolidation des historiques et diagnostics par module. Aucune erreur fictive « 0 » n’est affichée avant un vrai contrôle.

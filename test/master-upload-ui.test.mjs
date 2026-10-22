@@ -198,3 +198,16 @@ test('Relevé dotations : navigation, filtre et téléchargement sans commande d
  f.click('moduleEdit');f.click('moduleDuplicate');f.click('moduleArchive');assert.equal(f.calls.length,1);
  f.click('moduleExport');assert.equal(downloads,1);assert.match(anchor.download,/GN_Engine_Releve_Dotations_Campagne_scenario-id.xlsx/);assert.match(f.status.textContent,/ne peut pas être réimporté/);assert.equal(f.calls.length,1);assert.deepEqual(f.notices,[]);
 }));
+
+test('Export groupé : requête unique, annonce du périmètre et téléchargement sans mutation',async()=>withFormData(async()=>{
+ const meta=[{format:'gn-engine-master',version:'1',type:'CAMPAGNE',destination_id:'scenario-id',base_revision:'1',module:'magasins'}];
+ const w={module:'magasins',sheet:'Objets',meta,editable:true,errors:[],rows:[],references:{}};let downloads=0;const anchor={click(){downloads++;}},f=controllerFixture({anchor,workspace:input=>input.bundle?{module:'magasins',bundle:true,meta,editable:true,workspaces:[w]}:w});
+ f.click('moduleMaster',{scope:'scenario',module:'magasins'});await new Promise(r=>setTimeout(r,0));assert.match(f.dialog.innerHTML,/moduleExportAll/);
+ f.click('moduleExportAll');await new Promise(r=>setTimeout(r,0));assert.equal(f.calls.length,2);assert.deepEqual(f.calls[1].payload,{scenarioId:'scenario-id',module:'magasins',bundle:true});assert.match(f.dialog.innerHTML,/Objets : 0 lignes/);
+ f.click('moduleDownloadAll');assert.equal(downloads,1);assert.match(anchor.download,/GN_Engine_Module_magasins_Campagne/);assert.equal(f.calls.length,2);f.click('moduleList');f.click('moduleDownloadAll');assert.equal(downloads,1);
+}));
+
+test('Export groupé : fermer pendant la lecture abandonne la réponse',async()=>{
+ let finish;const w={module:'magasins',sheet:'Objets',meta:[{module:'magasins'}],editable:true,errors:[],rows:[],references:{}};
+ const f=controllerFixture({workspace:input=>input.bundle?new Promise(resolve=>finish=resolve):w});f.click('moduleMaster',{scope:'scenario',module:'magasins'});await new Promise(r=>setTimeout(r,0));f.click('moduleExportAll');f.ui.clear();finish({module:'magasins',bundle:true,meta:w.meta,workspaces:[w]});await new Promise(r=>setTimeout(r,0));assert.equal(f.dialog.open,false);assert.equal(f.dialog.innerHTML,'');assert.deepEqual(f.notices,[]);
+});

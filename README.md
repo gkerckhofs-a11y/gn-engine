@@ -20,6 +20,8 @@ Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
 **L1k — relevé des dotations de départ.** Consultation et export XLSX en lecture seule des réglages enregistrés, distincts des acquis et des lignes d’import historiques. Rapport non réimportable ; aucune redistribution. [Guide et validation](docs/L1K-RELEVE-DOTATIONS.md). Exports Master complets toujours à développer.
 
+**L1l — exports groupés.** Un classeur par module réunit ses feuilles exportables dans une lecture cohérente, avec périmètre et exclusions annoncés. [Guide et validation](docs/L1L-EXPORTS-GROUPES.md). Dotations séparées, dépendances externes préexistantes ; L1 reste ouvert.
+
 **L1f — lieux, actions et récompenses groupés.** Création et modification atomiques des trois feuilles dans Informations / Fouilles, identités historiques et états de session conservés. [Guide, validation et limites](docs/L1F-TERRAIN-GROUPE.md). Seize parcours couvrent dix-huit feuilles sur branche ; aucune publication.
 
 **L1e — relations et membres des groupes.** Deux Masters supplémentaires dans Personnages, droits de jeu sélectionnés par cases et identités historiques conservées. [Guide, validation et limites](docs/L1E-RELATIONS-MEMBRES.md). Quinze éditeurs sur branche ; aucune publication.
