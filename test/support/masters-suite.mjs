@@ -1,3 +1,4 @@
+import {masterWorkspaceSuite} from './master-workspace-suite.mjs';
 import {masterCustomsSuite} from './master-customs-suite.mjs';
 import {masterNavigationSuite} from './master-navigation-suite.mjs';
 import {masterEconomicsSuite} from './master-economics-suite.mjs';
@@ -20,6 +21,7 @@ export async function masterFixture(makeStore){
  return {store,owner,player,read,cmd,scenarioId,prepare,apply,session};
 }
 export function mastersSuite(makeStore,prefix='Masters'){
+ masterWorkspaceSuite(()=>masterFixture(makeStore),prefix);
  masterCustomsSuite(()=>masterFixture(makeStore),prefix);
  masterEconomicsSuite(()=>masterFixture(makeStore),prefix);
  masterNavigationSuite(()=>masterFixture(makeStore),prefix);

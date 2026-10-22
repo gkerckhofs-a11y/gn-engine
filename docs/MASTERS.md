@@ -227,3 +227,12 @@ Les tarifs suivent la version publiée, les nouvelles sessions indépendantes ou
 Le master SESSION reste réservé à **PREPARATION, avant le premier lancement**. Pendant la partie, utiliser **Régie → Vaisseaux et chargements → Douanes et corruption**. Un import ne modifie ni les soldes, ni les lots, ni les reçus, ni les devis des transferts déjà réservés. Le paiement conserve le montant annoncé à la réservation et intervient à réception.
 
 Les exemples sont **fictifs et désactivés** : droit de chargement de 2 + 1 par unité, arrangement de déchargement du carburant de 3 + 0 par unité. L’exemple session modifie le fixe du premier à 4 et ajoute un droit de transbordement de 0 + 1 par unité. Le modèle vierge n’impose aucun montant.
+
+
+## Atelier modulaire — candidat 0.37 (non déployé)
+
+Les six entrées de l’atelier acceptent des imports limités à leur module. La colonne facultative `Meta.module` conserve cette frontière même si le fichier est chargé dans le champ global. Les références croisées sont contrôlées sur les données existantes ; pour créer plusieurs domaines ensemble, continuer d’utiliser le Master global. Les quatre fichiers téléchargeables sont inchangés.
+
+Le premier éditeur/export complet concerne **Tarifs**, dans Économie / Stockage. Ses formulaires et XLSX passent par le même plan et la même confirmation que les anciens imports. Les identifiants des nouveaux tarifs et versions suivantes viennent du serveur. Un export contient le contexte et la révision : réexporter après une autre modification. Un réimport strictement identique déjà appliqué reste sans effet, même si cette première application a fait avancer la révision.
+
+Ce lot ne fournit pas encore l’export complet des six modules. Les nouveaux magasins, rendez-vous, achats de vaisseaux et combats ne sont pas simulés. Voir le [périmètre L1](L1-ATELIER-MODULAIRE.md) et la [recette distincte des tests](VALIDATION-0.37.md).

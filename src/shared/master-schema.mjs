@@ -2,7 +2,7 @@
 export const masterVersion=1;
 export const masterLimits={fileBytes:8*1024*1024,expandedBytes:16*1024*1024,payloadBytes:1024*1024,rows:250,writes:420};
 export const masterSheets={
- Meta:['format','version','type','destination_id','campaign_id','base_revision'],
+ Meta:['format','version','type','destination_id','campaign_id','base_revision','module'],
  Parametres:['cle','valeur'],
  Personnages:['id','operation','version','nom','metier','description_publique','publication_publique','publication','histoire','interpretation','secrets_joueur','notes_mj','niveau_global','pv_max_initiaux','portrait_media_id','image_privee_media_id'],
  Objets:['id','operation','version','nom','description','categorie','unite','type','consommable','volume_unitaire','legalite','publication','notes_mj','image_media_id','pillable','billes_par_recharge'],
