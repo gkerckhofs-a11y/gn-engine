@@ -79,8 +79,12 @@ La [tranche L1g](L1G-INTERACTIONS.md) ajoute Interactions au module Personnages 
 
 La [tranche L1h](L1H-CREATION-PERSONNAGE.md) enrichit la création Personnages avec un profil et des dotations explicitement choisis, puis vérifiés dans un import atomique. Les champs sont réservés aux nouveaux personnages ; duplication, modification et épisode suivant ne redistribuent pas les acquis. Les dix-neuf feuilles déjà éditables/exportables sont complétées par la création groupée d’Attributions et Dotations. Leur édition/export complet reste ouvert.
 
-## Suite de L1 après L1h
-- Export et édition structurée des autres feuilles, y compris attributions, dotations et paramètres ; générer leurs identités et versions sans collisions.
+## L1i — attributions du scénario
+
+La [tranche L1i](L1I-ATTRIBUTIONS-SCENARIO.md) ajoute l’édition et l’export des Attributions aux scénarios. Les reçus historiques fournissent leurs identités ; ambiguïtés et retraits non représentables bloquent le parcours. Les sessions existantes restent protégées. Dix-huit parcours couvrent vingt feuilles, avec ce périmètre scénario explicite.
+
+## Suite de L1 après L1i
+- Export et édition structurée des autres feuilles, notamment la restitution des dotations initiales et les paramètres ; générer leurs identités et versions sans collisions.
 - Interface de dépendances et comparateur de versions/rapport de préparation d’épisode ; publication/test isolés explicitement.
 - Consolidation des historiques et diagnostics par module. Aucune erreur fictive « 0 » n’est affichée avant un vrai contrôle.
 - Définition d’Univers/bibliothèques si elle devient nécessaire, avec migration préalable documentée et autorisée.

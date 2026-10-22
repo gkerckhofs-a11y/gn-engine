@@ -1,3 +1,4 @@
+import {attributionMasterRows} from './master-attribution-projection.mjs';
 import {terrainMasterRows} from './master-terrain-projection.mjs';
 import {masterEditor} from '../shared/master-editors.mjs';
 import {groupAccountId} from './economy-state.mjs';
@@ -14,10 +15,12 @@ export function masterEditorProjection({module,sheet,records,stamps,session,newI
  const versions=new Map(stamps.filter(s=>s.sheet===def.sheet).map(s=>[s.rowId,s.version]));
  const terrain=def.groupedTerrain?terrainMasterRows(records.fieldTargets,stamps):null;
  const members=def.sheet==='Membres'?memberMasterRows(records.groups,records.characters,stamps):null;
- const source=members?.rows??(['Objectifs','Relations'].includes(def.sheet)?records.characters.flatMap(c=>(c[def.sheet==='Objectifs'?'objectives':'relations']??[]).map(o=>({...o,characterId:c.id,characterName:c.public.displayName}))):records[def.collection]);
+ const attributions=def.sheet==='Attributions'?attributionMasterRows(records.characters,stamps):null;
+ const source=attributions?.rows??members?.rows??(['Objectifs','Relations'].includes(def.sheet)?records.characters.flatMap(c=>(c[def.sheet==='Objectifs'?'objectives':'relations']??[]).map(o=>({...o,characterId:c.id,characterName:c.public.displayName}))):records[def.collection]);
  const rows=terrain?.rows??source.map(d=>{
   const row={id:d.id,operation:'MODIFIER',version:String((versions.get(d.id)??0)+1)};
   if(def.sheet==='Personnages')Object.assign(row,{nom:d.public.displayName,metier:blank(d.public.profession),description_publique:blank(d.public.description),publication_publique:d.public.publicationState,publication:d.publicationState,histoire:blank(d.biography),interpretation:blank(d.roleplay),secrets_joueur:blank(d.playerSecrets),notes_mj:blank(d.gmNotes),portrait_media_id:blank(d.mediaImages?.portrait?.id),image_privee_media_id:blank(d.mediaImages?.private?.id),...(!session?{...(d.globalLevel!=null?{niveau_global:String(d.globalLevel)}:{}),...(d.initialMaxHp!=null?{pv_max_initiaux:String(d.initialMaxHp)}:{})}:{})});
+  if(def.sheet==='Attributions')Object.assign(row,{personnage_id:d.characterId,classe_id:blank(d.profile.choices?.classId),competences:blank((d.profile.choices?.overrides??[]).map(s=>`${s.skillId}:${s.level}`).join(';')),publication:yn(d.profile.published)});
   if(def.sheet==='Objectifs')Object.assign(row,{personnage_id:d.characterId,titre:d.title,description:blank(d.description),publication:yn(d.published),notes_mj:blank(d.gmNotes)});
   if(def.sheet==='Relations')Object.assign(row,{personnage_id:d.characterId,cible_id:blank(d.targetId),titre:d.title,description:blank(d.description),publication:yn(d.published),notes_mj:blank(d.gmNotes)});
   if(def.sheet==='Membres')Object.assign(row,{groupe_id:d.groupId,personnage_id:d.characterId,role:blank(d.role),actif:yn(d.active),revele:yn(d.revealed),visible_membres:yn(d.visibleToMembers),affiliation_publique:yn(d.publicAffiliation),droits:list(groupPermissions.filter(k=>d.permissions[k]===true))});
@@ -36,14 +39,15 @@ export function masterEditorProjection({module,sheet,records,stamps,session,newI
    Object.assign(row,{nom:d.name,description:blank(d.description),capacite_volume:String(d.capacity),loyer:String(d.rent),periode_minutes:String(d.periodMinutes),ouvert:yn(d.enabled),loyer_groupe_id:blank(group?.id)});
   }
   if(def.sheet==='Connaissances')Object.assign(row,{titre:d.title,texte:d.body,origine:blank(d.origin),type:d.kind,publication:d.publicationState,partage:d.shareMode,verite_mj:blank(d.gmTruth),notes_mj:blank(d.gmNotes),...(!session?{personnages_initiaux:list(d.initialCharacterIds)}:{}),qr_actif:yn(d.qrEnabled),qr_audience:d.qrAudience,qr_personnages:list(d.qrCharacterIds),qr_competence_id:blank(d.qrSkillId),...(d.qrSkillId?{qr_niveau:String(d.qrSkillLevel)}:{})});
-  return {row,...(def.sheet==='Vaisseaux'?{navigationInitialized:!!d.navigation}:{}),archived:d.masterArchived===true,title:def.sheet==='Cours'?(records.items.find(i=>i.id===d.id)?.name??d.item.name):def.sheet==='Membres'?`${d.characterName} — ${d.groupName}`:row[def.name],ownerLabel:def.sheet==='Membres'?d.role:d.characterName??'',state:d.masterArchived===true?'archived':(row.publication==='PUBLISHED'||row.publication==='OUI'||row.ouvert==='OUI'||row.actif==='OUI')?'active':'draft'};
+  return {row,...(def.sheet==='Vaisseaux'?{navigationInitialized:!!d.navigation}:{}),archived:d.masterArchived===true,title:def.sheet==='Attributions'?d.characterName:def.sheet==='Cours'?(records.items.find(i=>i.id===d.id)?.name??d.item.name):def.sheet==='Membres'?`${d.characterName} — ${d.groupName}`:row[def.name],ownerLabel:def.sheet==='Membres'?d.role:d.characterName??'',state:d.masterArchived===true?'archived':(row.publication==='PUBLISHED'||row.publication==='OUI'||row.ouvert==='OUI'||row.actif==='OUI')?'active':'draft'};
  }).sort((a,b)=>a.title.localeCompare(b.title)||a.row.id.localeCompare(b.row.id));
  // Legacy narrative rows can share an id across characters; never silently rename ambiguous identities.
  const seen=new Set(),collisions=new Set();for(const {row} of rows){if(seen.has(row.id))collisions.add(row.id);seen.add(row.id);}
- return {module,sheet:def.sheet,session,newRow:{id:def.identity?'':newId,operation:'CREER',version:'1'},rows,errors:[...(terrain?.errors??[]),...(members?.errors??[]),...[...collisions].map(id=>`Identifiant répété : ${id}. Corrigez les fiches concernées dans leurs outils avant d’utiliser ce Master.`)],references:{
+ return {module,sheet:def.sheet,session,newRow:{id:def.identity?'':newId,operation:'CREER',version:'1'},rows,errors:[...(attributions?.errors??[]),...(terrain?.errors??[]),...(members?.errors??[]),...[...collisions].map(id=>`Identifiant répété : ${id}. Corrigez les fiches concernées dans leurs outils avant d’utiliser ce Master.`)],references:{
   knowledge:records.knowledge.map(k=>({id:k.id,name:k.title})),
   fieldConsumables:records.items.filter(i=>i.consumable).map(i=>({id:i.id,name:i.name})),
   groupPermissions:groupPermissions.map(id=>({id,name:id})),
+  unprofiledCharacters:records.characters.filter(c=>!c.abilityProfile).map(c=>({id:c.id,name:c.public.displayName})),
   characters:records.characters.map(c=>({id:c.id,name:c.public.displayName})),
   groups:records.groups.map(g=>({id:g.id,name:g.name})),
   items:records.items.map(i=>({id:i.id,name:`${i.name} — ${i.unit}`})),

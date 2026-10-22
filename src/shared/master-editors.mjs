@@ -46,6 +46,11 @@ export const masterEditors={
 };
 const activeSkill={type:['ACTIVE_SELF','ACTIVE_TARGET']};
 const catalogueEditors={informations:{Lieux:terrainEditor},personnages:{
+ Attributions:{sheet:'Attributions',title:'Attributions du scénario',name:'personnage_id',scenarioOnly:true,duplicate:false,archiveLabel:'Dépublier',fields:[
+  reference('personnage_id','Personnage','characters',{createRef:'unprofiledCharacters',required:true,clear:false,immutable:true}),
+  reference('classe_id','Classe publiée','publishedClasses'),
+  field('competences','Ajustements des compétences',{type:'levels',ref:'publishedSkills',clear:true,help:'Niveaux positifs explicites. Les compétences non ajustées de la classe restent conservées. Pour un profil entièrement personnalisé, choisir aucune classe.'}),yesNo('publication','Profil visible au joueur')],
+  note:'Scénario uniquement. Confirmer recalcule le profil avec les catalogues actuels : relisez les différences. Les sessions déjà créées conservent leurs profils acquis. Un profil existant ne change pas de personnage et ne se duplique pas.'},
  Interactions:interactionEditor,
  Competences:{sheet:'Competences',title:'Compétences',name:'nom',collection:'skills',fields:[
   required('nom','Nom'),long('description','Description',6000),long('instructions','Instructions',6000),text('categorie','Catégorie',{max:150}),

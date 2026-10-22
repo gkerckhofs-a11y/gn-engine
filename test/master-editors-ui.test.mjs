@@ -32,10 +32,10 @@ test('Masters en ligne : les champs acquis restent absents des formulaires de se
 
 const catalogue=sheet=>({...workspace('personnages'),sheet,references:{allSkills:[{id:'savoir',name:'Savoir <privé>',publication:'PUBLISHED'},{id:'futur',name:'En préparation',publication:'DRAFT'}],consumables:[{id:'kit',name:'Kit de test'}]}});
 test('Catalogues en ligne : choix des feuilles, types de soin et valeurs laissées à configurer',()=>{
- assert.deepEqual(masterEditorsFor('personnages').map(e=>e.sheet),['Personnages','Interactions','Competences','Classes','Groupes','Relations','Membres']);
+ assert.deepEqual(masterEditorsFor('personnages').map(e=>e.sheet),['Personnages','Attributions','Interactions','Competences','Classes','Groupes','Relations','Membres']);
  assert.equal(masterEditor('personnages','__proto__'),null);assert.equal(masterEditor('spatioport','Classes'),null);
  const w=catalogue('Competences'),d=moduleDraft(w),list=moduleListHtml(w);
- for(const sheet of ['Personnages','Interactions','Competences','Classes','Groupes','Relations','Membres'])assert.ok(list.includes(`data-sheet="${sheet}"`));
+ for(const sheet of ['Personnages','Attributions','Interactions','Competences','Classes','Groupes','Relations','Membres'])assert.ok(list.includes(`data-sheet="${sheet}"`));
  assert.match(list,/data-sheet="Competences" aria-current="page" disabled/);
  assert.ok(!moduleEditorHtml(w,d).includes('name="soin_pv"'));
  for(const type of ['ACTIVE_SELF','ACTIVE_TARGET']){
@@ -139,4 +139,12 @@ test('Création personnage : édition et export excluent toute redistribution, c
   const archived=moduleDraft(w,'p','archive');assert.deepEqual(Object.keys(moduleFormSheets(w,archived,{initial_credits:'99'})),['Meta','Personnages']);
  }
  assert.throws(()=>moduleFormSheets({...w,editable:false},moduleDraft(w),{nom:'Interdit'}),/ne peut pas être modifié/);
+});
+
+
+test('Attributions : scénario seul, personnage verrouillé, niveaux et export ciblé',()=>{
+ const w={...workspace('personnages'),sheet:'Attributions',references:{characters:[{id:'p',name:'Personnage'}],unprofiledCharacters:[{id:'n',name:'Nouveau'}],publishedClasses:[],publishedSkills:[{id:'s',name:'Savoir'}]},rows:[{row:{id:'a',version:'2',personnage_id:'p',classe_id:'!EFFACER',competences:'s:2',publication:'OUI'},title:'Personnage',state:'active'}]};
+ assert.ok(moduleEditorHtml(w,moduleDraft(w)).includes('Nouveau (n)'));const d=moduleDraft(w,'a');assert.match(moduleEditorHtml(w,d),/name="personnage_id" disabled/);
+ const sheets=moduleFormSheets(w,d,{personnage_id:'n',competences__levels:'1',competences__skill__s:'OUI',competences__level__s:'4',publication:'NON'});assert.equal(sheets.Attributions[0].personnage_id,'p');assert.equal(sheets.Attributions[0].competences,'s:4');assert.deepEqual(Object.keys(moduleMasterSheets(w)),['Meta','Attributions']);
+ assert.ok(!moduleListHtml({...workspace('personnages'),session:true}).includes('data-sheet="Attributions"'));assert.throws(()=>moduleMasterSheets({...w,session:true}),/réservé au scénario/);assert.throws(()=>moduleFormSheets({...w,session:true},d,d.row),/réservé au scénario/);
 });

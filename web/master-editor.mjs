@@ -10,13 +10,14 @@ export function filteredMasterRows(w,query='',state='all'){
  return w.rows.filter(r=>(state==='all'||r.state===state)&&`${r.title} ${r.ownerLabel} ${r.row.id}`.toLocaleLowerCase('fr').includes(q));
 }
 export function moduleMasterSheets(w,rows=w.rows){
+ if(w.session&&masterEditor(w.module,w.sheet).scenarioOnly)throw new Error('Ce Master est réservé au scénario.');
  if(w.sheet==='Lieux')return terrainMasterSheets(w,rows);
  if(w.errors.length)throw new Error(w.errors.join(' '));
  return {Meta:w.meta,[w.sheet]:rows.map(({row,archived})=>archived?{id:row.id,operation:'ARCHIVER',version:row.version,...(row.personnage_id?{personnage_id:row.personnage_id}:{}),...(row.groupe_id?{groupe_id:row.groupe_id}:{})}:row)};
 }
 export function moduleListHtml(w,query='',state='all'){
  const def=masterEditor(w.module,w.sheet),rows=filteredMasterRows(w,query,state),usable=!w.errors.length;
- const editors=masterEditorsFor(w.module),navigation=editors.length>1?`<nav class="row" aria-label="Feuilles Master">${editors.map(e=>button(esc(e.title),'moduleSheet',`data-sheet="${e.sheet}" ${e.sheet===w.sheet?'aria-current="page" disabled':''}`)).join('')}</nav>`:'';
+ const editors=masterEditorsFor(w.module).filter(e=>!w.session||!e.scenarioOnly),navigation=editors.length>1?`<nav class="row" aria-label="Feuilles Master">${editors.map(e=>button(esc(e.title),'moduleSheet',`data-sheet="${e.sheet}" ${e.sheet===w.sheet?'aria-current="page" disabled':''}`)).join('')}</nav>`:'';
  return `${navigation}<h2>Master · ${def.title}</h2><p>${def.note}</p><p>${w.editable?'Créez ou modifiez une fiche, puis relisez l’aperçu avant confirmation.':'Lecture et export uniquement : la session a quitté la préparation initiale.'}</p><p>Export limité à <strong>${def.groupedTerrain?'Lieux + ActionsTerrain + Recompenses des lieux affichés':def.sheet}</strong>. Les autres contenus du module conservent leurs outils actuels.</p>${w.errors.length?`<p class="error-panel">${w.errors.map(esc).join('<br>')}</p>`:''}<form data-master-form="moduleFilter"><label>Rechercher un nom, un personnage ou un identifiant<input name="query" value="${esc(query)}"></label><label>État<select name="state">${[['all','Tous'],['active',def.stateLabels?.active??'Publiés, ouverts ou activés'],['draft',def.stateLabels?.draft??'Brouillons, fermés ou désactivés'],['archived','Archivés']].map(([v,l])=>`<option value="${v}" ${v===state?'selected':''}>${l}</option>`).join('')}</select></label><button class="quiet">Filtrer</button></form><p>${rows.length} / ${w.rows.length} fiches affichées.</p><div class="row">${w.editable&&usable?button('Créer une fiche','moduleEdit'):''}${usable?button('Exporter les fiches affichées (.xlsx)','moduleExport'):''}</div><div class="stack">${rows.map(r=>`<article class="panel"><h3>${esc(r.title)}</h3><p>${esc(r.ownerLabel)} · ${esc(r.row.id)} · ${esc(def.stateLabels?.[r.state]??(r.state==='archived'?'Archivé':r.state==='active'?'Publié / ouvert / activé':'Brouillon / fermé / désactivé'))}</p>${button('Consulter','moduleView',`data-id="${esc(r.row.id)}"`)}${w.editable&&usable?button(r.archived?'Modifier / réactiver':'Modifier','moduleEdit',`data-id="${esc(r.row.id)}"`)+(def.duplicate===false?'':button('Dupliquer en brouillon','moduleDuplicate',`data-id="${esc(r.row.id)}"`))+(r.archived?'':button(def.archiveLabel??'Archiver','moduleArchive',`data-id="${esc(r.row.id)}"`)):''}</article>`).join('')||'<p>Aucune fiche ne correspond à ce filtre.</p>'}</div><p data-master-status role="status" aria-live="polite"></p>`;
 }
 export function moduleDraft(w,id='',mode='edit'){
@@ -59,6 +60,7 @@ export function moduleRefreshDraft(w,draft,values){
  return {...draft,row,reason:v.reason??draft.reason};
 }
 export function moduleFormRow(w,draft,values){
+ if(w.session&&masterEditor(w.module,w.sheet).scenarioOnly)throw new Error('Ce Master est réservé au scénario.');
  if(!w.editable||w.errors.length)throw new Error('Ce Master ne peut pas être modifié. Actualisez la destination.');
  values=moduleFormValues(w,values);
  const row={id:draft.row.id,operation:draft.mode==='archive'?'ARCHIVER':draft.existing?'MODIFIER':'CREER',version:draft.row.version};
