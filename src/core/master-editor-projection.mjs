@@ -1,3 +1,4 @@
+import {terrainMasterRows} from './master-terrain-projection.mjs';
 import {masterEditor} from '../shared/master-editors.mjs';
 import {groupAccountId} from './economy-state.mjs';
 import {requireThat} from './validation.mjs';
@@ -11,9 +12,10 @@ const list=v=>blank((v??[]).join(';'));
 export function masterEditorProjection({module,sheet,records,stamps,session,newId}){
  const def=masterEditor(module,sheet);requireThat(def,'INVALID_MASTER_SHEET');
  const versions=new Map(stamps.filter(s=>s.sheet===def.sheet).map(s=>[s.rowId,s.version]));
+ const terrain=def.groupedTerrain?terrainMasterRows(records.fieldTargets,stamps):null;
  const members=def.sheet==='Membres'?memberMasterRows(records.groups,records.characters,stamps):null;
  const source=members?.rows??(['Objectifs','Relations'].includes(def.sheet)?records.characters.flatMap(c=>(c[def.sheet==='Objectifs'?'objectives':'relations']??[]).map(o=>({...o,characterId:c.id,characterName:c.public.displayName}))):records[def.collection]);
- const rows=source.map(d=>{
+ const rows=terrain?.rows??source.map(d=>{
   const row={id:d.id,operation:'MODIFIER',version:String((versions.get(d.id)??0)+1)};
   if(def.sheet==='Personnages')Object.assign(row,{nom:d.public.displayName,metier:blank(d.public.profession),description_publique:blank(d.public.description),publication_publique:d.public.publicationState,publication:d.publicationState,histoire:blank(d.biography),interpretation:blank(d.roleplay),secrets_joueur:blank(d.playerSecrets),notes_mj:blank(d.gmNotes),portrait_media_id:blank(d.mediaImages?.portrait?.id),image_privee_media_id:blank(d.mediaImages?.private?.id),...(!session?{...(d.globalLevel!=null?{niveau_global:String(d.globalLevel)}:{}),...(d.initialMaxHp!=null?{pv_max_initiaux:String(d.initialMaxHp)}:{})}:{})});
   if(def.sheet==='Objectifs')Object.assign(row,{personnage_id:d.characterId,titre:d.title,description:blank(d.description),publication:yn(d.published),notes_mj:blank(d.gmNotes)});
@@ -37,7 +39,9 @@ export function masterEditorProjection({module,sheet,records,stamps,session,newI
  }).sort((a,b)=>a.title.localeCompare(b.title)||a.row.id.localeCompare(b.row.id));
  // Legacy narrative rows can share an id across characters; never silently rename ambiguous identities.
  const seen=new Set(),collisions=new Set();for(const {row} of rows){if(seen.has(row.id))collisions.add(row.id);seen.add(row.id);}
- return {module,sheet:def.sheet,session,newRow:{id:def.identity?'':newId,operation:'CREER',version:'1'},rows,errors:[...(members?.errors??[]),...[...collisions].map(id=>`Identifiant répété : ${id}. Corrigez les fiches concernées dans leurs outils avant d’utiliser ce Master.`)],references:{
+ return {module,sheet:def.sheet,session,newRow:{id:def.identity?'':newId,operation:'CREER',version:'1'},rows,errors:[...(terrain?.errors??[]),...(members?.errors??[]),...[...collisions].map(id=>`Identifiant répété : ${id}. Corrigez les fiches concernées dans leurs outils avant d’utiliser ce Master.`)],references:{
+  knowledge:records.knowledge.map(k=>({id:k.id,name:k.title})),
+  fieldConsumables:records.items.filter(i=>i.consumable).map(i=>({id:i.id,name:i.name})),
   groupPermissions:groupPermissions.map(id=>({id,name:id})),
   characters:records.characters.map(c=>({id:c.id,name:c.public.displayName})),
   groups:records.groups.map(g=>({id:g.id,name:g.name})),

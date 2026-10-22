@@ -67,11 +67,13 @@ La [tranche L1d](L1D-VAISSEAUX-ECONOMIE.md) ajoute Vaisseaux dans Spatioport, Co
 
 La [tranche L1e](L1E-RELATIONS-MEMBRES.md) ajoute Relations et Membres au module Personnages. Les droits de jeu utilisent des cases explicites, sans autorisation par défaut. Les identifiants importés sont préservés ; les ambiguïtés sont signalées sans renommage. Caisses, stocks, profils et messages restent conservés, avec reprise des réglages dans l’épisode suivant. Quinze feuilles disposent d’un éditeur en ligne.
 
-## Suite de L1 après L1e
+## L1f — lieux, actions et récompenses groupés
 
-- Priorité suivante : parcours groupé Lieux / ActionsTerrain / Recompenses. Un lieu doit être créé avec ses profils et récompenses dans le même import ; les réserves de session déjà créées restent protégées.
+La [tranche L1f](L1F-TERRAIN-GROUPE.md) réunit Lieux, ActionsTerrain et Recompenses dans un seul parcours Informations / Fouilles. Création complète, modification, duplication en brouillon, archivage et export passent par les imports existants. Les identités historiques et les réserves de session sont conservées ; les ambiguïtés bloquent le parcours sans renommage. Seize parcours couvrent dix-huit feuilles.
 
-- Export et édition structurée des autres feuilles, y compris profils, dotations, interactions, récompenses et paramètres ; générer leurs identités et versions sans collisions.
+## Suite de L1 après L1f
+
+- Export et édition structurée des autres feuilles, y compris profils, dotations, interactions et paramètres ; générer leurs identités et versions sans collisions.
 - Interface de dépendances et comparateur de versions/rapport de préparation d’épisode ; publication/test isolés explicitement.
 - Consolidation des historiques et diagnostics par module. Aucune erreur fictive « 0 » n’est affichée avant un vrai contrôle.
 - Définition d’Univers/bibliothèques si elle devient nécessaire, avec migration préalable documentée et autorisée.

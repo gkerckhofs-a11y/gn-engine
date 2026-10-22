@@ -1,3 +1,4 @@
+import {terrainEditor} from './master-terrain-editor.mjs';
 // Form metadata for existing Master sheets; no domain data is stored here.
 const field=(name,label,extra={})=>({name,label,...extra});
 const text=(n,l,extra={})=>field(n,l,{clear:true,...extra});
@@ -42,7 +43,7 @@ export const masterEditors={
   note:'L’export porte sur les définitions, sans les reçus des joueurs. Une duplication désactive le QR et vide les destinataires initiaux.'},
 };
 const activeSkill={type:['ACTIVE_SELF','ACTIVE_TARGET']};
-const catalogueEditors={personnages:{
+const catalogueEditors={informations:{Lieux:terrainEditor},personnages:{
  Competences:{sheet:'Competences',title:'Compétences',name:'nom',collection:'skills',fields:[
   required('nom','Nom'),long('description','Description',6000),long('instructions','Instructions',6000),text('categorie','Catégorie',{max:150}),
   {...choice('type','Type',[['PASSIVE','Expertise passive'],['ACTIVE_SELF','Soin sur soi'],['ACTIVE_TARGET','Soin sur une cible']],'PASSIVE'),refresh:true},publication(),long('notes_mj','Notes réservées au MJ'),
