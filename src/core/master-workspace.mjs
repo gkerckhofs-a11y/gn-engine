@@ -14,7 +14,7 @@ export function moduleMeta(ctx,module){
 }
 // An authenticated owner-only projection of existing definitions, never balances or played state.
 export async function masterWorkspace(tx,ctx,at,newId,module,sheet,bundle=false){
- requireThat(typeof bundle==='boolean'&&(!bundle||(module!==undefined&&sheet===undefined)),'INVALID_MASTER_MODULE');
+ requireThat(typeof bundle==='boolean'&&(!bundle||sheet===undefined),'INVALID_MASTER_MODULE');
  if(module!==undefined)requireThat(masterEditor(module),'INVALID_MASTER_MODULE');
  if(sheet!==undefined)requireThat(typeof sheet==='string'&&masterEditor(module,sheet),'INVALID_MASTER_SHEET');
  if(module!==undefined)requireThat(!ctx.session||!masterEditor(module,sheet).scenarioOnly,'INVALID_MASTER_SHEET');
@@ -25,11 +25,16 @@ export async function masterWorkspace(tx,ctx,at,newId,module,sheet,bundle=false)
  if(module!==undefined&&!bundle)return {...masterEditorProjection({module,sheet,records,stamps:allStamps,session:ctx.session,newId}),meta:moduleMeta(ctx,module),revision:ctx.parent.revision,editable:masterEditable(ctx,at)};
  const tariffs=module===undefined||module==='economie'?tariffProjection(records,allStamps):[];
  if(bundle){
-  const meta=moduleMeta(ctx,module),common={meta,revision:ctx.parent.revision,editable:masterEditable(ctx,at)};
-  const definitions=masterEditorsFor(module).filter(d=>!d.readOnly&&(!ctx.session||!d.scenarioOnly));
-  const workspaces=definitions.map(d=>({...common,...(d.sheet==='Parametres'?parameterProjection(ctx.parent,module,ctx.session):masterEditorProjection({module,sheet:d.sheet,records,stamps:allStamps,session:ctx.session,newId}))}));
   const referenceIndex=Object.fromEntries(Object.entries(masterCollections).map(([sheet,collection])=>[sheet,records[collection].map(r=>({id:r.id,archived:r.masterArchived===true}))]));
-  return {module,bundle:true,session:ctx.session,...common,workspaces,referenceIndex,...(module==='economie'?{tariffs}:{})};
+  const common={revision:ctx.parent.revision,editable:masterEditable(ctx,at)};
+  const project=id=>{
+   const meta=moduleMeta(ctx,id),definitions=masterEditorsFor(id).filter(d=>!d.readOnly&&(!ctx.session||!d.scenarioOnly));
+   const workspaces=definitions.map(d=>({...common,meta,...(d.sheet==='Parametres'?parameterProjection(ctx.parent,id,ctx.session):masterEditorProjection({module:id,sheet:d.sheet,records,stamps:allStamps,session:ctx.session,newId}))}));
+   return {module:id,bundle:true,session:ctx.session,...common,meta,workspaces,...(id==='economie'?{tariffs}:{})};
+  };
+  // All six views share these reads and the transaction's parent revision.
+  if(module===undefined)return {bundle:true,scope:'GLOBAL',session:ctx.session,...common,meta:moduleMeta(ctx,''),bundles:workshopModules.map(m=>project(m.id)),referenceIndex};
+  return {...project(module),referenceIndex};
  }
  const count=sheet=>masterCollections[sheet]?records[masterCollections[sheet]].length:
   sheet==='Objectifs'?records.characters.reduce((n,c)=>n+(c.objectives?.length??0),0):null;

@@ -1,6 +1,6 @@
 # GN Engine — consignes de développement
 
-Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouvelle stratégie de développement GN Engine pour la suite ». Ces consignes s’appliquent à tous les prochains lots et remplacent les anciens parcours de livraison qui prévoyaient une publication à chaque version.
+Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouvelle stratégie de développement GN Engine pour la suite ». Mise à jour par le cadrage SPACE OUTLAWS V3.0 du 23 octobre 2026 : SPACE OUTLAWS est prioritaire, le créateur universel est hors périmètre. Ces consignes remplacent les anciens parcours de livraison qui prévoyaient une publication à chaque version.
 
 ## Dépôt et branche
 
@@ -20,14 +20,14 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 
 ## Cycle de chaque ensemble fonctionnel
 
-1. Délimiter un parcours complet, ses exigences V2, critères d’acceptation, dépendances et cas de recette. Préserver [V], distinguer [P], laisser les barèmes [A] configurables.
+1. Lire le cadrage V3, le livre SPACE OUTLAWS V0.6 FINAL et le rapport de cohérence (sources référencées dans SO-00). Délimiter un parcours complet, ses critères, dépendances et recettes. A01–A38 sont clos : ne pas réinventer leurs barèmes. Distinguer les propositions techniques et les paramètres de session à préparer. Les décisions V3/V0.6 prévalent sur le cadrage V2 historique.
 2. Réutiliser les services et collections existants. Protéger les acquis de campagne, les anciennes sessions, les identifiants et les quatre Masters Campagne/Session, modèles et exemples.
 3. Implémenter sur la branche, avec tests métier, tests d’interface pertinents et tests Firebase émulés pour transactions, permissions, réessais et concurrence.
 4. Exécuter les contrôles locaux applicables, au minimum `npm test` et `npm run build`. Corriger les échecs avant de constituer le commit fonctionnel.
 5. Faire un commit après chaque ensemble fonctionnel validé localement ; le pousser sur la branche dédiée. Le workflow de vérification du dépôt exécute ensuite compilation, tests applicatifs et `npm run test:emulator` dans GitHub Actions.
 6. Vérifier la CI sur le commit exact. Un contrôle en cours, annulé ou ignoré n’est pas un succès. Corriger toute régression sur cette branche, committer le correctif et vérifier sa CI **avant le lot suivant**.
 7. Documenter les changements, compatibilités, limites et résultats réellement exécutés. Conserver les liens commit/PR, exécution et job, versions des outils, décomptes et date. Séparer tests locaux, CI, recette humaine et publication.
-8. Mettre à jour la matrice V2 et le suivi du lot, puis passer au lot suivant uniquement lorsque la validation automatisée requise est réussie.
+8. Mettre à jour la matrice SPACE OUTLAWS V3 et le suivi du lot, puis passer au lot suivant uniquement lorsque la validation automatisée requise est réussie.
 
 Le workflow de vérification actuel (`.github/workflows/check.yml`) se déclenche sur push/PR et utilise Node 22, Java 21 et les émulateurs du projet `demo-gn-engine`. Il ne déploie pas. Vérifier cette séparation si les workflows évoluent. Les résultats définitifs de CI peuvent être consignés dans la description de PR en citant le commit testé ; ne pas attribuer à un nouveau commit un résultat obtenu sur un ancien.
 
@@ -39,12 +39,12 @@ Avant de provisionner un projet externe ou de créer des accès, préciser les m
 
 La recette finale doit couvrir :
 
-- les parcours REC-01 à REC-27 du cadrage, en signalant chaque cas exécuté, échoué, bloqué ou non exécuté ;
-- les six ateliers, l’édition et les imports/exports modulaires ainsi que les quatre Masters historiques ;
+- les 24 parcours REC-SO-01 à REC-SO-24 et les 10 essais SEC-SO, en signalant chaque cas exécuté, échoué, bloqué ou non exécuté ; les anciennes recettes V2 restent pertinentes pour les fonctions conservées ;
+- le Master SPACE OUTLAWS unique et ses six vues, les imports/exports et les quatre Masters historiques ;
 - l’isolation des sessions, les secrets, la révocation et la frontière absolue entre QR public d’interaction et accès privé jamais piratable ;
 - les transactions, réessais, concurrence, pause, reprise et réseau dégradé ;
 - la continuité de campagne et la préparation d’un épisode sans redistribution des acquis ;
-- la chaîne spatioport lorsqu’elle est développée : achat, chargement, départ, interception, vrai butin, réparation obligatoire après tout combat et nouveau départ ;
+- la chaîne spatioport lorsqu’elle est développée : achat, chargement, départ, interception, vrai butin, révision conditionnelle aux tirs effectivement exécutés ou dommages spéciaux prévus, réparations distinctes et nouveau départ ;
 - les parcours sur Android/iOS et plusieurs comptes ; la charge pilote d’environ 60 participants avec seuils définis avant mesure ;
 - les sauvegardes et la restauration nécessaires aux migrations prévues.
 
@@ -62,8 +62,16 @@ Ces livrables et la recette finale sont à produire à l’issue du développeme
 
 ## Références de reprise
 
+- [Audit SO-00, sources intégrales et tranche Master](docs/SO-00-REPRISE.md)
+- [Matrice SPACE OUTLAWS V3](docs/MATRICE-SPACE-OUTLAWS-V3.md)
+- [Rapport courant](docs/SO-VALIDATION.md)
+- [Sauvegarde/reprise et déploiement à faire valider](docs/SO-SAUVEGARDE-DEPLOIEMENT.md)
+
+Historique conservé, remplacé par V3 en cas de contradiction :
+
 - [Cadrage V2](docs/source/GN_Engine_Cahier_des_charges_Work_Astra_V2_0.md)
 - [Audit L0](docs/AUDIT-V2-L0.md)
 - [Matrice exigences et recettes](docs/MATRICE-V2.md)
 - [Périmètre L1 et première tranche](docs/L1-ATELIER-MODULAIRE.md)
 - [Rapport L1a et limites](docs/VALIDATION-0.37.md)
+

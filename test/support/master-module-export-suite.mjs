@@ -20,7 +20,7 @@ export function masterModuleExportSuite(fixture,prefix){
  });
  test(`${prefix} : export groupé soumis aux droits, références et révisions sans écriture partielle`,async()=>{
   const f=await fixture();await f.apply(customsMasterExample());await assert.rejects(view(f,'personnages',{},f.player),{code:'FORBIDDEN'});
-  for(const extra of [{module:undefined},{sheet:'Personnages'},{bundle:'true'},{module:'inconnu'}])await assert.rejects(view(f,'personnages',extra),{code:'INVALID_MASTER_MODULE'});
+  for(const extra of [{sheet:'Personnages'},{bundle:'true'},{module:'inconnu'}])await assert.rejects(view(f,'personnages',extra),{code:'INVALID_MASTER_MODULE'});
   const w=await view(f,'spatioport'),sheets=file(w),before=await f.store.list(`scenarios/${f.scenarioId}/ships`);sheets.Vaisseaux[0].carburant_objet_id='absent';assert.equal((await f.prepare(sheets)).canApply,false);assert.deepEqual(await f.store.list(`scenarios/${f.scenarioId}/ships`),before);
   const original=file(w);assert.equal((await f.prepare(original,{module:'economie'})).canApply,false);
   await f.apply(file(await view(f,'magasins')));assert.equal((await f.prepare(original)).canApply,false);

@@ -1,5 +1,6 @@
 import {masterDependenciesSuite} from './master-dependencies-suite.mjs';
 import {masterModuleExportSuite} from './master-module-export-suite.mjs';
+import {masterGlobalExportSuite} from './master-global-export-suite.mjs';
 import {masterDotationsReportSuite} from './master-dotations-report-suite.mjs';
 import {masterParametersEditorsSuite} from './master-parameters-editors-suite.mjs';
 import {masterAttributionEditorsSuite} from './master-attribution-editors-suite.mjs';
@@ -35,6 +36,7 @@ export async function masterFixture(makeStore){
 export function mastersSuite(makeStore,prefix='Masters'){
  masterDependenciesSuite(()=>masterFixture(makeStore),prefix);
  masterModuleExportSuite(()=>masterFixture(makeStore),prefix);
+ masterGlobalExportSuite(()=>masterFixture(makeStore),prefix);
  masterDotationsReportSuite(()=>masterFixture(makeStore),prefix);
  masterParametersEditorsSuite(()=>masterFixture(makeStore),prefix);
  masterAttributionEditorsSuite(()=>masterFixture(makeStore),prefix);

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {writeMasterXlsx} from '../web/master-xlsx-write.mjs';
 import {masterPanel,assertMasterType,createMasterController} from '../web/masters.mjs';
+import {workshopModules} from '../src/shared/workshop-modules.mjs';
 
 test('Imports : chaque destination possède son champ et uniquement ses modèles',()=>{
  const campaign=masterPanel({title:'Scénario <privé>'},'scenario');
@@ -210,4 +211,23 @@ test('Export groupé : requête unique, annonce du périmètre et téléchargeme
 test('Export groupé : fermer pendant la lecture abandonne la réponse',async()=>{
  let finish;const w={module:'magasins',sheet:'Objets',meta:[{module:'magasins'}],editable:true,errors:[],rows:[],references:{}};
  const f=controllerFixture({workspace:input=>input.bundle?new Promise(resolve=>finish=resolve):w});f.click('moduleMaster',{scope:'scenario',module:'magasins'});await new Promise(r=>setTimeout(r,0));f.click('moduleExportAll');f.ui.clear();finish({module:'magasins',bundle:true,meta:w.meta,workspaces:[w]});await new Promise(r=>setTimeout(r,0));assert.equal(f.dialog.open,false);assert.equal(f.dialog.innerHTML,'');assert.deepEqual(f.notices,[]);
+});
+
+test('Master global : une seule requête propriétaire, téléchargement puis réimport avec confirmation',async()=>withFormData(async()=>{
+ const meta=[{format:'gn-engine-master',version:'1',type:'CAMPAGNE',destination_id:'scenario-id',base_revision:'1',module:''}];
+ const w={scope:'GLOBAL',bundle:true,meta,editable:true,bundles:workshopModules.map(m=>({module:m.id,bundle:true,meta:[{...meta[0],module:m.id}],workspaces:[],...(m.id==='economie'?{tariffs:[]}:{})}))};
+ let downloads=0;const anchor={click(){downloads++;}},f=controllerFixture({anchor,workspace:w});
+ f.click('globalExport',{scope:'scenario'});await new Promise(r=>setImmediate(r));assert.deepEqual(f.calls,[{command:'masterWorkspace',payload:{scenarioId:'scenario-id',bundle:true}}]);
+ f.click('globalDownload');assert.equal(downloads,1);assert.match(anchor.download,/GN_Engine_Catalogue_Campagne_scenario-id.xlsx/);
+ const bytes=new Uint8Array(await (await fetch(anchor.href)).arrayBuffer());
+ f.ui.open('scenario',{name:anchor.download,size:bytes.length,arrayBuffer:async()=>bytes});await f.submit();assert.equal(f.calls[1].command,'prepareMasterImport');assert.equal(f.calls[1].payload.sheets.Meta[0].module,'');assert.ok(!f.calls[1].payload.module);
+ await f.submit('confirm',{});assert.equal(f.calls[2].command,'applyMasterImport');assert.equal(f.dialog.open,false);assert.deepEqual(f.notices,['Master appliqué. Les acquis ont été conservés.']);
+}));
+
+test('Master global : fermeture abandonne les réponses tardives, y compris un refus serveur',async()=>{
+ for(const denied of [false,true]){
+  let finish;const f=controllerFixture({workspace:()=>new Promise((resolve,reject)=>{finish=()=>denied?reject(new Error('FORBIDDEN')):resolve({});})});
+  f.click('globalExport',{scope:'scenario'});f.ui.clear();finish();await new Promise(r=>setImmediate(r));
+  assert.equal(f.dialog.open,false);assert.equal(f.dialog.innerHTML,'');f.click('globalDownload');assert.deepEqual(f.notices,[]);
+ }
 });

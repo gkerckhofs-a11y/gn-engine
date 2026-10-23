@@ -245,3 +245,9 @@ Les six cartes proposent un premier éditeur/export pour **Personnages, Objectif
 ## Catalogues Personnages — L1c (candidat 0.37)
 
 **Personnages → Masters du module** permet aussi de choisir **Competences, Classes et Groupes**. Les soins affichent leurs seuls paramètres applicables ; les classes proposent des compétences à cocher avec un niveau explicite. L’export contient Meta et la feuille choisie, pour les fiches filtrées. Les profils attribués et les usages restent indépendants du catalogue. Un groupe dupliqué est secret, en brouillon, sans membre ni caisse. [Parcours, preuves et limites L1c](L1C-CATALOGUES-PERSONNAGES.md).
+
+## Catalogue global — tranche SPACE OUTLAWS SO-06a
+
+Depuis le tableau de bord du propriétaire, « Exporter le catalogue des six vues » réunit les feuilles exportables à une seule révision. Réimporter le fichier dans le champ Master complet de la même destination, après aperçu et confirmation. Les exports ciblés et les quatre modèles historiques restent disponibles.
+
+Ce catalogue ne contient ni les dotations de départ, ni les informations générales du scénario, ni les données vivantes. En session, attributions acquises et paramètres santé/monnaie sont également exclus. Ce n’est pas une sauvegarde ni le Master SPACE OUTLAWS V0.6 achevé. Limites existantes conservées ; aucun téléchargement partiel si le classeur dépasse 250 lignes. [Périmètre, contrôles et migration](SO-00-REPRISE.md).

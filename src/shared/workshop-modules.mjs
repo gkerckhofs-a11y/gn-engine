@@ -1,11 +1,11 @@
 // Navigation and import boundaries only. Domain records remain in their existing collections.
 export const workshopModules = [
- {id:'personnages',label:'Personnages',sheets:['Personnages','Classes','Competences','Attributions','Groupes','Membres','Relations','Dotations','Interactions'],parameters:['groupes_actifs','pa_actifs','pa_niveau_1','pa_niveau_2','pa_renouvellement_minutes','pa_cout','pa_recuperation_secondes','pa_recuperation_patient_secondes','sante_active','pv_max_defaut'],description:'Fiches, groupes, classes, compétences et interactions.'},
- {id:'communication',label:'Communication',sheets:['Objectifs'],parameters:[],description:'Objectifs des fiches. En session : annonces, contrats et primes. Les rendez-vous restent à développer.'},
- {id:'magasins',label:'Magasins',sheets:['Objets'],parameters:[],description:'Catalogue commun des objets. Les boutiques avec stock, caisse et QR restent à développer.'},
+ {id:'personnages',label:'Personnages & Compétences',sheets:['Personnages','Classes','Competences','Attributions','Groupes','Membres','Relations','Dotations','Interactions'],parameters:['groupes_actifs','pa_actifs','pa_niveau_1','pa_niveau_2','pa_renouvellement_minutes','pa_cout','pa_recuperation_secondes','pa_recuperation_patient_secondes','sante_active','pv_max_defaut'],description:'Fiches, groupes, classes, compétences et interactions.'},
+ {id:'communication',label:'Missions & Communication',sheets:['Objectifs'],parameters:[],description:'Objectifs des fiches. En session : annonces, contrats et primes. Les rendez-vous restent à développer.'},
+ {id:'magasins',label:'Boutiques',sheets:['Objets'],parameters:[],description:'Catalogue commun des objets. Les boutiques avec stock, caisse et QR restent à développer.'},
  {id:'spatioport',label:'Spatioport',sheets:['Vaisseaux','Routes'],parameters:['astroport_id'],description:'Vaisseaux, routes, fret et carburant. Modèles, achats, passagers, interceptions, combats et réparations restent à développer.'},
- {id:'economie',label:'Économie / Stockage',sheets:['Entrepots','Cours','EvenementsEco','Tarifs'],parameters:['economie_active','monnaie_nom','monnaie_unite'],description:'Monnaie, entrepôts, cours, événements et tarifs douaniers.'},
- {id:'informations',label:'Informations / Fouilles',sheets:['Connaissances','Lieux','ActionsTerrain','Recompenses'],parameters:[],description:'Connaissances, lieux, récompenses et installations.'},
+ {id:'economie',label:'Économie & Stocks',sheets:['Entrepots','Cours','EvenementsEco','Tarifs'],parameters:['economie_active','monnaie_nom','monnaie_unite'],description:'Monnaie, entrepôts, cours, événements et tarifs douaniers.'},
+ {id:'informations',label:'Informations & Fouilles',sheets:['Connaissances','Lieux','ActionsTerrain','Recompenses'],parameters:[],description:'Connaissances, lieux, récompenses et installations.'},
 ];
 export const workshopModule = id => workshopModules.find(m=>m.id===id);
 export function masterModuleErrors(sheets,selected){
