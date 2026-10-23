@@ -67,3 +67,13 @@ Inclure les futurs en-têtes/pointeurs, révisions, brouillons, changements, imp
 Tester REC-SO-MST-01 à 10, en plus des 24 SO, six FOR, cinq REC et dix SEC. Le test crucial doit refuser globalement une recette référençant un ingrédient absent, puis activer M1/M4/M5 en une version après correction. Tester M3 seul, deux MJ publiant sur une base obsolète, une coupure entre préparation et bascule et un rollback conservant achats/XP/stock/contrats.
 
 La sonde SO-00 a seulement exécuté l’archive existante sans images vers un nouveau scénario et vérifié les comptes/stock de la session source inchangés. Elle ne démontre pas la restauration complète de Firebase ni un retour de pointeur V3.4, qui n’existe pas encore. Aucune sauvegarde de production effectuée. Une autorisation de ce plan ne permet ni migration d’une session active ni déploiement ; la procédure de production reste à faire approuver séparément.
+
+## Complément V3.5 — admissions, naissances et groupes
+
+[Diagnostic et dépendances](SO-00-V35-INSCRIPTIONS.md). Le registre comporte désormais **55 cas ciblés** (24 SO, 6 FOR, 5 REC, 10 MST, 10 INS) et 10 SEC transversaux. Aucun résultat de recette Android/iOS ou de restauration complète n’est affirmé.
+
+Inclure dans les sauvegardes futures : propositions et historiques privés, invitations par but et reçus de consommation (jamais jetons en clair), quotas et clés d’identité fictive, progression participant/XP, réserves déjà incarnées, naissances et reçus de dotation, mandats et contre-opérations de groupe. Les liens UID restent cohérents avec Auth ; ni données civiles ni préférences d’amis dans les exports publics/M2.
+
+Réessayer une naissance après restauration ne doit créer aucun kit, crédit protégé ou PA supplémentaire ; rejouer une vieille permission ne doit pas restaurer un mandat retiré. Tester réserve et création à chaud, deux décès dans une session, quota concurrent et transfert de groupe pendant une dépense. Les contre-opérations de groupe corrigent l’appartenance sans annuler les transactions passées ou transférer les actifs de la caisse. La restauration d’un Master n’est pas le retour arrière du jeu vécu.
+
+Cette tranche ne change que documentation et tests : aucun retour arrière de données nécessaire, aucun revert exécuté. Une future adoption de campagne reste soumise au plan de migration validé et à la preuve de restauration isolée. Le déploiement reste **À FAIRE VALIDER, NON LANCÉ**.

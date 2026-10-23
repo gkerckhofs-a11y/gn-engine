@@ -1,5 +1,17 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## Complément courant V3.5
+
+[Matrice différentielle détaillée, dépendances et ordre minimal](SO-00-V35-INSCRIPTIONS.md). [Registre des 55 recettes ciblées](SO-RECETTES-V35.md), plus 10 SEC transversaux. Aucun INS complet validé : deux tests nouveaux couvrent seulement révocation de droit de caisse/paiement concurrents. Les verdicts historiques ci-dessous conservent leur périmètre d’origine ; ils ne valent pas validation des nouveaux parcours centraux.
+
+| Nouvel écart | À créer/adapter | Priorité |
+|---|---|---|
+| SO-GAP-14 | Admission sécurisée distincte du lien privé, proposition, identité/espèce, classes/initiation canoniques, quotas et approbation MJ, passage M2 | SO-01 I1/I2/I3 |
+| SO-GAP-15 | Naissance/reçu, QR à activation, réserve jamais jouée, progression participant, crédits/kit protégés et relève sans republish | SO-01/02 I4/I5 |
+| SO-GAP-16 | Capacité/type/responsable de groupe, transfert atomique entre groupes et contre-opération, révocation lors de décès/relève | SO-01/SO-06 I2b/I5 |
+
+SO-GAP-01…13 restent ouverts. Aucune migration ni réinitialisation d’une session.
+
 ## Actualisation V3.4 — 23 octobre 2026
 
 La matrice différentielle courante, le graphe des sept ateliers, les migrations proposées et les dix REC-SO-MST figurent dans [SO-00 V3.4](SO-00-V34-PLAN-CENTRAL.md). Les dix MST sont **NON EXÉCUTÉS** ; les tests historiques constituent des preuves partielles seulement. Les tableaux ci-dessous restent le registre métier V0.7 issu des tranches V3.0–V3.2, sans requalification de leurs succès en validation V3.4.

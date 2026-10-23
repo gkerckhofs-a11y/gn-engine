@@ -1,5 +1,13 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## État courant V3.5 — SO-00 différentiel
+
+**Produit complet non conforme à V3.5/V0.7.** [Diagnostic, matrice, sources et ordre des tranches](SO-00-V35-INSCRIPTIONS.md), [55 recettes](SO-RECETTES-V35.md). Base distante 54c7868c, main 03eaace, branche/PR #1 conservées. Aucun service applicatif ni schéma modifié ; sept sondes diagnostiques et deux tests métier supplémentaires dans la suite Caisses partagée avec Firestore.
+
+Local : **795/795 tests et build réussis**, Node 24.19.0, logs `verification/so35-*`. Nouveaux tests : révocation/dépense concurrentes dans les deux ordres de lancement ; droits retirés après commit, opérations antérieures conservées, aucune version Master créée. Partie de INS-10 seulement, pas transfert entre groupes ou recette sur appareil. Firebase du nouveau commit : consulter les runs/logs exacts consignés dans la PR après leur fin ; ne pas utiliser le résultat de la base à sa place.
+
+Les 55 recettes complètes et Android/iOS sont NON TESTÉS dans ce nouveau périmètre ; preuves partielles répertoriées séparément. SO-GAP-14/15/16 ajoutés. G0 incomplet sur sauvegarde/restauration réelle ; G1–G5 non franchis. Prochaine tranche I1, dépendances centrales explicites avant activation I4. Aucune migration, fusion ou production.
+
 ## État courant V3.4 — audit SO-00
 
 **Produit complet non conforme à V3.4/V0.7 ; plan en attente de validation avant migration.** [Audit, architecture proposée et preuves](SO-00-V34-PLAN-CENTRAL.md), [contrats des gabarits](SO-00-V34-GABARITS.md). Base distante vérifiée `80c3a9cbce56d4dd7661c1b57f2fb01b348a9888`, main `03eaace155b052d1b7d1960347746e9ee60ed514`. La branche et la PR #1 sont conservées. Commit documentaire/CI exacts consignés dans la PR après exécution.

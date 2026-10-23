@@ -1,5 +1,7 @@
 # GN Engine
 
+**Reprise V3.5 — diagnostic et tests du socle, sans migration.** [Matrice, architecture et ordre minimal inscriptions → M2 → naissance / groupes / relève](docs/SO-00-V35-INSCRIPTIONS.md), [registre des 55 recettes](docs/SO-RECETTES-V35.md). Deux tests supplémentaires de révocation/paiement concurrents ; 795 tests locaux et build réussis. Résultats exacts Firebase/CI consignés sur la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Le parcours V3.5 n’est pas encore développé ; aucune recette mobile ou production revendiquée. Les tranches L1/SO existantes et le plan central V3.4 sont conservés.
+
 Socle de jeu grandeur nature conservé pour l’application prioritaire **SPACE OUTLAWS**, indépendant de Murder Engine. Le développement d’un créateur universel est hors périmètre.
 
 **Reprise V3.4 — SO-00 documentaire, plan en attente de validation.** [Audit, matrice, graphe et publication centrale](docs/SO-00-V34-PLAN-CENTRAL.md) · [Rapprochement des sept gabarits vierges](docs/SO-00-V34-GABARITS.md). Un Master central / sept ateliers / une publication globale contrôlée : architecture à développer après validation du plan. Les travaux ci-dessous sont conservés ; aucun importeur V3.4, aucune migration ni activation de recette livrés par cet audit.

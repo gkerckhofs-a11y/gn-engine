@@ -1,6 +1,6 @@
 # GN Engine — consignes de développement
 
-Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouvelle stratégie de développement GN Engine pour la suite ». Mise à jour par le cadrage SPACE OUTLAWS V3.4 du 23 octobre 2026 : SPACE OUTLAWS est prioritaire, le créateur universel est hors périmètre. Ces consignes remplacent les anciens parcours de livraison qui prévoyaient une publication à chaque version.
+Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouvelle stratégie de développement GN Engine pour la suite ». Mise à jour par le cadrage SPACE OUTLAWS V3.5 du 23 octobre 2026 : SPACE OUTLAWS est prioritaire, le créateur universel est hors périmètre. Ces consignes remplacent les anciens parcours de livraison qui prévoyaient une publication à chaque version.
 
 ## Décision V3.4 et validation préalable
 
@@ -9,6 +9,15 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Préserver les contrats historiques CAMPAGNE/SESSION et les tranches L1. Les sept gabarits V0.1 sont préparatoires, pas des imports certifiés.
 - **Instruction utilisateur de reprise V3.4 : « Attendre validation de ce plan avant opérations de migration. »** Le [plan SO-00 V3.4](docs/SO-00-V34-PLAN-CENTRAL.md) est soumis à validation. Ne pas effectuer d’adoption/conversion de campagne ni de migration de données tant que cet accord n’est pas présent dans la conversation. Audit, documentation et vérifications sur données synthétiques restent autorisés.
 - Cette validation de conception ne vaudra jamais autorisation de déploiement ni de migration d’une session active.
+
+## Priorité V3.5 — inscriptions, naissance et groupes
+
+- Référence : [diagnostic et ordre minimal V3.5](docs/SO-00-V35-INSCRIPTIONS.md), [source intégrale](docs/source/SO_CDC_V35.md), [55 recettes](docs/SO-RECETTES-V35.md). Les décisions V3.4 de publication centrale restent applicables.
+- Inscription privée, proposition, définition M2 et incarnation sont distinctes. Lien d’admission expirant/révocable + compte authentifié ; aucune classe Force ni initiation interdite dans le parcours joueur.
+- Quotas de participants confirmés par classe contrôlés atomiquement à l’approbation et à l’affectation. Souhait d’amis sans droit implicite. Publication globale avant session ; naissance à chaud sous règles publiées et gestion des groupes par commandes de session, sans republication de campagne.
+- Dotation de kit/200 Cr protégés une seule fois à la naissance ; un actif par participant ; réserve jamais incarnée ; succession/XP/PA selon A08–A10, sans patrimoine ni mandat de groupe hérité automatiquement.
+- Réutiliser groupes/comptes/lots/ledger : retirer les anciens droits et accorder séparément les nouveaux mandats, avec audit et sans déplacer la propriété des caisses/biens. Ne pas assimiler `assign` historique à la succession canonique.
+- Les migrations de campagnes restent soumises à la validation préalable ci-dessus. Les développements additifs sur branche et les vérifications synthétiques sont autorisés ; la nouvelle spécification n’autorise ni production ni migration implicite.
 
 ## Dépôt et branche
 
@@ -28,7 +37,7 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 
 ## Cycle de chaque ensemble fonctionnel
 
-1. Lire le cadrage V3.4, le livre SPACE OUTLAWS V0.7, les sept gabarits proposés SO_Masters_V01.zip et le vade-mecum ; conserver le rapport de cohérence V0.6 comme historique (sources référencées dans SO-01a et SO-00). Délimiter un parcours complet, ses critères, dépendances et recettes. A01–A38 et l’extension PNJ FOR-01 sont clos : ne pas réinventer leurs barèmes. Distinguer les propositions techniques et les paramètres de session à préparer. Les décisions V3.4/V0.7 prévalent sur les cadrages antérieurs ; les prix/compositions d’exemples V3.2 restent non canoniques.
+1. Lire le cadrage V3.5, le livre SPACE OUTLAWS V0.7, les sept gabarits proposés SO_Masters_V01.zip et le vade-mecum ; conserver le rapport de cohérence V0.6 comme historique (sources référencées dans SO-01a et SO-00). Délimiter un parcours complet, ses critères, dépendances et recettes. A01–A38 et l’extension PNJ FOR-01 sont clos : ne pas réinventer leurs barèmes. Distinguer les propositions techniques et les paramètres de session à préparer. Les décisions V3.5/V0.7 prévalent sur les cadrages antérieurs ; les prix/compositions d’exemples V3.2 restent non canoniques.
 2. Réutiliser les services et collections existants. Protéger les acquis de campagne, les anciennes sessions, les identifiants et les quatre Masters Campagne/Session, modèles et exemples.
 3. Implémenter sur la branche, avec tests métier, tests d’interface pertinents et tests Firebase émulés pour transactions, permissions, réessais et concurrence.
 4. Exécuter les contrôles locaux applicables, au minimum `npm test` et `npm run build`. Corriger les échecs avant de constituer le commit fonctionnel.
@@ -47,7 +56,7 @@ Avant de provisionner un projet externe ou de créer des accès, préciser les m
 
 La recette finale doit couvrir :
 
-- les 24 parcours REC-SO-01 à REC-SO-24, les six REC-SO-FOR-01 à 06, les cinq REC-SO-REC-01 à 05, les dix REC-SO-MST-01 à 10 et les 10 essais SEC-SO, en signalant chaque cas exécuté, échoué, bloqué ou non exécuté ; les anciennes recettes V2 restent pertinentes pour les fonctions conservées ;
+- les 24 parcours REC-SO-01 à REC-SO-24, les six REC-SO-FOR-01 à 06, les cinq REC-SO-REC-01 à 05, les dix REC-SO-MST-01 à 10 les dix REC-SO-INS-01 à 10 (55 cas ciblés au total), et les 10 essais SEC-SO, en signalant chaque cas exécuté, échoué, bloqué ou non exécuté ; les anciennes recettes V2 restent pertinentes pour les fonctions conservées ;
 - le Master SPACE OUTLAWS central, ses sept ateliers et ses six domaines, les imports/exports et les quatre Masters historiques ;
 - l’isolation des sessions, les secrets, la révocation et la frontière absolue entre QR public d’interaction et accès privé jamais piratable ;
 - les transactions, réessais, concurrence, pause, reprise et réseau dégradé ;
