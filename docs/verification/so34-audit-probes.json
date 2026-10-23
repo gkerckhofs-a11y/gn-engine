@@ -1,0 +1,63 @@
+{
+  "environment": "MemoryStore, synthetic data only",
+  "templates": [
+    {
+      "file": "SO_M1_Economie.xlsx",
+      "status": "REJECTED_BY_CURRENT_READER",
+      "reason": "Onglet non pris en charge par GN Engine."
+    },
+    {
+      "file": "SO_M2_Persos.xlsx",
+      "status": "REJECTED_BY_CURRENT_READER",
+      "reason": "Onglet non pris en charge par GN Engine."
+    },
+    {
+      "file": "SO_M3_Spatial.xlsx",
+      "status": "REJECTED_BY_CURRENT_READER",
+      "reason": "Onglet non pris en charge par GN Engine."
+    },
+    {
+      "file": "SO_M4_Recettes.xlsx",
+      "status": "REJECTED_BY_CURRENT_READER",
+      "reason": "Onglet non pris en charge par GN Engine."
+    },
+    {
+      "file": "SO_M5_Boutiques.xlsx",
+      "status": "REJECTED_BY_CURRENT_READER",
+      "reason": "Onglet non pris en charge par GN Engine."
+    },
+    {
+      "file": "SO_M6_Infos.xlsx",
+      "status": "REJECTED_BY_CURRENT_READER",
+      "reason": "Onglet non pris en charge par GN Engine."
+    },
+    {
+      "file": "SO_M7_Missions.xlsx",
+      "status": "REJECTED_BY_CURRENT_READER",
+      "reason": "Onglet non pris en charge par GN Engine."
+    }
+  ],
+  "observations": {
+    "missingReference": {
+      "canApply": false,
+      "errors": [
+        {
+          "sheet": "Recettes",
+          "row": 2,
+          "column": "",
+          "message": "audit-recipe : référence absente, archivée ou incompatible (RECIPE_REFERENCE). Conserver les objets consommables et les références de cette recette, ou archiver d’abord la recette."
+        },
+        {
+          "sheet": "References",
+          "row": 1,
+          "column": "",
+          "message": "RECIPE_REFERENCE"
+        }
+      ]
+    },
+    "combinedImport": "item + recipe DRAFT accepted in one legacy batch",
+    "legacyPublish": "two separate request IDs create two snapshots at the same scenario revision; no campaign pointer CAS",
+    "archive": "existing version exported, restored as a separate scenario, retry returns same result; session accounts/inventory unchanged"
+  },
+  "limits": "This is not an MST acceptance run, central publication/rollback proof, complete backup restore, or emulator run."
+}

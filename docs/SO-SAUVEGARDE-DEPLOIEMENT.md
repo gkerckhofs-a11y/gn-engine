@@ -57,3 +57,13 @@ Inclure `recipes`, ses historiques et reçus Master dans toute sauvegarde future
 Aucune migration des anciens documents n’est requise. Un ancien code ignorant `recipes` ne doit pas servir à exporter ou copier une campagne qui en contient : il omettrait cette collection. Un retour arrière devra préserver les nouvelles données et empêcher ces opérations, ou utiliser un correctif compatible. Ne pas effacer les brouillons pour revenir à un ancien code. Les contrôles automatisés d’archive/campagne de SO-06b ne remplacent pas une restauration complète Auth/Firestore/Storage en environnement isolé.
 
 Avant de rendre les recettes jouables, exécuter les cinq REC-SO-REC avec une publication valide comme témoin, ainsi que refus de droits, double clic, interruption avant/après commit et reprise réseau. Tester l’activation volontaire sur mobile et l’absence totale d’effet depuis un compte tiers. Préparer ces essais ne vaut pas autorisation de provisionner ou publier en production.
+
+## Complément V3.4 — conception à valider avant migration
+
+Le [plan central SO-00](SO-00-V34-PLAN-CENTRAL.md) est soumis à validation explicite conformément à la demande utilisateur. Aucune adoption de campagne ni conversion de données n’a été exécutée. Les sept ateliers importent dans un brouillon commun ; la future publication active une version complète par pointeur après contrôle global. Les sessions restent épinglées à leur configuration, et le jeu déjà effectué n’est jamais restauré par un rollback de configuration.
+
+Inclure les futurs en-têtes/pointeurs, révisions, brouillons, changements, imports et provenance, manifestes, graphes de dépendances, publications en cours, pages et reçus idempotents dans le plan de sauvegarde. Les permissions de campagne sont distinctes des droits de session : aucune attribution héritée implicitement lors d’une adoption/restauration.
+
+Tester REC-SO-MST-01 à 10, en plus des 24 SO, six FOR, cinq REC et dix SEC. Le test crucial doit refuser globalement une recette référençant un ingrédient absent, puis activer M1/M4/M5 en une version après correction. Tester M3 seul, deux MJ publiant sur une base obsolète, une coupure entre préparation et bascule et un rollback conservant achats/XP/stock/contrats.
+
+La sonde SO-00 a seulement exécuté l’archive existante sans images vers un nouveau scénario et vérifié les comptes/stock de la session source inchangés. Elle ne démontre pas la restauration complète de Firebase ni un retour de pointeur V3.4, qui n’existe pas encore. Aucune sauvegarde de production effectuée. Une autorisation de ce plan ne permet ni migration d’une session active ni déploiement ; la procédure de production reste à faire approuver séparément.

@@ -1,5 +1,14 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## Actualisation V3.4 — 23 octobre 2026
+
+La matrice différentielle courante, le graphe des sept ateliers, les migrations proposées et les dix REC-SO-MST figurent dans [SO-00 V3.4](SO-00-V34-PLAN-CENTRAL.md). Les dix MST sont **NON EXÉCUTÉS** ; les tests historiques constituent des preuves partielles seulement. Les tableaux ci-dessous restent le registre métier V0.7 issu des tranches V3.0–V3.2, sans requalification de leurs succès en validation V3.4.
+
+Remappage §10 V3.4 : SO-00 conception centrale ; SO-01 M1/M2 ; SO-02 QR/TOXI/FOR ; SO-03 droïdes ; SO-04 M3 ; SO-05 M4/M5 et autorités ; SO-06 M6/M7, continuité et recette. Les anciens noms de tranches SO-06a et SO-06b sont conservés dans l’historique ; ils ne changent pas le statut des nouveaux lots.
+
+Écarts ajoutés : **SO-GAP-12** brouillon central/pointeur de version/publication globale/rollback non implémentés ; **SO-GAP-13** habilitations de campagne et sept contrats de préparation non implémentés. Aucun changement d’état joué ni de règles canoniques effectué.
+
+
 23 octobre 2026 — complément à [SO-00](SO-00-REPRISE.md). `Existant` désigne un service observé, pas une conformité V0.7. `Adapté` décrit SO-06a, SO-01a et SO-06b. Les tests cités sont des suites réellement présentes ; leurs résultats globaux figurent dans [SO-VALIDATION](SO-VALIDATION.md). Une couverture historique partielle ne valide jamais automatiquement une recette REC-SO.
 
 ## Exigences, code, tests et migrations

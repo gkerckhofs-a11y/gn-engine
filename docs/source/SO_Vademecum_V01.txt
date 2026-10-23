@@ -1,0 +1,101 @@
+PART word/document.xml
+Vade-mecum des Masters
+SPACE OUTLAWS — Breach Port  |  Édition V0.1  |  Architecture du cahier des charges V3.4
+Guide pratique de préparation des données : sept ateliers de travail, un Master central, une seule publication contrôlée.
+IMPORTANT — Les fichiers Excel joints sont des gabarits V0.1 pour préparer le contenu. Ils ne sont pas encore des fichiers d’import certifiés par l’application ; Astra doit vérifier le contrat technique et les adaptations nécessaires avant toute mise en service.
+1. Le principe en une phrase
+On prépare séparément les objets, personnages, vaisseaux, recettes, boutiques, informations et missions ; on vérifie leurs liens ensemble ; on publie une seule version cohérente de la campagne.
+Terme
+À comprendre
+Atelier
+Écran ou fichier permettant de travailler un domaine sans perdre le fil.
+Brouillon central
+Zone de préparation commune qui rassemble les changements de plusieurs ateliers.
+Master central
+Référentiel publié des définitions de la campagne, unique source de vérité.
+Publication
+Bascule contrôlée vers une nouvelle version complète, effectuée par un MJ autorisé.
+Session jouée
+Stocks, personnages, achats et opérations réels : jamais réinitialisés par un import.
+2. Quel atelier prépare quoi ?
+Ordre conseillé
+Atelier / fichier
+Responsabilité principale
+M1
+SO_M1_Economie.xlsx
+Définir une seule fois chaque objet, ingrédient, marchandise, équipement et module.
+M2
+SO_M2_Persos.xlsx
+Définir personnages, factions, compétences attribuées, dotations, PNJ et habilitations.
+M3
+SO_M3_Spatial.xlsx
+Définir modèles de vaisseaux, ports, routes, incidents et rencontres.
+M4
+SO_M4_Recettes.xlsx
+Décrire comment fabriquer les produits M1 à partir d’ingrédients M1.
+M5
+SO_M5_Boutiques.xlsx
+Définir boutiques et offres, puis proposer les dotations initiales de stock.
+M6
+SO_M6_Infos.xlsx
+Définir documents, QR d’indices, fouilles, secrets et conditions.
+M7
+SO_M7_Missions.xlsx
+Relier personnages, lieux, objets, récompenses et annonces en aventures.
+Cet ordre est celui de la première RÉDACTION : il n’impose pas sept imports publiés successivement. Après la création du socle, tu peux revenir modifier n’importe quel domaine.
+3. Préparer une nouvelle aventure en pratique
+Choisir la campagne et la version de règles. Ouvrir un brouillon commun dans la future interface GN Engine.
+Renseigner les objets et ingrédients dans M1 ; créer les personnes et factions dans M2.
+Préparer les autres ateliers utiles, sans obligation de remplir les sept à chaque aventure.
+Pour chaque lien, choisir l’identifiant de l’élément existant plutôt que créer une nouvelle copie.
+Importer les fichiers de travail DANS LE BROUILLON, ou utiliser l’éditeur en ligne.
+Demander un contrôle global : références, droits, recettes, QR, quantités, règles et finances.
+Lire le rapport des erreurs et les corriger dans l’atelier propriétaire.
+Prévisualiser les changements puis demander une publication globale unique par le MJ.
+Préparer séparément les stocks/dotations de session et contrôler leurs quantités avant le jeu.
+4. Exemple : une potion dans une mission
+EXEMPLE DÉMONSTRATIF — Il ne fixe pas une nouvelle recette canonique.
+Atelier
+Ce qui est créé / référencé
+M1 Économie
+Créer le produit OBJ-ANT-001 (« Antidote ») et ING-BASE-001 (« Base de synthèse »).
+M4 Recettes
+Créer REC-ANT-001 ; sélectionner le produit OBJ-ANT-001 et l’ingrédient ING-BASE-001.
+M5 Boutiques
+Créer une offre pour OBJ-ANT-001 ; ne pas créer un deuxième antidote.
+M7 Missions
+Récompenser avec OBJ-ANT-001 ou débloquer REC-ANT-001 sans inventer un nouvel objet.
+Si l’ingrédient est encore en brouillon M1, la recette M4 peut être préparée dans le même projet de version. La publication ne se fera que lorsque les deux définitions seront reconnues valides. Si l’ingrédient manque réellement, la publication entière est refusée.
+5. Les cinq règles pour éviter les ennuis
+UN IDENTIFIANT = UN CONCEPT. Un renommage d’antidote conserve l’ID. Ne jamais se lier uniquement au nom visible.
+UNE SOURCE DE DÉFINITION. Les objets naissent dans Économie ; les autres ateliers ne font que les référencer.
+UN IMPORT N’EST PAS UNE PUBLICATION. Chaque fichier alimente le brouillon commun ; le MJ publie la version globale.
+UN CATALOGUE N’EST PAS UN STOCK. Définir une potion ou une offre ne produit ni dose, ni crédits, ni quantité. La dotation initiale est une commande distincte et validée.
+LE JEU DÉJÀ JOUÉ RESTE INTACT. Modifier une recette, mission ou valeur ne réécrit jamais des ventes, combats, doses ou inventaires passés.
+6. Modifications entre deux sessions
+Exemple : tu souhaites ajouter un ingrédient rare et une nouvelle potion. Modifie M1 et M4 dans le même brouillon. Le contrôle doit vérifier que la potion produit un objet existant, utilise des ingrédients définis et conserve un effet déjà autorisé par V0.7. Une seule nouvelle version de campagne est publiée ; la session terminée conserve son historique.
+Exemple : tu renommes un marchand. Modifie sa fiche M2 ; les boutiques M5 qui utilisent son ID continuent de le retrouver. Si tu veux supprimer ce marchand alors qu’une boutique le référence, le contrôle te demandera une réaffectation avant publication.
+7. Check-list avant « Publier la campagne »
+☐  Toutes les lignes ont des identifiants stables et aucun ID n’est créé deux fois.
+☐  Tous les objets, ingrédients et personnages référencés existent dans la version cible.
+☐  Toutes les compétences, effets, prix et limites respectent le livre des règles V0.7.
+☐  Toutes les recettes rares ont un effet autorisé ou restent non publiées.
+☐  Les QR ont une cible valide et ne donnent pas accès aux données secrètes.
+☐  Les propositions de stocks ne créent aucune quantité avant validation séparée.
+☐  Aucune modification n’efface les sessions antérieures, crédits, transactions ou objets possédés.
+☐  Le MJ a relu la liste des changements, conflits et dépendances.
+☐  Une archive de la version précédente et un retour arrière vérifiable existent.
+8. Ce qu’il faut demander à Astra en premier
+Avant de développer un nouvel importeur, Astra doit vérifier le dépôt GitHub existant : schémas CAMPAGNE/SESSION, branche L1/L1b, interfaces déjà fonctionnelles, tests et migrations. Ensuite seulement, il adaptera les sept gabarits et livrera le brouillon central avec contrôle des dépendances et publication atomique logique.
+La première démonstration attendue : définir un objet M1, l’utiliser dans une recette M4 et une offre M5, détecter une référence volontairement cassée, refuser la publication, réparer le lien puis publier UNE version complète. Aucun déploiement Firebase production n’est permis sans accord explicite.
+9. Documents de référence
+• SO_CDC_V34.md / .docx : cahier des charges technique et publication centrale.
+• SO_Regles_V07.docx : règles canoniques SPACE OUTLAWS et FOR-01 PNJ.
+• SO_Masters_V01.zip : sept modèles vierges pour la préparation documentaire.
+• SO_Prompt_V34.txt : instructions à remettre à Astra après validation du cahier.
+
+PART word/header1.xml
+SPACE OUTLAWS  |  BREACH PORT  |  MASTERS V3.4
+
+PART word/footer1.xml
+Document de préparation — modèles non encore certifiés par GN Engine

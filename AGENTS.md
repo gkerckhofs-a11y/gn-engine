@@ -1,6 +1,14 @@
 # GN Engine — consignes de développement
 
-Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouvelle stratégie de développement GN Engine pour la suite ». Mise à jour par le cadrage SPACE OUTLAWS V3.2 du 23 octobre 2026 : SPACE OUTLAWS est prioritaire, le créateur universel est hors périmètre. Ces consignes remplacent les anciens parcours de livraison qui prévoyaient une publication à chaque version.
+Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouvelle stratégie de développement GN Engine pour la suite ». Mise à jour par le cadrage SPACE OUTLAWS V3.4 du 23 octobre 2026 : SPACE OUTLAWS est prioritaire, le créateur universel est hors périmètre. Ces consignes remplacent les anciens parcours de livraison qui prévoyaient une publication à chaque version.
+
+## Décision V3.4 et validation préalable
+
+- Un Master central, sept ateliers M1 Économie, M2 Personnages, M3 Spatioport, M4 Recettes, M5 Boutiques, M6 Informations, M7 Missions, dans les six domaines de navigation. L’ordre M1→M7 est une aide de préparation, pas une chaîne de publications.
+- Édition web/import = brouillon ; seule une publication globale contrôlée et versionnée par une autorité serveur habilitée entre en vigueur pour les futurs épisodes. Références entre éléments d’un même brouillon autorisées ; aucun stock, crédit, XP, PA ou dose créé par import/publication.
+- Préserver les contrats historiques CAMPAGNE/SESSION et les tranches L1. Les sept gabarits V0.1 sont préparatoires, pas des imports certifiés.
+- **Instruction utilisateur de reprise V3.4 : « Attendre validation de ce plan avant opérations de migration. »** Le [plan SO-00 V3.4](docs/SO-00-V34-PLAN-CENTRAL.md) est soumis à validation. Ne pas effectuer d’adoption/conversion de campagne ni de migration de données tant que cet accord n’est pas présent dans la conversation. Audit, documentation et vérifications sur données synthétiques restent autorisés.
+- Cette validation de conception ne vaudra jamais autorisation de déploiement ni de migration d’une session active.
 
 ## Dépôt et branche
 
@@ -20,7 +28,7 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 
 ## Cycle de chaque ensemble fonctionnel
 
-1. Lire le cadrage V3.2, le livre SPACE OUTLAWS V0.7 et le sous-Master proposé SO_Recettes.xlsx ; conserver le rapport de cohérence V0.6 comme historique (sources référencées dans SO-01a et SO-00). Délimiter un parcours complet, ses critères, dépendances et recettes. A01–A38 et l’extension PNJ FOR-01 sont clos : ne pas réinventer leurs barèmes. Distinguer les propositions techniques et les paramètres de session à préparer. Les décisions V3.2/V0.7 prévalent sur le cadrage V2 historique.
+1. Lire le cadrage V3.4, le livre SPACE OUTLAWS V0.7, les sept gabarits proposés SO_Masters_V01.zip et le vade-mecum ; conserver le rapport de cohérence V0.6 comme historique (sources référencées dans SO-01a et SO-00). Délimiter un parcours complet, ses critères, dépendances et recettes. A01–A38 et l’extension PNJ FOR-01 sont clos : ne pas réinventer leurs barèmes. Distinguer les propositions techniques et les paramètres de session à préparer. Les décisions V3.4/V0.7 prévalent sur les cadrages antérieurs ; les prix/compositions d’exemples V3.2 restent non canoniques.
 2. Réutiliser les services et collections existants. Protéger les acquis de campagne, les anciennes sessions, les identifiants et les quatre Masters Campagne/Session, modèles et exemples.
 3. Implémenter sur la branche, avec tests métier, tests d’interface pertinents et tests Firebase émulés pour transactions, permissions, réessais et concurrence.
 4. Exécuter les contrôles locaux applicables, au minimum `npm test` et `npm run build`. Corriger les échecs avant de constituer le commit fonctionnel.
@@ -39,8 +47,8 @@ Avant de provisionner un projet externe ou de créer des accès, préciser les m
 
 La recette finale doit couvrir :
 
-- les 24 parcours REC-SO-01 à REC-SO-24, les six REC-SO-FOR-01 à 06, les cinq REC-SO-REC-01 à 05 et les 10 essais SEC-SO, en signalant chaque cas exécuté, échoué, bloqué ou non exécuté ; les anciennes recettes V2 restent pertinentes pour les fonctions conservées ;
-- le Master SPACE OUTLAWS unique et ses six vues, les imports/exports et les quatre Masters historiques ;
+- les 24 parcours REC-SO-01 à REC-SO-24, les six REC-SO-FOR-01 à 06, les cinq REC-SO-REC-01 à 05, les dix REC-SO-MST-01 à 10 et les 10 essais SEC-SO, en signalant chaque cas exécuté, échoué, bloqué ou non exécuté ; les anciennes recettes V2 restent pertinentes pour les fonctions conservées ;
+- le Master SPACE OUTLAWS central, ses sept ateliers et ses six domaines, les imports/exports et les quatre Masters historiques ;
 - l’isolation des sessions, les secrets, la révocation et la frontière absolue entre QR public d’interaction et accès privé jamais piratable ;
 - les transactions, réessais, concurrence, pause, reprise et réseau dégradé ;
 - la continuité de campagne et la préparation d’un épisode sans redistribution des acquis ;
@@ -61,6 +69,8 @@ Préparer dans le dépôt :
 Ces livrables et la recette finale sont à produire à l’issue du développement ; ce document n’en affirme pas l’exécution.
 
 ## Références de reprise
+
+- [Audit et plan central V3.4 à valider](docs/SO-00-V34-PLAN-CENTRAL.md) ; [rapprochement des sept gabarits](docs/SO-00-V34-GABARITS.md)
 
 - [Reprise V3.2 et sous-Master Recettes en brouillon, SO-06b](docs/SO-06B-RECETTES-BROUILLONS.md)
 

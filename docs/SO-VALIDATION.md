@@ -1,5 +1,15 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## État courant V3.4 — audit SO-00
+
+**Produit complet non conforme à V3.4/V0.7 ; plan en attente de validation avant migration.** [Audit, architecture proposée et preuves](SO-00-V34-PLAN-CENTRAL.md), [contrats des gabarits](SO-00-V34-GABARITS.md). Base distante vérifiée `80c3a9cbce56d4dd7661c1b57f2fb01b348a9888`, main `03eaace155b052d1b7d1960347746e9ee60ed514`. La branche et la PR #1 sont conservées. Commit documentaire/CI exacts consignés dans la PR après exécution.
+
+Nouveau contrôle local de la base : **793 tests applicatifs réussis et build réussi**, Node 24.19.0 ; journaux `docs/verification/so34-*`. Sondes en mémoire : sept gabarits refusés par le lecteur réel ; références contrôlées dans un seul import historique ; deux demandes de publication distinctes créent deux snapshots ; archive d’une version réimportée en copie avec réessai sans modifier comptes/stock de la session témoin. Ce dernier essai ne valide ni une restauration complète ni le rollback central futur.
+
+CI SO-06b relue : push 39953481233 et PR 39953486474, chacun build + **793 applicatifs / 611 Firebase**, succès. Résultats de la base uniquement, pas une exécution de V3.4. Les dix MST, la démonstration cruciale M1/M4/M5 activée, la recette mobile et la restauration complète restent **NON EXÉCUTÉS**. SO-GAP-12/13 ajoutés à la matrice ; aucun blocage métier antérieur levé par cet audit. G0 reste incomplet sur la sauvegarde restaurée ; G1–G5 non franchis. Aucune fusion, migration ou production.
+
+## Historique V3.2 et tranches conservées
+
 23 octobre 2026. **Produit complet non conforme à V3.2/V0.7 et non prêt pour une session réelle.** SO-00 documente la reprise ; SO-06a complète un parcours Master existant ; SO-01a ajoute les natures et filtres de soins ; SO-06b prépare les recettes en brouillon. Les lots métier SO-01 à SO-05 et la clôture A38 restent ouverts. Ce rapport est le point de départ du rapport global final, pas une attestation de réalisation des 24 recettes, six recettes FOR et cinq recettes Recettes & Potions.
 
 ## Périmètre candidat
