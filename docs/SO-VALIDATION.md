@@ -1,6 +1,11 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
-## État courant V3.5 — I1, candidatures privées
+## État courant V3.5 — I2, décisions et places confirmées
+
+[Tranche I2](SO-01-I2-DECISIONS.md) : autorité MJ actuelle, unicité fictive, compteurs atomiques, attente/correction/refus/retrait, changement de classe, exception explicite, historique privé et notification dans le dossier. **846 tests locaux et build réussis** ; 18 nouveaux cas métier partagés avec Firestore, trois nouveaux cas UI, un HTTP/Auth. Résultats Firebase et SHA exacts à constater dans la PR après CI. SO-GAP-14 reste ouvert sur M2 central ; aucune INS complète/mobile/restauration certifiée. Suite I2b puis C1/C2/I3. Pas de migration ni production.
+
+
+## Historique V3.5 — I1, candidatures privées
 
 [Tranche I1](SO-01-I1-ADMISSIONS.md) : choix administrés dans le brouillon, invitations d’admission distinctes de l’accès privé, propositions et versions sans ressources. **825 tests locaux et build réussis** ; 14 nouveaux cas métier partagés avec Firestore, 3 rendus UI, 1 HTTP/Auth. CI exacte à constater dans la PR après terminaison ; aucune recette humaine/mobile ni restauration complète exécutée.
 

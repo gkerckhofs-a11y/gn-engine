@@ -1,3 +1,4 @@
+import {admissionReviewsSuite} from '../support/admission-reviews-suite.mjs';
 import {admissionsSuite} from '../support/admissions-suite.mjs';
 import {characterNatureSuite} from '../support/character-nature-suite.mjs';
 import {preparationsSuite} from '../support/preparations-suite.mjs';
@@ -85,3 +86,5 @@ mastersSuite(()=>firestoreStore(firestore),'Masters sur Firestore');
 fieldSuite(()=>firestoreStore(firestore),'Firestore terrain');
 
 personSuite(()=>firestoreStore(firestore),'Interactions sur Firestore');
+
+admissionReviewsSuite(()=>firestoreStore(firestore),'Décisions SO sur Firestore');

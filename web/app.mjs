@@ -300,6 +300,10 @@ document.addEventListener('click',async event=>{
     if(a==='editSpaceOutlawsPreparation'){modal(preparationUi.form(currentSession));return;}
     if(a==='configureAdmission'){modal(admissionUi.config(currentAdmission));return;}
     if(a==='newAdmissionInvite'){modal(admissionUi.inviteForm(currentAdmission.sessionId));return;}
+    if(a==='reviewAdmission'){const r=currentAdmission.registrations.find(r=>r.uid===b.dataset.uid);if(r)modal(admissionUi.review(currentAdmission,r));return;}
+    if(a==='withdrawAdmission'){modal(admissionUi.withdraw(currentAdmission));return;}
+    if(a==='ackAdmission'){await mutate('acknowledgeAdmissionDecision',{sessionId:currentAdmission.session.id,noticeRevision:currentAdmission.decision.revision});await route();return;}
+    if(a==='admissionHistory'){const d=await api('admissionHistory',{sessionId:b.dataset.sid,...(b.dataset.uid?{uid:b.dataset.uid}:{})});if(actionVersion!==routeVersion)return;modal(admissionUi.history(d));return;}
     if(a==='addAdmissionSpecies'){b.closest('form').querySelector('[data-species-rows]').insertAdjacentHTML('beforeend',admissionUi.speciesRow({id:crypto.randomUUID(),nature:'HUMANOID',available:false}));return;}
     if(a==='revokeAdmission'){modal(`<h2>Révoquer ce lien</h2><form data-form="revokeAdmission" data-sid="${esc(currentAdmission.sessionId)}" data-id="${esc(b.dataset.id)}">${input('Motif','reason','','text',true)}<p>Les dossiers restent conservés. Un nouveau lien sera nécessaire pour les modifier.</p><button type="submit" class="primary">Révoquer</button></form>`);return;}
     if(a==='editStaff'){staffForm(b.dataset.email);return;}
@@ -467,6 +471,8 @@ document.addEventListener('submit',async event=>{
       const d=await mutate('issueAdmissionInvitation',{sessionId:form.dataset.sid,tokenHash,hours:Number(v.hours),maxUses:Number(v.maxUses),label:v.label});if(submitVersion!==routeVersion)return;
       const invitation=url(`admit/${form.dataset.sid}/${token}`);modal(`<h2>Lien de candidature</h2><p>Valable jusqu’au ${new Date(d.expiresAt).toLocaleString('fr-FR')}.</p><p class="invite">${esc(invitation)}</p>${button('Copier le lien','copy',`data-value="${esc(invitation)}"`,'primary')}<p>Conservez ce lien avant de fermer : le serveur ne garde que son empreinte. S’il est perdu, révoquez-le et créez-en un autre.</p>`);return;
     }else if(kind==='revokeAdmission'){await mutate('revokeAdmissionInvitation',{sessionId:form.dataset.sid,invitationId:form.dataset.id,reason:v.reason});}
+    else if(kind==='reviewAdmission'){const d=await mutate('reviewAdmission',{sessionId:form.dataset.sid,uid:form.dataset.uid,revision:Number(form.dataset.revision),policyRevision:Number(form.dataset.policy),draftRevision:Number(form.dataset.draft),decision:v.decision,reason:v.reason,...(v.decision.endsWith('CHANGE_CLASS')?{classId:v.classId,secondaryId:v.secondaryId}:{})});successMessage=d.status==='WAITLISTED'?'Dossier placé en attente. Aucune place réservée.':'Décision enregistrée.';}
+    else if(kind==='withdrawAdmission'){await mutate('withdrawAdmission',{sessionId:form.dataset.sid,revision:Number(form.dataset.revision),reason:v.reason});}
     else if(kind==='beginAdmission'){await mutate('beginAdmission',{sessionId:form.dataset.sid,sessionRevision:Number(form.dataset.sessionrev),token:location.hash.split('/')[3],policyRevision:Number(form.dataset.policy),draftRevision:Number(form.dataset.draft),consent:v.consent==='on'});if(submitVersion!==routeVersion)return;location.replace(`#/proposal/${form.dataset.sid}`);return;}
     else if(kind==='admissionProposal'){const {consent,...proposal}=v;await mutate('saveAdmissionProposal',{sessionId:form.dataset.sid,sessionRevision:Number(form.dataset.sessionrev),revision:Number(form.dataset.revision),policyRevision:Number(form.dataset.policy),draftRevision:Number(form.dataset.draft),proposal,submit:event.submitter?.value==='submit',consent:consent==='on'});}
     else if(kind==='scenario'){const d=await mutate('createScenario',v);destination=`scenario/${d.id}`;}
@@ -662,3 +668,4 @@ onAuthStateChanged(auth,()=>{mediaUi.clear();updateAccount();route();});
 
 
 document.addEventListener('change',event=>{if(!event.target.matches('[data-form="admissionProposal"] [name="classId"]'))return;const select=event.target.form.elements.secondaryId;for(const option of select.options)option.disabled=!!event.target.value&&option.value.startsWith(`${event.target.value}-`);if(select.selectedOptions[0]?.disabled)select.value='';});
+document.addEventListener('input',event=>{if(!event.target.matches('[data-admission-filter]')||!currentAdmission?.registrations)return;const filter=Object.fromEntries([...app.querySelectorAll('[data-admission-filter]')].map(el=>[el.dataset.admissionFilter,el.value]));app.querySelector('[data-admission-list]').innerHTML=admissionUi.dossierList(currentAdmission,filter);});

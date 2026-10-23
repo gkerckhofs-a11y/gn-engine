@@ -1,5 +1,10 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## I2 — décisions et quotas sur branche
+
+[Matrice ciblée et limites](SO-01-I2-DECISIONS.md) : file, approbation OWNER/MJ, unicité fictive par session, compteurs confirmés globaux/par classe, attente/retrait/correction/refus, transfert de classe et exception motivée. 846 tests locaux et build réussis ; CI exacte dans la PR. SO-GAP-14 partiellement couvert, passage M2 encore absent ; I2b/SO-GAP-16 puis C1/C2/I3 restent nécessaires. Les sections I1/C1a ci-dessous décrivent leurs périmètres historiques.
+
+
 ## I1 — admission et proposition sur branche
 
 [Parcours I1 et matrice ciblée](SO-01-I1-ADMISSIONS.md) : liens sécurisés, choix V0.7, espèces narratives du brouillon M2, dossiers privés et réessais sans dotation. 825 tests locaux/build réussis ; CI exacte dans la PR. **SO-GAP-14 partiel** : confirmation des quotas, approbation, identité fictive unique et passage personnage M2 restent I2/I3. Aucun autre écart clos, aucun historique migré.

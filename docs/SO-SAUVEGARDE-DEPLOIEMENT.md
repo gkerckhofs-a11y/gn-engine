@@ -1,5 +1,10 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## Complément I2 — confirmations cohérentes
+
+[Contrat I2 et reprise](SO-01-I2-DECISIONS.md) : sauvegarder ensemble registrations/historiques, total de session, compteurs par classe, réservations d’identité, invitations/usages, reçus/audit et contexte central. Ne jamais restaurer un seul compteur ou revenir à un binaire I1 qui ignore les confirmations. Annulation avant commit et réessai après réponse perdue sont testés automatiquement ; restauration complète et retour arrière opérationnel restent non exécutés. Aucun déploiement autorisé par ces preuves.
+
+
 **Procédure préparée, jamais lancée. Aucune mise en production autorisée.** Le candidat actuel n'est pas prêt : voir [rapport de conformité](SO-VALIDATION.md). Aucun nom de projet de recette, URL, compte ni stockage de sauvegarde disponible n'est présumé. Aucun changement de droits Firebase, IAM, DNS ou comptes de production n'est inclus dans les autorisations actuelles.
 
 ## 1. Préparer le candidat et la recette isolée

@@ -1,5 +1,6 @@
 import {requireThat,whole,documentId} from './validation.mjs';
 import {admissionClasses} from '../shared/admission-rules.mjs';
+import {createHash} from 'node:crypto';
 export const admissionKind='SO_ADMISSION_V1';
 export const admissionText=(v,max,required=false)=>{requireThat(typeof v==='string'&&v.length<=max&&(!required||v.trim()),'INVALID_ADMISSION');return v.trim();};
 export function admissionKeys(v,keys){requireThat(v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).every(k=>keys.includes(k)),'INVALID_ADMISSION');}
@@ -34,5 +35,23 @@ export function validAdmissionRecord(r){
  const keys=['id','uid','email','status','characterId','accessActive','admission'];
  if(!r||Object.keys(r).some(k=>!keys.includes(k))||r.status!=='RECEIVED'||r.characterId!==null||r.accessActive!==false)return false;
  const a=r.admission;
- return a?.kind===admissionKind&&['DRAFT','SUBMITTED'].includes(a.status)&&Number.isSafeInteger(a.revision)&&a.revision>0;
+ return a?.kind===admissionKind&&['DRAFT','SUBMITTED','APPROVED','WAITLISTED','CORRECTION','REFUSED','WITHDRAWN'].includes(a.status)&&Number.isSafeInteger(a.revision)&&a.revision>0
+  &&(a.status==='APPROVED'?!!a.confirmation&&admissionClasses.some(c=>c.id===a.confirmation.classId)&&/^[a-f0-9]{64}$/.test(a.confirmation.identityKey):!a.confirmation);
 }
+
+export const emptyAdmissionCounts=()=>Object.fromEntries(admissionClasses.map(c=>[c.id,0]));
+export function validAdmissionOccupancy(o){
+ return o?.kind===admissionKind&&Number.isSafeInteger(o.revision)&&o.revision>0&&o.byClass&&Object.keys(o.byClass).length===8&&admissionClasses.every(c=>Number.isSafeInteger(o.byClass[c.id])&&o.byClass[c.id]>=0);
+}
+export function admissionOccupancy(o,accepted){
+ const counts=o?.byClass??emptyAdmissionCounts();
+ requireThat((!o||validAdmissionOccupancy(o))&&Object.values(counts).reduce((a,b)=>a+b,0)===accepted,'ADMISSION_ACCOUNTING_CONFLICT');
+ return {kind:admissionKind,revision:o?.revision??0,byClass:{...counts}};
+}
+const digest=v=>createHash('sha256').update(JSON.stringify(v)).digest('hex');
+// Fictional display names remain unchanged. This key is scoped to one session.
+export function admissionIdentity(p){
+ const normalize=v=>v.normalize('NFKD').replace(/\s+/gu,' ').replace(/[\p{M}\p{Cf}\p{Cc}]/gu,'').toLowerCase().replace(/[’‘ʼ]/g,"'").replace(/[‐‑–—]/g,'-').replace(/\s+/gu,' ').trim();
+ const pair=[normalize(p.firstName),normalize(p.lastName)];requireThat(pair.every(Boolean),'INVALID_ADMISSION');return digest(pair);
+}
+export const admissionConsent=(s,settings)=>digest([...['title','summary','date','time','place','practical','privacy'].map(k=>s[k]??''),settings?.instructions??'']);

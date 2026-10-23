@@ -1,5 +1,10 @@
 # SO-00 V3.5 — diagnostic, inscriptions et ordre de développement
 
+## Avancement après I2
+
+[Décisions MJ et quotas I2](SO-01-I2-DECISIONS.md) ajoutés sur C1a/I1, sans migration historique : 846 tests locaux et build réussis, CI exacte dans la PR. File filtrable, confirmations par classe/globales, unicité fictive, correction/refus/attente/retrait, exception motivée et changement de classe atomique. Le diagnostic ci-dessous est conservé comme état initial ; M2 central et naissance restent absents. Prochaine tranche I2b, puis C1/C2/I3/I4.
+
+
 23 octobre 2026. **Première étape V3.5 : audit différentiel et tests du socle, pas livraison du parcours d’inscription.** L’application reste en 0.37.0 sur branche. Aucun service de production, schéma applicatif, ancien Master, compte, règle Firebase ou marqueur de déploiement n’est modifié par cette tranche. L1a–L1m, SO-06a, SO-01a et SO-06b sont conservés.
 
 Le parcours cible exige des commandes nouvelles autour des services existants : **candidature privée → admission contrôlée → définition M2 → naissance de session**. La relève et les changements d’appartenance sont des opérations de session. Ils ne doivent ni réimporter le scénario ni déclencher la publication du Master. La priorité SO-01 est réordonnée ci-dessous ; il n’est pas nécessaire d’attendre la fin de SO-06 pour livrer la régie des groupes.

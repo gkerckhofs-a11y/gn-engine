@@ -31,6 +31,12 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Les espèces narratives sont un changement unique du brouillon central M2 initial ; ne pas recopier un catalogue d’admission. Les codes V0.7 du dossier ne sont pas supposés correspondre aux IDs des catalogues historiques. Raccordement explicite avant I3/I4.
 - Les droits MJ de préparation autorisent uniquement ces choix narratifs ; aucun grant de publication/arbitraire du Master. Le service reste bloqué si le cycle du brouillon/pointeur change, jusqu’à adaptation C1/C2. Conserver la protection Accueil, les reçus d’usage/commande et les révisions de consentement.
 
+## Tranche I2 — décisions et confirmations
+
+- [I2](docs/SO-01-I2-DECISIONS.md) confirme une place sans créer M2/kit/crédits/QR. Conserver le total `session.accepted`, ses sous-compteurs de classe et l’index d’identité dans la même transaction ; ne pas recalculer ou migrer silencieusement un état incohérent.
+- Les décisions vérifient les droits courants avant les reçus. Retrait/correction libèrent la place ; réessai ne la recrée pas. Une exception exige un choix et un motif explicites. Le joueur peut retirer son dossier après expiration du lien.
+- Les futurs I3/I4 doivent adapter explicitement les gardes et revalider les quotas à la naissance. Ne pas lancer I1/C1a sur des dossiers confirmés I2 ; un rollback doit conserver le lecteur et la garde compatibles.
+
 ## Dépôt et branche
 
 - Travailler exclusivement dans le dépôt `gkerckhofs-a11y/gn-engine`, sur une branche dédiée et une PR. Le checkout local sert au développement et aux vérifications du même dépôt ; ne pas créer de seconde application ou de dépôt parallèle.
