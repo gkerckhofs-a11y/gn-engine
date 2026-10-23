@@ -22,6 +22,8 @@ Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
 
 **L1l — exports groupés.** Un classeur par module réunit ses feuilles exportables dans une lecture cohérente, avec périmètre et exclusions annoncés. [Guide et validation](docs/L1L-EXPORTS-GROUPES.md). Dotations séparées, dépendances externes préexistantes ; L1 reste ouvert.
 
+**L1m — références des exports.** Le panneau de préparation détaille les références de catalogue internes/externes, leur présence dans la destination et leur inclusion dans le classeur. [Guide et validation](docs/L1M-DEPENDANCES-MASTERS.md). Constat informatif ; l’aperçu d’import reste obligatoire.
+
 **L1f — lieux, actions et récompenses groupés.** Création et modification atomiques des trois feuilles dans Informations / Fouilles, identités historiques et états de session conservés. [Guide, validation et limites](docs/L1F-TERRAIN-GROUPE.md). Seize parcours couvrent dix-huit feuilles sur branche ; aucune publication.
 
 **L1e — relations et membres des groupes.** Deux Masters supplémentaires dans Personnages, droits de jeu sélectionnés par cases et identités historiques conservées. [Guide, validation et limites](docs/L1E-RELATIONS-MEMBRES.md). Quinze éditeurs sur branche ; aucune publication.

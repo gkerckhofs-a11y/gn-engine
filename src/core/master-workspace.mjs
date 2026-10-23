@@ -28,7 +28,8 @@ export async function masterWorkspace(tx,ctx,at,newId,module,sheet,bundle=false)
   const meta=moduleMeta(ctx,module),common={meta,revision:ctx.parent.revision,editable:masterEditable(ctx,at)};
   const definitions=masterEditorsFor(module).filter(d=>!d.readOnly&&(!ctx.session||!d.scenarioOnly));
   const workspaces=definitions.map(d=>({...common,...(d.sheet==='Parametres'?parameterProjection(ctx.parent,module,ctx.session):masterEditorProjection({module,sheet:d.sheet,records,stamps:allStamps,session:ctx.session,newId}))}));
-  return {module,bundle:true,session:ctx.session,...common,workspaces,...(module==='economie'?{tariffs}:{})};
+  const referenceIndex=Object.fromEntries(Object.entries(masterCollections).map(([sheet,collection])=>[sheet,records[collection].map(r=>({id:r.id,archived:r.masterArchived===true}))]));
+  return {module,bundle:true,session:ctx.session,...common,workspaces,referenceIndex,...(module==='economie'?{tariffs}:{})};
  }
  const count=sheet=>masterCollections[sheet]?records[masterCollections[sheet]].length:
   sheet==='Objectifs'?records.characters.reduce((n,c)=>n+(c.objectives?.length??0),0):null;
