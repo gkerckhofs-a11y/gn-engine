@@ -1,6 +1,7 @@
 import {workshopModules} from './workshop-modules.mjs';
 // Catalog references present in exported cells. This is not an import validator.
 const scalar={
+ Recettes:{produit_id:'Objets',competence_id:'Competences',laboratoire_lieu_id:'Lieux',connaissance_id:'Connaissances'},
  Competences:{consommable_id:'Objets'},Attributions:{personnage_id:'Personnages',classe_id:'Classes'},
  Membres:{personnage_id:'Personnages',groupe_id:'Groupes'},Relations:{personnage_id:'Personnages',cible_id:'Personnages'},Objectifs:{personnage_id:'Personnages'},
  Vaisseaux:{carburant_objet_id:'Objets'},Cours:{id:'Objets'},Entrepots:{loyer_groupe_id:'Groupes'},
@@ -9,7 +10,7 @@ const scalar={
  Recompenses:{lieu_id:'Lieux',objet_id:'Objets',connaissance_id:'Connaissances'},
  Interactions:{competence_id:'Competences',consommable_id:'Objets'},Tarifs:{objet_id:'Objets'},
 };
-const lists={Classes:{competences:['Competences',true]},Attributions:{competences:['Competences',true]},
+const lists={Recettes:{composants:['Objets',true]},Classes:{competences:['Competences',true]},Attributions:{competences:['Competences',true]},
  Connaissances:{personnages_initiaux:['Personnages',false],qr_personnages:['Personnages',false]},
  ActionsTerrain:{bonus_objets:['Objets',true]},Interactions:{prerequis:['Competences',true],bonus_objets:['Objets',true],consommables_supplementaires:['Objets',true]}};
 const owner=sheet=>workshopModules.find(m=>m.sheets.includes(sheet))?.id??null;

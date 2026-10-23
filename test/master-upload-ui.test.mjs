@@ -4,6 +4,8 @@ import {readFile} from 'node:fs/promises';
 import {writeMasterXlsx} from '../web/master-xlsx-write.mjs';
 import {masterPanel,assertMasterType,createMasterController} from '../web/masters.mjs';
 import {workshopModules} from '../src/shared/workshop-modules.mjs';
+import {recipeMasterExample} from '../src/shared/recipe-example.mjs';
+import {readMasterXlsx} from '../web/master-xlsx.mjs';
 
 test('Imports : chaque destination possède son champ et uniquement ses modèles',()=>{
  const campaign=masterPanel({title:'Scénario <privé>'},'scenario');
@@ -47,6 +49,18 @@ async function withFormData(run){
  globalThis.FormData=class{constructor(form){return Object.entries(form.values);}};
  try{await run();}finally{globalThis.FormData=original;}
 }
+
+test('SO-06b contrôleur : exemple adapté et sous-Master téléchargés sans mutation, puis aperçu obligatoire',async()=>withFormData(async()=>{
+ const example=recipeMasterExample([{format:'gn-engine-master',version:'1',type:'CAMPAGNE',module:'magasins',destination_id:'scenario-id',base_revision:'1'}]),meta=example.Meta;
+ const w={module:'magasins',sheet:'Recettes',meta,editable:true,errors:[],rows:example.Recettes.map(row=>({row,archived:false,title:row.nom,state:'draft'})),references:{}},objects={...w,sheet:'Objets',rows:example.Objets.map(row=>({row,archived:false}))};
+ let downloads=0;const anchor={click(){downloads++;}},f=controllerFixture({anchor,workspace:i=>i.bundle?{module:'magasins',bundle:true,meta,workspaces:[objects,w],editable:true}:w});
+ f.click('moduleMaster',{scope:'scenario',module:'magasins'});await new Promise(r=>setImmediate(r));f.click('recipeExample');assert.equal(downloads,1);assert.equal(f.calls.length,1);
+ const bytes=new Uint8Array(await (await fetch(anchor.href)).arrayBuffer()),data=readMasterXlsx(bytes);assert.equal(data.Recettes.length,5);assert.equal(data.Objets.length,15);assert.ok(data.Recettes.every(r=>r.publication==='DRAFT'));
+ f.click('moduleExportAll');await new Promise(r=>setImmediate(r));f.click('moduleDownloadRecipes');assert.equal(downloads,2);assert.equal(f.calls.length,2);assert.match(anchor.download,/GN_Engine_Recettes_Campagne/);
+ const subset=readMasterXlsx(new Uint8Array(await (await fetch(anchor.href)).arrayBuffer()));assert.equal(subset.Objets.length,14);
+ f.ui.open('scenario',{name:'Exemple adapté.xlsx',size:bytes.length,arrayBuffer:async()=>bytes},'magasins');await f.submit();assert.equal(f.calls.at(-1).command,'prepareMasterImport');assert.ok(f.calls.every(c=>c.command!=='applyMasterImport'));
+ await f.submit('confirm',{});assert.equal(f.calls.at(-1).command,'applyMasterImport');assert.equal(f.calls.at(-1).payload.module,'magasins');
+}));
 
 test('Imports : les fichiers inversés sont arrêtés avant tout appel serveur',async()=>withFormData(async()=>{
  for(const [scope,fileType,where] of [['session','Campagne','l’atelier du scénario'],['scenario','Session','la régie de la session en préparation']]){

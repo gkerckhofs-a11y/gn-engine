@@ -255,3 +255,11 @@ Ce catalogue ne contient ni les dotations de départ, ni les informations géné
 ## SO-01a — Natures et patients admissibles (candidat 0.37.0)
 
 Les exports et éditeurs acceptent les colonnes facultatives `Personnages.nature`, `Competences.nature_patient` et `Interactions.nature_patient` : `HUMANOID` ou `DROID`. Vide conserve ; `!EFFACER` retire explicitement une valeur dans les contextes autorisés. Une nature de personnage déjà créé en session reste immuable. Un soin restreint refuse un patient sans nature ou incompatible, avant consommation. Les protocoles historiques sans restriction conservent leur comportement. Les quatre Masters XLSX existants restent inchangés. [Parcours, compatibilité, preuves et limites](SO-01A-NATURES-SOINS.md).
+
+## Recettes & Potions — SO-06b, brouillons V3.2
+
+La feuille facultative `Recettes` appartient à **Boutiques** et utilise les mêmes identifiants, opérations, versions, aperçus et confirmations que les autres feuilles. Ingrédients et produits sont des `Objets` consommables du catalogue commun ; `composants` est une liste `objet_id:quantité` (20 modèles distincts maximum). Aucune ligne ne crée de lot ou de crédit. La publication `READY` ou `PUBLISHED` est refusée côté serveur dans cette tranche ; les références d’effets, de connaissances et de lieux sont préparatoires, sans droit ou effet joueur.
+
+Dans l’éditeur Recettes, télécharger l’exemple adapté du tableur fourni, ou exporter les fiches existantes. L’export groupé Boutiques propose **Recettes et leurs objets** : toutes les recettes et seulement leurs ingrédients/produits référencés. Les références de compétences, lieux et connaissances des autres vues doivent déjà exister. L’export global contient aussi cette feuille. Les quatre Masters historiques restent inchangés. Le classeur source proposé, avec colonnes accentuées et formules, n’est pas directement importable : utiliser la version adaptée téléchargeable.
+
+La création et les imports restent réservés au propriétaire, en préparation initiale pour une session. Les recettes suivent les versions figées, les archives et les épisodes, sans réinitialiser les acquis. [Contrat détaillé, parcours et limites](SO-06B-RECETTES-BROUILLONS.md).

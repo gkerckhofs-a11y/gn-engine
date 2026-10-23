@@ -1,4 +1,5 @@
 import {characterNatures} from './character-nature.mjs';
+import {recipeEditor} from './master-recipe-editor.mjs';
 import {parameterEditors} from './master-parameters-editor.mjs';
 import {characterCreationFields} from './master-character-creation.mjs';
 import {interactionEditor} from './master-interaction-editor.mjs';
@@ -47,7 +48,7 @@ export const masterEditors={
   note:'L’export porte sur les définitions, sans les reçus des joueurs. Une duplication désactive le QR et vide les destinataires initiaux.'},
 };
 const activeSkill={type:['ACTIVE_SELF','ACTIVE_TARGET']};
-const catalogueEditors={informations:{Lieux:terrainEditor},personnages:{
+const catalogueEditors={magasins:{Recettes:recipeEditor},informations:{Lieux:terrainEditor},personnages:{
  Attributions:{sheet:'Attributions',title:'Attributions du scénario',name:'personnage_id',scenarioOnly:true,duplicate:false,archiveLabel:'Dépublier',fields:[
   reference('personnage_id','Personnage','characters',{createRef:'unprofiledCharacters',required:true,clear:false,immutable:true}),
   reference('classe_id','Classe publiée','publishedClasses'),

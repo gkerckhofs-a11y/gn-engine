@@ -1,14 +1,20 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
-23 octobre 2026. **Produit complet non conforme à V3.1/V0.7 et non prêt pour une session réelle.** SO-00 documente la reprise ; SO-06a complète un parcours Master existant ; SO-01a ajoute les natures et filtres de soins. Les lots métier SO-01 à SO-05 et la clôture A38 restent ouverts. Ce rapport est le point de départ du rapport global final, pas une attestation de réalisation des 24 recettes et six recettes FOR.
+23 octobre 2026. **Produit complet non conforme à V3.2/V0.7 et non prêt pour une session réelle.** SO-00 documente la reprise ; SO-06a complète un parcours Master existant ; SO-01a ajoute les natures et filtres de soins ; SO-06b prépare les recettes en brouillon. Les lots métier SO-01 à SO-05 et la clôture A38 restent ouverts. Ce rapport est le point de départ du rapport global final, pas une attestation de réalisation des 24 recettes, six recettes FOR et cinq recettes Recettes & Potions.
 
 ## Périmètre candidat
 
-Package 0.37.0, branche `work/l1-modular-workshop`, [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Base distante avant tranche `16e1a194ecbd413d13966827e5c0bbc7bcaafb4c`, main `03eaace155b052d1b7d1960347746e9ee60ed514`. Le commit de la tranche et son résultat CI exact sont consignés dans la description de PR après publication. Ne pas attribuer une CI de référence au nouveau commit.
+Package 0.37.0, branche `work/l1-modular-workshop`, [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Base distante avant SO-06b `c5b18d72713f1273dd7456607e44bc7d19a8531a`, main `03eaace155b052d1b7d1960347746e9ee60ed514`. Le commit de la tranche et son résultat CI exact sont consignés dans la description de PR après publication. Ne pas attribuer une CI de référence au nouveau commit.
 
 Livré sur branche : audit des sources et branches, matrice V3, six vues nommées selon V3, catalogue global XLSX cohérent et réimport par le circuit existant. Aucun nouveau compte, bien ou stockage parallèle ; aucune migration des sessions. L1a–L1m conservés. Les quatre Masters historiques gardent leurs empreintes, répertoriées dans [SO-00](SO-00-REPRISE.md).
 
-## Tranche actuelle SO-01a
+## Tranche actuelle SO-06b
+
+[Audit V3.2, mapping du tableur, guide et limites](SO-06B-RECETTES-BROUILLONS.md). Parent distant `c5b18d72713f1273dd7456607e44bc7d19a8531a`, main inchangé. **793 tests applicatifs locaux et build réussis**, Node 24.19.0 ; onze nouveaux cas métier reliés également à Firestore et quatre tests UI/contrat/contrôleur. Logs dans `docs/verification/so-06b-*.log`. Résultat final de CI et SHA exact à relever dans la PR après les runs. Aucune preuve d’émulateur local, recette humaine ou mobile n’est revendiquée.
+
+Recettes privées en brouillon, composants dans les objets existants, export autonome, diff/version et conservation de campagne livrés sur branche. Publication bloquée. REC-SO-REC-01 exécuté automatiquement, REC-05 partiel, REC-02/03/04 non exécutés. **SO-GAP-11** : laboratoire TOXI, droits de découverte, fabrication transactionnelle, doses et effets biologiques manquants ; portes G1/G3/G4 non franchies. La CI ne vaut pas validation du module complet.
+
+## SO-01a (historique)
 
 [Guide et sources V3.1/V0.7](SO-01A-NATURES-SOINS.md). Base de cette tranche : `133ea159e5574fdac9d05f759c8ae3e14700038f`, main inchangé. **778 tests applicatifs locaux réussis et build réussi**, Node 24.19.0. Dix nouveaux tests métier sont aussi raccordés à Firestore émulé, trois tests UI supplémentaires. Résultats GitHub Actions de TEST sur le nouveau commit consignés dans la PR après fin réelle. Aucune recette humaine, mobile, charge ou recette FOR effectuée. Les preuves de SO-06a ci-dessous restent historiques.
 
@@ -49,7 +55,7 @@ Ces écarts sont des fonctions manquantes du nouveau périmètre, pas des régre
 
 ## Validation manuelle de cette tranche à réaliser
 
-Sur un environnement isolé, propriétaire fictif : ouvrir les six vues ; exporter un scénario contenant tous les catalogues, modifier un titre et réimporter avec aperçu ; vérifier historique et absence de redistribution. Refaire sur session blessée et navire sans carburant ; vérifier conservation. Essayer avec MJ/joueur, après briefing, sur un fichier obsolète, avec >250 lignes, et fermer la fenêtre pendant le chargement. Tester le téléchargement/réimport sur Android et iOS. Relever commit, navigateur/appareil, date, captures et résultat ; ne pas cocher REC-SO-24 avant l'implémentation du véritable profil V0.6.
+Sur un environnement isolé, propriétaire fictif : ouvrir les six vues ; exporter un scénario contenant tous les catalogues, modifier un titre et réimporter avec aperçu ; vérifier historique et absence de redistribution. Refaire sur session blessée et navire sans carburant ; vérifier conservation. Essayer avec MJ/joueur, après briefing, sur un fichier obsolète, avec >250 lignes, et fermer la fenêtre pendant le chargement. Tester le téléchargement/réimport sur Android et iOS. Relever commit, navigateur/appareil, date, captures et résultat ; ne pas cocher REC-SO-24 avant l'implémentation du véritable profil V0.7.
 
 ## Décision
 

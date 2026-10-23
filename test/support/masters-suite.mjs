@@ -1,4 +1,5 @@
 import {masterDependenciesSuite} from './master-dependencies-suite.mjs';
+import {masterRecipesSuite} from './master-recipes-suite.mjs';
 import {masterModuleExportSuite} from './master-module-export-suite.mjs';
 import {masterGlobalExportSuite} from './master-global-export-suite.mjs';
 import {masterDotationsReportSuite} from './master-dotations-report-suite.mjs';
@@ -34,6 +35,7 @@ export async function masterFixture(makeStore){
  return {store,owner,player,read,cmd,scenarioId,prepare,apply,session};
 }
 export function mastersSuite(makeStore,prefix='Masters'){
+ masterRecipesSuite(()=>masterFixture(makeStore),prefix);
  masterDependenciesSuite(()=>masterFixture(makeStore),prefix);
  masterModuleExportSuite(()=>masterFixture(makeStore),prefix);
  masterGlobalExportSuite(()=>masterFixture(makeStore),prefix);

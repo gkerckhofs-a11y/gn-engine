@@ -2,7 +2,9 @@
 
 Socle de jeu grandeur nature conservé pour l’application prioritaire **SPACE OUTLAWS**, indépendant de Murder Engine. Le développement d’un créateur universel est hors périmètre.
 
-**Reprise SPACE OUTLAWS V3.1 / règles V0.7 — candidat 0.37.0 sur branche, non déployé.** [Audit SO-00](docs/SO-00-REPRISE.md), [matrice et 24 + 6 recettes](docs/MATRICE-SPACE-OUTLAWS-V3.md), [rapport de conformité courant](docs/SO-VALIDATION.md), [sauvegarde et procédure à faire valider](docs/SO-SAUVEGARDE-DEPLOIEMENT.md). L1a–L1m sont conservés. La tranche SO-06a réunit les catalogues exportables des six vues dans un XLSX cohérent, avec réimport contrôlé ; elle ne constitue pas encore le Master canonique complet.
+**Reprise SPACE OUTLAWS V3.2 / règles V0.7 — candidat 0.37.0 sur branche, non déployé.** [Audit SO-00](docs/SO-00-REPRISE.md), [matrice et 24 + 6 + 5 recettes](docs/MATRICE-SPACE-OUTLAWS-V3.md), [rapport de conformité courant](docs/SO-VALIDATION.md), [sauvegarde et procédure à faire valider](docs/SO-SAUVEGARDE-DEPLOIEMENT.md). L1a–L1m sont conservés. La tranche SO-06a réunit les catalogues exportables des six vues dans un XLSX cohérent, avec réimport contrôlé ; elle ne constitue pas encore le Master canonique complet.
+
+**SO-06b — Recettes & Potions en brouillon.** Création, duplication, composants issus du catalogue commun, exemple adapté à partir du tableur fourni, sous-Master XLSX autonome et conservation dans les versions/campagnes. Publication serveur bloquée jusqu’à la livraison des déblocages, de la fabrication et des effets. [Audit V3.2, guide, tests et limites](docs/SO-06B-RECETTES-BROUILLONS.md). Aucun prix proposé du tableur ne devient un tarif canonique.
 
 **SO-01a — Natures et soins.** Nature humanoïde/droïde des fiches, conservation dans Masters/versions/campagnes et filtre serveur des patients admissibles. [Guide, sources V3.1/V0.7, tests et limites](docs/SO-01A-NATURES-SOINS.md). Profil canonique complet, XP, crédits protégés et pouvoirs PNJ restent à développer.
 

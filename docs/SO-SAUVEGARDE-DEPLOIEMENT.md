@@ -7,7 +7,7 @@
 1. Figer le SHA de branche, la version applicative, le référentiel publié et les éventuelles migrations. Relire le diff, l'intégrité des quatre Masters et les dépendances. Identifier la base main réelle et les changements concurrents.
 2. Vérifier la CI de ce SHA : build, `npm test`, Firestore/Auth/Storage Emulator avec Node 22 et Java 21. Vérifier l'absence de job ou déclenchement de déploiement. Ne pas modifier `.github/deploy-request.json`.
 3. Identifier un environnement de test séparé, sa configuration, son stockage et ses comptes fictifs propriétaire/MJ/accueil/joueurs. Tester les identifiants de projet réellement utilisés avant toute écriture ; refuser les identifiants de production. Les émulateurs `demo-gn-engine` suffisent aux tests automatiques, pas à l'homologation des appareils et du terrain.
-4. Préparer la recette REC-SO-01 à 24 et SEC-SO-01 à 10 ; utiliser les barèmes FINAL, comptes PNJ/assureur réellement provisionnés, stocks et lots fictifs identifiés. Fixer les seuils de performance avant la mesure à environ 60 utilisateurs ; ne pas assimiler une fixture de 60 fiches à une charge de 60 utilisateurs.
+4. Préparer la recette REC-SO-01 à 24, REC-SO-FOR-01 à 06, REC-SO-REC-01 à 05 et SEC-SO-01 à 10 ; utiliser les barèmes FINAL, comptes PNJ/assureur réellement provisionnés, stocks et lots fictifs identifiés. Fixer les seuils de performance avant la mesure à environ 60 utilisateurs ; ne pas assimiler une fixture de 60 fiches à une charge de 60 utilisateurs.
 5. Jouer les cas sur Android/iOS, plusieurs rôles, coupure/reprise réseau, double clic et concurrence. L'organisation valide séparément armes, protections, sorties sûres et scénographie. Tout blocage de sécurité, perte/duplication ou résultat inconnu suspend la validation.
 
 ## 2. Sauvegarde préalable à une future migration
@@ -37,7 +37,7 @@ SO-06a n'a aucune migration : le retour arrière du code d'export suffit pour ce
 
 ## 4. Dossier à soumettre avant publication
 
-- SHA exact et diff final, version du profil, CI complète de ce SHA et registre des 24 recettes/10 essais avec preuves ; anomalies résiduelles et acceptation motivée des seules limites non bloquantes.
+- SHA exact et diff final, version du profil, CI complète de ce SHA et registre des 24 recettes + 6 FOR + 5 Recettes & Potions et 10 essais avec preuves ; anomalies résiduelles et acceptation motivée des seules limites non bloquantes.
 - Cible exacte, services affectés et migrations, preuve de sauvegarde/restauration, fenêtre, responsable et possibilité de retour arrière.
 - Plan de déploiement détaillé adapté aux workflows réels de ce jour, contrôles après publication et conditions d'arrêt. Le présent document ne vaut pas demande d'exécution implicite.
 - Autorisation explicite du propriétaire pour la mise en production et pour les éventuelles opérations de configuration distinctes. Sans cet accord, conserver branche/PR et ne déclencher aucun workflow de déploiement.
@@ -49,3 +49,11 @@ Reconfirmer les prérequis et le SHA approuvé → sauvegarde cohérente vérifi
 Arrêter si cible/SHA inattendu, backup incomplet, test bloquant, dérive de droits, divergence de compte/lot, duplication, rupture d'accès privé ou migration non idempotente. Conserver les preuves, empêcher les nouvelles mutations selon la procédure approuvée et choisir le retour arrière adapté au code **et** aux données. Ne pas improviser de changement IAM/DNS pour débloquer un incident.
 
 **État actuel :** sauvegarde de production non réalisée ; restauration non exécutée ; recette terrain non passée ; procédure de déploiement non validée et non lancée.
+
+## Complément V3.2 / SO-06b
+
+Inclure `recipes`, ses historiques et reçus Master dans toute sauvegarde future, ainsi que les objets, compétences, connaissances et lieux référencés. Les archives scénario de ce candidat incluent ces définitions, mais restent distinctes d’une sauvegarde de session vivante. Aucun stock de potions n’est créé dans SO-06b. Les futures doses devront conserver version de recette, origine des composants et opération idempotente.
+
+Aucune migration des anciens documents n’est requise. Un ancien code ignorant `recipes` ne doit pas servir à exporter ou copier une campagne qui en contient : il omettrait cette collection. Un retour arrière devra préserver les nouvelles données et empêcher ces opérations, ou utiliser un correctif compatible. Ne pas effacer les brouillons pour revenir à un ancien code. Les contrôles automatisés d’archive/campagne de SO-06b ne remplacent pas une restauration complète Auth/Firestore/Storage en environnement isolé.
+
+Avant de rendre les recettes jouables, exécuter les cinq REC-SO-REC avec une publication valide comme témoin, ainsi que refus de droits, double clic, interruption avant/après commit et reprise réseau. Tester l’activation volontaire sur mobile et l’absence totale d’effet depuis un compte tiers. Préparer ces essais ne vaut pas autorisation de provisionner ou publier en production.

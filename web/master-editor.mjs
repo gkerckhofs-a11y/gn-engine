@@ -21,7 +21,7 @@ export function moduleMasterSheets(w,rows=w.rows){
 }
 export function moduleListHtml(w,query='',state='all'){
  const def=masterEditor(w.module,w.sheet),rows=filteredMasterRows(w,query,state),usable=!w.errors.length;
- const exportAll=button('Préparer l’export groupé du module','moduleExportAll');
+ const exportAll=button('Préparer l’export groupé du module','moduleExportAll')+(w.sheet==='Recettes'?button('Télécharger l’exemple SO_Recettes adapté — brouillon','recipeExample'):'');
  const editors=masterEditorsFor(w.module).filter(e=>!w.session||!e.scenarioOnly),navigation=editors.length>1?`<nav class="row" aria-label="Feuilles Master">${editors.map(e=>button(esc(e.title),'moduleSheet',`data-sheet="${e.sheet}" ${e.sheet===w.sheet?'aria-current="page" disabled':''}`)).join('')}</nav>${exportAll}`:exportAll;
  if(w.sheet==='Dotations')return dotationsListHtml(w,rows,navigation,query,state);
  if(w.sheet==='Parametres')return parameterListHtml(w,navigation);

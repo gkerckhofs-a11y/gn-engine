@@ -1,3 +1,4 @@
+import {recipeInput,validateRecipeReferences} from './recipe-state.mjs';
 import {naturePatch,preserveSessionNature} from './character-nature.mjs';
 import {validateCargoTariffReferences} from './customs-state.mjs';
 import {validateEconomicReferences} from './price-state.mjs';
@@ -391,6 +392,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         const commodityPrices=await tx.list(`scenarios/${id}/commodityPrices`),priceEvents=await tx.list(`scenarios/${id}/priceEvents`);
         validateEconomicReferences({commodityPrices,priceEvents,items,fieldTargets,routes});
         const cargoTariffs=await tx.list(`scenarios/${id}/cargoTariffs`);validateCargoTariffReferences({cargoTariffs,characters:chars,groups,items,economyRules:s.economyRules});
+        const recipes=await tx.list(`scenarios/${id}/recipes`);for(const r of recipes){recipeInput(r,r.id);validateRecipeReferences(r,{items,skills,knowledge,fieldTargets});}
         const masterRows=await tx.list(`scenarios/${id}/masterRows`);
         const version={id:newId,transportRules:s.transportRules??null,masterRowBaseline:masterRows,title:s.title,summary:s.summary,sourceRevision:s.revision,createdAt:at,characterCount:chars.length,groupCount:groups.length,knowledgeCount:knowledge.length,skillCount:skills.length,classCount:classes.length,itemCount:items.length,actionPointRules:s.actionPointRules??null,economyRules:s.economyRules??null,healthRules:s.healthRules??null};
         tx.set(`scenarios/${id}/versions/${newId}`,version);
@@ -405,7 +407,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         for(const sh of ships)tx.set(`scenarios/${id}/versions/${newId}/ships/${sh.id}`,sh);
         for(const rt of routes)tx.set(`scenarios/${id}/versions/${newId}/routes/${rt.id}`,rt);
         for(const w of warehouses)tx.set(`scenarios/${id}/versions/${newId}/warehouses/${w.id}`,w);
-        for(const [kind,records] of [['commodityPrices',commodityPrices],['priceEvents',priceEvents],['cargoTariffs',cargoTariffs]])for(const r of records)tx.set(`scenarios/${id}/versions/${newId}/${kind}/${r.id}`,r);
+        for(const [kind,records] of [['commodityPrices',commodityPrices],['priceEvents',priceEvents],['cargoTariffs',cargoTariffs],['recipes',recipes]])for(const r of records)tx.set(`scenarios/${id}/versions/${newId}/${kind}/${r.id}`,r);
         result={id:newId};
       } else if(action==='createSession') {
         const id=documentId(input.scenarioId),vid=documentId(input.versionId);await checkScenario(tx,actor,id);

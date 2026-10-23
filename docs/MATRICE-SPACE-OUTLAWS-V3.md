@@ -1,6 +1,6 @@
-# Matrice SPACE OUTLAWS V3.1 / V0.7
+# Matrice SPACE OUTLAWS V3.2 / V0.7
 
-23 octobre 2026 — complément à [SO-00](SO-00-REPRISE.md). `Existant` désigne un service observé, pas une conformité V0.7. `Adapté` décrit SO-06a et SO-01a. Les tests cités sont des suites réellement présentes ; leurs résultats globaux figurent dans [SO-VALIDATION](SO-VALIDATION.md). Une couverture historique partielle ne valide jamais automatiquement une recette REC-SO.
+23 octobre 2026 — complément à [SO-00](SO-00-REPRISE.md). `Existant` désigne un service observé, pas une conformité V0.7. `Adapté` décrit SO-06a, SO-01a et SO-06b. Les tests cités sont des suites réellement présentes ; leurs résultats globaux figurent dans [SO-VALIDATION](SO-VALIDATION.md). Une couverture historique partielle ne valide jamais automatiquement une recette REC-SO.
 
 ## Exigences, code, tests et migrations
 
@@ -43,7 +43,7 @@
 
 ## Registre des recettes
 
-Les critères ci-dessous sont repris littéralement du V3. Toutes les recettes métier complètes sont **NON TESTÉES** à ce stade. Un test d'une primitive historique ou de SO-06a ne remplace pas la recette du parcours V0.6. Pour chaque exécution future, consigner commit, environnement, date, rôle/compte fictif, appareil, étapes, attendu, constat, preuve, anomalie et nouveau verdict. Les scénarios physiques exigent en plus l'observation terrain.
+Les critères ci-dessous sont repris littéralement du V3. Toutes les recettes métier complètes sont **NON TESTÉES** à ce stade. Un test d'une primitive historique ou de SO-06a ne remplace pas la recette du parcours V0.7. Pour chaque exécution future, consigner commit, environnement, date, rôle/compte fictif, appareil, étapes, attendu, constat, preuve, anomalie et nouveau verdict. Les scénarios physiques exigent en plus l'observation terrain.
 
 ## 24 parcours métier
 
@@ -72,7 +72,7 @@ Les critères ci-dessous sont repris littéralement du V3. Toutes les recettes m
 | REC-SO-21 | Contrat/escorte, litige et annulation | Réserves réelles, 10 min contestation, 20 min médiation, salaire 100/50/0 %, avenants +25 %, provisions carburant distinctes, recours S+1 | NON TESTÉ |
 | REC-SO-22 | Assurer mêmes lots deux fois, perdre puis retrouver du fret | Double souscription refusée, prime 2/4/6 %, indemnité 80 % plafonnée à 5 000 Cr, réserve assurantielle financée, récupération déclenche restitution proportionnelle | NON TESTÉ |
 | REC-SO-23 | Fermer session avec 0 PV stabilisé, modules défectueux et voyages | PV/Coque/fonds/fret/trajets conservés, effets provisoires expirés, PA au maximum, aucun soin/fuel/reroll automatique ; clôture des délais critiques vérifiée | NON TESTÉ |
-| REC-SO-24 | Importer même profil SPACE OUTLAWS V0.6 plusieurs fois | Aucune dotation/compétence/stock/argent supplémentaire ; anciennes sessions intactes ; changement du référentiel uniquement sur version publiée | NON TESTÉ |
+| REC-SO-24 | Importer même profil SPACE OUTLAWS V0.7 plusieurs fois | Aucune dotation/compétence/stock/argent supplémentaire ; anciennes sessions intactes ; changement du référentiel uniquement sur version publiée | NON TESTÉ |
 
 ## 10 essais transversaux
 
@@ -110,3 +110,27 @@ Références intégrales, différences documentaires et limites dans [SO-01a](SO
 | REC-SO-FOR-06 | Usurpation, réessai, réseau, arbitre, STOP et secrets | NON TESTÉ ; non implémenté |
 
 Les statuts NON TESTÉ des 24 REC-SO complets restent inchangés. Les succès unitaires, transactionnels et de rendu ne valent pas recette terrain.
+
+## Extension V3.2 — Recettes & Potions
+
+[Audit, mapping du tableur et résultats SO-06b](SO-06B-RECETTES-BROUILLONS.md). La préparation de brouillons constitue une tranche achevée d’édition ; elle n’autorise pas la publication du module complet.
+
+| Exigence | Existant | Adapté SO-06b | Manquant | Test / migration |
+|---|---|---|---|---|
+| Référentiel unique, six vues | Master, items/inventory, versions | Feuille Recettes de Boutiques, 20 composants max, références communes | Métadonnées structurées d’autorisation/rareté et profil fermé | Import identique, objets historiques et sessions inchangés ; collection optionnelle `recipes` |
+| Import/export autonome et édition sans code | Éditeurs L1, XLSX strict, diff/version | CRUD brouillon, sous-Master recettes + objets référencés, exemple source adapté | Publication versionnée jouable et compatibilité des doses | Onze cas métier partagés Memory/Firestore + quatre UI ; aucun lot créé |
+| Laboratoires et déblocages | fieldTargets, QR, knowledge, droits et missions | Références préparatoires vérifiées seulement | Labo actif, habilitations personnage/groupe/faction, droits issus de découverte | REC-02, refus non propriétaire ; aucune attribution implicite |
+| TOXI-01 : 1 PA, 300 s, 600 s, une dose | Actions, horloge, réservations PA et fournitures | Aucun moteur parallèle | Réservation multi-lots, achèvement/annulation, dose et provenance | REC-03 ; tests de fabrication non exécutés |
+| Effets, activation volontaire et antidote compatible | Natures SO-01a, soins et QR | Publication entièrement bloquée au serveur | Registre implémenté, Malaise, états compatibles, dose placée/consommée/retirée | REC-04/05 ; pas d’effet à partir d’un texte libre |
+| Propositions de prix/formule | Cours/commerce réels | Prix indicatif privé, exemples DRAFT, aucune formule Excel exécutée | Vente des vraies doses avec même état et règles | Pas de cours, stock ni compte créés par cette tranche |
+| Versions/campagne/archives | Copies et reçus existants | Définitions conservées, import absent rétrocompatible | Snapshots de doses jouées, A38 toujours ouvert | Archives nouvelles et anciennes, copie d’épisode ; retour ancien code à encadrer |
+
+| Cas V3.2 | Attendu | Preuve actuelle / état |
+|---|---|---|
+| REC-SO-REC-01 | Ajouter recette et ingrédient, importer deux fois, diff correct, pas de stock/crédit, autres rubriques et anciennes sessions intactes | **Scénario automatisé exécuté localement** dans `master-recipes-suite`, aussi raccordé à Firestore ; résultat CI exact dans la PR après exécution. Recette humaine non exécutée |
+| REC-SO-REC-02 | Recette secrète apprise en mission, formule réservée au joueur qualifié et habilité, pas de fuite navigateur | **NON EXÉCUTÉ**, parcours mission/déblocage non implémenté ; seuls refus d’accès aux brouillons testés |
+| REC-SO-REC-03 | Fabrication multi-ingrédients, clic simultané, interruption/réseau, un PA/une consommation/une dose à l’achèvement | **NON EXÉCUTÉ**, fabrication non implémentée ; tests de double clic/interruption portent uniquement sur l’import |
+| REC-SO-REC-04 | Activation volontaire humanoïde, 15 min sans perte PV, non-cumul, immunité droïde, scan tiers sans effet | **NON EXÉCUTÉ**, effets/dose non implémentés |
+| REC-SO-REC-05 | Rejeter effet absent, antidote universel, N5 sans droit et ingrédient supprimé | **COUVERTURE PARTIELLE AUTOMATISÉE** : toute publication est refusée, références absentes/archivage bloqués. Pas encore de publication valide servant de témoin ni de droits N5 réels |
+
+Les 24 cas initiaux, six FOR et dix SEC complets gardent leurs statuts ci-dessus. Aucune recette humaine, téléphone réel, sécurité terrain, charge ou restauration de production n’est ajoutée aux preuves automatiques.

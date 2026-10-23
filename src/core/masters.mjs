@@ -1,4 +1,5 @@
 import {natureInput,preserveSessionNature} from './character-nature.mjs';
+import {importRecipes} from './master-recipes.mjs';
 import {masterModuleErrors} from '../shared/workshop-modules.mjs';
 import {masterWorkspace,masterEditable} from './master-workspace.mjs';
 import {createHash} from 'node:crypto';
@@ -202,6 +203,7 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
    }
   }catch(e){addError(sheet,r,e);}}
   importTerrain({rows,m,records,session,fieldStates,parent:nextParent,stamp,checkOperation,summary,mark,addError,issue,num,empty,patch,base,put});
+  importRecipes({rows,m,stamp,checkOperation,summary,mark,addError,issue,num,empty,patch});
   for(const r of rows.Entrepots??[]){try{
    if(!stamp('Entrepots',r))continue;const old=m.warehouses.get(r.id);checkOperation(r,old);
    let d=patch(r,{enabled:false,rentAccountId:null,...old},{nom:'name',description:'description'});

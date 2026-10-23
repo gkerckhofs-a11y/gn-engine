@@ -1,6 +1,6 @@
 # GN Engine — consignes de développement
 
-Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouvelle stratégie de développement GN Engine pour la suite ». Mise à jour par le cadrage SPACE OUTLAWS V3.1 du 23 octobre 2026 : SPACE OUTLAWS est prioritaire, le créateur universel est hors périmètre. Ces consignes remplacent les anciens parcours de livraison qui prévoyaient une publication à chaque version.
+Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouvelle stratégie de développement GN Engine pour la suite ». Mise à jour par le cadrage SPACE OUTLAWS V3.2 du 23 octobre 2026 : SPACE OUTLAWS est prioritaire, le créateur universel est hors périmètre. Ces consignes remplacent les anciens parcours de livraison qui prévoyaient une publication à chaque version.
 
 ## Dépôt et branche
 
@@ -20,7 +20,7 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 
 ## Cycle de chaque ensemble fonctionnel
 
-1. Lire le cadrage V3.1 et le livre SPACE OUTLAWS V0.7 ; conserver le rapport de cohérence V0.6 comme historique (sources référencées dans SO-01a et SO-00). Délimiter un parcours complet, ses critères, dépendances et recettes. A01–A38 et l’extension PNJ FOR-01 sont clos : ne pas réinventer leurs barèmes. Distinguer les propositions techniques et les paramètres de session à préparer. Les décisions V3.1/V0.7 prévalent sur le cadrage V2 historique.
+1. Lire le cadrage V3.2, le livre SPACE OUTLAWS V0.7 et le sous-Master proposé SO_Recettes.xlsx ; conserver le rapport de cohérence V0.6 comme historique (sources référencées dans SO-01a et SO-00). Délimiter un parcours complet, ses critères, dépendances et recettes. A01–A38 et l’extension PNJ FOR-01 sont clos : ne pas réinventer leurs barèmes. Distinguer les propositions techniques et les paramètres de session à préparer. Les décisions V3.2/V0.7 prévalent sur le cadrage V2 historique.
 2. Réutiliser les services et collections existants. Protéger les acquis de campagne, les anciennes sessions, les identifiants et les quatre Masters Campagne/Session, modèles et exemples.
 3. Implémenter sur la branche, avec tests métier, tests d’interface pertinents et tests Firebase émulés pour transactions, permissions, réessais et concurrence.
 4. Exécuter les contrôles locaux applicables, au minimum `npm test` et `npm run build`. Corriger les échecs avant de constituer le commit fonctionnel.
@@ -39,7 +39,7 @@ Avant de provisionner un projet externe ou de créer des accès, préciser les m
 
 La recette finale doit couvrir :
 
-- les 24 parcours REC-SO-01 à REC-SO-24, les six REC-SO-FOR-01 à 06 et les 10 essais SEC-SO, en signalant chaque cas exécuté, échoué, bloqué ou non exécuté ; les anciennes recettes V2 restent pertinentes pour les fonctions conservées ;
+- les 24 parcours REC-SO-01 à REC-SO-24, les six REC-SO-FOR-01 à 06, les cinq REC-SO-REC-01 à 05 et les 10 essais SEC-SO, en signalant chaque cas exécuté, échoué, bloqué ou non exécuté ; les anciennes recettes V2 restent pertinentes pour les fonctions conservées ;
 - le Master SPACE OUTLAWS unique et ses six vues, les imports/exports et les quatre Masters historiques ;
 - l’isolation des sessions, les secrets, la révocation et la frontière absolue entre QR public d’interaction et accès privé jamais piratable ;
 - les transactions, réessais, concurrence, pause, reprise et réseau dégradé ;
@@ -62,7 +62,9 @@ Ces livrables et la recette finale sont à produire à l’issue du développeme
 
 ## Références de reprise
 
-- [Référentiel V3.1/V0.7 et tranche SO-01a](docs/SO-01A-NATURES-SOINS.md)
+- [Reprise V3.2 et sous-Master Recettes en brouillon, SO-06b](docs/SO-06B-RECETTES-BROUILLONS.md)
+
+- [Référentiel V3.2/V0.7 et tranche SO-01a](docs/SO-01A-NATURES-SOINS.md)
 
 - [Audit SO-00, sources intégrales et tranche Master](docs/SO-00-REPRISE.md)
 - [Matrice SPACE OUTLAWS V3](docs/MATRICE-SPACE-OUTLAWS-V3.md)
