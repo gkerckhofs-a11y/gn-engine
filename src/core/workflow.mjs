@@ -1,5 +1,6 @@
 import {recipeInput,validateRecipeReferences} from './recipe-state.mjs';
 import {isPreparation} from './preparation-state.mjs';
+import {createAdmissionService,admissionAction} from './admissions.mjs';
 import {naturePatch,preserveSessionNature} from './character-nature.mjs';
 import {validateCargoTariffReferences} from './customs-state.mjs';
 import {validateEconomicReferences} from './price-state.mjs';
@@ -150,6 +151,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const cargoService=createCargoService({store,signed,checkSession,now,uuid});
   const logisticsService=createLogisticsService({store,signed,checkSession,now,uuid});
   const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,now,uuid});
+  const admissionService=createAdmissionService({store,signed,checkSession,now,uuid});
   const personService=createPersonService({store,signed,checkSession,checkScenario,now,uuid,rollD6});
   const fieldService=createFieldService({store,signed,checkSession,checkScenario,now,uuid,rollD6});
   const masterService=createMasterService({store,admin,checkSession,checkScenario,now,uuid});
@@ -172,6 +174,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(admissionAction(action))return admissionService(action,actor,input);
     if(priceAction(action))return priceService(action,actor,input);
     if(voyageAction(action))return voyageService(action,actor,input);
     if(cargoAction(action))return cargoService(action,actor,input);
@@ -250,7 +253,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         permissions.content?tx.list(`sessions/${sid}/skills`):[],permissions.content?tx.list(`sessions/${sid}/classes`):[],permissions.content?tx.list(`sessions/${sid}/items`):[],permissions.content?tx.list(`sessions/${sid}/inventory`):[],permissions.content?tx.list(`sessions/${sid}/accounts`):[]]);
       const ap=permissions.content&&s.actionPointRules?.enabled?await Promise.all(characters.map(c=>tx.get(actionPointPath(sid,c.id)))):null;
       if(ap)characters.forEach((c,i)=>c.actionPoints=actionPointSummary(s,c,ap[i],at));
-      return {...privateSession(s),role,permissions,characters:permissions.content?characters:characters.map(receptionCharacter),registrations:registrations.map(r=>({...r,previousCharacterId:s.campaignId?characters.find(c=>c.previousAssignedUid===r.uid)?.id??null:null})),
+      return {...privateSession(s),role,permissions,characters:permissions.content?characters:characters.map(receptionCharacter),registrations:(isPreparation(s)&&!permissions.content?[]:registrations).map(r=>({...r,previousCharacterId:s.campaignId?characters.find(c=>c.previousAssignedUid===r.uid)?.id??null:null})),
         ...(permissions.content?{campaignId:s.campaignId??null,campaignEpisode:s.campaignEpisode??null,campaignSealed:s.campaignSealed===true,previousSessionId:s.previousSessionId??null,groups,groupsEnabled:s.modules?.groups===true,knowledge,skills,classes,items,inventory:inventory.map(l=>effectiveLot(l,now())),accounts,actionPointRules:s.actionPointRules??null,economyRules:s.economyRules??null,healthRules:s.healthRules??null}:{}),
         audit:audit.sort((a,b)=>b.at-a.at).slice(0,50),staff:staff.map(g=>({email:g.email,role:g.role,active:g.active,updatedAt:g.updatedAt}))};
     });
@@ -306,7 +309,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       const tokenHash=hash(input.token);
       return store.runTransaction(async tx=>{
         const inv=await tx.get(`invitations/${tokenHash}`);
-        requireThat(inv?.uid===actor.uid && inv.sessionId===sid,'INVALID_INVITATION');
+        requireThat(inv?.uid===actor.uid && inv.sessionId===sid && (!inv.purpose||inv.purpose==='PRIVATE_ACCESS'),'INVALID_INVITATION');
         const r=await tx.get(regPath(sid,actor.uid)); const c=await tx.get(charPath(sid,inv.characterId));
         const s=await tx.get(`sessions/${sid}`);
         requireThat(inv.status==='ACTIVE' && at<inv.expiresAt,'INVITATION_EXPIRED_OR_USED');
@@ -494,7 +497,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
           requireThat(!await tx.get(`invitations/${input.tokenHash}`),'INVALID_INVITATION');
           const hours=whole(input.hours); requireThat(hours>=1 && hours<=168,'INVALID_EXPIRY');
           const expiresAt=at+hours*3600000;
-          tx.set(`invitations/${input.tokenHash}`,{uid,sessionId:sid,characterId:r.characterId,accessVersion:version,status:'ACTIVE',expiresAt});
+          tx.set(`invitations/${input.tokenHash}`,{purpose:'PRIVATE_ACCESS',uid,sessionId:sid,characterId:r.characterId,accessVersion:version,status:'ACTIVE',expiresAt});
           result={expiresAt};
         } else result={revoked:true};
         tx.set(regPath(sid,uid),{...r,accessActive:false,accessVersion:version,

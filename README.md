@@ -1,6 +1,8 @@
 # GN Engine
 
-**SO-01 C1a — préparation privée sans dotation.** [Guide, architecture, tests et limites](docs/SO-01-C1A-PREPARATION.md). Création de campagne/session, délégation MJ et correction des informations ; 808 tests locaux et build réussis. Inscriptions, Master central et naissance restent à développer. CI exacte sur la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1), aucune production.
+**SO-01 I1 — invitations et propositions privées.** [Guide et limites](docs/SO-01-I1-ADMISSIONS.md) : choix canoniques, espèces narratives, liens limités/révocables, dossiers privés avec réessais et concurrence ; 825 tests locaux et build réussis. Confirmation des quotas et approbation MJ : prochaine tranche I2. CI exacte dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1), aucune production.
+
+**SO-01 C1a — préparation privée sans dotation.** [Guide, architecture, tests et limites](docs/SO-01-C1A-PREPARATION.md). Création de campagne/session, délégation MJ et correction des informations ; 808 tests locaux et build réussis. État historique C1a ; I1 ajoute le parcours de candidature, publication centrale et naissance restent à développer. CI exacte sur la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1), aucune production.
 
 **Historique V3.5 — diagnostic et tests du socle, sans migration.** [Matrice, architecture et ordre minimal inscriptions → M2 → naissance / groupes / relève](docs/SO-00-V35-INSCRIPTIONS.md), [registre des 55 recettes](docs/SO-RECETTES-V35.md). Deux tests supplémentaires de révocation/paiement concurrents ; 795 tests locaux et build réussis. Résultats exacts Firebase/CI consignés sur la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Le parcours V3.5 n’est pas encore développé ; aucune recette mobile ou production revendiquée. Les tranches L1/SO existantes et le plan central V3.4 sont conservés.
 

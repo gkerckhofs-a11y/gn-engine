@@ -1,6 +1,12 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
-## État courant V3.5 — C1a, préparation sans dotation
+## État courant V3.5 — I1, candidatures privées
+
+[Tranche I1](SO-01-I1-ADMISSIONS.md) : choix administrés dans le brouillon, invitations d’admission distinctes de l’accès privé, propositions et versions sans ressources. **825 tests locaux et build réussis** ; 14 nouveaux cas métier partagés avec Firestore, 3 rendus UI, 1 HTTP/Auth. CI exacte à constater dans la PR après terminaison ; aucune recette humaine/mobile ni restauration complète exécutée.
+
+SO-GAP-14 partiellement couvert ; aucune confirmation de quota, approbation, définition M2 de personnage, publication centrale ou incarnation dans I1. Aucun des 55 cas complets certifié. Produit complet encore non conforme V3.5/V0.7 ; prochaine tranche I2. Pas de migration, merge ou production.
+
+## Historique V3.5 — C1a, préparation sans dotation
 
 [Tranche C1a](SO-01-C1A-PREPARATION.md) : campagne/session de préparation privée, édition motivée, délégation MJ et protection des anciennes API. **808 tests locaux et build réussis** ; 10 nouveaux cas métier, 3 UI, un cas HTTP supplémentaire raccordé aux émulateurs. Résultats CI exacts du commit à consigner dans la PR, sans déduire leur réussite du local.
 

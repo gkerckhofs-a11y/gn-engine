@@ -84,3 +84,7 @@ Cette tranche ne change que documentation et tests : aucun retour arrière de do
 [Guide C1a](SO-01-C1A-PREPARATION.md). Les nouvelles préparations conservent une identité campagne/session, une empreinte d’intention, des révisions, reçus d’opérations et grants de session. Inclure ces éléments et leurs journaux dans la sauvegarde cohérente avec Auth. Ne jamais supprimer les reçus puis rejouer une création.
 
 Un ancien binaire ignorant `preparationKind` ne protège pas ces contextes. Dès qu’ils existent, un rollback exige suspension des écritures et conservation d’une garde compatible, ou restauration cohérente explicitement approuvée ; un simple revert n’est pas présenté comme sûr. Les tests simulent seulement une exception avant commit puis un réessai. Sauvegarde/restauration intégrale et rollback logiciel réels : NON EXÉCUTÉS. Aucun environnement de production n’est modifié.
+
+## Complément I1 — aucune opération de production exécutée
+
+Conserver avec C1a le brouillon initial et ses changements/historiques, les paramètres d’admission, registrations/historiques, invitations/usages, grants, audit et reçus operations. Ne jamais restaurer isolément les compteurs de liens ou supprimer les reçus pour rejouer une création. Le test d’exception avant commit démontre l’atomicité, pas une restauration complète. Retour à un ancien binaire ignorant C1a/I1 interdit comme procédure implicite ; geler les écritures puis conserver une garde compatible ou faire valider une restauration cohérente. [Détails et limites I1](SO-01-I1-ADMISSIONS.md).

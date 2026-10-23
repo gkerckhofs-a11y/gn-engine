@@ -1,6 +1,7 @@
 import {isDeepStrictEqual} from 'node:util';
 import {requireThat,whole} from './validation.mjs';
 import {createClock} from './clock.mjs';
+import {admissionKind,validAdmissionRecord} from './admission-state.mjs';
 
 // This selects the canonical rules target; it does not claim a published Master.
 export const spaceOutlawsProfile='SPACE_OUTLAWS_V07';
@@ -36,6 +37,12 @@ export function guardPreparationWrites(session,pending){
    requireThat(isDeepStrictEqual(fixed(session),fixed(next)),'PREPARATION_ONLY');
    requireThat(next.revision===session.revision+1,'STALE_REVISION');
    preparationInput(Object.fromEntries([...Object.keys(fields),'capacity'].map(key=>[key,next[key]])));
-  }else if(path.startsWith(`${base}/`))requireThat(/^audit\/[A-Za-z0-9_-]+$/.test(path.slice(base.length+1)),'PREPARATION_ONLY');
+  }else if(path.startsWith(`${base}/`)){
+   const suffix=path.slice(base.length+1);
+   const admission=suffix==='admission/settings'&&next?.kind===admissionKind;
+   const registration=/^registrations\/[a-f0-9]{64}$/.test(suffix)&&validAdmissionRecord(next);
+   const history=/^registrations\/[a-f0-9]{64}\/history\/[0-9]+$/.test(suffix)&&next?.kind===admissionKind;
+   requireThat(/^audit\/[A-Za-z0-9_-]+$/.test(suffix)||admission||registration||history,'PREPARATION_ONLY');
+  }
  }
 }

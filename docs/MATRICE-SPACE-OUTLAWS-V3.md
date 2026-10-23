@@ -1,8 +1,12 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## I1 — admission et proposition sur branche
+
+[Parcours I1 et matrice ciblée](SO-01-I1-ADMISSIONS.md) : liens sécurisés, choix V0.7, espèces narratives du brouillon M2, dossiers privés et réessais sans dotation. 825 tests locaux/build réussis ; CI exacte dans la PR. **SO-GAP-14 partiel** : confirmation des quotas, approbation, identité fictive unique et passage personnage M2 restent I2/I3. Aucun autre écart clos, aucun historique migré.
+
 ## C1a — contexte disponible sur branche
 
-[Préparation sans dotation](SO-01-C1A-PREPARATION.md) : création/édition privée, authentification et délégation de session, garde transactionnelle et réessais. **808 tests locaux et build réussis** ; Firestore/HTTP sur CI à relever sur le commit exact. Pré-requis de SO-GAP-14 partiellement livré, aucun autre écart clos. Les inscriptions, quotas, sept ateliers centraux, publication, dotations et relève restent à développer. Aucun fichier historique migré.
+[Préparation sans dotation](SO-01-C1A-PREPARATION.md) : création/édition privée, authentification et délégation de session, garde transactionnelle et réessais. **808 tests locaux et build réussis** ; Firestore/HTTP sur CI à relever sur le commit exact. Pré-requis de SO-GAP-14 partiellement livré, aucun autre écart clos. À cette étape historique, ces fonctions restaient absentes ; I1 ajoute depuis les candidatures, les quotas confirmés/publication/dotations/relève restent à développer. Aucun fichier historique migré.
 
 ## Complément V3.5
 

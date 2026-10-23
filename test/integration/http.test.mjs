@@ -1,3 +1,4 @@
+import {admissionTestSettings,admissionTestProposal} from '../support/admissions-suite.mjs';
 import {personCommands} from '../../src/core/person-actions.mjs';
 import {fieldCommands} from '../../src/core/field-actions.mjs';
 import {masterCommands} from '../../src/core/masters.mjs';
@@ -28,6 +29,24 @@ const request=async(action,input={},token)=>{
   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,input})});
   return {status:response.status,...await response.json()};
 };
+
+test('HTTP + Auth : invitation SO, dossier privé, consentement et refus des pouvoirs PNJ',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),player=await googleTestAccount(`admit-${randomUUID()}@example.invalid`),other=await googleTestAccount(`other-admit-${randomUUID()}@example.invalid`);
+ const cmd=async(action,input={},token=owner)=>{const r=await request(action,{requestId:randomUUID(),...input},token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};
+ const {id:sessionId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Admissions HTTP',title:'Préparation fictive',capacity:5,privacy:'Notice fictive'});
+ await cmd('saveAdmissionSettings',{sessionId,policyRevision:0,draftRevision:0,settings:admissionTestSettings,reason:'Test HTTP'});
+ const token=randomBytes(32).toString('base64url');await cmd('issueAdmissionInvitation',{sessionId,tokenHash:hash(token),hours:1,maxUses:2,label:'Test'});
+ assert.equal((await request('admissionInvitation',{sessionId,token})).status,401);
+ const view=await request('admissionInvitation',{sessionId,token},player);assert.equal(view.status,200);assert.equal(view.result.classes.length,8);
+ const begin={sessionId,token,sessionRevision:1,policyRevision:1,draftRevision:1,consent:true,requestId:randomUUID()};const opened=await request('beginAdmission',begin,player);assert.equal(opened.status,200);assert.deepEqual(await request('beginAdmission',begin,player),opened);
+ assert.equal((await request('admissionAdmin',{sessionId},player)).status,403);assert.equal((await request('myAdmission',{sessionId},other)).status,403);
+ const save={sessionId,sessionRevision:1,revision:1,policyRevision:1,draftRevision:1,proposal:admissionTestProposal,submit:true,consent:true};
+ assert.equal((await request('saveAdmissionProposal',{...save,requestId:randomUUID(),proposal:{...admissionTestProposal,secondaryId:'FOR-01'}},player)).error,'INVALID_ADMISSION_CHOICE');
+ await cmd('saveAdmissionProposal',save,player);const dossier=await request('myAdmission',{sessionId},player);assert.equal(dossier.result.status,'SUBMITTED');
+ await cmd('revokeAdmissionInvitation',{sessionId,invitationId:hash(token),reason:'Fin de test'});
+ assert.equal((await request('myAdmission',{sessionId},player)).result.editable,false);
+ assert.equal((await request('session',{sessionId},owner)).result.characters.length,0);
+});
 
 test('HTTP + Auth : préparation SO privée, création unique et aucune ressource de jeu',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),player=await googleTestAccount(`prep-${randomUUID()}@example.invalid`);

@@ -25,6 +25,12 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Les anciennes API de session/import/jeu sont refusées dans ce contexte. Pour I1 et les suites, étendre explicitement cette frontière transactionnelle pour les écritures autorisées ; ne pas désactiver globalement la garde ni appeler les seeds historiques.
 - Les droits MJ de session ne donnent pas de droit de publication du Master central. Conserver les tests de concurrence, réessai et révocation ; un ancien binaire ignorant le marqueur ne constitue pas un rollback sûr si des préparations existent.
 
+## Tranche I1 — candidatures
+
+- [I1](docs/SO-01-I1-ADMISSIONS.md) ajoute une proposition privée dans les registrations existantes et des invitations `purpose=ADMISSION`. Un lien ne confirme pas de place ni n’active un personnage. Les limites d’usage de lien ne sont pas les quotas confirmés I2.
+- Les espèces narratives sont un changement unique du brouillon central M2 initial ; ne pas recopier un catalogue d’admission. Les codes V0.7 du dossier ne sont pas supposés correspondre aux IDs des catalogues historiques. Raccordement explicite avant I3/I4.
+- Les droits MJ de préparation autorisent uniquement ces choix narratifs ; aucun grant de publication/arbitraire du Master. Le service reste bloqué si le cycle du brouillon/pointeur change, jusqu’à adaptation C1/C2. Conserver la protection Accueil, les reçus d’usage/commande et les révisions de consentement.
+
 ## Dépôt et branche
 
 - Travailler exclusivement dans le dépôt `gkerckhofs-a11y/gn-engine`, sur une branche dédiée et une PR. Le checkout local sert au développement et aux vérifications du même dépôt ; ne pas créer de seconde application ou de dépôt parallèle.
