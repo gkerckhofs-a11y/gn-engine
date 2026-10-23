@@ -77,3 +77,10 @@ Inclure dans les sauvegardes futures : propositions et historiques privés, invi
 Réessayer une naissance après restauration ne doit créer aucun kit, crédit protégé ou PA supplémentaire ; rejouer une vieille permission ne doit pas restaurer un mandat retiré. Tester réserve et création à chaud, deux décès dans une session, quota concurrent et transfert de groupe pendant une dépense. Les contre-opérations de groupe corrigent l’appartenance sans annuler les transactions passées ou transférer les actifs de la caisse. La restauration d’un Master n’est pas le retour arrière du jeu vécu.
 
 Cette tranche ne change que documentation et tests : aucun retour arrière de données nécessaire, aucun revert exécuté. Une future adoption de campagne reste soumise au plan de migration validé et à la preuve de restauration isolée. Le déploiement reste **À FAIRE VALIDER, NON LANCÉ**.
+
+
+## C1a — contexte neuf et retour logiciel
+
+[Guide C1a](SO-01-C1A-PREPARATION.md). Les nouvelles préparations conservent une identité campagne/session, une empreinte d’intention, des révisions, reçus d’opérations et grants de session. Inclure ces éléments et leurs journaux dans la sauvegarde cohérente avec Auth. Ne jamais supprimer les reçus puis rejouer une création.
+
+Un ancien binaire ignorant `preparationKind` ne protège pas ces contextes. Dès qu’ils existent, un rollback exige suspension des écritures et conservation d’une garde compatible, ou restauration cohérente explicitement approuvée ; un simple revert n’est pas présenté comme sûr. Les tests simulent seulement une exception avant commit puis un réessai. Sauvegarde/restauration intégrale et rollback logiciel réels : NON EXÉCUTÉS. Aucun environnement de production n’est modifié.

@@ -1,4 +1,5 @@
 import {personOpen} from './person-state.mjs';
+import {spaceOutlawsProfile,isPreparation,preparationInput,preparationSession,guardPreparationWrites} from './preparation-state.mjs';
 import {effectiveFieldState} from './field-state.mjs';
 import {createHash} from 'node:crypto';
 import {documentId,requireThat} from './validation.mjs';
@@ -16,7 +17,7 @@ const sorted=rows=>rows.sort((a,b)=>a.id.localeCompare(b.id));
 const root=id=>`campaigns/${documentId(id)}`;
 const collections=['characters','groups','knowledge','skills','classes','items','accounts','inventory','masterRows','fieldTargets','fieldStates','personProfiles','warehouses','ships','routes','commodityPrices','priceEvents','cargoTariffs','recipes'];
 const reads=['campaign','prepareCampaignStart','prepareCampaignClosure','prepareCampaignEpisode'];
-const writes=['startCampaign','closeCampaignSession','beginCampaignEpisode','advanceCampaignEpisode','reopenCampaignSession'];
+const writes=['createSpaceOutlawsPreparation','saveSpaceOutlawsPreparation','startCampaign','closeCampaignSession','beginCampaignEpisode','advanceCampaignEpisode','reopenCampaignSession'];
 export const campaignCommands=[...reads,...writes];
 export const campaignAction=a=>campaignCommands.includes(a);
 export const campaignLimits={records:5000,bytes:6*1024*1024,pageRecords:30,pageBytes:250000,closureWrites:200};
@@ -27,7 +28,7 @@ export function campaignGuardStore(store){
  return {get:store.get.bind(store),list:store.list.bind(store),runTransaction:callback=>store.runTransaction(async tx=>{
   const pending=new Map(),result=await callback({...tx,set:(path,data)=>pending.set(path,data)});
   const ids=new Set([...pending.keys()].filter(p=>p.startsWith('sessions/')).map(p=>p.split('/')[1]));
-  for(const sid of ids){const s=await tx.get(`sessions/${sid}`);requireThat(!s?.campaignSealed,'CAMPAIGN_SESSION_SEALED');}
+  for(const sid of ids){const s=await tx.get(`sessions/${sid}`);requireThat(!s?.campaignSealed,'CAMPAIGN_SESSION_SEALED');guardPreparationWrites(s,pending);}
   for(const [path,data] of pending)tx.set(path,data);return result;
  })};
 }
@@ -45,7 +46,7 @@ function stateSummary(data,healthPolicy='PRESERVE'){
   accounts:data.accounts.map(a=>({id:a.id,ownerType:a.ownerType,label:a.ownerType==='GROUP'?a.label:data.characters.find(c=>c.id===a.characterId)?.public.displayName??a.id,balance:a.balance,reserved:a.reserved})),
   groups:data.groups.length,lots:data.inventory.length,quantity:data.inventory.reduce((n,l)=>n+l.quantity,0),receipts:Object.values(data.receipts).reduce((n,r)=>n+r.length,0)};
 }
-const cpSummary=c=>({id:c.id,title:c.title,revision:c.revision,activeSessionId:c.activeSessionId,activeBuildId:c.activeBuildId,latestSessionId:c.latestSessionId,episodeCount:c.episodeCount});
+const cpSummary=c=>({id:c.id,title:c.title,revision:c.revision,activeSessionId:c.activeSessionId,activeBuildId:c.activeBuildId,latestSessionId:c.latestSessionId,episodeCount:c.episodeCount,...(c.preparationSessionId?{preparationSessionId:c.preparationSessionId,ruleProfile:c.ruleProfile}:{})});
 const sourceIdentity=s=>({id:s.id,revision:s.revision,scenarioId:s.scenarioId,versionId:s.versionId,actionPointRules:s.actionPointRules??null,healthRules:s.healthRules??null,economyRules:s.economyRules??null,modules:s.modules??{},transportRules:s.transportRules??null});
 function episodeHeader(input,source,campaign,newId,actor,at){
  requireThat(['PRESERVE','RESTORE'].includes(input.healthPolicy),'CAMPAIGN_HEALTH_POLICY_REQUIRED');
@@ -137,6 +138,7 @@ export function createCampaignService({store,signed,admin,checkScenario,checkSes
   return {data,changes,summary,blocks,cancelled,reason,confirmation,canClose:blocks.length===0&&(Object.values(cancelled).every(n=>n===0)||input.cancelOffers===true)};
  }
  async function episodePlan(tx,actor,c,input){
+  requireThat(!c.preparationSessionId,'PREPARATION_ONLY');
   requireThat(!c.activeSessionId&&!c.activeBuildId,'CAMPAIGN_EPISODE_ACTIVE');requireThat(c.latestSessionId,'CAMPAIGN_NO_CHECKPOINT');
   const source=await tx.get(`sessions/${c.latestSessionId}`);requireThat(source?.campaignSealed&&source.campaignId===c.id,'CAMPAIGN_NO_CHECKPOINT');
   const data=await readState(tx,source),header=episodeHeader(input,source,c,'preview',actor,0);
@@ -145,6 +147,40 @@ export function createCampaignService({store,signed,admin,checkScenario,checkSes
  }
  return async function dispatch(action,actor,input){
   signed(actor);const at=now();
+  if(action==='createSpaceOutlawsPreparation'){
+   admin(actor);const metadata=preparationInput(input,{creating:true}),title=text(input.campaignTitle,150);
+   const creationId=documentId(input.creationId),requestId=documentId(input.requestId);
+   const id=`so_${hash(`${actor.uid}:${creationId}`)}`,sid=`so_${hash(`preparation:${id}`)}`;
+   const intent=digest({metadata,title}),op=`operations/${hash(`${actor.uid}:${requestId}`)}`,fingerprint=digest([action,input]);
+   return store.runTransaction(async tx=>{
+    const old=await tx.get(root(id)),previous=await tx.get(op);
+    if(old)requireThat(old.ownerUid===actor.uid&&old.preparationIntent===intent,'PREPARATION_EXISTS');
+    if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');return previous.result;}
+    const result={id:sid,campaignId:id};
+    if(!old){
+     const campaign={id,title,ownerUid:actor.uid,ruleProfile:spaceOutlawsProfile,preparationSessionId:sid,preparationIntent:intent,
+      scenarioId:null,versionId:null,revision:1,activeSessionId:null,activeBuildId:null,latestSessionId:null,episodeCount:0,createdAt:at};
+     tx.set(root(id),campaign);tx.set(`sessions/${sid}`,preparationSession(metadata,{id:sid,campaignId:id,ownerUid:actor.uid,at}));
+     const event={id:sid,action,at,actorUid:actor.uid,sessionId:sid,campaignId:id,ruleProfile:spaceOutlawsProfile};
+     tx.set(`${root(id)}/history/${sid}`,event);tx.set(`sessions/${sid}/audit/${sid}`,event);
+    }
+    tx.set(op,{fingerprint,result,at});return result;
+   });
+  }
+  if(action==='saveSpaceOutlawsPreparation'){
+   const sid=documentId(input.sessionId),requestId=documentId(input.requestId),eventId=uuid();
+   const op=`operations/${hash(`${actor.uid}:${requestId}`)}`,fingerprint=digest([action,input]);
+   return store.runTransaction(async tx=>{
+    const s=await checkSession(tx,actor,sid,'content',true);requireThat(isPreparation(s),'NOT_A_PREPARATION');
+    const c=await tx.get(root(s.campaignId));requireThat(c?.preparationSessionId===sid&&c.ownerUid===s.ownerUid,'FORBIDDEN');
+    const previous=await tx.get(op);if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');return previous.result;}
+    requireThat(s.revision===input.revision,'STALE_REVISION');const metadata=preparationInput(input),reason=text(input.reason);
+    const next={...s,...metadata,revision:s.revision+1,updatedAt:at};
+    tx.set(`sessions/${sid}`,next);
+    tx.set(`sessions/${sid}/audit/${eventId}`,{id:eventId,action,at,actorUid:actor.uid,reason,before:preparationInput(Object.fromEntries([...Object.keys(metadata)].map(k=>[k,s[k]]))),after:metadata,beforeRevision:s.revision,afterRevision:next.revision});
+    const result={id:sid,campaignId:c.id,revision:next.revision};tx.set(op,{fingerprint,result,at});return result;
+   });
+  }
   if(reads.includes(action))return store.runTransaction(async tx=>{
    if(action==='prepareCampaignStart'){const p=await startPlan(tx,actor,input);return {summary:p.summary,confirmation:p.confirmation};}
    if(action==='prepareCampaignClosure'){const {s,c}=await sessionContext(tx,actor,input),p=await closurePlan(tx,s,c,input,at);return {campaign:cpSummary(c),sessionId:s.id,...Object.fromEntries(['summary','blocks','cancelled','confirmation','canClose'].map(k=>[k,p[k]]))};}

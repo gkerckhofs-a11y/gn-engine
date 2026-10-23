@@ -4,6 +4,8 @@
 
 [Diagnostic et ordre des tranches](SO-00-V35-INSCRIPTIONS.md) · [preuves/CI exactes](https://github.com/gkerckhofs-a11y/gn-engine/pull/1).
 
+C1a ajoute des preuves automatiques de préparation privée sans ressources, concurrence de création/édition et révocation MJ : [détail et limites](SO-01-C1A-PREPARATION.md). Aucun des 55 verdicts complets ci-dessous ne devient un succès : les parcours d’invitation, M2, publication et naissance sont encore absents.
+
 | ID | Situation | Critère complet | Verdict complet | Preuve partielle / limite |
 |---|---|---|---|---|
 | REC-SO-01 | Créer 8 classes, 8 initiations et 2 natures humanoïde/droïde | Trois compétences initiales N2 ou fixes, initiation N1 admissible occupant une place secondaire, cinq places max, Vétéran réservé au Combattant | NON TESTÉ | Catalogues/profils et natures existants ; profil fermé/initiation manquants. |

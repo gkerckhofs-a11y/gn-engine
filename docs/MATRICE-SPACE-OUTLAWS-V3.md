@@ -1,6 +1,10 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
-## Complément courant V3.5
+## C1a — contexte disponible sur branche
+
+[Préparation sans dotation](SO-01-C1A-PREPARATION.md) : création/édition privée, authentification et délégation de session, garde transactionnelle et réessais. **808 tests locaux et build réussis** ; Firestore/HTTP sur CI à relever sur le commit exact. Pré-requis de SO-GAP-14 partiellement livré, aucun autre écart clos. Les inscriptions, quotas, sept ateliers centraux, publication, dotations et relève restent à développer. Aucun fichier historique migré.
+
+## Complément V3.5
 
 [Matrice différentielle détaillée, dépendances et ordre minimal](SO-00-V35-INSCRIPTIONS.md). [Registre des 55 recettes ciblées](SO-RECETTES-V35.md), plus 10 SEC transversaux. Aucun INS complet validé : deux tests nouveaux couvrent seulement révocation de droit de caisse/paiement concurrents. Les verdicts historiques ci-dessous conservent leur périmètre d’origine ; ils ne valent pas validation des nouveaux parcours centraux.
 

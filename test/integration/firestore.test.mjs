@@ -1,4 +1,5 @@
 import {characterNatureSuite} from '../support/character-nature-suite.mjs';
+import {preparationsSuite} from '../support/preparations-suite.mjs';
 import {pricesSuite} from '../support/prices-suite.mjs';
 import {voyagesSuite} from '../support/voyages-suite.mjs';
 import {cargoSuite} from '../support/cargo-suite.mjs';
@@ -37,6 +38,7 @@ if(!process.env.FIRESTORE_EMULATOR_HOST || !process.env.FIREBASE_AUTH_EMULATOR_H
 const projectId='demo-gn-engine';
 initializeApp({projectId});const firestore=getFirestore();
 workflowSuite(()=>firestoreStore(firestore),'Firestore réel émulé');
+preparationsSuite(()=>firestoreStore(firestore),'Préparation SO sur Firestore');
 characterNatureSuite(()=>firestoreStore(firestore),'SO-01a natures sur Firestore');
 groupsSuite(()=>firestoreStore(firestore),'Groupes sur Firestore');
 knowledgeSuite(()=>firestoreStore(firestore),'Connaissances sur Firestore');

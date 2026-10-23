@@ -29,6 +29,25 @@ const request=async(action,input={},token)=>{
   return {status:response.status,...await response.json()};
 };
 
+test('HTTP + Auth : préparation SO privée, création unique et aucune ressource de jeu',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),player=await googleTestAccount(`prep-${randomUUID()}@example.invalid`);
+ const input={creationId:randomUUID(),campaignTitle:'SO HTTP fictif',title:'Préparation HTTP',capacity:60,privacy:'Notice fictive',requestId:randomUUID()};
+ assert.equal((await request('createSpaceOutlawsPreparation',input)).status,401);
+ assert.equal((await request('createSpaceOutlawsPreparation',input,player)).status,403);
+ const first=await request('createSpaceOutlawsPreparation',input,owner);assert.equal(first.status,200,JSON.stringify(first));
+ assert.deepEqual(await request('createSpaceOutlawsPreparation',{...input,requestId:randomUUID()},owner),first);
+ const sessionId=first.result.id;
+ const view=await request('session',{sessionId},owner);assert.equal(view.status,200);assert.equal(view.result.preparationKind,'SPACE_OUTLAWS_V07');
+ for(const kind of ['characters','accounts','inventory','registrations'])assert.deepEqual(view.result[kind],[]);
+ assert.equal((await request('session',{sessionId},player)).status,403);
+ assert.equal((await request('publicSession',{sessionId})).error,'NOT_FOUND');
+ const denied=await request('setRegistrationOpen',{sessionId,revision:1,open:true,requestId:randomUUID()},owner);assert.equal(denied.error,'PREPARATION_ONLY');
+ const edit={sessionId,revision:1,title:'Lieu corrigé',capacity:60,privacy:'Notice fictive',reason:'Correction',requestId:randomUUID()};
+ assert.equal((await request('saveSpaceOutlawsPreparation',edit,player)).status,403);
+ const saved=await request('saveSpaceOutlawsPreparation',edit,owner);assert.equal(saved.status,200);assert.deepEqual(await request('saveSpaceOutlawsPreparation',edit,owner),saved);
+ assert.equal((await request('session',{sessionId},owner)).result.revision,2);
+});
+
 test('HTTP + Auth : QR de lieu privé, action confirmée et récompense unique',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),player=await googleTestAccount(`field-${randomUUID()}@example.invalid`);
  const command=async(action,input={},token=owner)=>{const r=await request(action,{requestId:randomUUID(),...input},token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};

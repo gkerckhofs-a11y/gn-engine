@@ -1,6 +1,14 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
-## État courant V3.5 — SO-00 différentiel
+## État courant V3.5 — C1a, préparation sans dotation
+
+[Tranche C1a](SO-01-C1A-PREPARATION.md) : campagne/session de préparation privée, édition motivée, délégation MJ et protection des anciennes API. **808 tests locaux et build réussis** ; 10 nouveaux cas métier, 3 UI, un cas HTTP supplémentaire raccordé aux émulateurs. Résultats CI exacts du commit à consigner dans la PR, sans déduire leur réussite du local.
+
+Base 322ac4f4 vérifiée en CI : push 39963947327 et PR 39963954056, **795 + 613 chacun**, build réussi, zéro échec/annulé/ignoré/todo. Ces résultats concernent la base uniquement.
+
+C1a crée zéro personnage, crédit, lot ou QR actif. Les contrats historiques et quatre Masters sont conservés. SO-GAP-14 est partiellement traité par son prérequis ; admission, quotas, M2 et naissance restent manquants. Aucun INS/MST complet, Android/iOS, charge, restauration complète ou déploiement validé. Produit complet non conforme V3.5/V0.7 ; prochaine tranche I1.
+
+## Historique V3.5 — SO-00 différentiel
 
 **Produit complet non conforme à V3.5/V0.7.** [Diagnostic, matrice, sources et ordre des tranches](SO-00-V35-INSCRIPTIONS.md), [55 recettes](SO-RECETTES-V35.md). Base distante 54c7868c, main 03eaace, branche/PR #1 conservées. Aucun service applicatif ni schéma modifié ; sept sondes diagnostiques et deux tests métier supplémentaires dans la suite Caisses partagée avec Firestore.
 
@@ -8,7 +16,7 @@ Local : **795/795 tests et build réussis**, Node 24.19.0, logs `verification/so
 
 Les 55 recettes complètes et Android/iOS sont NON TESTÉS dans ce nouveau périmètre ; preuves partielles répertoriées séparément. SO-GAP-14/15/16 ajoutés. G0 incomplet sur sauvegarde/restauration réelle ; G1–G5 non franchis. Prochaine tranche I1, dépendances centrales explicites avant activation I4. Aucune migration, fusion ou production.
 
-## État courant V3.4 — audit SO-00
+## Historique V3.4 — audit SO-00
 
 **Produit complet non conforme à V3.4/V0.7 ; plan en attente de validation avant migration.** [Audit, architecture proposée et preuves](SO-00-V34-PLAN-CENTRAL.md), [contrats des gabarits](SO-00-V34-GABARITS.md). Base distante vérifiée `80c3a9cbce56d4dd7661c1b57f2fb01b348a9888`, main `03eaace155b052d1b7d1960347746e9ee60ed514`. La branche et la PR #1 sont conservées. Commit documentaire/CI exacts consignés dans la PR après exécution.
 

@@ -1,4 +1,5 @@
 import {recipeInput,validateRecipeReferences} from './recipe-state.mjs';
+import {isPreparation} from './preparation-state.mjs';
 import {naturePatch,preserveSessionNature} from './character-nature.mjs';
 import {validateCargoTariffReferences} from './customs-state.mjs';
 import {validateEconomicReferences} from './price-state.mjs';
@@ -57,7 +58,8 @@ const regPath = (sid, uid) => `sessions/${sid}/registrations/${hash(uid)}`;
 const charPath = (sid, cid) => `sessions/${sid}/characters/${cid}`;
 const privateSession = s => ({id:s.id, title:s.title, summary:s.summary, date:s.date, time:s.time, place:s.place,
   practical:s.practical, privacy:s.privacy, capacity:s.capacity, accepted:s.accepted, registrationOpen:s.registrationOpen,
-  stage:s.stage, fields:s.fields, scenarioId:s.scenarioId, versionId:s.versionId, revision:s.revision});
+  stage:s.stage, fields:s.fields, scenarioId:s.scenarioId, versionId:s.versionId, revision:s.revision,
+  ...(isPreparation(s)?{preparationKind:s.preparationKind,preparationVersion:s.preparationVersion}:{})});
 const publicSession = s => ({id:s.id, title:s.title, summary:s.summary, date:s.date, time:s.time, place:s.place,
   practical:s.practical, privacy:s.privacy, capacity:s.capacity, available:Math.max(0,s.capacity-s.accepted),
   registrationOpen:s.registrationOpen, stage:s.stage, fields:s.fields});
@@ -90,9 +92,10 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     requireThat(grant?.active && grant.ownerUid===s.ownerUid && ['MJ','RECEPTION'].includes(grant.role),'FORBIDDEN');
     return {s,role:grant.role,permissions:capabilities(grant.role)};
   };
-  const checkSession = async (tx, actor, sid, permission='content') => {
+  const checkSession = async (tx, actor, sid, permission='content',allowPreparation=false) => {
     const access=await sessionAccess(tx,actor,sid);
-    requireThat(access.permissions[permission],'FORBIDDEN');return access.s;
+    requireThat(access.permissions[permission],'FORBIDDEN');
+    requireThat(!isPreparation(access.s)||allowPreparation||permission==='staff','PREPARATION_ONLY');return access.s;
   };
   const checkScenario = async (tx,actor,id) => {
     admin(actor); const s = await tx.get(`scenarios/${id}`);
@@ -217,18 +220,18 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
           if(s && s.ownerUid===g.ownerUid && !visible.some(x=>x.id===s.id)) visible.push({...privateSession(s),role:g.role});
         }
         const campaigns=own?await tx.list('campaigns',['ownerUid',actor.uid]):[];
-        return {scenarios,sessions:visible,campaigns:campaigns.map(c=>({id:c.id,title:c.title,episodeCount:c.episodeCount,activeSessionId:c.activeSessionId,activeBuildId:c.activeBuildId,latestSessionId:c.latestSessionId}))};
+        return {scenarios,sessions:visible,campaigns:campaigns.map(c=>({id:c.id,title:c.title,episodeCount:c.episodeCount,activeSessionId:c.activeSessionId,activeBuildId:c.activeBuildId,latestSessionId:c.latestSessionId,...(c.preparationSessionId?{preparationSessionId:c.preparationSessionId}:{})}))};
       });
     }
     if(action==='publicSession') {
       requireThat(sid,'INVALID_ID'); const s=await store.get(`sessions/${sid}`);
-      requireThat(s && s.stage!=='ARCHIVED','NOT_FOUND'); return publicSession(s);
+      requireThat(s && !isPreparation(s) && s.stage!=='ARCHIVED','NOT_FOUND'); return publicSession(s);
     }
     if(action==='publicBadge') {
       const cid=documentId(input.characterId);
       return store.runTransaction(async tx=>{
         const s=await tx.get(`sessions/${sid}`); const c=await tx.get(charPath(sid,cid));
-        requireThat(s && s.stage!=='ARCHIVED' && c,'NOT_FOUND');
+        requireThat(s && !isPreparation(s) && s.stage!=='ARCHIVED' && c,'NOT_FOUND');
         const character=publicCharacter(c);
         const groups=s.modules?.groups===true ? await tx.list(`sessions/${sid}/groups`) : [];
         return {...character,affiliations:publicAffiliations(groups,cid)};
@@ -273,7 +276,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       return {versions:(await tx.list(`${base}/${cid}/history`)).sort((a,b)=>b.revision-a.revision)};
     });
     if(action==='mySession' || action==='preview') return store.runTransaction(async tx=>{
-      signed(actor); const s=await tx.get(`sessions/${sid}`); requireThat(s && s.stage!=='ARCHIVED','NOT_FOUND');
+      signed(actor); const s=await tx.get(`sessions/${sid}`); requireThat(s && !isPreparation(s) && s.stage!=='ARCHIVED','NOT_FOUND');
       const preview=action==='preview';
       if(preview) await checkSession(tx,actor,sid);
       const r=preview ? null : await tx.get(regPath(sid,actor.uid));

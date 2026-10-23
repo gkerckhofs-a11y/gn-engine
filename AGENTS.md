@@ -19,6 +19,12 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Réutiliser groupes/comptes/lots/ledger : retirer les anciens droits et accorder séparément les nouveaux mandats, avec audit et sans déplacer la propriété des caisses/biens. Ne pas assimiler `assign` historique à la succession canonique.
 - Les migrations de campagnes restent soumises à la validation préalable ci-dessus. Les développements additifs sur branche et les vérifications synthétiques sont autorisés ; la nouvelle spécification n’autorise ni production ni migration implicite.
 
+## Tranche C1a et garde de préparation
+
+- [C1a](docs/SO-01-C1A-PREPARATION.md) ajoute le contexte privé de campagne/session neuve, sans scénario/version ni ressource initialisée. `preparationKind=SPACE_OUTLAWS_V07` est un marqueur de préparation, pas une certification des règles implémentées.
+- Les anciennes API de session/import/jeu sont refusées dans ce contexte. Pour I1 et les suites, étendre explicitement cette frontière transactionnelle pour les écritures autorisées ; ne pas désactiver globalement la garde ni appeler les seeds historiques.
+- Les droits MJ de session ne donnent pas de droit de publication du Master central. Conserver les tests de concurrence, réessai et révocation ; un ancien binaire ignorant le marqueur ne constitue pas un rollback sûr si des préparations existent.
+
 ## Dépôt et branche
 
 - Travailler exclusivement dans le dépôt `gkerckhofs-a11y/gn-engine`, sur une branche dédiée et une PR. Le checkout local sert au développement et aux vérifications du même dépôt ; ne pas créer de seconde application ou de dépôt parallèle.
