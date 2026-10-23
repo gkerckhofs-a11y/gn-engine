@@ -6,7 +6,7 @@ import {randomUUID} from 'node:crypto';
 import {fieldFixture} from './field-suite.mjs';
 import {actionPointPath} from '../../src/core/action-point-state.mjs';
 import {cleanScenarioSnapshot} from '../../src/core/scenario-package.mjs';
-async function fixture(makeStore){
+export async function personFixture(makeStore){
  const f=await fieldFixture(makeStore),r=f.fieldRead,q=f.fieldCmd;
  const skill=await f.cmd('saveSessionSkill',f.owner,{sessionId:f.sid,revision:(await f.session()).revision,name:'Expertise de test',kind:'PASSIVE',publicationState:'PUBLISHED',reason:'Test'});
  const level=async(i,n=2)=>{const v={sessionId:f.sid,revision:(await f.session()).revision,characterId:f.characters[i],classId:null,overrides:[{skillId:skill.id,level:n}],published:true,reason:'Expertise'};const p=await f.read('prepareAbilityProfile',f.owner,v);await f.cmd('setAbilityProfile',f.owner,{...v,confirmation:p.confirmation});};for(let i=0;i<3;i++)await level(i);
@@ -22,6 +22,7 @@ async function fixture(makeStore){
  const lootLot=async(pillable=true)=>{const item=await f.item(false),g={sessionId:f.sid,revision:(await f.session()).revision,characterId:f.characters[1],itemId:item.id,quantity:3,reason:'Bien victime'},p=await f.read('prepareGrantItem',f.owner,g);await f.cmd('grantItem',f.owner,{...g,confirmation:p.confirmation});const l=(await f.session()).inventory.find(l=>l.item.id===item.id);if(pillable)await q('setLotPillable',{lotId:l.id,revision:l.revision,pillable:true,reason:'Pillable pour test'},f.owner);return l;};
  return {...f,get sid(){return f.sid;},r,q,skill,level,kit,bacta,kl,bl,supplyLots,health,savePerson:save,preparePerson:prepare,startPerson:start,finishPerson:finish,cancelPerson:cancel,char,lot,personPoints:points,lootLot};
 }
+const fixture=personFixture;
 export function personSuite(makeStore,prefix='Interactions'){
  test(`${prefix} : clinique accélérée, coût unique, complément sans nouveau dé et réessais`,async()=>{
   const f=await fixture(makeStore),p=await f.savePerson('CLINIC_FAST');f.setDie(1);const a=await f.startPerson(p);assert.equal((await f.personPoints(0)).reserved,1);await assert.rejects(f.finishPerson(a),{code:'FIELD_TOO_EARLY'});f.advance(10000);

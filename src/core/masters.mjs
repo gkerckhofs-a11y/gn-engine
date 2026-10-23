@@ -1,3 +1,4 @@
+import {natureInput,preserveSessionNature} from './character-nature.mjs';
 import {masterModuleErrors} from '../shared/workshop-modules.mjs';
 import {masterWorkspace,masterEditable} from './master-workspace.mjs';
 import {createHash} from 'node:crypto';
@@ -111,8 +112,8 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
   }catch(e){addError('Meta',rows.Meta?.[0],e);}
   try{nextParent=parameters(parent,rows.Parametres??[],session);}catch(e){addError('Parametres',(rows.Parametres??[]).find(r=>r.cle===e.column),e);}
   const stamp=(sheet,r)=>{
-   // The new optional blank column must not change fingerprints of pre-0.29 rows.
-   const rid=documentId(r.id),key=digest([sheet,rid]),version=num(r.version,'version',true),body=Object.fromEntries(Object.entries(r).filter(([k,v])=>k!=='_row'&&!(sheet==='Objets'&&k==='billes_par_recharge'&&empty(v)))),hash=digest(body);
+   // Newly added optional blank columns must not change historical receipt fingerprints.
+   const rid=documentId(r.id),key=digest([sheet,rid]),version=num(r.version,'version',true),body=Object.fromEntries(Object.entries(r).filter(([k,v])=>k!=='_row'&&!(((sheet==='Objets'&&k==='billes_par_recharge')||(sheet==='Personnages'&&k==='nature')||(['Competences','Interactions'].includes(sheet)&&k==='nature_patient'))&&empty(v)))),hash=digest(body);
    if(seen.has(key))issue('id','Identifiant répété dans cet onglet.');seen.add(key);
    if(!['CREER','MODIFIER','ARCHIVER'].includes(r.operation))issue('operation','Utiliser CREER, MODIFIER ou ARCHIVER.');
    const identity=digest(['ActionsTerrain','Recompenses'].includes(sheet)?[r.lieu_id??null,...(sheet==='ActionsTerrain'?[r.type??null]:[])]:[r.personnage_id??null,r.groupe_id??null]);
@@ -135,6 +136,7 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
     d=patch(r,{id:r.id,public:{displayName:'',profession:'',description:'',publicationState:'DRAFT'},publicationState:'DRAFT',biography:'',roleplay:'',playerSecrets:'',gmNotes:'',objectives:[],relations:[],hp:null,maxHp:null,...old},{publication:'publicationState',histoire:'biography',interpretation:'roleplay',secrets_joueur:'playerSecrets',notes_mj:'gmNotes'});
     d.public=patch(r,d.public,{nom:'displayName',metier:'profession',description_publique:'description',publication_publique:'publicationState'});
     if(!d.public.displayName||d.public.displayName.length>150)issue('nom','Le nom est obligatoire (150 caractères maximum).');
+    if(!empty(r.nature)){const nature=natureInput(r.nature==='!EFFACER'?null:r.nature);if(session&&old)preserveSessionNature({nature},old);d.nature=nature;}
     if(!empty(r.niveau_global))d.globalLevel=num(r.niveau_global,'niveau_global',true);
     if(!empty(r.pv_max_initiaux))d.initialMaxHp=num(r.pv_max_initiaux,'pv_max_initiaux',true);
     d.contentRevision=(old?.contentRevision??0)+1;d.historyStarted=true;imagePatch(r,d,{portrait_media_id:'portrait',image_privee_media_id:'private'});
@@ -151,9 +153,10 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
     if(d.kind!=='PASSIVE'){
      d.healing={effect:'HEAL_HP',cooldownSeconds:600,...old?.healing};for(const [key,field] of Object.entries({soin_pv:'amount',usages:'uses',recuperation_secondes:'cooldownSeconds'}))if(!empty(r[key]))d.healing[field]=r[key]==='!EFFACER'&&key==='usages'?null:num(r[key],key,key!=='recuperation_secondes');
      if(!empty(r.portee_recuperation))d.healing.cooldownScope=r.portee_recuperation;
+     if(!empty(r.nature_patient))d.healing.patientNature=natureInput(r.nature_patient==='!EFFACER'?null:r.nature_patient);
      if(!empty(r.consommable_id)){if(r.consommable_id==='!EFFACER')d.healing.consumable=null;else{const item=ref(m.items,r.consommable_id,'consommable_id');if(!item.consumable||item.publicationState!=='PUBLISHED')issue('consommable_id','Un consommable publié est requis.');d.healing.consumable={itemId:item.id,quantity:itemQuantity(item,num(r.consommable_quantite,'consommable_quantite',true)),name:item.name,unit:item.unit,itemRevision:item.revision};}}
      if(empty(r.consommable_id)&&!empty(r.consommable_quantite)){if(!d.healing.consumable)issue('consommable_id','Renseigner le consommable avant sa quantité.');const item=ref(m.items,d.healing.consumable.itemId,'consommable_id');d.healing.consumable={...d.healing.consumable,quantity:itemQuantity(item,num(r.consommable_quantite,'consommable_quantite',true))};}
-    }else if(['soin_pv','usages','recuperation_secondes','portee_recuperation','consommable_id','consommable_quantite'].some(k=>!empty(r[k])))issue('type','Une compétence PASSIVE ne reçoit pas de paramètres de soin.');
+    }else if(['soin_pv','usages','recuperation_secondes','portee_recuperation','consommable_id','consommable_quantite','nature_patient'].some(k=>!empty(r[k])))issue('type','Une compétence PASSIVE ne reçoit pas de paramètres de soin.');
     const cost=d.healing?.consumable;d={...old,...skillInput(d,r.id,old)};if(cost&&d.healing)d.healing.consumable=cost;
    }else if(sheet==='Classes'){
     d=patch(r,{publicationState:'DRAFT',skills:[],...old},{nom:'name',description:'description',publication:'publicationState',notes_mj:'gmNotes'});if(!empty(r.competences))d.skills=levels(r.competences==='!EFFACER'?'':r.competences);d={...old,...classInput(d,r.id,old)};for(const sk of d.skills)ref(m.skills,sk.skillId,'competences');

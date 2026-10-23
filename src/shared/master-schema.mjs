@@ -4,7 +4,7 @@ export const masterLimits={fileBytes:8*1024*1024,expandedBytes:16*1024*1024,payl
 export const masterSheets={
  Meta:['format','version','type','destination_id','campaign_id','base_revision','module'],
  Parametres:['cle','valeur'],
- Personnages:['id','operation','version','nom','metier','description_publique','publication_publique','publication','histoire','interpretation','secrets_joueur','notes_mj','niveau_global','pv_max_initiaux','portrait_media_id','image_privee_media_id'],
+ Personnages:['id','operation','version','nom','metier','description_publique','publication_publique','publication','histoire','interpretation','secrets_joueur','notes_mj','niveau_global','pv_max_initiaux','portrait_media_id','image_privee_media_id','nature'],
  Objets:['id','operation','version','nom','description','categorie','unite','type','consommable','volume_unitaire','legalite','publication','notes_mj','image_media_id','pillable','billes_par_recharge'],
  Vaisseaux:['id','operation','version','nom','description','proprietaire_type','proprietaire_id','capacite_volume','a_quai','ouvert','carburant_objet_id','capacite_reservoir','carburant_initial','port_initial'],
  Routes:['id','operation','version','nom','description','depart_port','arrivee_port','duree_secondes','carburant_cout','ouvert'],
@@ -12,7 +12,7 @@ export const masterSheets={
  EvenementsEco:['id','operation','version','titre','description','cible_type','objet_id','route_id','variation_prix_pct','commerce_suspendu','variation_carburant_pct','variation_duree_pct','depart_suspendu','declenchement','installation_id','actif'],
  Tarifs:['id','operation','version','titre','description','nature','mouvement','objet_id','montant_fixe','montant_unitaire','beneficiaire_type','beneficiaire_id','actif'],
  Entrepots:['id','operation','version','nom','description','capacite_volume','loyer','periode_minutes','ouvert','loyer_groupe_id'],
- Competences:['id','operation','version','nom','description','instructions','categorie','type','publication','notes_mj','soin_pv','usages','recuperation_secondes','portee_recuperation','consommable_id','consommable_quantite'],
+ Competences:['id','operation','version','nom','description','instructions','categorie','type','publication','notes_mj','soin_pv','usages','recuperation_secondes','portee_recuperation','consommable_id','consommable_quantite','nature_patient'],
  Classes:['id','operation','version','nom','description','publication','notes_mj','competences'],
  Attributions:['id','operation','version','personnage_id','classe_id','competences','publication'],
  Groupes:['id','operation','version','nom','description','briefing','visibilite','publication','notes_mj'],
@@ -24,12 +24,14 @@ export const masterSheets={
  Lieux:['id','operation','version','titre','type','publication','description','notes_mj','installation_id','panne_secondes','verrou_echec_secondes','protection_reparation_secondes'],
  ActionsTerrain:['id','operation','version','lieu_id','type','competence_id','niveau_minimum','instructions','duree_secondes','durees_niveaux','test','seuil','cout_pa','recuperation_secondes','bonus_objets','consommable_id','consommable_quantite','texte_reussite','texte_echec'],
  Recompenses:['id','operation','version','lieu_id','type','objet_id','connaissance_id','quantite','stock_initial','limite_personnage'],
- Interactions:['id','operation','version','nom','type','publication','competence_id','niveau_minimum','prerequis','instructions','duree_secondes','durees_niveaux','seuil','cout_pa','recuperation_secondes','bonus_objets','consommable_id','consommable_quantite','consommables_supplementaires','texte_reussite','texte_echec','complement_secondes','soin_pv','niveau_reanimation','convalescence_secondes','recuperation_patient_secondes'],
+ Interactions:['id','operation','version','nom','type','publication','competence_id','niveau_minimum','prerequis','instructions','duree_secondes','durees_niveaux','seuil','cout_pa','recuperation_secondes','bonus_objets','consommable_id','consommable_quantite','consommables_supplementaires','texte_reussite','texte_echec','complement_secondes','soin_pv','niveau_reanimation','convalescence_secondes','recuperation_patient_secondes','nature_patient'],
 };
 export const masterCollections={Personnages:'characters',Objets:'items',Competences:'skills',Classes:'classes',Groupes:'groups',Connaissances:'knowledge',Lieux:'fieldTargets',Interactions:'personProfiles',Entrepots:'warehouses',Vaisseaux:'ships',Routes:'routes',Cours:'commodityPrices',EvenementsEco:'priceEvents',Tarifs:'cargoTariffs'};
 export const masterIgnoredSheets=['Guide','Dictionnaire'];
 export const masterParameters=['titre','resume','date','horaires','lieu','infos_pratiques','confidentialite','capacite','groupes_actifs','pa_actifs','pa_niveau_1','pa_niveau_2','pa_renouvellement_minutes','pa_cout','pa_recuperation_secondes','pa_recuperation_patient_secondes','economie_active','monnaie_nom','monnaie_unite','sante_active','pv_max_defaut','astroport_id'];
 export const masterHints={
+ nature:'HUMANOID ou DROID. Vide conserve ; !EFFACER retire dans le scénario. Immuable pour un personnage déjà créé en session. Aucun changement des anciens personnages.',
+ nature_patient:'HUMANOID pour soins biologiques, DROID pour réparation de PV. Vide conserve ; !EFFACER retire la restriction historique. Un patient sans nature ne reçoit pas de soin restreint. Interdit pour le pillage.',
  operation:'CREER, MODIFIER ou ARCHIVER. Une ligne absente reste inchangée.',version:'Entier positif. Augmenter après une modification. Une même version ne peut changer de contenu.',
  publication:'DRAFT, READY ou PUBLISHED. Objectifs, relations et attributions : OUI ou NON.',publication_publique:'DRAFT, READY ou PUBLISHED.',
  competences:'Liste séparée par ; au format competence_id:1. Aucun JSON. Une attribution de session est réservée à un personnage créé dans cet import.',

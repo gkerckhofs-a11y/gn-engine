@@ -1,3 +1,4 @@
+import {characterNatures} from './character-nature.mjs';
 import {terrainActionFields} from './master-terrain-editor.mjs';
 const care=['FIELD_CARE','CLINIC_SAFE','CLINIC_FAST'],skilled=[...care,'LOOT_METHODICAL'];
 const number=(name,label,max,types,min=0)=>({name,label,type:'number',min,max,required:true,when:{type:types}});
@@ -16,6 +17,7 @@ export const interactionEditor={sheet:'Interactions',title:'Interactions entre p
  {name:'type',label:'Type d’interaction',choices:[['FIELD_CARE','Soin de terrain'],['CLINIC_SAFE','Clinique sûre'],['CLINIC_FAST','Clinique accélérée'],['LOOT_COMMON','Fouille ordinaire'],['LOOT_METHODICAL','Fouille méthodique']],initial:'FIELD_CARE',refresh:true},
  {name:'publication',label:'Publication',choices:[['DRAFT','Brouillon'],['READY','Prêt'],['PUBLISHED','Publié']],initial:'DRAFT'},
  ...common,
+ {name:'nature_patient',label:'Patients admissibles',choices:[['','Sans restriction (historique)'],...Object.entries(characterNatures)],initial:'',clear:true,when:{type:care},inactiveValue:'!EFFACER',help:'Soins biologiques : humanoïde. Réparation de PV : droïde. La nature du praticien ne limite pas son métier.'},
  {name:'prerequis',label:'Compétences supplémentaires requises',type:'levels',ref:'skills',clear:true,help:'Sélectionnez les expertises passives et leur niveau minimum. Maximum 10 prérequis.'},
  {name:'consommables_supplementaires',label:'Consommables supplémentaires',type:'textarea',clear:true,when:{type:care},inactiveValue:'!EFFACER',help:'objet_id:quantité ; autre_id:quantité. Maximum 3 consommables différents au total, consommable principal compris.'},
  number('complement_secondes','Durée supplémentaire après un échec en clinique accélérée',86400,['CLINIC_FAST']),

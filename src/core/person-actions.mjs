@@ -1,3 +1,5 @@
+import {requirePatientNature} from './character-nature.mjs';
+import {acceptsPatientNature} from '../shared/character-nature.mjs';
 import {randomInt} from 'node:crypto';
 import {documentId,requireThat} from './validation.mjs';
 import {gameTime} from './clock.mjs';
@@ -33,7 +35,7 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
   requireGameAction(s,c,isLoot(p)?'discover':'heal',at);requireThat(!convalescent(s,c,at),'OUT_OF_COMBAT');
   if(s.healthRules?.enabled)requireThat(c.hp>0,'OUT_OF_COMBAT');
   if(isLoot(p)){requireThat(lootEligible(s,t,at),'LOOT_TARGET_REQUIRED');requireThat(!encounter(t,at).taken,'LOOT_ENCOUNTER_LIMIT');}
-  else {requireThat(s.healthRules?.enabled,'HEALTH_DISABLED');healthState(t);requireThat(t.hp<t.maxHp||convalescent(s,t,at),'NO_HEAL_NEEDED');if(p.kind==='FIELD_CARE'){requireThat(t.hp<t.maxHp,'NO_HEAL_NEEDED');requireThat(t.hp>0||level>=p.reviveLevel,'FIELD_SKILL_REQUIRED');requireThat(c.id!==t.id||!convalescent(s,t,at),'OUT_OF_COMBAT');}}
+  else {requirePatientNature(p,t);requireThat(s.healthRules?.enabled,'HEALTH_DISABLED');healthState(t);requireThat(t.hp<t.maxHp||convalescent(s,t,at),'NO_HEAL_NEEDED');if(p.kind==='FIELD_CARE'){requireThat(t.hp<t.maxHp,'NO_HEAL_NEEDED');requireThat(t.hp>0||level>=p.reviveLevel,'FIELD_SKILL_REQUIRED');requireThat(c.id!==t.id||!convalescent(s,t,at),'OUT_OF_COMBAT');}}
  }
  async function plan(tx,ctx,input,at){
   const {s,c,r}=ctx;requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireThat(!c.activeFieldActionId&&!c.activePersonActionId,'FIELD_ACTOR_BUSY');
@@ -73,7 +75,7 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
     return {session:{id:s.id,stage:s.stage},character:{id:c.id,name:c.public.displayName},skills:(c.abilityProfile?.published?c.abilityProfile.skills:[]).filter(k=>k.kind==='PASSIVE').map(k=>({id:k.id,name:k.name})),actions:actions.sort((a,b)=>b.startedAt-a.startedAt).slice(0,100),aidOffers:offers.map(o=>({id:o.id,status:o.status,recipientName:o.recipientName,skillId:o.skillId,actionId:o.actionId??null,collection:o.collection??null})),encounter:encounter(c,at),convalescenceMs:Math.max(0,(c.convalescentUntilGameMs??0)-gameTime(s.clock,at)),captureMs:Math.max(0,(c.lootEncounter?.captureUntil??0)-at)};
    }
    if(action==='personTarget'){
-    const {s,c}=ctx,{c:t}=await activeCharacter(tx,s.id,input.targetId),profiles=(await tx.list(`sessions/${s.id}/personProfiles`)).filter(p=>p.publicationState==='PUBLISHED'),lots=(await tx.list(`sessions/${s.id}/inventory`,['holderId',c.id])).filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.quantity>0);
+    const {s,c}=ctx,{c:t}=await activeCharacter(tx,s.id,input.targetId),profiles=(await tx.list(`sessions/${s.id}/personProfiles`)).filter(p=>p.publicationState==='PUBLISHED'&&(isLoot(p)||acceptsPatientNature(p,t))),lots=(await tx.list(`sessions/${s.id}/inventory`,['holderId',c.id])).filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.quantity>0);
     return {session:{id:s.id,stage:s.stage},target:{id:t.id,name:t.public.displayName},profiles:profiles.map(p=>({id:p.id,name:p.name,kind:p.kind,instructions:p.instructions,test:p.test,skillId:p.skillId,bonusItems:p.bonusItems,supplies:[p.consumable,...p.extraConsumables].filter(Boolean)})),lots:lots.map(publicLot),aidOffers:await offeredAid(tx,s.id,c.id)};
    }
    if(action==='preparePersonAction')return (await plan(tx,ctx,input,at)).preview;

@@ -1,6 +1,6 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
-23 octobre 2026. **Produit complet non conforme à V3/V0.6 et non prêt pour une session réelle.** SO-00 documente la reprise ; SO-06a complète un parcours Master existant. Les lots métier SO-01 à SO-05 et la clôture A38 restent ouverts. Ce rapport est le point de départ du rapport global final, pas une attestation de réalisation des 24 recettes.
+23 octobre 2026. **Produit complet non conforme à V3.1/V0.7 et non prêt pour une session réelle.** SO-00 documente la reprise ; SO-06a complète un parcours Master existant ; SO-01a ajoute les natures et filtres de soins. Les lots métier SO-01 à SO-05 et la clôture A38 restent ouverts. Ce rapport est le point de départ du rapport global final, pas une attestation de réalisation des 24 recettes et six recettes FOR.
 
 ## Périmètre candidat
 
@@ -8,7 +8,13 @@ Package 0.37.0, branche `work/l1-modular-workshop`, [PR #1](https://github.com/g
 
 Livré sur branche : audit des sources et branches, matrice V3, six vues nommées selon V3, catalogue global XLSX cohérent et réimport par le circuit existant. Aucun nouveau compte, bien ou stockage parallèle ; aucune migration des sessions. L1a–L1m conservés. Les quatre Masters historiques gardent leurs empreintes, répertoriées dans [SO-00](SO-00-REPRISE.md).
 
-## Contrôles exécutés pour SO-06a
+## Tranche actuelle SO-01a
+
+[Guide et sources V3.1/V0.7](SO-01A-NATURES-SOINS.md). Base de cette tranche : `133ea159e5574fdac9d05f759c8ae3e14700038f`, main inchangé. **778 tests applicatifs locaux réussis et build réussi**, Node 24.19.0. Dix nouveaux tests métier sont aussi raccordés à Firestore émulé, trois tests UI supplémentaires. Résultats GitHub Actions de TEST sur le nouveau commit consignés dans la PR après fin réelle. Aucune recette humaine, mobile, charge ou recette FOR effectuée. Les preuves de SO-06a ci-dessous restent historiques.
+
+Le statut PNJ secret, l’attribution MJ de FOR-01, les pouvoirs, leur récupération commune et les six REC-SO-FOR sont manquants : nouveau bloquant SO-GAP-10, portes G1/G4. Les reliquats éditoriaux V0.6 des nouvelles sources sont consignés dans SO-01a.
+
+## Contrôles exécutés pour SO-06a (historique)
 
 | Contrôle | Environnement / date | Résultat et preuve |
 |---|---|---|
@@ -29,12 +35,12 @@ Cas nouveaux : export global des six vues sans écriture ; aller-retour XLSX et 
 
 | ID | Écart | Porte concernée |
 |---|---|---|
-| SO-GAP-01 | Aucun profil fermé V0.6, progression utilisateur/XP/succession ou crédits protégés | G1, REC-01/02/03/24 |
-| SO-GAP-02 | Pas de mort/stabilisation/STOP critique conformes, protection/nature non modélisées | G1/G4, REC-04/05 |
+| SO-GAP-01 | Aucun profil fermé V0.7, progression utilisateur/XP/succession ou crédits protégés | G1, REC-01/02/03/24 |
+| SO-GAP-02 | Pas de mort/stabilisation/STOP critique conformes, protection non modélisée ; nature et filtre patient développés seulement | G1/G4, REC-04/05 |
 | SO-GAP-03 | ROG-02/03, traces, toxicologie et leurs quotas/notifications absents | G1, REC-06 à 11 |
 | SO-GAP-04 | Modules droïdes, états distincts et réparations absents | G1/G2, REC-09/12 |
 | SO-GAP-05 | Chaîne spatiale canonique absente ; capacité nulle actuellement refusée | G2, REC-13 à 19 |
-| SO-GAP-06 | Prix/arrondis, autorités, contrats V0.6, assurances et restitution à compléter | G2, REC-20 à 22 |
+| SO-GAP-06 | Prix/arrondis, autorités, contrats V0.7, assurances et restitution à compléter | G2, REC-20 à 22 |
 | SO-GAP-07 | Clôture bloque les voyages/contrats ouverts ; RESTORE peut soigner ; effets temporaires reportés | G3, REC-23 |
 | SO-GAP-08 | Catalogue global partiel, 250 lignes ; pas de Master SO complet ni sauvegarde des sessions | G3/G5, REC-24 |
 | SO-GAP-09 | Environnement de recette identifié, sauvegarde/restauration et essais mobiles/60 utilisateurs non prouvés | G4/G5, SEC-08/09 |

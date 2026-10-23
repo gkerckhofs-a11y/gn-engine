@@ -251,3 +251,7 @@ Les six cartes proposent un premier éditeur/export pour **Personnages, Objectif
 Depuis le tableau de bord du propriétaire, « Exporter le catalogue des six vues » réunit les feuilles exportables à une seule révision. Réimporter le fichier dans le champ Master complet de la même destination, après aperçu et confirmation. Les exports ciblés et les quatre modèles historiques restent disponibles.
 
 Ce catalogue ne contient ni les dotations de départ, ni les informations générales du scénario, ni les données vivantes. En session, attributions acquises et paramètres santé/monnaie sont également exclus. Ce n’est pas une sauvegarde ni le Master SPACE OUTLAWS V0.6 achevé. Limites existantes conservées ; aucun téléchargement partiel si le classeur dépasse 250 lignes. [Périmètre, contrôles et migration](SO-00-REPRISE.md).
+
+## SO-01a — Natures et patients admissibles (candidat 0.37.0)
+
+Les exports et éditeurs acceptent les colonnes facultatives `Personnages.nature`, `Competences.nature_patient` et `Interactions.nature_patient` : `HUMANOID` ou `DROID`. Vide conserve ; `!EFFACER` retire explicitement une valeur dans les contextes autorisés. Une nature de personnage déjà créé en session reste immuable. Un soin restreint refuse un patient sans nature ou incompatible, avant consommation. Les protocoles historiques sans restriction conservent leur comportement. Les quatre Masters XLSX existants restent inchangés. [Parcours, compatibilité, preuves et limites](SO-01A-NATURES-SOINS.md).

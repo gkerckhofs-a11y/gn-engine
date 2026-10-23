@@ -1,19 +1,19 @@
-# Matrice SPACE OUTLAWS V3 / V0.6
+# Matrice SPACE OUTLAWS V3.1 / V0.7
 
-23 octobre 2026 — complément à [SO-00](SO-00-REPRISE.md). `Existant` désigne un service observé, pas une conformité V0.6. `Adapté` décrit uniquement la tranche SO-06a. Les tests cités sont des suites réellement présentes ; leurs résultats globaux figurent dans [SO-VALIDATION](SO-VALIDATION.md). Une couverture historique partielle ne valide jamais automatiquement une recette REC-SO.
+23 octobre 2026 — complément à [SO-00](SO-00-REPRISE.md). `Existant` désigne un service observé, pas une conformité V0.7. `Adapté` décrit SO-06a et SO-01a. Les tests cités sont des suites réellement présentes ; leurs résultats globaux figurent dans [SO-VALIDATION](SO-VALIDATION.md). Une couverture historique partielle ne valide jamais automatiquement une recette REC-SO.
 
 ## Exigences, code, tests et migrations
 
-| Exigence V3 / arbitrages | Existant à réutiliser | Adapté dans SO-06a | Manquant / adaptation requise | Tests / preuve à obtenir | Migration et lot |
+| Exigence V3 / arbitrages | Existant à réutiliser | Adapté dans SO-06a / SO-01a | Manquant / adaptation requise | Tests / preuve à obtenir | Migration et lot |
 |---|---|---|---|---|---|
-| Priorité SPACE OUTLAWS, pas de créateur universel | Socle GN Engine, L1a–m | Consignes, documentation et titres des six vues | Profil versionné V0.6 opérationnel | Audit sources/branche ; recette produit | Pas de conversion automatique ; SO-00/01 |
+| Priorité SPACE OUTLAWS, pas de créateur universel | Socle GN Engine, L1a–m | Consignes, documentation et titres des six vues | Profil versionné V0.7 opérationnel | Audit sources/branche ; recette produit | Pas de conversion automatique ; SO-00/01 |
 | Master unique, six vues | `masters`, `master-workspace`, éditeurs/projections L1 | Export cohérent de tous les catalogues exportables, réimport existant | Référentiel complet, dotations et schéma SO | `master-global-export-suite`, UI et suites Masters historiques | Format 1 inchangé maintenant ; extension explicite ultérieure SO-06 |
 | Version publiée, définition ≠ instance | Versions scénario, campagnes, archives | Aucun changement | Profil fermé et contrôle de compatibilité de règles | Versions historiques et import répété | Jamais réécrire une instance jouée ; SO-01/06 |
-| Huit classes, deux natures, 34 compétences ; A08 | `abilities`, Classes/Competences/Attributions | — | Classes canoniques, nature, exclusivités, initiation hors classe et 5 places secondaires | REC-SO-01, tests profils existants partiels | Ajouter référence de profil sans changer les anciens ; SO-01 |
+| Huit classes joueurs, deux natures, 34 compétences joueurs ; A08 | `abilities`, Classes/Competences/Attributions | Nature explicite conservée, projection privée, imports/exports | Classes canoniques, exclusivités, initiation hors classe et 5 places secondaires | REC-SO-01, tests profils existants partiels | Ajouter référence de profil sans changer les anciens ; SO-01 |
 | XP, progression, niveau utilisateur, succession ; A08–A09 | Compte authentifié, niveau de personnage et réservations PA | — | 3 XP/utilisateur/session, quatre sessions puis 8 PA, coûts, rareté, reconversion, 25 % plafonné 9, nouvelle incarnation | REC-SO-02, double décès et clôture concurrente | Historique utilisateur et incarnation distincts ; SO-01 |
 | 200 Cr protégés et huit kits ; A10 | Comptes, journal, lots, dotations idempotentes | Exclusion des dotations à l'export global | Solde protégé dans compte réel, restrictions d'achat/don/revente, provenance des kits, déprotection et disparition au décès | REC-SO-03, paiements/stock en concurrence | Ne pas protéger rétroactivement un solde acquis ; SO-01/05 |
 | PV/protection et sécurité ; A01–A07 | `health`, PV, horloge, `person-actions` | — | 3/4 PV, protection unique, fenêtre 2 s, immunités, mort 5 min, stabilisation 60 s, STOP critique | REC-SO-04 ; homologation physique distincte | Ajouter états explicites, ne pas déduire un décès d'un ancien 0 PV ; SO-01 |
-| Soins MED/MEC et atelier ; A05–A07 | FIELD_CARE, CLINIC_SAFE/FAST, réservations, complément d'échec | — | Nature, stabilisation intermédiaire, durées fixes, modules/protection indépendants, PNJ financé | REC-SO-05, interruption 59/60 s, pause et ressource unique | Anciennes actions gardent leur devis/profil ; SO-01/03 |
+| Soins MED/MEC et atelier ; A05–A07 | FIELD_CARE, CLINIC_SAFE/FAST, réservations, complément d'échec | Filtre patient serveur sur soins temporisés/instantanés, contrôle avant réserve et à résolution | Stabilisation intermédiaire, durées fixes, modules/protection indépendants, PNJ financé | REC-SO-05, interruption 59/60 s, pause et ressource unique | Anciennes actions gardent leur devis/profil ; SO-01/03 |
 | Compétences à durée ; A11 | Profils terrain et soins | — | Tables canoniques COM/PIL/INF/Entretien/ROG, effets réels et exceptions de consommation | Limites temporelles, rôle, idempotence | Nouveaux types via routeur existant ; SO-01/02 |
 | ROG-02 ; A12 | QR public, inventaire, transfert et remise physique du pillage | — | Poste orga, nom/prénom sans suggestion, choix par niveau, quotas victime globaux, coût au transfert, notification +10 min | REC-SO-06/07, deux voleurs et panne réseau | Champs d'éligibilité des biens, tentatives/notifications persistantes ; SO-02 |
 | ROG-03 ; A13 | Captivité 20 min, cibles QR | — | Issue scénarisée, garde, interruption, récupération conditionnelle, interdiction à 0 PV | REC-SO-08 et sortie physique sûre | Aucun droit sur une serrure réelle ; SO-02 |
@@ -27,7 +27,7 @@
 | PIL-03 / ESC-01 | Profils de compétences et réservation PA | — | Seuils, bonus non cumulés, usage voyage/rencontre, remboursement sans effet, escorte N4 sans second décrochage | REC-SO-14 | Usages persistants et liés à une exécution ; SO-04 |
 | Révision/réparation conditionnelle ; A22–A29 | Consommables, comptes, états de navire | — | Tir réellement exécuté déclenche 1 %, Coque/Bouclier/module séparés, réparation partielle par point | REC-SO-15 ; tir esquivé vs aucune attaque | Pas de réparation automatique à la clôture ; SO-04 |
 | Trajet/carburant/détour ; A24–A29 | `voyages`, débit au départ, pause, devis de route | — | Facteurs taille, ravitaillement 2 min, panne/surcharge, détour/convoi, reprise sans débit/tirage supplémentaire | REC-SO-16 | Voyages existants gardent conditions initiales ; SO-04/06 |
-| Événement/embuscade | Événements économiques et routes | — | D6 par trajet/convoi, table V0.6, priorité ciblée, une interception/tronçon, PNJ préparé et financé | REC-SO-17, concurrence | Tirages enregistrés une seule fois ; SO-04 |
+| Événement/embuscade | Événements économiques et routes | — | D6 par trajet/convoi, table V0.7, priorité ciblée, une interception/tronçon, PNJ préparé et financé | REC-SO-17, concurrence | Tirages enregistrés une seule fois ; SO-04 |
 | Abordage et fret | `cargo`, réservations, capacité, propriété distincte | — | Arrimage 2 min puis tranches 5 unités/3 min, source unique, interruption sans transfert inachevé | REC-SO-18 | Réutiliser les lots réels et droits ; SO-04 |
 | Remorquage/épaves/casse ; A29–A32 | Vaisseaux et inventaire | — | Gabarit/attelage, fuel ×2, publicité S+1, caution, récupération financée, rendement unique 10 %, démantèlement irréversible | REC-SO-19 | Aucun transfert de fret déduit de la propriété du navire ; SO-04 |
 | Prix et magasins ; A24, A31–A32 | `market`, `prices`, `sales`, `payments`, stocks | — | 12 prix et marchés canoniques, caisses/stock PNJ, arrondi total de ligne, exceptions négociation/modules/pièces | Paiements, arrondis multi-unités, fonds insuffisants | Ancien devis figé ; pas de conversion des transactions ; SO-05 |
@@ -88,3 +88,25 @@ Les critères ci-dessous sont repris littéralement du V3. Toutes les recettes m
 | SEC-SO-08 | Arrêt sécurité pendant minuteur médical/captivité | Pas de décès indu ; limites réelles et sorties sûres respectées | NON TESTÉ |
 | SEC-SO-09 | Plusieurs téléphones Android/iOS et ~60 utilisateurs en test | Droits, QR, ergonomie, temps de réponse mesurés et consignés | NON TESTÉ |
 | SEC-SO-10 | Déclenchement de workflows GitHub | Exécution des tests sans job de déploiement ni changement Firebase production | CI de référence exécutée ; nouveau commit à contrôler, résultats dans PR #1 |
+
+## Extension V3.1/V0.7 et sous-lot SO-01a
+
+Références intégrales, différences documentaires et limites dans [SO-01a](SO-01A-NATURES-SOINS.md). Les sources V3.0/V0.6 restent archivées. La classe PNJ Force est distincte des huit classes joueurs ; aucun attribut de nature ne lui accorde de droit.
+
+| Exigence | Existant réutilisable / adaptation | Manquant | Tests / migration |
+|---|---|---|---|
+| PNJ Force caché, orientation Jedi/Sith, LAS indépendante | Permissions OWNER/MJ, profils et projections | Statut réservé, attribution MJ, confidentialité et exclusion XP/initiation/import joueur | REC-SO-FOR-01, aucun ajout automatique à un ancien Master |
+| FOR-01 N1–N5 | Actions, réservations PA, horloges, D6 et audit | Pouvoirs, limites, résistance, activation unique, récupération commune, médiation de scène et STOP | REC-SO-FOR-02 à 06 ; nouveau profil publié requis |
+| Breach Port | Libellé narratif du référentiel actuel | Contenu de chaque Master à préparer | Aucun renommage d’ID, QR ou archive historique |
+| Natures / soins | SO-01a : dix tests métier mémoire/Firestore + trois UI, données réelles existantes | Profil fermé imposant toutes les règles MED/MEC | Couverture partielle REC-SO-01/05/23/24 ; aucune migration de session |
+
+| Recette supplémentaire | Fonction à valider | État de recette complète |
+|---|---|---|
+| REC-SO-FOR-01 | Refus joueur, classe PNJ secrète, orientations et LAS indépendante | NON TESTÉ ; non implémenté |
+| REC-SO-FOR-02 | Influence, droïde immunisé, suggestions interdites, égalité | NON TESTÉ ; non implémenté |
+| REC-SO-FOR-03 | Soin 60/90 s, survie, interruptions et quota cible/session | NON TESTÉ ; non implémenté |
+| REC-SO-FOR-04 | Projection, Protection Jedi, Étouffement Sith et sécurité | NON TESTÉ ; non implémenté |
+| REC-SO-FOR-05 | Double cible, jets séparés, un PA, récupération et confrontation | NON TESTÉ ; non implémenté |
+| REC-SO-FOR-06 | Usurpation, réessai, réseau, arbitre, STOP et secrets | NON TESTÉ ; non implémenté |
+
+Les statuts NON TESTÉ des 24 REC-SO complets restent inchangés. Les succès unitaires, transactionnels et de rendu ne valent pas recette terrain.

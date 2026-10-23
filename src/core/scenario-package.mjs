@@ -1,3 +1,4 @@
+import {naturePatch} from './character-nature.mjs';
 import {cargoTariffInput,validateCargoTariffReferences} from './customs-state.mjs';
 import {shipInput,routeInput,transportRulesInput,validateNavigationReferences} from './navigation-state.mjs';
 import {priceInput,priceEventInput,validateEconomicReferences} from './price-state.mjs';
@@ -50,6 +51,7 @@ function profile(v){
 function character(v){
   object(v);const p=object(v.public),state=publication(v.publicationState);
   const c={id:documentId(v.id),public:{displayName:text(p.displayName,150,true),profession:text(p.profession??'',150),description:text(p.description??'',4000),publicationState:publication(p.publicationState)},publicationState:state,biography:text(v.biography??'',20000),roleplay:text(v.roleplay??'',10000),playerSecrets:text(v.playerSecrets??'',20000),gmNotes:text(v.gmNotes??'',20000),objectives:narrativeInput(v.objectives??[],'objectives'),relations:narrativeInput(v.relations??[],'relations'),hp:null,maxHp:null,historyStarted:true,contentRevision:revision(v.contentRevision??1),...imageFields(v,['portrait','private'])};
+  Object.assign(c,naturePatch(v));
   if(v.globalLevel!==undefined)c.globalLevel=globalLevel(v.globalLevel);
   if(v.initialMaxHp!==undefined)c.initialMaxHp=revision(v.initialMaxHp);
   if(v.abilityProfile)c.abilityProfile=profile(v.abilityProfile);

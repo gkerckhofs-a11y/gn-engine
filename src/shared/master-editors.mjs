@@ -1,3 +1,4 @@
+import {characterNatures} from './character-nature.mjs';
 import {parameterEditors} from './master-parameters-editor.mjs';
 import {characterCreationFields} from './master-character-creation.mjs';
 import {interactionEditor} from './master-interaction-editor.mjs';
@@ -14,7 +15,7 @@ const yesNo=(n,l)=>choice(n,l,[['NON','Non'],['OUI','Oui']],'NON');
 const reference=(n,l,ref,extra={})=>field(n,l,{ref,clear:true,...extra});
 export const masterEditors={
  personnages:{sheet:'Personnages',title:'Fiches personnages',name:'nom',collection:'characters',fields:[
-  required('nom','Nom'),text('metier','Métier',{max:150}),long('description_publique','Présentation publique',4000),
+  required('nom','Nom'),{...choice('nature','Nature du personnage',[['','Non renseignée (historique)'],...Object.entries(characterNatures)],''),clear:true,initialOnly:true,help:'Humanoïde ou droïde. Choix conservé à la création de session ; aucune nature déduite du métier ou de la classe.'},text('metier','Métier',{max:150}),long('description_publique','Présentation publique',4000),
   choice('publication_publique','Publication du badge',[['DRAFT','Brouillon'],['READY','Prêt'],['PUBLISHED','Publié']],'DRAFT'),publication(),
   long('histoire','Histoire',20000),long('interpretation','Interprétation'),long('secrets_joueur','Secrets du personnage',20000),long('notes_mj','Notes réservées au MJ',20000),
   number('niveau_global','Niveau initial',1,{initialOnly:true}),number('pv_max_initiaux','PV maximum initiaux',1,{initialOnly:true}),
@@ -56,6 +57,7 @@ const catalogueEditors={informations:{Lieux:terrainEditor},personnages:{
  Competences:{sheet:'Competences',title:'Compétences',name:'nom',collection:'skills',fields:[
   required('nom','Nom'),long('description','Description',6000),long('instructions','Instructions',6000),text('categorie','Catégorie',{max:150}),
   {...choice('type','Type',[['PASSIVE','Expertise passive'],['ACTIVE_SELF','Soin sur soi'],['ACTIVE_TARGET','Soin sur une cible']],'PASSIVE'),refresh:true},publication(),long('notes_mj','Notes réservées au MJ'),
+  {...choice('nature_patient','Patients admissibles',[['','Sans restriction (historique)'],...Object.entries(characterNatures)],''),clear:true,when:activeSkill},
   number('soin_pv','PV rendus',1,{required:true,when:activeSkill}),number('usages','Nombre d’usages',1,{clear:true,when:activeSkill,help:'Vide : aucun plafond d’usages. Les usages déjà consommés restent conservés.'}),
   number('recuperation_secondes','Récupération en secondes de jeu',0,{required:true,when:activeSkill,help:'Les règles PA de la session remplacent cette durée lorsqu’elles sont actives. La portée « Aucune récupération » impose zéro en jeu.'}),
   {...choice('portee_recuperation','Récupération portée par',[['ACTOR','Le soignant'],['PATIENT','Le patient'],['NONE','Aucune récupération']],'ACTOR'),when:activeSkill},

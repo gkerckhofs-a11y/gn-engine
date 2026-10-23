@@ -1,3 +1,4 @@
+import {naturePatch} from './character-nature.mjs';
 import {mediaFields} from './media-state.mjs';
 import {playerAbilities} from './abilities.mjs';
 import { requireThat } from './validation.mjs';
@@ -24,6 +25,7 @@ export function participantCharacter(character, assignment, uid) {
   requireThat(character.publicationState === 'PUBLISHED', 'CONTENT_UNPUBLISHED');
   return {
     ...publicCharacter(character),
+    ...naturePatch(character),
     ...mediaFields(character,['portrait','private']),
     biography: character.biography ?? '',
     roleplay: character.roleplay ?? '',

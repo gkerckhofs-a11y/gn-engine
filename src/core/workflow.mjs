@@ -1,3 +1,4 @@
+import {naturePatch,preserveSessionNature} from './character-nature.mjs';
 import {validateCargoTariffReferences} from './customs-state.mjs';
 import {validateEconomicReferences} from './price-state.mjs';
 import {createPriceService,priceAction} from './prices.mjs';
@@ -62,7 +63,7 @@ const publicSession = s => ({id:s.id, title:s.title, summary:s.summary, date:s.d
 const ownRegistration = r => r ? ({name:r.name, email:r.email, answers:r.answers, status:r.status,
   characterId:r.characterId, accessActive:r.accessActive, briefingReadAt:r.briefingReadAt ?? null,
   briefingReadRevision:r.briefingReadRevision??null}) : null;
-const characterInput = (input, id, existing={}) => ({...existing,id,
+const characterInput = (input, id, existing={}) => ({...existing,id,...naturePatch(input,existing),
   public: {displayName:text(input.displayName,150,true), profession:optional(input.profession,150),
     description:optional(input.description,4000), publicationState:status(input.publicationState,['DRAFT','READY','PUBLISHED'])},
   publicationState:input.publicationState, biography:optional(input.biography,20000),
@@ -363,6 +364,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       } else if(action==='saveSessionCharacter') {
         const s=await checkSession(tx,actor,sid);revision(s,input.revision);requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
         const cid=documentId(input.characterId),c=await tx.get(charPath(sid,cid));requireThat(c,'NOT_FOUND');
+        preserveSessionNature(input,c);
         const reason=text(input.reason,500,true),next=characterInput(input,cid,c),base=`sessions/${sid}/characters`;
         await validateRelations(tx,base,next);
         recordPublication(tx,base,c,next,{id:newId,at,actorUid:actor.uid,reason,stage:s.stage});
