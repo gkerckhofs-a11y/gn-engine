@@ -1,3 +1,4 @@
+import {groupManagementSuite} from '../support/group-management-suite.mjs';
 import {admissionReviewsSuite} from '../support/admission-reviews-suite.mjs';
 import {admissionsSuite} from '../support/admissions-suite.mjs';
 import {characterNatureSuite} from '../support/character-nature-suite.mjs';
@@ -43,6 +44,7 @@ workflowSuite(()=>firestoreStore(firestore),'Firestore réel émulé');
 preparationsSuite(()=>firestoreStore(firestore),'Préparation SO sur Firestore');
 admissionsSuite(()=>firestoreStore(firestore),'Admissions SO sur Firestore');
 characterNatureSuite(()=>firestoreStore(firestore),'SO-01a natures sur Firestore');
+groupManagementSuite(()=>firestoreStore(firestore),'Régie groupes I2b sur Firestore');
 groupsSuite(()=>firestoreStore(firestore),'Groupes sur Firestore');
 knowledgeSuite(()=>firestoreStore(firestore),'Connaissances sur Firestore');
 notebookSuite(()=>firestoreStore(firestore),'Carnet sur Firestore');

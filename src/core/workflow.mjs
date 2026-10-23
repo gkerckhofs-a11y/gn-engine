@@ -1,6 +1,7 @@
 import {recipeInput,validateRecipeReferences} from './recipe-state.mjs';
 import {isPreparation} from './preparation-state.mjs';
 import {createAdmissionService,admissionAction} from './admissions.mjs';
+import {createGroupManagementService,groupManagementAction} from './group-management.mjs';
 import {naturePatch,preserveSessionNature} from './character-nature.mjs';
 import {validateCargoTariffReferences} from './customs-state.mjs';
 import {validateEconomicReferences} from './price-state.mjs';
@@ -152,6 +153,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const logisticsService=createLogisticsService({store,signed,checkSession,now,uuid});
   const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,now,uuid});
   const admissionService=createAdmissionService({store,signed,checkSession,now,uuid});
+  const groupManagementService=createGroupManagementService({store,signed,checkSession,now,uuid});
   const personService=createPersonService({store,signed,checkSession,checkScenario,now,uuid,rollD6});
   const fieldService=createFieldService({store,signed,checkSession,checkScenario,now,uuid,rollD6});
   const masterService=createMasterService({store,admin,checkSession,checkScenario,now,uuid});
@@ -175,6 +177,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
 
   async function dispatch(action,actor,input={}) {
     if(admissionAction(action))return admissionService(action,actor,input);
+    if(groupManagementAction(action))return groupManagementService(action,actor,input);
     if(priceAction(action))return priceService(action,actor,input);
     if(voyageAction(action))return voyageService(action,actor,input);
     if(cargoAction(action))return cargoService(action,actor,input);

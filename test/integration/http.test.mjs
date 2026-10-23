@@ -1,3 +1,4 @@
+import {rosterMembership} from '../support/group-management-suite.mjs';
 import {admissionTestSettings,admissionTestProposal} from '../support/admissions-suite.mjs';
 import {personCommands} from '../../src/core/person-actions.mjs';
 import {fieldCommands} from '../../src/core/field-actions.mjs';
@@ -29,6 +30,24 @@ const request=async(action,input={},token)=>{
   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,input})});
   return {status:response.status,...await response.json()};
 };
+
+test('HTTP + Auth : régie MJ, transfert idempotent et aucune création de patrimoine',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),player=await googleTestAccount(`roster-${randomUUID()}@example.invalid`);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};
+ const cmd=(action,input={})=>call(action,{requestId:randomUUID(),...input});
+ const {id:scenarioId}=await cmd('createScenario',{title:'Régie HTTP synthétique'});
+ const {id:characterId}=await cmd('saveCharacter',{scenarioId,revision:1,displayName:'Personnage HTTP',publicationState:'PUBLISHED'});
+ const {id:versionId}=await cmd('publishScenario',{scenarioId,revision:2});const {id:sessionId}=await cmd('createSession',{scenarioId,versionId,title:'Session HTTP synthétique',capacity:1,privacy:'Notice fictive'});
+ const before=await call('session',{sessionId});
+ for(const groupId of ['a','b'])await cmd('saveGroupRoster',{sessionId,groupId,groupRevision:0,name:groupId,visibility:'SECRET',publicationState:'PUBLISHED',kind:'TEAM',capacity:1,leaderId:null,reason:'Configuration HTTP'});
+ assert.equal((await request('groupManagement',{sessionId})).status,401);assert.equal((await request('groupManagement',{sessionId},player)).status,403);
+ const input={sessionId,characterId,sourceGroupId:null,targetGroupId:'a',membership:rosterMembership(),authorizePermissions:false,reason:'Affectation HTTP'};
+ let p=await call('prepareGroupMembership',input);await cmd('applyGroupMembership',{...input,confirmation:p.confirmation});
+ const transfer={...input,sourceGroupId:'a',targetGroupId:'b'};p=await call('prepareGroupMembership',transfer);const apply={...transfer,confirmation:p.confirmation,requestId:randomUUID()};assert.equal((await request('applyGroupMembership',apply,player)).status,403);
+ const r=await cmd('applyGroupMembership',apply);assert.deepEqual(await cmd('applyGroupMembership',apply),r);
+ const d=await call('groupManagement',{sessionId});assert.equal(d.groups.find(g=>g.id==='a').members[0].active,false);assert.equal(d.groups.find(g=>g.id==='b').members[0].active,true);
+ const after=await call('session',{sessionId});for(const key of ['accounts','inventory','characters'])assert.deepEqual(after[key],before[key]);
+});
 
 test('HTTP + Auth : invitation SO, dossier privé, consentement et refus des pouvoirs PNJ',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),player=await googleTestAccount(`admit-${randomUUID()}@example.invalid`),other=await googleTestAccount(`other-admit-${randomUUID()}@example.invalid`);

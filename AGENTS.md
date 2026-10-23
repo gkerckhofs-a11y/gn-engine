@@ -37,6 +37,13 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Les décisions vérifient les droits courants avant les reçus. Retrait/correction libèrent la place ; réessai ne la recrée pas. Une exception exige un choix et un motif explicites. Le joueur peut retirer son dossier après expiration du lien.
 - Les futurs I3/I4 doivent adapter explicitement les gardes et revalider les quotas à la naissance. Ne pas lancer I1/C1a sur des dossiers confirmés I2 ; un rollback doit conserver le lecteur et la garde compatibles.
 
+## Tranche I2b — régie des groupes
+
+- [I2b](docs/SO-01-I2B-GROUPES.md) conserve `groups.members` comme seule autorité ; `group.roster` est une politique optionnelle explicitement configurée. Aucun groupe historique converti automatiquement.
+- Les membres d’un groupe géré se modifient par préparation/commande atomique de session ; préserver la garde des anciens éditeurs/imports et les contrôles des consommateurs. Responsable ne signifie pas permission. Archive/restauration ne recrée aucun mandat.
+- Conserver caisses, biens et contrats ; une contre-opération doit revalider droits/capacité et journaliser, sans restaurer un ledger. Ne pas revenir à un binaire qui ignore la politique sur des données I2b. Le XLSX historique seul n’exporte pas cette politique.
+- I3/I4 raccordent les préparations C1a ; I5 doit révoquer les mandats au décès/à la relève. Ne pas assimiler hors combat à mort, ni personnage non affecté à réserve jamais incarnée.
+
 ## Dépôt et branche
 
 - Travailler exclusivement dans le dépôt `gkerckhofs-a11y/gn-engine`, sur une branche dédiée et une PR. Le checkout local sert au développement et aux vérifications du même dépôt ; ne pas créer de seconde application ou de dépôt parallèle.

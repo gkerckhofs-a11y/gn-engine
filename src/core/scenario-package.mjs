@@ -9,6 +9,7 @@ import {actionPointRulesInput,actionPointMaximum,globalLevel} from './action-poi
 import {requireThat,documentId,whole} from './validation.mjs';
 import {narrativeInput} from './narrative.mjs';
 import {groupInput} from './groups.mjs';
+import {rosterInput,validateRosters} from './group-roster.mjs';
 import {knowledgeInput} from './knowledge.mjs';
 import {skillInput,classInput} from './abilities.mjs';
 import {itemInput,publicItem,itemQuantity} from './inventory-state.mjs';
@@ -60,7 +61,7 @@ function character(v){
   if(v.startingInventory){const entries=array(v.startingInventory.items,60).map(x=>{const i=item(x.item,true);return {item:i,quantity:itemQuantity(i,x.quantity)};});fail(new Set(entries.map(x=>x.item.id)).size===entries.length);c.startingInventory={revision:revision(v.startingInventory.revision),items:entries};}
   return c;
 }
-function group(v){const g=groupInput(object(v),documentId(v.id));g.revision=revision(v.revision);if(v.walletConfig)g.walletConfig={label:text(v.walletConfig.label,100,true),amount:whole(v.walletConfig.amount,'INVALID_SCENARIO_PACKAGE'),revision:revision(v.walletConfig.revision)};return g;}
+function group(v){const g=groupInput(object(v),documentId(v.id));g.revision=revision(v.revision);if(v.walletConfig)g.walletConfig={label:text(v.walletConfig.label,100,true),amount:whole(v.walletConfig.amount,'INVALID_SCENARIO_PACKAGE'),revision:revision(v.walletConfig.revision)};if(v.roster)g.roster=rosterInput(v.roster);return g;}
 // Explicit projections discard runtime identities, grants, account balances and tokens.
 export function cleanScenarioSnapshot(input){
   object(input);const root=object(input.scenario),records=object(input.records);
@@ -89,6 +90,7 @@ export function cleanScenarioSnapshot(input){
   validateEconomicReferences(clean);
   validateCargoTariffReferences({...clean,economyRules:scenario.economyRules});
   for(const g of clean.groups)for(const m of g.members)ref(m.characterId,sets.characters);
+  validateRosters(clean.groups);
   for(const w of clean.warehouses)if(w.rentAccountId)fail(clean.groups.some(g=>g.walletConfig&&groupAccountId(g.id)===w.rentAccountId));
   for(const k of clean.knowledge){for(const id of [...k.initialCharacterIds,...k.qrCharacterIds])ref(id,sets.characters);if(k.qrSkillId)ref(k.qrSkillId,sets.skills);}
   for(const k of clean.classes)for(const s of k.skills)ref(s.skillId,sets.skills);

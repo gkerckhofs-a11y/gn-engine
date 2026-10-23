@@ -1,5 +1,9 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## I2b — groupes et mandats de session
+
+[Matrice ciblée et compatibilité](SO-01-I2B-GROUPES.md) : politique optionnelle sur les groupes existants, transfert et retrait atomiques, capacités, responsable, révocation/autorisation séparées, audit/contre-opération. **869 tests locaux et build réussis** ; CI exacte dans la PR. SO-GAP-16 partiellement traité ; garde historique/Masters préservée, décès/succession et intégration centrale restent ouverts. Aucun autre écart clos par cette tranche.
+
 ## I2 — décisions et quotas sur branche
 
 [Matrice ciblée et limites](SO-01-I2-DECISIONS.md) : file, approbation OWNER/MJ, unicité fictive par session, compteurs confirmés globaux/par classe, attente/retrait/correction/refus, transfert de classe et exception motivée. 846 tests locaux et build réussis ; CI exacte dans la PR. SO-GAP-14 partiellement couvert, passage M2 encore absent ; I2b/SO-GAP-16 puis C1/C2/I3 restent nécessaires. Les sections I1/C1a ci-dessous décrivent leurs périmètres historiques.

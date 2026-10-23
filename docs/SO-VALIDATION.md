@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## État courant V3.5 — I2b, régie des groupes
+
+[Tranche I2b](SO-01-I2B-GROUPES.md) : transfert atomique, capacités/types/responsable, permissions explicitement autorisées, archivage et contre-opération. **869 tests locaux et build réussis** ; 19 nouveaux cas métier partagés avec Firestore, quatre rendus UI, un HTTP/Auth. CI exacte à consigner dans la PR après exécution. SO-GAP-16 partiellement couvert : décès/relève automatique restent I5. INS-09/10 : preuves automatiques partielles, aucune recette sur appareils. Produit complet toujours non conforme V3.5/V0.7, aucune migration/production. Suite C1/C2 puis I3/I4/I5.
+
 ## État courant V3.5 — I2, décisions et places confirmées
 
 [Tranche I2](SO-01-I2-DECISIONS.md) : autorité MJ actuelle, unicité fictive, compteurs atomiques, attente/correction/refus/retrait, changement de classe, exception explicite, historique privé et notification dans le dossier. **846 tests locaux et build réussis** ; 18 nouveaux cas métier partagés avec Firestore, trois nouveaux cas UI, un HTTP/Auth. Résultats Firebase et SHA exacts à constater dans la PR après CI. SO-GAP-14 reste ouvert sur M2 central ; aucune INS complète/mobile/restauration certifiée. Suite I2b puis C1/C2/I3. Pas de migration ni production.

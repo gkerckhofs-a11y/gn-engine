@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## Complément I2b — groupes et permissions cohérents
+
+[Contrat et reprise I2b](SO-01-I2B-GROUPES.md) : sauvegarder ensemble `group.roster`, membres, versions, audit, opérations et autorisations, avec comptes/ledger/stocks/contrats. XLSX seul insuffisant. Ne pas revenir à un binaire pré-I2b ignorant la politique. Interruption avant commit, réessai après réponse perdue et contre-opération liée testés automatiquement ; sauvegarde/restauration complète, retour arrière opérationnel et recette mobile non exécutés. Aucun déploiement autorisé.
+
 ## Complément I2 — confirmations cohérentes
 
 [Contrat I2 et reprise](SO-01-I2-DECISIONS.md) : sauvegarder ensemble registrations/historiques, total de session, compteurs par classe, réservations d’identité, invitations/usages, reçus/audit et contexte central. Ne jamais restaurer un seul compteur ou revenir à un binaire I1 qui ignore les confirmations. Annulation avant commit et réessai après réponse perdue sont testés automatiquement ; restauration complète et retour arrière opérationnel restent non exécutés. Aucun déploiement autorisé par ces preuves.

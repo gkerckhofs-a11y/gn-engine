@@ -1,5 +1,9 @@
 # SO-00 V3.5 — diagnostic, inscriptions et ordre de développement
 
+## Avancement après I2b
+
+[Régie des groupes I2b](SO-01-I2B-GROUPES.md) développée sans migration historique : 869 tests locaux et build réussis, CI exacte dans la PR. Affectation/retrait/transfert, capacité/type/responsable, autorisation explicite des mandats, archive et contre-opération auditée. Données financières et propriété inchangées. Préparations I2 sans personnages : accès à cette régie différé au raccordement I3/I4. Suite C1/C2 puis I3/I4/I5 ; les sections suivantes conservent le diagnostic initial.
+
 ## Avancement après I2
 
 [Décisions MJ et quotas I2](SO-01-I2-DECISIONS.md) ajoutés sur C1a/I1, sans migration historique : 846 tests locaux et build réussis, CI exacte dans la PR. File filtrable, confirmations par classe/globales, unicité fictive, correction/refus/attente/retrait, exception motivée et changement de classe atomique. Le diagnostic ci-dessous est conservé comme état initial ; M2 central et naissance restent absents. Prochaine tranche I2b, puis C1/C2/I3/I4.
