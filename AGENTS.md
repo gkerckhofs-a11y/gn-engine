@@ -89,6 +89,12 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Conserver les anciens grants sans champ comme non habilités ; une modification active d'un grant déjà habilité exige un choix explicite. Désactiver efface le droit ; réactiver ou rejouer un ancien reçu ne le restaure pas. Conserver tests partagés de concurrence/révocation et isolation des admissions.
 - L'empreinte inclut l'autorité courante et la révision des droits ; elle ne devient pas une autorisation de publication. `publicationAvailable=false`, limites et couverture partielle C2a conservées. Aucun gel, version/pointeur ni ressource ajouté. Les validations complètes et la publication restent une suite à développer.
 
+## Tranche C2c — plans initiaux joueurs M2
+
+- [C2c](docs/SO-02-C2C-PROFILS-INITIAUX.md) ajoute `creationPlan` optionnel dans la définition C1e : huit classes, espèce narrative référencée et une initiation N1 hors classe. Trois principales dérivées à N2 ou fixes (COM-01/02 et ROG-01), sans `abilityProfile` actif ni dotation. Réutiliser les choix I1, ne pas assimiler les codes V0.7 aux IDs historiques.
+- Omission par ancien client = conservation ; null explicite = retrait audité. Conserver révisions communes, archive/restauration et tests concurrence/révocation/réessai. Le flag d'espèce `available` ferme un choix aux candidatures, pas une définition M2.
+- Le contrôle commun valide les plans et références d'espèce ; il ne certifie pas les effets de compétences ni les fiches narratives sans plan. I3/I4 doivent encore relier les admissions, quotas et naissance. PNJ Force, progression, kits, publication et restauration complète restent distincts ; ne jamais activer le plan par les seeds historiques.
+
 ## Dépôt et branche
 
 - Travailler exclusivement dans le dépôt `gkerckhofs-a11y/gn-engine`, sur une branche dédiée et une PR. Le checkout local sert au développement et aux vérifications du même dépôt ; ne pas créer de seconde application ou de dépôt parallèle.

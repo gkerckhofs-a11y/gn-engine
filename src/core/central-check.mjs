@@ -3,6 +3,7 @@ import {documentId,requireThat} from './validation.mjs';
 import {itemInput} from './inventory-state.mjs';
 import {recipeInput} from './recipe-state.mjs';
 import {centralCharacterInput,centralCharacterProjection} from './central-characters.mjs';
+import {storedCharacterPlan} from './central-character-plan.mjs';
 import {centralRecipeProjection} from './central-recipes.mjs';
 import {admissionSettings,emptyAdmissionCounts} from './admission-state.mjs';
 import {centralWorkshops} from '../shared/central-workshops.mjs';
@@ -43,7 +44,9 @@ function validate(c,revision){
   if(c.type==='recipe')normalized={...recipeInput(d,c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
   if(c.type==='character'){
    const strip=rows=>rows?.map(({published,...row})=>({...row,...(row.steps?{steps:row.steps.map(({published,...s})=>s)}:{})}));
-   normalized={...centralCharacterInput({displayName:d.public?.displayName,profession:d.public?.profession,description:d.public?.description,nature:d.nature,biography:d.biography,roleplay:d.roleplay,playerSecrets:d.playerSecrets,gmNotes:d.gmNotes,objectives:strip(d.objectives),relations:strip(d.relations)},c.entityId),contentRevision:d.contentRevision,masterArchived:c.operation==='ARCHIVE'};
+   const plan=Object.hasOwn(d,'creationPlan')?storedCharacterPlan(d.creationPlan):undefined;
+   normalized={...centralCharacterInput({displayName:d.public?.displayName,profession:d.public?.profession,description:d.public?.description,nature:d.nature,biography:d.biography,roleplay:d.roleplay,playerSecrets:d.playerSecrets,gmNotes:d.gmNotes,objectives:strip(d.objectives),relations:strip(d.relations),
+    ...(plan!==undefined?{creationPlan:plan===null?null:{classId:plan.classId,speciesId:plan.speciesId,secondaryId:plan.secondaryId}}:{})},c.entityId),contentRevision:d.contentRevision,masterArchived:c.operation==='ARCHIVE'};
   }
  }
  check(same(normalized,d));
@@ -60,16 +63,23 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
  const records=valid.filter(c=>!invalid.has(c.id)),items=records.filter(c=>c.type==='item');
  const referenceDiagnostics=[...centralCharacterProjection(records).diagnostics,...centralRecipeProjection(records,items).diagnostics];
  for(const d of referenceDiagnostics){
-  const c=records.find(c=>c.entityId===d.entityId&&c.workshop===d.workshop),type=d.workshop==='M2'?'character':'item';
-  diagnostics.push({...location(c,d.field),...d,...(d.code==='REFERENCE_MISSING'&&invalid.has(`${type}_${d.reference}`)?{code:'REFERENCE_INVALID',message:'Corriger la définition cible incohérente dans son atelier.'}:{})});
+  const c=records.find(c=>c.entityId===d.entityId&&c.workshop===d.workshop),target=d.field==='creationPlan.speciesId'?'speciesCatalogue_player':`${d.workshop==='M2'?'character':'item'}_${d.reference}`;
+  diagnostics.push({...location(c,d.field),...d,...(d.code==='REFERENCE_MISSING'&&invalid.has(target)?{code:'REFERENCE_INVALID',message:'Corriger la définition cible incohérente dans son atelier.'}:{})});
  }
  const edges=[];
  const edge=(c,field,type,id)=>{
+  if(type==='species'){
+   const catalogue=records.find(t=>t.id==='speciesCatalogue_player'),exists=catalogue?.data.some(s=>s.id===id);
+   edges.push({from:{workshop:c.workshop,type:c.type,id:c.entityId},field,to:{type,id,workshop:'M2'},status:invalid.has('speciesCatalogue_player')?'INVALID':exists?'RESOLVED':'MISSING'});return;
+  }
   if(!id)return;const target=records.find(t=>t.type===type&&t.entityId===id),supported=Object.hasOwn(owners,type);
   edges.push({from:{workshop:c.workshop,type:c.type,id:c.entityId},field,to:{type,id,workshop:owners[type]??null},status:!supported?'NOT_CHECKED':invalid.has(`${type}_${id}`)?'INVALID':!target?'MISSING':target.operation==='ARCHIVE'?'ARCHIVED':'RESOLVED'});
  };
  for(const c of records.filter(c=>c.operation==='UPSERT')){
-  if(c.type==='character')for(const r of c.data.relations)edge(c,`relations.${r.id}.targetId`,'character',r.targetId);
+  if(c.type==='character'){
+   for(const r of c.data.relations)edge(c,`relations.${r.id}.targetId`,'character',r.targetId);
+   if(c.data.creationPlan)edge(c,'creationPlan.speciesId','species',c.data.creationPlan.speciesId);
+  }
   if(c.type==='recipe'){
    edge(c,'productItemId','item',c.data.productItemId);c.data.components.forEach((x,i)=>edge(c,`components.${i}.itemId`,'item',x.itemId));
    for(const [field,type] of [['skillId','skill'],['effectId','effect'],['laboratoryTargetId','fieldTarget'],['unlockKnowledgeId','knowledge']])edge(c,field,type,c.data[field]);
@@ -78,7 +88,7 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
  const diff=records.map(c=>({id:c.entityId,type:c.type,workshop:c.workshop,name:c.type==='character'?c.data.public.displayName:c.type==='speciesCatalogue'?'Catalogue narratif des espèces':c.data.name,
   operation:c.operation==='ARCHIVE'?'EXCLUDED':'ADD',contentRevision:c.data[revisionKey(c.type)]??null,location:location(c),
   fields:c.type==='speciesCatalogue'?['species']:Object.keys(c.data).filter(k=>!['id','revision','contentRevision'].includes(k)).sort(),
-  privateFields:c.type==='character'?['biography','roleplay','playerSecrets','gmNotes','objectives','relations']:c.type==='speciesCatalogue'?[]:['gmNotes'],
+  privateFields:c.type==='character'?['biography','roleplay','playerSecrets','gmNotes','objectives','relations',...(c.data.creationPlan?['creationPlan']:[])]:c.type==='speciesCatalogue'?[]:['gmNotes'],
   publicAccessCreated:false,resourcesCreated:false}));
  const remainingChecks=[
   {code:'RULE_PROFILE_PENDING',message:'Raccordement complet du profil canonique V0.7, des classes, compétences, effets et dotations à terminer.'},

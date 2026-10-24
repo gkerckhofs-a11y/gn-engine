@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## Complément C2c — plans initiaux M2
+
+[C2c](SO-02-C2C-PROFILS-INITIAUX.md) ajoute le champ privé `creationPlan` aux définitions M2 C1e. Sauvegarder avec les changements, histoires, révisions et reçus ; les exports M1/M4 ou Masters historiques ne le couvrent pas. Omission par un ancien client conserve, null explicite retire ; un ancien lecteur C2b ne sait pas valider ces plans et ne constitue pas un retour fonctionnel équivalent. Aucun profil actif ni ressource créé, aucune migration ou restauration complète exécutée.
+
 ## Complément C2b — droit de contrôle et révisions
 
 [C2b](SO-02-C2B-DELEGATION-CONTROLE.md) ajoute `campaignStaff.checkCentral` et lie le rapport aux droits courants. Préserver ce champ avec les révisions, historiques et reçus C1b ; les exports ciblés ne les sauvegardent pas. Désactiver efface le droit, réactiver ou rejouer un ancien reçu ne le restaure pas. Un ancien binaire C2a ferme le contrôle aux délégués et son éditeur peut effacer le champ : retrait de capacité, pas retour fonctionnel équivalent. Revalider explicitement les délégations après reprise. Aucun rapport persistant, migration, restauration complète ou production exécuté.

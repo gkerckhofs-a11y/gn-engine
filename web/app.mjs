@@ -1,3 +1,4 @@
+import {syncCentralPlanForm} from './central-character-plan.mjs';
 import {createCentralCheckUi} from './central-check.mjs';
 import {centralCharacterPayload,readCentralCharacterNarrative} from './central-characters.mjs';
 import {readCentralXlsx,writeCentralXlsx} from './central-xlsx.mjs';
@@ -744,3 +745,5 @@ onAuthStateChanged(auth,()=>{mediaUi.clear();updateAccount();route();});
 
 document.addEventListener('change',event=>{if(!event.target.matches('[data-form="admissionProposal"] [name="classId"]'))return;const select=event.target.form.elements.secondaryId;for(const option of select.options)option.disabled=!!event.target.value&&option.value.startsWith(`${event.target.value}-`);if(select.selectedOptions[0]?.disabled)select.value='';});
 document.addEventListener('input',event=>{if(!event.target.matches('[data-admission-filter]')||!currentAdmission?.registrations)return;const filter=Object.fromEntries([...app.querySelectorAll('[data-admission-filter]')].map(el=>[el.dataset.admissionFilter,el.value]));app.querySelector('[data-admission-list]').innerHTML=admissionUi.dossierList(currentAdmission,filter);});
+
+document.addEventListener('change',event=>{if(event.target.matches('[data-form="centralCharacter"] [name="profileMode"], [data-form="centralCharacter"] [name="profileClass"], [data-form="centralCharacter"] [name="profileSecondary"]'))syncCentralPlanForm(event.target.form);});

@@ -8,6 +8,7 @@ import {workshopModules} from '../src/shared/workshop-modules.mjs';
 export const centralErrors={...centralImportErrors,
  CENTRAL_CHECK_CHOICE_REQUIRED:'Les droits de contrôle ont changé. Rouvrez la délégation et choisissez explicitement de conserver ou retirer le contrôle global.',
  CENTRAL_CHECK_ACCESS_REQUIRED:'Le contrôle global exige une délégation active et la lecture explicite des sept ateliers, y compris leurs contenus privés.',
+ INVALID_CENTRAL_PROFILE:'Choisissez une des huit classes joueurs, une initiation autorisée d’une autre classe et un identifiant d’espèce. Niveaux, Force, XP et ressources ne peuvent pas être ajoutés à ce plan initial.',
  CENTRAL_CHECK_LIMIT:'Le contrôle dépasse les limites de cette tranche (601 définitions, 16 Mio de contenu ou 4 Mio de rapport). Aucun résultat partiel ni publication effectuée.',
  INVALID_CENTRAL_MASTER:'Vérifiez les champs du brouillon. Les ressources de jeu se gèrent séparément.',
  INVALID_CENTRAL_GRANT:'Choisissez les ateliers lisibles. L’édition est disponible pour M1, M2 et M4, avec accès en lecture à chaque atelier édité.',

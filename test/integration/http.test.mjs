@@ -36,6 +36,20 @@ const request=async(action,input={},token)=>{
   return {status:response.status,...await response.json()};
 };
 
+test('HTTP + Auth : plan initial M2 canonique, références et révocation',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`plan-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};const cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Profils HTTP',title:'Préparation synthétique',capacity:4,privacy:'Notice fictive'});
+ const grant={campaignId,email,active:true,readWorkshops:['M2'],editWorkshops:['M2'],revision:0,reason:'Préparer M2'};await cmd('setCentralStaff',grant);
+ const creationPlan={classId:'COM',speciesId:'species-test',secondaryId:'MED-02'},input={campaignId,characterId:'person',draftRevision:0,characterRevision:0,reason:'Profil initial synthétique',character:{...centralTestCharacter,relations:[],creationPlan},requestId:randomUUID()};
+ assert.equal((await request('saveCentralCharacter',{...input,character:{...input.character,creationPlan:{...creationPlan,secondaryId:'FOR-01'}}},editor)).status,400);
+ assert.equal((await request('saveCentralCharacter',input)).status,401);await call('saveCentralCharacter',input,editor);let d=await call('centralMaster',{campaignId,workshop:'M2'},editor);assert.equal(d.diagnostics[0].code,'REFERENCE_MISSING');assert.equal(d.creationProfiles[0].skills.length,4);assert.equal(d.changes[0].data.abilityProfile,undefined);
+ await cmd('saveAdmissionSettings',{sessionId,policyRevision:0,draftRevision:1,settings:admissionTestSettings,reason:'Espèces synthétiques'});const report=await call('checkCentralDraft',{campaignId,draftRevision:2});assert.deepEqual(report.diagnostics,[]);assert.equal(report.edges[0].status,'RESOLVED');assert.equal(report.publicationAvailable,false);
+ await cmd('saveCentralCharacter',{...input,requestId:randomUUID(),draftRevision:2,characterRevision:1,character:{...centralTestCharacter,relations:[]}},editor);d=await call('centralMaster',{campaignId,workshop:'M2'},editor);assert.deepEqual(d.changes.find(c=>c.type==='character').data.creationPlan,{schemaVersion:1,ruleProfile:'SPACE_OUTLAWS_V07',...creationPlan});
+ assert.equal((await request('admissionAdmin',{sessionId},editor)).status,403);await cmd('setCentralStaff',{...grant,active:false,revision:1});assert.equal((await request('saveCentralCharacter',input,editor)).status,403);
+ const session=await call('session',{sessionId});assert.equal(session.versionId,null);for(const k of ['characters','accounts','inventory','registrations'])assert.deepEqual(session[k],[]);
+});
+
 test('HTTP + Auth : contrôle explicitement délégué puis révoqué, sans rôle de session',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`review-${randomUUID()}@example.invalid`,reviewer=await googleTestAccount(email);
  const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};

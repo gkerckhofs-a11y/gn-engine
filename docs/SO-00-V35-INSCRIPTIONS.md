@@ -1,5 +1,9 @@
 # SO-00 V3.5 — diagnostic, inscriptions et ordre de développement
 
+## Avancement après C2c
+
+[C2c — plans initiaux joueurs M2](SO-02-C2C-PROFILS-INITIAUX.md) : classe, espèce partagée et initiation hors classe, trois principales dérivées à N2 ou fixes, références différées/nature contrôlées, plan privé sans profil actif ni ressources. **1022 tests applicatifs locaux et build réussis** ; 15 nouveaux cas métier partagés Firestore, un cas exhaustif des 56 combinaisons, quatre UI et un HTTP/Auth. CI exacte à consigner dans la PR après terminaison. REC-SO-01 et INS-06 : preuves préparatoires partielles uniquement ; SO-GAP-12/13/14 restent ouverts, 55 verdicts complets inchangés. Publication globale, I3/I4/I5, effets, dotations et recette humaine restent à compléter.
+
 ## Avancement après C2b
 
 [C2b — délégation explicite du contrôle](SO-02-C2B-DELEGATION-CONTROLE.md) : droit de campagne distinct, sept lectures explicites, révocation courante, choix compatible avec les anciens clients, audit et empreinte liée à la révision des droits. **1002 tests applicatifs locaux et build réussis** ; 15 nouveaux cas métier partagés Firestore, quatre UI et un HTTP/Auth. CI exacte à consigner dans la PR après terminaison. C2a reste partiel et `publicationAvailable=false`. SO-GAP-12/13 restent ouverts ; les habilitations centrales reçoivent des preuves partielles supplémentaires ; aucun des 55 verdicts complets ne devient un succès. Publication, I3/I4/I5, recette mobile et restauration globale restent à compléter.

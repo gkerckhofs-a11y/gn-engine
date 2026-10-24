@@ -1,3 +1,4 @@
+import {centralCharacterPlanSuite} from '../support/central-character-plan-suite.mjs';
 import {centralReviewSuite} from '../support/central-review-suite.mjs';
 import {centralCheckSuite} from '../support/central-check-suite.mjs';
 import {centralCharactersSuite} from '../support/central-characters-suite.mjs';
@@ -52,6 +53,7 @@ centralMasterSuite(()=>firestoreStore(firestore),'Master central C1b sur Firesto
 centralRecipesSuite(()=>firestoreStore(firestore),'Recettes centrales C1c sur Firestore');
 centralImportSuite(()=>firestoreStore(firestore),'Excel central C1d sur Firestore');
 centralCharactersSuite(()=>firestoreStore(firestore),'Personnages centraux C1e sur Firestore');
+centralCharacterPlanSuite(()=>firestoreStore(firestore),'Plan initial C2c sur Firestore');
 centralReviewSuite(()=>firestoreStore(firestore),'Délégation C2b sur Firestore');
 centralCheckSuite(()=>firestoreStore(firestore),'Contrôle central C2a sur Firestore');
 admissionsSuite(()=>firestoreStore(firestore),'Admissions SO sur Firestore');
