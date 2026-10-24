@@ -5,7 +5,8 @@ import {validateRecipeItem} from './recipe-state.mjs';
 // null means M1 is not readable, not that its catalogue is empty.
 export function centralRecipeProjection(changes,itemChanges){
  const items=itemChanges?.filter(c=>c.type==='item')??[],diagnostics=[];
- const add=(c,field,reference,code,message)=>diagnostics.push({workshop:'M4',entityId:c.entityId,field,reference,code,message,source:c.source,draftRevision:c.revision});
+ const columns={productItemId:'produit_id',components:'composants',skillId:'competence_id',effectId:'effet_id',laboratoryTargetId:'laboratoire_lieu_id',unlockKnowledgeId:'connaissance_id'};
+ const add=(c,field,reference,code,message)=>diagnostics.push({...(c.provenance?{fileName:c.provenance.fileName,sheet:c.provenance.sheet,row:c.provenance.row,column:columns[field.split('.')[0]]??field}:{}),workshop:'M4',entityId:c.entityId,field,reference,code,message,source:c.source,draftRevision:c.revision});
  for(const c of changes.filter(c=>c.type==='recipe'&&c.operation==='UPSERT')){
   const r=c.data;
   const check=(field,id)=>{

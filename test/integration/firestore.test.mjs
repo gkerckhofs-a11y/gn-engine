@@ -1,3 +1,4 @@
+import {centralImportSuite} from '../support/central-import-suite.mjs';
 import {groupManagementSuite} from '../support/group-management-suite.mjs';
 import {centralMasterSuite} from '../support/central-master-suite.mjs';
 import {centralRecipesSuite} from '../support/central-recipes-suite.mjs';
@@ -46,6 +47,7 @@ workflowSuite(()=>firestoreStore(firestore),'Firestore réel émulé');
 preparationsSuite(()=>firestoreStore(firestore),'Préparation SO sur Firestore');
 centralMasterSuite(()=>firestoreStore(firestore),'Master central C1b sur Firestore');
 centralRecipesSuite(()=>firestoreStore(firestore),'Recettes centrales C1c sur Firestore');
+centralImportSuite(()=>firestoreStore(firestore),'Excel central C1d sur Firestore');
 admissionsSuite(()=>firestoreStore(firestore),'Admissions SO sur Firestore');
 characterNatureSuite(()=>firestoreStore(firestore),'SO-01a natures sur Firestore');
 groupManagementSuite(()=>firestoreStore(firestore),'Régie groupes I2b sur Firestore');

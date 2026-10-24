@@ -20,7 +20,7 @@ const images=bucketImages(getStorage().bucket(mediaBucket));
 export const api=onRequest({region:'europe-west1',serviceAccount:'gn-engine-runtime@gn-engine.iam.gserviceaccount.com',maxInstances:3,minInstances:0,memory:'512MiB',concurrency:8,timeoutSeconds:60,invoker:'public'},async(req,res)=>{
   res.set('Cache-Control','private, no-store'); res.set('X-Content-Type-Options','nosniff');
   if(req.method!=='POST') return res.status(405).json({error:'METHOD_NOT_ALLOWED'});
-  const limit=req.body?.action==='mediaUpload'?Math.ceil(mediaLimits.fileBytes/3)*4+10000:req.body?.action==='scenarioImportImage'?Math.ceil(mediaLimits.variantBytes/3)*4+10000:['prepareMasterImport','applyMasterImport'].includes(req.body?.action)?masterLimits.payloadBytes+10000:['prepareScenarioImport','beginScenarioImport'].includes(req.body?.action)?packageLimits.manifestBytes+10000:128000;
+  const limit=req.body?.action==='mediaUpload'?Math.ceil(mediaLimits.fileBytes/3)*4+10000:req.body?.action==='scenarioImportImage'?Math.ceil(mediaLimits.variantBytes/3)*4+10000:['prepareMasterImport','applyMasterImport','prepareCentralImport','applyCentralImport'].includes(req.body?.action)?masterLimits.payloadBytes+10000:['prepareScenarioImport','beginScenarioImport'].includes(req.body?.action)?packageLimits.manifestBytes+10000:128000;
   if(!req.is('application/json') || Buffer.byteLength(JSON.stringify(req.body ?? {}))>limit)
     return res.status(400).json({error:'INVALID_BODY'});
   try {

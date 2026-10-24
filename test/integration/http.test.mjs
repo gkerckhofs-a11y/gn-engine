@@ -1,3 +1,5 @@
+import {centralItemRow} from '../support/central-import-suite.mjs';
+import {readCentralXlsx,writeCentralXlsx} from '../../web/central-xlsx.mjs';
 import {rosterMembership} from '../support/group-management-suite.mjs';
 import {centralTestItem} from '../support/central-master-suite.mjs';
 import {centralTestRecipe} from '../support/central-recipes-suite.mjs';
@@ -32,6 +34,20 @@ const request=async(action,input={},token)=>{
   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,input})});
   return {status:response.status,...await response.json()};
 };
+
+test('HTTP + Auth : XLSX central, aperçu volumineux, confirmation et révocation avant reçu',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`xlsx-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};
+ const cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Excel HTTP',title:'Préparation synthétique',capacity:4,privacy:'Notice fictive'});
+ const grant={campaignId,email,active:true,readWorkshops:['M1'],editWorkshops:['M1'],revision:0,reason:'Import M1'};await cmd('setCentralStaff',grant);
+ const e=await call('exportCentralDraft',{campaignId,workshop:'M1',ids:[]},editor);e.sheets.Objets=Array.from({length:15},(_,i)=>({...centralItemRow,id:`x${i}`,notes_mj:'x'.repeat(10000)}));
+ const input={campaignId,workshop:'M1',fileName:'synthétique.xlsx',sheets:readCentralXlsx(writeCentralXlsx(e.sheets))};assert.ok(JSON.stringify(input).length>128000);assert.equal((await request('prepareCentralImport',input)).status,401);assert.equal((await request('exportCentralDraft',{campaignId,workshop:'M4',ids:[]},editor)).status,403);
+ const p=await call('prepareCentralImport',input,editor);assert.deepEqual(p.errors,[]);assert.equal((await call('centralMaster',{campaignId},editor)).draft.revision,0);
+ const apply={...input,confirmation:p.confirmation,reason:'Import HTTP synthétique',requestId:randomUUID()},r=await cmd('applyCentralImport',apply,editor);assert.equal(r.changed,15);assert.deepEqual(await cmd('applyCentralImport',apply,editor),r);
+ await cmd('setCentralStaff',{...grant,active:false,revision:1});assert.equal((await request('applyCentralImport',apply,editor)).status,403);assert.equal((await request('prepareCentralImport',input,editor)).status,403);
+ const s=await call('session',{sessionId});for(const k of ['characters','inventory','accounts'])assert.deepEqual(s[k],[]);assert.equal(s.versionId,null);
+});
 
 test('HTTP + Auth : recettes centrales, liens différés et droits M4 indépendants',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`recipe-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);

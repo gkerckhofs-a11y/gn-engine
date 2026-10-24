@@ -9,7 +9,7 @@ export function writeMasterXlsx(sheets){
  return writeWorkbook(sheets,masterSheets);
 }
 export function writeDotationsReportXlsx(workspace,rows){return writeWorkbook(dotationsReportSheets(workspace,rows),dotationsReportColumns);}
-function writeWorkbook(sheets,schema){
+export function writeWorkbook(sheets,schema){
  if(Object.values(sheets).reduce((n,rows)=>n+rows.length,0)>masterLimits.rows||strToU8(JSON.stringify(sheets)).length>masterLimits.payloadBytes)throw new Error('Le Master dépasse les limites d’export.');
  const files={},names=Object.keys(sheets),put=(path,body)=>{files[path]=strToU8('<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'+body);};
  names.forEach((name,i)=>{

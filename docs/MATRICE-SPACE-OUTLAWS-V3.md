@@ -1,5 +1,9 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## C1d — Excel central M1/M4
+
+[C1d — Excel central M1/M4](SO-01-C1D-EXCEL-CENTRAL.md) : export ciblé ou gabarit lié à la campagne, aperçu sans écriture, confirmation atomique dans le brouillon commun, révisions et lots idempotents, provenance fichier/feuille/ligne. **933 tests applicatifs locaux et build réussis** ; 21 nouveaux cas métier partagés avec Firestore, trois rendus UI, un cas de sécurité XLSX et un HTTP/Auth. Résultats CI du SHA exact dans la PR après terminaison. Les quatre Masters historiques sont inchangés. Publication globale, autres ateliers, fabrication, M2 personnage/naissance/relève et recette sur appareils restent à compléter ; les 55 verdicts complets restent inchangés.
+
 ## C1c — M4 et références différées
 
 [C1c — recettes dans le brouillon central](SO-01-C1C-RECETTES.md) : édition/archivage/restauration M4, références M1 différées, diagnostics privés et délégations M4 distinctes. **908 tests applicatifs locaux et build réussis** ; 14 nouveaux cas métier partagés avec Firestore, quatre rendus UI et un HTTP/Auth. CI du commit exact à consigner dans la PR après terminaison. Aucun import central ni publication/fabrication ; M5, personnages M2, naissance/relève et recette mobile restent à développer. Les 55 verdicts complets restent inchangés.

@@ -16,7 +16,8 @@ function path(target){
 function cellColumn(ref){
  const match=/^([A-Z]{1,3})([1-9]\d*)$/.exec(ref??'');if(!match)fail('Coordonnée de cellule invalide.');let n=0;for(const c of match[1])n=n*26+c.charCodeAt(0)-64;if(n>100||Number(match[2])>10000)fail('La feuille dépasse les limites de lecture.');return [n-1,Number(match[2])];
 }
-export function readMasterXlsx(bytes){
+export function readMasterXlsx(bytes){return readWorkbookXlsx(bytes,masterSheets,masterIgnoredSheets);}
+export function readWorkbookXlsx(bytes,schema,ignoredSheets=[],requiredHeaders={Meta:['format','version','type'],default:['id','operation','version']}){
  if(!(bytes instanceof Uint8Array)||bytes.length>masterLimits.fileBytes)fail('Le fichier XLSX dépasse 8 Mio.');
  let files,total=0,count=0;const names=new Set();
  try{files=unzipSync(bytes,{filter:f=>{
@@ -29,13 +30,13 @@ export function readMasterXlsx(bytes){
  const shared=files['xl/sharedStrings.xml']?list(xml(files['xl/sharedStrings.xml']).sst?.si).map(rich):[],sheets={},seen=new Set();
  for(const s of list(wb?.sheets?.sheet)){
   const name=s['@name'];if(seen.has(name))fail('Nom de feuille répété.',name);seen.add(name);
-  if(masterIgnoredSheets.includes(name))continue;
-  if(!Object.hasOwn(masterSheets,name))fail('Onglet non pris en charge par GN Engine.',name);
+  if(ignoredSheets.includes(name))continue;
+  if(!Object.hasOwn(schema,name))fail('Onglet non pris en charge par GN Engine.',name);
   const relation=relationships.get(s['@id']);if(!relation||relation['@TargetMode']==='External')fail('Feuille externe ou introuvable.',name);
   const doc=xml(files[path(relation['@Target'])]).worksheet;if(!doc)fail('Feuille invalide.',name);
   const rows=new Map();
   for(const r of list(doc.sheetData?.row))for(const c of list(r.c)){
-   const [col,row]=cellColumn(c['@r']);if(c.f!==undefined)fail('Remplacer la formule par sa valeur avant import.',name,row,masterSheets[name][col]??c['@r']);
+   const [col,row]=cellColumn(c['@r']);if(c.f!==undefined)fail('Remplacer la formule par sa valeur avant import.',name,row,schema[name][col]??c['@r']);
    if(c['@t']==='e')fail('La cellule contient une erreur Excel.',name,row,c['@r']);
    let value;if(c['@t']==='s'){const i=Number(c.v);if(!/^\d+$/.test(c.v)||!Number.isSafeInteger(i)||i>=shared.length)fail('Chaîne partagée introuvable.',name,row,c['@r']);value=shared[i];}
    else if(c['@t']==='inlineStr')value=rich(c.is);
@@ -44,8 +45,8 @@ export function readMasterXlsx(bytes){
    if(!rows.has(row))rows.set(row,new Map());if(rows.get(row).has(col))fail('Cellule répétée.',name,row,c['@r']);rows.get(row).set(col,value);
   }
   const header=rows.get(1)??new Map(),columns=new Map(),headerNames=new Set();
-  for(const [col,value] of header){const key=value.trim();if(!key)continue;if(!masterSheets[name].includes(key)||headerNames.has(key))fail('Colonne inconnue ou répétée.',name,1,key);headerNames.add(key);columns.set(col,key);}
-  const required=name==='Meta'?['format','version','type']:name==='Parametres'?['cle','valeur']:['id','operation','version'];
+  for(const [col,value] of header){const key=value.trim();if(!key)continue;if(!schema[name].includes(key)||headerNames.has(key))fail('Colonne inconnue ou répétée.',name,1,key);headerNames.add(key);columns.set(col,key);}
+  const required=requiredHeaders[name]??(name==='Parametres'?['cle','valeur']:requiredHeaders.default);
   if(required.some(k=>!headerNames.has(k)))fail('En-têtes obligatoires absents en ligne 1.',name);
   sheets[name]=[];for(const [row,values] of [...rows].sort(([a],[b])=>a-b)){
    if(row===1||[...values.values()].every(v=>!v.trim()))continue;const item={_row:row};

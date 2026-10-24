@@ -59,6 +59,14 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - La délégation M4 ne donne aucun accès implicite à M1, M2 ou aux admissions. Sans lecture M1, ne lire ni révéler l'existence, les noms ou les états des modèles ; renvoyer REFERENCE_NOT_CHECKED. Aucun catalogue d'ingrédients dupliqué.
 - Préserver les gardes C1a/C1b et les tests historiques. Les liens compétences/effets/lieux/connaissances restent explicitement non contrôlés et inactifs. C2 devra les résoudre et respecter les archives avant toute publication.
 
+## Tranche C1d — import/export central M1/M4
+
+- [C1d](docs/SO-01-C1D-EXCEL-CENTRAL.md) ajoute un contrat XLSX central v1 distinct, lié à campagne/profil/base/brouillon/révision/atelier/lot. Préserver les contrats CAMPAGNE/SESSION et les gabarits documentaires V0.1 ; aucune conversion implicite.
+- Export ciblé (100 lignes/1 Mio), aperçu, confirmation et lot atomique dans le brouillon commun. Réutiliser les validations natives ; aucun seed, stock, crédit, publication ou instance. Blanc conserve, !EFFACER explicite, préfixe ! doublé pour le texte littéral ; absence de ligne ne supprime rien.
+- Vérifier l'autorité courante et le cycle avant les reçus de commande ET de lot. Ne pas rejouer un lot identique après une édition ultérieure ; refuser sa réutilisation avec un autre contenu. Garder les tests de concurrence, révocation, limites et rollback transactionnel.
+- Provenance XLSX et schéma, ID de commande, motif et avant/après sont conservés. M4 sans lecture M1 ne lit ni ne révèle ses modèles. Le rapport local reste distinct du contrôle global C2.
+- Les exports ciblés ne sauvegardent pas les droits/historiques/reçus. Préserver `masterDrafts/initial/imports` avec l'ensemble cohérent du brouillon. Autres ateliers, médias, base publiée et restauration globale restent à développer/tester.
+
 ## Dépôt et branche
 
 - Travailler exclusivement dans le dépôt `gkerckhofs-a11y/gn-engine`, sur une branche dédiée et une PR. Le checkout local sert au développement et aux vérifications du même dépôt ; ne pas créer de seconde application ou de dépôt parallèle.

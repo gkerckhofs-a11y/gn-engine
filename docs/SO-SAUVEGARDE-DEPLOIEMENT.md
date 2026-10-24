@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## Complément C1d — reçus de lots Excel centraux
+
+[C1d](SO-01-C1D-EXCEL-CENTRAL.md) ajoute les reçus `masterDrafts/initial/imports` à préserver avec changements/historiques et `operations`. Un export ciblé M1/M4 contient les définitions sélectionnées et le contexte, pas les droits, reçus ou historiques : il ne permet pas une restauration complète. Aucun exercice de restauration ni déploiement exécuté.
+
 ## Complément C1b — brouillon, délégations et reçus cohérents
 
 [Contrat C1b et reprise](SO-01-C1B-BROUILLON.md) : sauvegarder ensemble le header de campagne, `masterDrafts/initial` et changements/historiques, `campaignStaff`, audit et `operations`, avec la préparation et ses admissions I1/I2. XLSX historique et archive de scénario insuffisants. Ne pas revenir à un lecteur ignorant ces droits/changements. Interruption transactionnelle, réponse perdue et restauration d’une définition archivée testées automatiquement ; **sauvegarde/restauration complète et rollback opérationnel non exécutés**. Aucun déploiement autorisé.
