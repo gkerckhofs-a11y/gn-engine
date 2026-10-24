@@ -1,4 +1,5 @@
 import {centralClassKitsSuite} from '../support/central-class-kits-suite.mjs';
+import {centralInitialCoherenceSuite} from '../support/central-initial-coherence-suite.mjs';
 import {centralCharacterImportSuite} from '../support/central-character-import-suite.mjs';
 import {centralCharacterPlanSuite} from '../support/central-character-plan-suite.mjs';
 import {centralReviewSuite} from '../support/central-review-suite.mjs';
@@ -53,6 +54,7 @@ workflowSuite(()=>firestoreStore(firestore),'Firestore réel émulé');
 preparationsSuite(()=>firestoreStore(firestore),'Préparation SO sur Firestore');
 centralMasterSuite(()=>firestoreStore(firestore),'Master central C1b sur Firestore');
 centralClassKitsSuite(()=>firestoreStore(firestore),'Kits initiaux C2e sur Firestore');
+centralInitialCoherenceSuite(()=>firestoreStore(firestore),'Cohérence initiale C2f sur Firestore');
 centralRecipesSuite(()=>firestoreStore(firestore),'Recettes centrales C1c sur Firestore');
 centralImportSuite(()=>firestoreStore(firestore),'Excel central C1d sur Firestore');
 centralCharacterImportSuite(()=>firestoreStore(firestore),'Excel personnages C2d sur Firestore');

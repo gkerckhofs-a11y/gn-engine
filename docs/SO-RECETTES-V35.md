@@ -1,5 +1,13 @@
 # Registre V3.5 — 55 recettes ciblées
 
+## C2f — cohérence des plans M2 et kits M1
+
+[C2f — dépendances de dotation](SO-02-C2F-COHERENCE-INITIALE.md) : chaque plan initial actif référence le kit de sa classe principale ; absence, archive, corruption et références/consommables incomplets sont signalés sur les fiches concernées. Tableau des huit classes, nombres de définitions distincts des participants, provenance Excel jusqu’à `classe_id`, lecture transactionnelle sous droits C2b. Aucun accès supplémentaire en M2 isolé et aucune ressource créée.
+
+**Validation locale du 24 octobre 2026 : 1086/1086 tests applicatifs réussis, zéro échec/annulé/ignoré/todo ; compilation réussie.** Node 24.22.1 / npm 11.9.0. 14 nouveaux cas métier partagés avec Firestore, deux cas purs, trois UI et un parcours HTTP/Auth. Firebase non exécuté localement (Java 17) ; CI du commit exact à consigner dans la PR après terminaison. Base C2e distante `0fa4d4af7855492fbffdc6e92c7a504816f959d0` : deux CI vertes revérifiées avant ce lot, preuves [archivées](PR-1-HISTORIQUE-AVANT-C2F.md).
+
+`REFERENCES_CHECKED` ne certifie ni effets ni naissance ; `publicationAvailable=false`. Bornes 609 définitions/16 Mio/4 Mio conservées. Aucun état persistant ou migration C2f ; empreinte interne de contrôle portée à 3. Contrats et quatre Masters historiques inchangés. REC-SO-01/24, MST-03/06/08 et INS-06 : preuves préparatoires partielles seulement ; 55 verdicts complets et SO-GAP-12/13/14 inchangés. Publication, effets, I3/I4/I5, recette mobile et restauration complète restent à livrer.
+
 ## C2e — préparation des kits initiaux M1
 
 [C2e — huit kits de classe](SO-02-C2E-KITS-INITIAUX.md) : éléments/quantités V0.7 fermés, références aux modèles M1, diagnostics différés et contrôle commun, révisions/archives/réessais sans dotation. **1067 tests applicatifs locaux et build réussis** ; 19 nouveaux cas partagés Firestore, un cas canonique, quatre UI et un HTTP/Auth. CI exacte à consigner dans la PR après terminaison. Limite centrale 609 définitions ; fichiers Excel M1 limités aux objets. Preuves préparatoires partielles uniquement, SO-GAP-12/13/14 et 55 verdicts complets inchangés. Effets/protections actifs, publication, I3/I4/I5 et recette humaine à compléter.

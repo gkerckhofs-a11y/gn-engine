@@ -30,7 +30,7 @@ export function centralCharacterImportSuite(makeStore,prefix='Excel personnages 
  test(`${prefix} : références réciproques du même lot et espèce du catalogue unique`,async()=>{
   const f=await fixture(makeStore);await f.configure();const catalogue=await f.store.get(`${f.base}/changes/speciesCatalogue_player`),history=await f.store.get(`${f.base}/history/1`);
   const second={...centralCharacterRow,id:'target',relations_json:JSON.stringify([{...centralTestCharacter.relations[0],targetId:'person'}])},input=await f.file([centralCharacterRow,second]);const p=await f.prepare(input);assert.deepEqual(p.diagnostics,[]);await f.apply(input,p);
-  assert.deepEqual(await f.store.get(`${f.base}/changes/speciesCatalogue_player`),catalogue);assert.deepEqual(await f.store.get(`${f.base}/history/1`),history);assert.equal((await f.view('M2')).changes.length,3);assert.equal((await f.check()).status,'NO_DETECTED_ERROR');
+  assert.deepEqual(await f.store.get(`${f.base}/changes/speciesCatalogue_player`),catalogue);assert.deepEqual(await f.store.get(`${f.base}/history/1`),history);assert.equal((await f.view('M2')).changes.length,3);const report=await f.check();assert.equal(report.status,'CORRECTIONS_REQUIRED');assert.deepEqual(report.diagnostics.map(d=>d.code),['CLASS_KIT_MISSING','CLASS_KIT_MISSING']);
   const e=await f.exportFile('M2',['person','target']);assert.deepEqual(Object.keys(e.sheets),['Meta','Personnages']);assert.equal(e.sheets.Personnages.length,2);await assert.rejects(f.exportFile('M2',['player']),{code:'CENTRAL_EXPORT_STALE'});
  });
  test(`${prefix} : personnage player ne confond pas le catalogue player`,async()=>{
@@ -39,7 +39,7 @@ export function centralCharacterImportSuite(makeStore,prefix='Excel personnages 
  test(`${prefix} : diagnostics différés localisés puis résolution web sans réimport`,async()=>{
   const f=await fixture(makeStore),input=await f.file(),p=await f.prepare(input);assert.equal(p.diagnostics.find(d=>d.reference==='target').column,'relations_json');assert.equal(p.diagnostics.find(d=>d.reference==='species-test').column,'espece_id');assert.ok(p.diagnostics.every(d=>d.sheet==='Personnages'&&d.row===2));await f.apply(input,p);
   let r=await f.check();assert.ok(r.diagnostics.every(d=>d.fileName===input.fileName&&d.row===2));assert.equal(r.diagnostics.find(d=>d.reference==='species-test').column,'espece_id');
-  const before=await f.store.get(`${f.base}/changes/character_person`);await f.configure(1);await f.saveCharacter({characterId:'target',draftRevision:2,character:{...centralTestCharacter,relations:[]}});r=await f.check();assert.deepEqual(r.diagnostics,[]);assert.deepEqual(await f.store.get(`${f.base}/changes/character_person`),before);
+  const before=await f.store.get(`${f.base}/changes/character_person`);await f.configure(1);await f.saveCharacter({characterId:'target',draftRevision:2,character:{...centralTestCharacter,relations:[]}});r=await f.check();assert.deepEqual(r.diagnostics.map(d=>d.code),['CLASS_KIT_MISSING']);assert.deepEqual(await f.store.get(`${f.base}/changes/character_person`),before);
  });
  test(`${prefix} : blanc conserve ; retrait et remplacement explicites des tableaux et plan`,async()=>{
   const f=await fixture(makeStore),input=await f.file();await f.apply(input,await f.prepare(input));

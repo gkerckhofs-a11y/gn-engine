@@ -109,6 +109,13 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Le modèle d'objet garde ses attributs ordinaires ; protection non pillable/non revendable, 200 Cr, arme si applicable, QR, codes publics et contacts restent à appliquer/raccorder lors de la future naissance. Un nom de modèle ne certifie ni effet ni homologation. Aucun lot ni compte créé.
 - Les XLSX M1 exportent les objets uniquement ; imports conservent les kits et recalculent les diagnostics. Sauvegarder le brouillon complet avec kits/historiques/reçus ; C2d n'est pas un retour fonctionnel équivalent. Publication, I3/I4/I5 et recettes complètes restent non livrées.
 
+## Tranche C2f — cohérence des plans M2 et kits M1
+
+- [C2f](docs/SO-02-C2F-COHERENCE-INITIALE.md) ajoute au contrôle global la dépendance de chaque plan initial M2 actif vers le kit de sa classe principale. Kit absent, archivé, incohérent ou incomplet : diagnostic localisé sur la fiche M2, détails des objets dans M1. L’initiation ne requiert jamais un second kit.
+- Le résumé `initialPreparation` compte des définitions, pas des admissions, quotas ou incarnations. Les fiches archivées et sans plan n’exigent aucun kit ; ne pas déduire de statut joueur/PNJ de l’absence de plan. Les définitions invalides restent exclues du résumé et signalées par le contrôle existant.
+- La projection lit exclusivement les changements validés du même instantané transactionnel, sous les droits C2b. Ne pas l’ajouter aux lectures M2 isolées : aucun droit M1 implicite. Préserver concurrence, révocation, isolation, provenance XLSX et absence d’écritures.
+- `REFERENCES_CHECKED` vérifie références et consommables, pas les effets, armes homologuées, contacts/codes, protections économiques ou naissance. `publicationAvailable=false`. Empreinte interne portée à 3 ; relancer le contrôle après mise à jour. Aucune migration ni nouvel état persistant ; C2e omet ces diagnostics et ne constitue pas un contrôle fonctionnel équivalent.
+
 ## Dépôt et branche
 
 - Travailler exclusivement dans le dépôt `gkerckhofs-a11y/gn-engine`, sur une branche dédiée et une PR. Le checkout local sert au développement et aux vérifications du même dépôt ; ne pas créer de seconde application ou de dépôt parallèle.

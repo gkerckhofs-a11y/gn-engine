@@ -44,4 +44,4 @@ export function exportedCharacter(c){
 export function checkCharacterCells(row){
  for(const column of centralCharacterColumns)if(String(row[column]??'').length>centralCharacterCellLimit)fail(column,`Maximum ${centralCharacterCellLimit} caractères par cellule M2 ; utiliser l’éditeur web pour ce contenu.`);
 }
-export const characterImportColumn=field=>field.startsWith('relations.')?'relations_json':field==='creationPlan.speciesId'?'espece_id':field.startsWith('creationPlan')?'profil_initial':field;
+export const characterImportColumn=field=>field.startsWith('relations.')?'relations_json':field==='creationPlan.speciesId'?'espece_id':field==='creationPlan.classId'?'classe_id':field.startsWith('creationPlan')?'profil_initial':field;

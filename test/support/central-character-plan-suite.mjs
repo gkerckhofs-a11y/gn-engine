@@ -14,7 +14,7 @@ export function centralCharacterPlanSuite(makeStore,prefix='Plan initial C2c'){
   const d=await f.view('M2'),c=d.changes.find(x=>x.type==='character'),p=d.creationProfiles[0];assert.equal(c.data.creationPlan.ruleProfile,'SPACE_OUTLAWS_V07');assert.equal(c.data.creationPlan.schemaVersion,1);assert.deepEqual(d.diagnostics,[]);
   assert.deepEqual(p.skills.map(x=>[x.id,x.level]),[['COM-01',null],['COM-02',null],['COM-03',2],['MED-02',1]]);assert.equal(c.data.abilityProfile,undefined);assert.equal(abilityLevel(c.data,'MED-02'),0);assert.equal(c.data.hp,null);assert.equal(c.data.maxHp,null);
   assert.deepEqual(await f.store.get(`sessions/${f.sid}`),before);for(const k of ['characters','accounts','inventory','ledger','skills','classes','registrations','actionPoints'])assert.deepEqual(await f.store.list(`sessions/${f.sid}/${k}`),[]);
-  const r=await f.check(2);assert.equal(r.totals.invalid,0);assert.deepEqual(r.diagnostics,[]);assert.equal(r.publicationAvailable,false);assert.equal(r.edges[0].to.type,'species');assert.equal(r.edges[0].status,'RESOLVED');assert.ok(r.diff.find(x=>x.type==='character').privateFields.includes('creationPlan'));
+  const r=await f.check(2);assert.equal(r.totals.invalid,0);assert.deepEqual(r.diagnostics.map(d=>d.code),['CLASS_KIT_MISSING']);assert.equal(r.publicationAvailable,false);assert.equal(r.edges[0].to.type,'species');assert.equal(r.edges[0].status,'RESOLVED');assert.ok(r.diff.find(x=>x.type==='character').privateFields.includes('creationPlan'));
  });
  test(`${prefix} : huit classes accessibles aux deux natures sans bonus d’espèce`,async()=>{
   const f=await centralCheckFixture(makeStore);await f.configure();let revision=1;
@@ -38,11 +38,11 @@ export function centralCharacterPlanSuite(makeStore,prefix='Plan initial C2c'){
  });
  test(`${prefix} : incohérence de nature signalée sans modifier la fiche ni l’espèce`,async()=>{
   const f=await centralCheckFixture(makeStore);await f.configure();await f.saveCharacter({draftRevision:1,character:character({nature:'DROID'})});let r=await f.check(2);assert.equal(r.diagnostics[0].code,'SPECIES_NATURE_MISMATCH');assert.equal(r.status,'CORRECTIONS_REQUIRED');assert.equal(r.edges[0].status,'RESOLVED');
-  await f.saveCharacter({draftRevision:2,characterRevision:1,character:character({nature:'DROID',creationPlan:{...centralTestPlan,speciesId:'droid-test'}})});assert.deepEqual((await f.check(3)).diagnostics,[]);
+  await f.saveCharacter({draftRevision:2,characterRevision:1,character:character({nature:'DROID',creationPlan:{...centralTestPlan,speciesId:'droid-test'}})});assert.deepEqual((await f.check(3)).diagnostics.map(d=>d.code),['CLASS_KIT_MISSING']);
  });
  test(`${prefix} : fermer une espèce aux candidatures ne supprime pas une référence M2`,async()=>{
   const f=await centralCheckFixture(makeStore);await f.cmd('saveAdmissionSettings',{sessionId:f.sid,policyRevision:0,draftRevision:0,settings:{...admissionTestSettings,species:admissionTestSettings.species.map(s=>({...s,available:false})),open:false},reason:'Fermer les choix'});
-  await f.saveCharacter({draftRevision:1,character:character()});const d=await f.view('M2');assert.equal(d.references.species[0].available,false);assert.deepEqual(d.diagnostics,[]);assert.deepEqual((await f.check(2)).diagnostics,[]);
+  await f.saveCharacter({draftRevision:1,character:character()});const d=await f.view('M2');assert.equal(d.references.species[0].available,false);assert.deepEqual(d.diagnostics,[]);assert.deepEqual((await f.check(2)).diagnostics.map(d=>d.code),['CLASS_KIT_MISSING']);
  });
  test(`${prefix} : édition avec ancien client conserve le plan ; retrait explicite et restauration audités`,async()=>{
   const f=await centralCheckFixture(makeStore);await f.saveCharacter({character:character()});const first=(await f.view('M2')).changes[0].data.creationPlan;

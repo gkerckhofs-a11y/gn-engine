@@ -1,4 +1,5 @@
 import {centralClassKitInput,centralClassKitProjection} from './central-class-kits.mjs';
+import {centralInitialCoherence} from './central-initial-coherence.mjs';
 import {createHash} from 'node:crypto';
 import {documentId,requireThat} from './validation.mjs';
 import {itemInput} from './inventory-state.mjs';
@@ -64,9 +65,11 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
  }
  // A duplicated ID cannot serve as a valid target, even if its first row passed.
  const records=valid.filter(c=>!invalid.has(c.id)),items=records.filter(c=>c.type==='item');
- const referenceDiagnostics=[...centralClassKitProjection(records).diagnostics,...centralCharacterProjection(records).diagnostics,...centralRecipeProjection(records,items).diagnostics];
+ const kitDiagnostics=centralClassKitProjection(records).diagnostics;
+ const initial=centralInitialCoherence(records,invalid,kitDiagnostics);
+ const referenceDiagnostics=[...kitDiagnostics,...centralCharacterProjection(records).diagnostics,...centralRecipeProjection(records,items).diagnostics,...initial.diagnostics];
  for(const d of referenceDiagnostics){
-  const c=records.find(c=>c.entityId===d.entityId&&c.workshop===d.workshop&&(!d.entityType||c.type===d.entityType)),target=d.field==='creationPlan.speciesId'?'speciesCatalogue_player':`${d.workshop==='M2'?'character':'item'}_${d.reference}`;
+   const c=records.find(c=>c.entityId===d.entityId&&c.workshop===d.workshop&&(!d.entityType||c.type===d.entityType)),target=d.field==='creationPlan.speciesId'?'speciesCatalogue_player':`${d.referenceType??(d.workshop==='M2'?'character':'item')}_${d.reference}`;
   diagnostics.push({...location(c,d.field),...d,...(d.code==='REFERENCE_MISSING'&&invalid.has(target)?{code:'REFERENCE_INVALID',message:'Corriger la définition cible incohérente dans son atelier.'}:{})});
  }
  const edges=[];
@@ -82,7 +85,7 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
   if(c.type==='classKit')for(const b of c.data.bindings)edge(c,`bindings.${b.slotId}.itemId`,'item',b.itemId);
   if(c.type==='character'){
    for(const r of c.data.relations)edge(c,`relations.${r.id}.targetId`,'character',r.targetId);
-   if(c.data.creationPlan)edge(c,'creationPlan.speciesId','species',c.data.creationPlan.speciesId);
+   if(c.data.creationPlan){edge(c,'creationPlan.speciesId','species',c.data.creationPlan.speciesId);edge(c,'creationPlan.classId','classKit',c.data.creationPlan.classId);}
   }
   if(c.type==='recipe'){
    edge(c,'productItemId','item',c.data.productItemId);c.data.components.forEach((x,i)=>edge(c,`components.${i}.itemId`,'item',x.itemId));
@@ -101,9 +104,9 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
  ];
  const report={schemaVersion:1,scope:'INITIAL_DRAFT_PREPARATION',campaign:{id:campaign.id,title:campaign.title},draft:{id:'initial',revision,baseVersionId:null,basePointerRevision:0},checkedAt:at,
   authority:authority?{kind:authority.kind,revision:authority.revision}:null,
-  fingerprint:hash({schema:2,actorUid,authority,campaign:{id:campaign.id,revision:campaign.revision,master:campaign.master??null,ruleProfile:campaign.ruleProfile,ownerUid:campaign.ownerUid},session:{id:session.id,revision:session.revision},draft:draft??null,changes:ordered}),
+  fingerprint:hash({schema:3,actorUid,authority,campaign:{id:campaign.id,revision:campaign.revision,master:campaign.master??null,ruleProfile:campaign.ruleProfile,ownerUid:campaign.ownerUid},session:{id:session.id,revision:session.revision},draft:draft??null,changes:ordered}),
   status:diagnostics.length?'CORRECTIONS_REQUIRED':'NO_DETECTED_ERROR',publicationAvailable:false,remainingChecks,
   workshops:centralWorkshops.map(w=>({id:w.id,label:w.label,coverage:['M1','M2','M4'].includes(w.id)?'PARTIAL':'NOT_IMPLEMENTED',active:records.filter(c=>c.workshop===w.id&&c.operation==='UPSERT').length,archived:records.filter(c=>c.workshop===w.id&&c.operation==='ARCHIVE').length})),
-  totals:{records:changes.length,valid:records.length,invalid:changes.length-records.length,diagnostics:diagnostics.length,references:edges.length},diff,edges,diagnostics};
+  totals:{records:changes.length,valid:records.length,invalid:changes.length-records.length,diagnostics:diagnostics.length,references:edges.length},initialPreparation:initial.summary,diff,edges,diagnostics};
  requireThat(Buffer.byteLength(JSON.stringify(report))<=centralCheckLimits.reportBytes,'CENTRAL_CHECK_LIMIT');return report;
 }

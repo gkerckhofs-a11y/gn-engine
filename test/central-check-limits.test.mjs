@@ -5,6 +5,7 @@ import {centralCharacterInput} from '../src/core/central-characters.mjs';
 import {recipeInput} from '../src/core/recipe-state.mjs';
 import {centralTestCharacter} from './support/central-characters-suite.mjs';
 import {centralTestRecipe} from './support/central-recipes-suite.mjs';
+import {centralClassKitInput} from '../src/core/central-class-kits.mjs';
 
 const context={campaign:{id:'campaign',title:'Fiction',revision:1,ruleProfile:'SPACE_OUTLAWS_V07',ownerUid:'owner'},session:{id:'session',revision:1},draft:{revision:1},actorUid:'owner',at:1};
 const character=id=>({id:`character_${id}`,entityId:id,type:'character',workshop:'M2',operation:'UPSERT',revision:1,source:'WEB',actorUid:'owner',at:1,data:centralCharacterInput({...centralTestCharacter,relations:[]},id)});
@@ -15,6 +16,15 @@ test('C2a : empreinte stable malgré ordre des documents et des clés',()=>{
 });
 test('C2a : doublon stocké exclu des cibles et du diff',()=>{
  const c=character('same'),r=centralDraftCheck({...context,changes:[c,c]});assert.equal(r.totals.invalid,2);assert.deepEqual(r.diff,[]);assert.equal(r.diagnostics[0].code,'INVALID_RECORD');
+});
+test('C2f : un kit dupliqué reste une cible invalide même si une copie est valide',()=>{
+ const c=character('player');c.data=centralCharacterInput({...centralTestCharacter,relations:[],creationPlan:{classId:'MED',speciesId:'species',secondaryId:'COM-03'}},'player');
+ const kit={id:'classKit_MED',entityId:'MED',type:'classKit',workshop:'M1',operation:'UPSERT',revision:1,source:'WEB',actorUid:'owner',at:1,data:centralClassKitInput({bindings:[]},'MED')};
+ const r=centralDraftCheck({...context,changes:[kit,kit,c]});assert.equal(r.totals.invalid,2);assert.equal(r.initialPreparation.classes.find(c=>c.classId==='MED').kitStatus,'INVALID');assert.ok(r.diagnostics.some(d=>d.code==='CLASS_KIT_INVALID'));assert.equal(r.edges.find(e=>e.to.type==='classKit').status,'INVALID');
+});
+test('C2f : plan invalide exclu du résumé, ordre des documents sans effet sur la cohérence',()=>{
+ const c=character('player'),bad=character('invalid');c.data=centralCharacterInput({...centralTestCharacter,relations:[],creationPlan:{classId:'MED',speciesId:'species',secondaryId:'COM-03'}},'player');bad.data.creationPlan={...c.data.creationPlan,classId:'FOR'};
+ const a=centralDraftCheck({...context,changes:[c,bad]}),b=centralDraftCheck({...context,changes:[bad,c]});assert.equal(a.totals.invalid,1);assert.equal(a.initialPreparation.plannedCharacters,1);assert.equal(a.initialPreparation.narrativeOnlyCharacters,0);assert.deepEqual(a.initialPreparation,b.initialPreparation);assert.equal(a.fingerprint,b.fingerprint);assert.ok(a.diagnostics.some(d=>d.code==='INVALID_RECORD'));
 });
 test('C2a : budget global de contenu contrôlé avant projection',()=>{
  assert.throws(()=>centralDraftCheck({...context,changes:[{data:'x'.repeat(16*1024*1024)}]}),{code:'CENTRAL_CHECK_LIMIT'});

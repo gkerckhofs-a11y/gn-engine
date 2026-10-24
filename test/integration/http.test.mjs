@@ -38,6 +38,23 @@ const request=async(action,input={},token)=>{
   return {status:response.status,...await response.json()};
 };
 
+test('HTTP + Auth : cohérence M2 vers kit M1, réparation et révocation du contrôle',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`coherence-${randomUUID()}@example.invalid`,reviewer=await googleTestAccount(email);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};const cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Cohérence HTTP',title:'Préparation synthétique',capacity:4,privacy:'Notice fictive'});
+ await cmd('saveAdmissionSettings',{sessionId,policyRevision:0,draftRevision:0,settings:admissionTestSettings,reason:'Espèces synthétiques'});
+ await cmd('saveCentralCharacter',{campaignId,characterId:'person',draftRevision:1,characterRevision:0,reason:'Fiche synthétique',character:{...centralTestCharacter,relations:[],creationPlan:{classId:'MED',speciesId:'species-test',secondaryId:'COM-03'}}});
+ const grant={campaignId,email,active:true,readWorkshops:['M1','M2','M3','M4','M5','M6','M7'],editWorkshops:[],checkCentral:true,revision:0,reason:'Relecture explicite'};await cmd('setCentralStaff',grant);
+ assert.equal((await request('checkCentralDraft',{campaignId,draftRevision:2})).status,401);
+ let r=await call('checkCentralDraft',{campaignId,draftRevision:2},reviewer);assert.equal(r.diagnostics[0].code,'CLASS_KIT_MISSING');assert.equal(r.initialPreparation.plannedCharacters,1);
+ await cmd('saveCentralClassKit',{campaignId,classKitId:'MED',classKitRevision:0,draftRevision:2,classKit:centralTestKit,reason:'Kit synthétique'});
+ let revision=3;for(const b of centralTestKit.bindings)await cmd('saveCentralItem',{campaignId,itemId:b.itemId,itemRevision:0,draftRevision:revision++,item:{...centralTestItem,consumable:b.itemId==='supplies'},reason:'Modèle synthétique'});
+ assert.equal((await request('checkCentralDraft',{campaignId,draftRevision:2},reviewer)).status,400);
+ r=await call('checkCentralDraft',{campaignId,draftRevision:7},reviewer);assert.deepEqual(r.diagnostics,[]);assert.equal(r.initialPreparation.classes.find(c=>c.classId==='MED').kitStatus,'REFERENCES_CHECKED');assert.equal(r.publicationAvailable,false);
+ await cmd('setCentralStaff',{...grant,revision:1,checkCentral:false});assert.equal((await request('checkCentralDraft',{campaignId,draftRevision:7},reviewer)).status,403);
+ const session=await call('session',{sessionId});assert.equal(session.versionId,null);for(const k of ['characters','inventory','accounts','registrations'])assert.deepEqual(session[k],[]);
+});
+
 test('HTTP + Auth : kits M1 canoniques, références et révocation sans dotation',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`kits-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);
  const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};const cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
@@ -76,7 +93,7 @@ test('HTTP + Auth : plan initial M2 canonique, références et révocation',asyn
  const creationPlan={classId:'COM',speciesId:'species-test',secondaryId:'MED-02'},input={campaignId,characterId:'person',draftRevision:0,characterRevision:0,reason:'Profil initial synthétique',character:{...centralTestCharacter,relations:[],creationPlan},requestId:randomUUID()};
  assert.equal((await request('saveCentralCharacter',{...input,character:{...input.character,creationPlan:{...creationPlan,secondaryId:'FOR-01'}}},editor)).status,400);
  assert.equal((await request('saveCentralCharacter',input)).status,401);await call('saveCentralCharacter',input,editor);let d=await call('centralMaster',{campaignId,workshop:'M2'},editor);assert.equal(d.diagnostics[0].code,'REFERENCE_MISSING');assert.equal(d.creationProfiles[0].skills.length,4);assert.equal(d.changes[0].data.abilityProfile,undefined);
- await cmd('saveAdmissionSettings',{sessionId,policyRevision:0,draftRevision:1,settings:admissionTestSettings,reason:'Espèces synthétiques'});const report=await call('checkCentralDraft',{campaignId,draftRevision:2});assert.deepEqual(report.diagnostics,[]);assert.equal(report.edges[0].status,'RESOLVED');assert.equal(report.publicationAvailable,false);
+ await cmd('saveAdmissionSettings',{sessionId,policyRevision:0,draftRevision:1,settings:admissionTestSettings,reason:'Espèces synthétiques'});const report=await call('checkCentralDraft',{campaignId,draftRevision:2});assert.deepEqual(report.diagnostics.map(d=>d.code),['CLASS_KIT_MISSING']);assert.equal(report.edges[0].status,'RESOLVED');assert.equal(report.publicationAvailable,false);
  await cmd('saveCentralCharacter',{...input,requestId:randomUUID(),draftRevision:2,characterRevision:1,character:{...centralTestCharacter,relations:[]}},editor);d=await call('centralMaster',{campaignId,workshop:'M2'},editor);assert.deepEqual(d.changes.find(c=>c.type==='character').data.creationPlan,{schemaVersion:1,ruleProfile:'SPACE_OUTLAWS_V07',...creationPlan});
  assert.equal((await request('admissionAdmin',{sessionId},editor)).status,403);await cmd('setCentralStaff',{...grant,active:false,revision:1});assert.equal((await request('saveCentralCharacter',input,editor)).status,403);
  const session=await call('session',{sessionId});assert.equal(session.versionId,null);for(const k of ['characters','accounts','inventory','registrations'])assert.deepEqual(session[k],[]);
