@@ -2,11 +2,11 @@ import {validateRecipeItem} from './recipe-state.mjs';
 
 // A private authoring projection, never a publication report. Missing references
 // are allowed in the shared draft; no new item, effect or dose is created here.
-// null means M1 is not readable, not that its catalogue is empty.
-export function centralRecipeProjection(changes,itemChanges){
- const items=itemChanges?.filter(c=>c.type==='item')??[],diagnostics=[];
+// null means the M1/M6 catalogue is not readable, never that it is empty.
+export function centralRecipeProjection(changes,itemChanges,knowledgeChanges=null){
+ const items=itemChanges?.filter(c=>c.type==='item')??[],knowledge=knowledgeChanges?.filter(c=>c.type==='knowledge')??[],diagnostics=[];
  const columns={productItemId:'produit_id',components:'composants',skillId:'competence_id',effectId:'effet_id',laboratoryTargetId:'laboratoire_lieu_id',unlockKnowledgeId:'connaissance_id'};
- const add=(c,field,reference,code,message)=>diagnostics.push({...(c.provenance?{fileName:c.provenance.fileName,sheet:c.provenance.sheet,row:c.provenance.row,column:columns[field.split('.')[0]]??field}:{}),workshop:'M4',entityId:c.entityId,field,reference,code,message,source:c.source,draftRevision:c.revision});
+ const add=(c,field,reference,code,message)=>diagnostics.push({...(c.provenance?{fileName:c.provenance.fileName,sheet:c.provenance.sheet,row:c.provenance.row,column:columns[field.split('.')[0]]??field}:{}),workshop:'M4',entityId:c.entityId,field,reference,...(field==='unlockKnowledgeId'?{entityType:'recipe',referenceType:'knowledge'}:{}),code,message,source:c.source,draftRevision:c.revision});
  for(const c of changes.filter(c=>c.type==='recipe'&&c.operation==='UPSERT')){
   const r=c.data;
   const check=(field,id)=>{
@@ -23,10 +23,17 @@ export function centralRecipeProjection(changes,itemChanges){
   else check('productItemId',r.productItemId);
   if(!r.components.length)add(c,'components',null,'COMPONENTS_REQUIRED','Préparer la composition de la formule.');
   r.components.forEach((component,i)=>check(`components.${i}.itemId`,component.itemId));
-  for(const field of ['skillId','effectId','laboratoryTargetId','unlockKnowledgeId']){
+  if(r.unlockKnowledgeId){
+   const target=knowledge.find(c=>c.entityId===r.unlockKnowledgeId);
+   if(knowledgeChanges===null)add(c,'unlockKnowledgeId',r.unlockKnowledgeId,'REFERENCE_NOT_CHECKED','Lecture M6 requise pour contrôler la connaissance de déblocage.');
+   else if(!target)add(c,'unlockKnowledgeId',r.unlockKnowledgeId,'REFERENCE_MISSING','Préparer cette connaissance dans M6 ou corriger son identifiant.');
+   else if(target.operation!=='UPSERT')add(c,'unlockKnowledgeId',r.unlockKnowledgeId,'REFERENCE_ARCHIVED','Restaurer cette connaissance dans M6 ou changer la référence.');
+  }
+  for(const field of ['skillId','effectId','laboratoryTargetId']){
    if(r[field])add(c,field,r[field],'REFERENCE_PENDING','Référence conservée ; son contrôle central et son activation restent à raccorder.');
-   else if(field!=='unlockKnowledgeId')add(c,field,null,'REFERENCE_REQUIRED','Préparer cette référence avant le futur contrôle global.');
+   else add(c,field,null,'REFERENCE_REQUIRED','Préparer cette référence avant le futur contrôle global.');
   }
  }
- return {references:{itemsReadable:itemChanges!==null,items:items.map(c=>({id:c.entityId,name:c.data.name,kind:c.data.kind,consumable:c.data.consumable,unit:c.data.unit,laserRecharge:!!c.data.laserRecharge,archived:c.operation!=='UPSERT',revision:c.data.revision,source:c.source}))},diagnostics,publicationAvailable:false};
+ return {references:{itemsReadable:itemChanges!==null,items:items.map(c=>({id:c.entityId,name:c.data.name,kind:c.data.kind,consumable:c.data.consumable,unit:c.data.unit,laserRecharge:!!c.data.laserRecharge,archived:c.operation!=='UPSERT',revision:c.data.revision,source:c.source})),
+  knowledgeReadable:knowledgeChanges!==null,knowledge:knowledge.map(c=>({id:c.entityId,title:c.data.title,kind:c.data.kind,archived:c.operation!=='UPSERT',revision:c.data.revision,source:c.source}))},diagnostics,publicationAvailable:false};
 }

@@ -1,3 +1,4 @@
+import {centralKnowledgePayload} from './central-knowledge.mjs';
 import {centralClassKitPayload} from './central-class-kits.mjs';
 import {centralShopPayload,centralOfferPayload} from './central-shops.mjs';
 import {syncCentralPlanForm} from './central-character-plan.mjs';
@@ -322,6 +323,10 @@ document.addEventListener('click',async event=>{
     if(a==='centralImport'){pendingCentralImport=null;modal(centralUi.importForm(currentCentral));return;}
     if(a==='centralClassKit'){const c=currentCentral.changes.find(c=>c.type==='classKit'&&c.entityId===b.dataset.id);modal(centralUi.classKitForm(currentCentral,b.dataset.id,c));return;}
     if(a==='centralClassKitArchive'){const c=currentCentral.changes.find(c=>c.type==='classKit'&&c.entityId===b.dataset.id);if(c)modal(centralUi.classKitArchiveForm(currentCentral,c));return;}
+    if(a==='centralKnowledge'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.type==='knowledge'&&c.entityId===id);modal(centralUi.knowledgeForm(currentCentral,id,c));return;}
+    if(a==='centralKnowledgeArchive'){const c=currentCentral.changes.find(c=>c.type==='knowledge'&&c.entityId===b.dataset.id);if(c)modal(centralUi.knowledgeArchiveForm(currentCentral,c));return;}
+    if(a==='centralKnowledgeRecipientAdd'){if(['initialCharacterIds','qrCharacterIds'].includes(b.dataset.set))b.closest('form').querySelector(`[data-central-recipients="${b.dataset.set}"]`).insertAdjacentHTML('beforeend',centralUi.knowledgeRecipientRow());return;}
+    if(a==='centralKnowledgeRecipientRemove'){b.closest('[data-central-recipient]').remove();return;}
     if(a==='centralShop'||a==='centralOffer'){const type=a==='centralShop'?'shop':'offer',id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.type===type&&c.entityId===id);modal(centralUi[`${type}Form`](currentCentral,id,c));return;}
     if(a==='centralShopArchive'||a==='centralOfferArchive'){const type=a==='centralShopArchive'?'shop':'offer',c=currentCentral.changes.find(c=>c.type===type&&c.entityId===b.dataset.id);if(c)modal(centralUi.shopArchiveForm(currentCentral,c));return;}
     if(a==='centralItem'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.entityId===id&&c.type==='item');modal(centralUi.itemForm(currentCentral,id,c));return;}
@@ -533,6 +538,10 @@ document.addEventListener('submit',async event=>{
       const r=await api('applyCentralImport',{...pendingCentralImport,reason:v.reason});successMessage=`Import enregistré : ${r.changed} modification(s), ${r.unchanged} ligne(s) inchangée(s).`;pendingCentralImport=null;
     }
     else if(kind==='centralClassKit'||kind==='centralClassKitArchive'){await mutate(kind==='centralClassKit'?'saveCentralClassKit':'archiveCentralClassKit',{campaignId:form.dataset.cid,classKitId:form.dataset.id,draftRevision:Number(form.dataset.draft),classKitRevision:Number(form.dataset.revision),reason:v.reason,...(kind==='centralClassKit'?{classKit:centralClassKitPayload(form.dataset.id,v)}:{})});successMessage='Kit préparé dans le brouillon. Aucune dotation effectuée.';}
+    else if(kind==='centralKnowledge'||kind==='centralKnowledgeArchive'){
+      const saving=kind==='centralKnowledge',ids=key=>[...form.querySelectorAll(`[data-central-recipients="${key}"] [data-recipient-id]`)].map(e=>e.value);
+      await mutate(saving?'saveCentralKnowledge':'archiveCentralKnowledge',{campaignId:form.dataset.cid,knowledgeId:form.dataset.id,draftRevision:Number(form.dataset.draft),knowledgeRevision:Number(form.dataset.revision),reason:v.reason,...(saving?{knowledge:centralKnowledgePayload(v,ids('initialCharacterIds'),ids('qrCharacterIds'))}:{})});successMessage='Information préparée dans M6. Aucun reçu joueur ni QR actif créé.';
+    }
     else if(['centralShop','centralOffer','centralShopArchive','centralOfferArchive'].includes(kind)){
       const type=kind.startsWith('centralShop')?'shop':'offer',saving=!kind.endsWith('Archive');
       await mutate(`${saving?'save':'archive'}Central${type==='shop'?'Shop':'Offer'}`,{campaignId:form.dataset.cid,[`${type}Id`]:form.dataset.id,draftRevision:Number(form.dataset.draft),[`${type}Revision`]:Number(form.dataset.revision),reason:v.reason,...(saving?{[type]:(type==='shop'?centralShopPayload:centralOfferPayload)(v)}:{})});successMessage='Préparation M5 enregistrée. Aucun stock ni caisse créé.';

@@ -1,5 +1,13 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## C2h — informations M6 et références M4
+
+[C2h — préparation M6](SO-06-C2H-INFORMATIONS-BROUILLON.md) ajoute connaissances, indices et documents privés, destinataires proposés M2, archive/restauration et contrôle des références M4 vers M6. Lectures croisées explicites ; suggestions M4 sans texte, vérité MJ, notes ou destinataires. Aucun reçu de connaissance joueur, partage, déblocage de recette ou QR actif.
+
+**Local, 24 octobre 2026 : compilation et 1147/1147 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 26 cas métier partagés Firestore, six UI, un HTTP/Auth ajoutés. Firebase non exécuté localement (Java 17) ; preuves du commit exact dans la PR après terminaison des deux CI. Base C2g `fad9bc4ed8be49087b19ef3a7a5de066b0161537` revérifiée : deux CI vertes, 1115 applicatifs/884 Firebase chacune, [preuves archivées](PR-1-HISTORIQUE-AVANT-C2H.md).
+
+M6 reste partiel, publication indisponible. Limites techniques : 250 informations, 100 destinataires par liste, 96 Kio par définition, 1159 changements globaux, budgets 16 Mio/4 Mio inchangés ; empreinte interne 5. Excel M6, cibles terrain, découverte et attribution restent à livrer. Quatre Masters historiques inchangés. Préserver nouveaux types et grants M6 avec le brouillon complet : C2g n’est pas un retour fonctionnel équivalent ; exports ciblés insuffisants pour une sauvegarde globale. Les 55 verdicts complets et SO-GAP-12/13/14 restent inchangés ; publication, I3/I4/I5 et recette humaine ouvertes.
+
 ## C2g — boutiques et offres dans le brouillon M5
 
 [C2g — préparation M5](SO-05-C2G-BOUTIQUES-BROUILLON.md) ouvre création, modification, archive/restauration des boutiques et offres, références au même objet M1 que M4 et au vendeur M2, diagnostics typés et contrôle commun. Lecture M1/M2 explicitement requise pour les suggestions ; aucun nom/état étranger révélé avec M5 seul. Prix proposés sans tarif par défaut ; aucun stock, compte, crédit, QR ou droit de vente créé.

@@ -1,3 +1,4 @@
+import {centralKnowledgeSuite} from '../support/central-knowledge-suite.mjs';
 import {centralShopsSuite} from '../support/central-shops-suite.mjs';
 import {centralClassKitsSuite} from '../support/central-class-kits-suite.mjs';
 import {centralInitialCoherenceSuite} from '../support/central-initial-coherence-suite.mjs';
@@ -55,6 +56,7 @@ workflowSuite(()=>firestoreStore(firestore),'Firestore réel émulé');
 preparationsSuite(()=>firestoreStore(firestore),'Préparation SO sur Firestore');
 centralMasterSuite(()=>firestoreStore(firestore),'Master central C1b sur Firestore');
 centralShopsSuite(()=>firestoreStore(firestore),'Boutiques centrales C2g sur Firestore');
+centralKnowledgeSuite(()=>firestoreStore(firestore),'Informations centrales C2h sur Firestore');
 centralClassKitsSuite(()=>firestoreStore(firestore),'Kits initiaux C2e sur Firestore');
 centralInitialCoherenceSuite(()=>firestoreStore(firestore),'Cohérence initiale C2f sur Firestore');
 centralRecipesSuite(()=>firestoreStore(firestore),'Recettes centrales C1c sur Firestore');

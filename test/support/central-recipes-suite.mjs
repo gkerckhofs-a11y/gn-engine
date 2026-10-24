@@ -15,8 +15,8 @@ export function centralRecipesSuite(makeStore,prefix='Recettes centrales C1c'){
  test(`${prefix} : préparer avant M1, diagnostics sans définition implicite ni ressource`,async()=>{
   const f=await fixture(makeStore),before=await f.store.get(`sessions/${f.sid}`);await f.saveRecipe();const d=await f.view('M4');
   assert.deepEqual(d.changes[0].data,recipeInput({...centralTestRecipe,publicationState:'DRAFT'},'formula'));
-  assert.equal(d.publicationAvailable,false);assert.equal(d.diagnostics.filter(x=>x.code==='REFERENCE_MISSING').length,2);
-  assert.equal(d.diagnostics.filter(x=>x.code==='REFERENCE_PENDING').length,4);assert.equal(d.diagnostics[0].source,'WEB');assert.equal(d.diagnostics[0].draftRevision,1);
+  assert.equal(d.publicationAvailable,false);assert.equal(d.diagnostics.filter(x=>x.code==='REFERENCE_MISSING').length,3);
+  assert.equal(d.diagnostics.filter(x=>x.code==='REFERENCE_PENDING').length,3);assert.equal(d.diagnostics[0].source,'WEB');assert.equal(d.diagnostics[0].draftRevision,1);
   assert.deepEqual((await f.view('M1')).changes,[]);assert.deepEqual(await f.store.get(`sessions/${f.sid}`),before);
   for(const kind of ['recipes','items','inventory','accounts','ledger','actionPoints','knowledge','characters','fieldTargets'])assert.deepEqual(await f.store.list(`sessions/${f.sid}/${kind}`),[],kind);
   assert.deepEqual(await f.store.list('scenarios',['ownerUid',f.owner.uid]),[]);
@@ -24,14 +24,14 @@ export function centralRecipesSuite(makeStore,prefix='Recettes centrales C1c'){
  test(`${prefix} : M4 puis M1 résout les liens sans réécrire la recette`,async()=>{
   const f=await fixture(makeStore);await f.saveRecipe();const old=await f.store.get(`${f.base}/changes/recipe_formula`);
   await f.save({draftRevision:1});await f.save({draftRevision:2,itemId:'dose',item:{...centralTestItem,name:'Dose synthétique'}});
-  const d=await f.view('M4');assert.equal(d.draft.revision,3);assert.equal(d.diagnostics.some(x=>x.code==='REFERENCE_MISSING'),false);assert.equal(d.references.items.length,2);
+  const d=await f.view('M4');assert.equal(d.draft.revision,3);assert.deepEqual(d.diagnostics.filter(x=>x.code==='REFERENCE_MISSING').map(x=>x.reference),['knowledge-test']);assert.equal(d.references.items.length,2);
   assert.equal(d.references.items.every(x=>x.source==='WEB'),true);assert.doesNotMatch(JSON.stringify(d),/Note M1 privée/);assert.deepEqual(await f.store.get(`${f.base}/changes/recipe_formula`),old);
   assert.equal(d.history.length,1);assert.equal((await f.view('M1')).history.length,2);
  });
  test(`${prefix} : M1 et M2 puis M4 conservent les mêmes révisions et admissions`,async()=>{
   const f=await fixture(makeStore);await f.save();await f.configure(1);const old=await f.store.get(`${f.base}/changes/speciesCatalogue_player`);
   await f.saveRecipe({draftRevision:2});assert.deepEqual(await f.store.get(`${f.base}/changes/speciesCatalogue_player`),old);assert.equal((await f.read('admissionAdmin',f.owner,{sessionId:f.sid})).draftRevision,3);
-  const d=await f.view('M4');assert.doesNotMatch(JSON.stringify(d),/species-test|Règles fictives/);assert.deepEqual(d.diagnostics.filter(x=>x.code==='REFERENCE_MISSING').map(x=>x.reference),['dose']);
+  const d=await f.view('M4');assert.doesNotMatch(JSON.stringify(d),/species-test|Règles fictives/);assert.deepEqual(d.diagnostics.filter(x=>x.code==='REFERENCE_MISSING').map(x=>x.reference),['dose','knowledge-test']);
  });
  test(`${prefix} : références incompatibles, archivées puis restaurées`,async()=>{
   const f=await fixture(makeStore);await f.save({item:{...centralTestItem,kind:'INDIVIDUAL'}});await f.saveRecipe({draftRevision:1});
@@ -44,7 +44,7 @@ export function centralRecipesSuite(makeStore,prefix='Recettes centrales C1c'){
  });
  test(`${prefix} : délégation M4 ne révèle ni M1 ni M2, contrôle selon droits courants`,async()=>{
   const f=await fixture(makeStore);await f.save();await f.configure(1);await f.grant({readWorkshops:['M4'],editWorkshops:['M4']});await f.saveRecipe({draftRevision:2},f.mj);
-  const d=await f.view('M4',f.mj);assert.deepEqual(d.references,{itemsReadable:false,items:[]});assert.equal(d.diagnostics.filter(x=>x.code==='REFERENCE_NOT_CHECKED').length,2);
+  const d=await f.view('M4',f.mj);assert.deepEqual(d.references,{itemsReadable:false,items:[],knowledgeReadable:false,knowledge:[]});assert.equal(d.diagnostics.filter(x=>x.code==='REFERENCE_NOT_CHECKED').length,3);
   assert.doesNotMatch(JSON.stringify(d),/Ingrédient synthétique|Note M1 privée|species-test/);
   await assert.rejects(f.view('M1',f.mj),{code:'FORBIDDEN'});await assert.rejects(f.save({draftRevision:3,itemRevision:1},f.mj),{code:'FORBIDDEN'});
   await f.grant({revision:1,readWorkshops:['M1','M4'],editWorkshops:['M4']});const readable=await f.view('M4',f.mj);assert.equal(readable.references.items.length,1);assert.equal(readable.diagnostics.some(x=>x.reference==='ingredient'),false);

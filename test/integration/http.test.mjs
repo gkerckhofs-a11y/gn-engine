@@ -1,3 +1,4 @@
+import {centralTestKnowledge} from '../support/central-knowledge-suite.mjs';
 import {centralTestShop,centralTestOffer} from '../support/central-shops-suite.mjs';
 import {centralTestKit} from '../support/central-class-kits-suite.mjs';
 import {centralCharacterRow} from '../support/central-character-import-suite.mjs';
@@ -38,6 +39,20 @@ const request=async(action,input={},token)=>{
   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,input})});
   return {status:response.status,...await response.json()};
 };
+
+test('HTTP + Auth : informations M6, destinataires proposés, référence M4 et révocation',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`knowledge-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};const cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Informations HTTP',title:'Préparation synthétique',capacity:4,privacy:'Notice fictive'});
+ const grant={campaignId,email,active:true,readWorkshops:['M6'],editWorkshops:['M6'],revision:0,reason:'Préparer M6'};await cmd('setCentralStaff',grant);
+ const input={campaignId,knowledgeId:'knowledge-test',knowledgeRevision:0,draftRevision:0,knowledge:centralTestKnowledge,reason:'Information synthétique',requestId:randomUUID()};assert.equal((await request('saveCentralKnowledge',input)).status,401);assert.equal((await request('saveCentralKnowledge',{...input,knowledge:{...centralTestKnowledge,publicationState:'PUBLISHED'}},editor)).status,400);
+ const saved=await call('saveCentralKnowledge',input,editor);assert.deepEqual(await call('saveCentralKnowledge',input,editor),saved);let d=await call('centralMaster',{campaignId,workshop:'M6'},editor);assert.equal(d.diagnostics.filter(x=>x.code==='REFERENCE_NOT_CHECKED').length,2);assert.deepEqual(d.references.characters,[]);
+ await cmd('saveCentralCharacter',{campaignId,characterId:'character',characterRevision:0,draftRevision:1,character:{...centralTestCharacter,relations:[]},reason:'Fiche fictive'});await cmd('saveCentralRecipe',{campaignId,recipeId:'formula',recipeRevision:0,draftRevision:2,recipe:centralTestRecipe,reason:'Formule fictive'});
+ await cmd('setCentralStaff',{...grant,revision:1,readWorkshops:['M2','M4','M6']});d=await call('centralMaster',{campaignId,workshop:'M6'},editor);assert.deepEqual(d.diagnostics,[]);assert.equal(d.references.characters[0].id,'character');d=await call('centralMaster',{campaignId,workshop:'M4'},editor);assert.equal(d.references.knowledge[0].id,'knowledge-test');assert.doesNotMatch(JSON.stringify(d),/Texte confidentiel M6|Vérité réservée M6|initialCharacterIds|qrCharacterIds/);
+ await cmd('archiveCentralKnowledge',{campaignId,knowledgeId:'knowledge-test',knowledgeRevision:1,draftRevision:3,reason:'Essai archive'},editor);let report=await call('checkCentralDraft',{campaignId,draftRevision:4});assert.equal(report.edges.find(e=>e.to.type==='knowledge').status,'ARCHIVED');await cmd('saveCentralKnowledge',{...input,requestId:randomUUID(),knowledgeRevision:2,draftRevision:4},editor);report=await call('checkCentralDraft',{campaignId,draftRevision:5});assert.equal(report.edges.find(e=>e.to.type==='knowledge').status,'RESOLVED');assert.equal(report.publicationAvailable,false);assert.equal(report.totals.invalid,0);
+ await cmd('setCentralStaff',{...grant,revision:2,readWorkshops:['M4'],editWorkshops:[]});d=await call('centralMaster',{campaignId,workshop:'M4'},editor);assert.deepEqual(d.references.knowledge,[]);assert.ok(d.diagnostics.some(x=>x.referenceType==='knowledge'&&x.code==='REFERENCE_NOT_CHECKED'));assert.equal((await request('saveCentralKnowledge',input,editor)).status,403);assert.equal((await request('centralMaster',{campaignId,workshop:'M6'},editor)).status,403);
+ const session=await call('session',{sessionId});assert.equal(session.versionId,null);for(const k of ['characters','knowledge','inventory','accounts','registrations'])assert.deepEqual(session[k],[]);
+});
 
 test('HTTP + Auth : boutiques M5, références privées, archives et révocation avant reçu',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`shop-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);

@@ -81,7 +81,7 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Réutiliser les formes natives et projections M1/M2/M4 ; tout nouveau type/champ doit adapter explicitement ce contrôleur. Ne pas ignorer un changement inconnu, une provenance incohérente ou un dépassement de budget.
 - Le rapport expose couverture partielle, diagnostics localisés, ajouts/exclusions, liens et empreinte. Aucun texte d'admission ni texte narratif privé dans le résumé ; aucun état persistant ou ressource créé.
 - `NO_DETECTED_ERROR` ne signifie pas publiable ; `publicationAvailable=false`. L'empreinte est une identité de rapport, pas un consentement de publication. Ne pas la réutiliser pour une future publication sans les validations/autorités/bases requises.
-- Bornes explicites : 909 changements depuis C2g (601 initiaux, 8 kits et 300 boutiques/offres), 16 Mio de contenu, 4 Mio de rapport ; refus sans résultat tronqué. Conserver tests de cohérence concurrente, confidentialité et absence d'écritures. Publication, pages immuables, version READY/pointeur, restauration et recette humaine restent à développer.
+- Bornes explicites : 1159 changements depuis C2h (601 initiaux, 8 kits, 300 boutiques/offres et 250 informations), 16 Mio de contenu, 4 Mio de rapport ; refus sans résultat tronqué. Conserver tests de cohérence concurrente, confidentialité et absence d'écritures. Publication, pages immuables, version READY/pointeur, restauration et recette humaine restent à développer.
 
 ## Tranche C2b — délégation du contrôle préparatoire
 
@@ -123,6 +123,14 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Références différées autorisées ; contrôler les types et archives dans le rapport commun. Lieux, statut PNJ, habilitations, caisses, stocks, tarifs de jeu, QR et transactions restent à raccorder. Prix saisis sans valeur par défaut ; absence de rachat = aucune proposition. Aucun import/export M5 ni publication disponible.
 - Limites 50 boutiques/250 offres archives comprises, 909 changements globaux, budgets octets inchangés. Empreinte interne de contrôle 4, couverture M5 partielle. Préserver concurrence interateliers, homonymes typés, réessais/révocation, imports M1/M2 conservant M5 et interruption atomique.
 - Sauvegarder les nouveaux types et grants M5 avec l’ensemble cohérent du brouillon. C2f n’est pas un retour fonctionnel équivalent ; ne supprimer aucune donnée pour le rendre compatible. Aucun stock, crédit, compte, instance, migration ou déploiement ajouté par cette tranche.
+
+## Tranche C2h — informations M6 et références M4
+
+- [C2h](docs/SO-06-C2H-INFORMATIONS-BROUILLON.md) ajoute les définitions `knowledge` au même brouillon : connaissances, indices et documents, format natif `knowledgeInput`, toujours `DRAFT`. Réutiliser autorité avant reçu, révisions, audit et archives. Aucun reçu de connaissance joueur, partage, déblocage M4 ou QR actif.
+- Édition M6 exige lecture M6. Destinataires proposés M2 contrôlés uniquement avec lecture M2 ; références M4 vers M6 uniquement avec lecture M6. Sans droit croisé, aucune requête de catalogue ni révélation d’existence/état. Suggestions minimales, jamais texte, vérité MJ, notes ou listes de destinataires M6 dans M4.
+- Conserver et contrôler les deux listes de destinataires même si une proposition de découverte est désactivée ou son audience change. Pas de compétence/niveau par défaut ; une compétence renseignée exige N1–N5, mais son catalogue et les conditions canoniques restent non raccordés. Aucun import/export M6 ni cible terrain ajouté.
+- Limites techniques : 250 informations archives comprises, 100 destinataires par liste, 96 Kio par définition ; 1159 changements globaux, budgets 16 Mio/4 Mio inchangés. Empreinte interne 5, M6 PARTIAL, publication indisponible. Préserver références typées, corruption, isolation, concurrence M2/M4/M5/M6, provenance Excel M4 et révocation avant réessai.
+- Sauvegarder `knowledge`, grants M6, révisions, historique et reçus de commande avec le brouillon complet. C2g n’est pas un retour fonctionnel équivalent ; ne supprimer aucune donnée pour permettre ce retour. Les exports ciblés historiques ne sauvegardent pas M6.
 
 ## Dépôt et branche
 
