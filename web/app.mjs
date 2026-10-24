@@ -1,3 +1,4 @@
+import {centralRecipePayload} from './central-recipes.mjs';
 import {createCentralUi,centralErrors,centralItemPayload} from './central-master.mjs';
 import {centralWorkshops} from '../src/shared/central-workshops.mjs';
 import {createGroupManagementUi,groupManagementErrors,membershipInput} from './group-management.mjs';
@@ -312,6 +313,10 @@ document.addEventListener('click',async event=>{
     if(a==='newSpaceOutlawsPreparation'){const uid=auth.currentUser.uid,id=preparationDraftId(preparationStorage(),uid,()=>crypto.randomUUID());modal(preparationUi.form({},id,uid));return;}
     if(a==='centralItem'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.entityId===id&&c.type==='item');modal(centralUi.itemForm(currentCentral,id,c));return;}
     if(a==='centralArchive'){const c=currentCentral.changes.find(c=>c.entityId===b.dataset.id&&c.type==='item');if(c)modal(centralUi.archiveForm(currentCentral,c));return;}
+    if(a==='centralRecipe'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.entityId===id&&c.type==='recipe');modal(centralUi.recipeForm(currentCentral,id,c));return;}
+    if(a==='centralRecipeArchive'){const c=currentCentral.changes.find(c=>c.entityId===b.dataset.id&&c.type==='recipe');if(c)modal(centralUi.recipeArchiveForm(currentCentral,c));return;}
+    if(a==='centralRecipeComponentAdd'){const rows=b.closest('form').querySelector('[data-central-components]');if(rows.children.length<20)rows.insertAdjacentHTML('beforeend',centralUi.recipeComponentRow(currentCentral));return;}
+    if(a==='centralRecipeComponentRemove'){b.closest('[data-central-component]').remove();return;}
     if(a==='centralStaff'){modal(centralUi.staffForm(currentCentral,currentCentral.staff.find(g=>g.email===b.dataset.email)));return;}
     if(a==='editSpaceOutlawsPreparation'){modal(preparationUi.form(currentSession));return;}
     if(a==='configureAdmission'){modal(admissionUi.config(currentAdmission));return;}
@@ -494,6 +499,10 @@ document.addEventListener('submit',async event=>{
     else if(kind==='rosterArchive'){await mutate('setGroupArchived',{sessionId:currentRoster.sessionId,groupId:form.dataset.id,groupRevision:Number(form.dataset.revision),archived:form.dataset.archived==='true',reason:v.reason});}
     else if(kind==='playerCode'){location.hash=`#/${playerTargetPath(v.code,v.targetKind,location.origin,form.dataset.sid)}`;return;}
     if(kind==='centralItem'||kind==='centralArchive'){await mutate(kind==='centralItem'?'saveCentralItem':'archiveCentralItem',{campaignId:form.dataset.cid,itemId:form.dataset.id,draftRevision:Number(form.dataset.draft),itemRevision:Number(form.dataset.revision),reason:v.reason,...(kind==='centralItem'?{item:centralItemPayload(v)}:{})});successMessage='Brouillon enregistré. Aucune version publiée.';}
+    else if(kind==='centralRecipe'||kind==='centralRecipeArchive'){
+      const rows=[...form.querySelectorAll('[data-central-component]')].map(row=>({itemId:row.querySelector('[name=componentItem]').value,quantity:row.querySelector('[name=componentQuantity]').value}));
+      await mutate(kind==='centralRecipe'?'saveCentralRecipe':'archiveCentralRecipe',{campaignId:form.dataset.cid,recipeId:form.dataset.id,draftRevision:Number(form.dataset.draft),recipeRevision:Number(form.dataset.revision),reason:v.reason,...(kind==='centralRecipe'?{recipe:centralRecipePayload(v,rows)}:{})});successMessage='Formule enregistrée dans le brouillon.';
+    }
     else if(kind==='centralStaff'){await mutate('setCentralStaff',{campaignId:form.dataset.cid,email:v.email,active:v.active==='on',revision:Number(form.dataset.revision),readWorkshops:centralWorkshops.filter(w=>v[`read_${w.id}`]==='on').map(w=>w.id),editWorkshops:centralWorkshops.filter(w=>v[`edit_${w.id}`]==='on').map(w=>w.id),reason:v.reason});successMessage='Droits de campagne enregistrés.';}
     else if(kind==='admissionSettings'){
       const species=[...form.querySelectorAll('[data-admission-species]')].map(row=>({id:row.dataset.admissionSpecies,label:row.querySelector('[name=label]').value,description:row.querySelector('[name=description]').value,nature:row.querySelector('[name=nature]').value,available:row.querySelector('[name=available]').checked}));

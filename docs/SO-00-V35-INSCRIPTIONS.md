@@ -1,5 +1,9 @@
 # SO-00 V3.5 — diagnostic, inscriptions et ordre de développement
 
+## Avancement après C1c
+
+[C1c — recettes dans le brouillon central](SO-01-C1C-RECETTES.md) : édition/archivage/restauration M4, références M1 différées, diagnostics privés et délégations M4 distinctes. **908 tests applicatifs locaux et build réussis** ; 14 nouveaux cas métier partagés avec Firestore, quatre rendus UI et un HTTP/Auth. CI du commit exact à consigner dans la PR après terminaison. Aucun import central ni publication/fabrication ; M5, personnages M2, naissance/relève et recette mobile restent à développer. Les 55 verdicts complets restent inchangés.
+
 ## Avancement après C1b
 
 [Brouillon central et droits C1b](SO-01-C1B-BROUILLON.md) : M1 éditable et M2 narratif consultable dans le même brouillon, délégations de campagne, réessais/concurrence et archive/restauration auditée. 890 tests locaux et build réussis ; CI exacte dans la PR. C1 reste à compléter par les adaptateurs/références, C2 par la publication globale ; passage personnage M2 I3, naissance I4 et relève I5 restent absents. Aucun ancien contrat migré.

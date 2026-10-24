@@ -3,6 +3,8 @@ import {documentId,requireThat,whole} from './validation.mjs';
 import {staffEmail} from './staff.mjs';
 import {isPreparation,spaceOutlawsProfile} from './preparation-state.mjs';
 import {itemInput} from './inventory-state.mjs';
+import {recipeInput} from './recipe-state.mjs';
+import {centralRecipeProjection} from './central-recipes.mjs';
 import {centralWorkshops} from '../shared/central-workshops.mjs';
 
 const hash=v=>createHash('sha256').update(v).digest('hex');
@@ -15,10 +17,11 @@ const ids=centralWorkshops.map(w=>w.id);
 const keys=(v,allowed)=>requireThat(v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).every(k=>allowed.includes(k)),'INVALID_CENTRAL_MASTER');
 const reasonText=v=>{requireThat(typeof v==='string'&&v.trim()&&v.length<=500,'INVALID_CENTRAL_MASTER');return v.trim();};
 const workshopList=v=>{requireThat(Array.isArray(v)&&v.length<=7&&new Set(v).size===v.length&&v.every(id=>ids.includes(id)),'INVALID_CENTRAL_GRANT');return [...v].sort();};
-const ownerRights={readWorkshops:ids,editWorkshops:['M1'],manageStaff:true};
-export const centralMasterCommands=['centralMaster','setCentralStaff','saveCentralItem','archiveCentralItem'];
+const editableIds=centralWorkshops.filter(w=>w.editable).map(w=>w.id);
+const ownerRights={readWorkshops:ids,editWorkshops:editableIds,manageStaff:true};
+export const centralMasterCommands=['centralMaster','setCentralStaff','saveCentralItem','archiveCentralItem','saveCentralRecipe','archiveCentralRecipe'];
 export const centralMasterAction=a=>centralMasterCommands.includes(a);
-export const centralLimits={items:250,staff:50};
+export const centralLimits={items:250,recipes:250,staff:50};
 
 // C1b only opens NEW, empty-based preparations. Historical campaigns and a future
 // publication/rebase cycle are deliberately not adopted by this entry point.
@@ -28,7 +31,7 @@ export function centralPreparation(c,s){
 }
 const validGrant=(g,c)=>g?.active===true&&g.ownerUid===c.ownerUid&&g.campaignId===c.id
  &&Array.isArray(g.readWorkshops)&&g.readWorkshops.length>0&&g.readWorkshops.every(x=>ids.includes(x))
- &&Array.isArray(g.editWorkshops)&&g.editWorkshops.every(x=>x==='M1'&&g.readWorkshops.includes(x));
+ &&Array.isArray(g.editWorkshops)&&g.editWorkshops.every(x=>editableIds.includes(x)&&g.readWorkshops.includes(x));
 export async function centralDashboard(tx,actor,isAdmin){
  const own=isAdmin?await tx.list('campaigns',['ownerUid',actor.uid]):[];
  const grants=await tx.list('campaignStaff',['email',actor.email.toLowerCase()]),result=[];
@@ -59,46 +62,53 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
     // Filter on the server. Do not expose other workshop contents, admission
     // histories/policies, real identities, invitations or group permissions.
     const changes=await tx.list(`${draftPath(cid)}/changes`,['workshop',workshop]);
-    const history=workshop==='M1'?(await tx.list(`${draftPath(cid)}/history`,null,{orderBy:'revision',direction:'desc',limit:30})).filter(h=>h.workshop==='M1'):[];
+    const history=editableIds.includes(workshop)?(await tx.list(`${draftPath(cid)}/history`,null,{orderBy:'revision',direction:'desc',limit:30})).filter(h=>h.workshop===workshop):[];
     const staff=owner?await tx.list('campaignStaff',['campaignId',cid]):[];
+    const recipeProjection=workshop==='M4'?centralRecipeProjection(changes,rights.readWorkshops.includes('M1')?await tx.list(`${draftPath(cid)}/changes`,['workshop','M1']):null):{};
     return {campaign:{id:cid,title:c.title},draft:{id:'initial',revision,status:'DRAFT',baseVersionId:null,pointerRevision:0},rights,workshop,
      workshops:centralWorkshops.map(w=>({...w,canRead:rights.readWorkshops.includes(w.id),canEdit:rights.editWorkshops.includes(w.id)})),
      changes:changes.sort((a,b)=>a.id.localeCompare(b.id)),history:history.sort((a,b)=>b.revision-a.revision).slice(0,30),
-     staff:staff.map(g=>({email:g.email,active:g.active,readWorkshops:g.readWorkshops,editWorkshops:g.editWorkshops,revision:g.revision}))};
+     staff:staff.map(g=>({email:g.email,active:g.active,readWorkshops:g.readWorkshops,editWorkshops:g.editWorkshops,revision:g.revision})),...recipeProjection};
    }
    if(action==='setCentralStaff')requireThat(rights.manageStaff,'FORBIDDEN');
-   else requireThat(rights.editWorkshops.includes('M1'),'FORBIDDEN');
+   else requireThat(rights.editWorkshops.includes(action.endsWith('Recipe')?'M4':'M1'),'FORBIDDEN');
    const requestId=documentId(input.requestId),op=`operations/${hash(`${actor.uid}:${requestId}`)}`,fingerprint=digest([action,input]);
    const receipt=await tx.get(op);if(receipt){requireThat(receipt.fingerprint===fingerprint,'REQUEST_ID_REUSED');return receipt.result;}
    let result;
    if(action==='setCentralStaff'){
     keys(input,['campaignId','requestId','email','active','readWorkshops','editWorkshops','revision','reason']);
     const email=staffEmail(input.email),readWorkshops=workshopList(input.readWorkshops),editWorkshops=workshopList(input.editWorkshops),reason=reasonText(input.reason);
-    requireThat(email!==actor.email.toLowerCase()&&typeof input.active==='boolean'&&(!input.active||readWorkshops.length>0)&&editWorkshops.every(x=>x==='M1'&&readWorkshops.includes(x)),'INVALID_CENTRAL_GRANT');
+    requireThat(email!==actor.email.toLowerCase()&&typeof input.active==='boolean'&&(!input.active||readWorkshops.length>0)&&editWorkshops.every(x=>editableIds.includes(x)&&readWorkshops.includes(x)),'INVALID_CENTRAL_GRANT');
     const path=centralStaffPath(cid,email),old=await tx.get(path);requireThat(whole(input.revision)===(old?.revision??0),'STALE_REVISION');
     if(!old)requireThat((await tx.list('campaignStaff',['campaignId',cid],{limit:centralLimits.staff})).length<centralLimits.staff,'CENTRAL_LIMIT');
     const next={campaignId:cid,ownerUid:c.ownerUid,email,active:input.active,readWorkshops,editWorkshops,revision:(old?.revision??0)+1,updatedAt:at};
     tx.set(path,next);const eventId=uuid();tx.set(`${root(cid)}/history/${eventId}`,{id:eventId,action,actorUid:actor.uid,at,reason,before:old,after:next});
     result={revision:next.revision};
    }else{
-    keys(input,['campaignId','requestId','itemId','draftRevision','itemRevision','reason',...(action==='saveCentralItem'?['item']:[])]);
-    requireThat(whole(input.draftRevision)===revision,'STALE_REVISION');const id=documentId(input.itemId),reason=reasonText(input.reason);
-    const path=`${draftPath(cid)}/changes/item_${id}`,old=await tx.get(path);
-    if(!old)requireThat((await tx.list(`${draftPath(cid)}/changes`,['type','item'],{limit:centralLimits.items})).length<centralLimits.items,'CENTRAL_LIMIT');
-    requireThat(!old||old.type==='item'&&old.entityId===id&&old.workshop==='M1','CENTRAL_DRAFT_UNAVAILABLE');
-    requireThat(whole(input.itemRevision)===(old?.data.revision??0),'STALE_REVISION');
+    const type=action.endsWith('Recipe')?'recipe':'item',workshop=type==='recipe'?'M4':'M1',saving=action.startsWith('save'),limit=centralLimits[`${type}s`];
+    keys(input,['campaignId','requestId',`${type}Id`,'draftRevision',`${type}Revision`,'reason',...(saving?[type]:[])]);
+    requireThat(whole(input.draftRevision)===revision,'STALE_REVISION');const id=documentId(input[`${type}Id`]),reason=reasonText(input.reason);
+    const path=`${draftPath(cid)}/changes/${type}_${id}`,old=await tx.get(path);
+    if(!old)requireThat((await tx.list(`${draftPath(cid)}/changes`,['type',type],{limit})).length<limit,'CENTRAL_LIMIT');
+    requireThat(!old||old.type===type&&old.entityId===id&&old.workshop===workshop,'CENTRAL_DRAFT_UNAVAILABLE');
+    requireThat(whole(input[`${type}Revision`])===(old?.data.revision??0),'STALE_REVISION');
     let data;
     if(action==='saveCentralItem'){
      keys(input.item,['name','description','category','unit','kind','consumable','unitVolume','legality','pillable','gmNotes','laserRecharge']);
      if(input.item.laserRecharge!=null)keys(input.item.laserRecharge,['pelletsPerUnit']);
      data=itemInput({...input.item,publicationState:'DRAFT'},id,old?.data);
-    }else{requireThat(old?.operation==='UPSERT','CENTRAL_ITEM_UNAVAILABLE');data={...old.data,revision:old.data.revision+1};}
-    const nextRevision=revision+1,change={id:`item_${id}`,type:'item',entityId:id,workshop:'M1',operation:action==='saveCentralItem'?'UPSERT':'ARCHIVE',data,revision:nextRevision,source:'WEB',actorUid:actor.uid,at};
+    }else if(action==='saveCentralRecipe'){
+     keys(input.recipe,['name','description','kind','minLevel','skillId','productItemId','effectId','laboratoryTargetId','unlockKnowledgeId','components','indicativePrice','gmNotes']);
+     requireThat(Array.isArray(input.recipe.components),'INVALID_RECIPE');
+     for(const component of input.recipe.components)keys(component,['itemId','quantity']);
+     data=recipeInput({...input.recipe,publicationState:'DRAFT',masterArchived:false},id,old?.data);
+    }else{requireThat(old?.operation==='UPSERT',type==='recipe'?'CENTRAL_RECIPE_UNAVAILABLE':'CENTRAL_ITEM_UNAVAILABLE');data={...old.data,...(type==='recipe'?{masterArchived:true}:{}),revision:old.data.revision+1};}
+    const nextRevision=revision+1,change={id:`${type}_${id}`,type,entityId:id,workshop,operation:saving?'UPSERT':'ARCHIVE',data,revision:nextRevision,source:'WEB',actorUid:actor.uid,at};
     const d={...(draft??{id:'initial',baseVersionId:null,basePointerRevision:0,ruleProfile:spaceOutlawsProfile,status:'DRAFT',createdAt:at}),revision:nextRevision,updatedAt:at};
     if(!c.master)tx.set(root(cid),{...c,revision:c.revision+1,master:{schemaVersion:1,activeVersionId:null,pointerRevision:0,openDraftId:'initial'}});
     tx.set(draftPath(cid),d);tx.set(path,change);
-    tx.set(`${draftPath(cid)}/history/${nextRevision}`,{id:String(nextRevision),revision:nextRevision,workshop:'M1',action,actorUid:actor.uid,at,reason,before:old,change});
-    result={itemId:id,itemRevision:data.revision,draftRevision:nextRevision};
+    tx.set(`${draftPath(cid)}/history/${nextRevision}`,{id:String(nextRevision),revision:nextRevision,workshop,action,actorUid:actor.uid,at,reason,before:old,change});
+    result={[`${type}Id`]:id,[`${type}Revision`]:data.revision,draftRevision:nextRevision};
    }
    tx.set(op,{fingerprint,result,at});return result;
   });

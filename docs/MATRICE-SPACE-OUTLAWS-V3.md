@@ -1,5 +1,9 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## C1c — M4 et références différées
+
+[C1c — recettes dans le brouillon central](SO-01-C1C-RECETTES.md) : édition/archivage/restauration M4, références M1 différées, diagnostics privés et délégations M4 distinctes. **908 tests applicatifs locaux et build réussis** ; 14 nouveaux cas métier partagés avec Firestore, quatre rendus UI et un HTTP/Auth. CI du commit exact à consigner dans la PR après terminaison. Aucun import central ni publication/fabrication ; M5, personnages M2, naissance/relève et recette mobile restent à développer. Les 55 verdicts complets restent inchangés.
+
 ## C1b — brouillon initial et délégations de campagne
 
 [Matrice ciblée](SO-01-C1B-BROUILLON.md) : sept entrées dans six domaines, schéma natif de biens M1 sans stock, source M2 narrative conservée, droits centraux séparés de la session, révisions/concurrence/audit. **890 tests locaux et build réussis** ; CI exacte dans la PR. SO-GAP-12/13 partiels, aucun écart clos ; M3–M7 centraux, contrôle/publication globale, import/export central et adoption historique non livrés. I3/I4/I5 restent nécessaires.

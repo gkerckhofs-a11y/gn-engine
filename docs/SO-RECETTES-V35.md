@@ -14,6 +14,8 @@ I2 ajoute [18 cas métier, trois cas UI et un HTTP/Auth](SO-01-I2-DECISIONS.md) 
 
 C1b ajoute [17 cas métier, quatre rendus UI et un HTTP/Auth](SO-01-C1B-BROUILLON.md) : 890 tests locaux/build réussis, CI exacte dans la PR. Preuves partielles de brouillon M1/M2, rôles et réessais ; aucune publication centrale, aucun test crucial M1/M4/M5 activé ni recette sur appareils. Les 55 verdicts complets restent inchangés.
 
+[C1c — recettes dans le brouillon central](SO-01-C1C-RECETTES.md) : édition/archivage/restauration M4, références M1 différées, diagnostics privés et délégations M4 distinctes. **908 tests applicatifs locaux et build réussis** ; 14 nouveaux cas métier partagés avec Firestore, quatre rendus UI et un HTTP/Auth. CI du commit exact à consigner dans la PR après terminaison. Aucun import central ni publication/fabrication ; M5, personnages M2, naissance/relève et recette mobile restent à développer. Les 55 verdicts complets restent inchangés.
+
 | ID | Situation | Critère complet | Verdict complet | Preuve partielle / limite |
 |---|---|---|---|---|
 | REC-SO-01 | Créer 8 classes, 8 initiations et 2 natures humanoïde/droïde | Trois compétences initiales N2 ou fixes, initiation N1 admissible occupant une place secondaire, cinq places max, Vétéran réservé au Combattant | NON TESTÉ | Catalogues/profils et natures existants ; profil fermé/initiation manquants. |

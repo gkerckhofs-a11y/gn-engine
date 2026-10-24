@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## État courant V3.5 — C1c, recettes centrales
+
+[C1c — recettes dans le brouillon central](SO-01-C1C-RECETTES.md) : édition/archivage/restauration M4, références M1 différées, diagnostics privés et délégations M4 distinctes. **908 tests applicatifs locaux et build réussis** ; 14 nouveaux cas métier partagés avec Firestore, quatre rendus UI et un HTTP/Auth. CI du commit exact à consigner dans la PR après terminaison. Aucun import central ni publication/fabrication ; M5, personnages M2, naissance/relève et recette mobile restent à développer. Les 55 verdicts complets restent inchangés.
+
 ## État courant V3.5 — C1b, brouillon central et droits
 
 [Tranche C1b](SO-01-C1B-BROUILLON.md) : préparation M1 dans le brouillon initial partagé avec M2, lecture par atelier, édition M1 et délégation de campagne, révocation avant reçu, historique et contre-opération. **890 tests locaux et build réussis** ; 17 nouveaux cas métier partagés avec Firestore, quatre rendus UI, un HTTP/Auth. Résultats CI du commit exact dans la PR après terminaison. SO-GAP-12/13 partiellement couverts ; publication/import central, personnages M2, naissance/relève restent absents. Aucun des 55 cas complets, mobile ou restauration intégrale certifié. Produit complet toujours non conforme V3.5/V0.7.

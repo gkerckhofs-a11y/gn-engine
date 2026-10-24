@@ -52,6 +52,13 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - C1/C2 devront adapter explicitement les gardes de cycle initial et le lecteur I1. Aucun lecteur de version BUILDING ni adoption de campagne historique implicite. Conserver les tests M1/M2 concurrents, séparation des rôles et révocation avant reçu.
 - Les Masters historiques seuls ne sauvegardent pas ce brouillon/délégations/reçus ; rollback vers un binaire ignorant ces états non sûr. Aucune restauration complète ni recette mobile n’est revendiquée.
 
+## Tranche C1c — recettes centrales et références différées
+
+- [C1c](docs/SO-01-C1C-RECETTES.md) ajoute M4 dans le brouillon initial commun. Réutiliser `recipeInput` ; les changements gardent leurs IDs, versions et provenance. Aucun effet libre, aucune fabrication, aucun import central ni publication disponible.
+- Les références M1 peuvent précéder les modèles. Les diagnostics sont recalculés depuis la même transaction de lecture ; ce rapport local n'est jamais un contrôle global ni une autorisation de publication C2.
+- La délégation M4 ne donne aucun accès implicite à M1, M2 ou aux admissions. Sans lecture M1, ne lire ni révéler l'existence, les noms ou les états des modèles ; renvoyer REFERENCE_NOT_CHECKED. Aucun catalogue d'ingrédients dupliqué.
+- Préserver les gardes C1a/C1b et les tests historiques. Les liens compétences/effets/lieux/connaissances restent explicitement non contrôlés et inactifs. C2 devra les résoudre et respecter les archives avant toute publication.
+
 ## Dépôt et branche
 
 - Travailler exclusivement dans le dépôt `gkerckhofs-a11y/gn-engine`, sur une branche dédiée et une PR. Le checkout local sert au développement et aux vérifications du même dépôt ; ne pas créer de seconde application ou de dépôt parallèle.

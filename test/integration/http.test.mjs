@@ -1,5 +1,6 @@
 import {rosterMembership} from '../support/group-management-suite.mjs';
 import {centralTestItem} from '../support/central-master-suite.mjs';
+import {centralTestRecipe} from '../support/central-recipes-suite.mjs';
 import {admissionTestSettings,admissionTestProposal} from '../support/admissions-suite.mjs';
 import {personCommands} from '../../src/core/person-actions.mjs';
 import {fieldCommands} from '../../src/core/field-actions.mjs';
@@ -31,6 +32,25 @@ const request=async(action,input={},token)=>{
   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,input})});
   return {status:response.status,...await response.json()};
 };
+
+test('HTTP + Auth : recettes centrales, liens différés et droits M4 indépendants',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`recipe-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};
+ const cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Recettes HTTP',title:'Préparation synthétique',capacity:4,privacy:'Notice fictive'});
+ const grant={campaignId,email,active:true,readWorkshops:['M4'],editWorkshops:['M4'],revision:0,reason:'Atelier M4'};await cmd('setCentralStaff',grant);
+ const input={campaignId,recipeId:'formula',recipe:centralTestRecipe,draftRevision:0,recipeRevision:0,reason:'Formule fictive',requestId:randomUUID()};
+ assert.equal((await request('saveCentralRecipe',input)).status,401);
+ const saved=await cmd('saveCentralRecipe',input,editor);assert.deepEqual(await cmd('saveCentralRecipe',input,editor),saved);
+ let d=await call('centralMaster',{campaignId,workshop:'M4'},editor);assert.deepEqual(d.references.items,[]);assert.equal(d.diagnostics.filter(x=>x.code==='REFERENCE_NOT_CHECKED').length,2);
+ assert.equal((await request('centralMaster',{campaignId,workshop:'M1'},editor)).status,403);
+ assert.equal((await request('saveCentralItem',{campaignId,itemId:'ingredient',item:centralTestItem,draftRevision:1,itemRevision:0,reason:'Interdit',requestId:randomUUID()},editor)).status,403);
+ await cmd('saveCentralItem',{campaignId,itemId:'ingredient',item:centralTestItem,draftRevision:1,itemRevision:0,reason:'Compléter M1'});
+ await cmd('setCentralStaff',{...grant,readWorkshops:['M1','M4'],revision:1});
+ d=await call('centralMaster',{campaignId,workshop:'M4'},editor);assert.equal(d.references.items.length,1);assert.equal(d.diagnostics.some(x=>x.reference==='ingredient'),false);assert.equal(d.publicationAvailable,false);
+ await cmd('setCentralStaff',{...grant,active:false,revision:2});assert.equal((await request('saveCentralRecipe',input,editor)).status,403);
+ const s=await call('session',{sessionId});for(const kind of ['characters','inventory','accounts'])assert.deepEqual(s[kind],[]);assert.equal(s.versionId,null);
+});
 
 test('HTTP + Auth : Master central, délégation M1, révocation et aucun accès aux inscriptions',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`central-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email),player=await googleTestAccount(`central-player-${randomUUID()}@example.invalid`);
