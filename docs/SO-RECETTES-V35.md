@@ -1,5 +1,9 @@
 # Registre V3.5 — 55 recettes ciblées
 
+## C2a — preuves automatiques partielles
+
+[C2a — contrôle de préparation commun](SO-02-C2A-CONTROLE-CENTRAL.md) : rapport propriétaire M1/M2/M4, ajouts/exclusions, références et diagnostics localisés, formes natives et provenance vérifiées, empreinte liée au contexte et à la révision. **983 tests applicatifs locaux et build réussis** ; 19 nouveaux cas partagés Firestore, quatre bornes/empreinte, trois UI et un HTTP/Auth. CI exacte à consigner dans la PR après terminaison. Contrôle en lecture seule ; couverture partielle explicite, aucune version ni publication. Les 55 recettes complètes restent non certifiées.
+
 23 octobre 2026. Source : [CDC V3.5 §11](source/SO_CDC_V35.md). **Aucune recette complète n’est déclarée validée par cet audit.** NON TESTÉ signifie absence d’exécution de bout en bout du critère actuel ; les tests partiels réellement exécutés sont indiqués séparément, pas assimilés à un succès produit. Les verdicts historiques V3.2 restent historiques lorsque le critère V3.5 ajoute le brouillon/publication centrale.
 
 [Diagnostic et ordre des tranches](SO-00-V35-INSCRIPTIONS.md) · [preuves/CI exactes](https://github.com/gkerckhofs-a11y/gn-engine/pull/1).

@@ -36,6 +36,21 @@ const request=async(action,input={},token)=>{
   return {status:response.status,...await response.json()};
 };
 
+test('HTTP + Auth : contrôle central propriétaire, révision et absence de publication',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`check-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};const cmd=(action,input={})=>call(action,{requestId:randomUUID(),...input});
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Contrôle global HTTP',title:'Préparation synthétique',capacity:4,privacy:'Notice fictive'});
+ const input={campaignId,draftRevision:0};assert.equal((await request('checkCentralDraft',input)).status,401);
+ await cmd('setCentralStaff',{campaignId,email,active:true,readWorkshops:['M1','M2','M3','M4','M5','M6','M7'],editWorkshops:['M1','M2','M4'],revision:0,reason:'Ateliers'});
+ assert.equal((await request('checkCentralDraft',input,editor)).status,403);
+ const empty=await call('checkCentralDraft',input);assert.equal(empty.publicationAvailable,false);assert.equal(empty.workshops.length,7);
+ await cmd('saveCentralCharacter',{campaignId,characterId:'fiction',character:centralTestCharacter,draftRevision:0,characterRevision:0,reason:'Fiche synthétique'});
+ assert.equal((await request('checkCentralDraft',input,owner)).status,400);
+ const report=await call('checkCentralDraft',{...input,draftRevision:1});assert.equal(report.diagnostics[0].code,'REFERENCE_MISSING');assert.equal(report.edges[0].status,'MISSING');assert.equal(report.publicationAvailable,false);assert.doesNotMatch(JSON.stringify(report),/Secret de fiction|Biographie fictive/);
+ const repeat=await call('checkCentralDraft',{...input,draftRevision:1});assert.equal(repeat.fingerprint,report.fingerprint);assert.equal((await request('checkCentralDraft',{...input,draftRevision:1,publish:true},owner)).status,400);
+ const session=await call('session',{sessionId});assert.equal(session.versionId,null);for(const kind of ['characters','inventory','accounts','registrations'])assert.deepEqual(session[kind],[]);
+});
+
 test('HTTP + Auth : fiches centrales M2, relations différées et admissions isolées',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`m2-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);
  const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};const cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);

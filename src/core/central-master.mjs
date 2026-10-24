@@ -1,3 +1,4 @@
+import {centralDraftCheck,centralCheckLimits} from './central-check.mjs';
 import {centralCharacterInput,centralCharacterProjection} from './central-characters.mjs';
 import {centralImport,centralImportCommands} from './central-import.mjs';
 import {createHash} from 'node:crypto';
@@ -21,7 +22,7 @@ const reasonText=v=>{requireThat(typeof v==='string'&&v.trim()&&v.length<=500,'I
 const workshopList=v=>{requireThat(Array.isArray(v)&&v.length<=7&&new Set(v).size===v.length&&v.every(id=>ids.includes(id)),'INVALID_CENTRAL_GRANT');return [...v].sort();};
 const editableIds=centralWorkshops.filter(w=>w.editable).map(w=>w.id);
 const ownerRights={readWorkshops:ids,editWorkshops:editableIds,manageStaff:true};
-export const centralMasterCommands=[...centralImportCommands,'centralMaster','setCentralStaff','saveCentralItem','archiveCentralItem','saveCentralRecipe','archiveCentralRecipe','saveCentralCharacter','archiveCentralCharacter'];
+export const centralMasterCommands=[...centralImportCommands,'centralMaster','checkCentralDraft','setCentralStaff','saveCentralItem','archiveCentralItem','saveCentralRecipe','archiveCentralRecipe','saveCentralCharacter','archiveCentralCharacter'];
 export const centralMasterAction=a=>centralMasterCommands.includes(a);
 export const centralLimits={items:250,recipes:250,characters:100,staff:50};
 
@@ -58,6 +59,12 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
    requireThat(!c.master||c.master.schemaVersion===1&&c.master.openDraftId==='initial'&&c.master.activeVersionId===null&&c.master.pointerRevision===0,'CENTRAL_DRAFT_UNAVAILABLE');
    requireThat(!draft?!c.master:!!c.master&&draft.id==='initial'&&draft.status==='DRAFT'&&draft.baseVersionId===null&&draft.basePointerRevision===0&&draft.ruleProfile===spaceOutlawsProfile&&Number.isSafeInteger(draft.revision)&&draft.revision>=0,'CENTRAL_DRAFT_UNAVAILABLE');
    const revision=draft?.revision??0;
+   if(action==='checkCentralDraft'){
+    requireThat(owner,'FORBIDDEN');keys(input,['campaignId','draftRevision']);
+    requireThat(whole(input.draftRevision)===revision,'STALE_REVISION');
+    const changes=await tx.list(`${draftPath(cid)}/changes`,null,{limit:centralCheckLimits.records+1});
+    return centralDraftCheck({campaign:c,session:s,draft,changes,actorUid:actor.uid,at});
+   }
    if(centralImportCommands.includes(action))return centralImport(tx,action,actor,input,{c,s,draft,rights,grant,at,uuid});
    if(action==='centralMaster'){
     keys(input,['campaignId','workshop']);const workshop=input.workshop??rights.readWorkshops[0];

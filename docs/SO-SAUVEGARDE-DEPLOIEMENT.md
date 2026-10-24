@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## Complément C2a — contrôle en lecture seule
+
+[C2a](SO-02-C2A-CONTROLE-CENTRAL.md) ne crée ni rapport persistant, version, pointeur, reçu ni donnée économique. Son empreinte n'est pas une sauvegarde ni une autorisation de publication. Un retour logiciel conserve les contrats et états des lots antérieurs ; aucune restauration de données C2a à exécuter. Les limites agrégées du contrôleur ne sont pas une certification de charge. Publication/reprise et restauration globale restent à éprouver sur données fictives.
+
 ## Complément C1e — définitions narratives M2
 
 [C1e](SO-01-C1E-PERSONNAGES.md) ajoute les changements `character_{id}` et délégations M2 au même ensemble cohérent du brouillon. Préserver leurs IDs, `contentRevision`, histoires et reçus avec campagne/droits/opérations. Les Masters historiques et exports ciblés M1/M4 ne les sauvegardent pas. Aucun rollback fonctionnel vers un lecteur refusant les grants M2, aucune restauration complète ni production exécutée.

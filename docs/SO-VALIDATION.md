@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## État courant V3.5 — C2a, contrôle commun
+
+[C2a — contrôle de préparation commun](SO-02-C2A-CONTROLE-CENTRAL.md) : rapport propriétaire M1/M2/M4, ajouts/exclusions, références et diagnostics localisés, formes natives et provenance vérifiées, empreinte liée au contexte et à la révision. **983 tests applicatifs locaux et build réussis** ; 19 nouveaux cas partagés Firestore, quatre bornes/empreinte, trois UI et un HTTP/Auth. CI exacte à consigner dans la PR après terminaison. Contrôle en lecture seule ; couverture partielle explicite, aucune version ni publication. Les 55 recettes complètes restent non certifiées.
+
 ## État courant V3.5 — C1e, fiches narratives M2
 
 [C1e — fiches narratives M2](SO-01-C1E-PERSONNAGES.md) : identité/nature, textes privés, objectifs avec étapes et relations orientées dans le brouillon commun, avec références différées, délégation M2 et archive/restauration auditée. **957 tests applicatifs locaux et build réussis** ; 20 nouveaux cas métier partagés avec Firestore, quatre UI et un HTTP/Auth. CI du SHA exact à consigner dans la PR après terminaison. Aucune candidature convertie, instance, dotation ou publication créée. Profils canoniques, XLSX M2, contrôle global C2, I3/I4/I5 et recette humaine restent incomplets ; les 55 verdicts complets sont inchangés.

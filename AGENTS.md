@@ -75,6 +75,14 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Préserver les IDs des fiches et éléments imbriqués, les bornes (100 fiches, 96 Kio par fiche), les tests de concurrence M1/espèces M2, droits et révocation avant reçu. Les XLSX M2 restent non pris en charge.
 - C2/I3 devront adapter explicitement profil, visibilité, nature/espèce et liens approuvés avant activation ; ne pas convertir des codes I1 en profils historiques par supposition. Aucun personnage jouable ni cycle de naissance livré par C1e.
 
+## Tranche C2a — contrôle de préparation commun
+
+- [C2a](docs/SO-02-C2A-CONTROLE-CENTRAL.md) ajoute `checkCentralDraft`, lecture propriétaire transactionnelle du seul brouillon initial sans base publiée. Les droits d'atelier même cumulés ne donnent aucun droit de contrôle global/publication.
+- Réutiliser les formes natives et projections M1/M2/M4 ; tout nouveau type/champ doit adapter explicitement ce contrôleur. Ne pas ignorer un changement inconnu, une provenance incohérente ou un dépassement de budget.
+- Le rapport expose couverture partielle, diagnostics localisés, ajouts/exclusions, liens et empreinte. Aucun texte d'admission ni texte narratif privé dans le résumé ; aucun état persistant ou ressource créé.
+- `NO_DETECTED_ERROR` ne signifie pas publiable ; `publicationAvailable=false`. L'empreinte est une identité de rapport, pas un consentement de publication. Ne pas la réutiliser pour C2b sans les validations/autorités/bases requises.
+- Bornes explicites : 601 changements, 16 Mio de contenu, 4 Mio de rapport ; refus sans résultat tronqué. Conserver tests de cohérence concurrente, confidentialité et absence d'écritures. Publication, pages immuables, version READY/pointeur, restauration et recette humaine restent à développer.
+
 ## Dépôt et branche
 
 - Travailler exclusivement dans le dépôt `gkerckhofs-a11y/gn-engine`, sur une branche dédiée et une PR. Le checkout local sert au développement et aux vérifications du même dépôt ; ne pas créer de seconde application ou de dépôt parallèle.
