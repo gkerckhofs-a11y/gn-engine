@@ -1,4 +1,5 @@
 import {centralClassKitPayload} from './central-class-kits.mjs';
+import {centralShopPayload,centralOfferPayload} from './central-shops.mjs';
 import {syncCentralPlanForm} from './central-character-plan.mjs';
 import {createCentralCheckUi} from './central-check.mjs';
 import {centralCharacterPayload,readCentralCharacterNarrative} from './central-characters.mjs';
@@ -321,6 +322,8 @@ document.addEventListener('click',async event=>{
     if(a==='centralImport'){pendingCentralImport=null;modal(centralUi.importForm(currentCentral));return;}
     if(a==='centralClassKit'){const c=currentCentral.changes.find(c=>c.type==='classKit'&&c.entityId===b.dataset.id);modal(centralUi.classKitForm(currentCentral,b.dataset.id,c));return;}
     if(a==='centralClassKitArchive'){const c=currentCentral.changes.find(c=>c.type==='classKit'&&c.entityId===b.dataset.id);if(c)modal(centralUi.classKitArchiveForm(currentCentral,c));return;}
+    if(a==='centralShop'||a==='centralOffer'){const type=a==='centralShop'?'shop':'offer',id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.type===type&&c.entityId===id);modal(centralUi[`${type}Form`](currentCentral,id,c));return;}
+    if(a==='centralShopArchive'||a==='centralOfferArchive'){const type=a==='centralShopArchive'?'shop':'offer',c=currentCentral.changes.find(c=>c.type===type&&c.entityId===b.dataset.id);if(c)modal(centralUi.shopArchiveForm(currentCentral,c));return;}
     if(a==='centralItem'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.entityId===id&&c.type==='item');modal(centralUi.itemForm(currentCentral,id,c));return;}
     if(a==='centralArchive'){const c=currentCentral.changes.find(c=>c.entityId===b.dataset.id&&c.type==='item');if(c)modal(centralUi.archiveForm(currentCentral,c));return;}
     if(a==='centralCharacter'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.entityId===id&&c.type==='character');modal(centralUi.characterForm(currentCentral,id,c));return;}
@@ -530,6 +533,10 @@ document.addEventListener('submit',async event=>{
       const r=await api('applyCentralImport',{...pendingCentralImport,reason:v.reason});successMessage=`Import enregistré : ${r.changed} modification(s), ${r.unchanged} ligne(s) inchangée(s).`;pendingCentralImport=null;
     }
     else if(kind==='centralClassKit'||kind==='centralClassKitArchive'){await mutate(kind==='centralClassKit'?'saveCentralClassKit':'archiveCentralClassKit',{campaignId:form.dataset.cid,classKitId:form.dataset.id,draftRevision:Number(form.dataset.draft),classKitRevision:Number(form.dataset.revision),reason:v.reason,...(kind==='centralClassKit'?{classKit:centralClassKitPayload(form.dataset.id,v)}:{})});successMessage='Kit préparé dans le brouillon. Aucune dotation effectuée.';}
+    else if(['centralShop','centralOffer','centralShopArchive','centralOfferArchive'].includes(kind)){
+      const type=kind.startsWith('centralShop')?'shop':'offer',saving=!kind.endsWith('Archive');
+      await mutate(`${saving?'save':'archive'}Central${type==='shop'?'Shop':'Offer'}`,{campaignId:form.dataset.cid,[`${type}Id`]:form.dataset.id,draftRevision:Number(form.dataset.draft),[`${type}Revision`]:Number(form.dataset.revision),reason:v.reason,...(saving?{[type]:(type==='shop'?centralShopPayload:centralOfferPayload)(v)}:{})});successMessage='Préparation M5 enregistrée. Aucun stock ni caisse créé.';
+    }
     else if(kind==='centralItem'||kind==='centralArchive'){await mutate(kind==='centralItem'?'saveCentralItem':'archiveCentralItem',{campaignId:form.dataset.cid,itemId:form.dataset.id,draftRevision:Number(form.dataset.draft),itemRevision:Number(form.dataset.revision),reason:v.reason,...(kind==='centralItem'?{item:centralItemPayload(v)}:{})});successMessage='Brouillon enregistré. Aucune version publiée.';}
     else if(kind==='centralCharacter'||kind==='centralCharacterArchive'){
       const narrative=kind==='centralCharacter'?readCentralCharacterNarrative(form):null;

@@ -1,3 +1,4 @@
+import {centralTestShop,centralTestOffer} from '../support/central-shops-suite.mjs';
 import {centralTestKit} from '../support/central-class-kits-suite.mjs';
 import {centralCharacterRow} from '../support/central-character-import-suite.mjs';
 import {centralTestCharacter} from '../support/central-characters-suite.mjs';
@@ -37,6 +38,23 @@ const request=async(action,input={},token)=>{
   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,input})});
   return {status:response.status,...await response.json()};
 };
+
+test('HTTP + Auth : boutiques M5, références privées, archives et révocation avant reçu',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`shop-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};const cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Boutiques HTTP',title:'Préparation synthétique',capacity:4,privacy:'Notice fictive'});
+ const grant={campaignId,email,active:true,readWorkshops:['M5'],editWorkshops:['M5'],revision:0,reason:'Préparer M5'};await cmd('setCentralStaff',grant);
+ const input={campaignId,shopId:'shop',shopRevision:0,draftRevision:0,shop:centralTestShop,reason:'Boutique synthétique',requestId:randomUUID()};
+ assert.equal((await request('saveCentralShop',input)).status,401);assert.equal((await request('saveCentralShop',{...input,shop:{...centralTestShop,stock:20}},editor)).status,400);const r=await call('saveCentralShop',input,editor);assert.deepEqual(await call('saveCentralShop',input,editor),r);
+ await cmd('saveCentralOffer',{campaignId,offerId:'offer',offerRevision:0,draftRevision:1,offer:centralTestOffer,reason:'Offre synthétique'},editor);
+ await cmd('saveCentralItem',{campaignId,itemId:'ingredient',itemRevision:0,draftRevision:2,item:centralTestItem,reason:'Modèle synthétique'});await cmd('saveCentralCharacter',{campaignId,characterId:'character',characterRevision:0,draftRevision:3,character:{...centralTestCharacter,relations:[]},reason:'Vendeur de fiction'});
+ let d=await call('centralMaster',{campaignId,workshop:'M5'},editor);assert.equal(d.diagnostics.filter(x=>x.code==='REFERENCE_NOT_CHECKED').length,2);assert.deepEqual(d.references.items,[]);assert.deepEqual(d.references.characters,[]);assert.doesNotMatch(JSON.stringify(d),/Ingrédient synthétique|Voyageuse synthétique/);
+ await cmd('setCentralStaff',{...grant,revision:1,readWorkshops:['M1','M2','M5']});d=await call('centralMaster',{campaignId,workshop:'M5'},editor);assert.equal(d.references.items.length,1);assert.equal(d.references.characters.length,1);assert.doesNotMatch(JSON.stringify(d),/Note M1 privée|Secret de fiction|Note M2 privée/);
+ await cmd('archiveCentralShop',{campaignId,shopId:'shop',shopRevision:1,draftRevision:4,reason:'Essai archive'},editor);d=await call('centralMaster',{campaignId,workshop:'M5'},editor);assert.ok(d.diagnostics.some(x=>x.referenceType==='shop'&&x.code==='REFERENCE_ARCHIVED'));
+ await cmd('saveCentralShop',{...input,requestId:randomUUID(),shopRevision:2,draftRevision:5},editor);const report=await call('checkCentralDraft',{campaignId,draftRevision:6});assert.equal(report.totals.invalid,0);assert.equal(report.publicationAvailable,false);assert.equal(report.edges.filter(e=>e.status==='RESOLVED').length,3);
+ await cmd('setCentralStaff',{...grant,revision:2,active:false});assert.equal((await request('saveCentralShop',input,editor)).status,403);assert.equal((await request('centralMaster',{campaignId,workshop:'M5'},editor)).status,403);assert.equal((await request('admissionAdmin',{sessionId},editor)).status,403);
+ const session=await call('session',{sessionId});assert.equal(session.versionId,null);for(const k of ['characters','inventory','accounts','registrations'])assert.deepEqual(session[k],[]);
+});
 
 test('HTTP + Auth : cohérence M2 vers kit M1, réparation et révocation du contrôle',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`coherence-${randomUUID()}@example.invalid`,reviewer=await googleTestAccount(email);

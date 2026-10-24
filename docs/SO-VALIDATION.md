@@ -1,5 +1,13 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## C2g — boutiques et offres dans le brouillon M5
+
+[C2g — préparation M5](SO-05-C2G-BOUTIQUES-BROUILLON.md) ouvre création, modification, archive/restauration des boutiques et offres, références au même objet M1 que M4 et au vendeur M2, diagnostics typés et contrôle commun. Lecture M1/M2 explicitement requise pour les suggestions ; aucun nom/état étranger révélé avec M5 seul. Prix proposés sans tarif par défaut ; aucun stock, compte, crédit, QR ou droit de vente créé.
+
+**Local, 24 octobre 2026 : compilation et 1 115/1 115 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 24 nouveaux cas partagés Firestore, cinq UI, un HTTP/Auth. Firebase non exécuté localement (Java 17) ; résultats du commit exact à consigner dans la PR après terminaison. Base C2f `4ed82c3f56b3c9969f6ea176edcab19ed00758cc` : deux CI vertes revérifiées, 1 086 applicatifs/859 Firebase chacune, preuves [archivées](PR-1-HISTORIQUE-AVANT-C2G.md).
+
+M5 reste partiel et non publiable. Limites techniques : 50 boutiques, 250 offres, 909 changements globaux, budgets 16 Mio/4 Mio inchangés ; empreinte interne 4. Excel M5, lieux, habilitations, caisse/stock, tarifs de jeu et transactions restent à livrer. Quatre Masters historiques inchangés. MST-03/06/08 : preuves préparatoires partielles seulement ; les 55 verdicts complets et SO-GAP-12/13/14 ne changent pas. Publication, I3/I4/I5 et recette humaine restent ouverts. Préserver types et grants M5 lors d’une reprise : C2f n’est pas un retour fonctionnel équivalent.
+
 ## C2f — cohérence des plans M2 et kits M1
 
 [C2f — dépendances de dotation](SO-02-C2F-COHERENCE-INITIALE.md) : chaque plan initial actif référence le kit de sa classe principale ; absence, archive, corruption et références/consommables incomplets sont signalés sur les fiches concernées. Tableau des huit classes, nombres de définitions distincts des participants, provenance Excel jusqu’à `classe_id`, lecture transactionnelle sous droits C2b. Aucun accès supplémentaire en M2 isolé et aucune ressource créée.

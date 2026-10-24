@@ -81,7 +81,7 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Réutiliser les formes natives et projections M1/M2/M4 ; tout nouveau type/champ doit adapter explicitement ce contrôleur. Ne pas ignorer un changement inconnu, une provenance incohérente ou un dépassement de budget.
 - Le rapport expose couverture partielle, diagnostics localisés, ajouts/exclusions, liens et empreinte. Aucun texte d'admission ni texte narratif privé dans le résumé ; aucun état persistant ou ressource créé.
 - `NO_DETECTED_ERROR` ne signifie pas publiable ; `publicationAvailable=false`. L'empreinte est une identité de rapport, pas un consentement de publication. Ne pas la réutiliser pour une future publication sans les validations/autorités/bases requises.
-- Bornes explicites : 609 changements depuis C2e (601 initiaux et 8 kits), 16 Mio de contenu, 4 Mio de rapport ; refus sans résultat tronqué. Conserver tests de cohérence concurrente, confidentialité et absence d'écritures. Publication, pages immuables, version READY/pointeur, restauration et recette humaine restent à développer.
+- Bornes explicites : 909 changements depuis C2g (601 initiaux, 8 kits et 300 boutiques/offres), 16 Mio de contenu, 4 Mio de rapport ; refus sans résultat tronqué. Conserver tests de cohérence concurrente, confidentialité et absence d'écritures. Publication, pages immuables, version READY/pointeur, restauration et recette humaine restent à développer.
 
 ## Tranche C2b — délégation du contrôle préparatoire
 
@@ -115,6 +115,14 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Le résumé `initialPreparation` compte des définitions, pas des admissions, quotas ou incarnations. Les fiches archivées et sans plan n’exigent aucun kit ; ne pas déduire de statut joueur/PNJ de l’absence de plan. Les définitions invalides restent exclues du résumé et signalées par le contrôle existant.
 - La projection lit exclusivement les changements validés du même instantané transactionnel, sous les droits C2b. Ne pas l’ajouter aux lectures M2 isolées : aucun droit M1 implicite. Préserver concurrence, révocation, isolation, provenance XLSX et absence d’écritures.
 - `REFERENCES_CHECKED` vérifie références et consommables, pas les effets, armes homologuées, contacts/codes, protections économiques ou naissance. `publicationAvailable=false`. Empreinte interne portée à 3 ; relancer le contrôle après mise à jour. Aucune migration ni nouvel état persistant ; C2e omet ces diagnostics et ne constitue pas un contrôle fonctionnel équivalent.
+
+## Tranche C2g — boutiques et offres M5
+
+- [C2g](docs/SO-05-C2G-BOUTIQUES-BROUILLON.md) ajoute `shop` et `offer`, schéma 1, au même brouillon initial. Réutiliser révision commune, autorité avant reçu, audit, archives et validation de montants ; aucun service de marché ou seed pour créer une définition.
+- Édition M5 exige lecture M5. Les références objets et vendeurs exigent respectivement lecture M1/M2 pour être consultées : sans droit, aucune requête de catalogue ni révélation d’existence/nom/état, seulement `REFERENCE_NOT_CHECKED`. Suggestions minimales ; aucune admission, note étrangère ou permission implicite du vendeur.
+- Références différées autorisées ; contrôler les types et archives dans le rapport commun. Lieux, statut PNJ, habilitations, caisses, stocks, tarifs de jeu, QR et transactions restent à raccorder. Prix saisis sans valeur par défaut ; absence de rachat = aucune proposition. Aucun import/export M5 ni publication disponible.
+- Limites 50 boutiques/250 offres archives comprises, 909 changements globaux, budgets octets inchangés. Empreinte interne de contrôle 4, couverture M5 partielle. Préserver concurrence interateliers, homonymes typés, réessais/révocation, imports M1/M2 conservant M5 et interruption atomique.
+- Sauvegarder les nouveaux types et grants M5 avec l’ensemble cohérent du brouillon. C2f n’est pas un retour fonctionnel équivalent ; ne supprimer aucune donnée pour le rendre compatible. Aucun stock, crédit, compte, instance, migration ou déploiement ajouté par cette tranche.
 
 ## Dépôt et branche
 

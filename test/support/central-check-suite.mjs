@@ -103,7 +103,7 @@ export function centralCheckSuite(makeStore,prefix='Contrôle central C2a'){
  });
  test(`${prefix} : limite de lecture explicite, aucun rapport tronqué`,async()=>{
   const f=await centralCheckFixture(makeStore),run=f.store.runTransaction.bind(f.store);
-  f.store.runTransaction=fn=>run(tx=>fn({...tx,list:async(path,filter,options)=>{if(path===`${f.base}/changes`){assert.equal(options.limit,610);return Array.from({length:610},()=>({}));}return tx.list(path,filter,options);}}));
+  f.store.runTransaction=fn=>run(tx=>fn({...tx,list:async(path,filter,options)=>{if(path===`${f.base}/changes`){assert.equal(options.limit,910);return Array.from({length:910},()=>({}));}return tx.list(path,filter,options);}}));
   await assert.rejects(f.check(),{code:'CENTRAL_CHECK_LIMIT'});
  });
  test(`${prefix} : garde de cycle et autorité revérifiées après un rapport`,async()=>{
