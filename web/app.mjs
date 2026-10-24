@@ -1,3 +1,4 @@
+import {centralClassKitPayload} from './central-class-kits.mjs';
 import {syncCentralPlanForm} from './central-character-plan.mjs';
 import {createCentralCheckUi} from './central-check.mjs';
 import {centralCharacterPayload,readCentralCharacterNarrative} from './central-characters.mjs';
@@ -318,6 +319,8 @@ document.addEventListener('click',async event=>{
     if(a==='newSpaceOutlawsPreparation'){const uid=auth.currentUser.uid,id=preparationDraftId(preparationStorage(),uid,()=>crypto.randomUUID());modal(preparationUi.form({},id,uid));return;}
     if(a==='centralExport'){pendingCentralImport=null;modal(centralUi.exportForm(currentCentral));return;}
     if(a==='centralImport'){pendingCentralImport=null;modal(centralUi.importForm(currentCentral));return;}
+    if(a==='centralClassKit'){const c=currentCentral.changes.find(c=>c.type==='classKit'&&c.entityId===b.dataset.id);modal(centralUi.classKitForm(currentCentral,b.dataset.id,c));return;}
+    if(a==='centralClassKitArchive'){const c=currentCentral.changes.find(c=>c.type==='classKit'&&c.entityId===b.dataset.id);if(c)modal(centralUi.classKitArchiveForm(currentCentral,c));return;}
     if(a==='centralItem'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.entityId===id&&c.type==='item');modal(centralUi.itemForm(currentCentral,id,c));return;}
     if(a==='centralArchive'){const c=currentCentral.changes.find(c=>c.entityId===b.dataset.id&&c.type==='item');if(c)modal(centralUi.archiveForm(currentCentral,c));return;}
     if(a==='centralCharacter'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.entityId===id&&c.type==='character');modal(centralUi.characterForm(currentCentral,id,c));return;}
@@ -526,6 +529,7 @@ document.addEventListener('submit',async event=>{
       if(!pendingCentralImport||v.confirmed!=='on')throw new Error('Préparez et confirmez un aperçu avant l’import.');
       const r=await api('applyCentralImport',{...pendingCentralImport,reason:v.reason});successMessage=`Import enregistré : ${r.changed} modification(s), ${r.unchanged} ligne(s) inchangée(s).`;pendingCentralImport=null;
     }
+    else if(kind==='centralClassKit'||kind==='centralClassKitArchive'){await mutate(kind==='centralClassKit'?'saveCentralClassKit':'archiveCentralClassKit',{campaignId:form.dataset.cid,classKitId:form.dataset.id,draftRevision:Number(form.dataset.draft),classKitRevision:Number(form.dataset.revision),reason:v.reason,...(kind==='centralClassKit'?{classKit:centralClassKitPayload(form.dataset.id,v)}:{})});successMessage='Kit préparé dans le brouillon. Aucune dotation effectuée.';}
     else if(kind==='centralItem'||kind==='centralArchive'){await mutate(kind==='centralItem'?'saveCentralItem':'archiveCentralItem',{campaignId:form.dataset.cid,itemId:form.dataset.id,draftRevision:Number(form.dataset.draft),itemRevision:Number(form.dataset.revision),reason:v.reason,...(kind==='centralItem'?{item:centralItemPayload(v)}:{})});successMessage='Brouillon enregistré. Aucune version publiée.';}
     else if(kind==='centralCharacter'||kind==='centralCharacterArchive'){
       const narrative=kind==='centralCharacter'?readCentralCharacterNarrative(form):null;

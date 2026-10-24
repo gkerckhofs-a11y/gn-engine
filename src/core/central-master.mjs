@@ -1,3 +1,4 @@
+import {centralClassKitInput,centralClassKitProjection} from './central-class-kits.mjs';
 import {centralDraftCheck,centralCheckLimits} from './central-check.mjs';
 import {centralCharacterInput,centralCharacterProjection} from './central-characters.mjs';
 import {centralImport,centralImportCommands} from './central-import.mjs';
@@ -22,9 +23,9 @@ const reasonText=v=>{requireThat(typeof v==='string'&&v.trim()&&v.length<=500,'I
 const workshopList=v=>{requireThat(Array.isArray(v)&&v.length<=7&&new Set(v).size===v.length&&v.every(id=>ids.includes(id)),'INVALID_CENTRAL_GRANT');return [...v].sort();};
 const editableIds=centralWorkshops.filter(w=>w.editable).map(w=>w.id);
 const ownerRights={readWorkshops:ids,editWorkshops:editableIds,manageStaff:true,checkCentral:true};
-export const centralMasterCommands=[...centralImportCommands,'centralMaster','checkCentralDraft','setCentralStaff','saveCentralItem','archiveCentralItem','saveCentralRecipe','archiveCentralRecipe','saveCentralCharacter','archiveCentralCharacter'];
+export const centralMasterCommands=[...centralImportCommands,'centralMaster','checkCentralDraft','setCentralStaff','saveCentralItem','archiveCentralItem','saveCentralRecipe','archiveCentralRecipe','saveCentralCharacter','archiveCentralCharacter','saveCentralClassKit','archiveCentralClassKit'];
 export const centralMasterAction=a=>centralMasterCommands.includes(a);
-export const centralLimits={items:250,recipes:250,characters:100,staff:50};
+export const centralLimits={items:250,recipes:250,characters:100,classKits:8,staff:50};
 
 // C1b only opens NEW, empty-based preparations. Historical campaigns and a future
 // publication/rebase cycle are deliberately not adopted by this entry point.
@@ -77,10 +78,10 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
     const changes=await tx.list(`${draftPath(cid)}/changes`,['workshop',workshop]);
     const historyType={M1:'item',M2:'character',M4:'recipe'}[workshop];
     const history=historyType?(await tx.list(`${draftPath(cid)}/history`,null,{orderBy:'revision',direction:'desc',limit:30}))
-     .filter(h=>h.workshop===workshop&&h.change?.workshop===workshop&&h.change.type===historyType)
+     .filter(h=>h.workshop===workshop&&h.change?.workshop===workshop&&(h.change.type===historyType||workshop==='M1'&&h.change.type==='classKit'))
      .map(h=>Object.fromEntries(['id','revision','workshop','action','actorUid','at','reason','before','change'].map(k=>[k,h[k]??null]))):[];
     const staff=owner?await tx.list('campaignStaff',['campaignId',cid]):[];
-    const recipeProjection=workshop==='M2'?centralCharacterProjection(changes):workshop==='M4'?centralRecipeProjection(changes,rights.readWorkshops.includes('M1')?await tx.list(`${draftPath(cid)}/changes`,['workshop','M1']):null):{};
+    const recipeProjection=workshop==='M1'?centralClassKitProjection(changes):workshop==='M2'?centralCharacterProjection(changes):workshop==='M4'?centralRecipeProjection(changes,rights.readWorkshops.includes('M1')?await tx.list(`${draftPath(cid)}/changes`,['workshop','M1']):null):{};
     return {campaign:{id:cid,title:c.title},draft:{id:'initial',revision,status:'DRAFT',baseVersionId:null,pointerRevision:0},rights,workshop,
      workshops:centralWorkshops.map(w=>({...w,canRead:rights.readWorkshops.includes(w.id),canEdit:rights.editWorkshops.includes(w.id)})),
      changes:changes.sort((a,b)=>a.id.localeCompare(b.id)),history:history.sort((a,b)=>b.revision-a.revision).slice(0,30),
@@ -107,7 +108,7 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
     tx.set(path,next);const eventId=uuid();tx.set(`${root(cid)}/history/${eventId}`,{id:eventId,action,actorUid:actor.uid,at,reason,before:old,after:next});
     result={revision:next.revision};
    }else{
-    const type=action.endsWith('Character')?'character':action.endsWith('Recipe')?'recipe':'item',workshop=type==='character'?'M2':type==='recipe'?'M4':'M1',saving=action.startsWith('save'),limit=centralLimits[`${type}s`],revisionField=type==='character'?'contentRevision':'revision';
+    const type=action.endsWith('ClassKit')?'classKit':action.endsWith('Character')?'character':action.endsWith('Recipe')?'recipe':'item',workshop=type==='character'?'M2':type==='recipe'?'M4':'M1',saving=action.startsWith('save'),limit=centralLimits[`${type}s`],revisionField=type==='character'?'contentRevision':'revision';
     keys(input,['campaignId','requestId',`${type}Id`,'draftRevision',`${type}Revision`,'reason',...(saving?[type]:[])]);
     requireThat(whole(input.draftRevision)===revision,'STALE_REVISION');const id=documentId(input[`${type}Id`]),reason=reasonText(input.reason);
     const path=`${draftPath(cid)}/changes/${type}_${id}`,old=await tx.get(path);
@@ -115,7 +116,9 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
     requireThat(!old||old.type===type&&old.entityId===id&&old.workshop===workshop,'CENTRAL_DRAFT_UNAVAILABLE');
     requireThat(whole(input[`${type}Revision`])===(old?.data[revisionField]??0),'STALE_REVISION');
     let data;
-    if(action==='saveCentralCharacter'){
+    if(action==='saveCentralClassKit'){
+     data=centralClassKitInput(input.classKit,id,old?.data);
+    }else if(action==='saveCentralCharacter'){
      data=centralCharacterInput(input.character,id,old?.data);
     }else if(action==='saveCentralItem'){
      keys(input.item,['name','description','category','unit','kind','consumable','unitVolume','legality','pillable','gmNotes','laserRecharge']);
@@ -126,7 +129,7 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
      requireThat(Array.isArray(input.recipe.components),'INVALID_RECIPE');
      for(const component of input.recipe.components)keys(component,['itemId','quantity']);
      data=recipeInput({...input.recipe,publicationState:'DRAFT',masterArchived:false},id,old?.data);
-    }else{requireThat(old?.operation==='UPSERT',type==='character'?'CENTRAL_CHARACTER_UNAVAILABLE':type==='recipe'?'CENTRAL_RECIPE_UNAVAILABLE':'CENTRAL_ITEM_UNAVAILABLE');data={...old.data,...(['recipe','character'].includes(type)?{masterArchived:true}:{}),[revisionField]:old.data[revisionField]+1};}
+    }else{requireThat(old?.operation==='UPSERT',type==='classKit'?'CENTRAL_KIT_UNAVAILABLE':type==='character'?'CENTRAL_CHARACTER_UNAVAILABLE':type==='recipe'?'CENTRAL_RECIPE_UNAVAILABLE':'CENTRAL_ITEM_UNAVAILABLE');data={...old.data,...(['recipe','character','classKit'].includes(type)?{masterArchived:true}:{}),[revisionField]:old.data[revisionField]+1};}
     const nextRevision=revision+1,change={id:`${type}_${id}`,type,entityId:id,workshop,operation:saving?'UPSERT':'ARCHIVE',data,revision:nextRevision,source:'WEB',actorUid:actor.uid,requestId,at};
     const d={...(draft??{id:'initial',baseVersionId:null,basePointerRevision:0,ruleProfile:spaceOutlawsProfile,status:'DRAFT',createdAt:at}),revision:nextRevision,updatedAt:at};
     if(!c.master)tx.set(root(cid),{...c,revision:c.revision+1,master:{schemaVersion:1,activeVersionId:null,pointerRevision:0,openDraftId:'initial'}});

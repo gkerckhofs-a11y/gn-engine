@@ -81,7 +81,7 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Réutiliser les formes natives et projections M1/M2/M4 ; tout nouveau type/champ doit adapter explicitement ce contrôleur. Ne pas ignorer un changement inconnu, une provenance incohérente ou un dépassement de budget.
 - Le rapport expose couverture partielle, diagnostics localisés, ajouts/exclusions, liens et empreinte. Aucun texte d'admission ni texte narratif privé dans le résumé ; aucun état persistant ou ressource créé.
 - `NO_DETECTED_ERROR` ne signifie pas publiable ; `publicationAvailable=false`. L'empreinte est une identité de rapport, pas un consentement de publication. Ne pas la réutiliser pour une future publication sans les validations/autorités/bases requises.
-- Bornes explicites : 601 changements, 16 Mio de contenu, 4 Mio de rapport ; refus sans résultat tronqué. Conserver tests de cohérence concurrente, confidentialité et absence d'écritures. Publication, pages immuables, version READY/pointeur, restauration et recette humaine restent à développer.
+- Bornes explicites : 609 changements depuis C2e (601 initiaux et 8 kits), 16 Mio de contenu, 4 Mio de rapport ; refus sans résultat tronqué. Conserver tests de cohérence concurrente, confidentialité et absence d'écritures. Publication, pages immuables, version READY/pointeur, restauration et recette humaine restent à développer.
 
 ## Tranche C2b — délégation du contrôle préparatoire
 
@@ -101,6 +101,13 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Exporter uniquement les fiches sélectionnées, jamais le catalogue partagé, les admissions ou politiques. Tableaux narratifs JSON complets avec IDs et plan initial C2c ; blanc conserve, retrait explicite, aucune publication imbriquée autorisée. 100 fiches archives comprises, 96 Kio par fiche, 32 000 caractères par cellule M2 sans troncature.
 - Préserver la provenance XLSX M2 dans le contrôle commun, les références différées, la révision centrale commune, les droits avant reçu et les tests de concurrence/révocation/interruption. L'import ne crée aucune incarnation ni ressource.
 - Le fichier ciblé ne sauvegarde pas catalogue, historique, droits ou reçus ; C2c refuse la nouvelle provenance au contrôle global. Publication, restauration complète, I3/I4/I5 et médias restent à raccorder.
+
+## Tranche C2e — kits initiaux M1
+
+- [C2e](docs/SO-02-C2E-KITS-INITIAUX.md) prépare huit kits `classKit` dans les changements M1 existants. Les slots/quantités viennent de V0.7, les seules données éditables sont leurs références M1 et notes privées. Pas de classes libres, quantités, crédits ou effets injectés.
+- Un kit par classe, 8 archives comprises, révisions/droits/reçus/historique du brouillon commun. Préserver les tests intertypes (`item_MED` / `classKit_MED`), concurrence/révocation/interruption. Le contrôle global inclut les liens typés ; limite 609 définitions, budgets octets inchangés.
+- Le modèle d'objet garde ses attributs ordinaires ; protection non pillable/non revendable, 200 Cr, arme si applicable, QR, codes publics et contacts restent à appliquer/raccorder lors de la future naissance. Un nom de modèle ne certifie ni effet ni homologation. Aucun lot ni compte créé.
+- Les XLSX M1 exportent les objets uniquement ; imports conservent les kits et recalculent les diagnostics. Sauvegarder le brouillon complet avec kits/historiques/reçus ; C2d n'est pas un retour fonctionnel équivalent. Publication, I3/I4/I5 et recettes complètes restent non livrées.
 
 ## Dépôt et branche
 

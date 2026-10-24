@@ -3,6 +3,7 @@ import {documentId,requireThat} from './validation.mjs';
 import {itemInput} from './inventory-state.mjs';
 import {recipeInput} from './recipe-state.mjs';
 import {importedCharacter,exportedCharacter,checkCharacterCells,characterImportColumn} from './central-character-import.mjs';
+import {centralClassKitProjection} from './central-class-kits.mjs';
 import {centralCharacterProjection} from './central-characters.mjs';
 import {centralRecipeProjection} from './central-recipes.mjs';
 import {centralImportFormat,centralImportRows,centralImportTypes,centralImportSheets,centralCharacterColumns} from '../shared/central-import-schema.mjs';
@@ -96,7 +97,7 @@ export async function centralImport(tx,action,actor,input,ctx){
  }
  if(batch){requireThat(batch.fingerprint===content,'CENTRAL_BATCH_REUSED');if(applying)tx.set(op,{fingerprint,result:batch.result,at});return applying?batch.result:{errors:[],changes:[],diagnostics:[],confirmation:null,alreadyApplied:batch.result};}
  requireThat(Number(meta.draft_revision)===revision,'STALE_REVISION');
- const current=await tx.list(`${base}/changes`,['workshop',workshop]),byId=new Map(current.filter(x=>workshop!=='M2'||x.type!=='speciesCatalogue').map(x=>[x.entityId,x])),seen=new Set(),planned=[],preview=[];
+ const current=await tx.list(`${base}/changes`,['workshop',workshop]),byId=new Map(current.filter(x=>!(workshop==='M2'&&x.type==='speciesCatalogue'||workshop==='M1'&&x.type==='classKit')).map(x=>[x.entityId,x])),seen=new Set(),planned=[],preview=[];
  for(const row of rows[sheet]){
   try{
    if(type==='character')checkCharacterCells(row);
@@ -118,7 +119,7 @@ export async function centralImport(tx,action,actor,input,ctx){
  const limit=type==='character'?100:250;
  if(byId.size>limit)error('id',`Limite de ${limit} définitions pour cet atelier.`,1,sheet);
  const items=workshop==='M4'&&rights.readWorkshops.includes('M1')?await tx.list(`${base}/changes`,['workshop','M1']):null;
- const diagnostics=workshop==='M2'?centralCharacterProjection([...current.filter(x=>x.type!=='character'),...byId.values()]).diagnostics.map(d=>{const c=byId.get(d.entityId),p=c?.provenance,r=rows[sheet].find(r=>r.id===d.entityId);return {...d,fileName:r?input.fileName:p?.fileName??'',sheet:r?sheet:p?.sheet??'',row:r?r._row:p?.row??null,column:characterImportColumn(d.field),batchId:r?meta.import_batch_id:p?.batchId??''};}):workshop==='M4'?centralRecipeProjection([...byId.values()],items).diagnostics:[];
+ const diagnostics=workshop==='M1'?centralClassKitProjection([...current.filter(x=>x.type==='classKit'),...byId.values()]).diagnostics:workshop==='M2'?centralCharacterProjection([...current.filter(x=>x.type!=='character'),...byId.values()]).diagnostics.map(d=>{const c=byId.get(d.entityId),p=c?.provenance,r=rows[sheet].find(r=>r.id===d.entityId);return {...d,fileName:r?input.fileName:p?.fileName??'',sheet:r?sheet:p?.sheet??'',row:r?r._row:p?.row??null,column:characterImportColumn(d.field),batchId:r?meta.import_batch_id:p?.batchId??''};}):workshop==='M4'?centralRecipeProjection([...byId.values()],items).diagnostics:[];
  const confirmation=errors.length?null:digest([actor.uid,c.revision,s.revision,grant?.revision??0,rights,revision,content,input.fileName,preview,diagnostics]);
  if(!applying)return {errors,changes:preview,diagnostics,confirmation,draftRevision:revision,batchId:meta.import_batch_id};
  requireThat(!errors.length,'INVALID_CENTRAL_IMPORT');requireThat(typeof input.confirmation==='string'&&input.confirmation===confirmation,'CENTRAL_IMPORT_STALE');

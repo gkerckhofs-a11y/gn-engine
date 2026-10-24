@@ -1,3 +1,4 @@
+import {centralTestKit} from '../support/central-class-kits-suite.mjs';
 import {centralCharacterRow} from '../support/central-character-import-suite.mjs';
 import {centralTestCharacter} from '../support/central-characters-suite.mjs';
 import {centralItemRow} from '../support/central-import-suite.mjs';
@@ -36,6 +37,20 @@ const request=async(action,input={},token)=>{
   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,input})});
   return {status:response.status,...await response.json()};
 };
+
+test('HTTP + Auth : kits M1 canoniques, références et révocation sans dotation',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`kits-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};const cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Kits M1 HTTP',title:'Préparation synthétique',capacity:4,privacy:'Notice fictive'});
+ const grant={campaignId,email,active:true,readWorkshops:['M1'],editWorkshops:['M1'],revision:0,reason:'Préparer les kits'};await cmd('setCentralStaff',grant);
+ const input={campaignId,classKitId:'MED',classKitRevision:0,draftRevision:0,classKit:centralTestKit,reason:'Kit synthétique',requestId:randomUUID()};
+ assert.equal((await request('saveCentralClassKit',input)).status,401);assert.equal((await request('saveCentralClassKit',{...input,classKit:{...centralTestKit,credits:999}},editor)).status,400);const r=await call('saveCentralClassKit',input,editor);assert.equal(r.classKitRevision,1);assert.deepEqual(await call('saveCentralClassKit',input,editor),r);
+ let d=await call('centralMaster',{campaignId,workshop:'M1'},editor);assert.equal(d.diagnostics.length,4);assert.equal(d.kitPlans[0].slots.at(-1).quantity,2);assert.equal(d.kitPlans[0].activationAvailable,false);
+ let revision=1;for(const b of centralTestKit.bindings)await cmd('saveCentralItem',{campaignId,itemId:b.itemId,itemRevision:0,draftRevision:revision++,item:{...centralTestItem,consumable:b.itemId==='supplies',pillable:true},reason:'Modèle synthétique'},editor);
+ d=await call('centralMaster',{campaignId,workshop:'M1'},editor);assert.deepEqual(d.diagnostics,[]);assert.equal(d.changes.find(c=>c.type==='item').data.pillable,true);const report=await call('checkCentralDraft',{campaignId,draftRevision:5});assert.deepEqual(report.diagnostics,[]);assert.equal(report.edges.length,4);assert.equal(report.publicationAvailable,false);
+ assert.equal((await request('admissionAdmin',{sessionId},editor)).status,403);await cmd('setCentralStaff',{...grant,active:false,revision:1});assert.equal((await request('saveCentralClassKit',input,editor)).status,403);assert.equal((await request('centralMaster',{campaignId,workshop:'M1'},editor)).status,403);
+ const session=await call('session',{sessionId});assert.equal(session.versionId,null);for(const k of ['characters','accounts','inventory','registrations'])assert.deepEqual(session[k],[]);
+});
 
 test('HTTP + Auth : Excel M2, aperçu, provenance, réessai et révocation',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`excel-m2-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);

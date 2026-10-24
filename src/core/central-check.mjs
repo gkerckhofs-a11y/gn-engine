@@ -1,3 +1,4 @@
+import {centralClassKitInput,centralClassKitProjection} from './central-class-kits.mjs';
 import {createHash} from 'node:crypto';
 import {documentId,requireThat} from './validation.mjs';
 import {itemInput} from './inventory-state.mjs';
@@ -11,13 +12,13 @@ import {centralWorkshops} from '../shared/central-workshops.mjs';
 import {centralImportTypes} from '../shared/central-import-schema.mjs';
 
 // Initial, empty-base drafts only. This report is not a publication consent.
-export const centralCheckLimits={records:601,inputBytes:16*1024*1024,reportBytes:4*1024*1024};
+export const centralCheckLimits={records:609,inputBytes:16*1024*1024,reportBytes:4*1024*1024};
 const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
 const json=v=>JSON.stringify(canonical(v));
 const hash=v=>createHash('sha256').update(json(v)).digest('hex');
 const same=(a,b)=>json(a)===json(b);
-const owners={item:'M1',character:'M2',speciesCatalogue:'M2',recipe:'M4'};
-const limits={item:250,character:100,speciesCatalogue:1,recipe:250};
+const owners={classKit:'M1',item:'M1',character:'M2',speciesCatalogue:'M2',recipe:'M4'};
+const limits={classKit:8,item:250,character:100,speciesCatalogue:1,recipe:250};
 const revisionKey=type=>type==='character'?'contentRevision':'revision';
 const safe=v=>typeof v==='string'?v.slice(0,200):'';
 const check=v=>requireThat(v,'INVALID_CENTRAL_RECORD');
@@ -41,6 +42,7 @@ function validate(c,revision){
  }else{
   check(c.source!=='ADMISSION_SETTINGS'&&d&&typeof d==='object'&&!Array.isArray(d)&&d.id===c.entityId&&d.publicationState==='DRAFT');
   const key=revisionKey(c.type);check(Number.isSafeInteger(d[key])&&d[key]>0);
+  if(c.type==='classKit')normalized={...centralClassKitInput({bindings:d.bindings,gmNotes:d.gmNotes},c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
   if(c.type==='item')normalized={...itemInput(d,c.entityId),revision:d.revision};
   if(c.type==='recipe')normalized={...recipeInput(d,c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
   if(c.type==='character'){
@@ -62,9 +64,9 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
  }
  // A duplicated ID cannot serve as a valid target, even if its first row passed.
  const records=valid.filter(c=>!invalid.has(c.id)),items=records.filter(c=>c.type==='item');
- const referenceDiagnostics=[...centralCharacterProjection(records).diagnostics,...centralRecipeProjection(records,items).diagnostics];
+ const referenceDiagnostics=[...centralClassKitProjection(records).diagnostics,...centralCharacterProjection(records).diagnostics,...centralRecipeProjection(records,items).diagnostics];
  for(const d of referenceDiagnostics){
-  const c=records.find(c=>c.entityId===d.entityId&&c.workshop===d.workshop),target=d.field==='creationPlan.speciesId'?'speciesCatalogue_player':`${d.workshop==='M2'?'character':'item'}_${d.reference}`;
+  const c=records.find(c=>c.entityId===d.entityId&&c.workshop===d.workshop&&(!d.entityType||c.type===d.entityType)),target=d.field==='creationPlan.speciesId'?'speciesCatalogue_player':`${d.workshop==='M2'?'character':'item'}_${d.reference}`;
   diagnostics.push({...location(c,d.field),...d,...(d.code==='REFERENCE_MISSING'&&invalid.has(target)?{code:'REFERENCE_INVALID',message:'Corriger la définition cible incohérente dans son atelier.'}:{})});
  }
  const edges=[];
@@ -77,6 +79,7 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
   edges.push({from:{workshop:c.workshop,type:c.type,id:c.entityId},field,to:{type,id,workshop:owners[type]??null},status:!supported?'NOT_CHECKED':invalid.has(`${type}_${id}`)?'INVALID':!target?'MISSING':target.operation==='ARCHIVE'?'ARCHIVED':'RESOLVED'});
  };
  for(const c of records.filter(c=>c.operation==='UPSERT')){
+  if(c.type==='classKit')for(const b of c.data.bindings)edge(c,`bindings.${b.slotId}.itemId`,'item',b.itemId);
   if(c.type==='character'){
    for(const r of c.data.relations)edge(c,`relations.${r.id}.targetId`,'character',r.targetId);
    if(c.data.creationPlan)edge(c,'creationPlan.speciesId','species',c.data.creationPlan.speciesId);
