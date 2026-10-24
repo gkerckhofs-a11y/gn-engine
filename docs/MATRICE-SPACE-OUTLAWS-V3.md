@@ -1,5 +1,9 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## C1b — brouillon initial et délégations de campagne
+
+[Matrice ciblée](SO-01-C1B-BROUILLON.md) : sept entrées dans six domaines, schéma natif de biens M1 sans stock, source M2 narrative conservée, droits centraux séparés de la session, révisions/concurrence/audit. **890 tests locaux et build réussis** ; CI exacte dans la PR. SO-GAP-12/13 partiels, aucun écart clos ; M3–M7 centraux, contrôle/publication globale, import/export central et adoption historique non livrés. I3/I4/I5 restent nécessaires.
+
 ## I2b — groupes et mandats de session
 
 [Matrice ciblée et compatibilité](SO-01-I2B-GROUPES.md) : politique optionnelle sur les groupes existants, transfert et retrait atomiques, capacités, responsable, révocation/autorisation séparées, audit/contre-opération. **869 tests locaux et build réussis** ; CI exacte dans la PR. SO-GAP-16 partiellement traité ; garde historique/Masters préservée, décès/succession et intégration centrale restent ouverts. Aucun autre écart clos par cette tranche.

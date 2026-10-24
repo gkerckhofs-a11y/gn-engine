@@ -1,5 +1,7 @@
 # GN Engine
 
+**SO-01 / SO-06 C1b — brouillon central et droits de campagne.** [Guide, matrice, tests et limites](docs/SO-01-C1B-BROUILLON.md) : sept ateliers dans six domaines, modèles M1 éditables, catalogue narratif M2 partagé, délégations par atelier, concurrence/réessais et archive/restauration auditée. **890 tests locaux et build réussis** ; CI exacte dans la PR après terminaison. Pas de publication globale ni import central dans cette tranche, aucune ressource de jeu créée. Suite C1/C2 puis I3/I4/I5 ; aucune migration ou production.
+
 **SO-01 I2b — régie des groupes sur branche.** [Guide, matrice, preuves et reprise](docs/SO-01-I2B-GROUPES.md) : configuration/capacité/responsable, affectation/retrait/transfert atomiques, permissions explicites, archive et contre-opération auditée. **869 tests locaux et build réussis** ; CI exacte dans la PR après terminaison. Caisses, biens et contrats conservés. Naissance/succession et raccordement M2 restent à développer ; aucune production.
 
 **SO-01 I2 — décisions MJ et quotas confirmés sur branche.** [Guide, matrice et preuves](docs/SO-01-I2-DECISIONS.md) : file filtrable, identité fictive, dernière place atomique, attente/correction/refus/retrait, changement de classe et exception motivée. 846 tests locaux et build réussis ; CI exacte dans la PR. Aucune définition M2, dotation ou publication centrale dans cette tranche. Suite : I2b groupes.

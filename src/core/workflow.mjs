@@ -1,4 +1,5 @@
 import {recipeInput,validateRecipeReferences} from './recipe-state.mjs';
+import {createCentralMasterService,centralMasterAction,centralDashboard} from './central-master.mjs';
 import {isPreparation} from './preparation-state.mjs';
 import {createAdmissionService,admissionAction} from './admissions.mjs';
 import {createGroupManagementService,groupManagementAction} from './group-management.mjs';
@@ -153,6 +154,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const logisticsService=createLogisticsService({store,signed,checkSession,now,uuid});
   const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,now,uuid});
   const admissionService=createAdmissionService({store,signed,checkSession,now,uuid});
+  const centralMasterService=createCentralMasterService({store,signed,isAdmin,now,uuid});
   const groupManagementService=createGroupManagementService({store,signed,checkSession,now,uuid});
   const personService=createPersonService({store,signed,checkSession,checkScenario,now,uuid,rollD6});
   const fieldService=createFieldService({store,signed,checkSession,checkScenario,now,uuid,rollD6});
@@ -177,6 +179,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
 
   async function dispatch(action,actor,input={}) {
     if(admissionAction(action))return admissionService(action,actor,input);
+    if(centralMasterAction(action))return centralMasterService(action,actor,input);
     if(groupManagementAction(action))return groupManagementService(action,actor,input);
     if(priceAction(action))return priceService(action,actor,input);
     if(voyageAction(action))return voyageService(action,actor,input);
@@ -211,14 +214,16 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(action==='identity') {
       const verified=actor?.uid && actor.emailVerified===true && actor.provider==='google.com';
       const grants=verified && !isAdmin(actor) ? await store.list('sessionStaff',['email',actor.email.toLowerCase()]) : [];
-      return {uid:actor?.uid??null,email:actor?.email??null,admin:isAdmin(actor),organizer:isAdmin(actor)||grants.some(g=>g.active)};
+      const central=verified&&!isAdmin(actor)?await store.runTransaction(tx=>centralDashboard(tx,actor,false)):[];
+      return {uid:actor?.uid??null,email:actor?.email??null,admin:isAdmin(actor),organizer:isAdmin(actor)||grants.some(g=>g.active)||central.length>0};
     }
     if(action==='dashboard') {
       signed(actor);
       return store.runTransaction(async tx=>{
         const grants=await tx.list('sessionStaff',['email',actor.email.toLowerCase()]);
         const own=isAdmin(actor);
-        requireThat(own||grants.some(g=>g.active),'FORBIDDEN');
+        const centralCampaigns=await centralDashboard(tx,actor,own);
+        requireThat(own||grants.some(g=>g.active)||centralCampaigns.length>0,'FORBIDDEN');
         const [scenarios,sessions]=own ? await Promise.all([tx.list('scenarios',['ownerUid',actor.uid]),tx.list('sessions',['ownerUid',actor.uid])]) : [[],[]];
         const visible=sessions.map(s=>({...privateSession(s),role:'OWNER'}));
         for(const g of grants.filter(g=>g.active)) {
@@ -226,7 +231,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
           if(s && s.ownerUid===g.ownerUid && !visible.some(x=>x.id===s.id)) visible.push({...privateSession(s),role:g.role});
         }
         const campaigns=own?await tx.list('campaigns',['ownerUid',actor.uid]):[];
-        return {scenarios,sessions:visible,campaigns:campaigns.map(c=>({id:c.id,title:c.title,episodeCount:c.episodeCount,activeSessionId:c.activeSessionId,activeBuildId:c.activeBuildId,latestSessionId:c.latestSessionId,...(c.preparationSessionId?{preparationSessionId:c.preparationSessionId}:{})}))};
+        return {scenarios,sessions:visible,centralCampaigns,campaigns:campaigns.map(c=>({id:c.id,title:c.title,episodeCount:c.episodeCount,activeSessionId:c.activeSessionId,activeBuildId:c.activeBuildId,latestSessionId:c.latestSessionId,...(c.preparationSessionId?{preparationSessionId:c.preparationSessionId}:{})}))};
       });
     }
     if(action==='publicSession') {

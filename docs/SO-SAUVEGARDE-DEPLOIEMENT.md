@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## Complément C1b — brouillon, délégations et reçus cohérents
+
+[Contrat C1b et reprise](SO-01-C1B-BROUILLON.md) : sauvegarder ensemble le header de campagne, `masterDrafts/initial` et changements/historiques, `campaignStaff`, audit et `operations`, avec la préparation et ses admissions I1/I2. XLSX historique et archive de scénario insuffisants. Ne pas revenir à un lecteur ignorant ces droits/changements. Interruption transactionnelle, réponse perdue et restauration d’une définition archivée testées automatiquement ; **sauvegarde/restauration complète et rollback opérationnel non exécutés**. Aucun déploiement autorisé.
+
 ## Complément I2b — groupes et permissions cohérents
 
 [Contrat et reprise I2b](SO-01-I2B-GROUPES.md) : sauvegarder ensemble `group.roster`, membres, versions, audit, opérations et autorisations, avec comptes/ledger/stocks/contrats. XLSX seul insuffisant. Ne pas revenir à un binaire pré-I2b ignorant la politique. Interruption avant commit, réessai après réponse perdue et contre-opération liée testés automatiquement ; sauvegarde/restauration complète, retour arrière opérationnel et recette mobile non exécutés. Aucun déploiement autorisé.

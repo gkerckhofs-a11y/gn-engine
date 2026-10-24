@@ -44,6 +44,14 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Conserver caisses, biens et contrats ; une contre-opération doit revalider droits/capacité et journaliser, sans restaurer un ledger. Ne pas revenir à un binaire qui ignore la politique sur des données I2b. Le XLSX historique seul n’exporte pas cette politique.
 - I3/I4 raccordent les préparations C1a ; I5 doit révoquer les mandats au décès/à la relève. Ne pas assimiler hors combat à mort, ni personnage non affecté à réserve jamais incarnée.
 
+## Tranche C1b — brouillon et délégations centrales
+
+- [C1b](docs/SO-01-C1B-BROUILLON.md) étend seulement les nouvelles préparations C1a sans base publiée. M1 et le catalogue narratif I1 M2 partagent le même `masterDrafts/initial` et sa révision ; ne créer aucune copie de catalogue d’admission ni aucune instance.
+- Les droits `campaignStaff` sont distincts des rôles de session. Lecture par atelier, édition M1 seulement ; aucune publication implicite. Autorité courante avant restitution d’un reçu. Les droits MJ de session restent limités aux choix narratifs du parcours I1, pas à l’édition arbitraire du central.
+- Les biens restent au format natif `itemInput` dans les changements centraux, sans stock et avec contenu DRAFT. Archive/restauration est une contre-opération auditée. Les imports/export et médias centraux restent à adapter ; ne pas réutiliser les seeds ni perdre l’indexation des médias.
+- C1/C2 devront adapter explicitement les gardes de cycle initial et le lecteur I1. Aucun lecteur de version BUILDING ni adoption de campagne historique implicite. Conserver les tests M1/M2 concurrents, séparation des rôles et révocation avant reçu.
+- Les Masters historiques seuls ne sauvegardent pas ce brouillon/délégations/reçus ; rollback vers un binaire ignorant ces états non sûr. Aucune restauration complète ni recette mobile n’est revendiquée.
+
 ## Dépôt et branche
 
 - Travailler exclusivement dans le dépôt `gkerckhofs-a11y/gn-engine`, sur une branche dédiée et une PR. Le checkout local sert au développement et aux vérifications du même dépôt ; ne pas créer de seconde application ou de dépôt parallèle.

@@ -1,5 +1,9 @@
 # SO-00 V3.5 — diagnostic, inscriptions et ordre de développement
 
+## Avancement après C1b
+
+[Brouillon central et droits C1b](SO-01-C1B-BROUILLON.md) : M1 éditable et M2 narratif consultable dans le même brouillon, délégations de campagne, réessais/concurrence et archive/restauration auditée. 890 tests locaux et build réussis ; CI exacte dans la PR. C1 reste à compléter par les adaptateurs/références, C2 par la publication globale ; passage personnage M2 I3, naissance I4 et relève I5 restent absents. Aucun ancien contrat migré.
+
 ## Avancement après I2b
 
 [Régie des groupes I2b](SO-01-I2B-GROUPES.md) développée sans migration historique : 869 tests locaux et build réussis, CI exacte dans la PR. Affectation/retrait/transfert, capacité/type/responsable, autorisation explicite des mandats, archive et contre-opération auditée. Données financières et propriété inchangées. Préparations I2 sans personnages : accès à cette régie différé au raccordement I3/I4. Suite C1/C2 puis I3/I4/I5 ; les sections suivantes conservent le diagnostic initial.

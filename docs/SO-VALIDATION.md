@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## État courant V3.5 — C1b, brouillon central et droits
+
+[Tranche C1b](SO-01-C1B-BROUILLON.md) : préparation M1 dans le brouillon initial partagé avec M2, lecture par atelier, édition M1 et délégation de campagne, révocation avant reçu, historique et contre-opération. **890 tests locaux et build réussis** ; 17 nouveaux cas métier partagés avec Firestore, quatre rendus UI, un HTTP/Auth. Résultats CI du commit exact dans la PR après terminaison. SO-GAP-12/13 partiellement couverts ; publication/import central, personnages M2, naissance/relève restent absents. Aucun des 55 cas complets, mobile ou restauration intégrale certifié. Produit complet toujours non conforme V3.5/V0.7.
+
 ## État courant V3.5 — I2b, régie des groupes
 
 [Tranche I2b](SO-01-I2B-GROUPES.md) : transfert atomique, capacités/types/responsable, permissions explicitement autorisées, archivage et contre-opération. **869 tests locaux et build réussis** ; 19 nouveaux cas métier partagés avec Firestore, quatre rendus UI, un HTTP/Auth. CI exacte à consigner dans la PR après exécution. SO-GAP-16 partiellement couvert : décès/relève automatique restent I5. INS-09/10 : preuves automatiques partielles, aucune recette sur appareils. Produit complet toujours non conforme V3.5/V0.7, aucune migration/production. Suite C1/C2 puis I3/I4/I5.

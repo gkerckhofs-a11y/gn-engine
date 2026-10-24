@@ -1,4 +1,5 @@
 import {rosterMembership} from '../support/group-management-suite.mjs';
+import {centralTestItem} from '../support/central-master-suite.mjs';
 import {admissionTestSettings,admissionTestProposal} from '../support/admissions-suite.mjs';
 import {personCommands} from '../../src/core/person-actions.mjs';
 import {fieldCommands} from '../../src/core/field-actions.mjs';
@@ -30,6 +31,23 @@ const request=async(action,input={},token)=>{
   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,input})});
   return {status:response.status,...await response.json()};
 };
+
+test('HTTP + Auth : Master central, délégation M1, révocation et aucun accès aux inscriptions',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`central-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email),player=await googleTestAccount(`central-player-${randomUUID()}@example.invalid`);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};
+ const cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Master central HTTP',title:'Préparation synthétique',capacity:4,privacy:'Notice synthétique'});
+ assert.equal((await request('centralMaster',{campaignId})).status,401);assert.equal((await request('centralMaster',{campaignId},player)).status,403);
+ const grant={campaignId,email,active:true,readWorkshops:['M1'],editWorkshops:['M1'],revision:0,reason:'Préparer M1'};await cmd('setCentralStaff',grant);
+ assert.equal((await call('dashboard',{},editor)).centralCampaigns[0].id,campaignId);
+ const input={campaignId,itemId:'ingredient-http',item:centralTestItem,draftRevision:0,itemRevision:0,reason:'Modèle HTTP',requestId:randomUUID()},saved=await cmd('saveCentralItem',input,editor);assert.deepEqual(await cmd('saveCentralItem',input,editor),saved);
+ assert.equal((await call('centralMaster',{campaignId,workshop:'M1'},editor)).changes.length,1);
+ assert.equal((await request('centralMaster',{campaignId,workshop:'M2'},editor)).status,403);assert.equal((await request('admissionAdmin',{sessionId},editor)).status,403);
+ await cmd('saveAdmissionSettings',{sessionId,policyRevision:0,draftRevision:1,settings:admissionTestSettings,reason:'Catalogue narratif'});
+ assert.equal((await call('centralMaster',{campaignId,workshop:'M2'})).changes.length,1);
+ await cmd('setCentralStaff',{...grant,active:false,revision:1});assert.equal((await request('saveCentralItem',input,editor)).status,403);assert.equal((await request('centralMaster',{campaignId},editor)).status,403);
+ const s=await call('session',{sessionId});for(const kind of ['characters','inventory','accounts'])assert.deepEqual(s[kind],[]);assert.equal(s.versionId,null);
+});
 
 test('HTTP + Auth : régie MJ, transfert idempotent et aucune création de patrimoine',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),player=await googleTestAccount(`roster-${randomUUID()}@example.invalid`);
