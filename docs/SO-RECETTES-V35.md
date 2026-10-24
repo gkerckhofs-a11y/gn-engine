@@ -1,5 +1,9 @@
 # Registre V3.5 — 55 recettes ciblées
 
+## C2d — Excel des personnages M2
+
+[C2d — import/export M2](SO-02-C2D-EXCEL-PERSONNAGES.md) : sélection privée, aperçu, fiches narratives et plans C2c, références différées/localisées, lot atomique avec révisions natives et catalogue partagé intact. **1043 tests applicatifs locaux et build réussis** ; 17 nouveaux cas partagés Firestore, quatre UI/XLSX et un HTTP/Auth. CI exacte à consigner dans la PR après terminaison. MST-01/02/07 et INS-06 : preuves préparatoires partielles ; SO-GAP-12/13/14 et les 55 verdicts complets restent inchangés. Publication, effets/dotations, I3/I4/I5 et recette humaine à compléter. Export ciblé, pas une sauvegarde globale.
+
 ## C2c — preuves automatiques partielles
 
 [C2c — plans initiaux joueurs M2](SO-02-C2C-PROFILS-INITIAUX.md) : classe, espèce partagée et initiation hors classe, trois principales dérivées à N2 ou fixes, références différées/nature contrôlées, plan privé sans profil actif ni ressources. **1022 tests applicatifs locaux et build réussis** ; 15 nouveaux cas métier partagés Firestore, un cas exhaustif des 56 combinaisons, quatre UI et un HTTP/Auth. CI exacte à consigner dans la PR après terminaison. REC-SO-01 et INS-06 : preuves préparatoires partielles uniquement ; SO-GAP-12/13/14 restent ouverts, 55 verdicts complets inchangés. Publication globale, I3/I4/I5, effets, dotations et recette humaine restent à compléter.

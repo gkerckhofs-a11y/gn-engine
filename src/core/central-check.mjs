@@ -3,6 +3,7 @@ import {documentId,requireThat} from './validation.mjs';
 import {itemInput} from './inventory-state.mjs';
 import {recipeInput} from './recipe-state.mjs';
 import {centralCharacterInput,centralCharacterProjection} from './central-characters.mjs';
+import {characterImportColumn} from './central-character-import.mjs';
 import {storedCharacterPlan} from './central-character-plan.mjs';
 import {centralRecipeProjection} from './central-recipes.mjs';
 import {admissionSettings,emptyAdmissionCounts} from './admission-state.mjs';
@@ -21,7 +22,7 @@ const revisionKey=type=>type==='character'?'contentRevision':'revision';
 const safe=v=>typeof v==='string'?v.slice(0,200):'';
 const check=v=>requireThat(v,'INVALID_CENTRAL_RECORD');
 const location=(c,field='')=>({workshop:safe(c?.workshop),entityId:safe(c?.entityId),field,source:safe(c?.source),
- fileName:safe(c?.provenance?.fileName),sheet:safe(c?.provenance?.sheet),row:Number.isSafeInteger(c?.provenance?.row)?c.provenance.row:null,column:field,
+ fileName:safe(c?.provenance?.fileName),sheet:safe(c?.provenance?.sheet),row:Number.isSafeInteger(c?.provenance?.row)?c.provenance.row:null,column:c?.type==='character'&&c?.source==='XLSX'?characterImportColumn(field):field,
  batchId:safe(c?.provenance?.batchId),draftRevision:Number.isSafeInteger(c?.revision)?c.revision:null});
 function validate(c,revision){
  check(c&&typeof c==='object'&&!Array.isArray(c));

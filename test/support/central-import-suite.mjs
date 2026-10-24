@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
+import {centralImportTypes} from '../../src/shared/central-import-schema.mjs';
 import {centralFixture} from './central-master-suite.mjs';
 import {readCentralXlsx,writeCentralXlsx} from '../../web/central-xlsx.mjs';
 export const centralItemRow={id:'ingredient',operation:'CREER',revision:0,nom:'Ingrédient fictif',description:'Exemple',categorie:'Ingrédient',unite:'unité',type:'STACKABLE',consommable:'OUI',volume_unitaire:1,legalite:'UNSPECIFIED',pillable:'NON',notes_mj:'Privé'};
@@ -8,7 +9,7 @@ export const centralRecipeRow={id:'formula',operation:'CREER',revision:0,nom:'Fo
 export async function importFixture(makeStore){
  const f=await centralFixture(makeStore);
  const exportFile=(workshop='M1',ids=[],actor=f.owner)=>f.read('exportCentralDraft',actor,{campaignId:f.cid,workshop,ids});
- const file=async(workshop='M1',rows=[centralItemRow],actor=f.owner)=>{const e=await exportFile(workshop,[],actor);e.sheets[workshop==='M1'?'Objets':'Recettes']=rows;return {campaignId:f.cid,workshop,fileName:'Préparation.xlsx',sheets:readCentralXlsx(writeCentralXlsx(e.sheets))};};
+ const file=async(workshop='M1',rows=[centralItemRow],actor=f.owner)=>{const e=await exportFile(workshop,[],actor);e.sheets[centralImportTypes[workshop].sheet]=rows;return {campaignId:f.cid,workshop,fileName:'Préparation.xlsx',sheets:readCentralXlsx(writeCentralXlsx(e.sheets))};};
  const prepare=(input,actor=f.owner)=>f.read('prepareCentralImport',actor,input);
  const apply=(input,p,extra={},actor=f.owner)=>f.cmd('applyCentralImport',{...input,confirmation:p.confirmation,reason:'Import synthétique',...extra},actor);
  return {...f,exportFile,file,prepare,apply};

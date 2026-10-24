@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## C2d — Excel des personnages M2
+
+[C2d — import/export M2](SO-02-C2D-EXCEL-PERSONNAGES.md) : sélection privée, aperçu, fiches narratives et plans C2c, références différées/localisées, lot atomique avec révisions natives et catalogue partagé intact. **1043 tests applicatifs locaux et build réussis** ; 17 nouveaux cas partagés Firestore, quatre UI/XLSX et un HTTP/Auth. CI exacte à consigner dans la PR après terminaison. MST-01/02/07 et INS-06 : preuves préparatoires partielles ; SO-GAP-12/13/14 et les 55 verdicts complets restent inchangés. Publication, effets/dotations, I3/I4/I5 et recette humaine à compléter. Export ciblé, pas une sauvegarde globale.
+
 ## Complément C2c — plans initiaux M2
 
 [C2c](SO-02-C2C-PROFILS-INITIAUX.md) ajoute le champ privé `creationPlan` aux définitions M2 C1e. Sauvegarder avec les changements, histoires, révisions et reçus ; les exports M1/M4 ou Masters historiques ne le couvrent pas. Omission par un ancien client conserve, null explicite retire ; un ancien lecteur C2b ne sait pas valider ces plans et ne constitue pas un retour fonctionnel équivalent. Aucun profil actif ni ressource créé, aucune migration ou restauration complète exécutée.

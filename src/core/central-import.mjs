@@ -2,8 +2,10 @@ import {createHash} from 'node:crypto';
 import {documentId,requireThat} from './validation.mjs';
 import {itemInput} from './inventory-state.mjs';
 import {recipeInput} from './recipe-state.mjs';
+import {importedCharacter,exportedCharacter,checkCharacterCells,characterImportColumn} from './central-character-import.mjs';
+import {centralCharacterProjection} from './central-characters.mjs';
 import {centralRecipeProjection} from './central-recipes.mjs';
-import {centralImportFormat,centralImportRows,centralImportTypes,centralImportSheets} from '../shared/central-import-schema.mjs';
+import {centralImportFormat,centralImportRows,centralImportTypes,centralImportSheets,centralCharacterColumns} from '../shared/central-import-schema.mjs';
 import {masterLimits} from '../shared/master-schema.mjs';
 
 const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
@@ -13,6 +15,8 @@ const check=v=>requireThat(v,'INVALID_CENTRAL_IMPORT');
 const keys=(v,allowed)=>check(v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).every(k=>allowed.includes(k)));
 const fail=(column,message)=>{throw Object.assign(new Error(message),{column});};
 const integer=(v,column)=>{if(!/^\d+$/.test(String(v))||!Number.isSafeInteger(Number(v)))fail(column,'Entier positif ou nul attendu.');return Number(v);};
+const revisionKey=type=>type==='character'?'contentRevision':'revision';
+const columns=type=>type==='character'?centralCharacterColumns:Object.keys(fields[type]);
 const fields={
  item:{nom:['name','text'],description:['description','text',''],categorie:['category','text',''],unite:['unit','text'],type:['kind','text'],consommable:['consumable','bool'],volume_unitaire:['unitVolume','number',null],legalite:['legality','text'],notes_mj:['gmNotes','text',''],pillable:['pillable','bool'],billes_par_recharge:['laserRecharge','laser',null]},
  recipe:{nom:['name','text'],description:['description','text',''],type:['kind','text'],niveau_minimum:['minLevel','number'],competence_id:['skillId','text',null],produit_id:['productItemId','text',null],composants:['components','components',[]],effet_id:['effectId','text',null],laboratoire_lieu_id:['laboratoryTargetId','text',null],connaissance_id:['unlockKnowledgeId','text',null],prix_indicatif:['indicativePrice','number',null],notes_mj:['gmNotes','text','']},
@@ -25,6 +29,7 @@ function cell(value,kind,column){
  return value;
 }
 function dataFor(type,row,old){
+ if(type==='character')return importedCharacter(row,old);
  const data={...(old?.data??{}),publicationState:'DRAFT',...(type==='recipe'?{masterArchived:false}:{})};
  for(const [column,[key,kind,cleared]] of Object.entries(fields[type])){
   const value=row[column];if(value===undefined||value==='')continue;
@@ -34,6 +39,7 @@ function dataFor(type,row,old){
  return (type==='item'?itemInput:recipeInput)(data,row.id,old?.data);
 }
 function exportRow(c){
+ if(c.type==='character'){const row=exportedCharacter(c);try{checkCharacterCells(row);}catch{requireThat(false,'CENTRAL_CHARACTER_EXPORT_LIMIT');}return row;}
  const row={id:c.entityId,operation:c.operation==='ARCHIVE'?'ARCHIVER':'MODIFIER',revision:c.data.revision};
  if(c.operation==='ARCHIVE')return row;
  for(const [column,[key,kind]] of Object.entries(fields[c.type])){
@@ -90,27 +96,29 @@ export async function centralImport(tx,action,actor,input,ctx){
  }
  if(batch){requireThat(batch.fingerprint===content,'CENTRAL_BATCH_REUSED');if(applying)tx.set(op,{fingerprint,result:batch.result,at});return applying?batch.result:{errors:[],changes:[],diagnostics:[],confirmation:null,alreadyApplied:batch.result};}
  requireThat(Number(meta.draft_revision)===revision,'STALE_REVISION');
- const current=await tx.list(`${base}/changes`,['workshop',workshop]),byId=new Map(current.map(x=>[x.entityId,x])),seen=new Set(),planned=[],preview=[];
+ const current=await tx.list(`${base}/changes`,['workshop',workshop]),byId=new Map(current.filter(x=>workshop!=='M2'||x.type!=='speciesCatalogue').map(x=>[x.entityId,x])),seen=new Set(),planned=[],preview=[];
  for(const row of rows[sheet]){
   try{
+   if(type==='character')checkCharacterCells(row);
    const id=documentId(row.id);if(seen.has(id))fail('id','Identifiant répété dans le fichier.');seen.add(id);
    const old=byId.get(id);if(old&&!(old.type===type&&old.id===`${type}_${id}`))fail('id','État du brouillon incohérent.');
-   if(integer(row.revision,'revision')!==(old?.data.revision??0))fail('revision','Révision périmée : exporter à nouveau.');
+   if(integer(row.revision,'revision')!==(old?.data[revisionKey(type)]??0))fail('revision','Révision périmée : exporter à nouveau.');
    if(!['CREER','MODIFIER','ARCHIVER','RESTAURER'].includes(row.operation))fail('operation','Utiliser CREER, MODIFIER, ARCHIVER ou RESTAURER.');
    if(row.operation==='CREER'?!!old:!old)fail('operation','Création/existence incompatible.');
    if(row.operation==='MODIFIER'&&old.operation!=='UPSERT'||row.operation==='RESTAURER'&&old.operation!=='ARCHIVE')fail('operation','Choisir explicitement la restauration ou la modification.');
    const archive=row.operation==='ARCHIVER';
-   if(archive&&Object.keys(fields[type]).some(k=>row[k]))fail('operation','Pour archiver, conserver uniquement id, operation et revision.');
-   const operation=archive?'ARCHIVE':'UPSERT',data=archive?{...old.data,...(type==='recipe'?{masterArchived:true}:{}),revision:old.data.revision+1}:dataFor(type,row,old);
-   const changedFields=Object.keys(data).filter(k=>k!=='revision'&&digest(data[k]??null)!==digest(old?.data[k]??null)).map(field=>({field,before:old?.data[field]??null,after:data[field]}));
+   if(archive&&columns(type).some(k=>row[k]))fail('operation','Pour archiver, conserver uniquement id, operation et revision.');
+   const operation=archive?'ARCHIVE':'UPSERT',data=archive?{...old.data,...(['recipe','character'].includes(type)?{masterArchived:true}:{}),[revisionKey(type)]:old.data[revisionKey(type)]+1}:dataFor(type,row,old);
+   const changedFields=Object.keys(data).filter(k=>k!==revisionKey(type)&&digest(data[k]??null)!==digest(old?.data[k]??null)).map(field=>({field,before:old?.data[field]??null,after:data[field]}));
    if(old?.operation!==operation)changedFields.push({field:'operation',before:old?.operation??null,after:operation});
    preview.push({id,row:row._row,sheet,operation:changedFields.length?row.operation:'INCHANGE',fields:changedFields});
    if(changedFields.length){const change={id:`${type}_${id}`,type,entityId:id,workshop,operation,data,revision:revision+1,source:'XLSX',provenance:{schemaVersion:1,batchId:meta.import_batch_id,fileName:input.fileName,sheet,row:row._row},actorUid:actor.uid,at};planned.push({old:old??null,change});byId.set(id,change);}
   }catch(e){error(e.column??'',e.code??e.message,row._row,sheet,row.id??'');}
  }
- if(byId.size>250)error('id','Limite de 250 définitions par atelier.',1,sheet);
+ const limit=type==='character'?100:250;
+ if(byId.size>limit)error('id',`Limite de ${limit} définitions pour cet atelier.`,1,sheet);
  const items=workshop==='M4'&&rights.readWorkshops.includes('M1')?await tx.list(`${base}/changes`,['workshop','M1']):null;
- const diagnostics=workshop==='M4'?centralRecipeProjection([...byId.values()],items).diagnostics:[];
+ const diagnostics=workshop==='M2'?centralCharacterProjection([...current.filter(x=>x.type!=='character'),...byId.values()]).diagnostics.map(d=>{const c=byId.get(d.entityId),p=c?.provenance,r=rows[sheet].find(r=>r.id===d.entityId);return {...d,fileName:r?input.fileName:p?.fileName??'',sheet:r?sheet:p?.sheet??'',row:r?r._row:p?.row??null,column:characterImportColumn(d.field),batchId:r?meta.import_batch_id:p?.batchId??''};}):workshop==='M4'?centralRecipeProjection([...byId.values()],items).diagnostics:[];
  const confirmation=errors.length?null:digest([actor.uid,c.revision,s.revision,grant?.revision??0,rights,revision,content,input.fileName,preview,diagnostics]);
  if(!applying)return {errors,changes:preview,diagnostics,confirmation,draftRevision:revision,batchId:meta.import_batch_id};
  requireThat(!errors.length,'INVALID_CENTRAL_IMPORT');requireThat(typeof input.confirmation==='string'&&input.confirmation===confirmation,'CENTRAL_IMPORT_STALE');

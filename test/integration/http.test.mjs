@@ -1,3 +1,4 @@
+import {centralCharacterRow} from '../support/central-character-import-suite.mjs';
 import {centralTestCharacter} from '../support/central-characters-suite.mjs';
 import {centralItemRow} from '../support/central-import-suite.mjs';
 import {readCentralXlsx,writeCentralXlsx} from '../../web/central-xlsx.mjs';
@@ -35,6 +36,22 @@ const request=async(action,input={},token)=>{
   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,input})});
   return {status:response.status,...await response.json()};
 };
+
+test('HTTP + Auth : Excel M2, aperçu, provenance, réessai et révocation',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`excel-m2-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};const cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Excel M2 HTTP',title:'Préparation synthétique',capacity:4,privacy:'Notice fictive'});
+ await cmd('saveAdmissionSettings',{sessionId,policyRevision:0,draftRevision:0,settings:admissionTestSettings,reason:'Espèces synthétiques'});
+ const grant={campaignId,email,active:true,readWorkshops:['M2'],editWorkshops:['M2'],revision:0,reason:'Importer la fiction'};await cmd('setCentralStaff',grant);
+ const e=await call('exportCentralDraft',{campaignId,workshop:'M2',ids:[]},editor);e.sheets.Personnages=[{...centralCharacterRow,relations_json:'[]'}];
+ const input={campaignId,workshop:'M2',fileName:'Personnages.xlsx',sheets:readCentralXlsx(writeCentralXlsx(e.sheets))};
+ assert.equal((await request('prepareCentralImport',input)).status,401);const p=await call('prepareCentralImport',input,editor);assert.deepEqual(p.errors,[]);assert.deepEqual(p.diagnostics,[]);
+ const apply={...input,confirmation:p.confirmation,reason:'Fiches fictives',requestId:randomUUID()},r=await call('applyCentralImport',apply,editor);assert.equal(r.changed,1);assert.deepEqual(await call('applyCentralImport',apply,editor),r);
+ const exported=await call('exportCentralDraft',{campaignId,workshop:'M2',ids:['person']},editor);assert.equal(exported.sheets.Personnages[0].revision,1);assert.equal(exported.sheets.Personnages[0].classe_id,'COM');
+ const report=await call('checkCentralDraft',{campaignId,draftRevision:2});assert.equal(report.totals.invalid,0);assert.equal(report.diff.find(x=>x.type==='character').location.sheet,'Personnages');assert.equal(report.publicationAvailable,false);
+ assert.equal((await request('admissionAdmin',{sessionId},editor)).status,403);await cmd('setCentralStaff',{...grant,active:false,revision:1});assert.equal((await request('applyCentralImport',apply,editor)).status,403);assert.equal((await request('exportCentralDraft',{campaignId,workshop:'M2',ids:['person']},editor)).status,403);
+ const session=await call('session',{sessionId});assert.equal(session.versionId,null);for(const k of ['characters','accounts','inventory','registrations'])assert.deepEqual(session[k],[]);
+});
 
 test('HTTP + Auth : plan initial M2 canonique, références et révocation',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`plan-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);

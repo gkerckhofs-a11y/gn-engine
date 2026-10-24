@@ -7,9 +7,9 @@ import {readMasterXlsx} from '../web/master-xlsx.mjs';
 import {importFixture} from './support/central-import-suite.mjs';
 import {MemoryStore} from './support/memory.mjs';
 const ui=createCentralImportUi({button:(label,action,extra='')=>`<button data-action="${action}" ${extra}>${label}</button>`});
-const d={campaign:{id:'campaign'},workshop:'M1',rights:{editWorkshops:[]},changes:[{entityId:'ingredient',data:{name:'<script>',revision:2},operation:'UPSERT'}]};
+const d={campaign:{id:'campaign'},workshop:'M1',rights:{editWorkshops:[]},changes:[{type:'item',entityId:'ingredient',data:{name:'<script>',revision:2},operation:'UPSERT'}]};
 test('Excel central UI : lecture seule exporte, édition ouvre un fichier avec aperçu',()=>{
- assert.match(ui.buttons(d),/data-action="centralExport"/);assert.doesNotMatch(ui.buttons(d),/data-action="centralImport"/);assert.match(ui.buttons({...d,rights:{editWorkshops:['M1']}}),/data-action="centralImport"/);assert.equal(ui.buttons({...d,workshop:'M2'}),'');
+ assert.match(ui.buttons(d),/data-action="centralExport"/);assert.doesNotMatch(ui.buttons(d),/data-action="centralImport"/);assert.match(ui.buttons({...d,rights:{editWorkshops:['M1']}}),/data-action="centralImport"/);assert.equal(ui.buttons({...d,workshop:'M3'}),'');
  const h=ui.exportForm(d);assert.match(h,/name="selected" value="ingredient"/);assert.match(h,/Sans sélection/);assert.doesNotMatch(h,/<script>| checked/);assert.match(h,/&lt;script&gt;/);assert.match(ui.importForm(d),/accept=".xlsx" required/);
 });
 test('Excel central UI : erreurs et lot déjà enregistré ne proposent aucune confirmation',()=>{

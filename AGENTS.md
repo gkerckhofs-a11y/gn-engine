@@ -95,6 +95,13 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Omission par ancien client = conservation ; null explicite = retrait audité. Conserver révisions communes, archive/restauration et tests concurrence/révocation/réessai. Le flag d'espèce `available` ferme un choix aux candidatures, pas une définition M2.
 - Le contrôle commun valide les plans et références d'espèce ; il ne certifie pas les effets de compétences ni les fiches narratives sans plan. I3/I4 doivent encore relier les admissions, quotas et naissance. PNJ Force, progression, kits, publication et restauration complète restent distincts ; ne jamais activer le plan par les seeds historiques.
 
+## Tranche C2d — Excel des personnages M2
+
+- [C2d](docs/SO-02-C2D-EXCEL-PERSONNAGES.md) étend le contrat XLSX central v1 à M2, sans convertir les Masters historiques ni les gabarits V0.1. Réutiliser les commandes C1d et `centralCharacterInput`, avec `contentRevision` ; ne pas ajouter de révision native concurrente.
+- Exporter uniquement les fiches sélectionnées, jamais le catalogue partagé, les admissions ou politiques. Tableaux narratifs JSON complets avec IDs et plan initial C2c ; blanc conserve, retrait explicite, aucune publication imbriquée autorisée. 100 fiches archives comprises, 96 Kio par fiche, 32 000 caractères par cellule M2 sans troncature.
+- Préserver la provenance XLSX M2 dans le contrôle commun, les références différées, la révision centrale commune, les droits avant reçu et les tests de concurrence/révocation/interruption. L'import ne crée aucune incarnation ni ressource.
+- Le fichier ciblé ne sauvegarde pas catalogue, historique, droits ou reçus ; C2c refuse la nouvelle provenance au contrôle global. Publication, restauration complète, I3/I4/I5 et médias restent à raccorder.
+
 ## Dépôt et branche
 
 - Travailler exclusivement dans le dépôt `gkerckhofs-a11y/gn-engine`, sur une branche dédiée et une PR. Le checkout local sert au développement et aux vérifications du même dépôt ; ne pas créer de seconde application ou de dépôt parallèle.
