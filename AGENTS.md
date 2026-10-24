@@ -81,7 +81,7 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Réutiliser les formes natives et projections M1/M2/M4 ; tout nouveau type/champ doit adapter explicitement ce contrôleur. Ne pas ignorer un changement inconnu, une provenance incohérente ou un dépassement de budget.
 - Le rapport expose couverture partielle, diagnostics localisés, ajouts/exclusions, liens et empreinte. Aucun texte d'admission ni texte narratif privé dans le résumé ; aucun état persistant ou ressource créé.
 - `NO_DETECTED_ERROR` ne signifie pas publiable ; `publicationAvailable=false`. L'empreinte est une identité de rapport, pas un consentement de publication. Ne pas la réutiliser pour une future publication sans les validations/autorités/bases requises.
-- Bornes explicites : 1159 changements depuis C2h (601 initiaux, 8 kits, 300 boutiques/offres et 250 informations), 16 Mio de contenu, 4 Mio de rapport ; refus sans résultat tronqué. Conserver tests de cohérence concurrente, confidentialité et absence d'écritures. Publication, pages immuables, version READY/pointeur, restauration et recette humaine restent à développer.
+- Bornes explicites : 1259 changements depuis C2i (601 initiaux, 8 kits, 300 boutiques/offres, 250 informations et 100 missions), 16 Mio de contenu, 4 Mio de rapport ; refus sans résultat tronqué. Conserver tests de cohérence concurrente, confidentialité et absence d'écritures. Publication, pages immuables, version READY/pointeur, restauration et recette humaine restent à développer.
 
 ## Tranche C2b — délégation du contrôle préparatoire
 
@@ -131,6 +131,14 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Conserver et contrôler les deux listes de destinataires même si une proposition de découverte est désactivée ou son audience change. Pas de compétence/niveau par défaut ; une compétence renseignée exige N1–N5, mais son catalogue et les conditions canoniques restent non raccordés. Aucun import/export M6 ni cible terrain ajouté.
 - Limites techniques : 250 informations archives comprises, 100 destinataires par liste, 96 Kio par définition ; 1159 changements globaux, budgets 16 Mio/4 Mio inchangés. Empreinte interne 5, M6 PARTIAL, publication indisponible. Préserver références typées, corruption, isolation, concurrence M2/M4/M5/M6, provenance Excel M4 et révocation avant réessai.
 - Sauvegarder `knowledge`, grants M6, révisions, historique et reçus de commande avec le brouillon complet. C2g n’est pas un retour fonctionnel équivalent ; ne supprimer aucune donnée pour permettre ce retour. Les exports ciblés historiques ne sauvegardent pas M6.
+
+## Tranche C2i — missions M7 préparées
+
+- [C2i](docs/SO-06-C2I-MISSIONS-BROUILLON.md) ajoute `mission`, schéma 1, au brouillon commun. Réutiliser le validateur narratif existant pour les étapes, jamais créer une copie d’objectif M2 ni un contrat/annonce de session. Étapes privées, identifiants stables et ordre conservé.
+- Édition M7 exige lecture M7. Donneur M2, prérequis M6 et récompenses proposées M1 exigent respectivement lecture M2/M6/M1 pour être contrôlés ; sans droit croisé, aucune requête du catalogue ni révélation de nom/existence/archive/conditionnement. Suggestions minimales, sans secrets étrangers.
+- Conditions et preuves sont du texte préparatoire non exécuté. Quantités positives proposées, contrôle natif d’objet individuel si lecture M1 ; source réelle et réserve de récompense encore manquantes, toujours signalées. Aucun XP, crédit, lot, attribution, progression, annonce, déclencheur ou paiement créé. Aucun import/export M7.
+- Bornes techniques : 100 missions archives comprises, 40 étapes natives, 100 prérequis et 100 objets proposés par mission, 96 Kio par définition ; contrôle commun 1259 changements/16 Mio/4 Mio, empreinte interne 6. M7 PARTIAL, publication indisponible. Garder concurrence, isolation, corruption, archives, réessais/révocation et imports M1 conservant M7.
+- Sauvegarder les missions et grants M7 avec le brouillon, historique et reçus cohérents. C2h n’est pas un retour fonctionnel équivalent ; les exports ciblés historiques ne sauvegardent pas M7. Ne supprimer aucune donnée pour permettre un retour logiciel.
 
 ## Dépôt et branche
 

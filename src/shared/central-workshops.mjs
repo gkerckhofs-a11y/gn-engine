@@ -6,5 +6,5 @@ export const centralWorkshops=[
  {id:'M4',label:'Recettes & Potions',domain:'magasins',editable:true},
  {id:'M5',label:'Boutiques',domain:'magasins',editable:true},
  {id:'M6',label:'Informations & Fouilles',domain:'informations',editable:true},
- {id:'M7',label:'Missions & Communication',domain:'communication',editable:false},
+ {id:'M7',label:'Missions & Communication',domain:'communication',editable:true},
 ];

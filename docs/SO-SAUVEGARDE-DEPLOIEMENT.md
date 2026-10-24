@@ -1,5 +1,13 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## C2i — missions M7 dans le brouillon commun
+
+[C2i — préparation des missions](SO-06-C2I-MISSIONS-BROUILLON.md) ajoute missions narratives, étapes ordonnées avec identifiants stables, donneur M2, prérequis M6 et récompenses proposées M1. Lectures croisées explicites et suggestions sans secrets étrangers ; aucune attribution, progression, annonce, réservation, récompense ou paiement de session.
+
+**Local, 24 octobre 2026 : compilation et 1176/1176 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 24 nouveaux cas partagés Firestore, cinq UI, un HTTP/Auth. Firebase non exécuté localement (Java 17) ; résultats du commit exact dans la PR après terminaison des deux CI. Base C2h `b080ed9dae51c5959cf809fc4d4008aa7caa8fd2` revérifiée : deux CI vertes, 1147 applicatifs/911 Firebase chacune, [preuves archivées](PR-1-HISTORIQUE-AVANT-C2I.md).
+
+M7 partiel, publication indisponible. Limites techniques : 100 missions, 40 étapes, 100 entrées par liste de prérequis/récompenses, 96 Kio par définition ; 1259 changements globaux, 16 Mio/4 Mio inchangés, empreinte interne 6. Sources réelles des récompenses, réussite, groupes, annonces, rendez-vous, événements et Excel M7 restent à livrer. Quatre Masters historiques inchangés. Préserver missions et grants M7 avec le brouillon complet : C2h n’est pas un retour fonctionnel équivalent. REC-SO-MST-05/08 : preuves préparatoires partielles ; 55 verdicts complets et SO-GAP-12/13/14 inchangés. Publication, I3/I4/I5 et recette humaine restent ouverts.
+
 ## C2h — informations M6 et références M4
 
 [C2h — préparation M6](SO-06-C2H-INFORMATIONS-BROUILLON.md) ajoute connaissances, indices et documents privés, destinataires proposés M2, archive/restauration et contrôle des références M4 vers M6. Lectures croisées explicites ; suggestions M4 sans texte, vérité MJ, notes ou destinataires. Aucun reçu de connaissance joueur, partage, déblocage de recette ou QR actif.

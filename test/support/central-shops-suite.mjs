@@ -120,7 +120,7 @@ export function centralShopsSuite(makeStore,prefix='Boutiques centrales C2g'){
   const f=await centralShopsFixture(makeStore);await f.saveShop();await f.saveOffer({draftRevision:1});const rows=(await f.view('M5')).changes;
   await f.store.runTransaction(async tx=>{for(const type of ['shop','offer']){const c=rows.find(c=>c.type===type);for(let i=1;i<centralLimits[`${type}s`];i++)tx.set(`${f.base}/changes/${type}_limit${i}`,{...c,id:`${type}_limit${i}`,entityId:`limit${i}`,operation:'ARCHIVE',data:{...c.data,id:`limit${i}`,masterArchived:true}});}});
   await assert.rejects(f.saveShop({shopId:'overflow',draftRevision:2}),{code:'CENTRAL_LIMIT'});await assert.rejects(f.saveOffer({offerId:'overflow',draftRevision:2}),{code:'CENTRAL_LIMIT'});await f.saveShop({draftRevision:2,shopRevision:1});await f.saveOffer({draftRevision:3,offerRevision:1});
-  const r=await f.check(4);assert.equal(r.totals.records,300);assert.equal(r.totals.invalid,0);assert.equal(centralCheckLimits.records,1159);
+  const r=await f.check(4);assert.equal(r.totals.records,300);assert.equal(r.totals.invalid,0);assert.equal(centralCheckLimits.records,1259);
  });
  test(`${prefix} : formats stockés corrompus et provenance Excel M5 refusés`,async()=>{
   const f=await centralShopsFixture(makeStore);await f.saveShop();await f.saveOffer({draftRevision:1});const shop=await f.store.get(`${f.base}/changes/shop_shop`),offer=await f.store.get(`${f.base}/changes/offer_offer`);

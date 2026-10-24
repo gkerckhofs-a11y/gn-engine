@@ -1,3 +1,4 @@
+import {centralTestMission} from '../support/central-missions-suite.mjs';
 import {centralTestKnowledge} from '../support/central-knowledge-suite.mjs';
 import {centralTestShop,centralTestOffer} from '../support/central-shops-suite.mjs';
 import {centralTestKit} from '../support/central-class-kits-suite.mjs';
@@ -39,6 +40,21 @@ const request=async(action,input={},token)=>{
   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,input})});
   return {status:response.status,...await response.json()};
 };
+
+test('HTTP + Auth : missions M7, dépendances privées, archives et révocation',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`mission-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};const cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Missions HTTP',title:'Préparation synthétique',capacity:4,privacy:'Notice fictive'});
+ const grant={campaignId,email,active:true,readWorkshops:['M7'],editWorkshops:['M7'],revision:0,reason:'Préparer M7'};await cmd('setCentralStaff',grant);
+ const input={campaignId,missionId:'mission',missionRevision:0,draftRevision:0,mission:centralTestMission,reason:'Mission synthétique',requestId:randomUUID()};assert.equal((await request('saveCentralMission',input)).status,401);assert.equal((await request('saveCentralMission',{...input,mission:{...centralTestMission,xp:3}},editor)).status,400);
+ const saved=await call('saveCentralMission',input,editor);assert.deepEqual(await call('saveCentralMission',input,editor),saved);let d=await call('centralMaster',{campaignId,workshop:'M7'},editor);assert.deepEqual(d.diagnostics.filter(x=>x.code==='REFERENCE_NOT_CHECKED').map(x=>x.referenceType).sort(),['character','item','knowledge']);assert.deepEqual(d.references.knowledge,[]);
+ await cmd('saveCentralItem',{campaignId,itemId:'ingredient',itemRevision:0,draftRevision:1,item:centralTestItem,reason:'Objet proposé'});await cmd('saveCentralCharacter',{campaignId,characterId:'character',characterRevision:0,draftRevision:2,character:{...centralTestCharacter,relations:[]},reason:'Donneur fictif'});await cmd('saveCentralKnowledge',{campaignId,knowledgeId:'knowledge-test',knowledgeRevision:0,draftRevision:3,knowledge:centralTestKnowledge,reason:'Prérequis fictif'});
+ await cmd('setCentralStaff',{...grant,revision:1,readWorkshops:['M1','M2','M6','M7']});d=await call('centralMaster',{campaignId,workshop:'M7'},editor);assert.deepEqual(d.diagnostics.map(x=>x.code),['REWARD_SOURCE_PENDING']);assert.equal(d.references.knowledge[0].id,'knowledge-test');assert.doesNotMatch(JSON.stringify(d.references),/Texte confidentiel M6|Vérité réservée M6|initialCharacterIds|qrCharacterIds|gmNotes|playerSecrets/);
+ await cmd('archiveCentralKnowledge',{campaignId,knowledgeId:'knowledge-test',knowledgeRevision:1,draftRevision:4,reason:'Essai archive'});let r=await call('checkCentralDraft',{campaignId,draftRevision:5});assert.equal(r.edges.find(e=>e.from.type==='mission'&&e.to.type==='knowledge').status,'ARCHIVED');await cmd('saveCentralKnowledge',{campaignId,knowledgeId:'knowledge-test',knowledgeRevision:2,draftRevision:5,knowledge:centralTestKnowledge,reason:'Restaurer'});r=await call('checkCentralDraft',{campaignId,draftRevision:6});assert.equal(r.edges.find(e=>e.from.type==='mission'&&e.to.type==='knowledge').status,'RESOLVED');assert.equal(r.totals.invalid,0);assert.equal(r.publicationAvailable,false);
+ await cmd('archiveCentralMission',{campaignId,missionId:'mission',missionRevision:1,draftRevision:6,reason:'Essai archive'},editor);assert.equal((await call('centralMaster',{campaignId,workshop:'M7'},editor)).changes[0].operation,'ARCHIVE');await cmd('saveCentralMission',{...input,requestId:randomUUID(),missionRevision:2,draftRevision:7},editor);
+ await cmd('setCentralStaff',{...grant,revision:2,readWorkshops:['M7'],editWorkshops:[]});d=await call('centralMaster',{campaignId,workshop:'M7'},editor);assert.deepEqual(d.references.items,[]);assert.deepEqual(d.references.characters,[]);assert.deepEqual(d.references.knowledge,[]);assert.equal((await request('saveCentralMission',input,editor)).status,403);assert.equal((await request('centralMaster',{campaignId,workshop:'M6'},editor)).status,403);
+ const session=await call('session',{sessionId});assert.equal(session.versionId,null);for(const k of ['characters','knowledge','inventory','accounts','registrations'])assert.deepEqual(session[k],[]);
+});
 
 test('HTTP + Auth : informations M6, destinataires proposés, référence M4 et révocation',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`knowledge-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);

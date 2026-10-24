@@ -1,3 +1,4 @@
+import {centralMissionInput,centralMissionProjection,centralMissionReferences} from './central-missions.mjs';
 import {centralKnowledgeInput,centralKnowledgeProjection} from './central-knowledge.mjs';
 import {centralClassKitInput,centralClassKitProjection} from './central-class-kits.mjs';
 import {centralInitialCoherence} from './central-initial-coherence.mjs';
@@ -15,13 +16,13 @@ import {centralWorkshops} from '../shared/central-workshops.mjs';
 import {centralImportTypes} from '../shared/central-import-schema.mjs';
 
 // Initial, empty-base drafts only. This report is not a publication consent.
-export const centralCheckLimits={records:1159,inputBytes:16*1024*1024,reportBytes:4*1024*1024};
+export const centralCheckLimits={records:1259,inputBytes:16*1024*1024,reportBytes:4*1024*1024};
 const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
 const json=v=>JSON.stringify(canonical(v));
 const hash=v=>createHash('sha256').update(json(v)).digest('hex');
 const same=(a,b)=>json(a)===json(b);
-const owners={classKit:'M1',item:'M1',character:'M2',speciesCatalogue:'M2',recipe:'M4',shop:'M5',offer:'M5',knowledge:'M6'};
-const limits={classKit:8,item:250,character:100,speciesCatalogue:1,recipe:250,shop:50,offer:250,knowledge:250};
+const owners={classKit:'M1',item:'M1',character:'M2',speciesCatalogue:'M2',recipe:'M4',shop:'M5',offer:'M5',knowledge:'M6',mission:'M7'};
+const limits={classKit:8,item:250,character:100,speciesCatalogue:1,recipe:250,shop:50,offer:250,knowledge:250,mission:100};
 const revisionKey=type=>type==='character'?'contentRevision':'revision';
 const safe=v=>typeof v==='string'?v.slice(0,200):'';
 const check=v=>requireThat(v,'INVALID_CENTRAL_RECORD');
@@ -48,6 +49,10 @@ function validate(c,revision){
   if(c.type==='classKit')normalized={...centralClassKitInput({bindings:d.bindings,gmNotes:d.gmNotes},c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
   if(c.type==='item')normalized={...itemInput(d,c.entityId),revision:d.revision};
   if(c.type==='recipe')normalized={...recipeInput(d,c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
+  if(c.type==='mission'){
+   const {id,schemaVersion,revision,masterArchived,publicationState,...input}=d;
+   normalized={...centralMissionInput({...input,steps:input.steps.map(({published,...s})=>s)},c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
+  }
   if(c.type==='knowledge'){
    const {id,revision,masterArchived,publicationState,...input}=d;normalized={...centralKnowledgeInput(input,c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
   }
@@ -74,7 +79,7 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
  const records=valid.filter(c=>!invalid.has(c.id)),items=records.filter(c=>c.type==='item');
  const kitDiagnostics=centralClassKitProjection(records).diagnostics;
  const initial=centralInitialCoherence(records,invalid,kitDiagnostics);
- const referenceDiagnostics=[...kitDiagnostics,...centralCharacterProjection(records).diagnostics,...centralRecipeProjection(records,items,records).diagnostics,...centralKnowledgeProjection(records,records).diagnostics,...centralShopProjection(records,items,records.filter(c=>c.type==='character')).diagnostics,...initial.diagnostics];
+ const referenceDiagnostics=[...centralMissionProjection(records,records,records,records).diagnostics,...kitDiagnostics,...centralCharacterProjection(records).diagnostics,...centralRecipeProjection(records,items,records).diagnostics,...centralKnowledgeProjection(records,records).diagnostics,...centralShopProjection(records,items,records.filter(c=>c.type==='character')).diagnostics,...initial.diagnostics];
  for(const d of referenceDiagnostics){
    const c=records.find(c=>c.entityId===d.entityId&&c.workshop===d.workshop&&(!d.entityType||c.type===d.entityType)),target=d.field==='creationPlan.speciesId'?'speciesCatalogue_player':`${d.referenceType??(d.workshop==='M2'?'character':'item')}_${d.reference}`;
   diagnostics.push({...location(c,d.field),...d,...(d.code==='REFERENCE_MISSING'&&invalid.has(target)?{code:'REFERENCE_INVALID',message:'Corriger la définition cible incohérente dans son atelier.'}:{})});
@@ -89,6 +94,7 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
   edges.push({from:{workshop:c.workshop,type:c.type,id:c.entityId},field,to:{type,id,workshop:owners[type]??null},status:!supported?'NOT_CHECKED':invalid.has(`${type}_${id}`)?'INVALID':!target?'MISSING':target.operation==='ARCHIVE'?'ARCHIVED':'RESOLVED'});
  };
  for(const c of records.filter(c=>c.operation==='UPSERT')){
+  if(c.type==='mission')for(const ref of centralMissionReferences(c.data))edge(c,ref.field,ref.type,ref.id);
   if(c.type==='knowledge'){for(const key of ['initialCharacterIds','qrCharacterIds'])c.data[key].forEach((id,i)=>edge(c,`${key}.${i}`,'character',id));edge(c,'qrSkillId','skill',c.data.qrSkillId);}
   if(c.type==='shop'){edge(c,'sellerCharacterId','character',c.data.sellerCharacterId);edge(c,'locationTargetId','fieldTarget',c.data.locationTargetId);}
   if(c.type==='offer'){edge(c,'shopId','shop',c.data.shopId);edge(c,'itemId','item',c.data.itemId);}
@@ -102,21 +108,21 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
    for(const [field,type] of [['skillId','skill'],['effectId','effect'],['laboratoryTargetId','fieldTarget'],['unlockKnowledgeId','knowledge']])edge(c,field,type,c.data[field]);
   }
  }
- const diff=records.map(c=>({id:c.entityId,type:c.type,workshop:c.workshop,name:c.type==='character'?c.data.public.displayName:c.type==='speciesCatalogue'?'Catalogue narratif des espèces':c.type==='knowledge'?c.data.title:c.data.name,
+ const diff=records.map(c=>({id:c.entityId,type:c.type,workshop:c.workshop,name:c.type==='character'?c.data.public.displayName:c.type==='speciesCatalogue'?'Catalogue narratif des espèces':['knowledge','mission'].includes(c.type)?c.data.title:c.data.name,
   operation:c.operation==='ARCHIVE'?'EXCLUDED':'ADD',contentRevision:c.data[revisionKey(c.type)]??null,location:location(c),
   fields:c.type==='speciesCatalogue'?['species']:Object.keys(c.data).filter(k=>!['id','revision','contentRevision'].includes(k)).sort(),
-  privateFields:c.type==='knowledge'?['body','gmTruth','gmNotes','initialCharacterIds','qrCharacterIds']:c.type==='character'?['biography','roleplay','playerSecrets','gmNotes','objectives','relations',...(c.data.creationPlan?['creationPlan']:[])]:c.type==='speciesCatalogue'?[]:['gmNotes'],
+  privateFields:c.type==='mission'?['description','gmNotes','steps','conditions','proofExpected']:c.type==='knowledge'?['body','gmTruth','gmNotes','initialCharacterIds','qrCharacterIds']:c.type==='character'?['biography','roleplay','playerSecrets','gmNotes','objectives','relations',...(c.data.creationPlan?['creationPlan']:[])]:c.type==='speciesCatalogue'?[]:['gmNotes'],
   publicAccessCreated:false,resourcesCreated:false}));
  const remainingChecks=[
   {code:'RULE_PROFILE_PENDING',message:'Raccordement complet du profil canonique V0.7, des classes, compétences, effets et dotations à terminer.'},
-  {code:'OTHER_DOMAINS_PENDING',message:'Autres contenus M1/M2/M5/M6, ateliers M3/M7, médias, lieux, QR, habilitations des vendeurs, caisses, stocks, tarifs de jeu et impacts à compléter.'},
+  {code:'OTHER_DOMAINS_PENDING',message:'Autres contenus M1/M2/M5/M6/M7, atelier M3, médias, lieux, QR, habilitations des vendeurs, caisses, stocks, tarifs de jeu et impacts à compléter.'},
   {code:'PUBLICATION_PENDING',message:'Version immuable, reprise de construction, contrôle du parent et activation globale à développer. Ce rapport ne vaut pas autorisation de publier.'},
  ];
  const report={schemaVersion:1,scope:'INITIAL_DRAFT_PREPARATION',campaign:{id:campaign.id,title:campaign.title},draft:{id:'initial',revision,baseVersionId:null,basePointerRevision:0},checkedAt:at,
   authority:authority?{kind:authority.kind,revision:authority.revision}:null,
-  fingerprint:hash({schema:5,actorUid,authority,campaign:{id:campaign.id,revision:campaign.revision,master:campaign.master??null,ruleProfile:campaign.ruleProfile,ownerUid:campaign.ownerUid},session:{id:session.id,revision:session.revision},draft:draft??null,changes:ordered}),
+  fingerprint:hash({schema:6,actorUid,authority,campaign:{id:campaign.id,revision:campaign.revision,master:campaign.master??null,ruleProfile:campaign.ruleProfile,ownerUid:campaign.ownerUid},session:{id:session.id,revision:session.revision},draft:draft??null,changes:ordered}),
   status:diagnostics.length?'CORRECTIONS_REQUIRED':'NO_DETECTED_ERROR',publicationAvailable:false,remainingChecks,
-  workshops:centralWorkshops.map(w=>({id:w.id,label:w.label,coverage:['M1','M2','M4','M5','M6'].includes(w.id)?'PARTIAL':'NOT_IMPLEMENTED',active:records.filter(c=>c.workshop===w.id&&c.operation==='UPSERT').length,archived:records.filter(c=>c.workshop===w.id&&c.operation==='ARCHIVE').length})),
+  workshops:centralWorkshops.map(w=>({id:w.id,label:w.label,coverage:['M1','M2','M4','M5','M6','M7'].includes(w.id)?'PARTIAL':'NOT_IMPLEMENTED',active:records.filter(c=>c.workshop===w.id&&c.operation==='UPSERT').length,archived:records.filter(c=>c.workshop===w.id&&c.operation==='ARCHIVE').length})),
   totals:{records:changes.length,valid:records.length,invalid:changes.length-records.length,diagnostics:diagnostics.length,references:edges.length},initialPreparation:initial.summary,diff,edges,diagnostics};
  requireThat(Buffer.byteLength(JSON.stringify(report))<=centralCheckLimits.reportBytes,'CENTRAL_CHECK_LIMIT');return report;
 }

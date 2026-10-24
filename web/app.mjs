@@ -1,3 +1,4 @@
+import {centralMissionPayload} from './central-missions.mjs';
 import {centralKnowledgePayload} from './central-knowledge.mjs';
 import {centralClassKitPayload} from './central-class-kits.mjs';
 import {centralShopPayload,centralOfferPayload} from './central-shops.mjs';
@@ -323,6 +324,13 @@ document.addEventListener('click',async event=>{
     if(a==='centralImport'){pendingCentralImport=null;modal(centralUi.importForm(currentCentral));return;}
     if(a==='centralClassKit'){const c=currentCentral.changes.find(c=>c.type==='classKit'&&c.entityId===b.dataset.id);modal(centralUi.classKitForm(currentCentral,b.dataset.id,c));return;}
     if(a==='centralClassKitArchive'){const c=currentCentral.changes.find(c=>c.type==='classKit'&&c.entityId===b.dataset.id);if(c)modal(centralUi.classKitArchiveForm(currentCentral,c));return;}
+    if(a==='centralMission'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.type==='mission'&&c.entityId===id);modal(centralUi.missionForm(currentCentral,id,c));return;}
+    if(a==='centralMissionArchive'){const c=currentCentral.changes.find(c=>c.type==='mission'&&c.entityId===b.dataset.id);if(c)modal(centralUi.missionArchiveForm(currentCentral,c));return;}
+    if(a==='centralMissionStepAdd'){b.closest('form').querySelector('[data-mission-steps]').insertAdjacentHTML('beforeend',centralUi.missionStepRow(crypto.randomUUID()));return;}
+    if(a==='centralMissionKnowledgeAdd'){b.closest('form').querySelector('[data-mission-knowledge-list]').insertAdjacentHTML('beforeend',centralUi.missionKnowledgeRow());return;}
+    if(a==='centralMissionRewardAdd'){b.closest('form').querySelector('[data-mission-rewards]').insertAdjacentHTML('beforeend',centralUi.missionRewardRow());return;}
+    if(a==='centralMissionRowRemove'){b.closest('fieldset').remove();return;}
+    if(a==='centralMissionStepUp'||a==='centralMissionStepDown'){const row=b.closest('[data-mission-step]'),other=a==='centralMissionStepUp'?row.previousElementSibling:row.nextElementSibling;if(other){if(a==='centralMissionStepUp')row.parentNode.insertBefore(row,other);else row.parentNode.insertBefore(other,row);}return;}
     if(a==='centralKnowledge'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.type==='knowledge'&&c.entityId===id);modal(centralUi.knowledgeForm(currentCentral,id,c));return;}
     if(a==='centralKnowledgeArchive'){const c=currentCentral.changes.find(c=>c.type==='knowledge'&&c.entityId===b.dataset.id);if(c)modal(centralUi.knowledgeArchiveForm(currentCentral,c));return;}
     if(a==='centralKnowledgeRecipientAdd'){if(['initialCharacterIds','qrCharacterIds'].includes(b.dataset.set))b.closest('form').querySelector(`[data-central-recipients="${b.dataset.set}"]`).insertAdjacentHTML('beforeend',centralUi.knowledgeRecipientRow());return;}
@@ -538,6 +546,10 @@ document.addEventListener('submit',async event=>{
       const r=await api('applyCentralImport',{...pendingCentralImport,reason:v.reason});successMessage=`Import enregistré : ${r.changed} modification(s), ${r.unchanged} ligne(s) inchangée(s).`;pendingCentralImport=null;
     }
     else if(kind==='centralClassKit'||kind==='centralClassKitArchive'){await mutate(kind==='centralClassKit'?'saveCentralClassKit':'archiveCentralClassKit',{campaignId:form.dataset.cid,classKitId:form.dataset.id,draftRevision:Number(form.dataset.draft),classKitRevision:Number(form.dataset.revision),reason:v.reason,...(kind==='centralClassKit'?{classKit:centralClassKitPayload(form.dataset.id,v)}:{})});successMessage='Kit préparé dans le brouillon. Aucune dotation effectuée.';}
+    else if(kind==='centralMission'||kind==='centralMissionArchive'){
+      const saving=kind==='centralMission',rows=q=>[...form.querySelectorAll(q)],steps=()=>rows('[data-mission-step]').map(e=>({id:e.dataset.id,title:e.querySelector('[data-step-title]').value,description:e.querySelector('[data-step-description]').value})),knowledge=()=>rows('[data-knowledge-id]').map(e=>e.value),rewards=()=>rows('[data-mission-reward]').map(e=>({itemId:e.querySelector('[data-reward-item]').value,quantity:e.querySelector('[data-reward-quantity]').value}));
+      await mutate(saving?'saveCentralMission':'archiveCentralMission',{campaignId:form.dataset.cid,missionId:form.dataset.id,draftRevision:Number(form.dataset.draft),missionRevision:Number(form.dataset.revision),reason:v.reason,...(saving?{mission:centralMissionPayload(v,steps(),knowledge(),rewards())}:{})});successMessage='Mission préparée dans M7. Aucune attribution ni récompense effectuée.';
+    }
     else if(kind==='centralKnowledge'||kind==='centralKnowledgeArchive'){
       const saving=kind==='centralKnowledge',ids=key=>[...form.querySelectorAll(`[data-central-recipients="${key}"] [data-recipient-id]`)].map(e=>e.value);
       await mutate(saving?'saveCentralKnowledge':'archiveCentralKnowledge',{campaignId:form.dataset.cid,knowledgeId:form.dataset.id,draftRevision:Number(form.dataset.draft),knowledgeRevision:Number(form.dataset.revision),reason:v.reason,...(saving?{knowledge:centralKnowledgePayload(v,ids('initialCharacterIds'),ids('qrCharacterIds'))}:{})});successMessage='Information préparée dans M6. Aucun reçu joueur ni QR actif créé.';
