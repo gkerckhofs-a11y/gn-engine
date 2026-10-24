@@ -1,3 +1,4 @@
+import {centralSpacePayload,centralSpaceActions} from './central-space.mjs';
 import {centralMissionPayload} from './central-missions.mjs';
 import {centralKnowledgePayload} from './central-knowledge.mjs';
 import {centralClassKitPayload} from './central-class-kits.mjs';
@@ -324,6 +325,8 @@ document.addEventListener('click',async event=>{
     if(a==='centralImport'){pendingCentralImport=null;modal(centralUi.importForm(currentCentral));return;}
     if(a==='centralClassKit'){const c=currentCentral.changes.find(c=>c.type==='classKit'&&c.entityId===b.dataset.id);modal(centralUi.classKitForm(currentCentral,b.dataset.id,c));return;}
     if(a==='centralClassKitArchive'){const c=currentCentral.changes.find(c=>c.type==='classKit'&&c.entityId===b.dataset.id);if(c)modal(centralUi.classKitArchiveForm(currentCentral,c));return;}
+    if(a==='centralSpace'){const type=b.dataset.type;if(!Object.hasOwn(centralSpaceActions,type))return;const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.type===type&&c.entityId===id);modal(centralUi.spaceForm(currentCentral,type,id,c));return;}
+    if(a==='centralSpaceArchive'){const c=currentCentral.changes.find(c=>c.type===b.dataset.type&&c.entityId===b.dataset.id);if(c)modal(centralUi.spaceArchiveForm(currentCentral,c));return;}
     if(a==='centralMission'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.type==='mission'&&c.entityId===id);modal(centralUi.missionForm(currentCentral,id,c));return;}
     if(a==='centralMissionArchive'){const c=currentCentral.changes.find(c=>c.type==='mission'&&c.entityId===b.dataset.id);if(c)modal(centralUi.missionArchiveForm(currentCentral,c));return;}
     if(a==='centralMissionStepAdd'){b.closest('form').querySelector('[data-mission-steps]').insertAdjacentHTML('beforeend',centralUi.missionStepRow(crypto.randomUUID()));return;}
@@ -546,6 +549,10 @@ document.addEventListener('submit',async event=>{
       const r=await api('applyCentralImport',{...pendingCentralImport,reason:v.reason});successMessage=`Import enregistré : ${r.changed} modification(s), ${r.unchanged} ligne(s) inchangée(s).`;pendingCentralImport=null;
     }
     else if(kind==='centralClassKit'||kind==='centralClassKitArchive'){await mutate(kind==='centralClassKit'?'saveCentralClassKit':'archiveCentralClassKit',{campaignId:form.dataset.cid,classKitId:form.dataset.id,draftRevision:Number(form.dataset.draft),classKitRevision:Number(form.dataset.revision),reason:v.reason,...(kind==='centralClassKit'?{classKit:centralClassKitPayload(form.dataset.id,v)}:{})});successMessage='Kit préparé dans le brouillon. Aucune dotation effectuée.';}
+    else if(kind==='centralSpace'||kind==='centralSpaceArchive'){
+      const type=form.dataset.type;if(!Object.hasOwn(centralSpaceActions,type))throw new Error('Type spatial inconnu.');const saving=kind==='centralSpace';
+      await mutate(`${saving?'save':'archive'}Central${centralSpaceActions[type]}`,{campaignId:form.dataset.cid,[`${type}Id`]:form.dataset.id,draftRevision:Number(form.dataset.draft),[`${type}Revision`]:Number(form.dataset.revision),reason:v.reason,...(saving?{[type]:centralSpacePayload(type,v)}:{})});successMessage='Définition préparée dans M3. Aucun vaisseau ni voyage créé.';
+    }
     else if(kind==='centralMission'||kind==='centralMissionArchive'){
       const saving=kind==='centralMission',rows=q=>[...form.querySelectorAll(q)],steps=()=>rows('[data-mission-step]').map(e=>({id:e.dataset.id,title:e.querySelector('[data-step-title]').value,description:e.querySelector('[data-step-description]').value})),knowledge=()=>rows('[data-knowledge-id]').map(e=>e.value),rewards=()=>rows('[data-mission-reward]').map(e=>({itemId:e.querySelector('[data-reward-item]').value,quantity:e.querySelector('[data-reward-quantity]').value}));
       await mutate(saving?'saveCentralMission':'archiveCentralMission',{campaignId:form.dataset.cid,missionId:form.dataset.id,draftRevision:Number(form.dataset.draft),missionRevision:Number(form.dataset.revision),reason:v.reason,...(saving?{mission:centralMissionPayload(v,steps(),knowledge(),rewards())}:{})});successMessage='Mission préparée dans M7. Aucune attribution ni récompense effectuée.';

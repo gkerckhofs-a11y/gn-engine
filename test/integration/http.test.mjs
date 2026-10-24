@@ -1,3 +1,4 @@
+import {centralTestShipModel,centralTestPort,centralTestRoute} from '../support/central-space-suite.mjs';
 import {centralTestMission} from '../support/central-missions-suite.mjs';
 import {centralTestKnowledge} from '../support/central-knowledge-suite.mjs';
 import {centralTestShop,centralTestOffer} from '../support/central-shops-suite.mjs';
@@ -40,6 +41,21 @@ const request=async(action,input={},token)=>{
   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,input})});
   return {status:response.status,...await response.json()};
 };
+
+test('HTTP + Auth : M3 canonique, ports différés, archives et révocation',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`space-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};const cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'M3 HTTP',title:'Préparation synthétique',capacity:4,privacy:'Notice fictive'});
+ const grant={campaignId,email,active:true,readWorkshops:['M3'],editWorkshops:['M3'],revision:0,reason:'Préparer M3'};await cmd('setCentralStaff',grant);
+ const input={campaignId,routeId:'route',routeRevision:0,draftRevision:0,route:centralTestRoute,reason:'Route synthétique',requestId:randomUUID()};assert.equal((await request('saveCentralRoute',input)).status,401);assert.equal((await request('saveCentralRoute',{...input,route:{...centralTestRoute,fuelCost:1}},editor)).status,400);
+ const saved=await call('saveCentralRoute',input,editor);assert.deepEqual(await call('saveCentralRoute',input,editor),saved);let d=await call('centralMaster',{campaignId,workshop:'M3'},editor);assert.equal(d.diagnostics.filter(x=>x.code==='REFERENCE_MISSING').length,2);assert.equal(d.changes[0].data.durationSeconds,300);
+ await cmd('saveCentralShipModel',{campaignId,shipModelId:'model',shipModelRevision:0,draftRevision:1,shipModel:centralTestShipModel,reason:'Famille canonique'},editor);
+ await cmd('saveCentralPort',{campaignId,portId:'origin',portRevision:0,draftRevision:2,port:centralTestPort,reason:'Départ'},editor);await cmd('saveCentralPort',{campaignId,portId:'destination',portRevision:0,draftRevision:3,port:{...centralTestPort,navigationCode:'OTHER-CODE'},reason:'Arrivée'},editor);
+ d=await call('centralMaster',{campaignId,workshop:'M3'},editor);assert.deepEqual(d.diagnostics,[]);assert.equal(d.changes.find(c=>c.type==='shipModel').data.cargoCapacity,0);assert.equal(d.history.length,4);assert.doesNotMatch(JSON.stringify(d.references),/SECRET-CODE|Description privée|Secret port/);
+ await cmd('archiveCentralPort',{campaignId,portId:'origin',portRevision:1,draftRevision:4,reason:'Essai archive'},editor);let r=await call('checkCentralDraft',{campaignId,draftRevision:5});assert.equal(r.edges.find(e=>e.field==='fromPort').status,'ARCHIVED');await cmd('saveCentralPort',{campaignId,portId:'origin',portRevision:2,draftRevision:5,port:centralTestPort,reason:'Restaurer'},editor);r=await call('checkCentralDraft',{campaignId,draftRevision:6});assert.ok(r.edges.every(e=>e.status==='RESOLVED'));assert.equal(r.totals.invalid,0);assert.equal(r.publicationAvailable,false);assert.doesNotMatch(JSON.stringify(r),/SECRET-CODE|Description privée|Secret port/);
+ await cmd('setCentralStaff',{...grant,revision:1,editWorkshops:[]});assert.equal((await request('saveCentralRoute',input,editor)).status,403);await cmd('setCentralStaff',{...grant,revision:2,active:false});assert.equal((await request('centralMaster',{campaignId,workshop:'M3'},editor)).status,403);assert.equal((await request('admissionAdmin',{sessionId},editor)).status,403);
+ const session=await call('session',{sessionId});assert.equal(session.versionId,null);for(const k of ['characters','inventory','accounts','registrations'])assert.deepEqual(session[k],[]);
+});
 
 test('HTTP + Auth : missions M7, dépendances privées, archives et révocation',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`mission-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);

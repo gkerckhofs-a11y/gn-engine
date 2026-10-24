@@ -81,7 +81,7 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Réutiliser les formes natives et projections M1/M2/M4 ; tout nouveau type/champ doit adapter explicitement ce contrôleur. Ne pas ignorer un changement inconnu, une provenance incohérente ou un dépassement de budget.
 - Le rapport expose couverture partielle, diagnostics localisés, ajouts/exclusions, liens et empreinte. Aucun texte d'admission ni texte narratif privé dans le résumé ; aucun état persistant ou ressource créé.
 - `NO_DETECTED_ERROR` ne signifie pas publiable ; `publicationAvailable=false`. L'empreinte est une identité de rapport, pas un consentement de publication. Ne pas la réutiliser pour une future publication sans les validations/autorités/bases requises.
-- Bornes explicites : 1259 changements depuis C2i (601 initiaux, 8 kits, 300 boutiques/offres, 250 informations et 100 missions), 16 Mio de contenu, 4 Mio de rapport ; refus sans résultat tronqué. Conserver tests de cohérence concurrente, confidentialité et absence d'écritures. Publication, pages immuables, version READY/pointeur, restauration et recette humaine restent à développer.
+- Bornes explicites : 1659 changements depuis C2j (601 initiaux, 8 kits, 300 boutiques/offres, 250 informations, 100 missions et 400 définitions spatiales), 16 Mio de contenu, 4 Mio de rapport ; refus sans résultat tronqué. Conserver tests de cohérence concurrente, confidentialité et absence d'écritures. Publication, pages immuables, version READY/pointeur, restauration et recette humaine restent à développer.
 
 ## Tranche C2b — délégation du contrôle préparatoire
 
@@ -139,6 +139,14 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Conditions et preuves sont du texte préparatoire non exécuté. Quantités positives proposées, contrôle natif d’objet individuel si lecture M1 ; source réelle et réserve de récompense encore manquantes, toujours signalées. Aucun XP, crédit, lot, attribution, progression, annonce, déclencheur ou paiement créé. Aucun import/export M7.
 - Bornes techniques : 100 missions archives comprises, 40 étapes natives, 100 prérequis et 100 objets proposés par mission, 96 Kio par définition ; contrôle commun 1259 changements/16 Mio/4 Mio, empreinte interne 6. M7 PARTIAL, publication indisponible. Garder concurrence, isolation, corruption, archives, réessais/révocation et imports M1 conservant M7.
 - Sauvegarder les missions et grants M7 avec le brouillon, historique et reçus cohérents. C2h n’est pas un retour fonctionnel équivalent ; les exports ciblés historiques ne sauvegardent pas M7. Ne supprimer aucune donnée pour permettre un retour logiciel.
+
+## Tranche C2j — modèles et navigation préparée M3
+
+- [C2j](docs/SO-04-C2J-SPATIOPORT-BROUILLON.md) ajoute `shipModel`, `port`, `route`, schéma 1, au brouillon commun. Réutiliser les services/révisions/reçus centraux et la validation native des routes. Ne pas convertir un modèle en instance ni confondre le coût fixe des anciennes routes avec le facteur canonique distance × gabarit.
+- Édition M3 exige lecture M3 ; aucun droit étranger implicite. Trois familles V0.7 et valeurs fixes, fret nul du chasseur, durée 5/10/15 min, risque indépendant 1/6, 2/6 ou 3/6. Codes privés sans valeurs d’exemple automatiques ; doublons actifs du même type signalés. Les codes et notes ne figurent pas dans les suggestions ou le résumé global.
+- Ports différés, archives et cibles invalides contrôlés par identifiants typés. Lien facultatif vers lieu commun explicitement non contrôlé ; aucun lieu/QR parallèle. Aucun départ, carburant, stock, compte, vaisseau, événement, pilote, combat ou publication créé. Instances, raccordements M1/M2/lieux, rencontres, événements et import/export M3 restent à livrer.
+- Bornes techniques : 100 modèles, 100 ports, 200 routes, archives comprises ; 1659 changements/16 Mio/4 Mio, empreinte interne 7. Les sept ateliers sont PARTIAL, jamais complets. Conserver tests de corruption des valeurs dérivées, concurrence interateliers, révocation avant reçu, isolation et interruption.
+- Sauvegarder les trois types et grants M3 avec le brouillon/historique/reçus cohérents. C2i n’est pas un retour fonctionnel équivalent ; exports ciblés insuffisants. Aucun retrait de données pour permettre un retour logiciel, aucune migration implicite.
 
 ## Dépôt et branche
 

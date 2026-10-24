@@ -1,5 +1,13 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## C2j — modèles, ports et routes M3
+
+[C2j — préparation du spatioport](SO-04-C2J-SPATIOPORT-BROUILLON.md) ouvre les modèles des trois familles V0.7, les ports codés et les routes à distance/risque explicites. Valeurs canoniques fixes, ports différés et archives contrôlés, délégation M3, révisions communes, audit et réessais. Aucun vaisseau joué, carburant, voyage, événement, QR ou paiement créé.
+
+**Local, 24 octobre 2026 : compilation et 1205/1205 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 24 nouveaux cas partagés Firestore, cinq UI, un HTTP/Auth. Firebase non exécuté localement (Java 17) ; résultats du candidat exact dans la PR après terminaison des deux CI. Base C2i `1a30c227ea85ebf149442015dc056a99984a08b3` revérifiée : deux CI vertes, 1176 applicatifs/936 Firebase chacune, [preuves archivées](PR-1-HISTORIQUE-AVANT-C2J.md).
+
+M3 reste partiel ; les sept ateliers ont désormais une édition préparatoire partielle, sans publication. Limites techniques : 100 modèles de vaisseaux, 100 ports, 200 routes, archives comprises ; 1659 changements globaux, 16 Mio/4 Mio inchangés, empreinte interne 7. Instances, carburant/modules M1, pilotes M2, lieux/QR, événements, rencontres financées, navigation jouée et Excel M3 restent à raccorder. Quatre Masters historiques inchangés. Préserver nouveaux types et grants M3 avec le brouillon complet : C2i n’est pas un retour fonctionnel équivalent. REC-SO-13 à 19 et MST-09 non certifiés ; 55 verdicts complets et SO-GAP-12/13/14 inchangés. Publication, I3/I4/I5 et recette humaine restent ouverts.
+
 ## C2i — missions M7 dans le brouillon commun
 
 [C2i — préparation des missions](SO-06-C2I-MISSIONS-BROUILLON.md) ajoute missions narratives, étapes ordonnées avec identifiants stables, donneur M2, prérequis M6 et récompenses proposées M1. Lectures croisées explicites et suggestions sans secrets étrangers ; aucune attribution, progression, annonce, réservation, récompense ou paiement de session.

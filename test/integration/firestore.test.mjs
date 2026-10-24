@@ -1,3 +1,4 @@
+import {centralSpaceSuite} from '../support/central-space-suite.mjs';
 import {centralMissionsSuite} from '../support/central-missions-suite.mjs';
 import {centralKnowledgeSuite} from '../support/central-knowledge-suite.mjs';
 import {centralShopsSuite} from '../support/central-shops-suite.mjs';
@@ -58,6 +59,7 @@ preparationsSuite(()=>firestoreStore(firestore),'Préparation SO sur Firestore')
 centralMasterSuite(()=>firestoreStore(firestore),'Master central C1b sur Firestore');
 centralShopsSuite(()=>firestoreStore(firestore),'Boutiques centrales C2g sur Firestore');
 centralKnowledgeSuite(()=>firestoreStore(firestore),'Informations centrales C2h sur Firestore');
+centralSpaceSuite(()=>firestoreStore(firestore),'Spatioport central C2j sur Firestore');
 centralMissionsSuite(()=>firestoreStore(firestore),'Missions centrales C2i sur Firestore');
 centralClassKitsSuite(()=>firestoreStore(firestore),'Kits initiaux C2e sur Firestore');
 centralInitialCoherenceSuite(()=>firestoreStore(firestore),'Cohérence initiale C2f sur Firestore');
