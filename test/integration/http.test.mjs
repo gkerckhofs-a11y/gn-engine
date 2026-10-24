@@ -203,12 +203,12 @@ test('HTTP + Auth : recettes centrales, liens différés et droits M4 indépenda
  const input={campaignId,recipeId:'formula',recipe:centralTestRecipe,draftRevision:0,recipeRevision:0,reason:'Formule fictive',requestId:randomUUID()};
  assert.equal((await request('saveCentralRecipe',input)).status,401);
  const saved=await cmd('saveCentralRecipe',input,editor);assert.deepEqual(await cmd('saveCentralRecipe',input,editor),saved);
- let d=await call('centralMaster',{campaignId,workshop:'M4'},editor);assert.deepEqual(d.references.items,[]);assert.equal(d.diagnostics.filter(x=>x.code==='REFERENCE_NOT_CHECKED').length,2);
+ let d=await call('centralMaster',{campaignId,workshop:'M4'},editor);assert.deepEqual(d.references.items,[]);assert.deepEqual(d.references.knowledge,[]);assert.equal(d.references.knowledgeReadable,false);assert.deepEqual(d.diagnostics.filter(x=>x.code==='REFERENCE_NOT_CHECKED').map(x=>x.field).sort(),['components.0.itemId','productItemId','unlockKnowledgeId']);
  assert.equal((await request('centralMaster',{campaignId,workshop:'M1'},editor)).status,403);
  assert.equal((await request('saveCentralItem',{campaignId,itemId:'ingredient',item:centralTestItem,draftRevision:1,itemRevision:0,reason:'Interdit',requestId:randomUUID()},editor)).status,403);
  await cmd('saveCentralItem',{campaignId,itemId:'ingredient',item:centralTestItem,draftRevision:1,itemRevision:0,reason:'Compléter M1'});
  await cmd('setCentralStaff',{...grant,readWorkshops:['M1','M4'],revision:1});
- d=await call('centralMaster',{campaignId,workshop:'M4'},editor);assert.equal(d.references.items.length,1);assert.equal(d.diagnostics.some(x=>x.reference==='ingredient'),false);assert.equal(d.publicationAvailable,false);
+ d=await call('centralMaster',{campaignId,workshop:'M4'},editor);assert.equal(d.references.items.length,1);assert.equal(d.diagnostics.some(x=>x.reference==='ingredient'),false);assert.deepEqual(d.references.knowledge,[]);assert.deepEqual(d.diagnostics.filter(x=>x.code==='REFERENCE_NOT_CHECKED').map(x=>x.field),['unlockKnowledgeId']);assert.equal(d.publicationAvailable,false);
  await cmd('setCentralStaff',{...grant,active:false,revision:2});assert.equal((await request('saveCentralRecipe',input,editor)).status,403);
  const s=await call('session',{sessionId});for(const kind of ['characters','inventory','accounts'])assert.deepEqual(s[kind],[]);assert.equal(s.versionId,null);
 });
