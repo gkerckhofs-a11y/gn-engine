@@ -164,6 +164,13 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Ne pas tester avec des comptes, secrets, stocks ou crédits de production ; ne pas copier de données personnelles réelles dans les fixtures.
 - Une autorisation explicite ultérieure de l’organisateur est obligatoire avant toute mise en production. Préparer une procédure ne vaut jamais autorisation de l’exécuter.
 
+## Tranche C2k — Excel des informations M6 et missions M7
+
+- [C2k](docs/SO-06-C2K-EXCEL-INFORMATIONS-MISSIONS.md) étend le contrat XLSX central v1 aux feuilles Informations/Missions, via les validateurs natifs M6/M7. Aucun savoir, QR, progression, récompense ou ressource de session activé. M3/M5 Excel restent non pris en charge.
+- Préserver tableaux complets, IDs d’étapes, secrets, blanc conserve et effacement explicite. Désactiver QR conserve les deux listes ; retirer une condition de compétence exige de retirer identifiant et niveau. 32 000 caractères par cellule sans troncature, 100 lignes/1 Mio, bornes natives inchangées.
+- M6→M2 et M7→M1/M2/M6 exigent les lectures indépendantes avant toute requête étrangère. Conserver tests de confidentialité, localisation XLSX, concurrence, révocation avant les reçus de commande/lot et interruption atomique.
+- Contrôle global : nouvelles provenances et colonnes M6/M7, empreinte interne 8 ; 1659 changements, 16 Mio/4 Mio inchangés. Relancer le contrôle, sans publication implicite. Conserver brouillon, grants, historiques et reçus ensemble ; C2j refuse les nouvelles provenances et n’est pas un retour fonctionnel équivalent.
+
 ## Cycle de chaque ensemble fonctionnel
 
 1. Lire le cadrage V3.5, le livre SPACE OUTLAWS V0.7, les sept gabarits proposés SO_Masters_V01.zip et le vade-mecum ; conserver le rapport de cohérence V0.6 comme historique (sources référencées dans SO-01a et SO-00). Délimiter un parcours complet, ses critères, dépendances et recettes. A01–A38 et l’extension PNJ FOR-01 sont clos : ne pas réinventer leurs barèmes. Distinguer les propositions techniques et les paramètres de session à préparer. Les décisions V3.5/V0.7 prévalent sur les cadrages antérieurs ; les prix/compositions d’exemples V3.2 restent non canoniques.

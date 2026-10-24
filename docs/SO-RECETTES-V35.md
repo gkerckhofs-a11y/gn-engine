@@ -1,5 +1,13 @@
 # Registre V3.5 — 55 recettes ciblées
 
+## C2k — Excel des informations M6 et missions M7
+
+[C2k — import/export M6/M7](SO-06-C2K-EXCEL-INFORMATIONS-MISSIONS.md) ajoute les feuilles `Informations` et `Missions` au contrat central v1 : sélection privée, aperçu, confirmation motivée et lot atomique. Textes et IDs conservés, listes JSON complètes, effacement explicite, diagnostics localisés et lectures croisées indépendantes. Aucun savoir, QR, mission jouée, récompense ou ressource activé.
+
+**Local, 24 octobre 2026 : compilation et 1234/1234 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 24 nouveaux cas partagés Firestore, cinq UI/XLSX, un HTTP/Auth ; intégrations vérifiées syntaxiquement. Firebase non exécuté localement (Java 17) ; preuves du candidat exact dans la PR après terminaison des deux CI. Base C2j `1fb8a7a47e4a185f3f50bde784fb58dd4995853c` : deux CI vertes, 1205 applicatifs/961 Firebase chacune, [preuves archivées](PR-1-HISTORIQUE-AVANT-C2K.md).
+
+100 lignes/1 Mio par fichier, 32 000 caractères par cellule sans troncature ; bornes natives et budgets globaux 1659/16 Mio/4 Mio inchangés. Empreinte interne 8. Excel central disponible pour M1/M2/M4/M6/M7 ; M3/M5 restent à livrer. Quatre Masters historiques inchangés. Conserver les nouvelles provenances avec brouillon, historiques, grants et reçus : C2j n’est pas un retour fonctionnel équivalent. MST-02/05/07/08 : preuves préparatoires partielles ; 55 verdicts complets et SO-GAP-12/13/14 inchangés. Sept ateliers partiels, publication, I3/I4/I5, restauration globale et recette humaine encore ouverts.
+
 ## C2j — modèles, ports et routes M3
 
 [C2j — préparation du spatioport](SO-04-C2J-SPATIOPORT-BROUILLON.md) ouvre les modèles des trois familles V0.7, les ports codés et les routes à distance/risque explicites. Valeurs canoniques fixes, ports différés et archives contrôlés, délégation M3, révisions communes, audit et réessais. Aucun vaisseau joué, carburant, voyage, événement, QR ou paiement créé.

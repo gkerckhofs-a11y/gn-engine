@@ -1,3 +1,4 @@
+import {centralStoryImportSuite} from '../support/central-story-import-suite.mjs';
 import {centralSpaceSuite} from '../support/central-space-suite.mjs';
 import {centralMissionsSuite} from '../support/central-missions-suite.mjs';
 import {centralKnowledgeSuite} from '../support/central-knowledge-suite.mjs';
@@ -61,6 +62,7 @@ centralShopsSuite(()=>firestoreStore(firestore),'Boutiques centrales C2g sur Fir
 centralKnowledgeSuite(()=>firestoreStore(firestore),'Informations centrales C2h sur Firestore');
 centralSpaceSuite(()=>firestoreStore(firestore),'Spatioport central C2j sur Firestore');
 centralMissionsSuite(()=>firestoreStore(firestore),'Missions centrales C2i sur Firestore');
+centralStoryImportSuite(()=>firestoreStore(firestore),'Excel informations et missions C2k sur Firestore');
 centralClassKitsSuite(()=>firestoreStore(firestore),'Kits initiaux C2e sur Firestore');
 centralInitialCoherenceSuite(()=>firestoreStore(firestore),'Cohérence initiale C2f sur Firestore');
 centralRecipesSuite(()=>firestoreStore(firestore),'Recettes centrales C1c sur Firestore');

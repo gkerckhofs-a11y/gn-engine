@@ -1,3 +1,4 @@
+import {centralKnowledgeRow,centralMissionRow} from '../support/central-story-import-suite.mjs';
 import {centralTestShipModel,centralTestPort,centralTestRoute} from '../support/central-space-suite.mjs';
 import {centralTestMission} from '../support/central-missions-suite.mjs';
 import {centralTestKnowledge} from '../support/central-knowledge-suite.mjs';
@@ -826,4 +827,19 @@ test('HTTP + Auth : campagne, bilan scellé et reprise sans réinitialisation de
  assert.equal((await request('publicSession',{sessionId:build.id})).status,400);
  let result;do{result=await command('advanceCampaignEpisode',{campaignId,buildId:build.buildId});}while(result.status!=='READY');
  const copied=(await request('session',{sessionId:build.id},owner)).result;assert.equal(copied.accounts[0].balance,100);assert.equal(copied.characters[0].id,cid);assert.equal(copied.registrations.length,0);assert.equal(copied.campaignEpisode,2);
+});
+
+
+test('HTTP + Auth : Excel M6/M7, droits séparés, provenance, réessai et révocation',async()=>{
+ const owner=await googleTestAccount(process.env.OWNER_EMAIL),email=`excel-story-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};const cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Excel M6/M7 HTTP',title:'Préparation synthétique',capacity:4,privacy:'Notice fictive'});
+ const grant={campaignId,email,active:true,readWorkshops:['M6','M7'],editWorkshops:['M6','M7'],revision:0,reason:'Préparer les informations et missions'};await cmd('setCentralStaff',grant);const applied=[];
+ for(const [workshop,sheet,row] of [['M6','Informations',centralKnowledgeRow],['M7','Missions',centralMissionRow]]){
+  const e=await call('exportCentralDraft',{campaignId,workshop,ids:[]},editor);e.sheets[sheet]=[row];const input={campaignId,workshop,fileName:'Fiction.xlsx',sheets:readCentralXlsx(writeCentralXlsx(e.sheets))};assert.equal((await request('prepareCentralImport',input)).status,401);const p=await call('prepareCentralImport',input,editor);assert.deepEqual(p.errors,[]);assert.ok(p.diagnostics.some(d=>d.code==='REFERENCE_NOT_CHECKED'));if(workshop==='M7')assert.equal(p.diagnostics.some(d=>d.referenceType==='knowledge'&&d.code==='REFERENCE_MISSING'),false);
+  const apply={...input,confirmation:p.confirmation,reason:'Fiction synthétique',requestId:randomUUID()},r=await call('applyCentralImport',apply,editor);assert.equal(r.changed,1);assert.deepEqual(await call('applyCentralImport',apply,editor),r);applied.push(apply);const exported=await call('exportCentralDraft',{campaignId,workshop,ids:[row.id]},editor);assert.equal(exported.sheets[sheet][0].revision,1);assert.equal(exported.sheets[sheet][0].titre,row.titre);
+ }
+ const report=await call('checkCentralDraft',{campaignId,draftRevision:2});assert.equal(report.totals.invalid,0);assert.equal(report.diff.find(x=>x.type==='knowledge').location.sheet,'Informations');assert.equal(report.diff.find(x=>x.type==='mission').location.sheet,'Missions');assert.equal(report.publicationAvailable,false);assert.doesNotMatch(JSON.stringify(report),/Texte confidentiel M6|Secret organisateur M7/);
+ assert.equal((await request('exportCentralDraft',{campaignId,workshop:'M2',ids:[]},editor)).status,403);assert.equal((await request('admissionAdmin',{sessionId},editor)).status,403);await cmd('setCentralStaff',{...grant,active:false,revision:1});for(const apply of applied){assert.equal((await request('applyCentralImport',apply,editor)).status,403);assert.equal((await request('exportCentralDraft',{campaignId,workshop:apply.workshop,ids:[]},editor)).status,403);}
+ const session=await call('session',{sessionId});assert.equal(session.versionId,null);for(const key of ['characters','knowledge','accounts','inventory','registrations'])assert.deepEqual(session[key],[]);
 });
