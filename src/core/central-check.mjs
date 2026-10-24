@@ -1,3 +1,4 @@
+import {shopImportColumn} from './central-shop-import.mjs';
 import {storyImportColumn} from './central-story-import.mjs';
 import {centralSpaceInput,centralSpaceEditable,centralSpaceProjection,centralSpaceReferences,centralSpaceTypes} from './central-space.mjs';
 import {centralMissionInput,centralMissionProjection,centralMissionReferences} from './central-missions.mjs';
@@ -15,7 +16,7 @@ import {storedCharacterPlan} from './central-character-plan.mjs';
 import {centralRecipeProjection} from './central-recipes.mjs';
 import {admissionSettings,emptyAdmissionCounts} from './admission-state.mjs';
 import {centralWorkshops} from '../shared/central-workshops.mjs';
-import {centralImportTypes} from '../shared/central-import-schema.mjs';
+import {centralImportContracts} from '../shared/central-import-schema.mjs';
 
 // Initial, empty-base drafts only. This report is not a publication consent.
 export const centralCheckLimits={records:1659,inputBytes:16*1024*1024,reportBytes:4*1024*1024};
@@ -29,7 +30,7 @@ const revisionKey=type=>type==='character'?'contentRevision':'revision';
 const safe=v=>typeof v==='string'?v.slice(0,200):'';
 const check=v=>requireThat(v,'INVALID_CENTRAL_RECORD');
 const location=(c,field='')=>({workshop:safe(c?.workshop),entityId:safe(c?.entityId),field,source:safe(c?.source),
- fileName:safe(c?.provenance?.fileName),sheet:safe(c?.provenance?.sheet),row:Number.isSafeInteger(c?.provenance?.row)?c.provenance.row:null,column:c?.type==='character'&&c?.source==='XLSX'?characterImportColumn(field):['knowledge','mission'].includes(c?.type)&&c?.source==='XLSX'?storyImportColumn(c.type,field):field,
+ fileName:safe(c?.provenance?.fileName),sheet:safe(c?.provenance?.sheet),row:Number.isSafeInteger(c?.provenance?.row)?c.provenance.row:null,column:c?.type==='character'&&c?.source==='XLSX'?characterImportColumn(field):['knowledge','mission'].includes(c?.type)&&c?.source==='XLSX'?storyImportColumn(c.type,field):['shop','offer'].includes(c?.type)&&c?.source==='XLSX'?shopImportColumn(c.type,field):field,
  batchId:safe(c?.provenance?.batchId),draftRevision:Number.isSafeInteger(c?.revision)?c.revision:null});
 function validate(c,revision){
  check(c&&typeof c==='object'&&!Array.isArray(c));
@@ -40,7 +41,7 @@ function validate(c,revision){
  check(typeof c.actorUid==='string'&&c.actorUid.length>0&&Number.isSafeInteger(c.at)&&['WEB','XLSX','ADMISSION_SETTINGS'].includes(c.source));
  if(c.requestId!==undefined)documentId(c.requestId);
  if(c.provenance!==undefined){const p=c.provenance;check(c.source==='XLSX'&&p&&Object.keys(p).every(k=>['schemaVersion','batchId','fileName','sheet','row'].includes(k))&&p.schemaVersion===1&&typeof p.fileName==='string'&&p.fileName.length<=200&&typeof p.sheet==='string'&&p.sheet.length<=100&&Number.isSafeInteger(p.row)&&p.row>=2);documentId(p.batchId);}
- if(c.source==='XLSX')check(!!c.provenance&&centralImportTypes[c.workshop]?.type===c.type&&centralImportTypes[c.workshop]?.sheet===c.provenance.sheet);
+ if(c.source==='XLSX')check(!!c.provenance&&centralImportContracts(c.workshop).some(t=>t.type===c.type&&t.sheet===c.provenance.sheet));
  const d=c.data;let normalized;
  if(c.type==='speciesCatalogue'){
   check(c.entityId==='player'&&c.operation==='UPSERT'&&c.source==='ADMISSION_SETTINGS');
@@ -124,7 +125,7 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
  ];
  const report={schemaVersion:1,scope:'INITIAL_DRAFT_PREPARATION',campaign:{id:campaign.id,title:campaign.title},draft:{id:'initial',revision,baseVersionId:null,basePointerRevision:0},checkedAt:at,
   authority:authority?{kind:authority.kind,revision:authority.revision}:null,
-  fingerprint:hash({schema:8,actorUid,authority,campaign:{id:campaign.id,revision:campaign.revision,master:campaign.master??null,ruleProfile:campaign.ruleProfile,ownerUid:campaign.ownerUid},session:{id:session.id,revision:session.revision},draft:draft??null,changes:ordered}),
+  fingerprint:hash({schema:9,actorUid,authority,campaign:{id:campaign.id,revision:campaign.revision,master:campaign.master??null,ruleProfile:campaign.ruleProfile,ownerUid:campaign.ownerUid},session:{id:session.id,revision:session.revision},draft:draft??null,changes:ordered}),
   status:diagnostics.length?'CORRECTIONS_REQUIRED':'NO_DETECTED_ERROR',publicationAvailable:false,remainingChecks,
   workshops:centralWorkshops.map(w=>({id:w.id,label:w.label,coverage:'PARTIAL',active:records.filter(c=>c.workshop===w.id&&c.operation==='UPSERT').length,archived:records.filter(c=>c.workshop===w.id&&c.operation==='ARCHIVE').length})),
   totals:{records:changes.length,valid:records.length,invalid:changes.length-records.length,diagnostics:diagnostics.length,references:edges.length},initialPreparation:initial.summary,diff,edges,diagnostics};

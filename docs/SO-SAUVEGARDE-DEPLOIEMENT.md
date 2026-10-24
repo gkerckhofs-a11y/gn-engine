@@ -1,5 +1,13 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## C2l — Excel des boutiques et offres M5
+
+[C2l — import/export M5](SO-05-C2L-EXCEL-BOUTIQUES-OFFRES.md) ajoute un fichier à deux feuilles Boutiques/Offres, sélection privée typée, aperçu, confirmation et transaction unique. Homonymes distincts, liens calculés sur les deux feuilles finales, validation native des prix et références, lectures M1/M2 indépendantes. Aucun stock, compte, QR, droit de vente ou achat activé.
+
+**Local, 25 octobre 2026 (Europe/Brussels) : compilation et 1263/1263 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 24 nouveaux cas partagés Firestore, cinq UI/XLSX, un HTTP/Auth ; intégrations vérifiées syntaxiquement. Firebase non exécuté localement (Java 17) ; résultats du candidat exact dans la PR après les deux CI. Base C2k `78699b2a483191fdd3243d5dc90ec69b02ae96ea` : deux CI vertes, 1234 applicatifs/986 Firebase chacune, [preuves archivées](PR-1-HISTORIQUE-AVANT-C2L.md).
+
+100 lignes au total sur les deux feuilles, 1 Mio ; 50 boutiques/250 offres archives comprises. Bornes globales 1659/16 Mio/4 Mio inchangées, empreinte interne 9. Excel M1/M2/M4/M5/M6/M7 disponible ; M3 reste à livrer. Quatre Masters historiques inchangés. Préserver nouvelles provenances, droits, historiques et reçus avec le brouillon complet : C2k n’est pas un retour fonctionnel équivalent. MST-02/03/06/07/08 : preuves préparatoires partielles ; 55 verdicts complets et SO-GAP-12/13/14 inchangés. Sept ateliers partiels, publication, I3/I4/I5, restauration globale et recette humaine encore ouverts.
+
 ## C2k — Excel des informations M6 et missions M7
 
 [C2k — import/export M6/M7](SO-06-C2K-EXCEL-INFORMATIONS-MISSIONS.md) ajoute les feuilles `Informations` et `Missions` au contrat central v1 : sélection privée, aperçu, confirmation motivée et lot atomique. Textes et IDs conservés, listes JSON complètes, effacement explicite, diagnostics localisés et lectures croisées indépendantes. Aucun savoir, QR, mission jouée, récompense ou ressource activé.

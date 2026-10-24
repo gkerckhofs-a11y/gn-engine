@@ -122,11 +122,11 @@ export function centralShopsSuite(makeStore,prefix='Boutiques centrales C2g'){
   await assert.rejects(f.saveShop({shopId:'overflow',draftRevision:2}),{code:'CENTRAL_LIMIT'});await assert.rejects(f.saveOffer({offerId:'overflow',draftRevision:2}),{code:'CENTRAL_LIMIT'});await f.saveShop({draftRevision:2,shopRevision:1});await f.saveOffer({draftRevision:3,offerRevision:1});
   const r=await f.check(4);assert.equal(r.totals.records,300);assert.equal(r.totals.invalid,0);assert.equal(centralCheckLimits.records,1659);
  });
- test(`${prefix} : formats stockés corrompus et provenance Excel M5 refusés`,async()=>{
+ test(`${prefix} : formats stockés corrompus et provenance Excel incompatible refusés`,async()=>{
   const f=await centralShopsFixture(makeStore);await f.saveShop();await f.saveOffer({draftRevision:1});const shop=await f.store.get(`${f.base}/changes/shop_shop`),offer=await f.store.get(`${f.base}/changes/offer_offer`);
   for(const data of [{...shop.data,schemaVersion:2},{...shop.data,masterArchived:true},{...shop.data,sellerCharacterId:'../x'},{...shop.data,gmNotes:null}]){await f.inject(shop.id,{data});const r=await f.check(2);assert.equal(r.totals.invalid,1);assert.ok(r.diagnostics.some(x=>x.code==='REFERENCE_INVALID'&&x.referenceType==='shop'));}
   await f.inject(shop.id,shop);await f.inject(offer.id,{data:{...offer.data,unitPrice:0}});assert.equal((await f.check(2)).totals.invalid,1);await f.inject(offer.id,offer);
-  await f.inject(shop.id,{source:'XLSX',provenance:{schemaVersion:1,batchId:'batch',fileName:'M5.xlsx',sheet:'Boutiques',row:2}});assert.equal((await f.check(2)).totals.invalid,1);
+  await f.inject(shop.id,{source:'XLSX',provenance:{schemaVersion:1,batchId:'batch',fileName:'M5.xlsx',sheet:'Stocks_Initiaux',row:2}});assert.equal((await f.check(2)).totals.invalid,1);
  });
  test(`${prefix} : import M1 puis M2 résout les références sans réécrire M5`,async()=>{
   const f=await centralShopsFixture(makeStore);await f.saveShop();await f.saveOffer({draftRevision:1});const before=(await f.view('M5')).changes;
@@ -135,9 +135,9 @@ export function centralShopsSuite(makeStore,prefix='Boutiques centrales C2g'){
   }
   const d=await f.view('M5');assert.deepEqual(d.changes,before);assert.deepEqual(refs(d),[]);assert.equal(d.references.items[0].source,'XLSX');assert.equal(d.references.characters[0].source,'XLSX');assert.equal((await f.check(4)).totals.invalid,0);
  });
- test(`${prefix} : Excel M5 indisponible, aperçus existants périmés après édition`,async()=>{
-  const f=await centralShopsFixture(makeStore);await assert.rejects(f.read('exportCentralDraft',f.owner,{campaignId:f.cid,workshop:'M5',ids:[]}),{code:'INVALID_CENTRAL_IMPORT'});
-  await assert.rejects(f.read('prepareCentralImport',f.owner,{campaignId:f.cid,workshop:'M5',fileName:'M5.xlsx',sheets:{}}),{code:'INVALID_CENTRAL_IMPORT'});
+ test(`${prefix} : gabarit M5 et aperçus existants périmés après édition`,async()=>{
+  const f=await centralShopsFixture(makeStore);assert.deepEqual((await f.read('exportCentralDraft',f.owner,{campaignId:f.cid,workshop:'M5',ids:[]})).sheets.Boutiques,[]);
+  assert.ok((await f.read('prepareCentralImport',f.owner,{campaignId:f.cid,workshop:'M5',fileName:'M5.xlsx',sheets:{}})).errors.length);
   const e=await f.read('exportCentralDraft',f.owner,{campaignId:f.cid,workshop:'M1',ids:[]});e.sheets.Objets=[centralItemRow];const input={campaignId:f.cid,workshop:'M1',fileName:'M1.xlsx',sheets:e.sheets},p=await f.read('prepareCentralImport',f.owner,input);await f.saveShop();await assert.rejects(f.cmd('applyCentralImport',{...input,confirmation:p.confirmation,reason:'Aperçu périmé'}),{code:'STALE_REVISION'});
  });
  test(`${prefix} : autre campagne et instances de session ne résolvent pas les liens`,async()=>{

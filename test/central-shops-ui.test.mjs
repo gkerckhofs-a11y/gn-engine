@@ -7,9 +7,9 @@ const ui=createCentralUi({button:(label,action,extra='')=>`<button data-action="
 const shop={type:'shop',entityId:'same',operation:'UPSERT',data:{name:'<b>Comptoir</b>',description:'<img src=x>',sellerCharacterId:'seller',locationTargetId:'counter',gmNotes:'Préparation privée',revision:3}};
 const offer={type:'offer',entityId:'same',operation:'UPSERT',data:{name:'Offre',shopId:'same',itemId:'item',unitPrice:17,buybackPrice:null,conditions:'<b>Condition</b>',gmNotes:'Note réservée',revision:2}};
 const d={campaign:{id:'campaign',title:'Préparation'},draft:{revision:6},rights:{readWorkshops:['M5'],editWorkshops:[],manageStaff:false},workshop:'M5',workshops:centralWorkshops.map(w=>({...w,canRead:w.id==='M5',canEdit:false})),changes:[shop,offer],history:[],staff:[],references:{shops:[{id:'same',name:'<b>Comptoir</b>',revision:3,source:'WEB'}],itemsReadable:false,charactersReadable:false,items:[],characters:[]},diagnostics:[{entityType:'shop',entityId:'same',field:'sellerCharacterId',reference:'<img>',message:'Lecture M2 requise'}]};
-test('M5 central UI : lecture échappée, actions restreintes et Excel indisponible',()=>{
- const h=ui.page(d);assert.match(h,/&lt;b&gt;Comptoir/);assert.match(h,/&lt;img src=x&gt;/);assert.match(h,/&lt;img&gt;/);assert.match(h,/Lecture M1 non accordée/);assert.match(h,/Lecture M2 non accordée/);assert.match(h,/Excel de M5 n’est pas encore disponible/);
- assert.doesNotMatch(h,/<img|<b>|data-action="central(?:Shop|Offer|Import|Export)/);assert.match(ui.staffForm(d),/name="edit_M5"/);assert.doesNotMatch(h,/data-action="publish/);
+test('M5 central UI : lecture échappée, actions restreintes et export autorisé',()=>{
+ const h=ui.page(d);assert.match(h,/&lt;b&gt;Comptoir/);assert.match(h,/&lt;img src=x&gt;/);assert.match(h,/&lt;img&gt;/);assert.match(h,/Lecture M1 non accordée/);assert.match(h,/Lecture M2 non accordée/);assert.match(h,/Excel M5 prépare les boutiques et leurs offres avec aperçu/);
+ assert.doesNotMatch(h,/<img|<b>|data-action="central(?:Shop|Offer|Import)/);assert.match(ui.staffForm(d),/name="edit_M5"/);assert.doesNotMatch(h,/data-action="publish/);
 });
 test('M5 central UI : formulaires typés, motif, révisions et aucune ressource',()=>{
  const h=ui.shopForm(d,'same',shop),o=ui.offerForm(d,'same',offer);assert.match(h,/data-form="centralShop"/);assert.match(o,/data-form="centralOffer"/);

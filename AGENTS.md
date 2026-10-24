@@ -171,6 +171,13 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - M6→M2 et M7→M1/M2/M6 exigent les lectures indépendantes avant toute requête étrangère. Conserver tests de confidentialité, localisation XLSX, concurrence, révocation avant les reçus de commande/lot et interruption atomique.
 - Contrôle global : nouvelles provenances et colonnes M6/M7, empreinte interne 8 ; 1659 changements, 16 Mio/4 Mio inchangés. Relancer le contrôle, sans publication implicite. Conserver brouillon, grants, historiques et reçus ensemble ; C2j refuse les nouvelles provenances et n’est pas un retour fonctionnel équivalent.
 
+## Tranche C2l — Excel des boutiques et offres M5
+
+- [C2l](docs/SO-05-C2L-EXCEL-BOUTIQUES-OFFRES.md) ajoute deux feuilles Boutiques/Offres au contrat central v1, dans une seule confirmation/transaction/révision. Réutiliser les validateurs M5 ; aucun stock, caisse, QR, mandat, prix de jeu ou transaction activé.
+- Préserver les homonymes typés, IDs métier nus dans les cellules et sélection M5 par clés shop_{id}/offer_{id}. Les autres ateliers gardent leurs sélections par ID nu. Deux feuilles requises même vides, 100 lignes cumulées/1 Mio, 50 boutiques/250 offres archives comprises ; aucun onglet documentaire supplémentaire certifié.
+- Calculer les liens sur l’état final des deux feuilles ; prix entiers strictement positifs saisis sans défaut. Blanc conserve, effacement explicite, archives/restauration sans cascade. M1/M2 consultés uniquement avec leurs lectures indépendantes ; préserver réessais, révocation avant reçus, concurrence et interruption atomique.
+- Provenances M5 et colonnes localisées au contrôle commun ; empreinte interne 9, budgets 1659/16 Mio/4 Mio inchangés. C2k ne contrôle pas ces provenances : conserver brouillon, droits, historiques et reçus ensemble. Excel M3, publication et recette humaine restent ouverts.
+
 ## Cycle de chaque ensemble fonctionnel
 
 1. Lire le cadrage V3.5, le livre SPACE OUTLAWS V0.7, les sept gabarits proposés SO_Masters_V01.zip et le vade-mecum ; conserver le rapport de cohérence V0.6 comme historique (sources référencées dans SO-01a et SO-00). Délimiter un parcours complet, ses critères, dépendances et recettes. A01–A38 et l’extension PNJ FOR-01 sont clos : ne pas réinventer leurs barèmes. Distinguer les propositions techniques et les paramètres de session à préparer. Les décisions V3.5/V0.7 prévalent sur les cadrages antérieurs ; les prix/compositions d’exemples V3.2 restent non canoniques.
