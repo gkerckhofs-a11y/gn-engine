@@ -15,7 +15,7 @@ test('Central UI : intention stable, révisions et absence de stock ou publicati
 });
 test('Central UI : espèces M2 échappées et délégations sans pouvoir de publication',()=>{
  const h=ui.page({...model,workshop:'M2',changes:[{id:'speciesCatalogue_player',data:[{id:'human',label:'<b>Human</b>',nature:'HUMANOID',description:'<img src=x>',available:true}]}]});assert.match(h,/&lt;b&gt;Human/);assert.doesNotMatch(h,/<img/);
- const grant=ui.staffForm(model);assert.match(grant,/name="edit_M1"/);assert.doesNotMatch(grant,/name="edit_M2"|name="publish"/);assert.match(grant,/Aucun message/);
+ const grant=ui.staffForm(model);assert.match(grant,/name="edit_M1"/);assert.doesNotMatch(grant,/name="edit_M3"|name="publish"/);assert.match(grant,/Aucun message/);
 });
 test('Central UI : archive et restauration restent des modifications de brouillon',()=>{
  const c={entityId:'item',type:'item',operation:'ARCHIVE',data:{name:'<i>Item</i>',description:'',unit:'unité',revision:2}},d={...model,rights:{...model.rights,editWorkshops:['M1']},changes:[c]};

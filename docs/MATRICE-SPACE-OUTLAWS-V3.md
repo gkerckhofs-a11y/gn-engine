@@ -1,5 +1,9 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## C1e — fiches narratives et relations M2
+
+[C1e — fiches narratives M2](SO-01-C1E-PERSONNAGES.md) : identité/nature, textes privés, objectifs avec étapes et relations orientées dans le brouillon commun, avec références différées, délégation M2 et archive/restauration auditée. **957 tests applicatifs locaux et build réussis** ; 20 nouveaux cas métier partagés avec Firestore, quatre UI et un HTTP/Auth. CI du SHA exact à consigner dans la PR après terminaison. Aucune candidature convertie, instance, dotation ou publication créée. Profils canoniques, XLSX M2, contrôle global C2, I3/I4/I5 et recette humaine restent incomplets ; les 55 verdicts complets sont inchangés.
+
 ## C1d — Excel central M1/M4
 
 [C1d — Excel central M1/M4](SO-01-C1D-EXCEL-CENTRAL.md) : export ciblé ou gabarit lié à la campagne, aperçu sans écriture, confirmation atomique dans le brouillon commun, révisions et lots idempotents, provenance fichier/feuille/ligne. **933 tests applicatifs locaux et build réussis** ; 21 nouveaux cas métier partagés avec Firestore, trois rendus UI, un cas de sécurité XLSX et un HTTP/Auth. Résultats CI du SHA exact dans la PR après terminaison. Les quatre Masters historiques sont inchangés. Publication globale, autres ateliers, fabrication, M2 personnage/naissance/relève et recette sur appareils restent à compléter ; les 55 verdicts complets restent inchangés.

@@ -67,7 +67,7 @@ export function centralMasterSuite(makeStore,prefix='Master central C1b'){
   await assert.rejects(f.save({draftRevision:1},f.mj),{code:'FORBIDDEN'});
   await assert.rejects(f.cmd('setCentralStaff',{campaignId:f.cid,email:f.player.email},f.mj),{code:'FORBIDDEN'});
   await assert.rejects(f.grant({revision:1,publish:true}),{code:'INVALID_CENTRAL_MASTER'});
-  await assert.rejects(f.grant({revision:1,editWorkshops:['M2'],readWorkshops:['M2']}),{code:'INVALID_CENTRAL_GRANT'});
+  await assert.rejects(f.grant({revision:1,editWorkshops:['M3'],readWorkshops:['M3']}),{code:'INVALID_CENTRAL_GRANT'});
  });
  test(`${prefix} : révocation avant lecture et avant réessai du reçu`,async()=>{
   const f=await centralFixture(makeStore);await f.grant();const input={requestId:randomUUID()},r=await f.save(input,f.mj);await f.grant({revision:1,active:false});

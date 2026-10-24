@@ -1,3 +1,4 @@
+import {centralTestCharacter} from '../support/central-characters-suite.mjs';
 import {centralItemRow} from '../support/central-import-suite.mjs';
 import {readCentralXlsx,writeCentralXlsx} from '../../web/central-xlsx.mjs';
 import {rosterMembership} from '../support/group-management-suite.mjs';
@@ -34,6 +35,19 @@ const request=async(action,input={},token)=>{
   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,input})});
   return {status:response.status,...await response.json()};
 };
+
+test('HTTP + Auth : fiches centrales M2, relations différées et admissions isolées',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`m2-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};const cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Fiches M2 HTTP',title:'Préparation synthétique',capacity:4,privacy:'Notice fictive'});
+ const grant={campaignId,email,active:true,readWorkshops:['M2'],editWorkshops:['M2'],revision:0,reason:'Fiction M2'};await cmd('setCentralStaff',grant);
+ const input={campaignId,characterId:'person',character:centralTestCharacter,draftRevision:0,characterRevision:0,reason:'Fiche fictive HTTP',requestId:randomUUID()};assert.equal((await request('saveCentralCharacter',input)).status,401);
+ const r=await cmd('saveCentralCharacter',input,editor);assert.equal(r.characterRevision,1);assert.deepEqual(await cmd('saveCentralCharacter',input,editor),r);let d=await call('centralMaster',{campaignId,workshop:'M2'},editor);assert.equal(d.diagnostics[0].code,'REFERENCE_MISSING');assert.equal(d.changes[0].data.publicationState,'DRAFT');assert.equal(d.changes[0].data.objectives[0].published,false);
+ assert.equal((await request('admissionAdmin',{sessionId},editor)).status,403);assert.equal((await request('centralMaster',{campaignId,workshop:'M1'},editor)).status,403);assert.equal((await request('saveCentralCharacter',{...input,requestId:randomUUID(),draftRevision:1,characterRevision:1,character:{...centralTestCharacter,assignedUid:'player'}},editor)).status,400);
+ await cmd('saveCentralCharacter',{campaignId,characterId:'target',character:{...centralTestCharacter,relations:[]},draftRevision:1,characterRevision:0,reason:'Cible fictive'},editor);d=await call('centralMaster',{campaignId,workshop:'M2'},editor);assert.deepEqual(d.diagnostics,[]);assert.equal(d.changes.length,2);
+ await cmd('setCentralStaff',{...grant,active:false,revision:1});assert.equal((await request('saveCentralCharacter',input,editor)).status,403);assert.equal((await request('centralMaster',{campaignId,workshop:'M2'},editor)).status,403);
+ const s=await call('session',{sessionId});for(const k of ['characters','registrations','inventory','accounts'])assert.deepEqual(s[k],[]);assert.equal(s.versionId,null);
+});
 
 test('HTTP + Auth : XLSX central, aperçu volumineux, confirmation et révocation avant reçu',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`xlsx-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);

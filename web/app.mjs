@@ -1,3 +1,4 @@
+import {centralCharacterPayload,readCentralCharacterNarrative} from './central-characters.mjs';
 import {readCentralXlsx,writeCentralXlsx} from './central-xlsx.mjs';
 import {centralRecipePayload} from './central-recipes.mjs';
 import {createCentralUi,centralErrors,centralItemPayload} from './central-master.mjs';
@@ -316,6 +317,11 @@ document.addEventListener('click',async event=>{
     if(a==='centralImport'){pendingCentralImport=null;modal(centralUi.importForm(currentCentral));return;}
     if(a==='centralItem'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.entityId===id&&c.type==='item');modal(centralUi.itemForm(currentCentral,id,c));return;}
     if(a==='centralArchive'){const c=currentCentral.changes.find(c=>c.entityId===b.dataset.id&&c.type==='item');if(c)modal(centralUi.archiveForm(currentCentral,c));return;}
+    if(a==='centralCharacter'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.entityId===id&&c.type==='character');modal(centralUi.characterForm(currentCentral,id,c));return;}
+    if(a==='centralCharacterArchive'){const c=currentCentral.changes.find(c=>c.entityId===b.dataset.id&&c.type==='character');if(c)modal(centralUi.characterArchiveForm(currentCentral,c));return;}
+    if(a==='centralCharacterObjectiveAdd'||a==='centralCharacterRelationAdd'){const objective=a==='centralCharacterObjectiveAdd',rows=b.closest('form').querySelector(objective?'[data-central-objectives]':'[data-central-relations]');if(rows.children.length<60)rows.insertAdjacentHTML('beforeend',centralUi[objective?'characterObjectiveRow':'characterRelationRow']({id:crypto.randomUUID()}));return;}
+    if(a==='centralCharacterStepAdd'){const rows=b.closest('[data-central-objective]').querySelector('[data-central-steps]');if(rows.children.length<40)rows.insertAdjacentHTML('beforeend',centralUi.characterStepRow({id:crypto.randomUUID()}));return;}
+    if(a==='centralCharacterRemove'){const selectors={step:'[data-central-step]',objective:'[data-central-objective]',relation:'[data-central-relation]'};b.closest(selectors[b.dataset.kind]).remove();return;}
     if(a==='centralRecipe'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.entityId===id&&c.type==='recipe');modal(centralUi.recipeForm(currentCentral,id,c));return;}
     if(a==='centralRecipeArchive'){const c=currentCentral.changes.find(c=>c.entityId===b.dataset.id&&c.type==='recipe');if(c)modal(centralUi.recipeArchiveForm(currentCentral,c));return;}
     if(a==='centralRecipeComponentAdd'){const rows=b.closest('form').querySelector('[data-central-components]');if(rows.children.length<20)rows.insertAdjacentHTML('beforeend',centralUi.recipeComponentRow(currentCentral));return;}
@@ -518,6 +524,10 @@ document.addEventListener('submit',async event=>{
       const r=await api('applyCentralImport',{...pendingCentralImport,reason:v.reason});successMessage=`Import enregistré : ${r.changed} modification(s), ${r.unchanged} ligne(s) inchangée(s).`;pendingCentralImport=null;
     }
     else if(kind==='centralItem'||kind==='centralArchive'){await mutate(kind==='centralItem'?'saveCentralItem':'archiveCentralItem',{campaignId:form.dataset.cid,itemId:form.dataset.id,draftRevision:Number(form.dataset.draft),itemRevision:Number(form.dataset.revision),reason:v.reason,...(kind==='centralItem'?{item:centralItemPayload(v)}:{})});successMessage='Brouillon enregistré. Aucune version publiée.';}
+    else if(kind==='centralCharacter'||kind==='centralCharacterArchive'){
+      const narrative=kind==='centralCharacter'?readCentralCharacterNarrative(form):null;
+      await mutate(kind==='centralCharacter'?'saveCentralCharacter':'archiveCentralCharacter',{campaignId:form.dataset.cid,characterId:form.dataset.id,draftRevision:Number(form.dataset.draft),characterRevision:Number(form.dataset.revision),reason:v.reason,...(narrative?{character:centralCharacterPayload(v,narrative.objectives,narrative.relations)}:{})});successMessage='Fiche narrative enregistrée dans le brouillon.';
+    }
     else if(kind==='centralRecipe'||kind==='centralRecipeArchive'){
       const rows=[...form.querySelectorAll('[data-central-component]')].map(row=>({itemId:row.querySelector('[name=componentItem]').value,quantity:row.querySelector('[name=componentQuantity]').value}));
       await mutate(kind==='centralRecipe'?'saveCentralRecipe':'archiveCentralRecipe',{campaignId:form.dataset.cid,recipeId:form.dataset.id,draftRevision:Number(form.dataset.draft),recipeRevision:Number(form.dataset.revision),reason:v.reason,...(kind==='centralRecipe'?{recipe:centralRecipePayload(v,rows)}:{})});successMessage='Formule enregistrée dans le brouillon.';

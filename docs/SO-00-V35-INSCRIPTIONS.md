@@ -1,5 +1,9 @@
 # SO-00 V3.5 — diagnostic, inscriptions et ordre de développement
 
+## Avancement après C1e
+
+[C1e — fiches narratives M2](SO-01-C1E-PERSONNAGES.md) : identité/nature, textes privés, objectifs avec étapes et relations orientées dans le brouillon commun, avec références différées, délégation M2 et archive/restauration auditée. **957 tests applicatifs locaux et build réussis** ; 20 nouveaux cas métier partagés avec Firestore, quatre UI et un HTTP/Auth. CI du SHA exact à consigner dans la PR après terminaison. Aucune candidature convertie, instance, dotation ou publication créée. Profils canoniques, XLSX M2, contrôle global C2, I3/I4/I5 et recette humaine restent incomplets ; les 55 verdicts complets sont inchangés.
+
 ## Avancement après C1c
 
 [C1c — recettes dans le brouillon central](SO-01-C1C-RECETTES.md) : édition/archivage/restauration M4, références M1 différées, diagnostics privés et délégations M4 distinctes. **908 tests applicatifs locaux et build réussis** ; 14 nouveaux cas métier partagés avec Firestore, quatre rendus UI et un HTTP/Auth. CI du commit exact à consigner dans la PR après terminaison. Aucun import central ni publication/fabrication ; M5, personnages M2, naissance/relève et recette mobile restent à développer. Les 55 verdicts complets restent inchangés.

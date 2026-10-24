@@ -1,9 +1,10 @@
+import {characterInput} from './character-state.mjs';
 import {recipeInput,validateRecipeReferences} from './recipe-state.mjs';
 import {createCentralMasterService,centralMasterAction,centralDashboard} from './central-master.mjs';
 import {isPreparation} from './preparation-state.mjs';
 import {createAdmissionService,admissionAction} from './admissions.mjs';
 import {createGroupManagementService,groupManagementAction} from './group-management.mjs';
-import {naturePatch,preserveSessionNature} from './character-nature.mjs';
+import {preserveSessionNature} from './character-nature.mjs';
 import {validateCargoTariffReferences} from './customs-state.mjs';
 import {validateEconomicReferences} from './price-state.mjs';
 import {createPriceService,priceAction} from './prices.mjs';
@@ -39,7 +40,7 @@ import {requireThat, documentId, whole} from './validation.mjs';
 import {publicCharacter, participantCharacter} from './projections.mjs';
 import {createClock, pauseClock, resumeClock, gameTime} from './clock.mjs';
 import {staffPath,staffEmail,capabilities,sessionCommands,receptionCharacter} from './staff.mjs';
-import {narrativeInput,validateRelations,recordPublication} from './narrative.mjs';
+import {validateRelations,recordPublication} from './narrative.mjs';
 import {createHealthService,healthAction} from './health.mjs';
 import {createInventoryService,inventoryAction} from './inventory.mjs';
 import {createLotTransferService,lotTransferAction} from './inventory-transfers.mjs';
@@ -69,16 +70,7 @@ const publicSession = s => ({id:s.id, title:s.title, summary:s.summary, date:s.d
 const ownRegistration = r => r ? ({name:r.name, email:r.email, answers:r.answers, status:r.status,
   characterId:r.characterId, accessActive:r.accessActive, briefingReadAt:r.briefingReadAt ?? null,
   briefingReadRevision:r.briefingReadRevision??null}) : null;
-const characterInput = (input, id, existing={}) => ({...existing,id,...naturePatch(input,existing),
-  public: {displayName:text(input.displayName,150,true), profession:optional(input.profession,150),
-    description:optional(input.description,4000), publicationState:status(input.publicationState,['DRAFT','READY','PUBLISHED'])},
-  publicationState:input.publicationState, biography:optional(input.biography,20000),
-  roleplay:optional(input.roleplay,10000), playerSecrets:optional(input.playerSecrets,20000),
-  gmNotes:optional(input.gmNotes,20000),
-  objectives:input.objectives===undefined ? existing.objectives??[] : narrativeInput(input.objectives,'objectives'),
-  relations:input.relations===undefined ? existing.relations??[] : narrativeInput(input.relations,'relations'),
-  hp:existing.hp??null,maxHp:existing.maxHp??null,historyStarted:true,
-  contentRevision:(existing.contentRevision??(existing.id?1:0))+1});
+
 
 /** Authenticated actor is supplied by the HTTP adapter, never by input JSON. */
 export function createWorkflow({store, ownerEmail, now = Date.now, uuid = randomUUID, images=null, processImage=null,rollD6}) {

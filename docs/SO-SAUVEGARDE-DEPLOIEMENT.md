@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## Complément C1e — définitions narratives M2
+
+[C1e](SO-01-C1E-PERSONNAGES.md) ajoute les changements `character_{id}` et délégations M2 au même ensemble cohérent du brouillon. Préserver leurs IDs, `contentRevision`, histoires et reçus avec campagne/droits/opérations. Les Masters historiques et exports ciblés M1/M4 ne les sauvegardent pas. Aucun rollback fonctionnel vers un lecteur refusant les grants M2, aucune restauration complète ni production exécutée.
+
 ## Complément C1d — reçus de lots Excel centraux
 
 [C1d](SO-01-C1D-EXCEL-CENTRAL.md) ajoute les reçus `masterDrafts/initial/imports` à préserver avec changements/historiques et `operations`. Un export ciblé M1/M4 contient les définitions sélectionnées et le contexte, pas les droits, reçus ou historiques : il ne permet pas une restauration complète. Aucun exercice de restauration ni déploiement exécuté.

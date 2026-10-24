@@ -67,6 +67,14 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Provenance XLSX et schéma, ID de commande, motif et avant/après sont conservés. M4 sans lecture M1 ne lit ni ne révèle ses modèles. Le rapport local reste distinct du contrôle global C2.
 - Les exports ciblés ne sauvegardent pas les droits/historiques/reçus. Préserver `masterDrafts/initial/imports` avec l'ensemble cohérent du brouillon. Autres ateliers, médias, base publiée et restauration globale restent à développer/tester.
 
+## Tranche C1e — fiches narratives M2
+
+- [C1e](docs/SO-01-C1E-PERSONNAGES.md) ajoute les définitions natives `character` dans le brouillon initial commun, avec `contentRevision`, objectifs/étapes/relations, source et historique. Réutiliser `characterInput` extrait sans changer les anciens éditeurs.
+- Édition M2 exige lecture M2 ; aucun droit sur les admissions ou sessions implicite. Le catalogue narratif I1 reste la même source, éditable seulement par son parcours. Ne jamais renvoyer les historiques de politique/quotas aux lecteurs centraux.
+- Textes de fiction privés et éléments narratifs non publiés ; références M2 différées autorisées dans le même brouillon. Aucun compte, instance, QR, compétence, ressource ou notification créé ; une relation n'ajoute pas de relation inverse.
+- Préserver les IDs des fiches et éléments imbriqués, les bornes (100 fiches, 96 Kio par fiche), les tests de concurrence M1/espèces M2, droits et révocation avant reçu. Les XLSX M2 restent non pris en charge.
+- C2/I3 devront adapter explicitement profil, visibilité, nature/espèce et liens approuvés avant activation ; ne pas convertir des codes I1 en profils historiques par supposition. Aucun personnage jouable ni cycle de naissance livré par C1e.
+
 ## Dépôt et branche
 
 - Travailler exclusivement dans le dépôt `gkerckhofs-a11y/gn-engine`, sur une branche dédiée et une PR. Le checkout local sert au développement et aux vérifications du même dépôt ; ne pas créer de seconde application ou de dépôt parallèle.
