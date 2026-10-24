@@ -2,8 +2,7 @@ import {createCentralCheckUi} from './central-check.mjs';
 import {centralCharacterPayload,readCentralCharacterNarrative} from './central-characters.mjs';
 import {readCentralXlsx,writeCentralXlsx} from './central-xlsx.mjs';
 import {centralRecipePayload} from './central-recipes.mjs';
-import {createCentralUi,centralErrors,centralItemPayload} from './central-master.mjs';
-import {centralWorkshops} from '../src/shared/central-workshops.mjs';
+import {createCentralUi,centralErrors,centralItemPayload,centralStaffPayload} from './central-master.mjs';
 import {createGroupManagementUi,groupManagementErrors,membershipInput} from './group-management.mjs';
 import {createAdmissionUi,admissionErrors} from './admissions.mjs';
 import {createPreparationUi,preparationErrors,preparationDraftId,finishPreparationDraft} from './preparations.mjs';
@@ -535,7 +534,7 @@ document.addEventListener('submit',async event=>{
       const rows=[...form.querySelectorAll('[data-central-component]')].map(row=>({itemId:row.querySelector('[name=componentItem]').value,quantity:row.querySelector('[name=componentQuantity]').value}));
       await mutate(kind==='centralRecipe'?'saveCentralRecipe':'archiveCentralRecipe',{campaignId:form.dataset.cid,recipeId:form.dataset.id,draftRevision:Number(form.dataset.draft),recipeRevision:Number(form.dataset.revision),reason:v.reason,...(kind==='centralRecipe'?{recipe:centralRecipePayload(v,rows)}:{})});successMessage='Formule enregistrée dans le brouillon.';
     }
-    else if(kind==='centralStaff'){await mutate('setCentralStaff',{campaignId:form.dataset.cid,email:v.email,active:v.active==='on',revision:Number(form.dataset.revision),readWorkshops:centralWorkshops.filter(w=>v[`read_${w.id}`]==='on').map(w=>w.id),editWorkshops:centralWorkshops.filter(w=>v[`edit_${w.id}`]==='on').map(w=>w.id),reason:v.reason});successMessage='Droits de campagne enregistrés.';}
+    else if(kind==='centralStaff'){await mutate('setCentralStaff',{campaignId:form.dataset.cid,revision:Number(form.dataset.revision),...centralStaffPayload(v)});successMessage='Droits de campagne enregistrés.';}
     else if(kind==='admissionSettings'){
       const species=[...form.querySelectorAll('[data-admission-species]')].map(row=>({id:row.dataset.admissionSpecies,label:row.querySelector('[name=label]').value,description:row.querySelector('[name=description]').value,nature:row.querySelector('[name=nature]').value,available:row.querySelector('[name=available]').checked}));
       const quotas=Object.fromEntries([...form.querySelectorAll('[name^=quota_]')].map(el=>[el.name.slice(6),Number(el.value)]));

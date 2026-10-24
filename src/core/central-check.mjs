@@ -48,7 +48,7 @@ function validate(c,revision){
  }
  check(same(normalized,d));
 }
-export function centralDraftCheck({campaign,session,draft,changes,actorUid,at}){
+export function centralDraftCheck({campaign,session,draft,changes,actorUid,authority=null,at}){
  requireThat(changes.length<=centralCheckLimits.records&&Buffer.byteLength(JSON.stringify(changes))<=centralCheckLimits.inputBytes,'CENTRAL_CHECK_LIMIT');
  const revision=draft?.revision??0,ordered=[...changes].sort((a,b)=>safe(a?.id).localeCompare(safe(b?.id),'en')),valid=[],diagnostics=[],invalid=new Set(),seen=new Set(),counts={};
  const add=(c,code,message,field='')=>diagnostics.push({...location(c,field),code,message,reference:null});
@@ -86,7 +86,8 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,at}){
   {code:'PUBLICATION_PENDING',message:'Version immuable, reprise de construction, contrôle du parent et activation globale à développer. Ce rapport ne vaut pas autorisation de publier.'},
  ];
  const report={schemaVersion:1,scope:'INITIAL_DRAFT_PREPARATION',campaign:{id:campaign.id,title:campaign.title},draft:{id:'initial',revision,baseVersionId:null,basePointerRevision:0},checkedAt:at,
-  fingerprint:hash({schema:1,actorUid,campaign:{id:campaign.id,revision:campaign.revision,master:campaign.master??null,ruleProfile:campaign.ruleProfile,ownerUid:campaign.ownerUid},session:{id:session.id,revision:session.revision},draft:draft??null,changes:ordered}),
+  authority:authority?{kind:authority.kind,revision:authority.revision}:null,
+  fingerprint:hash({schema:2,actorUid,authority,campaign:{id:campaign.id,revision:campaign.revision,master:campaign.master??null,ruleProfile:campaign.ruleProfile,ownerUid:campaign.ownerUid},session:{id:session.id,revision:session.revision},draft:draft??null,changes:ordered}),
   status:diagnostics.length?'CORRECTIONS_REQUIRED':'NO_DETECTED_ERROR',publicationAvailable:false,remainingChecks,
   workshops:centralWorkshops.map(w=>({id:w.id,label:w.label,coverage:['M1','M2','M4'].includes(w.id)?'PARTIAL':'NOT_IMPLEMENTED',active:records.filter(c=>c.workshop===w.id&&c.operation==='UPSERT').length,archived:records.filter(c=>c.workshop===w.id&&c.operation==='ARCHIVE').length})),
   totals:{records:changes.length,valid:records.length,invalid:changes.length-records.length,diagnostics:diagnostics.length,references:edges.length},diff,edges,diagnostics};

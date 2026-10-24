@@ -1,5 +1,9 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## C2b — autorité explicite du contrôle
+
+[C2b — délégation explicite du contrôle](SO-02-C2B-DELEGATION-CONTROLE.md) : droit de campagne distinct, sept lectures explicites, révocation courante, choix compatible avec les anciens clients, audit et empreinte liée à la révision des droits. **1002 tests applicatifs locaux et build réussis** ; 15 nouveaux cas métier partagés Firestore, quatre UI et un HTTP/Auth. CI exacte à consigner dans la PR après terminaison. C2a reste partiel et `publicationAvailable=false`. SO-GAP-12/13 restent ouverts ; les habilitations centrales reçoivent des preuves partielles supplémentaires ; aucun des 55 verdicts complets ne devient un succès. Publication, I3/I4/I5, recette mobile et restauration globale restent à compléter.
+
 ## C2a — diagnostics centraux de préparation
 
 [C2a — contrôle de préparation commun](SO-02-C2A-CONTROLE-CENTRAL.md) : rapport propriétaire M1/M2/M4, ajouts/exclusions, références et diagnostics localisés, formes natives et provenance vérifiées, empreinte liée au contexte et à la révision. **983 tests applicatifs locaux et build réussis** ; 19 nouveaux cas partagés Firestore, quatre bornes/empreinte, trois UI et un HTTP/Auth. CI exacte à consigner dans la PR après terminaison. Contrôle en lecture seule ; couverture partielle explicite, aucune version ni publication. Les 55 recettes complètes restent non certifiées.

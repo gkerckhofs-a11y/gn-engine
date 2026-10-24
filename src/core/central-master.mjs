@@ -21,7 +21,7 @@ const keys=(v,allowed)=>requireThat(v&&typeof v==='object'&&!Array.isArray(v)&&O
 const reasonText=v=>{requireThat(typeof v==='string'&&v.trim()&&v.length<=500,'INVALID_CENTRAL_MASTER');return v.trim();};
 const workshopList=v=>{requireThat(Array.isArray(v)&&v.length<=7&&new Set(v).size===v.length&&v.every(id=>ids.includes(id)),'INVALID_CENTRAL_GRANT');return [...v].sort();};
 const editableIds=centralWorkshops.filter(w=>w.editable).map(w=>w.id);
-const ownerRights={readWorkshops:ids,editWorkshops:editableIds,manageStaff:true};
+const ownerRights={readWorkshops:ids,editWorkshops:editableIds,manageStaff:true,checkCentral:true};
 export const centralMasterCommands=[...centralImportCommands,'centralMaster','checkCentralDraft','setCentralStaff','saveCentralItem','archiveCentralItem','saveCentralRecipe','archiveCentralRecipe','saveCentralCharacter','archiveCentralCharacter'];
 export const centralMasterAction=a=>centralMasterCommands.includes(a);
 export const centralLimits={items:250,recipes:250,characters:100,staff:50};
@@ -34,7 +34,9 @@ export function centralPreparation(c,s){
 }
 const validGrant=(g,c)=>g?.active===true&&g.ownerUid===c.ownerUid&&g.campaignId===c.id
  &&Array.isArray(g.readWorkshops)&&g.readWorkshops.length>0&&g.readWorkshops.every(x=>ids.includes(x))
- &&Array.isArray(g.editWorkshops)&&g.editWorkshops.every(x=>editableIds.includes(x)&&g.readWorkshops.includes(x));
+ &&Array.isArray(g.editWorkshops)&&g.editWorkshops.every(x=>editableIds.includes(x)&&g.readWorkshops.includes(x))
+ &&(g.checkCentral===undefined||typeof g.checkCentral==='boolean')
+ &&(!g.checkCentral||ids.every(id=>g.readWorkshops.includes(id))&&Number.isSafeInteger(g.revision)&&g.revision>0);
 export async function centralDashboard(tx,actor,isAdmin){
  const own=isAdmin?await tx.list('campaigns',['ownerUid',actor.uid]):[];
  const grants=await tx.list('campaignStaff',['email',actor.email.toLowerCase()]),result=[];
@@ -53,17 +55,18 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
    const owner=isAdmin(actor)&&c.ownerUid===actor.uid;
    const grant=owner?null:await tx.get(centralStaffPath(cid,actor.email));
    requireThat(owner||validGrant(grant,c),'FORBIDDEN');
-   const rights=owner?ownerRights:{readWorkshops:grant.readWorkshops,editWorkshops:grant.editWorkshops,manageStaff:false};
+   const rights=owner?ownerRights:{readWorkshops:grant.readWorkshops,editWorkshops:grant.editWorkshops,manageStaff:false,checkCentral:grant.checkCentral===true};
    const s=await tx.get(`sessions/${c.preparationSessionId??'none'}`);requireThat(centralPreparation(c,s),'CENTRAL_PREPARATION_REQUIRED');
    const draft=await tx.get(draftPath(cid));
    requireThat(!c.master||c.master.schemaVersion===1&&c.master.openDraftId==='initial'&&c.master.activeVersionId===null&&c.master.pointerRevision===0,'CENTRAL_DRAFT_UNAVAILABLE');
    requireThat(!draft?!c.master:!!c.master&&draft.id==='initial'&&draft.status==='DRAFT'&&draft.baseVersionId===null&&draft.basePointerRevision===0&&draft.ruleProfile===spaceOutlawsProfile&&Number.isSafeInteger(draft.revision)&&draft.revision>=0,'CENTRAL_DRAFT_UNAVAILABLE');
    const revision=draft?.revision??0;
    if(action==='checkCentralDraft'){
-    requireThat(owner,'FORBIDDEN');keys(input,['campaignId','draftRevision']);
+    requireThat(rights.checkCentral,'FORBIDDEN');keys(input,['campaignId','draftRevision']);
     requireThat(whole(input.draftRevision)===revision,'STALE_REVISION');
     const changes=await tx.list(`${draftPath(cid)}/changes`,null,{limit:centralCheckLimits.records+1});
-    return centralDraftCheck({campaign:c,session:s,draft,changes,actorUid:actor.uid,at});
+    const authority=owner?{kind:'OWNER',revision:null}:{kind:'DELEGATED',revision:grant.revision,readWorkshops:grant.readWorkshops,editWorkshops:grant.editWorkshops};
+    return centralDraftCheck({campaign:c,session:s,draft,changes,actorUid:actor.uid,authority,at});
    }
    if(centralImportCommands.includes(action))return centralImport(tx,action,actor,input,{c,s,draft,rights,grant,at,uuid});
    if(action==='centralMaster'){
@@ -81,7 +84,7 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
     return {campaign:{id:cid,title:c.title},draft:{id:'initial',revision,status:'DRAFT',baseVersionId:null,pointerRevision:0},rights,workshop,
      workshops:centralWorkshops.map(w=>({...w,canRead:rights.readWorkshops.includes(w.id),canEdit:rights.editWorkshops.includes(w.id)})),
      changes:changes.sort((a,b)=>a.id.localeCompare(b.id)),history:history.sort((a,b)=>b.revision-a.revision).slice(0,30),
-     staff:staff.map(g=>({email:g.email,active:g.active,readWorkshops:g.readWorkshops,editWorkshops:g.editWorkshops,revision:g.revision})),...recipeProjection};
+     staff:staff.map(g=>({email:g.email,active:g.active,readWorkshops:g.readWorkshops,editWorkshops:g.editWorkshops,checkCentral:g.checkCentral===true,revision:g.revision})),...recipeProjection};
    }
    if(action==='setCentralStaff')requireThat(rights.manageStaff,'FORBIDDEN');
    else requireThat(rights.editWorkshops.includes(action.endsWith('Character')?'M2':action.endsWith('Recipe')?'M4':'M1'),'FORBIDDEN');
@@ -89,12 +92,18 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
    const receipt=await tx.get(op);if(receipt){requireThat(receipt.fingerprint===fingerprint,'REQUEST_ID_REUSED');return receipt.result;}
    let result;
    if(action==='setCentralStaff'){
-    keys(input,['campaignId','requestId','email','active','readWorkshops','editWorkshops','revision','reason']);
+    keys(input,['campaignId','requestId','email','active','readWorkshops','editWorkshops','checkCentral','revision','reason']);
     const email=staffEmail(input.email),readWorkshops=workshopList(input.readWorkshops),editWorkshops=workshopList(input.editWorkshops),reason=reasonText(input.reason);
     requireThat(email!==actor.email.toLowerCase()&&typeof input.active==='boolean'&&(!input.active||readWorkshops.length>0)&&editWorkshops.every(x=>editableIds.includes(x)&&readWorkshops.includes(x)),'INVALID_CENTRAL_GRANT');
     const path=centralStaffPath(cid,email),old=await tx.get(path);requireThat(whole(input.revision)===(old?.revision??0),'STALE_REVISION');
+    requireThat(input.checkCentral===undefined||typeof input.checkCentral==='boolean','INVALID_CENTRAL_GRANT');
+    // Old clients retain their existing workshop contract. They cannot silently
+    // preserve or restore this new sensitive right when editing an active grant.
+    requireThat(!(input.active&&old?.checkCentral&&input.checkCentral===undefined),'CENTRAL_CHECK_CHOICE_REQUIRED');
+    const checkCentral=input.checkCentral===true;
+    requireThat(!checkCentral||input.active&&ids.every(id=>readWorkshops.includes(id)),'CENTRAL_CHECK_ACCESS_REQUIRED');
     if(!old)requireThat((await tx.list('campaignStaff',['campaignId',cid],{limit:centralLimits.staff})).length<centralLimits.staff,'CENTRAL_LIMIT');
-    const next={campaignId:cid,ownerUid:c.ownerUid,email,active:input.active,readWorkshops,editWorkshops,revision:(old?.revision??0)+1,updatedAt:at};
+    const next={campaignId:cid,ownerUid:c.ownerUid,email,active:input.active,readWorkshops,editWorkshops,checkCentral,revision:(old?.revision??0)+1,updatedAt:at};
     tx.set(path,next);const eventId=uuid();tx.set(`${root(cid)}/history/${eventId}`,{id:eventId,action,actorUid:actor.uid,at,reason,before:old,after:next});
     result={revision:next.revision};
    }else{

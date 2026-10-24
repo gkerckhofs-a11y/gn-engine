@@ -1,5 +1,7 @@
 # C2a — Contrôle de la première préparation centrale
 
+État historique C2a : [C2b](SO-02-C2B-DELEGATION-CONTROLE.md) étend désormais l’autorité à une délégation explicite et versionne son empreinte. Les limites de validation et l’absence de publication décrites ici restent applicables.
+
 24 octobre 2026. Candidat 0.37.0, branche de livraison `work/l1-modular-workshop`, [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Ce lot ouvre C2 après C1e ; il livre un contrôle commun des contenus actuellement préparables, pas la publication globale complète.
 
 ## Base vérifiée et sources

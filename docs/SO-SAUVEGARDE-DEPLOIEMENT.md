@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## Complément C2b — droit de contrôle et révisions
+
+[C2b](SO-02-C2B-DELEGATION-CONTROLE.md) ajoute `campaignStaff.checkCentral` et lie le rapport aux droits courants. Préserver ce champ avec les révisions, historiques et reçus C1b ; les exports ciblés ne les sauvegardent pas. Désactiver efface le droit, réactiver ou rejouer un ancien reçu ne le restaure pas. Un ancien binaire C2a ferme le contrôle aux délégués et son éditeur peut effacer le champ : retrait de capacité, pas retour fonctionnel équivalent. Revalider explicitement les délégations après reprise. Aucun rapport persistant, migration, restauration complète ou production exécuté.
+
 ## Complément C2a — contrôle en lecture seule
 
 [C2a](SO-02-C2A-CONTROLE-CENTRAL.md) ne crée ni rapport persistant, version, pointeur, reçu ni donnée économique. Son empreinte n'est pas une sauvegarde ni une autorisation de publication. Un retour logiciel conserve les contrats et états des lots antérieurs ; aucune restauration de données C2a à exécuter. Les limites agrégées du contrôleur ne sont pas une certification de charge. Publication/reprise et restauration globale restent à éprouver sur données fictives.

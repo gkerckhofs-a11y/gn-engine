@@ -80,8 +80,14 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - [C2a](docs/SO-02-C2A-CONTROLE-CENTRAL.md) ajoute `checkCentralDraft`, lecture propriétaire transactionnelle du seul brouillon initial sans base publiée. Les droits d'atelier même cumulés ne donnent aucun droit de contrôle global/publication.
 - Réutiliser les formes natives et projections M1/M2/M4 ; tout nouveau type/champ doit adapter explicitement ce contrôleur. Ne pas ignorer un changement inconnu, une provenance incohérente ou un dépassement de budget.
 - Le rapport expose couverture partielle, diagnostics localisés, ajouts/exclusions, liens et empreinte. Aucun texte d'admission ni texte narratif privé dans le résumé ; aucun état persistant ou ressource créé.
-- `NO_DETECTED_ERROR` ne signifie pas publiable ; `publicationAvailable=false`. L'empreinte est une identité de rapport, pas un consentement de publication. Ne pas la réutiliser pour C2b sans les validations/autorités/bases requises.
+- `NO_DETECTED_ERROR` ne signifie pas publiable ; `publicationAvailable=false`. L'empreinte est une identité de rapport, pas un consentement de publication. Ne pas la réutiliser pour une future publication sans les validations/autorités/bases requises.
 - Bornes explicites : 601 changements, 16 Mio de contenu, 4 Mio de rapport ; refus sans résultat tronqué. Conserver tests de cohérence concurrente, confidentialité et absence d'écritures. Publication, pages immuables, version READY/pointeur, restauration et recette humaine restent à développer.
+
+## Tranche C2b — délégation du contrôle préparatoire
+
+- [C2b](docs/SO-02-C2B-DELEGATION-CONTROLE.md) étend explicitement la lecture propriétaire C2a : `campaignStaff.checkCentral=true`, délégation active et lecture des sept ateliers obligatoires. Le cumul des droits d'atelier ou un rôle de session ne suffit toujours pas. Seul le propriétaire attribue/retire ce droit, avec révision et motif.
+- Conserver les anciens grants sans champ comme non habilités ; une modification active d'un grant déjà habilité exige un choix explicite. Désactiver efface le droit ; réactiver ou rejouer un ancien reçu ne le restaure pas. Conserver tests partagés de concurrence/révocation et isolation des admissions.
+- L'empreinte inclut l'autorité courante et la révision des droits ; elle ne devient pas une autorisation de publication. `publicationAvailable=false`, limites et couverture partielle C2a conservées. Aucun gel, version/pointeur ni ressource ajouté. Les validations complètes et la publication restent une suite à développer.
 
 ## Dépôt et branche
 

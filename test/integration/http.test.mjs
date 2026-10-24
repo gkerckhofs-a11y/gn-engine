@@ -36,6 +36,26 @@ const request=async(action,input={},token)=>{
   return {status:response.status,...await response.json()};
 };
 
+test('HTTP + Auth : contrôle explicitement délégué puis révoqué, sans rôle de session',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`review-${randomUUID()}@example.invalid`,reviewer=await googleTestAccount(email);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};
+ const cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Relecture HTTP',title:'Préparation synthétique',capacity:4,privacy:'Notice fictive'});
+ const grant={campaignId,email,active:true,readWorkshops:['M1','M2','M3','M4','M5','M6','M7'],editWorkshops:[],revision:0,reason:'Relecture indépendante'},input={campaignId,draftRevision:0};
+ await cmd('setCentralStaff',grant);assert.equal((await request('checkCentralDraft',input,reviewer)).status,403);
+ const authorized={...grant,checkCentral:true,revision:1,requestId:randomUUID()};await cmd('setCentralStaff',authorized);
+ const report=await call('checkCentralDraft',input,reviewer);assert.deepEqual(report.authority,{kind:'DELEGATED',revision:2});assert.equal(report.publicationAvailable,false);
+ assert.equal((await call('centralMaster',{campaignId,workshop:'M2'},reviewer)).rights.checkCentral,true);
+ for(const action of ['session','admissionAdmin'])assert.equal((await request(action,{sessionId},reviewer)).status,403);
+ assert.equal((await request('saveCentralItem',{campaignId,itemId:'ingredient',item:centralTestItem,draftRevision:0,itemRevision:0,reason:'Interdit',requestId:randomUUID()},reviewer)).status,403);
+ assert.equal((await request('setCentralStaff',{...authorized,email:'other@example.invalid',requestId:randomUUID()},reviewer)).status,403);
+ const omitted=await request('setCentralStaff',{...grant,revision:2,requestId:randomUUID()},owner);assert.equal(omitted.status,400);
+ assert.equal((await request('setCentralStaff',{...grant,checkCentral:true,readWorkshops:['M1'],revision:2,requestId:randomUUID()},owner)).status,400);
+ await cmd('setCentralStaff',{...grant,checkCentral:false,revision:2});assert.equal((await request('checkCentralDraft',input,reviewer)).status,403);
+ await cmd('setCentralStaff',authorized);assert.equal((await request('checkCentralDraft',input,reviewer)).status,403);
+ const s=await call('session',{sessionId});assert.equal(s.versionId,null);for(const k of ['characters','registrations','inventory','accounts'])assert.deepEqual(s[k],[]);
+});
+
 test('HTTP + Auth : contrôle central propriétaire, révision et absence de publication',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`check-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);
  const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};const cmd=(action,input={})=>call(action,{requestId:randomUUID(),...input});
