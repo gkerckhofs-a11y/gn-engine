@@ -1,3 +1,10 @@
+import {characterInput} from './character-state.mjs';
+import {recipeInput,validateRecipeReferences} from './recipe-state.mjs';
+import {createCentralMasterService,centralMasterAction,centralDashboard} from './central-master.mjs';
+import {isPreparation} from './preparation-state.mjs';
+import {createAdmissionService,admissionAction} from './admissions.mjs';
+import {createGroupManagementService,groupManagementAction} from './group-management.mjs';
+import {preserveSessionNature} from './character-nature.mjs';
 import {validateCargoTariffReferences} from './customs-state.mjs';
 import {validateEconomicReferences} from './price-state.mjs';
 import {createPriceService,priceAction} from './prices.mjs';
@@ -33,7 +40,7 @@ import {requireThat, documentId, whole} from './validation.mjs';
 import {publicCharacter, participantCharacter} from './projections.mjs';
 import {createClock, pauseClock, resumeClock, gameTime} from './clock.mjs';
 import {staffPath,staffEmail,capabilities,sessionCommands,receptionCharacter} from './staff.mjs';
-import {narrativeInput,validateRelations,recordPublication} from './narrative.mjs';
+import {validateRelations,recordPublication} from './narrative.mjs';
 import {createHealthService,healthAction} from './health.mjs';
 import {createInventoryService,inventoryAction} from './inventory.mjs';
 import {createLotTransferService,lotTransferAction} from './inventory-transfers.mjs';
@@ -55,23 +62,15 @@ const regPath = (sid, uid) => `sessions/${sid}/registrations/${hash(uid)}`;
 const charPath = (sid, cid) => `sessions/${sid}/characters/${cid}`;
 const privateSession = s => ({id:s.id, title:s.title, summary:s.summary, date:s.date, time:s.time, place:s.place,
   practical:s.practical, privacy:s.privacy, capacity:s.capacity, accepted:s.accepted, registrationOpen:s.registrationOpen,
-  stage:s.stage, fields:s.fields, scenarioId:s.scenarioId, versionId:s.versionId, revision:s.revision});
+  stage:s.stage, fields:s.fields, scenarioId:s.scenarioId, versionId:s.versionId, revision:s.revision,
+  ...(isPreparation(s)?{preparationKind:s.preparationKind,preparationVersion:s.preparationVersion}:{})});
 const publicSession = s => ({id:s.id, title:s.title, summary:s.summary, date:s.date, time:s.time, place:s.place,
   practical:s.practical, privacy:s.privacy, capacity:s.capacity, available:Math.max(0,s.capacity-s.accepted),
   registrationOpen:s.registrationOpen, stage:s.stage, fields:s.fields});
 const ownRegistration = r => r ? ({name:r.name, email:r.email, answers:r.answers, status:r.status,
   characterId:r.characterId, accessActive:r.accessActive, briefingReadAt:r.briefingReadAt ?? null,
   briefingReadRevision:r.briefingReadRevision??null}) : null;
-const characterInput = (input, id, existing={}) => ({...existing,id,
-  public: {displayName:text(input.displayName,150,true), profession:optional(input.profession,150),
-    description:optional(input.description,4000), publicationState:status(input.publicationState,['DRAFT','READY','PUBLISHED'])},
-  publicationState:input.publicationState, biography:optional(input.biography,20000),
-  roleplay:optional(input.roleplay,10000), playerSecrets:optional(input.playerSecrets,20000),
-  gmNotes:optional(input.gmNotes,20000),
-  objectives:input.objectives===undefined ? existing.objectives??[] : narrativeInput(input.objectives,'objectives'),
-  relations:input.relations===undefined ? existing.relations??[] : narrativeInput(input.relations,'relations'),
-  hp:existing.hp??null,maxHp:existing.maxHp??null,historyStarted:true,
-  contentRevision:(existing.contentRevision??(existing.id?1:0))+1});
+
 
 /** Authenticated actor is supplied by the HTTP adapter, never by input JSON. */
 export function createWorkflow({store, ownerEmail, now = Date.now, uuid = randomUUID, images=null, processImage=null,rollD6}) {
@@ -88,9 +87,10 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     requireThat(grant?.active && grant.ownerUid===s.ownerUid && ['MJ','RECEPTION'].includes(grant.role),'FORBIDDEN');
     return {s,role:grant.role,permissions:capabilities(grant.role)};
   };
-  const checkSession = async (tx, actor, sid, permission='content') => {
+  const checkSession = async (tx, actor, sid, permission='content',allowPreparation=false) => {
     const access=await sessionAccess(tx,actor,sid);
-    requireThat(access.permissions[permission],'FORBIDDEN');return access.s;
+    requireThat(access.permissions[permission],'FORBIDDEN');
+    requireThat(!isPreparation(access.s)||allowPreparation||permission==='staff','PREPARATION_ONLY');return access.s;
   };
   const checkScenario = async (tx,actor,id) => {
     admin(actor); const s = await tx.get(`scenarios/${id}`);
@@ -145,6 +145,9 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const cargoService=createCargoService({store,signed,checkSession,now,uuid});
   const logisticsService=createLogisticsService({store,signed,checkSession,now,uuid});
   const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,now,uuid});
+  const admissionService=createAdmissionService({store,signed,checkSession,now,uuid});
+  const centralMasterService=createCentralMasterService({store,signed,isAdmin,now,uuid});
+  const groupManagementService=createGroupManagementService({store,signed,checkSession,now,uuid});
   const personService=createPersonService({store,signed,checkSession,checkScenario,now,uuid,rollD6});
   const fieldService=createFieldService({store,signed,checkSession,checkScenario,now,uuid,rollD6});
   const masterService=createMasterService({store,admin,checkSession,checkScenario,now,uuid});
@@ -167,6 +170,9 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(admissionAction(action))return admissionService(action,actor,input);
+    if(centralMasterAction(action))return centralMasterService(action,actor,input);
+    if(groupManagementAction(action))return groupManagementService(action,actor,input);
     if(priceAction(action))return priceService(action,actor,input);
     if(voyageAction(action))return voyageService(action,actor,input);
     if(cargoAction(action))return cargoService(action,actor,input);
@@ -200,14 +206,16 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(action==='identity') {
       const verified=actor?.uid && actor.emailVerified===true && actor.provider==='google.com';
       const grants=verified && !isAdmin(actor) ? await store.list('sessionStaff',['email',actor.email.toLowerCase()]) : [];
-      return {uid:actor?.uid??null,email:actor?.email??null,admin:isAdmin(actor),organizer:isAdmin(actor)||grants.some(g=>g.active)};
+      const central=verified&&!isAdmin(actor)?await store.runTransaction(tx=>centralDashboard(tx,actor,false)):[];
+      return {uid:actor?.uid??null,email:actor?.email??null,admin:isAdmin(actor),organizer:isAdmin(actor)||grants.some(g=>g.active)||central.length>0};
     }
     if(action==='dashboard') {
       signed(actor);
       return store.runTransaction(async tx=>{
         const grants=await tx.list('sessionStaff',['email',actor.email.toLowerCase()]);
         const own=isAdmin(actor);
-        requireThat(own||grants.some(g=>g.active),'FORBIDDEN');
+        const centralCampaigns=await centralDashboard(tx,actor,own);
+        requireThat(own||grants.some(g=>g.active)||centralCampaigns.length>0,'FORBIDDEN');
         const [scenarios,sessions]=own ? await Promise.all([tx.list('scenarios',['ownerUid',actor.uid]),tx.list('sessions',['ownerUid',actor.uid])]) : [[],[]];
         const visible=sessions.map(s=>({...privateSession(s),role:'OWNER'}));
         for(const g of grants.filter(g=>g.active)) {
@@ -215,18 +223,18 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
           if(s && s.ownerUid===g.ownerUid && !visible.some(x=>x.id===s.id)) visible.push({...privateSession(s),role:g.role});
         }
         const campaigns=own?await tx.list('campaigns',['ownerUid',actor.uid]):[];
-        return {scenarios,sessions:visible,campaigns:campaigns.map(c=>({id:c.id,title:c.title,episodeCount:c.episodeCount,activeSessionId:c.activeSessionId,activeBuildId:c.activeBuildId,latestSessionId:c.latestSessionId}))};
+        return {scenarios,sessions:visible,centralCampaigns,campaigns:campaigns.map(c=>({id:c.id,title:c.title,episodeCount:c.episodeCount,activeSessionId:c.activeSessionId,activeBuildId:c.activeBuildId,latestSessionId:c.latestSessionId,...(c.preparationSessionId?{preparationSessionId:c.preparationSessionId}:{})}))};
       });
     }
     if(action==='publicSession') {
       requireThat(sid,'INVALID_ID'); const s=await store.get(`sessions/${sid}`);
-      requireThat(s && s.stage!=='ARCHIVED','NOT_FOUND'); return publicSession(s);
+      requireThat(s && !isPreparation(s) && s.stage!=='ARCHIVED','NOT_FOUND'); return publicSession(s);
     }
     if(action==='publicBadge') {
       const cid=documentId(input.characterId);
       return store.runTransaction(async tx=>{
         const s=await tx.get(`sessions/${sid}`); const c=await tx.get(charPath(sid,cid));
-        requireThat(s && s.stage!=='ARCHIVED' && c,'NOT_FOUND');
+        requireThat(s && !isPreparation(s) && s.stage!=='ARCHIVED' && c,'NOT_FOUND');
         const character=publicCharacter(c);
         const groups=s.modules?.groups===true ? await tx.list(`sessions/${sid}/groups`) : [];
         return {...character,affiliations:publicAffiliations(groups,cid)};
@@ -245,7 +253,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         permissions.content?tx.list(`sessions/${sid}/skills`):[],permissions.content?tx.list(`sessions/${sid}/classes`):[],permissions.content?tx.list(`sessions/${sid}/items`):[],permissions.content?tx.list(`sessions/${sid}/inventory`):[],permissions.content?tx.list(`sessions/${sid}/accounts`):[]]);
       const ap=permissions.content&&s.actionPointRules?.enabled?await Promise.all(characters.map(c=>tx.get(actionPointPath(sid,c.id)))):null;
       if(ap)characters.forEach((c,i)=>c.actionPoints=actionPointSummary(s,c,ap[i],at));
-      return {...privateSession(s),role,permissions,characters:permissions.content?characters:characters.map(receptionCharacter),registrations:registrations.map(r=>({...r,previousCharacterId:s.campaignId?characters.find(c=>c.previousAssignedUid===r.uid)?.id??null:null})),
+      return {...privateSession(s),role,permissions,characters:permissions.content?characters:characters.map(receptionCharacter),registrations:(isPreparation(s)&&!permissions.content?[]:registrations).map(r=>({...r,previousCharacterId:s.campaignId?characters.find(c=>c.previousAssignedUid===r.uid)?.id??null:null})),
         ...(permissions.content?{campaignId:s.campaignId??null,campaignEpisode:s.campaignEpisode??null,campaignSealed:s.campaignSealed===true,previousSessionId:s.previousSessionId??null,groups,groupsEnabled:s.modules?.groups===true,knowledge,skills,classes,items,inventory:inventory.map(l=>effectiveLot(l,now())),accounts,actionPointRules:s.actionPointRules??null,economyRules:s.economyRules??null,healthRules:s.healthRules??null}:{}),
         audit:audit.sort((a,b)=>b.at-a.at).slice(0,50),staff:staff.map(g=>({email:g.email,role:g.role,active:g.active,updatedAt:g.updatedAt}))};
     });
@@ -271,7 +279,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       return {versions:(await tx.list(`${base}/${cid}/history`)).sort((a,b)=>b.revision-a.revision)};
     });
     if(action==='mySession' || action==='preview') return store.runTransaction(async tx=>{
-      signed(actor); const s=await tx.get(`sessions/${sid}`); requireThat(s && s.stage!=='ARCHIVED','NOT_FOUND');
+      signed(actor); const s=await tx.get(`sessions/${sid}`); requireThat(s && !isPreparation(s) && s.stage!=='ARCHIVED','NOT_FOUND');
       const preview=action==='preview';
       if(preview) await checkSession(tx,actor,sid);
       const r=preview ? null : await tx.get(regPath(sid,actor.uid));
@@ -301,7 +309,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       const tokenHash=hash(input.token);
       return store.runTransaction(async tx=>{
         const inv=await tx.get(`invitations/${tokenHash}`);
-        requireThat(inv?.uid===actor.uid && inv.sessionId===sid,'INVALID_INVITATION');
+        requireThat(inv?.uid===actor.uid && inv.sessionId===sid && (!inv.purpose||inv.purpose==='PRIVATE_ACCESS'),'INVALID_INVITATION');
         const r=await tx.get(regPath(sid,actor.uid)); const c=await tx.get(charPath(sid,inv.characterId));
         const s=await tx.get(`sessions/${sid}`);
         requireThat(inv.status==='ACTIVE' && at<inv.expiresAt,'INVITATION_EXPIRED_OR_USED');
@@ -363,6 +371,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       } else if(action==='saveSessionCharacter') {
         const s=await checkSession(tx,actor,sid);revision(s,input.revision);requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
         const cid=documentId(input.characterId),c=await tx.get(charPath(sid,cid));requireThat(c,'NOT_FOUND');
+        preserveSessionNature(input,c);
         const reason=text(input.reason,500,true),next=characterInput(input,cid,c),base=`sessions/${sid}/characters`;
         await validateRelations(tx,base,next);
         recordPublication(tx,base,c,next,{id:newId,at,actorUid:actor.uid,reason,stage:s.stage});
@@ -389,6 +398,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         const commodityPrices=await tx.list(`scenarios/${id}/commodityPrices`),priceEvents=await tx.list(`scenarios/${id}/priceEvents`);
         validateEconomicReferences({commodityPrices,priceEvents,items,fieldTargets,routes});
         const cargoTariffs=await tx.list(`scenarios/${id}/cargoTariffs`);validateCargoTariffReferences({cargoTariffs,characters:chars,groups,items,economyRules:s.economyRules});
+        const recipes=await tx.list(`scenarios/${id}/recipes`);for(const r of recipes){recipeInput(r,r.id);validateRecipeReferences(r,{items,skills,knowledge,fieldTargets});}
         const masterRows=await tx.list(`scenarios/${id}/masterRows`);
         const version={id:newId,transportRules:s.transportRules??null,masterRowBaseline:masterRows,title:s.title,summary:s.summary,sourceRevision:s.revision,createdAt:at,characterCount:chars.length,groupCount:groups.length,knowledgeCount:knowledge.length,skillCount:skills.length,classCount:classes.length,itemCount:items.length,actionPointRules:s.actionPointRules??null,economyRules:s.economyRules??null,healthRules:s.healthRules??null};
         tx.set(`scenarios/${id}/versions/${newId}`,version);
@@ -403,7 +413,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         for(const sh of ships)tx.set(`scenarios/${id}/versions/${newId}/ships/${sh.id}`,sh);
         for(const rt of routes)tx.set(`scenarios/${id}/versions/${newId}/routes/${rt.id}`,rt);
         for(const w of warehouses)tx.set(`scenarios/${id}/versions/${newId}/warehouses/${w.id}`,w);
-        for(const [kind,records] of [['commodityPrices',commodityPrices],['priceEvents',priceEvents],['cargoTariffs',cargoTariffs]])for(const r of records)tx.set(`scenarios/${id}/versions/${newId}/${kind}/${r.id}`,r);
+        for(const [kind,records] of [['commodityPrices',commodityPrices],['priceEvents',priceEvents],['cargoTariffs',cargoTariffs],['recipes',recipes]])for(const r of records)tx.set(`scenarios/${id}/versions/${newId}/${kind}/${r.id}`,r);
         result={id:newId};
       } else if(action==='createSession') {
         const id=documentId(input.scenarioId),vid=documentId(input.versionId);await checkScenario(tx,actor,id);
@@ -487,7 +497,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
           requireThat(!await tx.get(`invitations/${input.tokenHash}`),'INVALID_INVITATION');
           const hours=whole(input.hours); requireThat(hours>=1 && hours<=168,'INVALID_EXPIRY');
           const expiresAt=at+hours*3600000;
-          tx.set(`invitations/${input.tokenHash}`,{uid,sessionId:sid,characterId:r.characterId,accessVersion:version,status:'ACTIVE',expiresAt});
+          tx.set(`invitations/${input.tokenHash}`,{purpose:'PRIVATE_ACCESS',uid,sessionId:sid,characterId:r.characterId,accessVersion:version,status:'ACTIVE',expiresAt});
           result={expiresAt};
         } else result={revoked:true};
         tx.set(regPath(sid,uid),{...r,accessActive:false,accessVersion:version,

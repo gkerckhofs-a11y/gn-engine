@@ -1,3 +1,7 @@
+import {natureInput,preserveSessionNature} from './character-nature.mjs';
+import {importRecipes} from './master-recipes.mjs';
+import {masterModuleErrors} from '../shared/workshop-modules.mjs';
+import {masterWorkspace,masterEditable} from './master-workspace.mjs';
 import {createHash} from 'node:crypto';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {masterSheets,masterCollections,masterParameters,masterLimits} from '../shared/master-schema.mjs';
@@ -12,14 +16,13 @@ import {actionPointRulesInput,actionPointMaximum,actionPointPath} from './action
 import {cleanScenarioSnapshot} from './scenario-package.mjs';
 import {recordPublication} from './narrative.mjs';
 import {imageReferences} from './media-state.mjs';
-import {gameTime} from './clock.mjs';
 import {importNavigation} from './master-navigation.mjs';
 import {importCustoms} from './master-customs.mjs';
 import {importEconomics} from './master-economics.mjs';
 import {transportRulesInput} from './navigation-state.mjs';
 import {importTerrain} from './master-terrain.mjs';
 
-export const masterCommands=['prepareMasterImport','applyMasterImport','masterImportHistory'];
+export const masterCommands=['prepareMasterImport','applyMasterImport','masterImportHistory','masterWorkspace'];
 export const masterAction=a=>masterCommands.includes(a);
 const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
 const digest=v=>createHash('sha256').update(JSON.stringify(canonical(v))).digest('hex');
@@ -93,25 +96,25 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
   return {session,id,parent,base:`${session?'sessions':'scenarios'}/${id}`};
  };
  async function plan(tx,actor,input,ctx,at,eventId){
-  const {session,id,parent,base}=ctx;requireThat(!session||(parent.stage==='PREPARATION'&&!parent.campaignSealed&&gameTime(parent.clock,at)===0),'MASTER_PREPARATION_REQUIRED');
+  const {session,id,parent,base}=ctx;requireThat(masterEditable(ctx,at),'MASTER_PREPARATION_REQUIRED');
   const {rows,errors}=cleanRows(input.sheets),changes=[],stamps=[],writes=new Map(),put=(path,value)=>writes.set(path,value),sink={set:put};
   const records=Object.fromEntries(await Promise.all(kinds.map(async k=>[k,(await tx.list(`${base}/${k}`)).sort((a,b)=>a.id.localeCompare(b.id))]))),m=mapsFor(records);
   const fieldStates=session?(await tx.list(`${base}/fieldStates`)).sort((a,b)=>a.id.localeCompare(b.id)):[];
   const storedInventory=session?(await tx.list(`${base}/inventory`)).filter(l=>['WAREHOUSE','HOLD'].includes(l.location?.kind)&&l.quantity>0&&!['CONSUMED','DESTROYED'].includes(l.status)).sort((a,b)=>a.id.localeCompare(b.id)):[];
   const rentAccounts=[],tariffAccounts=[];
   const prior=new Map([...(parent.masterRowBaseline??[]),...await tx.list(`${base}/masterRows`)].map(x=>[x.id,x])),receipts=[...prior.values()];
-  let nextParent=parent;const created=new Set(),newKnowledge=new Set(),changedRecords=new Set(),seen=new Set(),targetSeen=new Set(),archives=[];
+  let nextParent=parent,baseRevisionMismatch=false;errors.push(...masterModuleErrors(rows,input.module));const created=new Set(),newKnowledge=new Set(),changedRecords=new Set(),seen=new Set(),targetSeen=new Set(),archives=[];
   const addError=(sheet,r,e)=>errors.push({sheet,row:r?._row??1,column:e.column??'',message:e.masterMessage??e.code??'Valeur ou référence invalide.'});
   try{
    const meta=rows.Meta?.[0];if(rows.Meta?.length!==1||meta.format!=='gn-engine-master'||meta.version!=='1'||meta.type!==(session?'SESSION':'CAMPAGNE'))issue('type','Meta doit annoncer le format gn-engine-master, version 1 et le type de la destination.');
    if(meta.destination_id&&meta.destination_id!==id)issue('destination_id','La destination ne correspond pas à cet écran.');
    if(session&&(meta.campaign_id||parent.campaignId)&&(meta.campaign_id??'')!==(parent.campaignId??''))issue('campaign_id','Renseigner l’identifiant de la campagne de cet épisode.');
-   if(meta.base_revision&&num(meta.base_revision,'base_revision',true)!==parent.revision)issue('base_revision','La révision de destination a changé. Actualiser le master.');
+   baseRevisionMismatch=!!meta.base_revision&&num(meta.base_revision,'base_revision',true)!==parent.revision;
   }catch(e){addError('Meta',rows.Meta?.[0],e);}
   try{nextParent=parameters(parent,rows.Parametres??[],session);}catch(e){addError('Parametres',(rows.Parametres??[]).find(r=>r.cle===e.column),e);}
   const stamp=(sheet,r)=>{
-   // The new optional blank column must not change fingerprints of pre-0.29 rows.
-   const rid=documentId(r.id),key=digest([sheet,rid]),version=num(r.version,'version',true),body=Object.fromEntries(Object.entries(r).filter(([k,v])=>k!=='_row'&&!(sheet==='Objets'&&k==='billes_par_recharge'&&empty(v)))),hash=digest(body);
+   // Newly added optional blank columns must not change historical receipt fingerprints.
+   const rid=documentId(r.id),key=digest([sheet,rid]),version=num(r.version,'version',true),body=Object.fromEntries(Object.entries(r).filter(([k,v])=>k!=='_row'&&!(((sheet==='Objets'&&k==='billes_par_recharge')||(sheet==='Personnages'&&k==='nature')||(['Competences','Interactions'].includes(sheet)&&k==='nature_patient'))&&empty(v)))),hash=digest(body);
    if(seen.has(key))issue('id','Identifiant répété dans cet onglet.');seen.add(key);
    if(!['CREER','MODIFIER','ARCHIVER'].includes(r.operation))issue('operation','Utiliser CREER, MODIFIER ou ARCHIVER.');
    const identity=digest(['ActionsTerrain','Recompenses'].includes(sheet)?[r.lieu_id??null,...(sheet==='ActionsTerrain'?[r.type??null]:[])]:[r.personnage_id??null,r.groupe_id??null]);
@@ -134,6 +137,7 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
     d=patch(r,{id:r.id,public:{displayName:'',profession:'',description:'',publicationState:'DRAFT'},publicationState:'DRAFT',biography:'',roleplay:'',playerSecrets:'',gmNotes:'',objectives:[],relations:[],hp:null,maxHp:null,...old},{publication:'publicationState',histoire:'biography',interpretation:'roleplay',secrets_joueur:'playerSecrets',notes_mj:'gmNotes'});
     d.public=patch(r,d.public,{nom:'displayName',metier:'profession',description_publique:'description',publication_publique:'publicationState'});
     if(!d.public.displayName||d.public.displayName.length>150)issue('nom','Le nom est obligatoire (150 caractères maximum).');
+    if(!empty(r.nature)){const nature=natureInput(r.nature==='!EFFACER'?null:r.nature);if(session&&old)preserveSessionNature({nature},old);d.nature=nature;}
     if(!empty(r.niveau_global))d.globalLevel=num(r.niveau_global,'niveau_global',true);
     if(!empty(r.pv_max_initiaux))d.initialMaxHp=num(r.pv_max_initiaux,'pv_max_initiaux',true);
     d.contentRevision=(old?.contentRevision??0)+1;d.historyStarted=true;imagePatch(r,d,{portrait_media_id:'portrait',image_privee_media_id:'private'});
@@ -150,9 +154,10 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
     if(d.kind!=='PASSIVE'){
      d.healing={effect:'HEAL_HP',cooldownSeconds:600,...old?.healing};for(const [key,field] of Object.entries({soin_pv:'amount',usages:'uses',recuperation_secondes:'cooldownSeconds'}))if(!empty(r[key]))d.healing[field]=r[key]==='!EFFACER'&&key==='usages'?null:num(r[key],key,key!=='recuperation_secondes');
      if(!empty(r.portee_recuperation))d.healing.cooldownScope=r.portee_recuperation;
+     if(!empty(r.nature_patient))d.healing.patientNature=natureInput(r.nature_patient==='!EFFACER'?null:r.nature_patient);
      if(!empty(r.consommable_id)){if(r.consommable_id==='!EFFACER')d.healing.consumable=null;else{const item=ref(m.items,r.consommable_id,'consommable_id');if(!item.consumable||item.publicationState!=='PUBLISHED')issue('consommable_id','Un consommable publié est requis.');d.healing.consumable={itemId:item.id,quantity:itemQuantity(item,num(r.consommable_quantite,'consommable_quantite',true)),name:item.name,unit:item.unit,itemRevision:item.revision};}}
      if(empty(r.consommable_id)&&!empty(r.consommable_quantite)){if(!d.healing.consumable)issue('consommable_id','Renseigner le consommable avant sa quantité.');const item=ref(m.items,d.healing.consumable.itemId,'consommable_id');d.healing.consumable={...d.healing.consumable,quantity:itemQuantity(item,num(r.consommable_quantite,'consommable_quantite',true))};}
-    }else if(['soin_pv','usages','recuperation_secondes','portee_recuperation','consommable_id','consommable_quantite'].some(k=>!empty(r[k])))issue('type','Une compétence PASSIVE ne reçoit pas de paramètres de soin.');
+    }else if(['soin_pv','usages','recuperation_secondes','portee_recuperation','consommable_id','consommable_quantite','nature_patient'].some(k=>!empty(r[k])))issue('type','Une compétence PASSIVE ne reçoit pas de paramètres de soin.');
     const cost=d.healing?.consumable;d={...old,...skillInput(d,r.id,old)};if(cost&&d.healing)d.healing.consumable=cost;
    }else if(sheet==='Classes'){
     d=patch(r,{publicationState:'DRAFT',skills:[],...old},{nom:'name',description:'description',publication:'publicationState',notes_mj:'gmNotes'});if(!empty(r.competences))d.skills=levels(r.competences==='!EFFACER'?'':r.competences);d={...old,...classInput(d,r.id,old)};for(const sk of d.skills)ref(m.skills,sk.skillId,'competences');
@@ -198,6 +203,7 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
    }
   }catch(e){addError(sheet,r,e);}}
   importTerrain({rows,m,records,session,fieldStates,parent:nextParent,stamp,checkOperation,summary,mark,addError,issue,num,empty,patch,base,put});
+  importRecipes({rows,m,stamp,checkOperation,summary,mark,addError,issue,num,empty,patch});
   for(const r of rows.Entrepots??[]){try{
    if(!stamp('Entrepots',r))continue;const old=m.warehouses.get(r.id);checkOperation(r,old);
    let d=patch(r,{enabled:false,rentAccountId:null,...old},{nom:'name',description:'description'});
@@ -254,6 +260,7 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
   }
   const apChanged=digest(parent.actionPointRules??null)!==digest(nextParent.actionPointRules??null),resources=[];
   if(session&&apChanged){for(const c of records.characters)resources.push(await tx.get(actionPointPath(id,c.id)));if(resources.some(Boolean))errors.push({sheet:'Parametres',row:1,column:'pa_actifs',message:'Des réserves de PA existent déjà. Utiliser le réglage PA dédié pour les conserver.'});else Object.assign(nextParent,{actionPointRulesRevision:(parent.actionPointRulesRevision??0)+1,actionPointSchedule:{nextAtGameMs:nextParent.actionPointRules.renewalMinutes*60000}});}
+  if(baseRevisionMismatch&&(changes.some(c=>c.status!=='UNCHANGED')||changed(parent,nextParent).length))errors.push({sheet:'Meta',row:2,column:'base_revision',message:'La révision de destination a changé. Exporter ou préparer à nouveau le master.'});
   if(errors.length)return {errors,changes,canApply:false};
   const reason=str(input.reason??'',500);if(!reason)issue('reason','Un motif privé est requis.');
   for(const key of changedRecords){const [kind,cid]=key.split('/'),next=m[kind].get(cid),old=records[kind].find(r=>r.id===cid);
@@ -269,17 +276,18 @@ export function createMasterService({store,admin,checkScenario,checkSession,now,
   for(const r of stamps)put(`${base}/masterRows/${r.id}`,r);
   const parentChanges=changed(parent,nextParent);if(parentChanges.length)changes.unshift({sheet:'Parametres',row:2,id:parent.id,status:'UPDATE',fields:parentChanges});
   const applied=changes.filter(c=>c.status!=='UNCHANGED');
-  const receipt={id:eventId,at,actorUid:actor.uid,reason,filename:str(input.filename??'',200),type:session?'SESSION':'CAMPAGNE',digest:digest(rows),counts:Object.fromEntries(['CREATE','UPDATE','ARCHIVE','UNCHANGED'].map(k=>[k,changes.filter(c=>c.status===k).length])),rows:changes.map(({fields,...r})=>r)};
+  const receipt={id:eventId,at,actorUid:actor.uid,reason,filename:str(input.filename??'',200),type:session?'SESSION':'CAMPAGNE',module:input.module||rows.Meta?.[0]?.module||null,digest:digest(rows),counts:Object.fromEntries(['CREATE','UPDATE','ARCHIVE','UNCHANGED'].map(k=>[k,changes.filter(c=>c.status===k).length])),rows:changes.map(({fields,...r})=>r)};
   if(applied.length){put(base,{...nextParent,revision:parent.revision+1});put(`${base}/masterImports/${eventId}`,receipt);put(`${base}/audit/${eventId}`,{id:eventId,at,actorUid:actor.uid,action:'applyMasterImport',reason,importId:eventId,counts:receipt.counts});}
   let indexWrites=0;const changedMedia=new Set();
   for(const [path,data] of writes){const after=imageReferences(data);if(!JSON.stringify(data).includes('\"mediaImages\"'))continue;const before=imageReferences(await tx.get(path));for(const mid of new Set([...before.keys(),...after.keys()]))if(before.has(mid)!==after.has(mid)){indexWrites++;changedMedia.add(mid);}}
   if(writes.size>masterLimits.writes||writes.size+indexWrites+changedMedia.size+1>480||[...writes.values()].some(v=>Buffer.byteLength(JSON.stringify(v))>800000)||Buffer.byteLength(JSON.stringify([...writes.values()]))>3*1024*1024)errors.push({sheet:'Meta',row:1,column:'',message:'Trop de changements ou de publications dans une transaction. Fractionner le classeur.'});
-  const confirmation=digest({actor:actor.uid,base,parent,records,fieldStates,storedInventory,rentAccounts,tariffAccounts,prior:receipts.sort((a,b)=>a.id.localeCompare(b.id)),rows,reason,mediaState,resources});
+  const confirmation=digest({actor:actor.uid,base,parent,records,fieldStates,storedInventory,rentAccounts,tariffAccounts,prior:receipts.sort((a,b)=>a.id.localeCompare(b.id)),rows,module:input.module||rows.Meta?.[0]?.module||null,reason,mediaState,resources});
   return {errors,changes,canApply:!errors.length,confirmation,receipt,writes,applied:applied.length,newCharacters:[...created],destination:{id,title:parent.title,type:session?'SESSION':'CAMPAGNE',campaignId:parent.campaignId??null}};
  }
  return async(action,actor,input)=>{
   admin(actor);const at=now(),eventId=uuid();return store.runTransaction(async tx=>{
    const ctx=await context(tx,actor,input);
+   if(action==='masterWorkspace')return masterWorkspace(tx,ctx,at,eventId,input.module,input.sheet,input.bundle);
    if(action==='masterImportHistory')return {imports:await tx.list(`${ctx.base}/masterImports`,null,{orderBy:'at',direction:'desc',limit:30})};
    let op,fingerprint;if(action==='applyMasterImport'){op=`operations/${digest([actor.uid,documentId(input.requestId)])}`;fingerprint=digest([action,input]);const old=await tx.get(op);if(old){requireThat(old.fingerprint===fingerprint,'REQUEST_ID_REUSED');return old.result;}}
    let p;try{p=await plan(tx,actor,input,ctx,at,eventId);}catch(e){if(!e.masterMessage)throw e;p={errors:[{sheet:'Meta',row:1,column:e.column??'',message:e.masterMessage}],changes:[],canApply:false};}

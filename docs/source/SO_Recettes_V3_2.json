@@ -1,0 +1,633 @@
+{
+  "Guide": {
+    "state": "visible",
+    "rows": [
+      [
+        "Point",
+        "Instruction"
+      ],
+      [
+        "OBJECTIF",
+        "Sous-Master Recettes & Potions SPACE OUTLAWS, importable/exportable indépendamment, relié à UN SEUL inventaire et Master global."
+      ],
+      [
+        "CANON V0.7",
+        "TOXI-01 rare N1–N5 : 1 PA, 5 min au QR laboratoire, 10 min de récupération, recette connue, ingrédients disponibles, réussite automatique, 1 dose."
+      ],
+      [
+        "SÉCURITÉ",
+        "Préparations fictives uniquement. Aucune substance réelle ou ingestion ; effet biologique uniquement si la cible active volontairement le QR approprié."
+      ],
+      [
+        "MALAISE",
+        "STAT-MALAISE-01 : humanoïde ≥1 PV ; 15 minutes sans combattre ni compétence active ; aucun PV perdu ; pas de cumul ; droïdes immunisés."
+      ],
+      [
+        "ANTIDOTES",
+        "État explicitement compatible, pas d'antidote universel. Traitement : 1 PA, 120/105/90/75/60 s selon niveau TOXI-01, pas de récupération entre patients, aucun PV rendu."
+      ],
+      [
+        "PROPOSITIONS",
+        "10 ingrédients, 5 préparations, leurs compositions et prix : propositions issues de SO_Boutique.xlsx. Les effets autorisés V0.7 restent indépendants de ces choix de recettes."
+      ],
+      [
+        "CRÉER UNE RECETTE",
+        "Ajouter un ID stable dans Recettes ; associer des composants dans Compositions ; choisir un effet autorisé et un laboratoire QR ; laisser BROUILLON jusqu'à validation."
+      ],
+      [
+        "DÉBLOCAGES",
+        "TOXI-01 seul n'accorde pas toutes les recettes. Attribuer une recette après découverte / quête / mentor / PNJ, avec des droits gérés côté serveur."
+      ],
+      [
+        "NOUVEL EFFET",
+        "Une potion avec un effet déjà autorisé se crée sans code. Un effet inédit nécessite une nouvelle règle validée/versionnée ; pas de code exécutable dans un champ Master."
+      ],
+      [
+        "PUBLIER",
+        "Contrôler ingrédients, quantités, recette débloquable, effet, droits, prix, QR laboratoire actif, stock et version ; import identique sans duplication."
+      ],
+      [
+        "CALCULS",
+        "Les coûts théoriques des composants suivent les prix proposés de l’onglet Ingrédients et servent à l’équilibrage, pas de prix de vente canonique."
+      ],
+      [
+        "STATUTS",
+        "BROUILLON : indisponible en jeu ; PUBLIÉ : accessible selon droits ; ARCHIVÉ : plus de fabrication future, les doses créées restent valides."
+      ]
+    ],
+    "comments": {},
+    "validations": []
+  },
+  "Ingrédients": {
+    "state": "visible",
+    "rows": [
+      [
+        "Ingrédient_ID",
+        "Nom",
+        "Description",
+        "Rareté",
+        "Prix proposé Cr",
+        "Vente",
+        "Statut",
+        "Provenance",
+        "Image_URL",
+        "Notes"
+      ],
+      [
+        "ING-01",
+        "Base de synthèse neutre",
+        "Support fictif de fioles/antidotes ; aucun effet direct.",
+        "Courant",
+        12,
+        "Libre",
+        "BROUILLON",
+        "Proposition SO_Boutique V0.7",
+        null,
+        "Ingrédient purement fictif ; aucun produit réel ni mode de préparation physique."
+      ],
+      [
+        "ING-02",
+        "Catalyseur d’atelier B-7",
+        "Marqueur de recette ordinaire ; aucun effet en solo.",
+        "Courant",
+        18,
+        "Libre",
+        "BROUILLON",
+        "Proposition SO_Boutique V0.7",
+        null,
+        "Ingrédient purement fictif ; aucun produit réel ni mode de préparation physique."
+      ],
+      [
+        "ING-03",
+        "Culture bacta de laboratoire (fictive)",
+        "Composant narratif possible d’une formule d’antidote ; pas une dose de clinique.",
+        "Courant",
+        30,
+        "Sous autorisation",
+        "BROUILLON",
+        "Proposition SO_Boutique V0.7",
+        null,
+        "Ingrédient purement fictif ; aucun produit réel ni mode de préparation physique."
+      ],
+      [
+        "ING-04",
+        "Résine des dunes",
+        "Composant fictionnel d’une formule de malaise ; inerte en vrai.",
+        "Courant",
+        22,
+        "Libre",
+        "BROUILLON",
+        "Proposition SO_Boutique V0.7",
+        null,
+        "Ingrédient purement fictif ; aucun produit réel ni mode de préparation physique."
+      ],
+      [
+        "ING-05",
+        "Microcapsules holoactives",
+        "Conditionnement symbolique d’une préparation fictive.",
+        "Courant",
+        16,
+        "Libre",
+        "BROUILLON",
+        "Proposition SO_Boutique V0.7",
+        null,
+        "Ingrédient purement fictif ; aucun produit réel ni mode de préparation physique."
+      ],
+      [
+        "ING-06",
+        "Agent de liaison orbital",
+        "Composant symbolique d’un antidote spécialisé.",
+        "Peu commun",
+        32,
+        "Libre",
+        "BROUILLON",
+        "Proposition SO_Boutique V0.7",
+        null,
+        "Ingrédient purement fictif ; aucun produit réel ni mode de préparation physique."
+      ],
+      [
+        "ING-07",
+        "Filtrat d’ambre stellaire",
+        "Composant imaginaire de recherches de laboratoire.",
+        "Peu commun",
+        35,
+        "Libre",
+        "BROUILLON",
+        "Proposition SO_Boutique V0.7",
+        null,
+        "Ingrédient purement fictif ; aucun produit réel ni mode de préparation physique."
+      ],
+      [
+        "ING-08",
+        "Cristaux de nébuleuse",
+        "Ressource narrative rare, recette uniquement avec déblocage MJ.",
+        "Rare",
+        90,
+        "Scénarisé",
+        "BROUILLON",
+        "Proposition SO_Boutique V0.7",
+        null,
+        "Ingrédient purement fictif ; aucun produit réel ni mode de préparation physique."
+      ],
+      [
+        "ING-09",
+        "Isotope fantôme scellé",
+        "Artefact symbolique expérimental ; aucune substance réelle.",
+        "Rare",
+        150,
+        "Scénarisé",
+        "BROUILLON",
+        "Proposition SO_Boutique V0.7",
+        null,
+        "Ingrédient purement fictif ; aucun produit réel ni mode de préparation physique."
+      ],
+      [
+        "ING-10",
+        "Capsule de stabilisation",
+        "Emballage fictif nécessaire à une dose préparée.",
+        "Courant",
+        10,
+        "Libre",
+        "BROUILLON",
+        "Proposition SO_Boutique V0.7",
+        null,
+        "Ingrédient purement fictif ; aucun produit réel ni mode de préparation physique."
+      ]
+    ],
+    "comments": {},
+    "validations": [
+      "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [G2:G150]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,PUBLIÉ,ARCHIVÉ\"', formula2=None"
+    ]
+  },
+  "Recettes": {
+    "state": "visible",
+    "rows": [
+      [
+        "Recette_ID",
+        "Préparation",
+        "Type",
+        "Niv_TOXI",
+        "Objet_produit_ID",
+        "Effet_ID",
+        "Laboratoire_ID",
+        "Secrète",
+        "Déblocage",
+        "Prix proposé Cr",
+        "Coût ingr. Cr",
+        "Statut",
+        "Formule validée",
+        "Commercialisation",
+        "Fabrication min",
+        "PA",
+        "Récupération min",
+        "Doses/action",
+        "Effet narratif",
+        "Note validation"
+      ],
+      [
+        "TOXI-P01",
+        "Antidote ordinaire",
+        "Antidote",
+        1,
+        "ANTIDOTE-ORD",
+        "EFF-ANTIDOTE-COMPAT",
+        null,
+        "Oui",
+        "Découverte / achat PNJ",
+        75,
+        "=IF(A2=\"\",\"\",SUMIF(Compositions!$B$2:$B$250,A2,Compositions!$F$2:$F$250))",
+        "BROUILLON",
+        "Non",
+        "Sous autorisation",
+        5,
+        1,
+        10,
+        1,
+        "Antidote compatible seulement, pas de PV",
+        "Cadre V0.7 ; formule/prix à valider"
+      ],
+      [
+        "TOXI-P02",
+        "Dose de malaise",
+        "Substance",
+        2,
+        "DOSE-MALAISE",
+        "STAT-MALAISE-01",
+        null,
+        "Oui",
+        "Mission / recette trouvée",
+        110,
+        "=IF(A3=\"\",\"\",SUMIF(Compositions!$B$2:$B$250,A3,Compositions!$F$2:$F$250))",
+        "BROUILLON",
+        "Non",
+        "Scénarisé / contrôlé",
+        5,
+        1,
+        10,
+        1,
+        "15 min sans combat/compétence, 0 PV perdu",
+        "Effet V0.7 ; formule/prix à valider"
+      ],
+      [
+        "TOXI-P03",
+        "Antidote spécialisé",
+        "Antidote",
+        3,
+        "ANTIDOTE-SPEC",
+        "EFF-ANTIDOTE-SPEC",
+        null,
+        "Oui",
+        "Découverte / médecin",
+        135,
+        "=IF(A4=\"\",\"\",SUMIF(Compositions!$B$2:$B$250,A4,Compositions!$F$2:$F$250))",
+        "BROUILLON",
+        "Non",
+        "Sous autorisation",
+        5,
+        1,
+        10,
+        1,
+        "Antidote compatible, état précis à renseigner",
+        "Cadre V0.7 ; compatibilité à configurer"
+      ],
+      [
+        "TOXI-P04",
+        "Préparation rare de scénario",
+        "Substance",
+        4,
+        "PREP-RARE",
+        null,
+        null,
+        "Oui",
+        "Quête / MJ",
+        null,
+        "=IF(A5=\"\",\"\",SUMIF(Compositions!$B$2:$B$250,A5,Compositions!$F$2:$F$250))",
+        "BROUILLON",
+        "Non",
+        "Récompense / scénario",
+        5,
+        1,
+        10,
+        1,
+        "AUCUN EFFET tant que non approuvé",
+        "Effet/prix indéfinis ; bloquée"
+      ],
+      [
+        "TOXI-P05",
+        "Préparation expérimentale",
+        "Substance",
+        5,
+        "PREP-EXPER",
+        null,
+        null,
+        "Oui",
+        "Quête / MJ",
+        null,
+        "=IF(A6=\"\",\"\",SUMIF(Compositions!$B$2:$B$250,A6,Compositions!$F$2:$F$250))",
+        "BROUILLON",
+        "Non",
+        "Récompense / scénario",
+        5,
+        1,
+        10,
+        1,
+        "AUCUN EFFET tant que non approuvé",
+        "Effet/prix indéfinis ; bloquée"
+      ]
+    ],
+    "comments": {},
+    "validations": [
+      "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [L2:L150]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,PUBLIÉ,ARCHIVÉ\"', formula2=None",
+      "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [M2:M150]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"Oui,Non\"', formula2=None",
+      "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [H2:H150]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"Oui,Non\"', formula2=None"
+    ]
+  },
+  "Compositions": {
+    "state": "visible",
+    "rows": [
+      [
+        "Ligne_ID",
+        "Recette_ID",
+        "Ingrédient_ID",
+        "Quantité",
+        "Prix unit. Cr",
+        "Coût ligne Cr",
+        "Alternative",
+        "Statut/Notes"
+      ],
+      [
+        "COMP-001",
+        "TOXI-P01",
+        "ING-01",
+        1,
+        "=IFERROR(VLOOKUP(C2,'Ingrédients'!$A$2:$E$100,5,FALSE),0)",
+        "=IF(C2=\"\",\"\",D2*E2)",
+        null,
+        "Proposition à valider"
+      ],
+      [
+        "COMP-002",
+        "TOXI-P01",
+        "ING-02",
+        1,
+        "=IFERROR(VLOOKUP(C3,'Ingrédients'!$A$2:$E$100,5,FALSE),0)",
+        "=IF(C3=\"\",\"\",D3*E3)",
+        null,
+        "Proposition à valider"
+      ],
+      [
+        "COMP-003",
+        "TOXI-P01",
+        "ING-10",
+        1,
+        "=IFERROR(VLOOKUP(C4,'Ingrédients'!$A$2:$E$100,5,FALSE),0)",
+        "=IF(C4=\"\",\"\",D4*E4)",
+        null,
+        "Proposition à valider"
+      ],
+      [
+        "COMP-004",
+        "TOXI-P02",
+        "ING-01",
+        1,
+        "=IFERROR(VLOOKUP(C5,'Ingrédients'!$A$2:$E$100,5,FALSE),0)",
+        "=IF(C5=\"\",\"\",D5*E5)",
+        null,
+        "Proposition à valider"
+      ],
+      [
+        "COMP-005",
+        "TOXI-P02",
+        "ING-04",
+        1,
+        "=IFERROR(VLOOKUP(C6,'Ingrédients'!$A$2:$E$100,5,FALSE),0)",
+        "=IF(C6=\"\",\"\",D6*E6)",
+        null,
+        "Proposition à valider"
+      ],
+      [
+        "COMP-006",
+        "TOXI-P02",
+        "ING-05",
+        1,
+        "=IFERROR(VLOOKUP(C7,'Ingrédients'!$A$2:$E$100,5,FALSE),0)",
+        "=IF(C7=\"\",\"\",D7*E7)",
+        null,
+        "Proposition à valider"
+      ],
+      [
+        "COMP-007",
+        "TOXI-P02",
+        "ING-10",
+        1,
+        "=IFERROR(VLOOKUP(C8,'Ingrédients'!$A$2:$E$100,5,FALSE),0)",
+        "=IF(C8=\"\",\"\",D8*E8)",
+        null,
+        "Proposition à valider"
+      ],
+      [
+        "COMP-008",
+        "TOXI-P03",
+        "ING-01",
+        1,
+        "=IFERROR(VLOOKUP(C9,'Ingrédients'!$A$2:$E$100,5,FALSE),0)",
+        "=IF(C9=\"\",\"\",D9*E9)",
+        null,
+        "Proposition à valider"
+      ],
+      [
+        "COMP-009",
+        "TOXI-P03",
+        "ING-06",
+        1,
+        "=IFERROR(VLOOKUP(C10,'Ingrédients'!$A$2:$E$100,5,FALSE),0)",
+        "=IF(C10=\"\",\"\",D10*E10)",
+        null,
+        "Proposition à valider"
+      ],
+      [
+        "COMP-010",
+        "TOXI-P03",
+        "ING-07",
+        1,
+        "=IFERROR(VLOOKUP(C11,'Ingrédients'!$A$2:$E$100,5,FALSE),0)",
+        "=IF(C11=\"\",\"\",D11*E11)",
+        null,
+        "Proposition à valider"
+      ],
+      [
+        "COMP-011",
+        "TOXI-P03",
+        "ING-10",
+        1,
+        "=IFERROR(VLOOKUP(C12,'Ingrédients'!$A$2:$E$100,5,FALSE),0)",
+        "=IF(C12=\"\",\"\",D12*E12)",
+        null,
+        "Proposition à valider"
+      ],
+      [
+        "COMP-012",
+        "TOXI-P04",
+        "ING-07",
+        1,
+        "=IFERROR(VLOOKUP(C13,'Ingrédients'!$A$2:$E$100,5,FALSE),0)",
+        "=IF(C13=\"\",\"\",D13*E13)",
+        null,
+        "Proposition à valider"
+      ],
+      [
+        "COMP-013",
+        "TOXI-P04",
+        "ING-08",
+        1,
+        "=IFERROR(VLOOKUP(C14,'Ingrédients'!$A$2:$E$100,5,FALSE),0)",
+        "=IF(C14=\"\",\"\",D14*E14)",
+        null,
+        "Proposition à valider"
+      ],
+      [
+        "COMP-014",
+        "TOXI-P04",
+        "ING-10",
+        1,
+        "=IFERROR(VLOOKUP(C15,'Ingrédients'!$A$2:$E$100,5,FALSE),0)",
+        "=IF(C15=\"\",\"\",D15*E15)",
+        null,
+        "Proposition à valider"
+      ],
+      [
+        "COMP-015",
+        "TOXI-P05",
+        "ING-08",
+        1,
+        "=IFERROR(VLOOKUP(C16,'Ingrédients'!$A$2:$E$100,5,FALSE),0)",
+        "=IF(C16=\"\",\"\",D16*E16)",
+        null,
+        "Proposition à valider"
+      ],
+      [
+        "COMP-016",
+        "TOXI-P05",
+        "ING-09",
+        1,
+        "=IFERROR(VLOOKUP(C17,'Ingrédients'!$A$2:$E$100,5,FALSE),0)",
+        "=IF(C17=\"\",\"\",D17*E17)",
+        null,
+        "Proposition à valider"
+      ],
+      [
+        "COMP-017",
+        "TOXI-P05",
+        "ING-10",
+        1,
+        "=IFERROR(VLOOKUP(C18,'Ingrédients'!$A$2:$E$100,5,FALSE),0)",
+        "=IF(C18=\"\",\"\",D18*E18)",
+        null,
+        "Proposition à valider"
+      ]
+    ],
+    "comments": {},
+    "validations": []
+  },
+  "Effets": {
+    "state": "visible",
+    "rows": [
+      [
+        "Effet_ID",
+        "Nom",
+        "Cible",
+        "Condition",
+        "Durée min",
+        "Effet autorisé",
+        "Non cumul",
+        "Référence",
+        "Statut",
+        "Notes"
+      ],
+      [
+        "STAT-MALAISE-01",
+        "Malaise biologique",
+        "Humanoïde ≥1 PV",
+        "Activation volontaire du QR par la cible",
+        15,
+        "Sans combat ni compétence active, 0 PV perdu",
+        "Oui",
+        "CANON V0.7",
+        "AUTORISÉ",
+        "Droïdes immunisés ; pas de cumul/prolongation"
+      ],
+      [
+        "EFF-ANTIDOTE-COMPAT",
+        "Antidote compatible",
+        "Humanoïde affecté",
+        "État présent et explicitement compatible",
+        null,
+        "Retire cet état biologique sans rendre de PV",
+        "Sans objet",
+        "CADRE CANON V0.7",
+        "À CONFIGURER",
+        "Compatibilité à renseigner ; pas d'antidote universel"
+      ],
+      [
+        "EFF-ANTIDOTE-SPEC",
+        "Antidote spécialisé",
+        "Humanoïde affecté",
+        "État spécialisé et explicitement compatible",
+        null,
+        "Retire un état défini, sans rendre de PV",
+        "Sans objet",
+        "CADRE CANON V0.7",
+        "À CONFIGURER",
+        "Interdit de publier avant liste des états compatibles"
+      ]
+    ],
+    "comments": {},
+    "validations": []
+  },
+  "Laboratoires": {
+    "state": "visible",
+    "rows": [
+      [
+        "Labo_ID",
+        "Nom",
+        "Lieu réel",
+        "QR_ID",
+        "Actif",
+        "Autorisé par",
+        "Note"
+      ],
+      [
+        "LAB-BP-01",
+        "Laboratoire de Breach Port",
+        "À définir sur site",
+        null,
+        "Non",
+        "MJ / session",
+        "EXEMPLE INACTIF : QR et lieu à configurer réellement"
+      ]
+    ],
+    "comments": {},
+    "validations": [
+      "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [E2:E100]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"Oui,Non\"', formula2=None"
+    ]
+  },
+  "Déblocages": {
+    "state": "visible",
+    "rows": [
+      [
+        "Droit_ID",
+        "Recette_ID",
+        "Bénéficiaire_type",
+        "Bénéficiaire_ID",
+        "Source_découverte",
+        "Session_ID",
+        "Début",
+        "Fin",
+        "Actif",
+        "Note"
+      ]
+    ],
+    "comments": {},
+    "validations": []
+  }
+}

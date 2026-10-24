@@ -1,0 +1,15 @@
+export const recipeEditor={sheet:'Recettes',title:'Recettes & Potions — brouillons',name:'nom',collection:'recipes',fields:[
+ {name:'nom',label:'Nom',required:true,max:150},
+ {name:'description',label:'Description',type:'textarea',clear:true,max:6000},
+ {name:'type',label:'Type',choices:[['ANTIDOTE','Antidote'],['MALAISE','Malaise'],['SCENARIO','Préparation de scénario']],initial:'SCENARIO'},
+ {name:'niveau_minimum',label:'Niveau TOXI-01 requis',type:'number',min:1,max:5,required:true,initial:'1'},
+ {name:'competence_id',label:'Compétence TOXI-01 du catalogue',ref:'skills',clear:true},
+ {name:'produit_id',label:'Modèle de la dose produite',ref:'recipeItems',clear:true},
+ {name:'composants',label:'Composants pour une dose',type:'levels',valueLabel:'Quantité',ref:'recipeItems',clear:true,emptyLabel:'Créez les ingrédients dans le catalogue commun des objets, comme consommables.',help:'Quantités entières positives. Maximum 20 modèles distincts. Aucun lot ni stock créé par cette définition.'},
+ {name:'effet_id',label:'Identifiant d’effet proposé',clear:true,max:128,help:'Référence préparatoire seulement. Aucun effet libre ou code exécutable. La publication sera soumise au registre des effets implémentés.'},
+ {name:'laboratoire_lieu_id',label:'Lieu pressenti pour le laboratoire',ref:'recipeTargets',clear:true,help:'Référence au terrain existant, sans activation d’un laboratoire ni modification de son QR.'},
+ {name:'connaissance_id',label:'Connaissance pressentie pour le déblocage',ref:'knowledge',clear:true,help:'Ne distribue aucun accès. Les missions et déblocages de recettes seront raccordés dans une prochaine tranche.'},
+ {name:'prix_indicatif',label:'Prix indicatif en brouillon',type:'number',min:0,clear:true,help:'Aucun cours, crédit ou prix de vente n’est modifié.'},
+ {name:'publication',label:'Publication',choices:[['DRAFT','Brouillon uniquement']],initial:'DRAFT'},
+ {name:'notes_mj',label:'Notes réservées aux organisateurs',type:'textarea',clear:true,max:10000},
+ ],note:'Préparation privée des recettes dans le Master commun. TOXI-01 prévoit une dose, 1 PA, 5 minutes de jeu et 10 minutes de récupération. La fabrication, les déblocages et les effets sur cible ne sont pas encore disponibles : aucune recette ne peut être publiée dans cette tranche.'};

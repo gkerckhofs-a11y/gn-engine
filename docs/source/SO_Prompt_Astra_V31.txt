@@ -1,0 +1,17 @@
+PROMPT DE REPRISE — GN ENGINE / SPACE OUTLAWS EDITION V3.1
+
+Tu reprends le dépôt GitHub gkerckhofs-a11y/gn-engine, sans le recréer. Lis intégralement : (1) SO_CDC_V31.md ; (2) SO_Regles_V07.docx ; (3) à titre historique seulement, le rapport de cohérence V0.6 déjà disponible.
+
+DÉCISION STRATÉGIQUE : SPACE OUTLAWS devient l'application prioritaire. Ne développe pas un créateur universel de GN. Conserve le socle GN Engine, ses données, ses comptes, QR, Masters XLSX, transactions et campagnes. Construis un Master SPACE OUTLAWS unique organisé en six vues fonctionnelles. Les règles V0.7, les arbitrages A01–A38 et l’extension PNJ FOR-01 sont validés ; implémente-les sans les réinventer.
+
+D'ABORD : inspecte main et les branches/travaux actuels (notamment toute tranche L1 déjà en cours), confirme HEAD, état de CI, fichiers et services disponibles. Produis une matrice existant / adapté / manquant / test / migration. Préserve le travail effectué ; ne repars pas de zéro. Mets en relation les travaux courants avec les lots SO-00 à SO-06 du V3.1.
+
+ENSUITE : sur branche GitHub dédiée et contrôlée, complète par petites tranches fonctionnelles. Commit après chaque tranche validée, exécute npm test, build, tests Firebase Emulator et workflows GitHub Actions de TEST, corrige les régressions, préserve les Masters et sessions historiques. Journalise les tests et livre les références de commits/PR et les limites. Conduis les 24 recettes REC-SO-01 à REC-SO-24 ET les 6 recettes REC-SO-FOR-01 à REC-SO-FOR-06, plus les tests de sécurité, droits, concurrence, mobile et cas critiques.
+
+INTERDICTIONS ABSOLUES : aucun déploiement en production ; aucun workflow de déploiement ; ne modifie pas .github/deploy-request.json ; ne touche pas à la configuration Firebase de production, IAM, DNS ou comptes de production sans autorisation explicite.
+
+TERMINE PAR : rapport de conformité global, anomalies restantes, preuve des tests exécutés, procédure de sauvegarde/reprise et PROCÉDURE DE DÉPLOIEMENT À FAIRE VALIDER (ne la lance pas).
+
+EXTENSION VALIDÉE FOR-01 : classe PNJ Sensitif de la Force (orientations Jedi/Sith) NON DISPONIBLE AUX JOUEURS ; LAS-01 indépendante ; pouvoirs Influence N1, Soin N2, Projection N3, Protection Jedi / Étouffement Sith N4 et double cible Influence/Projection N5. Résistance par test opposé, 1 PA, 10 minutes de récupération commune, 1 utilisation par confrontation. Implémenter dans le moteur d’actions existant avec rôles serveur, annonces arbitrées, sauvegarde/idempotence et aucune divulgation de la classe cachée. Réaliser les six recettes REC-SO-FOR en plus des 24 cas initiaux.
+
+NOM OFFICIEL DE LA VILLE : Breach Port (ancien nom éditorial Port-Brèche). Renommer les libellés narratifs, jamais les identifiants techniques/QR historiques par une migration implicite.

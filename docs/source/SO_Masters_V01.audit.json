@@ -1,0 +1,2530 @@
+{
+  "SO_M1_Economie.xlsx": {
+    "sha256": "c9ae7a678d2a9f599d0e21fbeb8f2134320e7197c0a55bfca327b56dfe2c22b6",
+    "sheets": {
+      "LIRE_AVANT": {
+        "rows": [
+          [
+            "SPACE OUTLAWS  /  M1 — ECONOMIE",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Statut",
+            "GABARIT VIERGE — PREPARATION DOCUMENTAIRE, PAS IMPORT GN ENGINE CERTIFIÉ",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Architecture",
+            "Un seul Master central versionné ; ce fichier alimente un brouillon du domaine M1.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Publication",
+            "Aucune activation individuelle : contrôle GLOBAL de toutes les références puis publication globale MJ.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Contenu",
+            "Lignes de données vides. Ne pas créer de quantités fictives pour illustrer.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Identifiants",
+            "Utiliser des ID stables uniques ; ne jamais identifier un objet uniquement par son nom.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Dépendances",
+            "Référencer les ID des autres ateliers ; ne pas recréer les objets ou personnages.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Source des règles",
+            "SPACE OUTLAWS — Livre des règles V0.7, A01–A38 et FOR-01 PNJ.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Schéma",
+            "Colonnes indicatives à rapprocher des contrats techniques du dépôt après audit SO-00.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Sécurité",
+            "Garder les données secrètes hors des exports accessibles aux joueurs.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 1",
+            "Renseigner scénario et base dans PARAMETRES ; travailler les onglets métier.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 2",
+            "Importer/éditer en BROUILLON CENTRAL lorsque l’outil V3.4 sera développé.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 3",
+            "Contrôler toutes les dépendances et les effets sur la campagne, puis publier une version globale.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Références",
+            "Les onglets Ref_* sont des projections en lecture seule, pas une seconde définition.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        ],
+        "dimensions": [
+          15,
+          7
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": []
+      },
+      "PARAMETRES": {
+        "rows": [
+          [
+            "champ",
+            "valeur",
+            "commentaire"
+          ],
+          [
+            "atelier_id",
+            "M1",
+            "ne pas modifier"
+          ],
+          [
+            "atelier_nom",
+            "Economie",
+            "ne pas modifier"
+          ],
+          [
+            "scenario_id",
+            null,
+            "à renseigner dans GN Engine"
+          ],
+          [
+            "profil_regles",
+            "SPACE_OUTLAWS_V0_7",
+            "référentiel canonique"
+          ],
+          [
+            "version_centrale_base",
+            null,
+            "version publiée dont provient ce brouillon"
+          ],
+          [
+            "brouillon_central_id",
+            null,
+            "identifiant attribué dans GN Engine"
+          ],
+          [
+            "version_schema_preparation",
+            "0.1-PREPARATION",
+            "non homologuée par importeur"
+          ],
+          [
+            "statut_fichier",
+            "BROUILLON",
+            "aucune publication depuis Excel"
+          ],
+          [
+            "responsable",
+            null,
+            "organisateur ou responsable du domaine"
+          ],
+          [
+            "date_preparation",
+            null,
+            "facultatif"
+          ]
+        ],
+        "dimensions": [
+          11,
+          3
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": []
+      },
+      "Objets": {
+        "rows": [
+          [
+            "objet_id",
+            "nom",
+            "famille",
+            "categorie",
+            "description",
+            "effet_id",
+            "niveau_min",
+            "vendable",
+            "volable_tire",
+            "pillable",
+            "volume_unitaire",
+            "prix_reference_cr",
+            "image_ref",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          14
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [H2:H101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"OUI,NON\"', formula2=None",
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [I2:I101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"OUI,NON\"', formula2=None",
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [J2:J101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"OUI,NON\"', formula2=None",
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [N2:N101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Ingredients": {
+        "rows": [
+          [
+            "ingredient_id",
+            "objet_id",
+            "rarete",
+            "origine_fiction",
+            "restriction_vente",
+            "description",
+            "image_ref",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          8
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [H2:H101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Marchandises": {
+        "rows": [
+          [
+            "marchandise_id",
+            "objet_id",
+            "regime_douanier",
+            "prix_base_cr",
+            "volume_unitaire",
+            "condition_vente",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          7
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [G2:G101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Equipements": {
+        "rows": [
+          [
+            "equipement_id",
+            "objet_id",
+            "type_equipement",
+            "competence_requise",
+            "bonus_jeu",
+            "consommable",
+            "nombre_utilisations",
+            "restriction",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          9
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [F2:F101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"OUI,NON\"', formula2=None",
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [I2:I101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Modules_Droides": {
+        "rows": [
+          [
+            "module_id",
+            "objet_id",
+            "niveau_mec03",
+            "prix_cr",
+            "effet_id",
+            "emplacements",
+            "restriction",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          8
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [H2:H101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Modules_Vaisseaux": {
+        "rows": [
+          [
+            "module_id",
+            "objet_id",
+            "gabarit",
+            "pourcentage_valeur",
+            "effet_id",
+            "niveau_mec03",
+            "rarete",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          8
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [H2:H101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      }
+    }
+  },
+  "SO_M2_Persos.xlsx": {
+    "sha256": "8d8679b1c9a3fe4f5da5e831fa8434bbf06515e4aaa890c0bd52af4f8ad2f92e",
+    "sheets": {
+      "LIRE_AVANT": {
+        "rows": [
+          [
+            "SPACE OUTLAWS  /  M2 — PERSOS",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Statut",
+            "GABARIT VIERGE — PREPARATION DOCUMENTAIRE, PAS IMPORT GN ENGINE CERTIFIÉ",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Architecture",
+            "Un seul Master central versionné ; ce fichier alimente un brouillon du domaine M2.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Publication",
+            "Aucune activation individuelle : contrôle GLOBAL de toutes les références puis publication globale MJ.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Contenu",
+            "Lignes de données vides. Ne pas créer de quantités fictives pour illustrer.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Identifiants",
+            "Utiliser des ID stables uniques ; ne jamais identifier un objet uniquement par son nom.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Dépendances",
+            "Référencer les ID des autres ateliers ; ne pas recréer les objets ou personnages.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Source des règles",
+            "SPACE OUTLAWS — Livre des règles V0.7, A01–A38 et FOR-01 PNJ.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Schéma",
+            "Colonnes indicatives à rapprocher des contrats techniques du dépôt après audit SO-00.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Sécurité",
+            "Garder les données secrètes hors des exports accessibles aux joueurs.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 1",
+            "Renseigner scénario et base dans PARAMETRES ; travailler les onglets métier.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 2",
+            "Importer/éditer en BROUILLON CENTRAL lorsque l’outil V3.4 sera développé.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 3",
+            "Contrôler toutes les dépendances et les effets sur la campagne, puis publier une version globale.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Références",
+            "Les onglets Ref_* sont des projections en lecture seule, pas une seconde définition.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        ],
+        "dimensions": [
+          15,
+          7
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": []
+      },
+      "PARAMETRES": {
+        "rows": [
+          [
+            "champ",
+            "valeur",
+            "commentaire"
+          ],
+          [
+            "atelier_id",
+            "M2",
+            "ne pas modifier"
+          ],
+          [
+            "atelier_nom",
+            "Persos",
+            "ne pas modifier"
+          ],
+          [
+            "scenario_id",
+            null,
+            "à renseigner dans GN Engine"
+          ],
+          [
+            "profil_regles",
+            "SPACE_OUTLAWS_V0_7",
+            "référentiel canonique"
+          ],
+          [
+            "version_centrale_base",
+            null,
+            "version publiée dont provient ce brouillon"
+          ],
+          [
+            "brouillon_central_id",
+            null,
+            "identifiant attribué dans GN Engine"
+          ],
+          [
+            "version_schema_preparation",
+            "0.1-PREPARATION",
+            "non homologuée par importeur"
+          ],
+          [
+            "statut_fichier",
+            "BROUILLON",
+            "aucune publication depuis Excel"
+          ],
+          [
+            "responsable",
+            null,
+            "organisateur ou responsable du domaine"
+          ],
+          [
+            "date_preparation",
+            null,
+            "facultatif"
+          ]
+        ],
+        "dimensions": [
+          11,
+          3
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": []
+      },
+      "Personnages": {
+        "rows": [
+          [
+            "personnage_id",
+            "prenom",
+            "nom",
+            "nature_humanoide_droide",
+            "classe",
+            "faction_id",
+            "statut_pnj_joueur",
+            "orientation_force_pnj",
+            "portrait_ref",
+            "bio_publique",
+            "bio_privee",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          12
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [L2:L101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Factions": {
+        "rows": [
+          [
+            "faction_id",
+            "nom",
+            "description",
+            "chef_personnage_id",
+            "visibilite",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          6
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [F2:F101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Competences": {
+        "rows": [
+          [
+            "attribution_id",
+            "personnage_id",
+            "competence_id",
+            "niveau",
+            "mode_acquisition",
+            "validation_mj",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          7
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [G2:G101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Dotations": {
+        "rows": [
+          [
+            "dotation_id",
+            "personnage_id",
+            "objet_id",
+            "quantite",
+            "origine_kit",
+            "non_pillable",
+            "non_revendable",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          8
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [H2:H101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Relations": {
+        "rows": [
+          [
+            "relation_id",
+            "source_personnage_id",
+            "cible_personnage_id",
+            "type_relation",
+            "contenu_prive",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          6
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [F2:F101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Habilitations": {
+        "rows": [
+          [
+            "habilitation_id",
+            "personnage_id",
+            "type",
+            "niveau",
+            "lieu_id",
+            "debut_session",
+            "fin_session",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          8
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [H2:H101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      }
+    }
+  },
+  "SO_M3_Spatial.xlsx": {
+    "sha256": "6b47b4a771fbf3885b0151035ca445774332fab799c539b546e970a1f3ea9f27",
+    "sheets": {
+      "LIRE_AVANT": {
+        "rows": [
+          [
+            "SPACE OUTLAWS  /  M3 — SPATIAL",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Statut",
+            "GABARIT VIERGE — PREPARATION DOCUMENTAIRE, PAS IMPORT GN ENGINE CERTIFIÉ",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Architecture",
+            "Un seul Master central versionné ; ce fichier alimente un brouillon du domaine M3.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Publication",
+            "Aucune activation individuelle : contrôle GLOBAL de toutes les références puis publication globale MJ.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Contenu",
+            "Lignes de données vides. Ne pas créer de quantités fictives pour illustrer.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Identifiants",
+            "Utiliser des ID stables uniques ; ne jamais identifier un objet uniquement par son nom.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Dépendances",
+            "Référencer les ID des autres ateliers ; ne pas recréer les objets ou personnages.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Source des règles",
+            "SPACE OUTLAWS — Livre des règles V0.7, A01–A38 et FOR-01 PNJ.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Schéma",
+            "Colonnes indicatives à rapprocher des contrats techniques du dépôt après audit SO-00.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Sécurité",
+            "Garder les données secrètes hors des exports accessibles aux joueurs.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 1",
+            "Renseigner scénario et base dans PARAMETRES ; travailler les onglets métier.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 2",
+            "Importer/éditer en BROUILLON CENTRAL lorsque l’outil V3.4 sera développé.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 3",
+            "Contrôler toutes les dépendances et les effets sur la campagne, puis publier une version globale.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Références",
+            "Les onglets Ref_* sont des projections en lecture seule, pas une seconde définition.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        ],
+        "dimensions": [
+          15,
+          7
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": []
+      },
+      "PARAMETRES": {
+        "rows": [
+          [
+            "champ",
+            "valeur",
+            "commentaire"
+          ],
+          [
+            "atelier_id",
+            "M3",
+            "ne pas modifier"
+          ],
+          [
+            "atelier_nom",
+            "Spatial",
+            "ne pas modifier"
+          ],
+          [
+            "scenario_id",
+            null,
+            "à renseigner dans GN Engine"
+          ],
+          [
+            "profil_regles",
+            "SPACE_OUTLAWS_V0_7",
+            "référentiel canonique"
+          ],
+          [
+            "version_centrale_base",
+            null,
+            "version publiée dont provient ce brouillon"
+          ],
+          [
+            "brouillon_central_id",
+            null,
+            "identifiant attribué dans GN Engine"
+          ],
+          [
+            "version_schema_preparation",
+            "0.1-PREPARATION",
+            "non homologuée par importeur"
+          ],
+          [
+            "statut_fichier",
+            "BROUILLON",
+            "aucune publication depuis Excel"
+          ],
+          [
+            "responsable",
+            null,
+            "organisateur ou responsable du domaine"
+          ],
+          [
+            "date_preparation",
+            null,
+            "facultatif"
+          ]
+        ],
+        "dimensions": [
+          11,
+          3
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": []
+      },
+      "Modeles": {
+        "rows": [
+          [
+            "modele_id",
+            "nom",
+            "gabarit",
+            "prix_ref_cr",
+            "coque_max",
+            "boucliers_max",
+            "manoeuvrabilite",
+            "capacite_fret",
+            "passagers_max",
+            "carburant_max",
+            "slots_modules",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          12
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [L2:L101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Vaisseaux": {
+        "rows": [
+          [
+            "vaisseau_id",
+            "modele_id",
+            "nom",
+            "identite_publique",
+            "proprietaire_id",
+            "pilote_personnage_id",
+            "port_actuel_id",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          8
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [H2:H101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Ports": {
+        "rows": [
+          [
+            "port_id",
+            "nom",
+            "code_navigation",
+            "niveau_risque",
+            "description",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          6
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [F2:F101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Routes": {
+        "rows": [
+          [
+            "route_id",
+            "origine_port_id",
+            "destination_port_id",
+            "categorie_duree",
+            "niveau_risque",
+            "unites_carburant_base",
+            "code_route",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          8
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [H2:H101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Evenements": {
+        "rows": [
+          [
+            "evenement_id",
+            "nom",
+            "niveau_risque",
+            "type_effet_canonique",
+            "cible_autorisee",
+            "texte_joueur",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          7
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [G2:G101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Rencontres": {
+        "rows": [
+          [
+            "rencontre_id",
+            "route_id",
+            "pnj_faction_id",
+            "type_interception",
+            "condition_declenchement",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          6
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [F2:F101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Modules_Installes": {
+        "rows": [
+          [
+            "installation_id",
+            "vaisseau_id",
+            "module_id",
+            "statut_installation",
+            "condition_usage"
+          ]
+        ],
+        "dimensions": [
+          1,
+          5
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": []
+      }
+    }
+  },
+  "SO_M4_Recettes.xlsx": {
+    "sha256": "e3ad3fde137bb67f809c96965a9d0c8e1c5e93a7b6203dd51aad250a8c616221",
+    "sheets": {
+      "LIRE_AVANT": {
+        "rows": [
+          [
+            "SPACE OUTLAWS  /  M4 — RECETTES",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Statut",
+            "GABARIT VIERGE — PREPARATION DOCUMENTAIRE, PAS IMPORT GN ENGINE CERTIFIÉ",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Architecture",
+            "Un seul Master central versionné ; ce fichier alimente un brouillon du domaine M4.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Publication",
+            "Aucune activation individuelle : contrôle GLOBAL de toutes les références puis publication globale MJ.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Contenu",
+            "Lignes de données vides. Ne pas créer de quantités fictives pour illustrer.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Identifiants",
+            "Utiliser des ID stables uniques ; ne jamais identifier un objet uniquement par son nom.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Dépendances",
+            "Référencer les ID des autres ateliers ; ne pas recréer les objets ou personnages.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Source des règles",
+            "SPACE OUTLAWS — Livre des règles V0.7, A01–A38 et FOR-01 PNJ.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Schéma",
+            "Colonnes indicatives à rapprocher des contrats techniques du dépôt après audit SO-00.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Sécurité",
+            "Garder les données secrètes hors des exports accessibles aux joueurs.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 1",
+            "Renseigner scénario et base dans PARAMETRES ; travailler les onglets métier.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 2",
+            "Importer/éditer en BROUILLON CENTRAL lorsque l’outil V3.4 sera développé.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 3",
+            "Contrôler toutes les dépendances et les effets sur la campagne, puis publier une version globale.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Références",
+            "Les onglets Ref_* sont des projections en lecture seule, pas une seconde définition.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        ],
+        "dimensions": [
+          15,
+          7
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": []
+      },
+      "PARAMETRES": {
+        "rows": [
+          [
+            "champ",
+            "valeur",
+            "commentaire"
+          ],
+          [
+            "atelier_id",
+            "M4",
+            "ne pas modifier"
+          ],
+          [
+            "atelier_nom",
+            "Recettes",
+            "ne pas modifier"
+          ],
+          [
+            "scenario_id",
+            null,
+            "à renseigner dans GN Engine"
+          ],
+          [
+            "profil_regles",
+            "SPACE_OUTLAWS_V0_7",
+            "référentiel canonique"
+          ],
+          [
+            "version_centrale_base",
+            null,
+            "version publiée dont provient ce brouillon"
+          ],
+          [
+            "brouillon_central_id",
+            null,
+            "identifiant attribué dans GN Engine"
+          ],
+          [
+            "version_schema_preparation",
+            "0.1-PREPARATION",
+            "non homologuée par importeur"
+          ],
+          [
+            "statut_fichier",
+            "BROUILLON",
+            "aucune publication depuis Excel"
+          ],
+          [
+            "responsable",
+            null,
+            "organisateur ou responsable du domaine"
+          ],
+          [
+            "date_preparation",
+            null,
+            "facultatif"
+          ]
+        ],
+        "dimensions": [
+          11,
+          3
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": []
+      },
+      "Recettes": {
+        "rows": [
+          [
+            "recette_id",
+            "nom",
+            "objet_produit_id",
+            "effet_id",
+            "niveau_toxi01_min",
+            "dose_produite",
+            "temps_min",
+            "cout_pa",
+            "recuperation_min",
+            "laboratoire_id",
+            "mode_decouverte",
+            "visibilite",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          13
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [M2:M101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Compositions": {
+        "rows": [
+          [
+            "compo_id",
+            "recette_id",
+            "ingredient_objet_id",
+            "quantite_positive",
+            "unite",
+            "substitution_autorisee",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          7
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [G2:G101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Effets": {
+        "rows": [
+          [
+            "effet_id",
+            "type_effet_v07_autorise",
+            "cible",
+            "duree_seconde",
+            "anti_cumul",
+            "antidote_compatible_id",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          7
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [G2:G101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Laboratoires": {
+        "rows": [
+          [
+            "laboratoire_id",
+            "lieu_id",
+            "qr_id",
+            "niveau_acces",
+            "formules_autorisees",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          6
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [F2:F101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Deblocages": {
+        "rows": [
+          [
+            "deblocage_id",
+            "recette_id",
+            "type_destinataire",
+            "destinataire_id",
+            "source_mission_id",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          6
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [F2:F101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Ref_Ingredients": {
+        "rows": [
+          [
+            "ingredient_objet_id",
+            "nom_depuis_M1",
+            "rarete_depuis_M1",
+            "statut_depuis_M1",
+            "note_lecture_seule"
+          ]
+        ],
+        "dimensions": [
+          19,
+          5
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": []
+      }
+    }
+  },
+  "SO_M5_Boutiques.xlsx": {
+    "sha256": "f57c52b59f365e7ae841d6352377d4ef648638a23d5c88eed821d65741aa4ccb",
+    "sheets": {
+      "LIRE_AVANT": {
+        "rows": [
+          [
+            "SPACE OUTLAWS  /  M5 — BOUTIQUES",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Statut",
+            "GABARIT VIERGE — PREPARATION DOCUMENTAIRE, PAS IMPORT GN ENGINE CERTIFIÉ",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Architecture",
+            "Un seul Master central versionné ; ce fichier alimente un brouillon du domaine M5.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Publication",
+            "Aucune activation individuelle : contrôle GLOBAL de toutes les références puis publication globale MJ.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Contenu",
+            "Lignes de données vides. Ne pas créer de quantités fictives pour illustrer.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Identifiants",
+            "Utiliser des ID stables uniques ; ne jamais identifier un objet uniquement par son nom.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Dépendances",
+            "Référencer les ID des autres ateliers ; ne pas recréer les objets ou personnages.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Source des règles",
+            "SPACE OUTLAWS — Livre des règles V0.7, A01–A38 et FOR-01 PNJ.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Schéma",
+            "Colonnes indicatives à rapprocher des contrats techniques du dépôt après audit SO-00.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Sécurité",
+            "Garder les données secrètes hors des exports accessibles aux joueurs.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 1",
+            "Renseigner scénario et base dans PARAMETRES ; travailler les onglets métier.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 2",
+            "Importer/éditer en BROUILLON CENTRAL lorsque l’outil V3.4 sera développé.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 3",
+            "Contrôler toutes les dépendances et les effets sur la campagne, puis publier une version globale.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Références",
+            "Les onglets Ref_* sont des projections en lecture seule, pas une seconde définition.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        ],
+        "dimensions": [
+          15,
+          7
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": []
+      },
+      "PARAMETRES": {
+        "rows": [
+          [
+            "champ",
+            "valeur",
+            "commentaire"
+          ],
+          [
+            "atelier_id",
+            "M5",
+            "ne pas modifier"
+          ],
+          [
+            "atelier_nom",
+            "Boutiques",
+            "ne pas modifier"
+          ],
+          [
+            "scenario_id",
+            null,
+            "à renseigner dans GN Engine"
+          ],
+          [
+            "profil_regles",
+            "SPACE_OUTLAWS_V0_7",
+            "référentiel canonique"
+          ],
+          [
+            "version_centrale_base",
+            null,
+            "version publiée dont provient ce brouillon"
+          ],
+          [
+            "brouillon_central_id",
+            null,
+            "identifiant attribué dans GN Engine"
+          ],
+          [
+            "version_schema_preparation",
+            "0.1-PREPARATION",
+            "non homologuée par importeur"
+          ],
+          [
+            "statut_fichier",
+            "BROUILLON",
+            "aucune publication depuis Excel"
+          ],
+          [
+            "responsable",
+            null,
+            "organisateur ou responsable du domaine"
+          ],
+          [
+            "date_preparation",
+            null,
+            "facultatif"
+          ]
+        ],
+        "dimensions": [
+          11,
+          3
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": []
+      },
+      "Boutiques": {
+        "rows": [
+          [
+            "boutique_id",
+            "nom",
+            "lieu_id",
+            "vendeur_personnage_id",
+            "caisse_id",
+            "qr_id",
+            "ouverte",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          8
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [G2:G101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"OUI,NON\"', formula2=None",
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [H2:H101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Offres": {
+        "rows": [
+          [
+            "offre_id",
+            "boutique_id",
+            "objet_id",
+            "prix_vente_cr",
+            "prix_rachat_cr",
+            "quantite_limite",
+            "licence_requise",
+            "conditions",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          9
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [I2:I101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Stocks_Initiaux": {
+        "rows": [
+          [
+            "seed_id",
+            "boutique_id",
+            "objet_id",
+            "quantite_proposee",
+            "session_cible",
+            "source_des_biens",
+            "autorisation_mj",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          8
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [H2:H101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Vendeurs": {
+        "rows": [
+          [
+            "vendeur_id",
+            "boutique_id",
+            "personnage_id",
+            "role",
+            "permissions",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          6
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [F2:F101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Restrictions": {
+        "rows": [
+          [
+            "restriction_id",
+            "boutique_id",
+            "objet_id",
+            "faction_autorisee",
+            "licence_id",
+            "niveau_min",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          7
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [G2:G101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      }
+    }
+  },
+  "SO_M6_Infos.xlsx": {
+    "sha256": "ecdbe9bcba751221f1af4c475c0708bbfcd8d0009125eb0857506c53a2bd897e",
+    "sheets": {
+      "LIRE_AVANT": {
+        "rows": [
+          [
+            "SPACE OUTLAWS  /  M6 — INFOS",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Statut",
+            "GABARIT VIERGE — PREPARATION DOCUMENTAIRE, PAS IMPORT GN ENGINE CERTIFIÉ",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Architecture",
+            "Un seul Master central versionné ; ce fichier alimente un brouillon du domaine M6.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Publication",
+            "Aucune activation individuelle : contrôle GLOBAL de toutes les références puis publication globale MJ.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Contenu",
+            "Lignes de données vides. Ne pas créer de quantités fictives pour illustrer.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Identifiants",
+            "Utiliser des ID stables uniques ; ne jamais identifier un objet uniquement par son nom.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Dépendances",
+            "Référencer les ID des autres ateliers ; ne pas recréer les objets ou personnages.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Source des règles",
+            "SPACE OUTLAWS — Livre des règles V0.7, A01–A38 et FOR-01 PNJ.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Schéma",
+            "Colonnes indicatives à rapprocher des contrats techniques du dépôt après audit SO-00.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Sécurité",
+            "Garder les données secrètes hors des exports accessibles aux joueurs.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 1",
+            "Renseigner scénario et base dans PARAMETRES ; travailler les onglets métier.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 2",
+            "Importer/éditer en BROUILLON CENTRAL lorsque l’outil V3.4 sera développé.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 3",
+            "Contrôler toutes les dépendances et les effets sur la campagne, puis publier une version globale.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Références",
+            "Les onglets Ref_* sont des projections en lecture seule, pas une seconde définition.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        ],
+        "dimensions": [
+          15,
+          7
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": []
+      },
+      "PARAMETRES": {
+        "rows": [
+          [
+            "champ",
+            "valeur",
+            "commentaire"
+          ],
+          [
+            "atelier_id",
+            "M6",
+            "ne pas modifier"
+          ],
+          [
+            "atelier_nom",
+            "Infos",
+            "ne pas modifier"
+          ],
+          [
+            "scenario_id",
+            null,
+            "à renseigner dans GN Engine"
+          ],
+          [
+            "profil_regles",
+            "SPACE_OUTLAWS_V0_7",
+            "référentiel canonique"
+          ],
+          [
+            "version_centrale_base",
+            null,
+            "version publiée dont provient ce brouillon"
+          ],
+          [
+            "brouillon_central_id",
+            null,
+            "identifiant attribué dans GN Engine"
+          ],
+          [
+            "version_schema_preparation",
+            "0.1-PREPARATION",
+            "non homologuée par importeur"
+          ],
+          [
+            "statut_fichier",
+            "BROUILLON",
+            "aucune publication depuis Excel"
+          ],
+          [
+            "responsable",
+            null,
+            "organisateur ou responsable du domaine"
+          ],
+          [
+            "date_preparation",
+            null,
+            "facultatif"
+          ]
+        ],
+        "dimensions": [
+          11,
+          3
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": []
+      },
+      "Documents": {
+        "rows": [
+          [
+            "document_id",
+            "titre",
+            "type_document",
+            "texte",
+            "image_ref",
+            "visibilite",
+            "detenteur_personnage_id",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          8
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [H2:H101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Indices": {
+        "rows": [
+          [
+            "indice_id",
+            "titre",
+            "description",
+            "document_id",
+            "objet_id",
+            "lieu_id",
+            "secret",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          8
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [G2:G101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"OUI,NON\"', formula2=None",
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [H2:H101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "QR_Decouverte": {
+        "rows": [
+          [
+            "decouverte_id",
+            "qr_id",
+            "lieu_id",
+            "contenu_type",
+            "contenu_id",
+            "condition_id",
+            "unique_par_personnage",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          8
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [G2:G101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"OUI,NON\"', formula2=None",
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [H2:H101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Fouilles": {
+        "rows": [
+          [
+            "fouille_id",
+            "qr_id",
+            "competence_id",
+            "niveau_min",
+            "temps_seconde",
+            "cout_pa",
+            "objet_gagnable_id",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          8
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [H2:H101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Conditions": {
+        "rows": [
+          [
+            "condition_id",
+            "type_condition",
+            "cible_id",
+            "valeur_attendue",
+            "texte_refus",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          6
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [F2:F101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      }
+    }
+  },
+  "SO_M7_Missions.xlsx": {
+    "sha256": "c57e47598cb50263ffa0900041738f9fed2de370ba901418538666c74db70080",
+    "sheets": {
+      "LIRE_AVANT": {
+        "rows": [
+          [
+            "SPACE OUTLAWS  /  M7 — MISSIONS",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Statut",
+            "GABARIT VIERGE — PREPARATION DOCUMENTAIRE, PAS IMPORT GN ENGINE CERTIFIÉ",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Architecture",
+            "Un seul Master central versionné ; ce fichier alimente un brouillon du domaine M7.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Publication",
+            "Aucune activation individuelle : contrôle GLOBAL de toutes les références puis publication globale MJ.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Contenu",
+            "Lignes de données vides. Ne pas créer de quantités fictives pour illustrer.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Identifiants",
+            "Utiliser des ID stables uniques ; ne jamais identifier un objet uniquement par son nom.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Dépendances",
+            "Référencer les ID des autres ateliers ; ne pas recréer les objets ou personnages.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Source des règles",
+            "SPACE OUTLAWS — Livre des règles V0.7, A01–A38 et FOR-01 PNJ.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Schéma",
+            "Colonnes indicatives à rapprocher des contrats techniques du dépôt après audit SO-00.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Sécurité",
+            "Garder les données secrètes hors des exports accessibles aux joueurs.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 1",
+            "Renseigner scénario et base dans PARAMETRES ; travailler les onglets métier.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 2",
+            "Importer/éditer en BROUILLON CENTRAL lorsque l’outil V3.4 sera développé.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Étape 3",
+            "Contrôler toutes les dépendances et les effets sur la campagne, puis publier une version globale.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Références",
+            "Les onglets Ref_* sont des projections en lecture seule, pas une seconde définition.",
+            null,
+            null,
+            null,
+            null,
+            null
+          ]
+        ],
+        "dimensions": [
+          15,
+          7
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": []
+      },
+      "PARAMETRES": {
+        "rows": [
+          [
+            "champ",
+            "valeur",
+            "commentaire"
+          ],
+          [
+            "atelier_id",
+            "M7",
+            "ne pas modifier"
+          ],
+          [
+            "atelier_nom",
+            "Missions",
+            "ne pas modifier"
+          ],
+          [
+            "scenario_id",
+            null,
+            "à renseigner dans GN Engine"
+          ],
+          [
+            "profil_regles",
+            "SPACE_OUTLAWS_V0_7",
+            "référentiel canonique"
+          ],
+          [
+            "version_centrale_base",
+            null,
+            "version publiée dont provient ce brouillon"
+          ],
+          [
+            "brouillon_central_id",
+            null,
+            "identifiant attribué dans GN Engine"
+          ],
+          [
+            "version_schema_preparation",
+            "0.1-PREPARATION",
+            "non homologuée par importeur"
+          ],
+          [
+            "statut_fichier",
+            "BROUILLON",
+            "aucune publication depuis Excel"
+          ],
+          [
+            "responsable",
+            null,
+            "organisateur ou responsable du domaine"
+          ],
+          [
+            "date_preparation",
+            null,
+            "facultatif"
+          ]
+        ],
+        "dimensions": [
+          11,
+          3
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": []
+      },
+      "Missions": {
+        "rows": [
+          [
+            "mission_id",
+            "titre",
+            "resume",
+            "faction_donneur_id",
+            "pnj_donneur_id",
+            "niveau_acces",
+            "visibilite",
+            "etat_initial",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          9
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [I2:I101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Etapes": {
+        "rows": [
+          [
+            "etape_id",
+            "mission_id",
+            "ordre",
+            "titre",
+            "description",
+            "lieu_id",
+            "qr_id",
+            "condition_succes_id",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          9
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [I2:I101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Prerequis": {
+        "rows": [
+          [
+            "prerequis_id",
+            "mission_id",
+            "type_prerequis",
+            "reference_id",
+            "operateur",
+            "valeur",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          7
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [G2:G101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Recompenses": {
+        "rows": [
+          [
+            "recompense_id",
+            "mission_id",
+            "type_recompense",
+            "objet_id",
+            "credits",
+            "xp",
+            "condition_remise",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          8
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [H2:H101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Annonces": {
+        "rows": [
+          [
+            "annonce_id",
+            "titre",
+            "texte",
+            "public_cible",
+            "mission_id",
+            "date_jeu",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          7
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [G2:G101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "RDV": {
+        "rows": [
+          [
+            "rdv_id",
+            "titre",
+            "lieu_id",
+            "horaire_jeu",
+            "mission_id",
+            "destinataire_type",
+            "destinataire_id",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          8
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [H2:H101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      },
+      "Declencheurs": {
+        "rows": [
+          [
+            "declencheur_id",
+            "evenement_source_id",
+            "condition_id",
+            "mission_id",
+            "effet_autorise",
+            "statut"
+          ]
+        ],
+        "dimensions": [
+          1,
+          6
+        ],
+        "state": "visible",
+        "protected": false,
+        "formulas": [],
+        "comments": {},
+        "validations": [
+          "<openpyxl.worksheet.datavalidation.DataValidation object>\nParameters:\nsqref=<MultiCellRange [F2:F101]>, showDropDown=False, showInputMessage=False, showErrorMessage=False, allowBlank=False, errorTitle=None, error=None, promptTitle=None, prompt=None, type='list', errorStyle=None, imeMode=None, operator=None, formula1='\"BROUILLON,A_CONTROLER,ARCHIVAGE_DEMANDE\"', formula2=None"
+        ]
+      }
+    }
+  }
+}

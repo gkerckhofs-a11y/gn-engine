@@ -53,6 +53,33 @@ export function collectiveSuite(makeStore,prefix='Caisses'){
     const f=await fixture(),p=await f.prepareAccount();await f.edit({publicationState:'DRAFT'});await assert.rejects(f.payAccount(p),{code:'FORBIDDEN'});await f.edit({publicationState:'PUBLISHED'});await assert.rejects(f.payAccount(p),{code:'STALE_REVISION'});
     const q=await f.prepareAccount();await f.configureApply(await f.configure({label:'Autre couverture'}));await assert.rejects(f.payAccount(q),{code:'STALE_REVISION'});assert.equal((await f.detail()).balances.balance,100);assert.equal((await f.detail()).account.name,'Autre couverture');
   });
+  for(const revokeFirst of [true,false])test(`${prefix} : INS-10 partiel — révocation et paiement concurrents (${revokeFirst?'révocation':'paiement'} lancé en premier)`,async()=>{
+    const f=await fixture(),p=await f.prepareAccount({amount:20}),requestId=randomUUID();
+    const before=await f.ledger(),versions=await f.store.list(`scenarios/${f.scenarioId}/versions`);
+    const g=await f.group(),s=await f.session();
+    const revoke=()=>f.cmd('saveSessionGroup',f.owner,{...g,sessionId:f.sessionId,groupId:f.groupId,
+      revision:s.revision,members:[f.member(0,{readWallet:true})],reason:'Révocation concurrente du mandat de caisse'});
+    const pay=()=>f.payAccount(p,f.alice,{requestId});
+    const results=await Promise.allSettled((revokeFirst?[revoke,pay]:[pay,revoke]).map(run=>run()));
+    const revoked=results[revokeFirst?0:1],paid=results[revokeFirst?1:0];
+    assert.equal(revoked.status,'fulfilled');
+    if(paid.status==='rejected')assert.equal(paid.reason.code,'FORBIDDEN');
+    const amount=paid.status==='fulfilled'?20:0;
+    assert.equal((await f.detail()).balances.balance,100-amount);
+    assert.equal((await f.wallet(f.eve)).account.balance,amount);
+    assert.equal((await f.group()).members[0].permissions.payWallet,false);
+    const ledger=await f.ledger();
+    assert.equal(ledger.length,before.length+(amount?1:0));
+    for(const event of before)assert.deepEqual(ledger.find(e=>e.id===event.id),event);
+    assert.equal((await f.detail()).account.id,f.aid);
+    assert.deepEqual(await f.store.list(`scenarios/${f.scenarioId}/versions`),versions);
+    // A payment serialized before revocation stays valid. After revocation,
+    // neither its receipt nor an uncommitted stale quote grants spending rights.
+    await assert.rejects(f.payAccount(p,f.alice,{requestId}),{code:'FORBIDDEN'});
+    await assert.rejects(f.prepareAccount({amount:1}),{code:'FORBIDDEN'});
+    assert.equal((await f.detail()).balances.balance,100-amount);
+    assert.equal((await f.ledger()).length,ledger.length);
+  });
   test(`${prefix} : configuration confirmée ne réinitialise pas le compte ni ses anciennes écritures`,async()=>{
     const f=await fixture();const paid=await f.payAccount(await f.prepareAccount()),p=await f.configure({label:'Nouveau libellé'}),input={...p.input,confirmation:p.result.confirmation,requestId:randomUUID()};assert.equal((await f.detail()).account.name,'Comptoir neutre');await f.cmd('setGroupWallet',f.owner,input);await f.cmd('setGroupWallet',f.owner,input);
     assert.equal((await f.detail()).balances.balance,20);assert.equal((await f.wallet(f.eve)).entries.find(e=>e.id===paid.id).counterparty.name,'Comptoir neutre');await f.edit({description:'Texte modifié'});assert.equal((await f.group()).walletConfig.label,'Nouveau libellé');assert.equal((await f.detail()).balances.balance,20);

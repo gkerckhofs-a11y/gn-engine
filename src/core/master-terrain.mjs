@@ -80,6 +80,7 @@ export function importTerrain({rows,m,records,session,fieldStates,parent,stamp,c
   if(r.operation==='ARCHIVER'){archiveOnly(r);d={...old,publicationState:'DRAFT',masterArchived:true,revision:old.revision+1};}
   else{
    d=patch(r,common(r,old),{nom:'name',type:'kind',publication:'publicationState'});d.publicationState??='DRAFT';
+   if(!empty(r.nature_patient))d.patientNature=r.nature_patient==='!EFFACER'?null:r.nature_patient;
    if(!empty(r.prerequis))d.prerequisites=pairs(r.prerequis,'prerequis').map(([skillId,minLevel])=>({skillId,minLevel}));
    if(!empty(r.consommables_supplementaires))d.extraConsumables=pairs(r.consommables_supplementaires,'consommables_supplementaires').map(([itemId,quantity])=>({itemId,quantity}));
    for(const [col,key] of Object.entries({complement_secondes:'continuationSeconds',soin_pv:'healAmount',niveau_reanimation:'reviveLevel',convalescence_secondes:'convalescenceSeconds',recuperation_patient_secondes:'patientCooldownSeconds'}))if(!empty(r[col]))d[key]=num(r[col],col,['soin_pv','niveau_reanimation'].includes(col));

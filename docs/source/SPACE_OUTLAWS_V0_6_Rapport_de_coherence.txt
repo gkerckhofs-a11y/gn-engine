@@ -1,0 +1,201 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SPACE OUTLAWS — Rapport de cohérence V0.6
+
+WESTERN CITY  /  SPACE OUTLAWS
+RAPPORT DE COHÉRENCE
+SPACE OUTLAWS — Livre des règles V0.6
+Consolidation des arbitrages A01 à A38  •  23 octobre 2026
+Le présent rapport accompagne le livre des règles consolidé. Il recense les corrections documentaires effectuées et les contrôles de cohérence à prévoir pour une application future dans GN Engine et en jeu physique. Il n’est pas le cahier des charges technique GN Engine.
+1 — Résultat du contrôle
+	Élément
+	Résultat documentaire
+
+	Arbitrages
+	38 sur 38 clôturés, répertoriés dans l’annexe A.
+
+	Structure
+	26 chapitres et quatre annexes.
+
+	Source de référence
+	Livre V0.5, avec priorité aux validations A01–A38 intervenues ensuite.
+
+	Consolidation
+	Les anciennes formulations opposées aux décisions récentes sont remplacées.
+
+	Mise en production
+	Aucune action GitHub, Firebase ou session réelle effectuée.
+
+
+Conclusion documentaire : la V0.6 est prête pour lecture et préparation de la recette, sous réserve des vérifications de terrain, des paramètres de Master et des essais logiciels listés ci-après.
+2 — Corrections de cohérence effectuées
+	Sujet
+	Risque hérité de la V0.5
+	Traitement V0.6
+
+	A08 — initiations
+	Liste présentée comme encore à confirmer.
+	Huit compétences d’initiation définitivement fixées ; initiation gratuite occupant une place secondaire.
+
+	A10 — dotations
+	Quantités et crédits initiaux indiqués non arrêtés.
+	200 Cr protégés et huit kits de classe précis ; matériel initial non pillable/non revendable.
+
+	A08–A09 — XP
+	Modalités de formation et d’XP des remplaçants déclarées ouvertes.
+	Trois XP par utilisateur et par session ; règles de tutorat, rareté et reconversion arrêtées.
+
+	A11 — durées
+	Anciennes durées ou titres « proposés ».
+	Durées actées pour COM, PIL, INF, Entretien, ROG-02 et ROG-03.
+
+	A12 — vol
+	Ancien principe de proximité physique.
+	Poste d’organisation, QR + nom/prénom du personnage, quotas mutualisés et notification à 10 minutes.
+
+	A31–A32 — épaves
+	Casse et lots de pièces présentés comme hypothétiques.
+	10 % de rendement unique, 50 Cr/lot, reprise 25 Cr ; démantèlement partiel irréversible.
+
+	A24 — prix
+	Exemples économiques présentés comme non définitifs.
+	Prix de référence 5 000/10 000/20 000 Cr et 12 marchandises fixés.
+
+	A35 — coût escorte
+	Risque de sous-estimer le carburant de retour.
+	Provision de carburant aller-retour distincte du salaire ; exemple corrigé.
+
+
+
+
+3 — Vérifications transversales avant première session
+Les rapprochements suivants sont nécessaires pour que les règles aient le même résultat dans toutes les parties de l’application et sur le terrain.
+	Interface
+	Invariant à contrôler
+	Essai conseillé
+
+	Combat ↔ Secours
+	La mise à 0 PV lance cinq minutes réelles ; sécurisation acquise après 60 s continues.
+	Interruption à 59 s ; stabilisation à 60 s ; STOP SÉCURITÉ.
+
+	PA ↔ Décès
+	Chaque remplaçant a immédiatement sa réserve PA complète ; aucun gain d’XP supplémentaire.
+	Deux décès même session ; quatre sessions pour niveau global.
+
+	ROG-02 ↔ QR
+	Identité du personnage correcte, pas d’inventaire exposé, 2 tentatives/1 réussite par victime/session.
+	Vol simultané, nom erroné, cible vide, vol de 1 unité.
+
+	ROG-03 ↔ Prison
+	QR sur serrure fictif ; surveillance réelle, 20 min captif maximum.
+	Interruption par gardien ; issue sûre ; aucun déverrouillage réel.
+
+	Droïde ↔ MEC ↔ Sabotage
+	PV, protection épuisée, module neutralisé et module endommagé sont indépendants.
+	Révision complète ne répare pas module ; levée de neutralisation.
+
+	FIL ↔ EFF
+	Seules traces de jeu autorisées ; compétence ≥ adversaire pour reconstituer.
+	Fausse piste N5, trace âgée de plus de 15 min.
+
+	Spatial ↔ PA ↔ Escorte
+	Tirs engagés simultanés ; fuite après tirs ; PA dépensé si effet exécuté.
+	Escorte N4 après décrochage raté ; Feinte seuil minimal 6.
+
+	Fret ↔ Propriété
+	Transbordement atomique, une soute source, pas de duplication.
+	Interruption à 2 min 59 s ; plein de soute receveuse.
+
+	Marchés ↔ Contrats
+	Budgets et stocks financés ; rachat et arrondis selon barèmes distincts.
+	Transaction multiple ; module d’occasion ; lots de casse.
+
+	Assurance ↔ Persistance
+	Une police par lot/voyage, fonds provisionnés, indemnité récupérable.
+	Perte partielle puis restitution d’une partie du fret.
+
+
+4 — Cohérence des paramètres chiffrés
+	Paramètre
+	Contrôle chiffré
+
+	Cargo et escorte, exemple A24/A35
+	Achat 3 400 ; vente 4 420 ; douane 200 ; carburant cargo 200 ; salaire 200 ; carburant escorteur 100 ; prime 160 = marge 160 Cr.
+
+	Réparations du cargo
+	Révision 100 Cr ; deux Boucliers 100 Cr ; un point de Coque 500 Cr : total 700 Cr hors main-d’œuvre PNJ.
+
+	Casse cargo
+	10 % × 10 000 Cr = 1 000 Cr, soit 20 lots de 50 Cr ; revente PNJ : 20 × 25 = 500 Cr.
+
+	Assurance sur fret de 4 000 Cr, route dangereuse
+	Prime 160 Cr ; perte de 1 500 Cr : indemnisation 1 200 Cr si admissible et fonds disponibles.
+
+	Voyages et carburant
+	Court/moyen/long : 5/10/15 min ; chasseur 1/2/3, cargo 2/4/6, transport 3/6/9 unités.
+
+
+5 — Paramètres de session à renseigner, sans rouvrir A01–A38
+Ces paramètres n’ont pas été inventés dans le livre ; ils doivent être définis ou vérifiés avant ouverture du GN : profils et positions des QR, issues physiques sûres de la prison, coordonnées fictives et codes de destination activés, stocks et budgets PNJ, fonds de l’assureur, disponibilité des services, contrats et tables de rencontres, accessoires matériels, places embarquées, droits des douaniers et mandats de chaque Master.
+La fiche de sécurité demande des essais réels pour chaque arme et équipement de protection : distances minimales, protection oculaire, zones autorisées, modèles de gel blasters et de sabres aptes au contact. Aucune caractéristique physique n’a été ajoutée sans essai.
+6 — Limites et prochaine étape
+Le contrôle réalisé porte sur la cohérence écrite et les barèmes déterministes de la V0.6. Il ne prouve ni que les QR et les automatisations sont déjà implantés, ni que les tests GitHub Actions/Firebase Emulator ont été exécutés, ni que la session terrain est sûre ou prête à ouvrir.
+Le cahier des charges GN Engine devra être rédigé séparément, à partir des règles consolidées : exigences fonctionnelles, matrice des droits, états persistants, rétrocompatibilité des Masters et sessions, tests des émulateurs, puis procédure de validation sans déploiement de production avant accord explicite.
+Références documentaires
+Livre principal : Space_Outlaws_Regles_V0_5.docx ; références antérieures : Port_Breche_Livre_des_regles_V0_3(1).docx et Space_Outlaws_Livre_du_joueur_V0_4_Projet.docx ; décisions utilisateur A01–A38 intervenues après la V0.5 et clôturées le 23 octobre 2026.
+Registre des validations avant mise en service
+Les états ci-dessous sont volontairement « À réaliser » : le livre décrit les comportements attendus, sans établir qu’ils fonctionnent déjà dans l’application ou sur le terrain.
+	Porte de validation
+	Responsable pressenti
+	État
+
+	Homologation des armes et protections
+	Organisation / sécurité
+	À réaliser
+
+	QR d’interaction au local et serrure fictive de prison
+	Organisation / MJ
+	À tester
+
+	Quotas, PA, droits et transferts uniques
+	Développement / recette
+	À tester
+
+	Économie : fonds, stocks, assurances et contrats
+	MJ / développement
+	À tester
+
+	Reprise des voyages et des états entre sessions
+	MJ / développement
+	À tester
+
+	GitHub Actions et émulateurs Firebase
+	Équipe de développement
+	À exécuter
+
+	Validation du déploiement de production
+	Direction du projet
+	Autorisation explicite requise
+
+
+23 OCTOBRE 2026  ·  CONTRÔLE DOCUMENTAIRE  /  V0.6
