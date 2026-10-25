@@ -1,5 +1,11 @@
 # Registre V3.5 — 55 recettes ciblées
 
+## C2q — Excel des lieux et informations M6
+
+[C2q — contrat, tests et limites](SO-06-C2Q-EXCEL-LIEUX.md). 18 cas partagés mémoire/Firestore couvrent versions, XLSX réel, homonymes, droits, validation stricte, liens du lot, réessais/révocation, concurrence, interruption, bornes et captures. Trois UI et un HTTP/Auth. REC-SO-MST-02/03/05/06/07/08 reçoivent ces preuves préparatoires partielles ; aucun des 55 verdicts intégraux n’est certifié. Recette humaine et activation restent ouvertes.
+
+**Local, 25 octobre 2026 (Europe/Brussels) : compilation et 1477/1477 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 18 nouveaux cas partagés mémoire/Firestore, trois UI et un HTTP/Auth. Firebase non exécuté localement (Java 17.0.20) ; preuves finales des deux CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1) après terminaison. [Preuves C2p archivées](PR-1-HISTORIQUE-AVANT-C2Q.md) : 1456 applicatifs/1179 Firebase/HTTP chacun.
+
 ## C2p — lieux, fouilles et installations préparés dans M6
 
 [C2p — lieux, fouilles et installations M6](SO-02-C2P-LIEUX-CENTRAUX.md) apporte 25 cas partagés mémoire/Firestore : validations, droits/révocation, confidentialité des requêtes, références différées/archives/corruptions, concurrence, interruption, bornes, import M6 homonyme, imports M3/M4/M5 et captures. Cinq UI et un HTTP/Auth. REC-SO-MST-03/05/06/08 et REC-SO-REC-01/05 reçoivent ces preuves préparatoires partielles ; aucun des 55 verdicts complets n’est certifié. QR/actions joués, laboratoire autorisé, réserve réelle, publication et recette humaine restent à exécuter.

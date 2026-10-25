@@ -1,5 +1,7 @@
 # GN Engine
 
+**C2q — Excel des lieux et informations M6.** [Guide du contrat versionné](docs/SO-06-C2Q-EXCEL-LIEUX.md). Aperçu et lot commun, profils/récompenses natifs, anciens fichiers M6 conservés. Compilation et 1477 tests applicatifs locaux réussis le 25 octobre 2026 ; preuves finales des deux CI dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Aucune activation ni publication.
+
 **C2p — lieux, fouilles et installations M6.** [Guide, tests et limites](docs/SO-02-C2P-LIEUX-CENTRAUX.md). Définitions natives privées, profils/récompenses proposés, références M3/M4/M5 sous droits M6, import M6 homonyme préservé et captures compatibles. Compilation et 1456 tests applicatifs locaux réussis le 25 octobre 2026 ; preuves finales des deux CI dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Aucun stock, QR, action ou droit de laboratoire activé ; publication et conformité complète restent à livrer.
 
 **SO-02 C2o — groupes et factions préparés dans M2.** [Parcours, droits et limites](docs/SO-02-C2O-GROUPES-CENTRAUX.md) : définitions privées, appartenances et permissions proposées, références vers les fiches, archives et conservation par les imports/instantanés. **1426 tests applicatifs locaux et build réussis** ; preuves CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Aucun groupe ni mandat de session activé ; publication et naissance restent à développer.

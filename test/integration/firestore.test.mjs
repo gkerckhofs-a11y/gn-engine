@@ -1,3 +1,4 @@
+import {centralFieldImportSuite} from '../support/central-field-import-suite.mjs';
 import {centralFieldTargetsSuite} from '../support/central-field-targets-suite.mjs';
 import {centralGroupsSuite} from '../support/central-groups-suite.mjs';
 import {centralSnapshotsSuite} from '../support/central-snapshots-suite.mjs';
@@ -65,6 +66,7 @@ const projectId='demo-gn-engine';
 initializeApp({projectId});const firestore=getFirestore();
 workflowSuite(()=>firestoreStore(firestore),'Firestore réel émulé');
 preparationsSuite(()=>firestoreStore(firestore),'Préparation SO sur Firestore');
+centralFieldImportSuite(()=>firestoreStore(firestore),'Excel lieux C2q sur Firestore');
 centralFieldTargetsSuite(()=>firestoreStore(firestore),'Lieux centraux C2p sur Firestore');
 centralGroupsSuite(()=>firestoreStore(firestore),'Groupes centraux C2o sur Firestore');
 centralSnapshotsSuite(()=>firestoreStore(firestore),'Instantanés centraux C2n sur Firestore');

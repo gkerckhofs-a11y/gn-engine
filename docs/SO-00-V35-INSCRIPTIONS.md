@@ -1,5 +1,11 @@
 # SO-00 V3.5 — diagnostic, inscriptions et ordre de développement
 
+## C2q — Excel des lieux et informations M6
+
+[C2q — contrat, tests et limites](SO-06-C2Q-EXCEL-LIEUX.md). Les lieux natifs M6 et informations se préparent ensemble depuis un fichier explicitement versionné, dans les services centraux existants. Les imports M6 historiques restent lus ; aucune admission, incarnation, dotation, permission de jeu ou publication n’est créée. L’ordre minimal reste inchangé : contrôles canoniques et publication avant activation ; I3/INS-06 complet et I4/I5 restent ouverts.
+
+**Local, 25 octobre 2026 (Europe/Brussels) : compilation et 1477/1477 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 18 nouveaux cas partagés mémoire/Firestore, trois UI et un HTTP/Auth. Firebase non exécuté localement (Java 17.0.20) ; preuves finales des deux CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1) après terminaison. [Preuves C2p archivées](PR-1-HISTORIQUE-AVANT-C2Q.md) : 1456 applicatifs/1179 Firebase/HTTP chacun.
+
 ## C2p — lieux, fouilles et installations préparés dans M6
 
 [C2p — lieux, fouilles et installations M6](SO-02-C2P-LIEUX-CENTRAUX.md) complète les références communes du brouillon avant publication. M6 prépare les lieux natifs, M3/M4/M5 les référencent sans copie ; aucune admission, quota, incarnation ou ressource modifié. Suite : compétences/effets canoniques, habilitations/QR, sources réelles, publication/version activable, puis naissance et régie sous règles publiées. C2 et I3/INS-06 complets, I4/I5 restent ouverts.

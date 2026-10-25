@@ -1,3 +1,4 @@
+import {importedField,exportedField,checkFieldCells,fieldImportColumn} from './central-field-import.mjs';
 import {centralFieldTargetProjection} from './central-field-targets.mjs';
 import {centralGroupProjection} from './central-groups.mjs';
 import {importedSpace,exportedSpace,spaceImportColumn} from './central-space-import.mjs';
@@ -15,7 +16,7 @@ import {importedCharacter,exportedCharacter,checkCharacterCells,characterImportC
 import {centralClassKitProjection} from './central-class-kits.mjs';
 import {centralCharacterProjection} from './central-characters.mjs';
 import {centralRecipeProjection} from './central-recipes.mjs';
-import {centralImportFormat,centralImportRows,centralImportContracts,centralImportSelection,centralSpaceColumns,centralShopColumns,centralImportSheets,centralCharacterColumns,centralStoryColumns} from '../shared/central-import-schema.mjs';
+import {centralImportFormat,centralImportRows,centralImportContracts,centralImportSelection,centralFieldColumns,centralSpaceColumns,centralShopColumns,centralImportSheets,centralCharacterColumns,centralStoryColumns} from '../shared/central-import-schema.mjs';
 import {masterLimits} from '../shared/master-schema.mjs';
 
 const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
@@ -26,7 +27,7 @@ const keys=(v,allowed)=>check(v&&typeof v==='object'&&!Array.isArray(v)&&Object.
 const fail=(column,message)=>{throw Object.assign(new Error(message),{column});};
 const integer=(v,column)=>{if(!/^\d+$/.test(String(v))||!Number.isSafeInteger(Number(v)))fail(column,'Entier positif ou nul attendu.');return Number(v);};
 const revisionKey=type=>type==='character'?'contentRevision':'revision';
-const columns=type=>type==='character'?centralCharacterColumns:centralStoryColumns[type]??centralShopColumns[type]??centralSpaceColumns[type]??Object.keys(fields[type]);
+const columns=type=>type==='fieldTarget'?centralFieldColumns:type==='character'?centralCharacterColumns:centralStoryColumns[type]??centralShopColumns[type]??centralSpaceColumns[type]??Object.keys(fields[type]);
 const fields={
  item:{nom:['name','text'],description:['description','text',''],categorie:['category','text',''],unite:['unit','text'],type:['kind','text'],consommable:['consumable','bool'],volume_unitaire:['unitVolume','number',null],legalite:['legality','text'],notes_mj:['gmNotes','text',''],pillable:['pillable','bool'],billes_par_recharge:['laserRecharge','laser',null]},
  recipe:{nom:['name','text'],description:['description','text',''],type:['kind','text'],niveau_minimum:['minLevel','number'],competence_id:['skillId','text',null],produit_id:['productItemId','text',null],composants:['components','components',[]],effet_id:['effectId','text',null],laboratoire_lieu_id:['laboratoryTargetId','text',null],connaissance_id:['unlockKnowledgeId','text',null],prix_indicatif:['indicativePrice','number',null],notes_mj:['gmNotes','text','']},
@@ -39,6 +40,7 @@ function cell(value,kind,column){
  return value;
 }
 function dataFor(type,row,old){
+ if(type==='fieldTarget')return importedField(row,old);
  if(centralSpaceTypes.includes(type))return importedSpace(type,row,old);
  if(centralShopColumns[type])return importedShop(type,row,old);
  if(type==='character')return importedCharacter(row,old);
@@ -52,6 +54,7 @@ function dataFor(type,row,old){
  return (type==='item'?itemInput:recipeInput)(data,row.id,old?.data);
 }
 function exportRow(c){
+ if(c.type==='fieldTarget'){const row=exportedField(c);try{checkFieldCells(row);}catch{requireThat(false,'CENTRAL_STORY_EXPORT_LIMIT');}return row;}
  if(centralSpaceTypes.includes(c.type))return exportedSpace(c);
  if(centralShopColumns[c.type])return exportedShop(c);
  if(centralStoryColumns[c.type]){const row=exportedStory(c);try{checkStoryCells(c.type,row);}catch{requireThat(false,'CENTRAL_STORY_EXPORT_LIMIT');}return row;}
@@ -84,22 +87,24 @@ function cleanSheets(input,sheets){
 export const centralImportCommands=['exportCentralDraft','prepareCentralImport','applyCentralImport'];
 // Called inside the common central transaction, AFTER current authority and cycle guards.
 export async function centralImport(tx,action,actor,input,ctx){
- const {c,s,draft,rights,grant,at,uuid}=ctx,revision=draft?.revision??0,base=`campaigns/${c.id}/masterDrafts/initial`,workshop=input.workshop,contracts=centralImportContracts(workshop);
- check(contracts.length);const {type,sheet}=contracts[0],multiple=contracts.length>1,key=(type,id)=>multiple?`${type}_${id}`:id,exporting=action==='exportCentralDraft',applying=action==='applyCentralImport';
+ const {c,s,draft,rights,grant,at,uuid}=ctx,revision=draft?.revision??0,base=`campaigns/${c.id}/masterDrafts/initial`,workshop=input.workshop,exporting=action==='exportCentralDraft',schemaVersion=exporting?(input.schemaVersion??1):Number(input.sheets?.Meta?.[0]?.schema_version),supported=centralImportContracts(workshop,schemaVersion),contracts=supported.length?supported:centralImportContracts(workshop);
+ check(contracts.length);const {type,sheet}=contracts[0],multiple=contracts.length>1,key=(type,id)=>multiple?`${type}_${id}`:id,applying=action==='applyCentralImport';
  requireThat(rights.readWorkshops.includes(workshop)&&(exporting||rights.editWorkshops.includes(workshop)),'FORBIDDEN');
- keys(input,exporting?['campaignId','workshop','ids']:['campaignId','workshop','sheets','fileName',...(applying?['confirmation','requestId','reason']:[])]);
+ keys(input,exporting?['campaignId','workshop','ids','schemaVersion']:['campaignId','workshop','sheets','fileName',...(applying?['confirmation','requestId','reason']:[])]);
  if(exporting){
+  check(supported.length);
   check(Array.isArray(input.ids)&&input.ids.length<=centralImportRows&&new Set(input.ids).size===input.ids.length);input.ids.forEach(id=>{if(!multiple){documentId(id);return;}check(typeof id==='string');const contract=contracts.find(c=>id.startsWith(`${c.type}_`));check(contract);documentId(id.slice(contract.type.length+1));});
   const changes=await tx.list(`${base}/changes`,['workshop',workshop]);
-  const selected=input.ids.map(id=>{const c=changes.find(x=>centralImportSelection(workshop,x)===id&&contracts.some(c=>c.type===x.type));requireThat(c,'CENTRAL_EXPORT_STALE');return c;});
-  const sheets={Meta:[{format:centralImportFormat,version:1,schema_version:1,type:'CENTRAL_DRAFT',campaign_id:c.id,scenario_id:'',rule_profile:c.ruleProfile,central_base_version:'',draft_id:'initial',draft_revision:revision,module_type:workshop,import_batch_id:uuid()}],...Object.fromEntries(contracts.map(({type,sheet})=>[sheet,selected.filter(c=>c.type===type).map(exportRow)]))};
+  const selected=input.ids.map(id=>{const c=changes.find(x=>centralImportSelection(workshop,x,schemaVersion)===id&&contracts.some(c=>c.type===x.type));requireThat(c,'CENTRAL_EXPORT_STALE');return c;});
+  const sheets={Meta:[{format:centralImportFormat,version:1,schema_version:schemaVersion,type:'CENTRAL_DRAFT',campaign_id:c.id,scenario_id:'',rule_profile:c.ruleProfile,central_base_version:'',draft_id:'initial',draft_revision:revision,module_type:workshop,import_batch_id:uuid()}],...Object.fromEntries(contracts.map(({type,sheet})=>[sheet,selected.filter(c=>c.type===type).map(exportRow)]))};
   requireThat(Buffer.byteLength(JSON.stringify(sheets))<=masterLimits.payloadBytes,'CENTRAL_EXPORT_LIMIT');return {sheets};
  }
  check(typeof input.fileName==='string'&&input.fileName.length>0&&input.fileName.length<=200&&!/[\u0000-\u001f]/.test(input.fileName));
  const {rows,errors}=cleanSheets(input.sheets,contracts.map(c=>c.sheet)),meta=rows.Meta?.[0],content=digest([workshop,rows]);
  const error=(column,message,row=2,name='Meta',id='')=>errors.push({sheet:name,row,column,id,message});
  if(meta){
-  for(const [key,value] of Object.entries({format:centralImportFormat,version:'1',schema_version:'1',type:'CENTRAL_DRAFT',campaign_id:c.id,scenario_id:'',rule_profile:c.ruleProfile,central_base_version:'',draft_id:'initial',module_type:workshop}))if(meta[key]!==value)error(key,'Métadonnée incompatible avec cette préparation.');
+  if(!supported.length)error('schema_version','Version de schéma non prise en charge pour cet atelier.');
+  for(const [key,value] of Object.entries({format:centralImportFormat,version:'1',schema_version:String(schemaVersion),type:'CENTRAL_DRAFT',campaign_id:c.id,scenario_id:'',rule_profile:c.ruleProfile,central_base_version:'',draft_id:'initial',module_type:workshop}))if(meta[key]!==value)error(key,'Métadonnée incompatible avec cette préparation.');
   try{documentId(meta.import_batch_id);integer(meta.draft_revision,'draft_revision');}catch(e){error(e.column??'import_batch_id',e.message);}
  }
  if(errors.length){if(applying)requireThat(false,'INVALID_CENTRAL_IMPORT');return {errors,changes:[],diagnostics:[],confirmation:null};}
@@ -116,6 +121,7 @@ export async function centralImport(tx,action,actor,input,ctx){
  for(const {type,sheet} of contracts)for(const row of rows[sheet]){
   try{
    if(type==='character')checkCharacterCells(row);
+   if(type==='fieldTarget')checkFieldCells(row);
    if(centralStoryColumns[type])checkStoryCells(type,row);
    const id=documentId(row.id),recordKey=key(type,id);if(seen.has(recordKey))fail('id','Identifiant répété dans cette feuille.');seen.add(recordKey);
    const old=byId.get(recordKey);if(old&&!(old.type===type&&old.id===`${type}_${id}`))fail('id','État du brouillon incohérent.');
@@ -125,20 +131,22 @@ export async function centralImport(tx,action,actor,input,ctx){
    if(row.operation==='MODIFIER'&&old.operation!=='UPSERT'||row.operation==='RESTAURER'&&old.operation!=='ARCHIVE')fail('operation','Choisir explicitement la restauration ou la modification.');
    const archive=row.operation==='ARCHIVER';
    if(archive&&columns(type).some(k=>row[k]))fail('operation','Pour archiver, conserver uniquement id, operation et revision.');
-   const operation=archive?'ARCHIVE':'UPSERT',data=archive?{...old.data,...(['recipe','character','knowledge','mission','shop','offer',...centralSpaceTypes].includes(type)?{masterArchived:true}:{}),[revisionKey(type)]:old.data[revisionKey(type)]+1}:dataFor(type,row,old);
+   const operation=archive?'ARCHIVE':'UPSERT',data=archive?{...old.data,...(['fieldTarget','recipe','character','knowledge','mission','shop','offer',...centralSpaceTypes].includes(type)?{masterArchived:true}:{}),[revisionKey(type)]:old.data[revisionKey(type)]+1}:dataFor(type,row,old);
    const changedFields=Object.keys(data).filter(k=>k!==revisionKey(type)&&digest(data[k]??null)!==digest(old?.data[k]??null)).map(field=>({field,before:old?.data[field]??null,after:data[field]}));
    if(old?.operation!==operation)changedFields.push({field:'operation',before:old?.operation??null,after:operation});
    preview.push({id,...(multiple?{type}:{}),row:row._row,sheet,operation:changedFields.length?row.operation:'INCHANGE',fields:changedFields});
-   if(changedFields.length){const change={id:`${type}_${id}`,type,entityId:id,workshop,operation,data,revision:revision+1,source:'XLSX',provenance:{schemaVersion:1,batchId:meta.import_batch_id,fileName:input.fileName,sheet,row:row._row},actorUid:actor.uid,at};planned.push({old:old??null,change});byId.set(recordKey,change);}
+   if(changedFields.length){const change={id:`${type}_${id}`,type,entityId:id,workshop,operation,data,revision:revision+1,source:'XLSX',provenance:{schemaVersion,batchId:meta.import_batch_id,fileName:input.fileName,sheet,row:row._row},actorUid:actor.uid,at};planned.push({old:old??null,change});byId.set(recordKey,change);}
   }catch(e){error(e.column??'',e.code??e.message,row._row,sheet,row.id??'');}
  }
- for(const {type,sheet} of contracts){const limit=type==='shop'?50:type==='route'?200:['character','mission','shipModel','port'].includes(type)?100:250,count=multiple?[...byId.values()].filter(c=>c.type===type).length:byId.size;if(count>limit)error('id',`Limite de ${limit} définitions pour cette feuille, archives comprises.`,1,sheet);}
+ for(const {type,sheet} of contracts){const limit=type==='shop'?50:type==='route'?200:['fieldTarget','character','mission','shipModel','port'].includes(type)?100:250,count=multiple?[...byId.values()].filter(c=>c.type===type).length:byId.size;if(count>limit)error('id',`Limite de ${limit} définitions pour cette feuille, archives comprises.`,1,sheet);}
  const items=['M4','M5','M6','M7'].includes(workshop)&&rights.readWorkshops.includes('M1')?await tx.list(`${base}/changes`,['workshop','M1']):null;
  const knowledge=['M3','M4','M5','M7'].includes(workshop)&&rights.readWorkshops.includes('M6')?await tx.list(`${base}/changes`,['workshop','M6']):null;
  const characters=['M5','M6','M7'].includes(workshop)&&rights.readWorkshops.includes('M2')?await tx.list(`${base}/changes`,['workshop','M2']):null;
- const storyDiagnostics=['M6','M7'].includes(workshop)?(workshop==='M6'?centralKnowledgeProjection([...byId.values()],characters):centralMissionProjection([...byId.values()],items,characters,knowledge)).diagnostics.map(d=>{const change=byId.get(d.entityId),p=change?.provenance,row=rows[sheet].find(r=>r.id===d.entityId);return {...d,fileName:row?input.fileName:p?.fileName??'',sheet:row?sheet:p?.sheet??'',row:row?row._row:p?.row??null,column:storyImportColumn(type,d.field),batchId:row?meta.import_batch_id:p?.batchId??''};}):[];
+ const proposed=[...current.filter(c=>!contracts.some(t=>t.type===c.type)),...byId.values()];
+ const localize=d=>{const contract=contracts.find(t=>t.type===d.entityType),change=proposed.find(c=>c.type===d.entityType&&c.entityId===d.entityId),p=change?.provenance,row=contract?rows[contract.sheet].find(r=>r.id===d.entityId):null;return {...d,fileName:row?input.fileName:p?.fileName??'',sheet:row?contract.sheet:p?.sheet??'',row:row?row._row:p?.row??null,column:d.entityType==='fieldTarget'?fieldImportColumn(d.field):storyImportColumn(d.entityType,d.field),batchId:row?meta.import_batch_id:p?.batchId??''};};
+ const storyDiagnostics=['M6','M7'].includes(workshop)?(workshop==='M6'?[...centralKnowledgeProjection(proposed,characters).diagnostics,...centralFieldTargetProjection(proposed,items).diagnostics]:centralMissionProjection(proposed,items,characters,knowledge).diagnostics).map(localize):[];
  const typedDiagnostics=['M3','M5'].includes(workshop)?(workshop==='M3'?centralSpaceProjection([...byId.values()],knowledge):centralShopProjection([...byId.values()],items,characters,knowledge)).diagnostics.map(d=>{const contract=contracts.find(c=>c.type===d.entityType),change=byId.get(key(d.entityType,d.entityId)),p=change?.provenance,row=rows[contract.sheet].find(r=>r.id===d.entityId);return {...d,fileName:row?input.fileName:p?.fileName??'',sheet:row?contract.sheet:p?.sheet??'',row:row?row._row:p?.row??null,column:(workshop==='M3'?spaceImportColumn:shopImportColumn)(d.entityType,d.field),batchId:row?meta.import_batch_id:p?.batchId??''};}):[];
- const diagnostics=['M3','M5'].includes(workshop)?typedDiagnostics:workshop==='M1'?centralClassKitProjection([...current.filter(x=>x.type==='classKit'),...byId.values()]).diagnostics:workshop==='M2'?[...centralCharacterProjection([...current.filter(x=>x.type!=='character'),...byId.values()]).diagnostics.map(d=>{const c=byId.get(d.entityId),p=c?.provenance,r=rows[sheet].find(r=>r.id===d.entityId);return {...d,fileName:r?input.fileName:p?.fileName??'',sheet:r?sheet:p?.sheet??'',row:r?r._row:p?.row??null,column:characterImportColumn(d.field),batchId:r?meta.import_batch_id:p?.batchId??''};}),...centralGroupProjection([...current.filter(x=>x.type!=='character'),...byId.values()]).diagnostics]:workshop==='M4'?centralRecipeProjection([...byId.values()],items,knowledge).diagnostics:workshop==='M6'?[...storyDiagnostics,...centralFieldTargetProjection([...current.filter(c=>c.type==='fieldTarget'),...byId.values()],items).diagnostics]:storyDiagnostics;
+ const diagnostics=['M3','M5'].includes(workshop)?typedDiagnostics:workshop==='M1'?centralClassKitProjection([...current.filter(x=>x.type==='classKit'),...byId.values()]).diagnostics:workshop==='M2'?[...centralCharacterProjection([...current.filter(x=>x.type!=='character'),...byId.values()]).diagnostics.map(d=>{const c=byId.get(d.entityId),p=c?.provenance,r=rows[sheet].find(r=>r.id===d.entityId);return {...d,fileName:r?input.fileName:p?.fileName??'',sheet:r?sheet:p?.sheet??'',row:r?r._row:p?.row??null,column:characterImportColumn(d.field),batchId:r?meta.import_batch_id:p?.batchId??''};}),...centralGroupProjection([...current.filter(x=>x.type!=='character'),...byId.values()]).diagnostics]:workshop==='M4'?centralRecipeProjection([...byId.values()],items,knowledge).diagnostics:storyDiagnostics;
  const confirmation=errors.length?null:digest([actor.uid,c.revision,s.revision,grant?.revision??0,rights,revision,content,input.fileName,preview,diagnostics]);
  if(!applying)return {errors,changes:preview,diagnostics,confirmation,draftRevision:revision,batchId:meta.import_batch_id};
  requireThat(!errors.length,'INVALID_CENTRAL_IMPORT');requireThat(typeof input.confirmation==='string'&&input.confirmation===confirmation,'CENTRAL_IMPORT_STALE');

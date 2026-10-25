@@ -230,6 +230,13 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Bornes : 100 lieux archives comprises, 96 Kio chacun, limites natives 20 récompenses/20 bonus/20 durées par profil ; global 1809/16 Mio/4 Mio, empreinte 14. I3c et captures 6 Mio/100 pages inchangés. Les paramètres proposés ne certifient pas V0.7 ; garder les diagnostics de règles, source réelle de récompense et habilitation/QR manquants avant activation.
 - Sauvegarder lieux, références, droits, historique, imports, reçus et captures/pages ensemble. Retour C2o non équivalent ; aucun effacement pour le permettre. Excel terrain central, conformité canonique, publication/version activable, restauration complète et recette humaine restent à livrer.
 
+## Tranche C2q — Excel des lieux M6
+
+- [C2q](docs/SO-06-C2Q-EXCEL-LIEUX.md) ajoute le schéma M6 2 avec Informations/Lieux obligatoires, profils/récompenses JSON natifs complets et sélection typée. Export sans version explicite et import M6 schéma 1 conservent leur contrat et leurs IDs nus ; aucun préfixe ancien réinterprété. Autres ateliers schéma 1, Masters et gabarits historiques inchangés.
+- Réutiliser aperçu/confirmation/lot/révision communs, autorité et cycle avant reçus. Liens calculés sur les deux feuilles finales, aucune copie ni effet joué. M1/M2 consultés uniquement sous leurs lectures indépendantes ; colonnes et provenance strictes, aucune fausse ligne pour WEB. Conserver les tests de versions, homonymes, réessais, révocation, concurrence et interruption.
+- 100 lignes cumulées/1 Mio/32 000 caractères par cellule, refus sans troncature. Bornes natives et globales 1809/16 Mio/4 Mio inchangées ; empreinte centrale 15, I3c inchangé. Captures historiques relues sans recalcul ; nouvelles provenances 2 conservées dans les captures.
+- Sauvegarder définitions, références, droits, révisions, historiques, lots/reçus et captures/pages ensemble. Retour C2p non équivalent, aucune rétroconversion implicite. Conformité canonique, réserves réelles, QR/habilitations, publication/version activable, restauration complète et recette humaine restent à livrer.
+
 ## Cycle de chaque ensemble fonctionnel
 
 1. Lire le cadrage V3.5, le livre SPACE OUTLAWS V0.7, les sept gabarits proposés SO_Masters_V01.zip et le vade-mecum ; conserver le rapport de cohérence V0.6 comme historique (sources référencées dans SO-01a et SO-00). Délimiter un parcours complet, ses critères, dépendances et recettes. A01–A38 et l’extension PNJ FOR-01 sont clos : ne pas réinventer leurs barèmes. Distinguer les propositions techniques et les paramètres de session à préparer. Les décisions V3.5/V0.7 prévalent sur les cadrages antérieurs ; les prix/compositions d’exemples V3.2 restent non canoniques.

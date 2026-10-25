@@ -5,8 +5,10 @@ import {masterSheets} from './master-schema.mjs';
 export const centralImportFormat='gn-engine-central-draft';
 export const centralImportRows=100;
 export const centralImportTypes={M1:{type:'item',sheet:'Objets'},M2:{type:'character',sheet:'Personnages'},M3:{sheets:[{type:'shipModel',sheet:'Modeles'},{type:'port',sheet:'Ports'},{type:'route',sheet:'Routes'}]},M4:{type:'recipe',sheet:'Recettes'},M5:{sheets:[{type:'shop',sheet:'Boutiques'},{type:'offer',sheet:'Offres'}]},M6:{type:'knowledge',sheet:'Informations'},M7:{type:'mission',sheet:'Missions'}};
-export const centralImportContracts=workshop=>{const c=Object.hasOwn(centralImportTypes,workshop)?centralImportTypes[workshop]:null;return c?.sheets??(c?[c]:[]);};
-export const centralImportSelection=(workshop,c)=>centralImportContracts(workshop).length>1?`${c.type}_${c.entityId}`:c.entityId;
+export const centralImportSchema=workshop=>workshop==='M6'?2:1;
+export const centralImportContracts=(workshop,schemaVersion=1)=>{if(schemaVersion===2&&workshop==='M6')return [{type:'knowledge',sheet:'Informations'},{type:'fieldTarget',sheet:'Lieux'}];if(schemaVersion!==1)return [];const c=Object.hasOwn(centralImportTypes,workshop)?centralImportTypes[workshop]:null;return c?.sheets??(c?[c]:[]);};
+export const centralImportSelection=(workshop,c,schemaVersion=1)=>centralImportContracts(workshop,schemaVersion).length>1?`${c.type}_${c.entityId}`:c.entityId;
+export const centralFieldColumns=['nature','titre','description','notes_mj','profils_json','recompenses_json','dependance_installation_id','indisponibilite_secondes','verrou_echec_secondes','protection_reparation_secondes'];
 export const centralSpaceColumns={shipModel:['nom','description','profil_id','notes_mj'],port:['nom','description','code_navigation','lieu_id','notes_mj'],route:['nom','description','origine_port_id','destination_port_id','distance_id','risque_id','code_navigation','notes_mj']};
 export const centralShopColumns={shop:['nom','description','vendeur_personnage_id','lieu_id','notes_mj'],offer:['nom','boutique_id','objet_id','prix_vente_cr','prix_rachat_cr','conditions','notes_mj']};
 export const centralCharacterColumns=['nom','profession','description','nature','biographie','interpretation','secrets_joueur','notes_mj','objectifs_json','relations_json','profil_initial','classe_id','espece_id','initiation_id'];
@@ -27,6 +29,7 @@ export const centralImportSheets={
  Offres:['id','operation','revision',...centralShopColumns.offer],
  Personnages:['id','operation','revision',...centralCharacterColumns],
  Informations:['id','operation','revision',...centralStoryColumns.knowledge],
+ Lieux:['id','operation','revision',...centralFieldColumns],
  Missions:['id','operation','revision',...centralStoryColumns.mission],
 };
 for(const sheet of ['Objets','Recettes'])centralImportSheets[sheet].splice(2,0,'revision');

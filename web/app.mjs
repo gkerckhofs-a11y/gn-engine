@@ -551,7 +551,7 @@ document.addEventListener('submit',async event=>{
     else if(kind==='playerCode'){location.hash=`#/${playerTargetPath(v.code,v.targetKind,location.origin,form.dataset.sid)}`;return;}
     if(kind==='centralExport'){
       const ids=[...form.querySelectorAll('[name=selected]:checked')].map(el=>el.value);
-      const d=await api('exportCentralDraft',{campaignId:form.dataset.cid,workshop:form.dataset.workshop,ids});if(submitVersion!==routeVersion||!form.isConnected)return;
+      const d=await api('exportCentralDraft',{campaignId:form.dataset.cid,workshop:form.dataset.workshop,ids,schemaVersion:Number(form.dataset.schema)});if(submitVersion!==routeVersion||!form.isConnected)return;
       const bytes=writeCentralXlsx(d.sheets),href=URL.createObjectURL(new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})),a=document.createElement('a');
       a.href=href;a.download=`Master-central-${form.dataset.workshop}-${form.dataset.cid}.xlsx`;a.click();setTimeout(()=>URL.revokeObjectURL(href),1000);successMessage='Fichier Excel préparé.';
     }

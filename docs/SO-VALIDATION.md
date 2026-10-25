@@ -1,5 +1,11 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## C2q — Excel des lieux et informations M6
+
+[C2q — contrat, tests et limites](SO-06-C2Q-EXCEL-LIEUX.md). Le nouveau schéma M6 2 prépare informations et lieux dans un lot commun, conserve le schéma 1 et localise les références sans confondre les homonymes. 100 lignes cumulées/1 Mio, 32 000 caractères par cellule ; bornes centrales 1809/16 Mio/4 Mio conservées, empreinte 15. Conformité V0.7, réserves réelles, habilitations/QR et publication restent à livrer. C2 complet, I3/INS-06 complet, I4/I5, 55 verdicts complets et SO-GAP-12/13/14 restent ouverts. Aucune recette navigateur/mobile/terrain/charge/restauration globale revendiquée.
+
+**Local, 25 octobre 2026 (Europe/Brussels) : compilation et 1477/1477 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 18 nouveaux cas partagés mémoire/Firestore, trois UI et un HTTP/Auth. Firebase non exécuté localement (Java 17.0.20) ; preuves finales des deux CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1) après terminaison. [Preuves C2p archivées](PR-1-HISTORIQUE-AVANT-C2Q.md) : 1456 applicatifs/1179 Firebase/HTTP chacun.
+
 ## C2p — lieux, fouilles et installations préparés dans M6
 
 [C2p — lieux, fouilles et installations M6](SO-02-C2P-LIEUX-CENTRAUX.md) livre édition/lecture/archive/restauration privée, profils natifs et récompenses proposés, suggestions minimales M3/M4/M5, contrôles locaux/globaux et imports conservant les lieux. Bornes : 100 lieux archives comprises, 96 Kio chacun, 20 récompenses ; global 1809/16 Mio/4 Mio, empreinte 14. `FIELD_RULES_PENDING`, `FIELD_REWARD_SOURCE_PENDING` et `LABORATORY_AUTHORIZATION_PENDING` distinguent préparation et activation. Publication, autorisations/QR, conformité V0.7 et sources réelles restent manquants. Aucune recette navigateur/mobile/terrain/charge/restauration globale revendiquée ; C2 complet, I3/INS-06 complet, I4/I5, 55 verdicts complets et SO-GAP-12/13/14 restent ouverts.
