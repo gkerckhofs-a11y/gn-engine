@@ -215,6 +215,13 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Vérifier intégrité et identités à la relecture/téléchargement ; aucune reconstruction depuis le brouillon courant. Empreintes non signées, pas une protection contre un administrateur réécrivant tout. Budgets propres 6 Mio/100 pages, contrôle 1659/16 Mio/4 Mio et empreinte 12 conservés.
 - JSON privé de consultation seulement ; préserver manifestes/pages/audits/reçus avec la sauvegarde cohérente complète. Aucun import/restauration ou copie des dossiers privés I3. Retour I3c sans conversion mais sans lecteur. Conserver concurrence, révocation, interruption, Unicode et tests Firestore/HTTP ; activation et restauration complète restent à développer.
 
+## Tranche C2o — groupes et factions du brouillon M2
+
+- [C2o](docs/SO-02-C2O-GROUPES-CENTRAUX.md) ajoute `group` dans les changements M2, en réutilisant `groupInput` et ses permissions. Appartenances/visibilité proposées seulement : aucun groupe, mandat, caisse ou stock de session créé. La régie I2b et `groups.members` restent l’autorité en partie.
+- Réutiliser les droits M2, révision commune, audit et reçus ; autorité/cycle avant réessai. Champs imbriqués stricts, permissions booléennes explicites, aucun roster/UID/politique de caisse injecté. Contrôler aussi les références des appartenances inactives ; archive du groupe exclut ses liens actifs.
+- Excel M2 reste limité aux personnages ; exclure les groupes de sa table de modifications, conserver leurs données et recalculer leurs liens. Les IDs homonymes groupe/personnage ne se masquent pas. I3c accepte les groupes natifs sans les confondre avec des admissions ou mandats.
+- Bornes : 50 groupes archives comprises, 100 propositions/96 Kio par groupe ; total central 1709/16 Mio/4 Mio. I3c lit 100 fiches + 50 groupes + catalogue, autres budgets inchangés. Empreintes central 13 / privé I3c 2. Captures C2n relues sans recalcul ; préserver tout leur ensemble cohérent. Retour C2n non équivalent ; publication, activation, restauration complète et recette humaine restent à livrer.
+
 ## Cycle de chaque ensemble fonctionnel
 
 1. Lire le cadrage V3.5, le livre SPACE OUTLAWS V0.7, les sept gabarits proposés SO_Masters_V01.zip et le vade-mecum ; conserver le rapport de cohérence V0.6 comme historique (sources référencées dans SO-01a et SO-00). Délimiter un parcours complet, ses critères, dépendances et recettes. A01–A38 et l’extension PNJ FOR-01 sont clos : ne pas réinventer leurs barèmes. Distinguer les propositions techniques et les paramètres de session à préparer. Les décisions V3.5/V0.7 prévalent sur les cadrages antérieurs ; les prix/compositions d’exemples V3.2 restent non canoniques.

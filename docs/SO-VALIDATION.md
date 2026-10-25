@@ -1,5 +1,11 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## C2o — groupes et factions préparés dans M2
+
+[C2o — groupes et factions M2](SO-02-C2O-GROUPES-CENTRAUX.md) réutilise le validateur natif et le service transactionnel central. Autorité/cycle avant reçu, révisions communes, listes de champs strictes et aucune initialisation de jeu. 50 groupes/100 propositions par groupe/96 Kio, plafond central 1709 changements ; budgets centraux 16 Mio/4 Mio et captures 6 Mio/100 pages inchangés. Empreinte centrale 13, empreinte privée I3c 2. Compatibilité avec une véritable capture C2n vérifiée ; activation/publication et restauration globale restent non certifiées.
+
+**Local, 25 octobre 2026 (Europe/Brussels) : compilation et 1426 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 23 nouveaux cas partagés mémoire/Firestore, quatre UI et un HTTP/Auth. Firebase non exécuté localement (Java 17) ; preuves finales des deux CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1) après terminaison. [Preuves C2n archivées](PR-1-HISTORIQUE-AVANT-C2O.md) : 1399 applicatifs/1129 Firebase chacun.
+
 ## C2n — instantanés privés du brouillon central
 
 [C2n — instantanés centraux](SO-02-C2N-INSTANTANES-CENTRAUX.md) conserve les définitions et leur rapport dans une transaction bornée, avec manifestes/empreintes vérifiés à chaque relecture complète. Capture propriétaire, consultation C2b, autorité et cycle avant reçus ; aucune réparation depuis un brouillon modifié. Budgets propres : 6 Mio et 100 pages ; contrôle central 1659/16 Mio/4 Mio inchangé. Ce sont des contrôles d’intégrité, pas une signature contre un administrateur. Publication et naissance indisponibles ; quatre Masters historiques inchangés. UI vérifiée par HTML/formulaires/payloads, aucune recette visuelle/terrain ou restauration globale.

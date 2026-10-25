@@ -8,6 +8,7 @@ import {centralTestShop,centralTestOffer} from '../support/central-shops-suite.m
 import {centralTestKit} from '../support/central-class-kits-suite.mjs';
 import {centralCharacterRow} from '../support/central-character-import-suite.mjs';
 import {centralTestCharacter} from '../support/central-characters-suite.mjs';
+import {centralTestGroup} from '../support/central-groups-suite.mjs';
 import {centralItemRow} from '../support/central-import-suite.mjs';
 import {readCentralXlsx,writeCentralXlsx} from '../../web/central-xlsx.mjs';
 import {rosterMembership} from '../support/group-management-suite.mjs';
@@ -44,6 +45,19 @@ const request=async(action,input={},token)=>{
   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,input})});
   return {status:response.status,...await response.json()};
 };
+
+test('HTTP + Auth : groupes centraux M2, références privées, archive et révocation',async()=>{
+ const owner=await googleTestAccount(process.env.OWNER_EMAIL),email=`central-group-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;},cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Groupes M2 HTTP',title:'Préparation synthétique',capacity:2,privacy:'Notice fictive'});
+ const input={campaignId,groupId:'group',groupRevision:0,draftRevision:0,group:centralTestGroup,reason:'Groupe fictif',requestId:randomUUID()};assert.equal((await request('saveCentralGroup',input)).status,401);assert.equal((await request('saveCentralGroup',input,editor)).status,403);
+ const grant={campaignId,email,active:true,readWorkshops:['M2'],editWorkshops:[],revision:0,reason:'Lecture M2'};await cmd('setCentralStaff',grant);assert.equal((await request('saveCentralGroup',input,editor)).status,403);await cmd('setCentralStaff',{...grant,editWorkshops:['M2'],revision:1});const out=await cmd('saveCentralGroup',input,editor);assert.deepEqual(await cmd('saveCentralGroup',input,editor),out);
+ let d=await call('centralMaster',{campaignId,workshop:'M2'},editor);assert.equal(d.diagnostics[0].code,'REFERENCE_MISSING');assert.equal(d.changes[0].data.publicationState,'DRAFT');assert.equal(d.changes[0].data.members[0].permissions.payWallet,false);assert.equal((await request('admissionAdmin',{sessionId},editor)).status,403);
+ await cmd('saveCentralCharacter',{campaignId,characterId:'character',characterRevision:0,draftRevision:1,character:{...centralTestCharacter,relations:[]},reason:'Cible M2'},editor);assert.deepEqual((await call('checkCentralDraft',{campaignId,draftRevision:2})).diagnostics,[]);
+ await cmd('archiveCentralGroup',{campaignId,groupId:'group',groupRevision:1,draftRevision:2,reason:'Exclusion explicite'},editor);d=await call('centralMaster',{campaignId,workshop:'M2'},editor);assert.equal(d.changes.find(c=>c.type==='group').operation,'ARCHIVE');
+ await cmd('setCentralStaff',{...grant,active:false,revision:2});assert.equal((await request('saveCentralGroup',input,editor)).status,403);assert.equal((await request('centralMaster',{campaignId,workshop:'M2'},editor)).status,403);
+ const s=await call('session',{sessionId});for(const k of ['characters','groups','accounts','inventory'])assert.deepEqual(s[k],[]);assert.equal(s.versionId,null);
+});
 
 test('HTTP + Auth : instantané central privé, capture idempotente et relecture révoquée',async()=>{
  const owner=await googleTestAccount(process.env.OWNER_EMAIL),email=`snapshot-${randomUUID()}@example.invalid`,reader=await googleTestAccount(email);

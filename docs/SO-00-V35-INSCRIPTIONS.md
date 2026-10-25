@@ -1,5 +1,11 @@
 # SO-00 V3.5 — diagnostic, inscriptions et ordre de développement
 
+## C2o — groupes et factions préparés dans M2
+
+[C2o — groupes et factions M2](SO-02-C2O-GROUPES-CENTRAUX.md) prépare les structures collectives et leurs liens vers les fiches M2 en réutilisant `groupInput`. Les appartenances proposées ne prennent pas la place de `groups.members` en session et ne confirment aucune inscription. I3c valide la forme des groupes puis les exclut du rapprochement privé des dossiers ; lecture bornée à 100 fiches + 50 groupes + catalogue. Suite : dépendances/règles manquantes, publication/version activable, puis naissance et régie sous règles publiées.
+
+**Local, 25 octobre 2026 (Europe/Brussels) : compilation et 1426 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 23 nouveaux cas partagés mémoire/Firestore, quatre UI et un HTTP/Auth. Firebase non exécuté localement (Java 17) ; preuves finales des deux CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1) après terminaison. [Preuves C2n archivées](PR-1-HISTORIQUE-AVANT-C2O.md) : 1399 applicatifs/1129 Firebase chacun.
+
 ## C2n — instantanés privés du brouillon central
 
 [C2n — instantanés centraux](SO-02-C2N-INSTANTANES-CENTRAUX.md) conserve une révision exacte des définitions natives et du rapport central avant de poursuivre la préparation. Capture réservée au propriétaire ; contrôleur délégué en lecture seule, aucun droit implicite aux admissions. I3c reste un contrôle privé distinct à raccorder à la future publication. Suite : dépendances/règles manquantes, autorité de publication et version activable, puis I4/I5 ; aucune migration ni activation.

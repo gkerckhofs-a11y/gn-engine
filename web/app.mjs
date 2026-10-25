@@ -1,3 +1,4 @@
+import {centralGroupPayload} from './central-groups.mjs';
 import {createCentralSnapshotUi,centralSnapshotFile} from './central-snapshots.mjs';
 import {centralSpacePayload,centralSpaceActions} from './central-space.mjs';
 import {centralMissionPayload} from './central-missions.mjs';
@@ -347,6 +348,9 @@ document.addEventListener('click',async event=>{
     if(a==='centralShopArchive'||a==='centralOfferArchive'){const type=a==='centralShopArchive'?'shop':'offer',c=currentCentral.changes.find(c=>c.type===type&&c.entityId===b.dataset.id);if(c)modal(centralUi.shopArchiveForm(currentCentral,c));return;}
     if(a==='centralItem'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.entityId===id&&c.type==='item');modal(centralUi.itemForm(currentCentral,id,c));return;}
     if(a==='centralArchive'){const c=currentCentral.changes.find(c=>c.entityId===b.dataset.id&&c.type==='item');if(c)modal(centralUi.archiveForm(currentCentral,c));return;}
+    if(a==='centralGroup'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.entityId===id&&c.type==='group');modal(centralUi.groupForm(currentCentral,id,c));return;}
+    if(a==='centralGroupArchive'){const c=currentCentral.changes.find(c=>c.entityId===b.dataset.id&&c.type==='group');if(c)modal(centralUi.groupArchiveForm(currentCentral,c));return;}
+    if(a==='centralGroupMemberAdd'){const form=b.closest('form'),field=form.querySelector('[data-central-group-choice]'),id=field.value.trim(),rows=form.querySelector('[data-members]');if(!id||rows.children.length>=100||[...rows.children].some(row=>row.dataset.character===id))return;rows.insertAdjacentHTML('beforeend',centralUi.groupMemberRow(currentCentral,{characterId:id,active:true},form.elements.visibility.value));field.value='';return;}
     if(a==='centralCharacter'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.entityId===id&&c.type==='character');modal(centralUi.characterForm(currentCentral,id,c));return;}
     if(a==='centralCharacterArchive'){const c=currentCentral.changes.find(c=>c.entityId===b.dataset.id&&c.type==='character');if(c)modal(centralUi.characterArchiveForm(currentCentral,c));return;}
     if(a==='centralCharacterObjectiveAdd'||a==='centralCharacterRelationAdd'){const objective=a==='centralCharacterObjectiveAdd',rows=b.closest('form').querySelector(objective?'[data-central-objectives]':'[data-central-relations]');if(rows.children.length<60)rows.insertAdjacentHTML('beforeend',centralUi[objective?'characterObjectiveRow':'characterRelationRow']({id:crypto.randomUUID()}));return;}
@@ -583,6 +587,7 @@ document.addEventListener('submit',async event=>{
       await mutate(kind==='centralRecipe'?'saveCentralRecipe':'archiveCentralRecipe',{campaignId:form.dataset.cid,recipeId:form.dataset.id,draftRevision:Number(form.dataset.draft),recipeRevision:Number(form.dataset.revision),reason:v.reason,...(kind==='centralRecipe'?{recipe:centralRecipePayload(v,rows)}:{})});successMessage='Formule enregistrée dans le brouillon.';
     }
     else if(kind==='centralSnapshotCapture'){if(v.confirmed!=='on')return;const d=await mutate('captureCentralSnapshot',{campaignId:form.dataset.cid,draftRevision:Number(form.dataset.draft),confirmation:form.dataset.confirmation,reason:v.reason});if(submitVersion!==routeVersion)return;dialog.close();location.hash=`#/central-snapshot/${d.campaignId}/${d.id}`;return;}
+    else if(kind==='centralGroup'||kind==='centralGroupArchive'){await mutate(kind==='centralGroup'?'saveCentralGroup':'archiveCentralGroup',{campaignId:form.dataset.cid,groupId:form.dataset.id,draftRevision:Number(form.dataset.draft),groupRevision:Number(form.dataset.revision),reason:v.reason,...(kind==='centralGroup'?{group:centralGroupPayload(v,groupMembers(form))}:{})});successMessage='Définition de groupe enregistrée dans le brouillon privé.';}
     else if(kind==='centralStaff'){await mutate('setCentralStaff',{campaignId:form.dataset.cid,revision:Number(form.dataset.revision),...centralStaffPayload(v)});successMessage='Droits de campagne enregistrés.';}
     else if(kind==='admissionSettings'){
       const species=[...form.querySelectorAll('[data-admission-species]')].map(row=>({id:row.dataset.admissionSpecies,label:row.querySelector('[name=label]').value,description:row.querySelector('[name=description]').value,nature:row.querySelector('[name=nature]').value,available:row.querySelector('[name=available]').checked}));
@@ -778,7 +783,7 @@ document.addEventListener('change',event=>{
     root.querySelector('[data-knowledge-empty]').hidden=visible>0;
   }
 
-  if(event.target.matches('[data-form="group"] select[name="visibility"]')){
+  if(event.target.matches('[data-form="group"] select[name="visibility"], [data-form="centralGroup"] select[name="visibility"]')){
     for(const field of event.target.form.querySelectorAll('[data-member-field="publicAffiliation"]')){field.disabled=event.target.value==='SECRET';if(field.disabled)field.checked=false;}
   }
 });

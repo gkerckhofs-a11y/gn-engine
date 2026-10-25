@@ -1,0 +1,451 @@
+{
+  "sourceCommit": "fdf0c4e0056e83b365df09e147a9fa1192efff04",
+  "sourceTree": "23ca7a34ad9a5616e83622dfa3df629714a813c9",
+  "actor": {
+    "uid": "fd120c8f-9721-4dc9-8a05-9293508e7220",
+    "email": "owner-ccb6284f-9799-4feb-ac4a-6ff69a67a93e@example.invalid",
+    "emailVerified": true,
+    "provider": "google.com",
+    "authTime": 1000
+  },
+  "campaignId": "so_f3b08873f4816b9ef0a2f3a4fe0df0cf13026aeb99ea1b98bb22f258a494686d",
+  "snapshotId": "snapshot_9cba369c6d53418ffa93578c364ed5c4b8e092710f2b3dad344841928afc3608",
+  "entries": [
+    [
+      "campaigns/so_f3b08873f4816b9ef0a2f3a4fe0df0cf13026aeb99ea1b98bb22f258a494686d",
+      {
+        "id": "so_f3b08873f4816b9ef0a2f3a4fe0df0cf13026aeb99ea1b98bb22f258a494686d",
+        "title": "SPACE OUTLAWS synthétique",
+        "ownerUid": "fd120c8f-9721-4dc9-8a05-9293508e7220",
+        "ruleProfile": "SPACE_OUTLAWS_V07",
+        "preparationSessionId": "so_61a5d2f8b6592a9dd96d5aed9b728a5de2c66cdd32687574ff04f23b0a178d3e",
+        "preparationIntent": "3d3d404fa494d2325180968482f123053ea84b3e6c0a6eecdb3eea218c81b648",
+        "scenarioId": null,
+        "versionId": null,
+        "revision": 2,
+        "activeSessionId": null,
+        "activeBuildId": null,
+        "latestSessionId": null,
+        "episodeCount": 0,
+        "createdAt": 1000000,
+        "master": {
+          "schemaVersion": 1,
+          "activeVersionId": null,
+          "pointerRevision": 0,
+          "openDraftId": "initial"
+        }
+      }
+    ],
+    [
+      "sessions/so_61a5d2f8b6592a9dd96d5aed9b728a5de2c66cdd32687574ff04f23b0a178d3e",
+      {
+        "title": "Une session à Breach Port",
+        "summary": "Fiction",
+        "date": "2027-04-03",
+        "time": "10 h",
+        "place": "Lieu fictif",
+        "practical": "Test seulement",
+        "privacy": "Notice fictive",
+        "capacity": 60,
+        "id": "so_61a5d2f8b6592a9dd96d5aed9b728a5de2c66cdd32687574ff04f23b0a178d3e",
+        "campaignId": "so_f3b08873f4816b9ef0a2f3a4fe0df0cf13026aeb99ea1b98bb22f258a494686d",
+        "ownerUid": "fd120c8f-9721-4dc9-8a05-9293508e7220",
+        "preparationKind": "SPACE_OUTLAWS_V07",
+        "preparationVersion": 1,
+        "scenarioId": null,
+        "versionId": null,
+        "campaignEpisode": null,
+        "campaignSealed": false,
+        "accepted": 0,
+        "registrationOpen": false,
+        "stage": "PREPARATION",
+        "fields": [],
+        "clock": {
+          "elapsedMs": 0,
+          "runningSince": null
+        },
+        "modules": {
+          "groups": false
+        },
+        "revision": 1,
+        "createdAt": 1000000,
+        "economyRules": null,
+        "healthRules": null,
+        "actionPointRules": null,
+        "transportRules": null
+      }
+    ],
+    [
+      "campaigns/so_f3b08873f4816b9ef0a2f3a4fe0df0cf13026aeb99ea1b98bb22f258a494686d/masterDrafts/initial",
+      {
+        "id": "initial",
+        "baseVersionId": null,
+        "basePointerRevision": 0,
+        "ruleProfile": "SPACE_OUTLAWS_V07",
+        "status": "DRAFT",
+        "createdAt": 1000000,
+        "revision": 8,
+        "updatedAt": 1000000
+      }
+    ],
+    [
+      "campaigns/so_f3b08873f4816b9ef0a2f3a4fe0df0cf13026aeb99ea1b98bb22f258a494686d/masterDrafts/initial/checks/snapshot_9cba369c6d53418ffa93578c364ed5c4b8e092710f2b3dad344841928afc3608/pages/0",
+      {
+        "id": "0",
+        "snapshotId": "snapshot_9cba369c6d53418ffa93578c364ed5c4b8e092710f2b3dad344841928afc3608",
+        "entries": [
+          {
+            "path": "changes/character_character",
+            "data": {
+              "id": "character_character",
+              "type": "character",
+              "entityId": "character",
+              "workshop": "M2",
+              "operation": "UPSERT",
+              "data": {
+                "id": "character",
+                "nature": "HUMANOID",
+                "public": {
+                  "displayName": "Voyageuse synthétique",
+                  "profession": "Courtière fictive",
+                  "description": "Présentation de fiction",
+                  "publicationState": "DRAFT"
+                },
+                "publicationState": "DRAFT",
+                "biography": "Biographie fictive",
+                "roleplay": "Consigne narrative",
+                "playerSecrets": "Secret de fiction",
+                "gmNotes": "Note M2 privée",
+                "objectives": [
+                  {
+                    "id": "goal",
+                    "title": "Récupérer une information",
+                    "description": "Objectif fictif",
+                    "published": false,
+                    "gmNotes": "Objectif réservé",
+                    "steps": [
+                      {
+                        "id": "step",
+                        "title": "Rencontrer le contact",
+                        "description": "Étape fictive",
+                        "published": false
+                      }
+                    ]
+                  }
+                ],
+                "relations": [
+                  {
+                    "id": "contact",
+                    "title": "Un alias",
+                    "description": "Relation privée orientée",
+                    "published": false,
+                    "gmNotes": "Identité à préserver",
+                    "targetId": "target"
+                  }
+                ],
+                "hp": null,
+                "maxHp": null,
+                "historyStarted": true,
+                "contentRevision": 1,
+                "masterArchived": false
+              },
+              "revision": 2,
+              "source": "WEB",
+              "actorUid": "fd120c8f-9721-4dc9-8a05-9293508e7220",
+              "requestId": "0696b004-8b94-49ec-9a97-f0a5ccb116e6",
+              "at": 1000000
+            }
+          },
+          {
+            "path": "changes/item_ingredient",
+            "data": {
+              "id": "item_ingredient",
+              "type": "item",
+              "entityId": "ingredient",
+              "workshop": "M1",
+              "operation": "UPSERT",
+              "data": {
+                "id": "ingredient",
+                "name": "Ingrédient synthétique",
+                "description": "Exemple non canonique",
+                "category": "Ingrédient",
+                "pillable": false,
+                "unit": "unité",
+                "kind": "STACKABLE",
+                "consumable": true,
+                "unitVolume": 1,
+                "legality": "UNSPECIFIED",
+                "gmNotes": "Note M1 privée",
+                "publicationState": "DRAFT",
+                "revision": 1
+              },
+              "revision": 1,
+              "source": "WEB",
+              "actorUid": "fd120c8f-9721-4dc9-8a05-9293508e7220",
+              "requestId": "3cb1acd1-e76f-4751-a5a1-6a4d4ee29f9f",
+              "at": 1000000
+            }
+          },
+          {
+            "path": "changes/knowledge_knowledge-test",
+            "data": {
+              "id": "knowledge_knowledge-test",
+              "type": "knowledge",
+              "entityId": "knowledge-test",
+              "workshop": "M6",
+              "operation": "UPSERT",
+              "data": {
+                "id": "knowledge-test",
+                "qrSkillId": null,
+                "qrSkillLevel": null,
+                "title": "Document synthétique",
+                "body": "Texte confidentiel M6",
+                "origin": "Origine fictive",
+                "kind": "DOCUMENT",
+                "publicationState": "DRAFT",
+                "shareMode": "SHOW",
+                "gmTruth": "Vérité réservée M6",
+                "gmNotes": "Note privée M6",
+                "initialCharacterIds": [
+                  "character"
+                ],
+                "qrEnabled": true,
+                "qrAudience": "SELECTED",
+                "qrCharacterIds": [
+                  "character"
+                ],
+                "revision": 1,
+                "masterArchived": false
+              },
+              "revision": 6,
+              "source": "WEB",
+              "actorUid": "fd120c8f-9721-4dc9-8a05-9293508e7220",
+              "requestId": "00700fff-6d44-4c05-82fa-56f9a4ebd451",
+              "at": 1000000
+            }
+          },
+          {
+            "path": "changes/mission_mission",
+            "data": {
+              "id": "mission_mission",
+              "type": "mission",
+              "entityId": "mission",
+              "workshop": "M7",
+              "operation": "UPSERT",
+              "data": {
+                "id": "mission",
+                "title": "Mission synthétique",
+                "description": "Briefing privé M7",
+                "gmNotes": "Secret organisateur M7",
+                "steps": [
+                  {
+                    "id": "first",
+                    "title": "Étape fictive",
+                    "description": "Détail réservé M7",
+                    "published": false
+                  }
+                ],
+                "schemaVersion": 1,
+                "giverCharacterId": "character",
+                "requiredKnowledgeIds": [
+                  "knowledge-test"
+                ],
+                "rewardItems": [
+                  {
+                    "itemId": "ingredient",
+                    "quantity": 2
+                  }
+                ],
+                "conditions": "Condition narrative privée",
+                "proofExpected": "Preuve fictive privée",
+                "publicationState": "DRAFT",
+                "masterArchived": false,
+                "revision": 1
+              },
+              "revision": 7,
+              "source": "WEB",
+              "actorUid": "fd120c8f-9721-4dc9-8a05-9293508e7220",
+              "requestId": "19a35722-aa35-4855-8dcd-297a634a1419",
+              "at": 1000000
+            }
+          },
+          {
+            "path": "changes/recipe_formula",
+            "data": {
+              "id": "recipe_formula",
+              "type": "recipe",
+              "entityId": "formula",
+              "workshop": "M4",
+              "operation": "UPSERT",
+              "data": {
+                "id": "formula",
+                "name": "Formule synthétique",
+                "description": "Données fictives",
+                "kind": "SCENARIO",
+                "minLevel": 1,
+                "skillId": "skill-test",
+                "productItemId": "dose",
+                "effectId": "effect-test",
+                "laboratoryTargetId": "lab-test",
+                "unlockKnowledgeId": "knowledge-test",
+                "components": [
+                  {
+                    "itemId": "ingredient",
+                    "quantity": 2
+                  }
+                ],
+                "indicativePrice": 7,
+                "gmNotes": "Note M4 privée",
+                "publicationState": "DRAFT",
+                "masterArchived": false,
+                "revision": 1
+              },
+              "revision": 4,
+              "source": "WEB",
+              "actorUid": "fd120c8f-9721-4dc9-8a05-9293508e7220",
+              "requestId": "80767f8c-4dca-4317-93d5-23a3d1113c85",
+              "at": 1000000
+            }
+          },
+          {
+            "path": "changes/shipModel_shipModel",
+            "data": {
+              "id": "shipModel_shipModel",
+              "type": "shipModel",
+              "entityId": "shipModel",
+              "workshop": "M3",
+              "operation": "UPSERT",
+              "data": {
+                "id": "shipModel",
+                "name": "Modèle synthétique",
+                "description": "Description privée M3",
+                "gmNotes": "Secret modèle M3",
+                "profileId": "FIGHTER",
+                "referencePrice": 5000,
+                "hullMax": 3,
+                "shieldMax": 1,
+                "maneuverability": 2,
+                "cargoCapacity": 0,
+                "seats": 1,
+                "moduleSlots": 1,
+                "tankCapacity": 8,
+                "size": 1,
+                "schemaVersion": 1,
+                "publicationState": "DRAFT",
+                "masterArchived": false,
+                "revision": 1
+              },
+              "revision": 3,
+              "source": "WEB",
+              "actorUid": "fd120c8f-9721-4dc9-8a05-9293508e7220",
+              "requestId": "d56ecb36-3080-47b2-b922-2312f8d10866",
+              "at": 1000000
+            }
+          },
+          {
+            "path": "changes/shop_shop",
+            "data": {
+              "id": "shop_shop",
+              "type": "shop",
+              "entityId": "shop",
+              "workshop": "M5",
+              "operation": "UPSERT",
+              "data": {
+                "id": "shop",
+                "schemaVersion": 1,
+                "name": "Comptoir synthétique",
+                "description": "Boutique fictive",
+                "sellerCharacterId": "character",
+                "locationTargetId": "counter",
+                "gmNotes": "Note M5 boutique privée",
+                "publicationState": "DRAFT",
+                "masterArchived": false,
+                "revision": 1
+              },
+              "revision": 5,
+              "source": "WEB",
+              "actorUid": "fd120c8f-9721-4dc9-8a05-9293508e7220",
+              "requestId": "cba83be1-d2df-4db3-ac69-4f4cd462ad41",
+              "at": 1000000
+            }
+          },
+          {
+            "path": "changes/speciesCatalogue_player",
+            "data": {
+              "id": "speciesCatalogue_player",
+              "type": "speciesCatalogue",
+              "entityId": "player",
+              "workshop": "M2",
+              "operation": "UPSERT",
+              "data": [
+                {
+                  "id": "species-test",
+                  "label": "Espèce synthétique",
+                  "description": "Aucun bonus",
+                  "nature": "HUMANOID",
+                  "available": true
+                },
+                {
+                  "id": "droid-test",
+                  "label": "Droïde de test",
+                  "description": "Aucun bonus",
+                  "nature": "DROID",
+                  "available": true
+                }
+              ],
+              "revision": 8,
+              "source": "ADMISSION_SETTINGS",
+              "actorUid": "fd120c8f-9721-4dc9-8a05-9293508e7220",
+              "at": 1000000
+            }
+          },
+          {
+            "path": "report/0",
+            "data": "{\"authority\":{\"kind\":\"OWNER\",\"revision\":null},\"campaign\":{\"id\":\"so_f3b08873f4816b9ef0a2f3a4fe0df0cf13026aeb99ea1b98bb22f258a494686d\",\"title\":\"SPACE OUTLAWS synthétique\"},\"checkedAt\":1000000,\"diagnostics\":[{\"batchId\":\"\",\"code\":\"REWARD_SOURCE_PENDING\",\"column\":\"rewardItems.0\",\"draftRevision\":7,\"entityId\":\"mission\",\"entityType\":\"mission\",\"field\":\"rewardItems.0\",\"fileName\":\"\",\"message\":\"Récompense proposée : source réelle, réserve et remise restent à préparer ; aucun bien créé.\",\"reference\":\"ingredient\",\"referenceType\":\"item\",\"row\":null,\"sheet\":\"\",\"source\":\"WEB\",\"workshop\":\"M7\"},{\"batchId\":\"\",\"code\":\"REFERENCE_MISSING\",\"column\":\"relations.contact.targetId\",\"draftRevision\":2,\"entityId\":\"character\",\"field\":\"relations.contact.targetId\",\"fileName\":\"\",\"message\":\"Préparer le personnage cible dans ce même brouillon M2 ou corriger son identifiant.\",\"reference\":\"target\",\"row\":null,\"sheet\":\"\",\"source\":\"WEB\",\"workshop\":\"M2\"},{\"batchId\":\"\",\"code\":\"REFERENCE_MISSING\",\"column\":\"productItemId\",\"draftRevision\":4,\"entityId\":\"formula\",\"field\":\"productItemId\",\"fileName\":\"\",\"message\":\"Préparer ce modèle dans M1 ou corriger son identifiant.\",\"reference\":\"dose\",\"row\":null,\"sheet\":\"\",\"source\":\"WEB\",\"workshop\":\"M4\"},{\"batchId\":\"\",\"code\":\"REFERENCE_PENDING\",\"column\":\"skillId\",\"draftRevision\":4,\"entityId\":\"formula\",\"field\":\"skillId\",\"fileName\":\"\",\"message\":\"Référence conservée ; son contrôle central et son activation restent à raccorder.\",\"reference\":\"skill-test\",\"row\":null,\"sheet\":\"\",\"source\":\"WEB\",\"workshop\":\"M4\"},{\"batchId\":\"\",\"code\":\"REFERENCE_PENDING\",\"column\":\"effectId\",\"draftRevision\":4,\"entityId\":\"formula\",\"field\":\"effectId\",\"fileName\":\"\",\"message\":\"Référence conservée ; son contrôle central et son activation restent à raccorder.\",\"reference\":\"effect-test\",\"row\":null,\"sheet\":\"\",\"source\":\"WEB\",\"workshop\":\"M4\"},{\"batchId\":\"\",\"code\":\"REFERENCE_PENDING\",\"column\":\"laboratoryTargetId\",\"draftRevision\":4,\"entityId\":\"formula\",\"field\":\"laboratoryTargetId\",\"fileName\":\"\",\"message\":\"Référence conservée ; son contrôle central et son activation restent à raccorder.\",\"reference\":\"lab-test\",\"row\":null,\"sheet\":\"\",\"source\":\"WEB\",\"workshop\":\"M4\"},{\"batchId\":\"\",\"code\":\"REFERENCE_PENDING\",\"column\":\"locationTargetId\",\"draftRevision\":5,\"entityId\":\"shop\",\"entityType\":\"shop\",\"field\":\"locationTargetId\",\"fileName\":\"\",\"message\":\"Lieu conservé ; son contrôle central reste à raccorder.\",\"reference\":\"counter\",\"referenceType\":\"fieldTarget\",\"row\":null,\"sheet\":\"\",\"source\":\"WEB\",\"workshop\":\"M5\"}],\"diff\":[{\"contentRevision\":1,\"fields\":[\"biography\",\"gmNotes\",\"historyStarted\",\"hp\",\"masterArchived\",\"maxHp\",\"nature\",\"objectives\",\"playerSecrets\",\"public\",\"publicationState\",\"relations\",\"roleplay\"],\"id\":\"character\",\"location\":{\"batchId\":\"\",\"column\":\"\",\"draftRevision\":2,\"entityId\":\"character\",\"field\":\"\",\"fileName\":\"\",\"row\":null,\"sheet\":\"\",\"source\":\"WEB\",\"workshop\":\"M2\"},\"name\":\"Voyageuse synthétique\",\"operation\":\"ADD\",\"privateFields\":[\"biography\",\"roleplay\",\"playerSecrets\",\"gmNotes\",\"objectives\",\"relations\"],\"publicAccessCreated\":false,\"resourcesCreated\":false,\"type\":\"character\",\"workshop\":\"M2\"},{\"contentRevision\":1,\"fields\":[\"category\",\"consumable\",\"description\",\"gmNotes\",\"kind\",\"legality\",\"name\",\"pillable\",\"publicationState\",\"unit\",\"unitVolume\"],\"id\":\"ingredient\",\"location\":{\"batchId\":\"\",\"column\":\"\",\"draftRevision\":1,\"entityId\":\"ingredient\",\"field\":\"\",\"fileName\":\"\",\"row\":null,\"sheet\":\"\",\"source\":\"WEB\",\"workshop\":\"M1\"},\"name\":\"Ingrédient synthétique\",\"operation\":\"ADD\",\"privateFields\":[\"gmNotes\"],\"publicAccessCreated\":false,\"resourcesCreated\":false,\"type\":\"item\",\"workshop\":\"M1\"},{\"contentRevision\":1,\"fields\":[\"body\",\"gmNotes\",\"gmTruth\",\"initialCharacterIds\",\"kind\",\"masterArchived\",\"origin\",\"publicationState\",\"qrAudience\",\"qrCharacterIds\",\"qrEnabled\",\"qrSkillId\",\"qrSkillLevel\",\"shareMode\",\"title\"],\"id\":\"knowledge-test\",\"location\":{\"batchId\":\"\",\"column\":\"\",\"draftRevision\":6,\"entityId\":\"knowledge-test\",\"field\":\"\",\"fileName\":\"\",\"row\":null,\"sheet\":\"\",\"source\":\"WEB\",\"workshop\":\"M6\"},\"name\":\"Document synthétique\",\"operation\":\"ADD\",\"privateFields\":[\"body\",\"gmTruth\",\"gmNotes\",\"initialCharacterIds\",\"qrCharacterIds\"],\"publicAccessCreated\":false,\"resourcesCreated\":false,\"type\":\"knowledge\",\"workshop\":\"M6\"},{\"contentRevision\":1,\"fields\":[\"conditions\",\"description\",\"giverCharacterId\",\"gmNotes\",\"masterArchived\",\"proofExpected\",\"publicationState\",\"requiredKnowledgeIds\",\"rewardItems\",\"schemaVersion\",\"steps\",\"title\"],\"id\":\"mission\",\"location\":{\"batchId\":\"\",\"column\":\"\",\"draftRevision\":7,\"entityId\":\"mission\",\"field\":\"\",\"fileName\":\"\",\"row\":null,\"sheet\":\"\",\"source\":\"WEB\",\"workshop\":\"M7\"},\"name\":\"Mission synthétique\",\"operation\":\"ADD\",\"privateFields\":[\"description\",\"gmNotes\",\"steps\",\"conditions\",\"proofExpected\"],\"publicAccessCreated\":false,\"resourcesCreated\":false,\"type\":\"mission\",\"workshop\":\"M7\"},{\"contentRevision\":1,\"fields\":[\"components\",\"description\",\"effectId\",\"gmNotes\",\"indicativePrice\",\"kind\",\"laboratoryTargetId\",\"masterArchived\",\"minLevel\",\"name\",\"productItemId\",\"publicationState\",\"skillId\",\"unlockKnowledgeId\"],\"id\":\"formula\",\"location\":{\"batchId\":\"\",\"column\":\"\",\"draftRevision\":4,\"entityId\":\"formula\",\"field\":\"\",\"fileName\":\"\",\"row\":null,\"sheet\":\"\",\"source\":\"WEB\",\"workshop\":\"M4\"},\"name\":\"Formule synthétique\",\"operation\":\"ADD\",\"privateFields\":[\"gmNotes\"],\"publicAccessCreated\":false,\"resourcesCreated\":false,\"type\":\"recipe\",\"workshop\":\"M4\"},{\"contentRevision\":1,\"fields\":[\"cargoCapacity\",\"description\",\"gmNotes\",\"hullMax\",\"maneuverability\",\"masterArchived\",\"moduleSlots\",\"name\",\"profileId\",\"publicationState\",\"referencePrice\",\"schemaVersion\",\"seats\",\"shieldMax\",\"size\",\"tankCapacity\"],\"id\":\"shipModel\",\"location\":{\"batchId\":\"\",\"column\":\"\",\"draftRevision\":3,\"entityId\":\"shipModel\",\"field\":\"\",\"fileName\":\"\",\"row\":null,\"sheet\":\"\",\"source\":\"WEB\",\"workshop\":\"M3\"},\"name\":\"Modèle synthétique\",\"operation\":\"ADD\",\"privateFields\":[\"description\",\"gmNotes\"],\"publicAccessCreated\":false,\"resourcesCreated\":false,\"type\":\"shipModel\",\"workshop\":\"M3\"},{\"contentRevision\":1,\"fields\":[\"description\",\"gmNotes\",\"locationTargetId\",\"masterArchived\",\"name\",\"publicationState\",\"schemaVersion\",\"sellerCharacterId\"],\"id\":\"shop\",\"location\":{\"batchId\":\"\",\"column\":\"\",\"draftRevision\":5,\"entityId\":\"shop\",\"field\":\"\",\"fileName\":\"\",\"row\":null,\"sheet\":\"\",\"source\":\"WEB\",\"workshop\":\"M5\"},\"name\":\"Comptoir synthétique\",\"operation\":\"ADD\",\"privateFields\":[\"gmNotes\"],\"publicAccessCreated\":false,\"resourcesCreated\":false,\"type\":\"shop\",\"workshop\":\"M5\"},{\"contentRevision\":null,\"fields\":[\"species\"],\"id\":\"player\",\"location\":{\"batchId\":\"\",\"column\":\"\",\"draftRevision\":8,\"entityId\":\"player\",\"field\":\"\",\"fileName\":\"\",\"row\":null,\"sheet\":\"\",\"source\":\"ADMISSION_SETTINGS\",\"workshop\":\"M2\"},\"name\":\"Catalogue narratif des espèces\",\"operation\":\"ADD\",\"privateFields\":[],\"publicAccessCreated\":false,\"resourcesCreated\":false,\"type\":\"speciesCatalogue\",\"workshop\":\"M2\"}],\"draft\":{\"basePointerRevision\":0,\"baseVersionId\":null,\"id\":\"initial\",\"revision\":8},\"edges\":[{\"field\":\"relations.contact.targetId\",\"from\":{\"id\":\"character\",\"type\":\"character\",\"workshop\":\"M2\"},\"status\":\"MISSING\",\"to\":{\"id\":\"target\",\"type\":\"character\",\"workshop\":\"M2\"}},{\"field\":\"initialCharacterIds.0\",\"from\":{\"id\":\"knowledge-test\",\"type\":\"knowledge\",\"workshop\":\"M6\"},\"status\":\"RESOLVED\",\"to\":{\"id\":\"character\",\"type\":\"character\",\"workshop\":\"M2\"}},{\"field\":\"qrCharacterIds.0\",\"from\":{\"id\":\"knowledge-test\",\"type\":\"knowledge\",\"workshop\":\"M6\"},\"status\":\"RESOLVED\",\"to\":{\"id\":\"character\",\"type\":\"character\",\"workshop\":\"M2\"}},{\"field\":\"giverCharacterId\",\"from\":{\"id\":\"mission\",\"type\":\"mission\",\"workshop\":\"M7\"},\"status\":\"RESOLVED\",\"to\":{\"id\":\"character\",\"type\":\"character\",\"workshop\":\"M2\"}},{\"field\":\"requiredKnowledgeIds.0\",\"from\":{\"id\":\"mission\",\"type\":\"mission\",\"workshop\":\"M7\"},\"status\":\"RESOLVED\",\"to\":{\"id\":\"knowledge-test\",\"type\":\"knowledge\",\"workshop\":\"M6\"}},{\"field\":\"rewardItems.0.itemId\",\"from\":{\"id\":\"mission\",\"type\":\"mission\",\"workshop\":\"M7\"},\"status\":\"RESOLVED\",\"to\":{\"id\":\"ingredient\",\"type\":\"item\",\"workshop\":\"M1\"}},{\"field\":\"productItemId\",\"from\":{\"id\":\"formula\",\"type\":\"recipe\",\"workshop\":\"M4\"},\"status\":\"MISSING\",\"to\":{\"id\":\"dose\",\"type\":\"item\",\"workshop\":\"M1\"}},{\"field\":\"components.0.itemId\",\"from\":{\"id\":\"formula\",\"type\":\"recipe\",\"workshop\":\"M4\"},\"status\":\"RESOLVED\",\"to\":{\"id\":\"ingredient\",\"type\":\"item\",\"workshop\":\"M1\"}},{\"field\":\"skillId\",\"from\":{\"id\":\"formula\",\"type\":\"recipe\",\"workshop\":\"M4\"},\"status\":\"NOT_CHECKED\",\"to\":{\"id\":\"skill-test\",\"type\":\"skill\",\"workshop\":null}},{\"field\":\"effectId\",\"from\":{\"id\":\"formula\",\"type\":\"recipe\",\"workshop\":\"M4\"},\"status\":\"NOT_CHECKED\",\"to\":{\"id\":\"effect-test\",\"type\":\"effect\",\"workshop\":null}},{\"field\":\"laboratoryTargetId\",\"from\":{\"id\":\"formula\",\"type\":\"recipe\",\"workshop\":\"M4\"},\"status\":\"NOT_CHECKED\",\"to\":{\"id\":\"lab-test\",\"type\":\"fieldTarget\",\"workshop\":null}},{\"field\":\"unlockKnowledgeId\",\"from\":{\"id\":\"formula\",\"type\":\"recipe\",\"workshop\":\"M4\"},\"status\":\"RESOLVED\",\"to\":{\"id\":\"knowledge-test\",\"type\":\"knowledge\",\"workshop\":\"M6\"}},{\"field\":\"sellerCharacterId\",\"from\":{\"id\":\"shop\",\"type\":\"shop\",\"workshop\":\"M5\"},\"status\":\"RESOLVED\",\"to\":{\"id\":\"character\",\"type\":\"character\",\"workshop\":\"M2\"}},{\"field\":\"locationTargetId\",\"from\":{\"id\":\"shop\",\"type\":\"shop\",\"workshop\":\"M5\"},\"status\":\"NOT_CHECKED\",\"to\":{\"id\":\"counter\",\"type\":\"fieldTarget\",\"workshop\":null}}],\"fingerprint\":\"c0c716a375a3f7566f76a00a7235bf7a81f773cea42968984c545b157f9acd4d\",\"initialPreparation\":{\"archivedCharacters\":0,\"classes\":[{\"characterIds\":[],\"classId\":\"COM\",\"className\":\"Combattant\",\"kitStatus\":\"MISSING\",\"plannedCharacters\":0},{\"characterIds\":[],\"classId\":\"ROG\",\"className\":\"Rogue\",\"kitStatus\":\"MISSING\",\"plannedCharacters\":0},{\"characterIds\":[],\"classId\":\"TRA\",\"className\":\"Traqueur\",\"kitStatus\":\"MISSING\",\"plannedCharacters\":0},{\"characterIds\":[],\"classId\":\"MED\",\"className\":\"Médecin\",\"kitStatus\":\"MISSING\",\"plannedCharacters\":0},{\"characterIds\":[],\"classId\":\"MEC\",\"className\":\"Mécano\",\"kitStatus\":\"MISSING\",\"plannedCharacters\":0},{\"characterIds\":[],\"classId\":\"PIL\",\"className\":\"Pilote\",\"kitStatus\":\"MISSING\",\"plannedCharacters\":0},{\"characterIds\":[],\"classId\":\"COU\",\"className\":\"Courtier\",\"kitStatus\":\"MISSING\",\"plannedCharacters\":0},{\"characterIds\":[],\"classId\":\"INF\",\"className\":\"Infiltrateur\",\"kitStatus\":\"MISSING\",\"plannedCharacters\":0}],\"narrativeOnlyCharacters\":1,\"plannedCharacters\":0,\"requiredClasses\":0,\"scope\":\"CLASS_KIT_REFERENCES\"},\"publicationAvailable\":false,\"remainingChecks\":[{\"code\":\"RULE_PROFILE_PENDING\",\"message\":\"Raccordement complet du profil canonique V0.7, des classes, compétences, effets, dotations et liens courants entre admissions et incarnations à terminer.\"},{\"code\":\"OTHER_DOMAINS_PENDING\",\"message\":\"Autres contenus M1/M2/M3/M5/M6/M7, instances spatiales, rencontres, événements, médias, lieux, QR, habilitations des vendeurs, caisses, stocks, tarifs de jeu et impacts à compléter.\"},{\"code\":\"PUBLICATION_PENDING\",\"message\":\"Version immuable, reprise de construction, contrôle du parent et activation globale à développer. Ce rapport ne vaut pas autorisation de publier.\"}],\"schemaVersion\":1,\"scope\":\"INITIAL_DRAFT_PREPARATION\",\"status\":\"CORRECTIONS_REQUIRED\",\"totals\":{\"diagnostics\":7,\"invalid\":0,\"records\":8,\"references\":14,\"valid\":8},\"workshops\":[{\"active\":1,\"archived\":0,\"coverage\":\"PARTIAL\",\"id\":\"M1\",\"label\":\"Économie\"},{\"active\":2,\"archived\":0,\"coverage\":\"PARTIAL\",\"id\":\"M2\",\"label\":\"Personnages\"},{\"active\":1,\"archived\":0,\"coverage\":\"PARTIAL\",\"id\":\"M3\",\"label\":\"Spatioport\"},{\"active\":1,\"archived\":0,\"coverage\":\"PARTIAL\",\"id\":\"M4\",\"label\":\"Recettes & Potions\"},{\"active\":1,\"archived\":0,\"coverage\":\"PARTIAL\",\"id\":\"M5\",\"label\":\"Boutiques\"},{\"active\":1,\"archived\":0,\"coverage\":\"PARTIAL\",\"id\":\"M6\",\"label\":\"Informations & Fouilles\"},{\"active\":1,\"archived\":0,\"coverage\":\"PARTIAL\",\"id\":\"M7\",\"label\":\"Missions & Communication\"}]}"
+          }
+        ]
+      }
+    ],
+    [
+      "campaigns/so_f3b08873f4816b9ef0a2f3a4fe0df0cf13026aeb99ea1b98bb22f258a494686d/masterDrafts/initial/checks/snapshot_9cba369c6d53418ffa93578c364ed5c4b8e092710f2b3dad344841928afc3608",
+      {
+        "id": "snapshot_9cba369c6d53418ffa93578c364ed5c4b8e092710f2b3dad344841928afc3608",
+        "kind": "CENTRAL_DRAFT_SNAPSHOT",
+        "formatVersion": 1,
+        "status": "SEALED",
+        "campaignId": "so_f3b08873f4816b9ef0a2f3a4fe0df0cf13026aeb99ea1b98bb22f258a494686d",
+        "ownerUid": "fd120c8f-9721-4dc9-8a05-9293508e7220",
+        "actorUid": "fd120c8f-9721-4dc9-8a05-9293508e7220",
+        "createdAt": 1000000,
+        "reason": "Point de contrôle synthétique",
+        "confirmation": "af6b30cc6702227d9076642bcf5a4fa67e63c028d7832b3494df6496447080a1",
+        "source": {
+          "draftId": "initial",
+          "draftRevision": 8,
+          "baseVersionId": null,
+          "basePointerRevision": 0,
+          "ruleProfile": "SPACE_OUTLAWS_V07",
+          "campaignRevision": 2,
+          "sessionId": "so_61a5d2f8b6592a9dd96d5aed9b728a5de2c66cdd32687574ff04f23b0a178d3e",
+          "sessionRevision": 1
+        },
+        "records": 8,
+        "bytes": 19466,
+        "contentDigest": "66c357c89de499ff8a5d4d068efeeb85db1a3860958b312f51551cb2c3489052",
+        "reportFingerprint": "c0c716a375a3f7566f76a00a7235bf7a81f773cea42968984c545b157f9acd4d",
+        "reportDigest": "c4cc77862176b325ea8173eb62aac4f022cbe2a151ec0cc3b18969a99d87096a",
+        "reportStatus": "CORRECTIONS_REQUIRED",
+        "diagnostics": 7,
+        "pages": [
+          {
+            "id": "0",
+            "entries": 9,
+            "bytes": 19576,
+            "digest": "9b75d4a7bd61b84e873fc7eaa9fcf2534e497f825d2cc3d6f720d2ef054597fc"
+          }
+        ],
+        "manifestDigest": "1a580ff42fbba9fd5ccde38b2a0c37d8e66a5c5319e3898c3854bdc79ac522a3"
+      }
+    ]
+  ]
+}

@@ -1,3 +1,4 @@
+import {centralGroupsSuite} from '../support/central-groups-suite.mjs';
 import {centralSnapshotsSuite} from '../support/central-snapshots-suite.mjs';
 import {admissionM2CheckSuite} from '../support/admission-m2-check-suite.mjs';
 import {admissionM2Suite} from '../support/admission-m2-suite.mjs';
@@ -63,6 +64,7 @@ const projectId='demo-gn-engine';
 initializeApp({projectId});const firestore=getFirestore();
 workflowSuite(()=>firestoreStore(firestore),'Firestore réel émulé');
 preparationsSuite(()=>firestoreStore(firestore),'Préparation SO sur Firestore');
+centralGroupsSuite(()=>firestoreStore(firestore),'Groupes centraux C2o sur Firestore');
 centralSnapshotsSuite(()=>firestoreStore(firestore),'Instantanés centraux C2n sur Firestore');
 centralMasterSuite(()=>firestoreStore(firestore),'Master central C1b sur Firestore');
 centralShopsSuite(()=>firestoreStore(firestore),'Boutiques centrales C2g sur Firestore');

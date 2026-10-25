@@ -1,5 +1,11 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## C2o — groupes et factions préparés dans M2
+
+[C2o — groupes et factions M2](SO-02-C2O-GROUPES-CENTRAUX.md) ajoute les définitions natives de groupes, textes privés et appartenances/permissions proposées dans le brouillon commun. Références M2 vérifiées, audit, archives et réessais ; aucune instance, caisse, stock, notification ou droit de session créé. L’import M2 conserve les groupes ; I3c accepte leur présence sans les confondre avec des admissions. Publication, activation, naissance, I3/INS-06 complet et I4/I5 restent ouverts ; les 55 verdicts complets et SO-GAP-12/13/14 ne sont pas clos.
+
+**Local, 25 octobre 2026 (Europe/Brussels) : compilation et 1426 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 23 nouveaux cas partagés mémoire/Firestore, quatre UI et un HTTP/Auth. Firebase non exécuté localement (Java 17) ; preuves finales des deux CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1) après terminaison. [Preuves C2n archivées](PR-1-HISTORIQUE-AVANT-C2O.md) : 1399 applicatifs/1129 Firebase chacun.
+
 ## C2n — instantanés privés du brouillon central
 
 [C2n — instantanés centraux](SO-02-C2N-INSTANTANES-CENTRAUX.md) : capture propriétaire des sept ateliers et du rapport, pages privées immuables, relecture sous droits C2b et téléchargement vérifié. Le brouillon reste modifiable, les références à corriger restent signalées. Étape additive du cycle de préparation C2 ; publication, version activable et naissance restent indisponibles. C2 complet, I3/INS-06 complet, I4/I5, SO-GAP-12/13/14 et les 55 verdicts complets restent ouverts.

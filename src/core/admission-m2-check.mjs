@@ -6,7 +6,7 @@ import {admissionM2Id,requireAdmissionM2Link,approvedAdmissionM2,admissionM2Fict
 import {validateCentralChange} from './central-check.mjs';
 
 // Read budgets, not participation quotas. Refuse a partial report.
-export const admissionM2CheckLimits={registrations:1000,activeIdentities:1000,characters:100,sourceBytes:16*1024*1024,reportBytes:4*1024*1024};
+export const admissionM2CheckLimits={registrations:1000,activeIdentities:1000,characters:100,groups:50,sourceBytes:16*1024*1024,reportBytes:4*1024*1024};
 const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
 const digest=v=>createHash('sha256').update(JSON.stringify(canonical(v))).digest('hex');
 const uidHash=v=>createHash('sha256').update(v).digest('hex');
@@ -25,20 +25,21 @@ export async function checkAdmissionM2({tx,ctx,actor,authority,at}){
  admissionSettings({open:settings.open,instructions:settings.instructions,quotas:settings.quotas,species:settings.species});
  const [registrations,changes,locks]=await Promise.all([
   tx.list(`sessions/${s.id}/registrations`,null,{limit:admissionM2CheckLimits.registrations+1}),
-  tx.list(`${base}/changes`,['workshop','M2'],{limit:admissionM2CheckLimits.characters+2}),
+  tx.list(`${base}/changes`,['workshop','M2'],{limit:admissionM2CheckLimits.characters+admissionM2CheckLimits.groups+2}),
   tx.list(`sessions/${s.id}/admissionIdentities`,['active',true],{limit:admissionM2CheckLimits.activeIdentities+1}),
  ]);
- requireThat(registrations.length<=admissionM2CheckLimits.registrations&&changes.length<=admissionM2CheckLimits.characters+1&&locks.length<=admissionM2CheckLimits.activeIdentities,'ADMISSION_M2_CHECK_LIMIT');
+ requireThat(registrations.length<=admissionM2CheckLimits.registrations&&changes.length<=admissionM2CheckLimits.characters+admissionM2CheckLimits.groups+1&&locks.length<=admissionM2CheckLimits.activeIdentities,'ADMISSION_M2_CHECK_LIMIT');
  requireThat(Buffer.byteLength(JSON.stringify([registrations,changes,locks,settings]))<=admissionM2CheckLimits.sourceBytes,'ADMISSION_M2_CHECK_LIMIT');
- const diagnostics=[],rows=[],characters=new Map(),linked=new Set(),approvedUids=new Set(),seenUids=new Set(),counts=emptyAdmissionCounts(),ordinary=emptyAdmissionCounts();let catalogueChecked=false;
+ const diagnostics=[],rows=[],characters=new Map(),linked=new Set(),approvedUids=new Set(),seenUids=new Set(),counts=emptyAdmissionCounts(),ordinary=emptyAdmissionCounts();let catalogueChecked=false,groupCount=0;
  const add=(code,row=null,extra={})=>{const d={code,...(row?{registrationId:row.registrationId,characterId:row.characterId}:{}),...extra};diagnostics.push(d);if(row)row.blockers.push(code);};
  for(const change of changes){
   try{validateCentralChange(change,draft.revision);}catch{add('INVALID_M2_DEFINITION',null,{characterId:typeof change.entityId==='string'?change.entityId:null});continue;}
+  if(change.type==='group'){groupCount++;continue;}
   if(change.type==='speciesCatalogue'){catalogueChecked=isDeepStrictEqual(change.data,settings.species);continue;}
   if(change.type!=='character'||characters.has(change.entityId)){add('INVALID_M2_DEFINITION');continue;}
   characters.set(change.entityId,change);
  }
- requireThat(characters.size<=admissionM2CheckLimits.characters,'ADMISSION_M2_CHECK_LIMIT');
+ requireThat(characters.size<=admissionM2CheckLimits.characters&&groupCount<=admissionM2CheckLimits.groups,'ADMISSION_M2_CHECK_LIMIT');
  if(!catalogueChecked)add('INVALID_M2_DEFINITION');
  let exceptions=0;
  for(const r of registrations.sort((a,b)=>String(a.id).localeCompare(String(b.id)))){
@@ -87,7 +88,7 @@ export async function checkAdmissionM2({tx,ctx,actor,authority,at}){
  if(Object.keys(ordinary).some(id=>ordinary[id]>settings.quotas[id])||Object.values(ordinary).reduce((a,b)=>a+b,0)>s.capacity)add('ADMISSION_QUOTA_WITHOUT_EXCEPTION');
  const report={schemaVersion:1,scope:'ADMISSION_M2_PREPARATION',campaignId:c.id,sessionId:s.id,checkedAt:at,
   snapshot:{sessionRevision:s.revision,policyRevision:policy.revision,draftRevision:draft.revision,occupancyRevision:occupancy.revision},
-  fingerprint:digest({schema:1,actorUid:actor.uid,authority,c,s,draft,policy,occupancy,settings,registrations,changes:[...changes].sort((a,b)=>String(a.id).localeCompare(String(b.id))),locks:[...locks].sort((a,b)=>JSON.stringify(canonical(a)).localeCompare(JSON.stringify(canonical(b))))}),
+  fingerprint:digest({schema:2,actorUid:actor.uid,authority,c,s,draft,policy,occupancy,settings,registrations,changes:[...changes].sort((a,b)=>String(a.id).localeCompare(String(b.id))),locks:[...locks].sort((a,b)=>JSON.stringify(canonical(a)).localeCompare(JSON.stringify(canonical(b))))}),
   status:diagnostics.length?'CORRECTIONS_REQUIRED':'NO_DETECTED_ERROR',publicationAvailable:false,birthAvailable:false,
   totals:{registrations:registrations.length,approved:approvedUids.size,matched:rows.filter(r=>r.status==='MATCHED').length,blocked:rows.filter(r=>r.status==='BLOCKED').length,excluded:rows.filter(r=>r.status==='EXCLUDED').length,notRequired:rows.filter(r=>r.status==='NOT_REQUIRED').length,exceptions,diagnostics:diagnostics.length},
   byClass:Object.keys(counts).map(classId=>({classId,confirmed:occupancy.byClass[classId],observed:counts[classId],quota:settings.quotas[classId]})),rows,diagnostics};

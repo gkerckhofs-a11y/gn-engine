@@ -1,5 +1,11 @@
 # Registre V3.5 — 55 recettes ciblées
 
+## C2o — groupes et factions préparés dans M2
+
+[C2o — groupes et factions M2](SO-02-C2O-GROUPES-CENTRAUX.md) ajoute les recettes de préparation privée, permissions explicites, cibles différées/archivées/invalides, homonymes typés, concurrence, révocation, interruption, limites et conservation lors des imports M2. Une capture réellement produite par C2n est relue sans réécriture ; 100 fiches + 50 groupes contrôlés sans troncature. Ces essais ne certifient pas la naissance, la réaffectation en partie ou les 55 parcours intégraux. Aucune recette mobile/visuelle/terrain ou restauration globale.
+
+**Local, 25 octobre 2026 (Europe/Brussels) : compilation et 1426 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 23 nouveaux cas partagés mémoire/Firestore, quatre UI et un HTTP/Auth. Firebase non exécuté localement (Java 17) ; preuves finales des deux CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1) après terminaison. [Preuves C2n archivées](PR-1-HISTORIQUE-AVANT-C2O.md) : 1399 applicatifs/1129 Firebase chacun.
+
 ## C2n — instantanés privés du brouillon central
 
 [C2n — instantanés centraux](SO-02-C2N-INSTANTANES-CENTRAUX.md) ajoute les recettes de capture atomique, historique après édition/archive, réessais, concurrence, révocation, confidentialité, intégrité, interruption, Unicode et budget. Le rapport peut conserver des diagnostics, mais une définition native invalide bloque la capture. Aucun verdict intégral des 55 recettes n’est clos par cette brique ; aucune recette humaine, mobile, charge ou restauration globale revendiquée.
