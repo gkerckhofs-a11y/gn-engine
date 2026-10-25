@@ -201,6 +201,13 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - MATCHED et révisions inchangées ne valent ni autorisation durable ni validation globale. Recontrôler les liens/quotas/référentiels lors des futures publication et naissance. Préserver tests partagés de conflit, révocation, retrait, corruption, confidentialité et interruption.
 - Provenance RECONCILED_SNAPSHOT, empreinte globale 12, budgets inchangés et publication indisponible. Sauvegarder marqueurs privés avec brouillon/droits/compteurs/verrous/historiques/reçus. I3a n’est pas un retour fonctionnel équivalent. Plafond du workflow de vérification porté à 50 minutes après une CI I3a de plus de 38 minutes ; tests et frontière production inchangés.
 
+## Tranche I3c — contrôle privé de l’ensemble des dossiers M2
+
+- [I3c](docs/SO-01-I3C-CONTROLE-DOSSIERS-M2.md) ajoute une lecture transactionnelle sous MJ de session + lecture M2, sans édition obligatoire. Ne pas l’exposer aux délégataires de contrôle central dépourvus d’accès aux admissions. Aucun droit sur les autres ateliers implicite.
+- Recompter les confirmations et vérifier leurs liens/identités/choix courants ; conserver les exceptions I2 motivées et la possibilité d’une biographie M2 différente. Dossier non approuvé lié à une fiche active = décision à reprendre, pas d’archive automatique. Fiche indépendante ≠ joueur/PNJ/réserve déduit.
+- Rapport sans écritures, récits ou données de compte ; empreinte d’instantané jamais utilisée comme consentement. Les futurs publication/naissance doivent réexécuter leurs propres validations/autorités/version. Préserver les tests de concurrence classe/M2/retrait/révocation, corruption, orphelins et limites.
+- Bornes de lecture 1000 dossiers/1000 verrous actifs/100 M2/16 Mio sources/4 Mio rapport : refus intégral, pas de troncature ni quota joueur inventé. Cycle initial seul, aucun schéma persistant nouveau ; retour I3b sans conversion mais sans ce diagnostic. Empreinte centrale 12, publication indisponible et exigences de sauvegarde inchangées.
+
 ## Cycle de chaque ensemble fonctionnel
 
 1. Lire le cadrage V3.5, le livre SPACE OUTLAWS V0.7, les sept gabarits proposés SO_Masters_V01.zip et le vade-mecum ; conserver le rapport de cohérence V0.6 comme historique (sources référencées dans SO-01a et SO-00). Délimiter un parcours complet, ses critères, dépendances et recettes. A01–A38 et l’extension PNJ FOR-01 sont clos : ne pas réinventer leurs barèmes. Distinguer les propositions techniques et les paramètres de session à préparer. Les décisions V3.5/V0.7 prévalent sur les cadrages antérieurs ; les prix/compositions d’exemples V3.2 restent non canoniques.

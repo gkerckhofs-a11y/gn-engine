@@ -355,6 +355,7 @@ document.addEventListener('click',async event=>{
     if(a==='editSpaceOutlawsPreparation'){modal(preparationUi.form(currentSession));return;}
     if(a==='configureAdmission'){modal(admissionUi.config(currentAdmission));return;}
     if(a==='newAdmissionInvite'){modal(admissionUi.inviteForm(currentAdmission.sessionId));return;}
+    if(a==='checkAdmissionM2'){const d=await api('checkAdmissionM2',{sessionId:currentAdmission.sessionId});if(actionVersion!==routeVersion)return;modal(admissionUi.m2Check(d));return;}
     if(a==='previewAdmissionM2'){const d=await api('previewAdmissionM2',{sessionId:currentAdmission.sessionId,uid:b.dataset.uid});if(actionVersion!==routeVersion)return;modal(admissionUi.m2Preview(d,b.dataset.uid));return;}
     if(a==='previewAdmissionM2Reconciliation'){const d=await api('previewAdmissionM2Reconciliation',{sessionId:currentAdmission.sessionId,uid:b.dataset.uid});if(actionVersion!==routeVersion)return;modal(admissionUi.reconciliationPreview(d,b.dataset.uid));return;}
     if(a==='reviewAdmission'){const r=currentAdmission.registrations.find(r=>r.uid===b.dataset.uid);if(r)modal(admissionUi.review(currentAdmission,r));return;}

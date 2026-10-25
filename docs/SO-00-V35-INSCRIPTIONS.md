@@ -1,5 +1,13 @@
 # SO-00 V3.5 — diagnostic, inscriptions et ordre de développement
 
+## I3c — contrôle privé de l’ensemble des dossiers M2
+
+[I3c — contrôle des dossiers M2](SO-01-I3C-CONTROLE-DOSSIERS-M2.md) ajoute une lecture transactionnelle de la régie : concordance identité/plan, premières fiches manquantes, retraits encore liés, archives, orphelins, confirmations, compteurs et verrous d’identité. Les biographies MJ peuvent différer ; les exceptions I2 motivées restent admises. MJ de session + lecture M2 requis, sans édition obligatoire ni accès implicite aux autres ateliers.
+
+**Local, 25 octobre 2026 (Europe/Brussels) : compilation et 1374/1374 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 23 nouveaux cas partagés Firestore, quatre UI et un HTTP/Auth ; intégrations vérifiées syntaxiquement. Firebase non exécuté localement (Java 17) ; preuves finales du candidat exact dans la PR après les deux CI. Base I3b `8dcd82bf423e1d913d338b2a8c969b3799dddf4f` : deux CI vertes, 1347 applicatifs/1083 Firebase chacune, [preuves archivées](PR-1-HISTORIQUE-AVANT-I3C.md).
+
+Rapport de préparation, pas un consentement : publication et naissance indisponibles, revalidation nécessaire lors de leurs futurs actes. Aucun état persistant nouveau, aucun export civil ou récit dans le rapport, aucune ressource ni correction automatique. Budgets de lecture 1000 dossiers/1000 verrous actifs/100 fiches M2/16 Mio sources/4 Mio rapport, refus intégral sans troncature ; ce ne sont pas des quotas de participation. Empreinte centrale 12, budgets centraux et quatre Masters historiques inchangés. Retour I3b sans conversion, avec perte du nouveau contrôle ; sauvegarde cohérente et restauration complète restent distinctes. C2, I3/INS-06 complet, I4/I5, 55 verdicts complets et SO-GAP-12/13/14 restent ouverts ; aucune recette mobile, charge, restauration globale ou production revendiquée.
+
 ## I3b — rapprochement courant du dossier et de M2
 
 [I3b — comparaison et rapprochement](SO-01-I3B-RAPPROCHEMENT-M2.md) ajoute un aperçu privé, une confirmation motivée et l’alignement de l’identité/du plan M2 sur le dossier actuellement approuvé. Biographie conservée par défaut, remplacement explicite ; autres textes, secrets, objectifs et relations conservés. Relecture sans changement = aucune révision centrale supplémentaire. Double autorité MJ/M2, garde de cycle, conflits, réessais et audit préservés.

@@ -1,3 +1,4 @@
+import {admissionM2CheckSuite} from '../support/admission-m2-check-suite.mjs';
 import {admissionM2Suite} from '../support/admission-m2-suite.mjs';
 import {admissionM2ReconciliationSuite} from '../support/admission-m2-reconciliation-suite.mjs';
 import {centralSpaceImportSuite} from '../support/central-space-import-suite.mjs';
@@ -64,6 +65,7 @@ preparationsSuite(()=>firestoreStore(firestore),'Préparation SO sur Firestore')
 centralMasterSuite(()=>firestoreStore(firestore),'Master central C1b sur Firestore');
 centralShopsSuite(()=>firestoreStore(firestore),'Boutiques centrales C2g sur Firestore');
 admissionM2Suite(()=>firestoreStore(firestore),'Admission vers M2 I3a sur Firestore');
+admissionM2CheckSuite(()=>firestoreStore(firestore),'Contrôle dossiers M2 I3c sur Firestore');
 admissionM2ReconciliationSuite(()=>firestoreStore(firestore),'Rapprochement M2 I3b sur Firestore');
 centralSpaceImportSuite(()=>firestoreStore(firestore),'Excel spatial C2m sur Firestore');
 centralShopImportSuite(()=>firestoreStore(firestore),'Excel boutiques et offres C2l sur Firestore');

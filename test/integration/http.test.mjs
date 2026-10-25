@@ -45,6 +45,29 @@ const request=async(action,input={},token)=>{
   return {status:response.status,...await response.json()};
 };
 
+test('HTTP + Auth : contrôle privé des dossiers M2, lecture seule et révocation',async()=>{
+ const owner=await googleTestAccount(process.env.OWNER_EMAIL),email=`check-m2-${randomUUID()}@example.invalid`,reader=await googleTestAccount(email),playerEmail=`check-m2-player-${randomUUID()}@example.invalid`,player=await googleTestAccount(playerEmail);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;},cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Contrôle privé M2 HTTP',title:'Préparation synthétique',capacity:2,privacy:'Notice fictive'});
+ await cmd('saveAdmissionSettings',{sessionId,policyRevision:0,draftRevision:0,settings:admissionTestSettings,reason:'Catalogue synthétique'});
+ const token=randomBytes(32).toString('base64url');await cmd('issueAdmissionInvitation',{sessionId,tokenHash:hash(token),hours:1,maxUses:1,label:'Invitation synthétique'});
+ await cmd('beginAdmission',{sessionId,token,sessionRevision:1,policyRevision:1,draftRevision:1,consent:true},player);
+ await cmd('saveAdmissionProposal',{sessionId,revision:1,sessionRevision:1,policyRevision:1,draftRevision:1,proposal:admissionTestProposal,submit:true,consent:true},player);
+ const uid=(await call('admissionAdmin',{sessionId})).registrations[0].uid;
+ await cmd('reviewAdmission',{sessionId,uid,revision:2,policyRevision:1,draftRevision:1,decision:'APPROVE',reason:'Validation synthétique'});
+ assert.equal((await request('checkAdmissionM2',{sessionId})).status,401);assert.equal((await request('checkAdmissionM2',{sessionId},player)).status,403);
+ const grant={campaignId,email,active:true,readWorkshops:['M2'],editWorkshops:[],revision:0,reason:'Lecture préparatoire M2'};await cmd('setCentralStaff',grant);assert.equal((await request('checkAdmissionM2',{sessionId},reader)).status,403);
+ await cmd('setStaff',{sessionId,email,active:true,role:'MJ',revision:(await call('session',{sessionId})).revision,reason:'Dossiers privés'});
+ let d=await call('checkAdmissionM2',{sessionId},reader);assert.equal(d.rows[0].blockers[0],'ADMISSION_M2_NOT_PREPARED');assert.equal(d.publicationAvailable,false);
+ const p=await call('previewAdmissionM2',{sessionId,uid});await cmd('prepareAdmissionM2',{sessionId,uid,confirmation:p.confirmation,reason:'Préparation fictive'});
+ d=await call('checkAdmissionM2',{sessionId},reader);assert.equal(d.totals.matched,1);assert.equal(d.birthAvailable,false);assert.ok(!JSON.stringify(d).includes(playerEmail));assert.ok(!JSON.stringify(d).includes(admissionTestProposal.background));assert.ok(!JSON.stringify(d).includes(admissionTestProposal.friends));assert.equal((await request('previewAdmissionM2Reconciliation',{sessionId,uid},reader)).status,403);
+ const current=await call('myAdmission',{sessionId},player);await cmd('withdrawAdmission',{sessionId,revision:current.revision,reason:'Retrait explicite'},player);
+ const after=await call('checkAdmissionM2',{sessionId},reader);assert.equal(after.totals.approved,0);assert.deepEqual(after.rows[0].blockers,['UNAPPROVED_M2_ACTIVE']);assert.notEqual(after.fingerprint,d.fingerprint);
+ assert.equal((await request('checkAdmissionM2',{sessionId,confirmation:d.fingerprint},reader)).error,'INVALID_ADMISSION');
+ await cmd('setCentralStaff',{...grant,active:false,revision:1});assert.equal((await request('checkAdmissionM2',{sessionId},reader)).status,403);
+ const session=await call('session',{sessionId});assert.equal(session.accepted,0);for(const kind of ['characters','inventory','accounts'])assert.deepEqual(session[kind],[]);
+});
+
 test('HTTP + Auth : rapprochement M2, texte MJ conservé, blocage et révocation',async()=>{
  const owner=await googleTestAccount(process.env.OWNER_EMAIL),email=`reconcile-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email),playerEmail=`reconcile-player-${randomUUID()}@example.invalid`,player=await googleTestAccount(playerEmail);
  const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;},cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
