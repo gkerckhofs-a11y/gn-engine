@@ -14,6 +14,8 @@ import {accountId,openWallet,writeLedger,moneyState} from './economy-state.mjs';
 import {newLot,lotState} from './inventory-state.mjs';
 import {recordPublication} from './narrative.mjs';
 import {spaceOutlawsTransaction} from './space-outlaws-entry-guard.mjs';
+import {seedFieldTargets} from './field-state.mjs';
+import {initialReceipt} from './knowledge.mjs';
 
 const hash=v=>createHash('sha256').update(v).digest('hex');
 const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
@@ -21,7 +23,7 @@ const digest=v=>hash(JSON.stringify(canonical(v)));
 const regPath=(sid,uid)=>`sessions/${sid}/registrations/${hash(uid)}`;
 const reads=['spaceOutlawsEntry','mySpaceOutlawsEntry','previewSpaceOutlawsRelease','previewSpaceOutlawsBirth'];
 export const spaceOutlawsEntryActions=[...reads,'releaseSpaceOutlaws','birthSpaceOutlaws'];
-const supported=new Set(['speciesCatalogue','item','classKit','character']);
+const supported=new Set(['speciesCatalogue','item','classKit','character','knowledge','fieldTarget']);
 const versionKind='SPACE_OUTLAWS_ENTRY_V1';
 const publicSession=s=>({id:s.id,title:s.title,date:s.date,time:s.time,place:s.place});
 
@@ -47,6 +49,10 @@ async function releasePlan(tx,actor,ctx,authority,at){
  const admissions=await checkAdmissionM2({tx,ctx,actor,authority,at});
  const blockers=[...report.diagnostics.map(d=>({code:d.code,message:d.message,entityId:d.entityId})),...admissions.diagnostics.map(d=>({code:d.code,message:'Reprendre ce dossier dans les candidatures.',entityId:d.characterId??''}))];
  for(const ch of changes)if(ch.operation==='UPSERT'&&!supported.has(ch.type))blockers.push({code:'SO_DOMAIN_NOT_CONNECTED',entityId:ch.entityId,message:`${ch.workshop} : ${ch.type} doit être raccordé au jeu avant publication. Le brouillon reste intact.`});
+ for(const ch of changes)if(ch.operation==='UPSERT'&&ch.type==='fieldTarget'&&ch.data?.kind!=='ANALYSIS')blockers.push({code:'SO_DOMAIN_NOT_CONNECTED',entityId:ch.entityId,message:'Seules les analyses tactiques, de traces et de documents sont raccordées au jeu pour ce jalon.'});
+ const active=changes.filter(ch=>ch.operation==='UPSERT'),knowledge=active.filter(ch=>ch.type==='knowledge'),targets=active.filter(ch=>ch.type==='fieldTarget');
+ const maxInitial=Math.max(0,...active.filter(ch=>ch.type==='character').map(ch=>knowledge.filter(k=>Array.isArray(k.data?.initialCharacterIds)&&k.data.initialCharacterIds.includes(ch.entityId)).length));
+ if(knowledge.length+2*targets.length+maxInitial>440)blockers.push({code:'SO_RUNTIME_LIMIT',entityId:'M6',message:'Trop de définitions et informations initiales pour une activation atomique (440 écritures M6 maximum). Réduire la version de départ.'});
  const entries=changes.sort((a,b)=>a.id.localeCompare(b.id)).map(data=>({path:`changes/${data.id}`,data}));
  requireThat(Buffer.byteLength(JSON.stringify(entries))<=campaignLimits.bytes,'SO_RELEASE_LIMIT');
  const pages=campaignPagesFor(entries);requireThat(pages.length>0&&pages.length<=100,'SO_RELEASE_LIMIT');
@@ -110,7 +116,8 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
    if(action==='spaceOutlawsEntry'){
     admissionKeys(input,['sessionId']);const version=c.master?.activeVersionId?await readVersion(tx,c):null;
     const registrations=await tx.list(`sessions/${sid}/registrations`,null,{limit:1001});requireThat(registrations.length<=1000,'SO_RELEASE_LIMIT');
-    return {session:publicSession(s),stage:s.spaceOutlaws?'BRIEFING':'PREPARATION',canRelease:authority.owner,versionId:version?.header.id??null,draftRevision:ctx.draft?.revision??0,
+    return {session:{...publicSession(s),revision:s.revision},stage:s.stage,canRelease:authority.owner,actionsReady:s.spaceOutlaws?.actionsVersion===1,versionId:version?.header.id??null,draftRevision:ctx.draft?.revision??0,
+     targets:(version?.changes??[]).filter(ch=>ch.type==='fieldTarget'&&ch.operation==='UPSERT').map(ch=>({id:ch.entityId,title:ch.data.title})),
      registrations:registrations.filter(r=>r.admission?.status==='APPROVED').map(r=>({uid:r.uid,name:`${r.admission.proposal.firstName} ${r.admission.proposal.lastName}`,classId:r.admission.proposal.classId,characterId:r.characterId??null,accessActive:r.accessActive,m2Prepared:!!r.admission.m2Preparation}))};
    }
    const op=requestId?`operations/${hash(`${actor.uid}:${requestId}`)}`:null,fingerprint=digest([action,input]);
@@ -142,9 +149,15 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
     spaceOutlawsSkills:plan.profile,startingInformation:options.startingInformation,birth:{versionId:version.header.id,at,actorUid:actor.uid,weaponApplicable:options.weaponApplicable},
     abilityProfile:{published:true,revision:1,class:{id:plan.profile.classId,name:plan.profile.className,description:''},skills:plan.profile.skills.map(k=>({id:k.id,name:k.name,kind:'PASSIVE',level:k.level??1,revision:1,description:k.kind==='FIXED'?'Technique acquise (sans niveau).':`Niveau ${k.level}`,instructions:'',category:k.source,healing:null}))}};
    const {preparationKind,preparationVersion,...prior}=s;
-   const nextSession={...prior,stage:'BRIEFING',revision:s.revision+1,versionId:version.header.id,spaceOutlaws:{ruleProfile:spaceOutlawsProfile,entryVersion:1,versionId:version.header.id},
+   const nextSession={...prior,stage:'BRIEFING',revision:s.revision+1,versionId:version.header.id,spaceOutlaws:{ruleProfile:spaceOutlawsProfile,entryVersion:1,actionsVersion:1,versionId:version.header.id},
     actionPointRules:{...portBrecheActionPoints},economyRules:{enabled:true,name:'Crédits',unit:'Cr'},healthRules:{enabled:true,defaultMaxHp:3,returnMode:'HP_POSITIVE',allowed:{discover:false,share:false,publish:false,heal:false,transfer:false,pay:false}}};
    tx[spaceOutlawsTransaction](sid);tx.set(base,nextSession);tx.set(`${base}/characters/${id}`,character);
+   const knowledge=version.changes.filter(ch=>ch.type==='knowledge'&&ch.operation==='UPSERT').map(ch=>({...ch.data,publicationState:'PUBLISHED'}));
+   if(!s.spaceOutlaws){
+    for(const k of knowledge)tx.set(`${base}/knowledge/${k.id}`,k);
+    seedFieldTargets(tx,nextSession,version.changes.filter(ch=>ch.type==='fieldTarget'&&ch.operation==='UPSERT').map(ch=>({...ch.data,publicationState:'PUBLISHED'})));
+   }
+   for(const k of knowledge)if(k.initialCharacterIds.includes(id))tx.set(`${base}/characters/${id}/knowledge/${k.id}`,initialReceipt(k,at));
    tx.set(regPath(sid,uid),{...plan.r,status:'ACCEPTED',characterId:id,accessActive:true,accessVersion:1,minAuthTime:0});
    recordPublication(tx,`${base}/characters`,null,character,{id:eventId,at,actorUid:actor.uid,reason,stage:'BRIEFING'});
    tx.set(actionPointPath(sid,id),{...actionPointState(nextSession,character,null,at),revision:1});

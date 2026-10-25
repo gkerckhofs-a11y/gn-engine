@@ -1,4 +1,5 @@
 import {requireGameAction,canGameAction} from './health-state.mjs';
+import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {abilityLevel} from './abilities.mjs';
 import {createHash} from 'node:crypto';
 import {requireThat,documentId} from './validation.mjs';
@@ -127,6 +128,7 @@ export function createKnowledgeService({store,signed,checkSession,checkScenario,
         }
       }
       const previous=await tx.get(operationPath);
+      if(s?.spaceOutlaws)authorizeSpaceOutlaws(tx,s,'KNOWLEDGE');
       if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');return previous.result;}
       let result,audit={id:newId,action,at,actorUid:actor.uid};
       if(action==='saveKnowledge'||action==='saveSessionKnowledge'){

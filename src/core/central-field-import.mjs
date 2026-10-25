@@ -19,6 +19,9 @@ export function importedField(row,old){
  // A newly created XLSX definition must state its parameters explicitly. No
  // probe defaults are persisted; both profiles and rewards use native validators.
  for(const column of ['nature','titre','profils_json','recompenses_json','indisponibilite_secondes','verrou_echec_secondes','protection_reparation_secondes'])if(data[fields[column][0]]===undefined)fail(column,'Champ obligatoire à renseigner.');
+ // Executable analyses use a coupled canonical profile and tiered information.
+ // Preserve that native contract when an existing M6 file is read back.
+ if(data.kind==='ANALYSIS')return centralFieldTargetInput(data,row.id,old?.data);
  const probe={kind:'INSTALLATION',title:'Validation',profiles:{SABOTAGE:{test:'AUTO',durationSeconds:0},REPAIR:{test:'AUTO',durationSeconds:0}},rewards:[]};
  for(const [column,[key]] of Object.entries(fields)){
   if(key==='profiles'||key==='rewards'||key==='dependencyId')continue;

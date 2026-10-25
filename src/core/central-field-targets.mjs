@@ -1,5 +1,6 @@
 import {requireThat} from './validation.mjs';
 import {fieldTargetInput} from './field-state.mjs';
+import {analysisProfile} from '../shared/space-outlaws-analysis.mjs';
 
 const fields=['kind','title','description','gmNotes','profiles','rewards','dependencyId','offlineSeconds','failureLockSeconds','repairProtectionSeconds'];
 const profileFields=['skillId','minLevel','instructions','durationSeconds','durationByLevel','test','threshold','cost','cooldownSeconds','bonusItems','consumable','successText','failureText'];
@@ -10,7 +11,7 @@ export function centralFieldTargetEditable(d){
 }
 export function centralFieldTargetInput(v,id,old={}){
  keys(v,fields);requireThat(Buffer.byteLength(JSON.stringify(v))<=centralFieldTargetBytes,'CENTRAL_FIELD_TARGET_SIZE');
- keys(v.profiles,['SEARCH','SABOTAGE','REPAIR']);
+ keys(v.profiles,['SEARCH','SABOTAGE','REPAIR','ANALYZE']);
  for(const p of Object.values(v.profiles)){
   keys(p,profileFields);
   if(p.durationByLevel!==undefined)requireThat(p.durationByLevel&&typeof p.durationByLevel==='object'&&!Array.isArray(p.durationByLevel),'INVALID_CENTRAL_FIELD_TARGET');
@@ -18,7 +19,7 @@ export function centralFieldTargetInput(v,id,old={}){
   if(p.consumable!=null)keys(p.consumable,['itemId','quantity']);
  }
  requireThat(Array.isArray(v.rewards),'INVALID_CENTRAL_FIELD_TARGET');
- for(const r of v.rewards){keys(r,['id','kind','quantity','stock','perCharacter','itemId','knowledgeId']);requireThat((r.kind==='ITEM'||r.itemId==null)&&(r.kind==='KNOWLEDGE'||r.knowledgeId==null),'INVALID_CENTRAL_FIELD_TARGET');}
+ for(const r of v.rewards){keys(r,['id','kind','quantity','stock','perCharacter','itemId','knowledgeId',...(v.kind==='ANALYSIS'?['minLevel','bonus']:[])]);requireThat((r.kind==='ITEM'||r.itemId==null)&&(r.kind==='KNOWLEDGE'||r.knowledgeId==null),'INVALID_CENTRAL_FIELD_TARGET');}
  const data={...fieldTargetInput({...v,publicationState:'DRAFT'},id,{revision:old.revision??0}),masterArchived:false};
  requireThat(Buffer.byteLength(JSON.stringify(data))<=centralFieldTargetBytes,'CENTRAL_FIELD_TARGET_SIZE');return data;
 }
@@ -48,7 +49,7 @@ export function centralFieldTargetProjection(changes,itemChanges=null){
  for(const c of changes.filter(c=>c.type==='fieldTarget'&&c.operation==='UPSERT')){
   const add=(field,ref,type,code,message)=>diagnostics.push(diagnostic(c,field,ref,type,code,message));
   for(const ref of centralFieldTargetReferences(c.data)){
-   if(ref.type==='skill'){add(ref.field,ref.id,ref.type,'REFERENCE_NOT_CHECKED','Catalogue canonique et profil de compétence à raccorder.');continue;}
+   if(ref.type==='skill'){if(c.data.kind!=='ANALYSIS'||!analysisProfile(ref.id))add(ref.field,ref.id,ref.type,'REFERENCE_NOT_CHECKED','Catalogue canonique et profil de compétence à raccorder.');continue;}
    if(ref.type==='item'&&itemChanges===null){add(ref.field,ref.id,ref.type,'REFERENCE_NOT_CHECKED','Lecture M1 requise pour contrôler cet objet.');continue;}
    const target=(ref.type==='item'?items:changes).find(t=>t.type===ref.type&&t.entityId===ref.id);
    if(!target){add(ref.field,ref.id,ref.type,'REFERENCE_MISSING','Préparer la définition cible dans son atelier ou corriger son identifiant.');continue;}
@@ -57,8 +58,10 @@ export function centralFieldTargetProjection(changes,itemChanges=null){
    if(ref.type==='item'&&ref.consumable&&!target.data.consumable)add(ref.field,ref.id,ref.type,'FIELD_CONSUMABLE','Choisir un objet consommable.');
    if(ref.type==='item'&&ref.quantity!==undefined&&target.data.kind==='INDIVIDUAL'&&ref.quantity!==1)add(ref.field,ref.id,ref.type,'FIELD_ITEM_QUANTITY','Un objet individuel exige une quantité de 1.');
   }
-  add('profiles',null,null,'FIELD_RULES_PENDING','Paramètres préparatoires : conformité V0.7, compétences, autorisations et QR de jeu restent à valider avant toute activation.');
-  if(c.data.rewards.length)add('rewards',null,null,'FIELD_REWARD_SOURCE_PENDING','Quantités et plafonds proposés seulement ; source, réserve réelle et attribution transactionnelle restent à raccorder.');
+  if(c.data.kind!=='ANALYSIS'){
+   add('profiles',null,null,'FIELD_RULES_PENDING','Paramètres préparatoires : conformité V0.7, compétences, autorisations et QR de jeu restent à valider avant toute activation.');
+   if(c.data.rewards.length)add('rewards',null,null,'FIELD_REWARD_SOURCE_PENDING','Quantités et plafonds proposés seulement ; source, réserve réelle et attribution transactionnelle restent à raccorder.');
+  }
  }
  return {references:{...centralLocationReferences(changes),itemsReadable:itemChanges!==null,items:items.map(c=>({id:c.entityId,name:c.data.name,kind:c.data.kind,consumable:c.data.consumable,archived:c.operation!=='UPSERT',revision:c.data.revision,source:c.source}))},diagnostics,publicationAvailable:false};
 }

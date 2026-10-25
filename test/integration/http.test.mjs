@@ -1,3 +1,5 @@
+import {analysisProfile} from '../../src/shared/space-outlaws-analysis.mjs';
+import {getFirestore} from 'firebase-admin/firestore';
 import {fieldImportRow} from '../support/central-field-import-suite.mjs';
 import {centralTestInstallation} from '../support/central-field-targets-suite.mjs';
 import {centralModelRow,centralPortRow,centralRouteRow} from '../support/central-space-import-suite.mjs';
@@ -1006,7 +1008,7 @@ test('HTTP + Auth : Excel M6 versionné, lot informations et lieux, réessais et
  await cmd('setCentralStaff',{...grant,revision:1,active:false});for(const requestId of [apply.requestId,randomUUID()])assert.equal((await request('applyCentralImport',{...apply,requestId},editor)).status,403);assert.equal((await request('exportCentralDraft',{campaignId,workshop:'M6',schemaVersion:2,ids:[]},editor)).status,403);assert.equal((await request('admissionAdmin',{sessionId},foreign)).status,403);const session=await call('session',{sessionId});assert.equal(session.versionId,null);for(const key of ['characters','accounts','inventory','registrations'])assert.deepEqual(session[key],[]);
 });
 
-test('HTTP + Auth : candidature, version figée, naissance, espace privé et QR public',async()=>{
+test('HTTP + Auth : candidature, naissance, QR, analyse chronométrée et informations privées',async()=>{
  const owner=await googleTestAccount(process.env.OWNER_EMAIL),player=await googleTestAccount(`entry-${randomUUID()}@example.invalid`),other=await googleTestAccount(`other-entry-${randomUUID()}@example.invalid`);
  const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;},cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
  const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Entrée complète HTTP',title:'Session synthétique',capacity:2,privacy:'Notice fictive'});
@@ -1020,6 +1022,9 @@ test('HTTP + Auth : candidature, version figée, naissance, espace privé et QR 
  let draftRevision=2;const bindings=[];
  for(const slotId of ['communicator','weapon','armor','field-supplies']){bindings.push({slotId,itemId:slotId});await cmd('saveCentralItem',{campaignId,itemId:slotId,itemRevision:0,draftRevision:draftRevision++,item:centralTestItem,reason:'Modèle fictif'});}
  await cmd('saveCentralClassKit',{campaignId,classKitId:'COM',classKitRevision:0,draftRevision,classKit:{bindings,gmNotes:''},reason:'Kit fictif'});
+ draftRevision++;
+ await cmd('saveCentralKnowledge',{campaignId,knowledgeId:'intel',knowledgeRevision:0,draftRevision:draftRevision++,knowledge:{...centralTestKnowledge,title:'Repli',body:'RENSEIGNEMENT_HTTP_PRIVE',initialCharacterIds:[],qrEnabled:false,qrCharacterIds:[],qrSkillId:null,qrSkillLevel:null},reason:'Information de scène'});
+ await cmd('saveCentralFieldTarget',{campaignId,fieldTargetId:'point',fieldTargetRevision:0,draftRevision:draftRevision++,fieldTarget:{kind:'ANALYSIS',title:'Point balisé',description:'Public',gmNotes:'SECRET_HTTP_MJ',profiles:{ANALYZE:analysisProfile('COM-03')},rewards:[{id:'intel',kind:'KNOWLEDGE',knowledgeId:'intel',quantity:1,stock:1,perCharacter:1,minLevel:1,bonus:false}]},reason:'Analyse tactique'});
  assert.equal((await request('previewSpaceOutlawsRelease',{sessionId})).status,401);assert.equal((await request('previewSpaceOutlawsRelease',{sessionId},player)).status,403);
  const p=await call('previewSpaceOutlawsRelease',{sessionId});assert.deepEqual(p.blockers,[]);await cmd('releaseSpaceOutlaws',{sessionId,confirmation:p.confirmation,reason:'Version de test'});
  const options={weaponApplicable:true,startingInformation:''},b=await call('previewSpaceOutlawsBirth',{sessionId,uid,options});
@@ -1028,5 +1033,21 @@ test('HTTP + Auth : candidature, version figée, naissance, espace privé et QR 
  const own=await call('mySession',{sessionId},player);assert.equal(own.character.id,born.characterId);assert.equal(own.actionPoints.available,5);assert.equal(own.character.hp,4);assert.equal((await call('mySession',{sessionId},other)).character,null);
  assert.equal((await request('mySpaceOutlawsEntry',{sessionId},other)).status,403);const badge=await call('publicBadge',{sessionId,characterId:born.characterId},null);assert.doesNotMatch(JSON.stringify(badge),/biography|email|uid|secrets/);
  assert.equal((await call('myWallet',{sessionId},player)).account.protectedCredits,200);assert.equal((await call('myInventory',{sessionId},player)).lots.length,4);
- await cmd('revokeAccess',{sessionId,uid});assert.equal((await call('mySession',{sessionId},player)).character,null);assert.equal((await cmd('birthSpaceOutlaws',{...birth,requestId:randomUUID()})).accessActive,false);
+ const session=await call('session',{sessionId});await cmd('setStage',{sessionId,revision:session.revision,stage:'EN_JEU'});
+ assert.equal((await request('fieldTarget',{sessionId,targetId:'point'})).status,401);
+ assert.equal((await request('fieldTarget',{sessionId,targetId:'point'},other)).status,403);
+ const scan=await call('fieldTarget',{sessionId,targetId:'point'},player);assert.doesNotMatch(JSON.stringify(scan),/RENSEIGNEMENT_HTTP_PRIVE|SECRET_HTTP_MJ/);
+ const preview=await call('prepareFieldAction',{sessionId,targetId:'point',kind:'ANALYZE'},player),input={sessionId,targetId:'point',kind:'ANALYZE',present:true,confirmation:preview.confirmation,requestId:randomUUID()};
+ const action=await cmd('startFieldAction',input,player);assert.deepEqual(await cmd('startFieldAction',input,player),action);
+ assert.equal((await call('mySession',{sessionId},player)).actionPoints.reserved,1);
+ assert.equal((await request('finishFieldAction',{sessionId,actionId:action.id,present:true,requestId:randomUUID()},player)).error,'FIELD_TOO_EARLY');
+ const paused=await call('session',{sessionId});await cmd('setStage',{sessionId,revision:paused.revision,stage:'PAUSE'});
+ // Synthetic emulator clock only: do not wait 105 wall seconds in the HTTP suite.
+ const ref=getFirestore().doc(`sessions/${sessionId}`),stored=(await ref.get()).data();await ref.update({clock:{...stored.clock,elapsedMs:stored.clock.elapsedMs+105000}});
+ const resumed=await call('session',{sessionId});await cmd('setStage',{sessionId,revision:resumed.revision,stage:'EN_JEU'});
+ const finish={sessionId,actionId:action.id,present:true,requestId:randomUUID()},result=await cmd('finishFieldAction',finish,player);assert.equal(result.result.roll,null);assert.equal(result.status,'SUCCEEDED');assert.deepEqual(await cmd('finishFieldAction',finish,player),result);
+ assert.equal((await call('mySession',{sessionId},player)).actionPoints.available,4);
+ assert.equal((await call('knowledgeDetail',{sessionId,knowledgeId:'intel'},player)).knowledge.body,'RENSEIGNEMENT_HTTP_PRIVE');
+ assert.equal((await request('knowledgeDetail',{sessionId,knowledgeId:'intel'},other)).status,403);
+ await cmd('revokeAccess',{sessionId,uid});assert.equal((await call('mySession',{sessionId},player)).character,null);assert.equal((await request('finishFieldAction',finish,player)).status,403);assert.equal((await request('birthSpaceOutlaws',{...birth,requestId:randomUUID()})).error,'SO_ENTRY_CLOSED');
 });

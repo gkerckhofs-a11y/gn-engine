@@ -69,7 +69,7 @@ export function spaceOutlawsEntrySuite(makeStore,prefix='Entrée SPACE OUTLAWS')
   const g=await entryFixture(makeStore);const released=await g.release(await g.releasePreview()),path=`campaigns/${g.campaignId}/versions/${released.versionId}/pages/0`,page=await g.store.get(path);await g.store.runTransaction(async tx=>tx.set(path,{...page,entries:[]}));await assert.rejects(g.birthPreview(),{code:'SO_VERSION_INVALID'});
  });
  test(`${prefix} : anciens éditeurs et lancement du jeu ne peuvent modifier cette incarnation`,async()=>{
-  const f=await entryFixture(makeStore);await f.release(await f.releasePreview());await f.birth(await f.birthPreview());const s=await f.read('session');await assert.rejects(f.cmd('setStage',{revision:s.revision,stage:'EN_JEU'}),{code:'SO_GAMEPLAY_NOT_OPEN'});assert.equal((await f.read('session')).stage,'BRIEFING');
+  const f=await entryFixture(makeStore);await f.release(await f.releasePreview());await f.birth(await f.birthPreview());const s=await f.read('session');await assert.rejects(f.cmd('setStage',{revision:s.revision,stage:'EN_JEU'}),{code:'SO_ACTION_TARGET_REQUIRED'});assert.equal((await f.read('session')).stage,'BRIEFING');
  });
  test(`${prefix} : plusieurs joueurs gardent des incarnations et dotations distinctes`,async()=>{
   const f=await entryFixture(makeStore),session=await f.read('session'),view=await f.view(),draftRevision=view.draft.revision;

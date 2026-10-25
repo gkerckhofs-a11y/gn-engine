@@ -1,3 +1,4 @@
+import {spaceOutlawsActionsSuite} from '../support/space-outlaws-actions-suite.mjs';
 import {spaceOutlawsEntrySuite} from '../support/space-outlaws-entry-suite.mjs';
 import {centralFieldImportSuite} from '../support/central-field-import-suite.mjs';
 import {centralFieldTargetsSuite} from '../support/central-field-targets-suite.mjs';
@@ -141,3 +142,4 @@ personSuite(()=>firestoreStore(firestore),'Interactions sur Firestore');
 admissionReviewsSuite(()=>firestoreStore(firestore),'Décisions SO sur Firestore');
 
 spaceOutlawsEntrySuite(()=>firestoreStore(firestore),'Entrée SO sur Firestore');
+spaceOutlawsActionsSuite(()=>firestoreStore(firestore),'Actions SO sur Firestore');

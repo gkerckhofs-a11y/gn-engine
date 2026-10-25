@@ -1,4 +1,5 @@
 import {createSpaceOutlawsEntryService,spaceOutlawsEntryActions} from './space-outlaws-entry.mjs';
+import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {characterInput} from './character-state.mjs';
 import {recipeInput,validateRecipeReferences} from './recipe-state.mjs';
 import {createCentralMasterService,centralMasterAction,centralDashboard} from './central-master.mjs';
@@ -443,6 +444,11 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         } else {
           const transitions={PREPARATION:['BRIEFING'],BRIEFING:['EN_JEU'],EN_JEU:['PAUSE','FINISHED'],PAUSE:['EN_JEU','FINISHED'],FINISHED:['ARCHIVED'],ARCHIVED:[]};
           requireThat(transitions[s.stage].includes(input.stage),'INVALID_TRANSITION');
+          if(s.spaceOutlaws){
+            authorizeSpaceOutlaws(tx,s,'RHYTHM');
+            if(s.stage==='BRIEFING')requireThat((await tx.list(`sessions/${sid}/fieldTargets`)).some(t=>t.kind==='ANALYSIS'&&t.publicationState==='PUBLISHED'),'SO_ACTION_TARGET_REQUIRED');
+            if(input.stage==='FINISHED')requireThat(!(await tx.list(`sessions/${sid}/fieldActions`)).some(a=>a.status==='ACTIVE'),'FIELD_ACTIONS_OPEN');
+          }
           if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/personActions`)).some(personOpen),'PERSON_ACTIONS_OPEN');
           if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/fieldActions`)).some(a=>a.status==='ACTIVE'),'FIELD_ACTIONS_OPEN');
           if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/ships`)).some(s=>s.journey),'VOYAGES_OPEN');

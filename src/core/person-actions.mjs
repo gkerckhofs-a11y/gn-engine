@@ -1,4 +1,6 @@
 import {requirePatientNature} from './character-nature.mjs';
+import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
+import {analysisProfile} from '../shared/space-outlaws-analysis.mjs';
 import {acceptsPatientNature} from '../shared/character-nature.mjs';
 import {randomInt} from 'node:crypto';
 import {documentId,requireThat} from './validation.mjs';
@@ -72,13 +74,18 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
     const {s,c,r}=ctx,all=await tx.list(`sessions/${s.id}/personActions`),actions=[];
     for(const a of all){const identity=c.id===a.characterId?[a.actorUid,a.accessVersion]:c.id===a.targetId?[a.targetUid,a.targetAccessVersion]:c.id===a.aid?.characterId?[a.aid.uid,a.aid.accessVersion]:null;if(!identity||identity[0]!==actor.uid||identity[1]!==r.accessVersion)continue;const v=view(a,s,c.id,at);if(v.canChoose){const t=await tx.get(cp(s.id,a.targetId));v.lootLots=(await lootLots(tx,s,t,at)).map(l=>({id:l.id,name:l.item.name}));}actions.push(v);}
     const offers=(await tx.list(`sessions/${s.id}/aidOffers`,['helperId',c.id])).filter(o=>o.helperUid===actor.uid&&o.accessVersion===r.accessVersion&&['OFFERED','ACTIVE'].includes(o.status));
-    return {session:{id:s.id,stage:s.stage},character:{id:c.id,name:c.public.displayName},skills:(c.abilityProfile?.published?c.abilityProfile.skills:[]).filter(k=>k.kind==='PASSIVE').map(k=>({id:k.id,name:k.name})),actions:actions.sort((a,b)=>b.startedAt-a.startedAt).slice(0,100),aidOffers:offers.map(o=>({id:o.id,status:o.status,recipientName:o.recipientName,skillId:o.skillId,actionId:o.actionId??null,collection:o.collection??null})),encounter:encounter(c,at),convalescenceMs:Math.max(0,(c.convalescentUntilGameMs??0)-gameTime(s.clock,at)),captureMs:Math.max(0,(c.lootEncounter?.captureUntil??0)-at)};
+    return {session:{id:s.id,stage:s.stage,...(s.spaceOutlaws?{spaceOutlaws:true}:{})},character:{id:c.id,name:c.public.displayName},skills:(c.abilityProfile?.published?c.abilityProfile.skills:[]).filter(k=>k.kind==='PASSIVE'&&(!s.spaceOutlaws||analysisProfile(k.id)?.test==='D6')).map(k=>({id:k.id,name:k.name})),actions:actions.sort((a,b)=>b.startedAt-a.startedAt).slice(0,100),aidOffers:offers.map(o=>({id:o.id,status:o.status,recipientName:o.recipientName,skillId:o.skillId,actionId:o.actionId??null,collection:o.collection??null})),encounter:encounter(c,at),convalescenceMs:Math.max(0,(c.convalescentUntilGameMs??0)-gameTime(s.clock,at)),captureMs:Math.max(0,(c.lootEncounter?.captureUntil??0)-at)};
    }
    if(action==='personTarget'){
     const {s,c}=ctx,{c:t}=await activeCharacter(tx,s.id,input.targetId),profiles=(await tx.list(`sessions/${s.id}/personProfiles`)).filter(p=>p.publicationState==='PUBLISHED'&&(isLoot(p)||acceptsPatientNature(p,t))),lots=(await tx.list(`sessions/${s.id}/inventory`,['holderId',c.id])).filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.quantity>0);
     return {session:{id:s.id,stage:s.stage},target:{id:t.id,name:t.public.displayName},profiles:profiles.map(p=>({id:p.id,name:p.name,kind:p.kind,instructions:p.instructions,test:p.test,skillId:p.skillId,bonusItems:p.bonusItems,supplies:[p.consumable,...p.extraConsumables].filter(Boolean)})),lots:lots.map(publicLot),aidOffers:await offeredAid(tx,s.id,c.id)};
    }
    if(action==='preparePersonAction')return (await plan(tx,ctx,input,at)).preview;
+   if((ctx??org).s.spaceOutlaws){
+    requireThat(['offerAid','cancelAidOffer'].includes(action),'SO_GAMEPLAY_NOT_OPEN');
+    if(action==='offerAid')requireThat(analysisProfile(input.skillId)?.test==='D6','AID_NOT_ALLOWED');
+    authorizeSpaceOutlaws(tx,(ctx??org).s,'AID');
+   }
    const op=`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`,fingerprint=digest([action,input]),previous=await tx.get(op);
    let a;
    if(['finishPersonAction','cancelPersonAction','cancelPersonActionAid','chooseLoot','confirmLootHandover','cancelPersonActionMJ'].includes(action)){const s=(ctx??org).s;a=await tx.get(path(s.id,documentId(input.actionId)));requireThat(a,'NOT_FOUND');if(ctx)await participant(tx,s,a,ctx.c,ctx.r,actor,action==='cancelPersonActionAid');}

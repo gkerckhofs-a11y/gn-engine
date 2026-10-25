@@ -3,7 +3,13 @@ import {requireThat} from './validation.mjs';
 
 // Server-only transaction capability, never supplied by a request body.
 export const spaceOutlawsTransaction=Symbol('spaceOutlawsBirth');
-export function guardSpaceOutlawsEntry(session,pending,authorized){
+export const spaceOutlawsGameplay=Symbol('spaceOutlawsGameplay');
+export function authorizeSpaceOutlaws(tx,s,scope){
+ if(!s.spaceOutlaws)return;
+ requireThat(s.spaceOutlaws.actionsVersion===1,'SO_GAMEPLAY_NOT_OPEN');
+ tx[spaceOutlawsGameplay](s.id,scope);
+}
+export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set()){
  if(authorized){
   const next=pending.get(`sessions/${session.id}`);
   requireThat(next?.spaceOutlaws?.ruleProfile==='SPACE_OUTLAWS_V07'&&next.stage==='BRIEFING'&&next.revision===session.revision+1,'SO_BIRTH_CONFLICT');
@@ -11,11 +17,19 @@ export function guardSpaceOutlawsEntry(session,pending,authorized){
  }
  if(!session?.spaceOutlaws)return false;
  const base=`sessions/${session.id}/`;
- // Entry milestone: only access and briefing receipts may mutate through legacy
- // services. Never reinterpret the canonical instance as a historical scenario.
+ // Explicit capabilities open the connected gameplay services only. Other
+ // legacy mutations remain blocked for canonical SPACE OUTLAWS instances.
  for(const [path] of pending){
   if(!path.startsWith(base)&&path!==base.slice(0,-1))continue;
   if(path.startsWith(`${base}audit/`))continue;
+  const relative=path.slice(base.length);
+  if(scopes.has('FIELD')&&/^(fieldActions\/[^/]+|fieldStates\/[^/]+|aidOffers\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/(?:resources\/actionPoints|fieldCooldowns\/[^/]+|knowledge\/[^/]+))?)$/.test(relative))continue;
+  if(scopes.has('AID')&&/^aidOffers\/[^/]+$/.test(relative))continue;
+  if(scopes.has('KNOWLEDGE')&&/^characters\/[^/]+\/knowledge\/[^/]+$/.test(relative))continue;
+  if(scopes.has('RHYTHM')&&path===base.slice(0,-1)){
+   const next=pending.get(path),strip=({stage,clock,revision,registrationOpen,...rest})=>rest;
+   requireThat(isDeepStrictEqual(strip(session),strip(next))&&next.revision===session.revision+1&&['EN_JEU','PAUSE','FINISHED'].includes(next.stage),'SO_GAMEPLAY_NOT_OPEN');continue;
+  }
   if(path===base.slice(0,-1)){const {revision:beforeRevision,...before}=session,{revision:afterRevision,...after}=pending.get(path);requireThat(afterRevision===beforeRevision+1&&isDeepStrictEqual(before,after),'SO_GAMEPLAY_NOT_OPEN');continue;}
   if(/^registrations\/[a-f0-9]{64}$/.test(path.slice(base.length)))continue;
   requireThat(false,'SO_GAMEPLAY_NOT_OPEN');

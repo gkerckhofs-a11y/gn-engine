@@ -1,38 +1,48 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
-## État actif — parcours d’entrée des joueurs, 25 octobre 2026
+## État actif — QR, analyses et PA, 25 octobre 2026
 
-Priorité : version jouable SPACE OUTLAWS, services existants, aucun perfectionnement des imports/exports. Ce document devient le seul suivi évolutif ; les comptes rendus C2 ci-dessous sont historiques.
+Priorité : version jouable SPACE OUTLAWS, services existants, aucun perfectionnement de l’outillage sans dépendance directe du jeu. Ce document reste le seul suivi évolutif ; les comptes rendus C2 ci-dessous sont historiques.
 
-**Base confirmée** : branche `work/l1-modular-workshop`, PR #1, HEAD `d99ed8411ed5a656a517c906b018718397f14447`. Dernière CI PR [40193157165](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40193157165) réussie. Aucun audit historique relancé. Main demeure `03eaace155b052d1b7d1960347746e9ee60ed514`.
+**Base confirmée** : branche `work/l1-modular-workshop`, PR #1, HEAD `d54223c6928d2be5ffa2b915695cd86c4da49984`. Dernière CI PR [40204353277](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40204353277) réussie. Aucun audit historique relancé. Main demeure `03eaace155b052d1b7d1960347746e9ee60ed514`.
 
-### Résultat du jalon
+### Parcours disponible
 
-Parcours raccordé : invitation et proposition existantes → approbation et préparation M2 existantes → contrôle global et des dossiers → version initiale figée → naissance explicitement confirmée par le MJ → accès privé au briefing, compétences, PA, kit et QR d’identité publique.
+Candidature approuvée → fiche M2 → version initiale figée → première naissance MJ → fiche privée → ouverture du jeu MJ → QR/code de lieu ou de document → aperçu → scène chronométrée → résolution → informations privées consultables sans nouveau PA.
 
-- Publication et naissance sont deux commandes distinctes. La publication conserve toutes les définitions dans des pages immuables vérifiées avec manifeste ; elle ne crée aucune ressource. Autorité propriétaire actuelle, contrôle du brouillon entier et rapprochement privé des dossiers. Une erreur bloque l’ensemble.
-- Le raccordement initial couvre objets/kits M1, espèces/personnages M2. Les définitions actives des autres types empêchent cette publication : elles ne sont ni effacées, ni omises, ni déclarées exécutables. **Une campagne contenant déjà boutiques, lieux, groupes, missions ou routes actifs ne peut donc pas encore être ouverte par ce jalon.** Le contrôle C2 historique reste un diagnostic préparatoire.
-- Naissance atomique sous les droits MJ courants, depuis la version figée : approbation, identité, plan et quotas revérifiés ; une incarnation par participant, un seul kit, un seul compte. Un nouvel essai retrouve l’incarnation sans restaurer PA, crédits, objets ou accès révoqué.
-- Première incarnation de première session uniquement : niveau global 1, 5 PA, trois compétences principales N2 ou fixes, une initiation N1, 3 PV ou 4 pour le Combattant et 1 protection pour son armure. Nature humanoïde/droïde conservée ; aucun profil Force ajouté.
-- Kit natif protégé de sa classe ; objets individuels séparés lorsqu’une quantité dépasse un. Arme ordinaire sur choix explicite MJ ; informations initiales exigées pour Pilote/Courtier et communiquées à leur seul joueur. Aucun vaisseau ou mandat implicite.
-- Compte existant réutilisé : solde ordinaire initial 0, champ `protectedCredits=200` distinct, origine et ledger explicites. Les crédits protégés ne sont jamais inclus dans le disponible ordinaire. Inventaires natifs avec origine de naissance et protections pillage/transfert/revente.
-- Interface MJ « Entrée des joueurs », aperçu et confirmation ; accès joueur depuis son lien de candidature après publication. Fiche, compétences fixes sans faux niveau, dotation et QR public. Les notes MJ, l’UID et les informations civiles sont exclus des projections de personnage.
+- Trois compétences raccordées aux services terrain existants : **COM-03 Lecture tactique**, **TRA-01 Lecture des traces**, **TRA-03 Vérification documentaire**. Les autres capacités restent à raccorder.
+- COM-03 : 120/105/90/75/60 s selon N1–N5, informations préparées selon le niveau, sans D6. TRA-01/03 : 120 s, informations ordinaires garanties, puis 1D6 + niveau + un matériel compatible (maximum +2) + une aide compétente (+1) contre 6 pour le supplément. Un 1 naturel n’est pas un échec automatique. Le supplément ne doit pas être indispensable à l’intrigue ; la rédaction des informations reste à la charge du MJ.
+- 1 PA réservé au départ, consommé à la résolution ; récupération de 600 s sur la compétence, commune à ses cibles. Une interruption avant résolution libère les PA, matériel et aide sans résultat ni récupération. Recommencer impose la durée complète. Une action par personnage et par cible ; une aide ne dépense pas de second PA mais subit la récupération.
+- Présence et réalisation de la scène confirmées au lancement et à la résolution. Le document doit être réellement accessible. Un QR ouvre la cible, sans preuve technique de présence. Les textes privés et notes MJ ne sont pas exposés dans le scan ni l’aperçu.
+- Tentative d’analyse conservée par personnage et version de cible. Une actualisation ou un nouvel ID de requête ne relance pas le dé, ne redébite pas et ne redonne pas de tentative. Les reçus d’information utilisent le service natif et sa projection explicite.
+- Horloge commune : début EN_JEU, pause/reprise, renouvellement toutes les cinq heures de jeu. Une pause suspend durée et renouvellement ; une reconnexion ne recharge pas. Terminer exige d’abord de résoudre ou interrompre les actions en cours. Le MJ peut annuler une action après révocation d’un accès.
+- UI M6 : édition d’une analyse avec règles fixes et informations par niveau ; publication globale inclut maintenant informations et analyses. UI MJ : ouverture/pause/fin, QR des lieux, suivi et interruption. UI joueur : Action, aperçus, minuterie, résultats, informations, aide. Les services existants de PA, terrain, inventaire, connaissances et horloge sont réutilisés.
 
-### Limites à poursuivre directement
+### Publication et données
 
-**Le briefing fonctionne ; une partie complète n’est pas encore jouable.** La session reste BRIEFING et la garde serveur bloque les anciens éditeurs, le démarrage EN_JEU et les mutations de jeu non raccordées. Les profils de compétence sont présentés au joueur ; leurs actions canoniques ne sont pas exécutées par ce jalon. La consommation du kit et les dépenses des crédits protégés restent à raccorder.
+Le jalon précédent est conservé : admissions, première incarnation unique, compétences initiales, 5 PA, 3 PV (4 et protection 1 pour COM), kit natif protégé et compte avec **200 Cr protégés séparés du solde ordinaire**. Aucune dotation créée par publication ; la première naissance installe aussi les définitions M6 de la version figée, et chaque naissance reçoit ses seules informations initiales. Les naissances ultérieures du briefing ne réinitialisent pas les lieux ni leurs reçus.
 
-Ordre suivant : QR/action et compétences/PA → inventaire/économie et boutique → vaisseau/voyage/combat → missions/régie. Étendre au passage la publication aux types effectivement exécutables. Les nouvelles révisions de Master, naissances à chaud, réserves/succession, progression intersessions, groupes, conversion des crédits protégés et consolidation de campagne restent ouvertes ; ne pas prendre ce premier parcours pour une clôture I4/I5 ou C2 complet. Aucun déploiement ni migration de données réelles effectué.
+Les types actifs raccordés sont objets/kits M1, espèces/personnages M2, informations M6 sans condition QR de compétence, et lieux M6 de type ANALYSIS. Les autres types actifs bloquent toujours globalement la publication, sans omission ni effacement. Une campagne contenant boutiques, groupes, missions, routes, fouilles à stock ou installations actives ne peut donc pas encore être ouverte par ce parcours.
+
+Le marqueur `spaceOutlaws.actionsVersion=1` ouvre seulement les services contrôlés : analyses, offres d’aide correspondantes, lecture/découverte/partage d’informations et rythme de jeu. Les autres mutations historiques restent bloquées côté serveur. L’ouverture exige au moins une analyse publiée. Aucun ancien briefing sans ce marqueur n’est automatiquement migré ; une version déjà scellée n’est pas enrichie implicitement.
+
+Borne technique d’activation : définitions de connaissances + deux documents par lieu + maximum d’informations initiales d’un personnage ≤ 440 écritures M6, afin de garder la naissance dans la transaction Firestore. Les bornes centrales historiques demeurent. Le contrat XLSX n’est pas remanié ; sa lecture conserve le nouveau profil natif couplé de l’analyse.
+
+Préserver ensemble versions/pages, brouillon scellé, inscriptions et verrous, droits, personnages, PA, comptes/ledger, lots, connaissances/reçus, lieux/états/tentatives, actions, aides, récupérations, opérations et audits. Un ancien binaire ignorant ces marqueurs n’est pas un retour sûr. Aucun déploiement, migration de données réelles, règle, index, secret ou workflow modifié.
+
+### Limites et suite
+
+**Une scène d’enquête QR est jouable ; SPACE OUTLAWS complet ne l’est pas encore.** Les soins et dégâts canoniques, autres compétences, dépenses et consommations, boutiques, groupes, vaisseaux, voyages/combat et missions restent à raccorder. Pas de naissance à chaud, relève, succession, progression, nouvelles versions de Master ou consolidation intersessions dans ce jalon.
+
+Suite directe : soins/consommables et PA → inventaire/économie/boutique → vaisseau/voyage/combat → missions/régie. Aucun perfectionnement documentaire ou générique préalable.
 
 ### Validation
 
-Local : **1492/1492 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo ; compilation réussie ; diff vérifié. Node 24.22.1, npm 11.9.0. Ajouts : 12 cas métier partagés mémoire/Firestore (dont les huit classes, deux joueurs, concurrence, interruption, révocation, intégrité, quota corrompu) et 3 cas UI ; 1 parcours HTTP/Auth complet ajouté. Les fichiers d’intégration sont vérifiés syntaxiquement. Java local 17.0.20 : tests Firebase réservés à la CI Node 22/Java 21 existante. Résultat exact du candidat dans la PR #1 après terminaison ; aucune réussite distante anticipée. Aucune recette visuelle navigateur/mobile ou terrain revendiquée.
+Local : **1511/1511 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo ; compilation et diff vérifiés. Ajouts : 15 cas métier partagés mémoire/Firestore et 4 cas UI/règles ; parcours HTTP/Auth existant étendu jusqu’à l’analyse, son résultat privé et la révocation. Les tests HTTP avancent uniquement l’horloge de leur session synthétique dans l’émulateur pour éviter une attente réelle.
 
-### Continuité des données
+Node local 24.22.1, npm 11.9.0, Java 17. Tests Firebase réservés à la CI existante Node 22/Java 21 ; résultats exacts du candidat consignés dans la PR #1 après terminaison. Aucune recette visuelle navigateur/mobile, terrain ou restauration globale revendiquée.
 
-Préserver ensemble brouillon scellé, versions/pages, inscriptions et verrous, droits, personnages, ressources PA, comptes/ledger, inventaires/historiques, reçus et audits. Le marqueur de session `spaceOutlaws.entryVersion=1` est obligatoire : un ancien binaire l’ignorant n’est pas un retour sûr. Aucun schéma de Master historique, workflow de déploiement, règle, index ou secret modifié.
-
-Références fonctionnelles : [SO_CDC_V35 §§3, 4.7–4.10](source/SO_CDC_V35.md), [SO_Regles_V07 chapitres 3–4 et COM-01](source/SO_Regles_V07.txt). Le kit et les niveaux réutilisent les modules canoniques de préparation déjà présents.
+Références : [SO_CDC_V35](source/SO_CDC_V35.md), [SO_Regles_V07, chapitres 3, 4, 7 et 9](source/SO_Regles_V07.txt).
 
 ---
 
