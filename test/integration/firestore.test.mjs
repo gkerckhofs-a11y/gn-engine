@@ -1,3 +1,4 @@
+import {spaceOutlawsEntrySuite} from '../support/space-outlaws-entry-suite.mjs';
 import {centralFieldImportSuite} from '../support/central-field-import-suite.mjs';
 import {centralFieldTargetsSuite} from '../support/central-field-targets-suite.mjs';
 import {centralGroupsSuite} from '../support/central-groups-suite.mjs';
@@ -138,3 +139,5 @@ fieldSuite(()=>firestoreStore(firestore),'Firestore terrain');
 personSuite(()=>firestoreStore(firestore),'Interactions sur Firestore');
 
 admissionReviewsSuite(()=>firestoreStore(firestore),'Décisions SO sur Firestore');
+
+spaceOutlawsEntrySuite(()=>firestoreStore(firestore),'Entrée SO sur Firestore');

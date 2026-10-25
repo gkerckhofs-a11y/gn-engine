@@ -1,3 +1,4 @@
+import {createSpaceOutlawsEntryService,spaceOutlawsEntryActions} from './space-outlaws-entry.mjs';
 import {characterInput} from './character-state.mjs';
 import {recipeInput,validateRecipeReferences} from './recipe-state.mjs';
 import {createCentralMasterService,centralMasterAction,centralDashboard} from './central-master.mjs';
@@ -62,11 +63,11 @@ const regPath = (sid, uid) => `sessions/${sid}/registrations/${hash(uid)}`;
 const charPath = (sid, cid) => `sessions/${sid}/characters/${cid}`;
 const privateSession = s => ({id:s.id, title:s.title, summary:s.summary, date:s.date, time:s.time, place:s.place,
   practical:s.practical, privacy:s.privacy, capacity:s.capacity, accepted:s.accepted, registrationOpen:s.registrationOpen,
-  stage:s.stage, fields:s.fields, scenarioId:s.scenarioId, versionId:s.versionId, revision:s.revision,
+  stage:s.stage, fields:s.fields,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{}), scenarioId:s.scenarioId, versionId:s.versionId, revision:s.revision,
   ...(isPreparation(s)?{preparationKind:s.preparationKind,preparationVersion:s.preparationVersion}:{})});
 const publicSession = s => ({id:s.id, title:s.title, summary:s.summary, date:s.date, time:s.time, place:s.place,
   practical:s.practical, privacy:s.privacy, capacity:s.capacity, available:Math.max(0,s.capacity-s.accepted),
-  registrationOpen:s.registrationOpen, stage:s.stage, fields:s.fields});
+  registrationOpen:s.registrationOpen, stage:s.stage, fields:s.fields,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{})});
 const ownRegistration = r => r ? ({name:r.name, email:r.email, answers:r.answers, status:r.status,
   characterId:r.characterId, accessActive:r.accessActive, briefingReadAt:r.briefingReadAt ?? null,
   briefingReadRevision:r.briefingReadRevision??null}) : null;
@@ -146,6 +147,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const logisticsService=createLogisticsService({store,signed,checkSession,now,uuid});
   const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,now,uuid});
   const admissionService=createAdmissionService({store,signed,isAdmin,checkSession,now,uuid});
+  const entryService=createSpaceOutlawsEntryService({store,signed,isAdmin,checkSession,now,uuid});
   const centralMasterService=createCentralMasterService({store,signed,isAdmin,now,uuid});
   const groupManagementService=createGroupManagementService({store,signed,checkSession,now,uuid});
   const personService=createPersonService({store,signed,checkSession,checkScenario,now,uuid,rollD6});
@@ -170,6 +172,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(spaceOutlawsEntryActions.includes(action))return entryService(action,actor,input);
     if(admissionAction(action))return admissionService(action,actor,input);
     if(centralMasterAction(action))return centralMasterService(action,actor,input);
     if(groupManagementAction(action))return groupManagementService(action,actor,input);

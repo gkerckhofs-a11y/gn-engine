@@ -60,10 +60,10 @@ export function requireCentralPreparation(c,s,draft){
 export async function centralDashboard(tx,actor,isAdmin){
  const own=isAdmin?await tx.list('campaigns',['ownerUid',actor.uid]):[];
  const grants=await tx.list('campaignStaff',['email',actor.email.toLowerCase()]),result=[];
- for(const c of own){const s=await tx.get(`sessions/${c.preparationSessionId??'none'}`);if(centralPreparation(c,s))result.push({id:c.id,title:c.title,role:'OWNER'});}
+ for(const c of own){const s=await tx.get(`sessions/${c.preparationSessionId??'none'}`);if(centralPreparation(c,s)&&!c.master?.activeVersionId)result.push({id:c.id,title:c.title,role:'OWNER'});}
  for(const g of grants.filter(g=>g.active)){
-  const c=await tx.get(root(g.campaignId));if(!c||!validGrant(g,c)||result.some(x=>x.id===c.id))continue;
-  const s=await tx.get(`sessions/${c.preparationSessionId??'none'}`);if(centralPreparation(c,s))result.push({id:c.id,title:c.title,role:'WORKSHOP'});
+  const c=await tx.get(root(g.campaignId));if(!c||c.master?.activeVersionId||!validGrant(g,c)||result.some(x=>x.id===c.id))continue;
+  const s=await tx.get(`sessions/${c.preparationSessionId??'none'}`);if(centralPreparation(c,s)&&!c.master?.activeVersionId)result.push({id:c.id,title:c.title,role:'WORKSHOP'});
  }
  return result;
 }

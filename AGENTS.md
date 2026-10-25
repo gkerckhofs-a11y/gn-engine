@@ -1,5 +1,13 @@
 # GN Engine — consignes de développement
 
+## Priorité de reprise — 25 octobre 2026
+
+Instruction utilisateur actuelle : C2a–C2q constitue un socle suffisant. Poursuivre par parcours joueur → personnage → validation MJ → interface → QR/actions → compétences/PA → inventaire/économie → boutique → vaisseau → voyage/combat → missions/régie. Ne plus perfectionner les XLSX ou la généricité sans dépendance directe du jeu. Pas de réaudit historique si HEAD et CI attendus sont confirmés.
+
+Un seul état évolutif : [SO-VALIDATION.md](docs/SO-VALIDATION.md). Les sections historiques ci-dessous ne prescrivent plus de nouveaux micro-lots documentaires. Tests ciblés pendant le travail, suite complète aux jalons cohérents. Réutiliser les services existants. Branche `work/l1-modular-workshop`, PR #1 ; aucune fusion main ni production sans accord explicite.
+
+Le parcours de première naissance utilise une version initiale figée et les collections de session natives. `spaceOutlaws.entryVersion=1` ouvre le briefing uniquement : conserver la garde transactionnelle qui bloque les anciens éditeurs/actions non raccordés. Les fonds protégés sont distincts du solde ordinaire ; ne jamais les rendre transférables par omission. Ne pas déployer un ancien binaire ignorant ce marqueur sur ces données. Les prochaines étapes doivent étendre explicitement cette frontière avec leurs tests métier.
+
 Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouvelle stratégie de développement GN Engine pour la suite ». Mise à jour par le cadrage SPACE OUTLAWS V3.5 du 23 octobre 2026 : SPACE OUTLAWS est prioritaire, le créateur universel est hors périmètre. Ces consignes remplacent les anciens parcours de livraison qui prévoyaient une publication à chaque version.
 
 ## Décision V3.4 et validation préalable

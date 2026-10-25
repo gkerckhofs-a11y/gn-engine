@@ -38,6 +38,7 @@ export function participantCharacter(character, assignment, uid) {
         steps: (x.steps ?? []).filter(s => s.published === true)
           .map(s => ({id: s.id, title: s.title, description: s.description ?? ''}))})),
     abilities: playerAbilities(character.abilityProfile),
+    ...(character.birth?{spaceOutlawsSkills:character.spaceOutlawsSkills,startingInformation:character.startingInformation,protection:character.protection}:{}),
     hp: character.hp,
     maxHp: character.maxHp,
   };
