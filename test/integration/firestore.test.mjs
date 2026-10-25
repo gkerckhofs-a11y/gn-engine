@@ -1,3 +1,4 @@
+import {spaceOutlawsShopsSuite} from '../support/space-outlaws-shops-suite.mjs';
 import {spaceOutlawsHealthSuite} from '../support/space-outlaws-health-suite.mjs';
 import {spaceOutlawsActionsSuite} from '../support/space-outlaws-actions-suite.mjs';
 import {spaceOutlawsEntrySuite} from '../support/space-outlaws-entry-suite.mjs';
@@ -145,4 +146,5 @@ admissionReviewsSuite(()=>firestoreStore(firestore),'Décisions SO sur Firestore
 spaceOutlawsEntrySuite(()=>firestoreStore(firestore),'Entrée SO sur Firestore');
 spaceOutlawsActionsSuite(()=>firestoreStore(firestore),'Actions SO sur Firestore');
 
+spaceOutlawsShopsSuite(()=>firestoreStore(firestore),'Boutiques SO sur Firestore');
 spaceOutlawsHealthSuite(()=>firestoreStore(firestore),'Santé SO sur Firestore');

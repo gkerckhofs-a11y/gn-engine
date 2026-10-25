@@ -1,3 +1,4 @@
+import {createShopService,shopActions} from './shops.mjs';
 import {hasSoHealth,survival} from './space-outlaws-health-state.mjs';
 import {createSpaceOutlawsEntryService,spaceOutlawsEntryActions} from './space-outlaws-entry.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
@@ -163,6 +164,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const marketService=createMarketService({store,signed,checkSession,now,uuid});
   const customsService=createCustomsService({store,signed,checkSession,now,uuid});
   const negotiationService=createNegotiationService({store,signed,now,uuid});
+  const shopService=createShopService({store,signed,checkSession,now,uuid});
   const saleService=createSaleService({store,signed,now,uuid});
   const collectiveService=createCollectiveService({store,signed,checkSession,checkScenario,now,uuid});
   const economyService=createEconomyService({store,signed,checkSession,checkScenario,now,uuid});
@@ -174,6 +176,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   async function dispatch(action,actor,input={}) {
+    if(shopActions.includes(action))return shopService(action,actor,input);
     if(spaceOutlawsEntryActions.includes(action))return entryService(action,actor,input);
     if(admissionAction(action))return admissionService(action,actor,input);
     if(centralMasterAction(action))return centralMasterService(action,actor,input);

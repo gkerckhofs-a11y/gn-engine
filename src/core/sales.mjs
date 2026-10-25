@@ -10,7 +10,7 @@ const actions=new Set(['prepareLotSale','proposeLotSale','lotSaleDetail','prepar
 export const saleAction=a=>actions.has(a);
 export const saleView=p=>({id:p.id,status:p.status,revision:p.revision,createdAt:p.createdAt,expiresAt:p.expiresAt,
   seller:{id:p.sellerId,name:p.sellerName},buyer:{id:p.buyerId,name:p.buyerName},item:publicItem(p.item),quantity:p.quantity,
-  lotId:p.lotId,amount:p.amount,pricing:p.pricing??'FIXED',priceQuote:p.priceQuote??null,negotiationId:p.negotiationId??null,currency:p.currency,conditions:p.conditions,pickupPlace:p.pickupPlace,
+  ...(p.shopId?{shopId:p.shopId,protectedAmount:p.protectedAmount??0}:{}),lotId:p.lotId,amount:p.amount,pricing:p.pricing??'FIXED',priceQuote:p.priceQuote??null,negotiationId:p.negotiationId??null,currency:p.currency,conditions:p.conditions,pickupPlace:p.pickupPlace,
   purchasedLotId:p.purchasedLotId??null,paymentId:p.paymentId??null,paidAt:p.paidAt??null,payer:p.payer??null,
   pickupStatus:p.pickupStatus??null,pickedUpAt:p.pickedUpAt??null});
 const view=saleView;
@@ -44,17 +44,18 @@ export async function listLotSales(tx,s,c,at,preview=false){
   const all=[...sent,...received].sort((a,b)=>b.createdAt-a.createdAt||a.id.localeCompare(b.id));
   const ongoing=p=>p.status==='PENDING'||p.status==='SOLD'&&p.pickupStatus!=='RECEIVED';
   const book=all.some(p=>p.status==='PENDING')?await readPriceBook(tx,s,at):null;
-  return Promise.all([...all.filter(ongoing),...all.filter(p=>!ongoing(p)).slice(0,30)].map(p=>projection(tx,s,c,p,at,preview,book)));
+  return Promise.all([...all.filter(p=>!p.shopId).filter(ongoing),...all.filter(p=>!p.shopId&&!ongoing(p)).slice(0,30)].map(p=>projection(tx,s,c,p,at,preview,book)));
 }
 export function settleLotSale(tx,s,c,p,x,from,at,id,actor){
   const base=`sessions/${s.id}`;
-  const wholeLot=x.lot.quantity===p.quantity,purchasedLotId=wholeLot?x.lot.id:id;
-  const acquired={...x.lot,id:purchasedLotId,quantity:p.quantity,ownerId:p.buyerId,status:'AVAILABLE',...(x.lot.marketReservation?{marketReservation:null}:{}),revision:wholeLot?x.lot.revision+1:1,
+  const wholeLot=!p.shopId&&x.lot.quantity===p.quantity,purchasedLotId=wholeLot?x.lot.id:id;
+  const acquired={...x.lot,id:purchasedLotId,quantity:p.quantity,ownerId:p.buyerId,...(p.shopId?{ownerType:'CHARACTER'}:{}),status:'AVAILABLE',...(x.lot.marketReservation?{marketReservation:null}:{}),revision:wholeLot?x.lot.revision+1:1,
     ...(!wholeLot?{createdAt:at,origin:{kind:'SALE_SPLIT',parentLotId:x.lot.id,rootLotId:x.lot.origin?.rootLotId??x.lot.id,saleId:p.id}}:{})};
   const remaining=wholeLot?acquired:{...x.lot,quantity:x.lot.quantity-p.quantity,revision:x.lot.revision+1};
-  const a=from.a,b=x.to.a,an={...a,balance:a.balance-p.amount,revision:a.revision+1},bn={...b,balance:b.balance+p.amount,revision:b.revision+1};
+  const protectedAmount=p.shopId?p.protectedAmount??0:0;
+  const a=from.a,b=x.to.a,an={...a,balance:a.balance-p.amount+protectedAmount,...(protectedAmount?{protectedCredits:a.protectedCredits-protectedAmount}:{}),revision:a.revision+1},bn={...b,balance:b.balance+p.amount,revision:b.revision+1};
   tx.set(`${base}/accounts/${a.id}`,an);tx.set(`${base}/accounts/${b.id}`,bn);
-  writeLedger(tx,s.id,{id,kind:'SALE',at,actorUid:actor.uid,operatorCharacterId:c.id,saleId:p.id,lotId:purchasedLotId,memo:`Achat : ${p.item.name} · ${p.quantity} ${p.item.unit}`,reason:'Vente immédiate confirmée, sans déplacement physique',source:accountParty(from),recipient:accountParty(x.to),createdCurrency:0,removedCurrency:0,entries:[accountEntry(a,-p.amount,an),accountEntry(b,p.amount,bn)]});
+  writeLedger(tx,s.id,{id,kind:'SALE',at,actorUid:actor.uid,operatorCharacterId:c.id,saleId:p.id,lotId:purchasedLotId,memo:`Achat : ${p.item.name} · ${p.quantity} ${p.item.unit}`,reason:'Vente immédiate confirmée, sans déplacement physique',source:accountParty(from),recipient:accountParty(x.to),createdCurrency:0,removedCurrency:0,entries:[{...accountEntry(a,-p.amount+protectedAmount,an),...(protectedAmount?{protectedDelta:-protectedAmount}:{})},accountEntry(b,p.amount,bn)]});
   const event={id,kind:'SALE',at,actorUid:actor.uid,saleId:p.id,paymentId:id,quantity:p.quantity,reason:'Paiement et propriété transférés, détention et emplacement conservés',before:movement(x.lot),after:movement(remaining),purchasedLotId};
   tx.set(`${base}/inventory/${x.lot.id}`,remaining);tx.set(`${base}/inventory/${x.lot.id}/history/${id}`,event);
   if(!wholeLot){tx.set(`${base}/inventory/${purchasedLotId}`,acquired);tx.set(`${base}/inventory/${purchasedLotId}/history/${id}`,{...event,before:null,after:movement(acquired),sourceLotId:x.lot.id});}
@@ -92,7 +93,7 @@ export function createSaleService({store,signed,now,uuid}){
       if(action==='prepareLotSale')return (await prepare(tx,ctx,input,at)).result;
       let p,role,from;
       if(action!=='proposeLotSale'){
-        p=await tx.get(`${base}/lotSales/${documentId(input.saleId)}`);requireThat(p&&(p.sellerId===c.id||p.buyerId===c.id),'FORBIDDEN');role=p.sellerId===c.id?'seller':'buyer';
+        p=await tx.get(`${base}/lotSales/${documentId(input.saleId)}`);requireThat(p&&!p.shopId&&(p.sellerId===c.id||p.buyerId===c.id),'FORBIDDEN');role=p.sellerId===c.id?'seller':'buyer';
         if(action==='lotSaleDetail')return projection(tx,s,c,p,at);
         requireThat(['cancelLotSale','offerSalePickup'].includes(action)?role==='seller':role==='buyer','FORBIDDEN');
         if(['buyLot','prepareLotPurchase'].includes(action)){
