@@ -23,6 +23,8 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(!path.startsWith(base)&&path!==base.slice(0,-1))continue;
   if(path.startsWith(`${base}audit/`))continue;
   const relative=path.slice(base.length);
+  if(scopes.has('NAVIGATION')&&/^(ships\/[^/]+|voyages\/[^/]+|logisticsHistory\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/resources\/actionPoints)?)$/.test(relative))continue;
+  if(scopes.has('NAVIGATION_CONFIG')&&path===base.slice(0,-1)){const next=pending.get(path),strip=({transportRules,revision,...rest})=>rest;requireThat(!session.transportRules&&next.transportRules?.homePort&&next.revision===session.revision+1&&isDeepStrictEqual(strip(session),strip(next)),'SO_GAMEPLAY_NOT_OPEN');continue;}
   if(scopes.has('SHOP')&&/^(inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+|lotSales\/[^/]+|shopProvisions\/[^/]+)$/.test(relative))continue;
   if(scopes.has('PAYMENT')&&/^(accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('FIELD')&&/^(fieldActions\/[^/]+|fieldStates\/[^/]+|aidOffers\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/(?:resources\/actionPoints|fieldCooldowns\/[^/]+|knowledge\/[^/]+))?)$/.test(relative))continue;

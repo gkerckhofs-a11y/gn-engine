@@ -18,8 +18,8 @@ export async function actionsFixture(makeStore,{classId='COM',nature='HUMANOID',
  const target=analysisTarget(skillId);if(material)target.profiles.ANALYZE=analysisProfile(skillId,{bonusItems:[{itemId:'kit_communicator',bonus:2}]});
  for(const id of ['scene','elsewhere'])await f.cc('saveCentralFieldTarget',{fieldTargetId:id,fieldTargetRevision:0,draftRevision:revision++,fieldTarget:target,reason:'Scène V0.7'});
  if(release){const p=await f.releasePreview();assert.deepEqual(p.blockers,[]);await f.release(p);await f.birth(await f.birthPreview());if(helper){const p=await f.birthPreview(f.owner,{uid:f.other.uid});await f.birth(p,{uid:f.other.uid});}}
- let at=1000000,die=1;
- const workflow=createWorkflow({store:f.store,ownerEmail:f.owner.email,now:()=>at,rollD6:()=>die});
+ let at=1000000,die=1,dice=[];
+ const workflow=createWorkflow({store:f.store,ownerEmail:f.owner.email,now:()=>at,rollD6:()=>dice.length?dice.shift():die});
  const read=(a,input={},actor=f.player)=>workflow.dispatch(a,actor,{sessionId:f.sid,...input});
  const cmd=(a,input={},actor=f.player)=>read(a,{requestId:randomUUID(),...input},actor);
  const stage=async stage=>cmd('setStage',{stage,revision:(await read('session',{},f.owner)).revision},f.owner);
@@ -27,7 +27,7 @@ export async function actionsFixture(makeStore,{classId='COM',nature='HUMANOID',
  const start=async(patch={},actor=f.player)=>{const p=await prepare(patch,actor);return cmd('startFieldAction',{targetId:'scene',kind:'ANALYZE',...patch,present:true,confirmation:p.confirmation},actor);};
  const finish=(a,patch={},actor=f.player)=>cmd('finishFieldAction',{actionId:a.id,present:true,...patch},actor);
  const points=async(actor=f.player)=>(await read('mySession',{},actor)).actionPoints;
- return {...f,actionRead:read,actionCmd:cmd,stage,prepareAction:prepare,start,finish,points,advance:ms=>{at+=ms;},setDie:n=>{die=n;},target};
+ return {...f,actionRead:read,actionCmd:cmd,stage,prepareAction:prepare,start,finish,points,advance:ms=>{at+=ms;},setDie:n=>{die=n;},setDice:values=>{dice=[...values];},target};
 }
 export function spaceOutlawsActionsSuite(makeStore,prefix='Actions SPACE OUTLAWS'){
  test(`${prefix} : QR, aperçu privé, scène et informations graduées sans jet tactique`,async()=>{

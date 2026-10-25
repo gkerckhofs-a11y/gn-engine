@@ -1,4 +1,6 @@
 import {analysisProfile} from '../../src/shared/space-outlaws-analysis.mjs';
+import {soVoyagesFixture} from '../support/space-outlaws-voyages-suite.mjs';
+import {firestoreStore} from '../../src/adapters/firestore.mjs';
 import {getFirestore} from 'firebase-admin/firestore';
 import {fieldImportRow} from '../support/central-field-import-suite.mjs';
 import {centralTestInstallation} from '../support/central-field-targets-suite.mjs';
@@ -1083,4 +1085,21 @@ test('HTTP + Auth : candidature, naissance, QR, soins, sécurité, boutique et r
  const pending=(await call('shopAdmin',{sessionId})).orders[0];assert.equal((await request('offerShopPickup',{sessionId,saleId:sale.id,confirmation:pending.confirmation,requestId:randomUUID()},player)).status,403);await cmd('offerShopPickup',{sessionId,saleId:sale.id,confirmation:pending.confirmation});
  const ready=(await call('shops',{sessionId},player)).orders[0],pickup={sessionId,saleId:sale.id,confirmation:ready.confirmation,received:true,requestId:randomUUID()},received=await cmd('confirmShopPickup',pickup,player);assert.deepEqual(await cmd('confirmShopPickup',pickup,player),received);const acquired=(await call('myInventory',{sessionId},player)).lots.find(l=>l.id===sale.purchasedLotId);assert.equal(acquired.quantity,1);assert.equal(acquired.transferable,false);assert.equal(acquired.resellable,false);assert.equal((await call('myWallet',{sessionId},player)).account.protectedCredits,170);
  await cmd('revokeAccess',{sessionId,uid});assert.equal((await call('mySession',{sessionId},player)).character,null);assert.equal((await request('finishFieldAction',finish,player)).status,403);assert.equal((await request('buyShopOffer',purchase,player)).status,403);assert.equal((await request('birthSpaceOutlaws',{...birth,requestId:randomUUID()},owner)).error,'SO_ENTRY_CLOSED');
+});
+
+test('HTTP + Auth : vaisseau privé, plein, préparation PIL-02 et révocation du pilote',async()=>{
+ const f=await soVoyagesFixture(()=>firestoreStore(getFirestore())),owner=await googleTestAccount(process.env.OWNER_EMAIL),email=`pilot-${randomUUID()}@example.invalid`,player=await googleTestAccount(email),outsider=await googleTestAccount(`outsider-${randomUUID()}@example.invalid`);
+ const uid=token=>JSON.parse(Buffer.from(token.split('.')[1],'base64url').toString()).sub,playerUid=uid(player),ownerUid=uid(owner),sessionId=f.sid,db=getFirestore(),base=`sessions/${sessionId}`;
+ // Bind the canonical service fixture to real Auth Emulator identities. No production data.
+ const registration=(await db.doc(`${base}/registrations/${hash(f.player.uid)}`).get()).data();
+ await db.doc(base).update({ownerUid,clock:{elapsedMs:0,runningSince:Date.now()}});await db.doc(`campaigns/${f.campaignId}`).update({ownerUid});
+ await db.doc(`${base}/registrations/${hash(playerUid)}`).set({...registration,uid:playerUid,email,minAuthTime:0});await db.doc(`${base}/characters/${f.cid}`).update({assignedUid:playerUid});
+ const call=async(action,input={},token=player)=>{const r=await request(action,{sessionId,...input},token);assert.equal(r.status,200,JSON.stringify(r));return r.result;},cmd=(action,input={},token=player)=>call(action,{requestId:randomUUID(),...input},token);
+ assert.equal((await request('mySpaceport',{sessionId})).status,401);assert.equal((await request('shipNavigation',{sessionId,shipId:'ship'},outsider)).status,403);assert.equal((await request('spaceportAdmin',{sessionId},player)).status,403);
+ const view=await call('shipNavigation',{shipId:'ship'});assert.equal(view.canPilot,true);assert.doesNotMatch(JSON.stringify(view),/SECRET_|OUT-SECRET|AWAY-CODE/);
+ const lot=(await call('myInventory')).lots.find(l=>l.item.id==='propellant'),input={shipId:'ship',lotId:lot.id,quantity:4},p=await call('prepareRefuel',input),start={...input,present:true,confirmation:p.confirmation,requestId:randomUUID()},result=await cmd('refuelShip',start);assert.deepEqual(await cmd('refuelShip',start),result);
+ let n=await call('shipNavigation',{shipId:'ship'});assert.equal((await request('finishSoRefuel',{sessionId,shipId:'ship',confirmation:n.confirmation,present:true,requestId:randomUUID()},player)).error,'VOYAGE_NOT_READY');
+ const clock=(await db.doc(base).get()).data().clock;await db.doc(base).update({clock:{...clock,elapsedMs:clock.elapsedMs+120000}});n=await call('shipNavigation',{shipId:'ship'});await cmd('finishSoRefuel',{shipId:'ship',confirmation:n.confirmation,present:true});assert.equal((await call('shipNavigation',{shipId:'ship'})).ship.fuel,4);
+ const flight={shipId:'ship',navigationCode:'AWAY-CODE',passengerCodes:[]},q=await call('prepareVoyage',flight),depart={...flight,confirmation:q.confirmation,present:true,requestId:randomUUID()};await cmd('departShip',depart);assert.equal((await call('mySession')).actionPoints.reserved,1);
+ await cmd('revokeAccess',{uid:playerUid},owner);assert.equal((await request('departShip',{sessionId,...depart},player)).status,403);n=(await call('spaceportAdmin',{},owner)).ships[0];await cmd('cancelSoNavigationAdmin',{shipId:'ship',confirmation:n.confirmation,reason:'Pilote révoqué'},owner);assert.equal((await db.doc(`${base}/ships/ship`).get()).data().fuel,4);assert.equal((await db.doc(`${base}/characters/${f.cid}/resources/actionPoints`).get()).data().reserved,0);
 });

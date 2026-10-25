@@ -9,9 +9,9 @@ export function navigationInput(v){
  requireThat(tankCapacity>0&&initialFuel<=tankCapacity,'INVALID_NAVIGATION');
  return {fuelItemId:documentId(v.fuelItemId),tankCapacity,initialFuel,initialPort:documentId(v.initialPort)};
 }
-export function shipInput(v,id,old={}){
+export function shipInput(v,id,old={},allowEmptyHold=false){
  requireThat(['CHARACTER','GROUP'].includes(v.ownerType)&&typeof v.docked==='boolean'&&typeof v.enabled==='boolean','INVALID_SHIP');
- const capacity=whole(v.capacity,'INVALID_SHIP');requireThat(capacity>0,'INVALID_SHIP');
+ const capacity=whole(v.capacity,'INVALID_SHIP');requireThat(capacity>0||allowEmptyHold&&capacity===0,'INVALID_SHIP');
  requireThat(typeof (v.description??'')==='string'&&(v.description??'').length<=4000,'INVALID_SHIP');
  return {id,name:text(v.name),description:(v.description??'').trim(),capacity,ownerType:v.ownerType,ownerId:documentId(v.ownerId),docked:v.docked,enabled:v.enabled,navigation:navigationInput(v.navigation),revision:(old.revision??0)+1};
 }
@@ -29,7 +29,7 @@ export const seedShip=s=>({...s,fuel:s.navigation?.initialFuel??0,portId:s.navig
 export const localShip=(s,ship)=>ship.docked&&!ship.journey&&(!ship.navigation||!!s.transportRules?.homePort&&ship.portId===s.transportRules.homePort);
 export function shipAccess(ship,cid,groups){
  const a=warehouseAccess({tenantType:ship.ownerType,tenantId:ship.ownerId},cid,groups);
- const pilot=ship.ownerType==='CHARACTER'?ship.ownerId===cid:groups.find(g=>g.id===ship.ownerId)?.permissions.pilotShip===true;
+ const pilot=ship.soProfile?ship.pilotId===cid:ship.ownerType==='CHARACTER'?ship.ownerId===cid:groups.find(g=>g.id===ship.ownerId)?.permissions.pilotShip===true;
  return {...a,pilot,access:a.access||pilot};
 }
 export const navigationView=(s,ship,time)=>({shipId:ship.id,name:ship.name,docked:ship.docked,enabled:ship.enabled,configured:!!ship.navigation,local:localShip(s,ship),portId:ship.portId??null,fuel:ship.fuel??0,tankCapacity:ship.navigation?.tankCapacity??null,journey:ship.journey?{...ship.journey,remainingSeconds:Math.max(0,Math.ceil((ship.journey.arrivesAtGameMs-time)/1000))}:null});

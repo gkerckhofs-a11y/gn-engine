@@ -26,7 +26,7 @@ export function createShopService({store,signed,checkSession,now,uuid}){
   return {shop,offer,lot};
  }
  async function purchase(tx,ctx,input,at){
-  const {s,c,version}=ctx;active(s);requireGameAction(s,c,'pay',at);
+  const {s,c,version}=ctx;active(s);requireGameAction(s,c,'pay',at);requireGameAction(s,c,'transfer',at);
   requireThat(typeof input.useProtected==='boolean','INVALID_ECONOMY');
   const x=await definition(tx,s,input),{shop,offer,lot}=x,quantity=itemQuantity(offer.item,input.quantity);
   requireThat(stockValid(lot,shop,offer)&&lot.quantity>=quantity,'INSUFFICIENT_STOCK');
