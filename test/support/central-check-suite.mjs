@@ -33,7 +33,7 @@ export function centralCheckSuite(makeStore,prefix='Contrôle central C2a'){
   const f=await centralCheckFixture(makeStore);await f.save();await f.saveCharacter({draftRevision:1});await f.recipe(2);const r=await f.check(3);
   assert.equal(r.totals.records,3);assert.equal(r.totals.invalid,0);assert.equal(r.diff.length,3);assert.ok(r.diff.every(x=>x.operation==='ADD'&&!x.publicAccessCreated&&!x.resourcesCreated));
   assert.equal(r.edges.find(e=>e.to.id==='ingredient').status,'RESOLVED');assert.equal(r.edges.find(e=>e.to.id==='dose').status,'MISSING');assert.equal(r.edges.find(e=>e.to.id==='target').status,'MISSING');assert.equal(r.edges.find(e=>e.to.id==='effect-test').status,'NOT_CHECKED');
-  assert.equal(r.diagnostics.filter(x=>x.code==='REFERENCE_MISSING').length,3);assert.equal(r.diagnostics.filter(x=>x.code==='REFERENCE_PENDING').length,3);assert.equal(r.status,'CORRECTIONS_REQUIRED');
+  assert.equal(r.diagnostics.filter(x=>x.code==='REFERENCE_MISSING').length,4);assert.equal(r.diagnostics.filter(x=>x.code==='REFERENCE_PENDING').length,2);assert.equal(r.status,'CORRECTIONS_REQUIRED');
   assert.doesNotMatch(JSON.stringify(r),/Secret de fiction|Biographie fictive|Note M[124] privée|Objectif réservé|Relation privée orientée/);assert.ok(r.diff.find(x=>x.type==='character').privateFields.includes('playerSecrets'));
  });
  test(`${prefix} : résolution après édition sans réécriture de la source`,async()=>{
@@ -103,7 +103,7 @@ export function centralCheckSuite(makeStore,prefix='Contrôle central C2a'){
  });
  test(`${prefix} : limite de lecture explicite, aucun rapport tronqué`,async()=>{
   const f=await centralCheckFixture(makeStore),run=f.store.runTransaction.bind(f.store);
-  f.store.runTransaction=fn=>run(tx=>fn({...tx,list:async(path,filter,options)=>{if(path===`${f.base}/changes`){assert.equal(options.limit,1710);return Array.from({length:1710},()=>({}));}return tx.list(path,filter,options);}}));
+  f.store.runTransaction=fn=>run(tx=>fn({...tx,list:async(path,filter,options)=>{if(path===`${f.base}/changes`){assert.equal(options.limit,1810);return Array.from({length:1810},()=>({}));}return tx.list(path,filter,options);}}));
   await assert.rejects(f.check(),{code:'CENTRAL_CHECK_LIMIT'});
  });
  test(`${prefix} : garde de cycle et autorité revérifiées après un rapport`,async()=>{

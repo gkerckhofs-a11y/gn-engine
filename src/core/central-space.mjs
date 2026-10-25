@@ -1,3 +1,4 @@
+import {centralLocationDiagnostics,centralLocationReferences} from './central-field-targets.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {routeInput} from './navigation-state.mjs';
 import {spaceShipProfiles,spaceDistances,spaceRisks} from '../shared/space-outlaws-navigation.mjs';
@@ -32,12 +33,12 @@ export function centralSpaceEditable(type,d){
 export function centralSpaceReferences(c){
  return c.type==='route'?[{field:'fromPort',type:'port',id:c.data.fromPort},{field:'toPort',type:'port',id:c.data.toPort}]:c.type==='port'&&c.data.locationTargetId?[{field:'locationTargetId',type:'fieldTarget',id:c.data.locationTargetId}]:[];
 }
-export function centralSpaceProjection(changes){
+export function centralSpaceProjection(changes,locationChanges=null){
  const active=changes.filter(c=>centralSpaceTypes.includes(c.type)&&c.operation==='UPSERT'),diagnostics=[];
  const add=(c,field,reference,referenceType,code,message)=>diagnostics.push({workshop:'M3',entityType:c.type,entityId:c.entityId,field,reference,referenceType,code,message,source:c.source,draftRevision:c.revision});
  for(const c of active){
   for(const ref of centralSpaceReferences(c)){
-   if(ref.type==='fieldTarget'){add(c,ref.field,ref.id,ref.type,'REFERENCE_NOT_CHECKED','Le raccordement aux lieux et QR communs reste à contrôler ; aucun lieu ni QR créé.');continue;}
+   if(ref.type==='fieldTarget'){diagnostics.push(...centralLocationDiagnostics(c,ref.field,ref.id,locationChanges));continue;}
    const target=changes.find(t=>t.type===ref.type&&t.entityId===ref.id);
    if(!target)add(c,ref.field,ref.id,ref.type,'REFERENCE_MISSING','Préparer ce port dans M3 ou corriger son identifiant.');
    else if(target.operation!=='UPSERT')add(c,ref.field,ref.id,ref.type,'REFERENCE_ARCHIVED','Restaurer ce port ou modifier la route.');
@@ -45,5 +46,5 @@ export function centralSpaceProjection(changes){
   // Codes are private preparation data. Diagnostics do not repeat their value.
   if(c.type!=='shipModel'&&active.some(t=>t.type===c.type&&t.entityId!==c.entityId&&t.data.navigationCode===c.data.navigationCode))add(c,'navigationCode',null,c.type,'NAVIGATION_CODE_DUPLICATE','Ce code est partagé par plusieurs définitions actives du même type ; attribuer un code distinct.');
  }
- return {references:{ports:changes.filter(c=>c.type==='port').map(c=>({id:c.entityId,name:c.data.name,archived:c.operation!=='UPSERT',revision:c.data.revision,source:c.source}))},diagnostics,publicationAvailable:false};
+ return {references:{...centralLocationReferences(locationChanges),ports:changes.filter(c=>c.type==='port').map(c=>({id:c.entityId,name:c.data.name,archived:c.operation!=='UPSERT',revision:c.data.revision,source:c.source}))},diagnostics,publicationAvailable:false};
 }

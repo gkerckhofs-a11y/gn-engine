@@ -1,5 +1,11 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## C2p — lieux, fouilles et installations préparés dans M6
+
+[C2p — lieux, fouilles et installations M6](SO-02-C2P-LIEUX-CENTRAUX.md) ajoute des changements `fieldTarget` dans M6, conservés avec profils et récompenses proposés dans les captures C2n. Sauvegarder l’ensemble cohérent des lieux, références, droits, brouillon, historiques, imports, reçus et captures/pages. Excel M6 demeure ciblé sur les informations. Retour C2o non équivalent : contrôleur ignorant ce type et import M6 non adapté aux homonymes. Aucun effacement ou conversion implicite ; restauration complète à éprouver. Quatre Masters, règles/index/IAM et marqueur de production inchangés ; aucune migration, fusion ou production.
+
+**Local, 25 octobre 2026 (Europe/Brussels) : compilation et 1456/1456 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 25 nouveaux cas partagés mémoire/Firestore, cinq UI et un HTTP/Auth. Firebase non exécuté localement (Java 17.0.20) ; preuves finales des deux CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1) après terminaison. [Preuves C2o archivées](PR-1-HISTORIQUE-AVANT-C2P.md) : 1426 applicatifs/1153 Firebase/HTTP chacun.
+
 ## C2o — groupes et factions préparés dans M2
 
 [C2o — groupes et factions M2](SO-02-C2O-GROUPES-CENTRAUX.md) ajoute des changements natifs `group` dans M2, avec historiques et reçus existants ; les instantanés C2n conservent ces définitions. Préserver groupes, personnages, droits, imports, captures/pages et états privés cohérents. Excel M2 reste ciblé sur les personnages ; aucune restauration globale. Retour C2n non équivalent : lecteur, contrôle I3c et import M2 ignorent le nouveau type. Quatre Masters, règles/index/IAM et marqueur de production inchangés ; aucune migration, fusion ou mise en production.

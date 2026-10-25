@@ -1,5 +1,11 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## C2p — lieux, fouilles et installations préparés dans M6
+
+[C2p — lieux, fouilles et installations M6](SO-02-C2P-LIEUX-CENTRAUX.md) ajoute les définitions natives `fieldTarget`, les profils et récompenses proposés, et raccorde les références M3/M4/M5 sous lecture M6. Références internes M6/M1 contrôlées, import M6 homonyme préservé, captures compatibles ; aucune instance, réserve, action, QR ou habilitation de laboratoire créée. REC-SO-MST-03/05/06/08 et REC-SO-REC-01/05 : preuves préparatoires partielles ; les 55 verdicts complets et SO-GAP-12/13/14 restent ouverts. Conformité canonique, sources réelles des récompenses, activation/publication, I3 complet et I4/I5 restent à livrer.
+
+**Local, 25 octobre 2026 (Europe/Brussels) : compilation et 1456/1456 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 25 nouveaux cas partagés mémoire/Firestore, cinq UI et un HTTP/Auth. Firebase non exécuté localement (Java 17.0.20) ; preuves finales des deux CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1) après terminaison. [Preuves C2o archivées](PR-1-HISTORIQUE-AVANT-C2P.md) : 1426 applicatifs/1153 Firebase/HTTP chacun.
+
 ## C2o — groupes et factions préparés dans M2
 
 [C2o — groupes et factions M2](SO-02-C2O-GROUPES-CENTRAUX.md) ajoute les définitions natives de groupes, textes privés et appartenances/permissions proposées dans le brouillon commun. Références M2 vérifiées, audit, archives et réessais ; aucune instance, caisse, stock, notification ou droit de session créé. L’import M2 conserve les groupes ; I3c accepte leur présence sans les confondre avec des admissions. Publication, activation, naissance, I3/INS-06 complet et I4/I5 restent ouverts ; les 55 verdicts complets et SO-GAP-12/13/14 ne sont pas clos.

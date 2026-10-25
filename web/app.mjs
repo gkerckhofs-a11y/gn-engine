@@ -1,3 +1,4 @@
+import {centralFieldTargetPayload} from './central-field-targets.mjs';
 import {centralGroupPayload} from './central-groups.mjs';
 import {createCentralSnapshotUi,centralSnapshotFile} from './central-snapshots.mjs';
 import {centralSpacePayload,centralSpaceActions} from './central-space.mjs';
@@ -340,6 +341,10 @@ document.addEventListener('click',async event=>{
     if(a==='centralMissionRewardAdd'){b.closest('form').querySelector('[data-mission-rewards]').insertAdjacentHTML('beforeend',centralUi.missionRewardRow());return;}
     if(a==='centralMissionRowRemove'){b.closest('fieldset').remove();return;}
     if(a==='centralMissionStepUp'||a==='centralMissionStepDown'){const row=b.closest('[data-mission-step]'),other=a==='centralMissionStepUp'?row.previousElementSibling:row.nextElementSibling;if(other){if(a==='centralMissionStepUp')row.parentNode.insertBefore(row,other);else row.parentNode.insertBefore(other,row);}return;}
+    if(a==='centralFieldTarget'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.type==='fieldTarget'&&c.entityId===id);modal(centralUi.fieldTargetForm(currentCentral,id,c,b.dataset.kind==='INSTALLATION'?'INSTALLATION':'SEARCH'));return;}
+    if(a==='centralFieldTargetArchive'){const c=currentCentral.changes.find(c=>c.type==='fieldTarget'&&c.entityId===b.dataset.id);if(c)modal(centralUi.fieldTargetArchiveForm(currentCentral,c));return;}
+    if(a==='centralFieldRewardAdd'){const rows=b.closest('form').querySelector('[data-central-field-rewards]');if(rows.children.length<20)rows.insertAdjacentHTML('beforeend',centralUi.fieldTargetRewardRow(crypto.randomUUID()));return;}
+    if(a==='centralFieldRewardRemove'){b.closest('[data-central-field-reward]').remove();return;}
     if(a==='centralKnowledge'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.type==='knowledge'&&c.entityId===id);modal(centralUi.knowledgeForm(currentCentral,id,c));return;}
     if(a==='centralKnowledgeArchive'){const c=currentCentral.changes.find(c=>c.type==='knowledge'&&c.entityId===b.dataset.id);if(c)modal(centralUi.knowledgeArchiveForm(currentCentral,c));return;}
     if(a==='centralKnowledgeRecipientAdd'){if(['initialCharacterIds','qrCharacterIds'].includes(b.dataset.set))b.closest('form').querySelector(`[data-central-recipients="${b.dataset.set}"]`).insertAdjacentHTML('beforeend',centralUi.knowledgeRecipientRow());return;}
@@ -568,6 +573,10 @@ document.addEventListener('submit',async event=>{
     else if(kind==='centralMission'||kind==='centralMissionArchive'){
       const saving=kind==='centralMission',rows=q=>[...form.querySelectorAll(q)],steps=()=>rows('[data-mission-step]').map(e=>({id:e.dataset.id,title:e.querySelector('[data-step-title]').value,description:e.querySelector('[data-step-description]').value})),knowledge=()=>rows('[data-knowledge-id]').map(e=>e.value),rewards=()=>rows('[data-mission-reward]').map(e=>({itemId:e.querySelector('[data-reward-item]').value,quantity:e.querySelector('[data-reward-quantity]').value}));
       await mutate(saving?'saveCentralMission':'archiveCentralMission',{campaignId:form.dataset.cid,missionId:form.dataset.id,draftRevision:Number(form.dataset.draft),missionRevision:Number(form.dataset.revision),reason:v.reason,...(saving?{mission:centralMissionPayload(v,steps(),knowledge(),rewards())}:{})});successMessage='Mission préparée dans M7. Aucune attribution ni récompense effectuée.';
+    }
+    else if(kind==='centralFieldTarget'||kind==='centralFieldTargetArchive'){
+      const saving=kind==='centralFieldTarget',ids=[...form.querySelectorAll('[data-central-field-reward]')].map(e=>e.dataset.centralFieldReward);
+      await mutate(saving?'saveCentralFieldTarget':'archiveCentralFieldTarget',{campaignId:form.dataset.cid,fieldTargetId:form.dataset.id,draftRevision:Number(form.dataset.draft),fieldTargetRevision:Number(form.dataset.revision),reason:v.reason,...(saving?{fieldTarget:centralFieldTargetPayload(v,ids)}:{})});successMessage='Lieu préparé dans M6. Aucun QR, stock ni action activé.';
     }
     else if(kind==='centralKnowledge'||kind==='centralKnowledgeArchive'){
       const saving=kind==='centralKnowledge',ids=key=>[...form.querySelectorAll(`[data-central-recipients="${key}"] [data-recipient-id]`)].map(e=>e.value);

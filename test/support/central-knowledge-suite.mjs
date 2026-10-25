@@ -42,7 +42,7 @@ export function centralKnowledgeSuite(makeStore,prefix='Informations centrales C
   const f=await centralKnowledgeFixture(makeStore);await f.saveCharacter();await f.configure(1);await f.saveKnowledge({draftRevision:2});await f.grant({readWorkshops:['M6'],editWorkshops:['M6']});
   const reads=[],run=f.store.runTransaction.bind(f.store);f.store.runTransaction=cb=>run(tx=>cb({...tx,get:async p=>{reads.push([p]);return tx.get(p);},list:async(...args)=>{reads.push(args);return tx.list(...args);}}));
   const d=await f.view('M6',f.mj);assert.deepEqual(reads.filter(([p])=>p===`${f.base}/changes`).map(x=>x[1]),[['workshop','M6']]);assert.ok(reads.every(([p])=>!p.includes('/admission/')&&!p.includes('/registrations')));
-  assert.deepEqual(d.references,{charactersReadable:false,characters:[]});assert.ok(d.diagnostics.every(x=>x.code==='REFERENCE_NOT_CHECKED'));assert.doesNotMatch(JSON.stringify(d),/Voyageuse synthétique|species-test|Règles fictives|Note M2 privée/);assert.equal(d.history.length,1);
+  assert.deepEqual(d.references,{charactersReadable:false,characters:[],locationsReadable:true,locations:[],itemsReadable:false,items:[]});assert.ok(d.diagnostics.every(x=>x.code==='REFERENCE_NOT_CHECKED'));assert.doesNotMatch(JSON.stringify(d),/Voyageuse synthétique|species-test|Règles fictives|Note M2 privée/);assert.equal(d.history.length,1);
   await assert.rejects(f.view('M2',f.mj),{code:'FORBIDDEN'});await assert.rejects(f.read('admissionAdmin',f.mj,{sessionId:f.sid}),{code:'FORBIDDEN'});await assert.rejects(f.check(3,f.mj),{code:'FORBIDDEN'});
  });
  test(`${prefix} : existence et archives M2 ne sont pas révélées sans lecture`,async()=>{

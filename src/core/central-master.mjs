@@ -1,3 +1,4 @@
+import {centralFieldTargetInput,centralFieldTargetProjection} from './central-field-targets.mjs';
 import {centralGroupInput,centralGroupProjection} from './central-groups.mjs';
 import {centralSnapshots,centralSnapshotActions} from './central-snapshots.mjs';
 import {centralSpaceInput,centralSpaceProjection,centralSpaceTypes} from './central-space.mjs';
@@ -29,11 +30,11 @@ const reasonText=v=>{requireThat(typeof v==='string'&&v.trim()&&v.length<=500,'I
 const workshopList=v=>{requireThat(Array.isArray(v)&&v.length<=7&&new Set(v).size===v.length&&v.every(id=>ids.includes(id)),'INVALID_CENTRAL_GRANT');return [...v].sort();};
 const editableIds=centralWorkshops.filter(w=>w.editable).map(w=>w.id);
 const ownerRights={readWorkshops:ids,editWorkshops:editableIds,manageStaff:true,checkCentral:true};
-export const centralMasterCommands=[...centralSnapshotActions,'saveCentralGroup','archiveCentralGroup',...centralImportCommands,'centralMaster','checkCentralDraft','setCentralStaff','saveCentralItem','archiveCentralItem','saveCentralRecipe','archiveCentralRecipe','saveCentralCharacter','archiveCentralCharacter','saveCentralClassKit','archiveCentralClassKit','saveCentralShipModel','archiveCentralShipModel','saveCentralPort','archiveCentralPort','saveCentralRoute','archiveCentralRoute','saveCentralMission','archiveCentralMission','saveCentralKnowledge','archiveCentralKnowledge','saveCentralShop','archiveCentralShop','saveCentralOffer','archiveCentralOffer'];
+export const centralMasterCommands=[...centralSnapshotActions,'saveCentralFieldTarget','archiveCentralFieldTarget','saveCentralGroup','archiveCentralGroup',...centralImportCommands,'centralMaster','checkCentralDraft','setCentralStaff','saveCentralItem','archiveCentralItem','saveCentralRecipe','archiveCentralRecipe','saveCentralCharacter','archiveCentralCharacter','saveCentralClassKit','archiveCentralClassKit','saveCentralShipModel','archiveCentralShipModel','saveCentralPort','archiveCentralPort','saveCentralRoute','archiveCentralRoute','saveCentralMission','archiveCentralMission','saveCentralKnowledge','archiveCentralKnowledge','saveCentralShop','archiveCentralShop','saveCentralOffer','archiveCentralOffer'];
 export const centralMasterAction=a=>centralMasterCommands.includes(a);
-export const centralLimits={items:250,recipes:250,characters:100,groups:50,classKits:8,shops:50,offers:250,knowledge:250,missions:100,shipModels:100,ports:100,routes:200,staff:50};
-const actionType=action=>action.endsWith('Group')?'group':action.endsWith('ShipModel')?'shipModel':action.endsWith('Port')?'port':action.endsWith('Route')?'route':action.endsWith('Mission')?'mission':action.endsWith('Knowledge')?'knowledge':action.endsWith('Shop')?'shop':action.endsWith('Offer')?'offer':action.endsWith('ClassKit')?'classKit':action.endsWith('Character')?'character':action.endsWith('Recipe')?'recipe':'item';
-const typeWorkshop=type=>centralSpaceTypes.includes(type)?'M3':type==='mission'?'M7':type==='knowledge'?'M6':['shop','offer'].includes(type)?'M5':['character','group'].includes(type)?'M2':type==='recipe'?'M4':'M1';
+export const centralLimits={items:250,recipes:250,characters:100,groups:50,fieldTargets:100,classKits:8,shops:50,offers:250,knowledge:250,missions:100,shipModels:100,ports:100,routes:200,staff:50};
+const actionType=action=>action.endsWith('FieldTarget')?'fieldTarget':action.endsWith('Group')?'group':action.endsWith('ShipModel')?'shipModel':action.endsWith('Port')?'port':action.endsWith('Route')?'route':action.endsWith('Mission')?'mission':action.endsWith('Knowledge')?'knowledge':action.endsWith('Shop')?'shop':action.endsWith('Offer')?'offer':action.endsWith('ClassKit')?'classKit':action.endsWith('Character')?'character':action.endsWith('Recipe')?'recipe':'item';
+const typeWorkshop=type=>centralSpaceTypes.includes(type)?'M3':type==='mission'?'M7':['knowledge','fieldTarget'].includes(type)?'M6':['shop','offer'].includes(type)?'M5':['character','group'].includes(type)?'M2':type==='recipe'?'M4':'M1';
 
 // C1b only opens NEW, empty-based preparations. Historical campaigns and a future
 // publication/rebase cycle are deliberately not adopted by this entry point.
@@ -91,15 +92,16 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
     const changes=await tx.list(`${draftPath(cid)}/changes`,['workshop',workshop]);
     const historyType={M1:'item',M2:'character',M3:'shipModel',M4:'recipe',M5:'shop',M6:'knowledge',M7:'mission'}[workshop];
     const history=historyType?(await tx.list(`${draftPath(cid)}/history`,null,{orderBy:'revision',direction:'desc',limit:30}))
-     .filter(h=>h.workshop===workshop&&h.change?.workshop===workshop&&(h.change.type===historyType||workshop==='M2'&&h.change.type==='group'||workshop==='M3'&&centralSpaceTypes.includes(h.change.type)||workshop==='M1'&&h.change.type==='classKit'||workshop==='M5'&&h.change.type==='offer'))
+     .filter(h=>h.workshop===workshop&&h.change?.workshop===workshop&&(h.change.type===historyType||workshop==='M6'&&h.change.type==='fieldTarget'||workshop==='M2'&&h.change.type==='group'||workshop==='M3'&&centralSpaceTypes.includes(h.change.type)||workshop==='M1'&&h.change.type==='classKit'||workshop==='M5'&&h.change.type==='offer'))
      .map(h=>Object.fromEntries(['id','revision','workshop','action','actorUid','at','reason','before','change'].map(k=>[k,h[k]??null]))):[];
     const staff=owner?await tx.list('campaignStaff',['campaignId',cid]):[];
-    const recipeProjection=workshop==='M3'?centralSpaceProjection(changes):workshop==='M7'?centralMissionProjection(changes,
+    const recipeProjection=workshop==='M3'?centralSpaceProjection(changes,rights.readWorkshops.includes('M6')?await tx.list(`${draftPath(cid)}/changes`,['workshop','M6']):null):workshop==='M7'?centralMissionProjection(changes,
      rights.readWorkshops.includes('M1')?await tx.list(`${draftPath(cid)}/changes`,['workshop','M1']):null,
      rights.readWorkshops.includes('M2')?await tx.list(`${draftPath(cid)}/changes`,['workshop','M2']):null,
      rights.readWorkshops.includes('M6')?await tx.list(`${draftPath(cid)}/changes`,['workshop','M6']):null):workshop==='M1'?centralClassKitProjection(changes):workshop==='M2'?(()=>{const chars=centralCharacterProjection(changes),groups=centralGroupProjection(changes);return {...chars,references:{...chars.references,groups:groups.groups},diagnostics:[...chars.diagnostics,...groups.diagnostics]};})():workshop==='M4'?centralRecipeProjection(changes,rights.readWorkshops.includes('M1')?await tx.list(`${draftPath(cid)}/changes`,['workshop','M1']):null,rights.readWorkshops.includes('M6')?await tx.list(`${draftPath(cid)}/changes`,['workshop','M6']):null):workshop==='M5'?centralShopProjection(changes,
      rights.readWorkshops.includes('M1')?await tx.list(`${draftPath(cid)}/changes`,['workshop','M1']):null,
-     rights.readWorkshops.includes('M2')?await tx.list(`${draftPath(cid)}/changes`,['workshop','M2']):null):workshop==='M6'?centralKnowledgeProjection(changes,rights.readWorkshops.includes('M2')?await tx.list(`${draftPath(cid)}/changes`,['workshop','M2']):null):{};
+     rights.readWorkshops.includes('M2')?await tx.list(`${draftPath(cid)}/changes`,['workshop','M2']):null,
+     rights.readWorkshops.includes('M6')?await tx.list(`${draftPath(cid)}/changes`,['workshop','M6']):null):workshop==='M6'?await (async()=>{const information=centralKnowledgeProjection(changes,rights.readWorkshops.includes('M2')?await tx.list(`${draftPath(cid)}/changes`,['workshop','M2']):null),terrain=centralFieldTargetProjection(changes,rights.readWorkshops.includes('M1')?await tx.list(`${draftPath(cid)}/changes`,['workshop','M1']):null);return {...information,references:{...information.references,...terrain.references},diagnostics:[...information.diagnostics,...terrain.diagnostics]};})():{};
     return {campaign:{id:cid,title:c.title},draft:{id:'initial',revision,status:'DRAFT',baseVersionId:null,pointerRevision:0},rights,workshop,
      workshops:centralWorkshops.map(w=>({...w,canRead:rights.readWorkshops.includes(w.id),canEdit:rights.editWorkshops.includes(w.id)})),
      changes:changes.sort((a,b)=>a.id.localeCompare(b.id)),history:history.sort((a,b)=>b.revision-a.revision).slice(0,30),
@@ -146,6 +148,8 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
      data=centralOfferInput(input.offer,id,old?.data);
     }else if(action==='saveCentralClassKit'){
      data=centralClassKitInput(input.classKit,id,old?.data);
+    }else if(action==='saveCentralFieldTarget'){
+     data=centralFieldTargetInput(input.fieldTarget,id,old?.data);
     }else if(action==='saveCentralGroup'){
      data=centralGroupInput(input.group,id,old?.data);
     }else if(action==='saveCentralCharacter'){
@@ -159,7 +163,7 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
      requireThat(Array.isArray(input.recipe.components),'INVALID_RECIPE');
      for(const component of input.recipe.components)keys(component,['itemId','quantity']);
      data=recipeInput({...input.recipe,publicationState:'DRAFT',masterArchived:false},id,old?.data);
-    }else{requireThat(old?.operation==='UPSERT',centralSpaceTypes.includes(type)?'CENTRAL_SPACE_UNAVAILABLE':type==='mission'?'CENTRAL_MISSION_UNAVAILABLE':type==='knowledge'?'CENTRAL_KNOWLEDGE_UNAVAILABLE':type==='shop'?'CENTRAL_SHOP_UNAVAILABLE':type==='offer'?'CENTRAL_OFFER_UNAVAILABLE':type==='classKit'?'CENTRAL_KIT_UNAVAILABLE':type==='group'?'CENTRAL_GROUP_UNAVAILABLE':type==='character'?'CENTRAL_CHARACTER_UNAVAILABLE':type==='recipe'?'CENTRAL_RECIPE_UNAVAILABLE':'CENTRAL_ITEM_UNAVAILABLE');data={...old.data,...(['recipe','character','group','classKit','shop','offer','knowledge','mission',...centralSpaceTypes].includes(type)?{masterArchived:true}:{}),[revisionField]:old.data[revisionField]+1};}
+    }else{requireThat(old?.operation==='UPSERT',centralSpaceTypes.includes(type)?'CENTRAL_SPACE_UNAVAILABLE':type==='mission'?'CENTRAL_MISSION_UNAVAILABLE':type==='knowledge'?'CENTRAL_KNOWLEDGE_UNAVAILABLE':type==='shop'?'CENTRAL_SHOP_UNAVAILABLE':type==='offer'?'CENTRAL_OFFER_UNAVAILABLE':type==='classKit'?'CENTRAL_KIT_UNAVAILABLE':type==='fieldTarget'?'CENTRAL_FIELD_TARGET_UNAVAILABLE':type==='group'?'CENTRAL_GROUP_UNAVAILABLE':type==='character'?'CENTRAL_CHARACTER_UNAVAILABLE':type==='recipe'?'CENTRAL_RECIPE_UNAVAILABLE':'CENTRAL_ITEM_UNAVAILABLE');data={...old.data,...(['recipe','character','group','fieldTarget','classKit','shop','offer','knowledge','mission',...centralSpaceTypes].includes(type)?{masterArchived:true}:{}),[revisionField]:old.data[revisionField]+1};}
     const nextRevision=revision+1,change={id:`${type}_${id}`,type,entityId:id,workshop,operation:saving?'UPSERT':'ARCHIVE',data,revision:nextRevision,source:'WEB',actorUid:actor.uid,requestId,at};
     const d={...(draft??{id:'initial',baseVersionId:null,basePointerRevision:0,ruleProfile:spaceOutlawsProfile,status:'DRAFT',createdAt:at}),revision:nextRevision,updatedAt:at};
     if(!c.master)tx.set(root(cid),{...c,revision:c.revision+1,master:{schemaVersion:1,activeVersionId:null,pointerRevision:0,openDraftId:'initial'}});

@@ -17,7 +17,7 @@ test('M3 central UI : formulaires des trois types, révisions et valeurs fixes',
  const route=ui.spaceForm(d,'route','new');assert.match(route,/value="SHORT"/);assert.match(route,/value="HOSTILE"/);assert.match(route,/>15 min</);assert.match(route,/Aucun tirage ni débit/);assert.doesNotMatch(route,/ selected/);
 });
 test('M3 central UI : suggestions de ports avec provenance et archives',()=>{
- const h=ui.spaceForm(d,'route','route',changes[2]);assert.match(h,/list="central-space-ports"/);assert.match(h,/option value="origin">&lt;b&gt;Port/);assert.match(h,/archivé · r2 · WEB/);assert.match(h,/name="fromPort" value="origin"/);assert.match(h,/name="distanceId"/);assert.match(h,/value="SHORT" selected/);assert.match(ui.spaceForm(d,'port','new'),/name="locationTargetId" value=""/);
+ const h=ui.spaceForm(d,'route','route',changes[2]);assert.match(h,/list="central-space-ports"/);assert.match(h,/option value="origin">&lt;b&gt;Port/);assert.match(h,/archivé · r2 · WEB/);assert.match(h,/name="fromPort" value="origin"/);assert.match(h,/name="distanceId"/);assert.match(h,/value="SHORT" selected/);assert.match(ui.spaceForm(d,'port','new'),/name="locationTargetId"[^>]*value=""/);
 });
 test('M3 central UI : charges utiles distinctes sans champs privilégiés',()=>{
  const v={...centralTestRoute,profileId:'CARGO',locationTargetId:' place ',fromPort:' a ',toPort:' b ',referencePrice:1,fuel:10,durationSeconds:1,publicationState:'PUBLISHED'};

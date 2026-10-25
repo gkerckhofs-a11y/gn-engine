@@ -36,8 +36,8 @@ export function centralShopsSuite(makeStore,prefix='Boutiques centrales C2g'){
  });
  test(`${prefix} : offre préparée avant boutique, vendeur et objet, résolution sans copie`,async()=>{
   const f=await centralShopsFixture(makeStore);await f.saveOffer();let d=await f.view('M5');assert.deepEqual(refs(d).map(x=>x.referenceType),['shop','item']);const original=await f.store.get(`${f.base}/changes/offer_offer`);
-  await f.saveShop({draftRevision:1});d=await f.view('M5');assert.deepEqual(refs(d).map(x=>x.referenceType).sort(),['character','item']);
-  await f.save({draftRevision:2});await f.saveCharacter({draftRevision:3,character:{...centralTestCharacter,relations:[]}});d=await f.view('M5');assert.deepEqual(refs(d),[]);assert.deepEqual(d.diagnostics.map(x=>x.code),['REFERENCE_PENDING']);assert.equal(d.diagnostics[0].referenceType,'fieldTarget');
+  await f.saveShop({draftRevision:1});d=await f.view('M5');assert.deepEqual(refs(d).map(x=>x.referenceType).sort(),['character','fieldTarget','item']);
+  await f.save({draftRevision:2});await f.saveCharacter({draftRevision:3,character:{...centralTestCharacter,relations:[]}});d=await f.view('M5');assert.deepEqual(refs(d).map(x=>x.referenceType),['fieldTarget']);assert.deepEqual(d.diagnostics.map(x=>x.code),['REFERENCE_MISSING']);assert.equal(d.diagnostics[0].referenceType,'fieldTarget');
   assert.deepEqual(await f.store.get(`${f.base}/changes/offer_offer`),original);assert.equal(d.references.items.length,1);assert.equal(d.references.characters.length,1);assert.equal(d.references.shops.length,1);
   assert.doesNotMatch(JSON.stringify(d),/Note M1 privée|Secret de fiction|Biographie fictive|Note M2 privée|playerSecrets|abilityProfile/);
  });
@@ -45,13 +45,13 @@ export function centralShopsSuite(makeStore,prefix='Boutiques centrales C2g'){
   const f=await centralShopsFixture(makeStore);await f.save();await f.saveCharacter({draftRevision:1});await f.configure(2);await f.saveShop({draftRevision:3});await f.saveOffer({draftRevision:4});await f.grant({readWorkshops:['M5'],editWorkshops:['M5']});
   const run=f.store.runTransaction.bind(f.store),reads=[];f.store.runTransaction=cb=>run(tx=>cb({...tx,get:async p=>{reads.push([p]);return tx.get(p);},list:async(...args)=>{reads.push(args);return tx.list(...args);}}));
   const d=await f.view('M5',f.mj);assert.deepEqual(reads.filter(([p])=>p===`${f.base}/changes`).map(x=>x[1]),[['workshop','M5']]);assert.ok(reads.every(([p])=>!p.includes('/admission/')&&!p.includes('/registrations')));
-  assert.deepEqual(d.references.items,[]);assert.deepEqual(d.references.characters,[]);assert.equal(d.references.itemsReadable,false);assert.equal(d.references.charactersReadable,false);assert.equal(d.diagnostics.filter(x=>x.code==='REFERENCE_NOT_CHECKED').length,2);
+  assert.deepEqual(d.references.items,[]);assert.deepEqual(d.references.characters,[]);assert.equal(d.references.itemsReadable,false);assert.equal(d.references.charactersReadable,false);assert.equal(d.diagnostics.filter(x=>x.code==='REFERENCE_NOT_CHECKED').length,3);
   assert.doesNotMatch(JSON.stringify(d),/Ingrédient synthétique|Voyageuse synthétique|Note M[12] privée|species-test|Règles fictives|Notice fictive/);assert.equal(d.history.length,2);
   await assert.rejects(f.view('M1',f.mj),{code:'FORBIDDEN'});await assert.rejects(f.view('M2',f.mj),{code:'FORBIDDEN'});await assert.rejects(f.check(5,f.mj),{code:'FORBIDDEN'});await assert.rejects(f.read('admissionAdmin',f.mj,{sessionId:f.sid}),{code:'FORBIDDEN'});
  });
  test(`${prefix} : droits croisés indépendants et retrait immédiat des suggestions`,async()=>{
   const f=await centralShopsFixture(makeStore);await f.save();await f.saveCharacter({draftRevision:1});await f.saveShop({draftRevision:2});await f.saveOffer({draftRevision:3});
-  await f.grant({readWorkshops:['M1','M5'],editWorkshops:['M5']});let d=await f.view('M5',f.mj);assert.equal(d.references.items.length,1);assert.equal(d.references.characters.length,0);assert.deepEqual(d.diagnostics.filter(x=>x.code==='REFERENCE_NOT_CHECKED').map(x=>x.referenceType),['character']);
+  await f.grant({readWorkshops:['M1','M5'],editWorkshops:['M5']});let d=await f.view('M5',f.mj);assert.equal(d.references.items.length,1);assert.equal(d.references.characters.length,0);assert.deepEqual(d.diagnostics.filter(x=>x.code==='REFERENCE_NOT_CHECKED').map(x=>x.referenceType),['character','fieldTarget']);
   await f.grant({revision:1,readWorkshops:['M2','M5'],editWorkshops:['M5']});d=await f.view('M5',f.mj);assert.equal(d.references.items.length,0);assert.equal(d.references.characters.length,1);assert.doesNotMatch(JSON.stringify(d),/Ingrédient synthétique/);
   await f.grant({revision:2,readWorkshops:['M5'],editWorkshops:['M5']});d=await f.view('M5',f.mj);assert.doesNotMatch(JSON.stringify(d),/Voyageuse synthétique|Ingrédient synthétique/);
  });
@@ -78,7 +78,7 @@ export function centralShopsSuite(makeStore,prefix='Boutiques centrales C2g'){
  });
  test(`${prefix} : vendeur narratif sans rôle PNJ, lieu jamais validé par une instance`,async()=>{
   const f=await centralShopsFixture(makeStore);await f.saveCharacter({character:{...centralTestCharacter,relations:[]}});await f.saveShop({draftRevision:1});await f.store.runTransaction(async tx=>tx.set(`sessions/${f.sid}/fieldTargets/counter`,{id:'counter',name:'Lieu en jeu'}));
-  const r=await f.check(2);assert.equal(r.edges.find(e=>e.to.type==='character').status,'RESOLVED');assert.equal(r.edges.find(e=>e.to.type==='fieldTarget').status,'NOT_CHECKED');assert.equal(r.publicationAvailable,false);assert.equal(r.workshops.find(w=>w.id==='M5').coverage,'PARTIAL');
+  const r=await f.check(2);assert.equal(r.edges.find(e=>e.to.type==='character').status,'RESOLVED');assert.equal(r.edges.find(e=>e.to.type==='fieldTarget').status,'MISSING');assert.equal(r.publicationAvailable,false);assert.equal(r.workshops.find(w=>w.id==='M5').coverage,'PARTIAL');
   const c=await f.store.get(`${f.base}/changes/character_character`);assert.equal(c.data.role,undefined);assert.equal(c.data.assignedUid,undefined);assert.ok(r.remainingChecks.some(x=>x.message.includes('habilitations des vendeurs')));
  });
  test(`${prefix} : archive et restauration sans cascade, offre conservée`,async()=>{
@@ -120,7 +120,7 @@ export function centralShopsSuite(makeStore,prefix='Boutiques centrales C2g'){
   const f=await centralShopsFixture(makeStore);await f.saveShop();await f.saveOffer({draftRevision:1});const rows=(await f.view('M5')).changes;
   await f.store.runTransaction(async tx=>{for(const type of ['shop','offer']){const c=rows.find(c=>c.type===type);for(let i=1;i<centralLimits[`${type}s`];i++)tx.set(`${f.base}/changes/${type}_limit${i}`,{...c,id:`${type}_limit${i}`,entityId:`limit${i}`,operation:'ARCHIVE',data:{...c.data,id:`limit${i}`,masterArchived:true}});}});
   await assert.rejects(f.saveShop({shopId:'overflow',draftRevision:2}),{code:'CENTRAL_LIMIT'});await assert.rejects(f.saveOffer({offerId:'overflow',draftRevision:2}),{code:'CENTRAL_LIMIT'});await f.saveShop({draftRevision:2,shopRevision:1});await f.saveOffer({draftRevision:3,offerRevision:1});
-  const r=await f.check(4);assert.equal(r.totals.records,300);assert.equal(r.totals.invalid,0);assert.equal(centralCheckLimits.records,1709);
+  const r=await f.check(4);assert.equal(r.totals.records,300);assert.equal(r.totals.invalid,0);assert.equal(centralCheckLimits.records,1809);
  });
  test(`${prefix} : formats stockés corrompus et provenance Excel incompatible refusés`,async()=>{
   const f=await centralShopsFixture(makeStore);await f.saveShop();await f.saveOffer({draftRevision:1});const shop=await f.store.get(`${f.base}/changes/shop_shop`),offer=await f.store.get(`${f.base}/changes/offer_offer`);
@@ -133,7 +133,7 @@ export function centralShopsSuite(makeStore,prefix='Boutiques centrales C2g'){
   for(const [workshop,sheet,row] of [['M1','Objets',centralItemRow],['M2','Personnages',{...centralCharacterRow,id:'character',relations_json:'[]'}]]){
    const e=await f.read('exportCentralDraft',f.owner,{campaignId:f.cid,workshop,ids:[]});e.sheets[sheet]=[row];const input={campaignId:f.cid,workshop,fileName:`${workshop}.xlsx`,sheets:e.sheets},p=await f.read('prepareCentralImport',f.owner,input);assert.deepEqual(p.errors,[]);await f.cmd('applyCentralImport',{...input,confirmation:p.confirmation,reason:'Lier les définitions'});
   }
-  const d=await f.view('M5');assert.deepEqual(d.changes,before);assert.deepEqual(refs(d),[]);assert.equal(d.references.items[0].source,'XLSX');assert.equal(d.references.characters[0].source,'XLSX');assert.equal((await f.check(4)).totals.invalid,0);
+  const d=await f.view('M5');assert.deepEqual(d.changes,before);assert.deepEqual(refs(d).map(x=>x.referenceType),['fieldTarget']);assert.equal(d.references.items[0].source,'XLSX');assert.equal(d.references.characters[0].source,'XLSX');assert.equal((await f.check(4)).totals.invalid,0);
  });
  test(`${prefix} : gabarit M5 et aperçus existants périmés après édition`,async()=>{
   const f=await centralShopsFixture(makeStore);assert.deepEqual((await f.read('exportCentralDraft',f.owner,{campaignId:f.cid,workshop:'M5',ids:[]})).sheets.Boutiques,[]);
@@ -142,7 +142,7 @@ export function centralShopsSuite(makeStore,prefix='Boutiques centrales C2g'){
  });
  test(`${prefix} : autre campagne et instances de session ne résolvent pas les liens`,async()=>{
   const f=await centralShopsFixture(makeStore),other=await f.create({creationId:randomUUID()});await f.saveShop({campaignId:other.campaignId});await f.save({campaignId:other.campaignId,draftRevision:1});await f.saveCharacter({campaignId:other.campaignId,draftRevision:2});
-  await f.store.runTransaction(async tx=>{tx.set(`sessions/${f.sid}/characters/character`,{id:'character',public:{displayName:'Instance'}});tx.set(`sessions/${f.sid}/items/ingredient`,{id:'ingredient',name:'Instance'});});await f.saveOffer();let d=await f.view('M5');assert.equal(refs(d).length,2);await f.saveShop({draftRevision:1});d=await f.view('M5');assert.equal(refs(d).length,2);assert.deepEqual(d.references.characters,[]);assert.deepEqual(d.references.items,[]);
+  await f.store.runTransaction(async tx=>{tx.set(`sessions/${f.sid}/characters/character`,{id:'character',public:{displayName:'Instance'}});tx.set(`sessions/${f.sid}/items/ingredient`,{id:'ingredient',name:'Instance'});});await f.saveOffer();let d=await f.view('M5');assert.equal(refs(d).length,2);await f.saveShop({draftRevision:1});d=await f.view('M5');assert.equal(refs(d).length,3);assert.deepEqual(d.references.characters,[]);assert.deepEqual(d.references.items,[]);
  });
  test(`${prefix} : interruption transactionnelle, reprise sans écritures partielles`,async()=>{
   const base=makeStore();let fail=false;const store={get:base.get.bind(base),list:base.list.bind(base),runTransaction:cb=>base.runTransaction(async tx=>{const r=await cb(tx);if(fail)throw new Error('INTERRUPTION');return r;})},f=await centralShopsFixture(()=>store),input={requestId:randomUUID()};

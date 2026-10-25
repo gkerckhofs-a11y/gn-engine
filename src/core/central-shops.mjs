@@ -1,3 +1,4 @@
+import {centralLocationDiagnostics,centralLocationReferences} from './central-field-targets.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {amountInput} from './economy-state.mjs';
 
@@ -17,7 +18,7 @@ export function centralOfferInput(v,id,old={}){
 
 // null is a denied foreign-workshop read, never an empty catalogue. References
 // stay in the common draft; no copied product, seller, cash account or stock.
-export function centralShopProjection(changes,itemChanges,characterChanges){
+export function centralShopProjection(changes,itemChanges,characterChanges,locationChanges=null){
  const shops=changes.filter(c=>c.type==='shop'),offers=changes.filter(c=>c.type==='offer');
  const items=itemChanges?.filter(c=>c.type==='item')??[],characters=characterChanges?.filter(c=>c.type==='character')??[],diagnostics=[];
  const add=(c,field,reference,referenceType,code,message)=>diagnostics.push({workshop:'M5',entityType:c.type,entityId:c.entityId,field,reference,referenceType,code,message,source:c.source,draftRevision:c.revision});
@@ -31,13 +32,13 @@ export function centralShopProjection(changes,itemChanges,characterChanges){
  };
  for(const c of shops.filter(c=>c.operation==='UPSERT')){
   check(c,'sellerCharacterId','character',characters,characterChanges!==null,'M2');
-  add(c,'locationTargetId',c.data.locationTargetId,'fieldTarget',c.data.locationTargetId?'REFERENCE_PENDING':'REFERENCE_REQUIRED',c.data.locationTargetId?'Lieu conservé ; son contrôle central reste à raccorder.':'Préparer la référence du lieu de la boutique.');
+  diagnostics.push(...centralLocationDiagnostics(c,'locationTargetId',c.data.locationTargetId,locationChanges,true));
  }
  for(const c of offers.filter(c=>c.operation==='UPSERT')){
   check(c,'shopId','shop',shops,true,'M5');check(c,'itemId','item',items,itemChanges!==null,'M1');
   if(c.data.unitPrice===null)add(c,'unitPrice',null,null,'PRICE_REQUIRED','Renseigner un prix unitaire en crédits avant le contrôle complet.');
  }
  const reference=c=>({id:c.entityId,name:c.data.name,archived:c.operation!=='UPSERT',revision:c.data.revision,source:c.source});
- return {references:{itemsReadable:itemChanges!==null,charactersReadable:characterChanges!==null,shops:shops.map(reference),items:items.map(reference),
+ return {references:{...centralLocationReferences(locationChanges),itemsReadable:itemChanges!==null,charactersReadable:characterChanges!==null,shops:shops.map(reference),items:items.map(reference),
   characters:characters.map(c=>({id:c.entityId,name:c.data.public.displayName,archived:c.operation!=='UPSERT',revision:c.data.contentRevision,source:c.source}))},diagnostics,publicationAvailable:false};
 }

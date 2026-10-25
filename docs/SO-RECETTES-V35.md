@@ -1,5 +1,11 @@
 # Registre V3.5 — 55 recettes ciblées
 
+## C2p — lieux, fouilles et installations préparés dans M6
+
+[C2p — lieux, fouilles et installations M6](SO-02-C2P-LIEUX-CENTRAUX.md) apporte 25 cas partagés mémoire/Firestore : validations, droits/révocation, confidentialité des requêtes, références différées/archives/corruptions, concurrence, interruption, bornes, import M6 homonyme, imports M3/M4/M5 et captures. Cinq UI et un HTTP/Auth. REC-SO-MST-03/05/06/08 et REC-SO-REC-01/05 reçoivent ces preuves préparatoires partielles ; aucun des 55 verdicts complets n’est certifié. QR/actions joués, laboratoire autorisé, réserve réelle, publication et recette humaine restent à exécuter.
+
+**Local, 25 octobre 2026 (Europe/Brussels) : compilation et 1456/1456 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 25 nouveaux cas partagés mémoire/Firestore, cinq UI et un HTTP/Auth. Firebase non exécuté localement (Java 17.0.20) ; preuves finales des deux CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1) après terminaison. [Preuves C2o archivées](PR-1-HISTORIQUE-AVANT-C2P.md) : 1426 applicatifs/1153 Firebase/HTTP chacun.
+
 ## C2o — groupes et factions préparés dans M2
 
 [C2o — groupes et factions M2](SO-02-C2O-GROUPES-CENTRAUX.md) ajoute les recettes de préparation privée, permissions explicites, cibles différées/archivées/invalides, homonymes typés, concurrence, révocation, interruption, limites et conservation lors des imports M2. Une capture réellement produite par C2n est relue sans réécriture ; 100 fiches + 50 groupes contrôlés sans troncature. Ces essais ne certifient pas la naissance, la réaffectation en partie ou les 55 parcours intégraux. Aucune recette mobile/visuelle/terrain ou restauration globale.

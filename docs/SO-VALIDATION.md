@@ -1,5 +1,11 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## C2p — lieux, fouilles et installations préparés dans M6
+
+[C2p — lieux, fouilles et installations M6](SO-02-C2P-LIEUX-CENTRAUX.md) livre édition/lecture/archive/restauration privée, profils natifs et récompenses proposés, suggestions minimales M3/M4/M5, contrôles locaux/globaux et imports conservant les lieux. Bornes : 100 lieux archives comprises, 96 Kio chacun, 20 récompenses ; global 1809/16 Mio/4 Mio, empreinte 14. `FIELD_RULES_PENDING`, `FIELD_REWARD_SOURCE_PENDING` et `LABORATORY_AUTHORIZATION_PENDING` distinguent préparation et activation. Publication, autorisations/QR, conformité V0.7 et sources réelles restent manquants. Aucune recette navigateur/mobile/terrain/charge/restauration globale revendiquée ; C2 complet, I3/INS-06 complet, I4/I5, 55 verdicts complets et SO-GAP-12/13/14 restent ouverts.
+
+**Local, 25 octobre 2026 (Europe/Brussels) : compilation et 1456/1456 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 25 nouveaux cas partagés mémoire/Firestore, cinq UI et un HTTP/Auth. Firebase non exécuté localement (Java 17.0.20) ; preuves finales des deux CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1) après terminaison. [Preuves C2o archivées](PR-1-HISTORIQUE-AVANT-C2P.md) : 1426 applicatifs/1153 Firebase/HTTP chacun.
+
 ## C2o — groupes et factions préparés dans M2
 
 [C2o — groupes et factions M2](SO-02-C2O-GROUPES-CENTRAUX.md) réutilise le validateur natif et le service transactionnel central. Autorité/cycle avant reçu, révisions communes, listes de champs strictes et aucune initialisation de jeu. 50 groupes/100 propositions par groupe/96 Kio, plafond central 1709 changements ; budgets centraux 16 Mio/4 Mio et captures 6 Mio/100 pages inchangés. Empreinte centrale 13, empreinte privée I3c 2. Compatibilité avec une véritable capture C2n vérifiée ; activation/publication et restauration globale restent non certifiées.

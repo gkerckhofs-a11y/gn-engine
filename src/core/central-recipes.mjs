@@ -1,3 +1,4 @@
+import {centralLocationDiagnostics,centralLocationReferences} from './central-field-targets.mjs';
 import {validateRecipeItem} from './recipe-state.mjs';
 
 // A private authoring projection, never a publication report. Missing references
@@ -6,7 +7,7 @@ import {validateRecipeItem} from './recipe-state.mjs';
 export function centralRecipeProjection(changes,itemChanges,knowledgeChanges=null){
  const items=itemChanges?.filter(c=>c.type==='item')??[],knowledge=knowledgeChanges?.filter(c=>c.type==='knowledge')??[],diagnostics=[];
  const columns={productItemId:'produit_id',components:'composants',skillId:'competence_id',effectId:'effet_id',laboratoryTargetId:'laboratoire_lieu_id',unlockKnowledgeId:'connaissance_id'};
- const add=(c,field,reference,code,message)=>diagnostics.push({...(c.provenance?{fileName:c.provenance.fileName,sheet:c.provenance.sheet,row:c.provenance.row,column:columns[field.split('.')[0]]??field}:{}),workshop:'M4',entityId:c.entityId,field,reference,...(field==='unlockKnowledgeId'?{entityType:'recipe',referenceType:'knowledge'}:{}),code,message,source:c.source,draftRevision:c.revision});
+ const add=(c,field,reference,code,message)=>diagnostics.push({...(c.provenance?{fileName:c.provenance.fileName,sheet:c.provenance.sheet,row:c.provenance.row,column:columns[field.split('.')[0]]??field}:{}),workshop:'M4',entityId:c.entityId,field,reference,entityType:'recipe',...(field==='unlockKnowledgeId'?{referenceType:'knowledge'}:field==='laboratoryTargetId'?{referenceType:'fieldTarget'}:{}),code,message,source:c.source,draftRevision:c.revision});
  for(const c of changes.filter(c=>c.type==='recipe'&&c.operation==='UPSERT')){
   const r=c.data;
   const check=(field,id)=>{
@@ -29,11 +30,13 @@ export function centralRecipeProjection(changes,itemChanges,knowledgeChanges=nul
    else if(!target)add(c,'unlockKnowledgeId',r.unlockKnowledgeId,'REFERENCE_MISSING','Préparer cette connaissance dans M6 ou corriger son identifiant.');
    else if(target.operation!=='UPSERT')add(c,'unlockKnowledgeId',r.unlockKnowledgeId,'REFERENCE_ARCHIVED','Restaurer cette connaissance dans M6 ou changer la référence.');
   }
-  for(const field of ['skillId','effectId','laboratoryTargetId']){
+  diagnostics.push(...centralLocationDiagnostics(c,'laboratoryTargetId',r.laboratoryTargetId,knowledgeChanges,true).map(d=>({...d,...(c.provenance?{fileName:c.provenance.fileName,sheet:c.provenance.sheet,row:c.provenance.row,column:columns.laboratoryTargetId}:{})})));
+  if(r.laboratoryTargetId)add(c,'laboratoryTargetId',r.laboratoryTargetId,'LABORATORY_AUTHORIZATION_PENDING','Lieu référencé seulement : habilitation du laboratoire et QR de fabrication restent à raccorder.');
+  for(const field of ['skillId','effectId']){
    if(r[field])add(c,field,r[field],'REFERENCE_PENDING','Référence conservée ; son contrôle central et son activation restent à raccorder.');
    else add(c,field,null,'REFERENCE_REQUIRED','Préparer cette référence avant le futur contrôle global.');
   }
  }
- return {references:{itemsReadable:itemChanges!==null,items:items.map(c=>({id:c.entityId,name:c.data.name,kind:c.data.kind,consumable:c.data.consumable,unit:c.data.unit,laserRecharge:!!c.data.laserRecharge,archived:c.operation!=='UPSERT',revision:c.data.revision,source:c.source})),
+ return {references:{...centralLocationReferences(knowledgeChanges),itemsReadable:itemChanges!==null,items:items.map(c=>({id:c.entityId,name:c.data.name,kind:c.data.kind,consumable:c.data.consumable,unit:c.data.unit,laserRecharge:!!c.data.laserRecharge,archived:c.operation!=='UPSERT',revision:c.data.revision,source:c.source})),
   knowledgeReadable:knowledgeChanges!==null,knowledge:knowledge.map(c=>({id:c.entityId,title:c.data.title,kind:c.data.kind,archived:c.operation!=='UPSERT',revision:c.data.revision,source:c.source}))},diagnostics,publicationAvailable:false};
 }

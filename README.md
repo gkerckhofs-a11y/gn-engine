@@ -1,5 +1,7 @@
 # GN Engine
 
+**C2p — lieux, fouilles et installations M6.** [Guide, tests et limites](docs/SO-02-C2P-LIEUX-CENTRAUX.md). Définitions natives privées, profils/récompenses proposés, références M3/M4/M5 sous droits M6, import M6 homonyme préservé et captures compatibles. Compilation et 1456 tests applicatifs locaux réussis le 25 octobre 2026 ; preuves finales des deux CI dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Aucun stock, QR, action ou droit de laboratoire activé ; publication et conformité complète restent à livrer.
+
 **SO-02 C2o — groupes et factions préparés dans M2.** [Parcours, droits et limites](docs/SO-02-C2O-GROUPES-CENTRAUX.md) : définitions privées, appartenances et permissions proposées, références vers les fiches, archives et conservation par les imports/instantanés. **1426 tests applicatifs locaux et build réussis** ; preuves CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Aucun groupe ni mandat de session activé ; publication et naissance restent à développer.
 
 **SO-02 C2n — instantanés privés du brouillon central.** [Parcours, droits et limites](docs/SO-02-C2N-INSTANTANES-CENTRAUX.md) : capture propriétaire des sept ateliers et de leur rapport, relecture historique et téléchargement privé vérifié après modification du brouillon. **1399 tests applicatifs locaux et build réussis** ; preuves Firebase/CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Publication, activation et restauration globale restent indisponibles.
