@@ -1,3 +1,4 @@
+import {hasSoHealth,survival} from './space-outlaws-health-state.mjs';
 import {createSpaceOutlawsEntryService,spaceOutlawsEntryActions} from './space-outlaws-entry.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {characterInput} from './character-state.mjs';
@@ -446,8 +447,13 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
           requireThat(transitions[s.stage].includes(input.stage),'INVALID_TRANSITION');
           if(s.spaceOutlaws){
             authorizeSpaceOutlaws(tx,s,'RHYTHM');
-            if(s.stage==='BRIEFING')requireThat((await tx.list(`sessions/${sid}/fieldTargets`)).some(t=>t.kind==='ANALYSIS'&&t.publicationState==='PUBLISHED'),'SO_ACTION_TARGET_REQUIRED');
-            if(input.stage==='FINISHED')requireThat(!(await tx.list(`sessions/${sid}/fieldActions`)).some(a=>a.status==='ACTIVE'),'FIELD_ACTIONS_OPEN');
+            requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
+            if(s.stage==='BRIEFING'&&!hasSoHealth(s))requireThat((await tx.list(`sessions/${sid}/fieldTargets`)).some(t=>t.kind==='ANALYSIS'&&t.publicationState==='PUBLISHED'),'SO_ACTION_TARGET_REQUIRED');
+            if(input.stage==='FINISHED'){
+              requireThat(!(await tx.list(`sessions/${sid}/fieldActions`)).some(a=>a.status==='ACTIVE'),'FIELD_ACTIONS_OPEN');
+              requireThat(!(await tx.list(`sessions/${sid}/personActions`)).some(personOpen),'PERSON_ACTIONS_OPEN');
+              if(hasSoHealth(s))requireThat(!(await tx.list(`sessions/${sid}/characters`)).some(c=>['URGENT','EXPIRED'].includes(survival(s,c,at).status)),'SO_SURVIVAL_OPEN');
+            }
           }
           if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/personActions`)).some(personOpen),'PERSON_ACTIONS_OPEN');
           if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/fieldActions`)).some(a=>a.status==='ACTIVE'),'FIELD_ACTIONS_OPEN');

@@ -1,3 +1,4 @@
+import {hasSoHealth,survival} from './space-outlaws-health-state.mjs';
 import {naturePatch} from './character-nature.mjs';
 import {gameTime} from './clock.mjs';
 import {requireThat,whole,documentId} from './validation.mjs';
@@ -17,7 +18,7 @@ export function healthState(c){
 }
 export const initialHealth=(rules,character={})=>rules?.enabled?{hp:character.initialMaxHp??rules.defaultMaxHp,maxHp:character.initialMaxHp??rules.defaultMaxHp,outOfCombat:false,healthRevision:1}:{};
 export function healthSummary(s,c,at=Date.now()){
-  return s.healthRules?.enabled&&c?{...healthState(c),convalescenceMs:c.convalescentUntilGameMs?Math.max(0,c.convalescentUntilGameMs-gameTime(s.clock,at)):0,stage:s.stage,returnMode:s.healthRules.returnMode,allowed:s.healthRules.allowed}:null;
+  return s.healthRules?.enabled&&c?{...healthState(c),...(hasSoHealth(s)?{spaceOutlaws:true,...survival(s,c,at)}:{}),convalescenceMs:c.convalescentUntilGameMs?Math.max(0,c.convalescentUntilGameMs-gameTime(s.clock,at)):0,stage:s.stage,returnMode:s.healthRules.returnMode,allowed:s.healthRules.allowed}:null;
 }
 export const canGameAction=(s,c,action,at=Date.now())=>!(['discover','heal'].includes(action)&&(c.activeAidId||(c.convalescentUntilGameMs>0&&c.convalescentUntilGameMs>gameTime(s.clock,at))))&&(!(s.healthRules?.enabled&&(c.hp===0||c.outOfCombat===true))||s.healthRules?.allowed?.[action]===true);
 export function requireGameAction(s,c,action,at=Date.now()){requireThat(canGameAction(s,c,action,at),'OUT_OF_COMBAT');}

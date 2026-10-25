@@ -24,6 +24,12 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(path.startsWith(`${base}audit/`))continue;
   const relative=path.slice(base.length);
   if(scopes.has('FIELD')&&/^(fieldActions\/[^/]+|fieldStates\/[^/]+|aidOffers\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/(?:resources\/actionPoints|fieldCooldowns\/[^/]+|knowledge\/[^/]+))?)$/.test(relative))continue;
+  if(scopes.has('CARE')&&/^(personActions\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/(?:resources\/actionPoints|fieldCooldowns\/[^/]+|cooldowns\/field-care|healthHistory\/[^/]+))?)$/.test(relative))continue;
+  if(scopes.has('HEALTH')&&/^characters\/[^/]+(?:\/healthHistory\/[^/]+)?$/.test(relative))continue;
+  if(scopes.has('SAFETY')&&path===base.slice(0,-1)){
+   const next=pending.get(path),strip=({stage,clock,vitalClock,safetyStop,revision,...rest})=>rest;
+   requireThat(isDeepStrictEqual(strip(session),strip(next))&&next.revision===session.revision+1&&['EN_JEU','PAUSE'].includes(next.stage),'SO_GAMEPLAY_NOT_OPEN');continue;
+  }
   if(scopes.has('AID')&&/^aidOffers\/[^/]+$/.test(relative))continue;
   if(scopes.has('KNOWLEDGE')&&/^characters\/[^/]+\/knowledge\/[^/]+$/.test(relative))continue;
   if(scopes.has('RHYTHM')&&path===base.slice(0,-1)){
