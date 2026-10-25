@@ -1,5 +1,11 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## C2n — instantanés privés du brouillon central
+
+[C2n — instantanés centraux](SO-02-C2N-INSTANTANES-CENTRAUX.md) : capture propriétaire des sept ateliers et du rapport, pages privées immuables, relecture sous droits C2b et téléchargement vérifié. Le brouillon reste modifiable, les références à corriger restent signalées. Étape additive du cycle de préparation C2 ; publication, version activable et naissance restent indisponibles. C2 complet, I3/INS-06 complet, I4/I5, SO-GAP-12/13/14 et les 55 verdicts complets restent ouverts.
+
+**Local, 25 octobre 2026 (Europe/Brussels) : compilation et 1399/1399 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 21 nouveaux cas partagés mémoire/Firestore, quatre UI et un HTTP/Auth ; Firebase non exécuté localement (Java 17). Preuves finales des deux CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1) après terminaison. [Preuves I3c archivées](PR-1-HISTORIQUE-AVANT-C2N.md) : 1374 applicatifs/1107 Firebase chacun.
+
 ## I3c — contrôle privé de l’ensemble des dossiers M2
 
 [I3c — contrôle des dossiers M2](SO-01-I3C-CONTROLE-DOSSIERS-M2.md) ajoute une lecture transactionnelle de la régie : concordance identité/plan, premières fiches manquantes, retraits encore liés, archives, orphelins, confirmations, compteurs et verrous d’identité. Les biographies MJ peuvent différer ; les exceptions I2 motivées restent admises. MJ de session + lecture M2 requis, sans édition obligatoire ni accès implicite aux autres ateliers.

@@ -1,5 +1,11 @@
 # Registre V3.5 — 55 recettes ciblées
 
+## C2n — instantanés privés du brouillon central
+
+[C2n — instantanés centraux](SO-02-C2N-INSTANTANES-CENTRAUX.md) ajoute les recettes de capture atomique, historique après édition/archive, réessais, concurrence, révocation, confidentialité, intégrité, interruption, Unicode et budget. Le rapport peut conserver des diagnostics, mais une définition native invalide bloque la capture. Aucun verdict intégral des 55 recettes n’est clos par cette brique ; aucune recette humaine, mobile, charge ou restauration globale revendiquée.
+
+**Local, 25 octobre 2026 (Europe/Brussels) : compilation et 1399/1399 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 21 nouveaux cas partagés mémoire/Firestore, quatre UI et un HTTP/Auth ; Firebase non exécuté localement (Java 17). Preuves finales des deux CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1) après terminaison. [Preuves I3c archivées](PR-1-HISTORIQUE-AVANT-C2N.md) : 1374 applicatifs/1107 Firebase chacun.
+
 ## I3c — contrôle privé de l’ensemble des dossiers M2
 
 [I3c — contrôle des dossiers M2](SO-01-I3C-CONTROLE-DOSSIERS-M2.md) ajoute une lecture transactionnelle de la régie : concordance identité/plan, premières fiches manquantes, retraits encore liés, archives, orphelins, confirmations, compteurs et verrous d’identité. Les biographies MJ peuvent différer ; les exceptions I2 motivées restent admises. MJ de session + lecture M2 requis, sans édition obligatoire ni accès implicite aux autres ateliers.

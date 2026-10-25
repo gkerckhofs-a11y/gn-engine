@@ -87,7 +87,7 @@ function episodeEntries(data,source,s,actor,at){
  requireThat(entries.length<=campaignLimits.records&&Buffer.byteLength(JSON.stringify(entries))<=campaignLimits.bytes,'CAMPAIGN_TOO_LARGE');
  return entries;
 }
-function pagesFor(entries){
+export function campaignPagesFor(entries){
  const pages=[];let page=[],bytes=0;
  for(const entry of entries){const size=Buffer.byteLength(JSON.stringify(entry));requireThat(size<800000,'CAMPAIGN_RECORD_TOO_LARGE');
   if(page.length&&(page.length>=campaignLimits.pageRecords||bytes+size>campaignLimits.pageBytes)){pages.push(page);page=[];bytes=0;}
@@ -214,7 +214,7 @@ export function createCampaignService({store,signed,admin,checkScenario,checkSes
     tx.set(`sessions/${s.id}`,{...s,stage:'PAUSE',revision:s.revision+1});tx.set(`sessions/${s.id}/audit/${newId}`,{id:newId,action,at,actorUid:actor.uid,reason});result={id:s.id};
    }else if(action==='beginCampaignEpisode'){
     const p=await episodePlan(tx,actor,c,input);requireThat(input.confirmation===p.confirmation,'STALE_REVISION');const reason=text(input.reason);
-    const header=episodeHeader(input,p.source,c,newSessionId,actor,at),pages=pagesFor(episodeEntries(p.data,p.source,header,actor,at));
+    const header=episodeHeader(input,p.source,c,newSessionId,actor,at),pages=campaignPagesFor(episodeEntries(p.data,p.source,header,actor,at));
     build={id:newId,campaignId:c.id,ownerUid:actor.uid,sessionId:header.id,header,sourceSessionId:p.source.id,createdAt:at,reason,status:'COPYING',cursor:0,pages:pages.length,recordCount:p.recordCount};
     for(const [i,entries] of pages.entries())tx.set(`campaignBuilds/${build.id}/pages/${i}`,{id:String(i),entries});
     tx.set(`campaignBuilds/${build.id}`,build);tx.set(root(c.id),{...c,activeBuildId:build.id,revision:c.revision+1});result={id:build.sessionId,buildId:build.id,campaignId:c.id,status:build.status,cursor:0,pages:build.pages};

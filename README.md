@@ -1,5 +1,7 @@
 # GN Engine
 
+**SO-02 C2n — instantanés privés du brouillon central.** [Parcours, droits et limites](docs/SO-02-C2N-INSTANTANES-CENTRAUX.md) : capture propriétaire des sept ateliers et de leur rapport, relecture historique et téléchargement privé vérifié après modification du brouillon. **1399 tests applicatifs locaux et build réussis** ; preuves Firebase/CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Publication, activation et restauration globale restent indisponibles.
+
 **SO-01 I3c — contrôle des dossiers M2.** [Parcours, droits et limites](docs/SO-01-I3C-CONTROLE-DOSSIERS-M2.md) : vérification privée de l’ensemble des dossiers, fiches liées, choix, places et identités ; écarts localisés, biographies MJ conservées et exceptions explicites reconnues. **1374 tests applicatifs locaux et build réussis** ; preuves CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Lecture seule, publication et naissance encore indisponibles. Les entrées suivantes conservent les jalons antérieurs.
 
 **SO-01 I3b — rapprochement du dossier et de M2.** [Parcours, tests et limites](docs/SO-01-I3B-RAPPROCHEMENT-M2.md) : comparaison privée puis confirmation motivée de l’identité et du plan approuvés ; biographie conservée par défaut, remplacement explicite, autres textes MJ conservés. **1347 tests applicatifs locaux et build réussis** ; preuves CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Publication et naissance restent à développer ; aucune ressource ni production activée.

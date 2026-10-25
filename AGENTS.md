@@ -208,6 +208,13 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Rapport sans écritures, récits ou données de compte ; empreinte d’instantané jamais utilisée comme consentement. Les futurs publication/naissance doivent réexécuter leurs propres validations/autorités/version. Préserver les tests de concurrence classe/M2/retrait/révocation, corruption, orphelins et limites.
 - Bornes de lecture 1000 dossiers/1000 verrous actifs/100 M2/16 Mio sources/4 Mio rapport : refus intégral, pas de troncature ni quota joueur inventé. Cycle initial seul, aucun schéma persistant nouveau ; retour I3b sans conversion mais sans ce diagnostic. Empreinte centrale 12, publication indisponible et exigences de sauvegarde inchangées.
 
+## Tranche C2n — instantanés privés de préparation
+
+- [C2n](docs/SO-02-C2N-INSTANTANES-CENTRAUX.md) conserve définitions natives des sept ateliers et rapport dans `masterDrafts/initial/checks/{id}/pages`. Réutiliser la pagination de campagne ; capture atomique avec manifeste, audit et reçu, sans changer le brouillon ni les pointeurs.
+- Capture propriétaire seulement, consultation sous droits C2b courants. Autorité/cycle avant reçus ; même confirmation retrouve la capture historique sans l’écraser. Diagnostics de références conservés, source native invalide refusée. Une capture n’autorise jamais publication ou naissance.
+- Vérifier intégrité et identités à la relecture/téléchargement ; aucune reconstruction depuis le brouillon courant. Empreintes non signées, pas une protection contre un administrateur réécrivant tout. Budgets propres 6 Mio/100 pages, contrôle 1659/16 Mio/4 Mio et empreinte 12 conservés.
+- JSON privé de consultation seulement ; préserver manifestes/pages/audits/reçus avec la sauvegarde cohérente complète. Aucun import/restauration ou copie des dossiers privés I3. Retour I3c sans conversion mais sans lecteur. Conserver concurrence, révocation, interruption, Unicode et tests Firestore/HTTP ; activation et restauration complète restent à développer.
+
 ## Cycle de chaque ensemble fonctionnel
 
 1. Lire le cadrage V3.5, le livre SPACE OUTLAWS V0.7, les sept gabarits proposés SO_Masters_V01.zip et le vade-mecum ; conserver le rapport de cohérence V0.6 comme historique (sources référencées dans SO-01a et SO-00). Délimiter un parcours complet, ses critères, dépendances et recettes. A01–A38 et l’extension PNJ FOR-01 sont clos : ne pas réinventer leurs barèmes. Distinguer les propositions techniques et les paramètres de session à préparer. Les décisions V3.5/V0.7 prévalent sur les cadrages antérieurs ; les prix/compositions d’exemples V3.2 restent non canoniques.

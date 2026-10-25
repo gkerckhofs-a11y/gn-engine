@@ -1,5 +1,11 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## C2n — instantanés privés du brouillon central
+
+[C2n — instantanés centraux](SO-02-C2N-INSTANTANES-CENTRAUX.md) ajoute `masterDrafts/initial/checks/{id}` et ses pages, audit de campagne et reçus. Les conserver ensemble avec le brouillon, droits et données privées d’admission. Le JSON privé contient définitions et rapport, pas une sauvegarde complète ni un format de restauration. Retour I3c sans conversion des définitions, mais sans lecteur des captures ; conserver les sous-collections. Empreinte centrale 12, quatre Masters et contrats historiques inchangés. Aucun déploiement, migration, règles/index/IAM ou marqueur de production modifié.
+
+**Local, 25 octobre 2026 (Europe/Brussels) : compilation et 1399/1399 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 21 nouveaux cas partagés mémoire/Firestore, quatre UI et un HTTP/Auth ; Firebase non exécuté localement (Java 17). Preuves finales des deux CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1) après terminaison. [Preuves I3c archivées](PR-1-HISTORIQUE-AVANT-C2N.md) : 1374 applicatifs/1107 Firebase chacun.
+
 ## I3c — contrôle privé de l’ensemble des dossiers M2
 
 [I3c — contrôle des dossiers M2](SO-01-I3C-CONTROLE-DOSSIERS-M2.md) ajoute une lecture transactionnelle de la régie : concordance identité/plan, premières fiches manquantes, retraits encore liés, archives, orphelins, confirmations, compteurs et verrous d’identité. Les biographies MJ peuvent différer ; les exceptions I2 motivées restent admises. MJ de session + lecture M2 requis, sans édition obligatoire ni accès implicite aux autres ateliers.

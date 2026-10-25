@@ -45,6 +45,25 @@ const request=async(action,input={},token)=>{
   return {status:response.status,...await response.json()};
 };
 
+test('HTTP + Auth : instantané central privé, capture idempotente et relecture révoquée',async()=>{
+ const owner=await googleTestAccount(process.env.OWNER_EMAIL),email=`snapshot-${randomUUID()}@example.invalid`,reader=await googleTestAccount(email);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;},cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Instantané central HTTP',title:'Préparation synthétique',capacity:2,privacy:'Notice fictive'});
+ const input={campaignId,characterId:'fiction',characterRevision:0,draftRevision:0,character:{...centralTestCharacter,biography:'Récit privé figé',relations:[]},reason:'Fiction de test'};
+ await cmd('saveCentralCharacter',input);const read={campaignId,draftRevision:1};assert.equal((await request('previewCentralSnapshot',read)).status,401);
+ const grant={campaignId,email,active:true,readWorkshops:['M1','M2','M3','M4','M5','M6','M7'],editWorkshops:[],revision:0,reason:'Contrôle global privé'};
+ await cmd('setCentralStaff',grant);assert.equal((await request('listCentralSnapshots',{campaignId},reader)).status,403);
+ await cmd('setCentralStaff',{...grant,revision:1,checkCentral:true});assert.equal((await request('previewCentralSnapshot',read,reader)).status,403);
+ const p=await call('previewCentralSnapshot',read),capture={...read,confirmation:p.confirmation,reason:'Copie historique HTTP',requestId:randomUUID()};
+ assert.equal((await request('captureCentralSnapshot',capture,reader)).status,403);const out=await cmd('captureCentralSnapshot',capture);
+ await cmd('saveCentralCharacter',{...input,draftRevision:1,characterRevision:1,character:{...input.character,biography:'Récit actuel'}});
+ assert.deepEqual(await cmd('captureCentralSnapshot',capture),out);assert.equal((await call('listCentralSnapshots',{campaignId},reader)).snapshots.length,1);
+ const d=await call('centralSnapshot',{campaignId,snapshotId:out.id},reader);assert.equal(d.sourceIsCurrentRevision,false);assert.equal(d.changes[0].data.biography,'Récit privé figé');assert.equal(d.report.draft.revision,1);assert.equal(d.publicationAvailable,false);
+ assert.equal((await request('admissionAdmin',{sessionId},reader)).status,403);assert.equal((await request('centralSnapshot',{campaignId,snapshotId:out.id})).status,401);
+ await cmd('setCentralStaff',{...grant,revision:2,checkCentral:false});assert.equal((await request('centralSnapshot',{campaignId,snapshotId:out.id},reader)).status,403);
+ const s=await call('session',{sessionId});assert.equal(s.versionId,null);for(const k of ['characters','accounts','inventory'])assert.deepEqual(s[k],[]);
+});
+
 test('HTTP + Auth : contrôle privé des dossiers M2, lecture seule et révocation',async()=>{
  const owner=await googleTestAccount(process.env.OWNER_EMAIL),email=`check-m2-${randomUUID()}@example.invalid`,reader=await googleTestAccount(email),playerEmail=`check-m2-player-${randomUUID()}@example.invalid`,player=await googleTestAccount(playerEmail);
  const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;},cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);

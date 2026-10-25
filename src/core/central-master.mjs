@@ -1,3 +1,4 @@
+import {centralSnapshots,centralSnapshotActions} from './central-snapshots.mjs';
 import {centralSpaceInput,centralSpaceProjection,centralSpaceTypes} from './central-space.mjs';
 import {centralMissionInput,centralMissionProjection} from './central-missions.mjs';
 import {centralKnowledgeInput,centralKnowledgeProjection} from './central-knowledge.mjs';
@@ -27,7 +28,7 @@ const reasonText=v=>{requireThat(typeof v==='string'&&v.trim()&&v.length<=500,'I
 const workshopList=v=>{requireThat(Array.isArray(v)&&v.length<=7&&new Set(v).size===v.length&&v.every(id=>ids.includes(id)),'INVALID_CENTRAL_GRANT');return [...v].sort();};
 const editableIds=centralWorkshops.filter(w=>w.editable).map(w=>w.id);
 const ownerRights={readWorkshops:ids,editWorkshops:editableIds,manageStaff:true,checkCentral:true};
-export const centralMasterCommands=[...centralImportCommands,'centralMaster','checkCentralDraft','setCentralStaff','saveCentralItem','archiveCentralItem','saveCentralRecipe','archiveCentralRecipe','saveCentralCharacter','archiveCentralCharacter','saveCentralClassKit','archiveCentralClassKit','saveCentralShipModel','archiveCentralShipModel','saveCentralPort','archiveCentralPort','saveCentralRoute','archiveCentralRoute','saveCentralMission','archiveCentralMission','saveCentralKnowledge','archiveCentralKnowledge','saveCentralShop','archiveCentralShop','saveCentralOffer','archiveCentralOffer'];
+export const centralMasterCommands=[...centralSnapshotActions,...centralImportCommands,'centralMaster','checkCentralDraft','setCentralStaff','saveCentralItem','archiveCentralItem','saveCentralRecipe','archiveCentralRecipe','saveCentralCharacter','archiveCentralCharacter','saveCentralClassKit','archiveCentralClassKit','saveCentralShipModel','archiveCentralShipModel','saveCentralPort','archiveCentralPort','saveCentralRoute','archiveCentralRoute','saveCentralMission','archiveCentralMission','saveCentralKnowledge','archiveCentralKnowledge','saveCentralShop','archiveCentralShop','saveCentralOffer','archiveCentralOffer'];
 export const centralMasterAction=a=>centralMasterCommands.includes(a);
 export const centralLimits={items:250,recipes:250,characters:100,classKits:8,shops:50,offers:250,knowledge:250,missions:100,shipModels:100,ports:100,routes:200,staff:50};
 const actionType=action=>action.endsWith('ShipModel')?'shipModel':action.endsWith('Port')?'port':action.endsWith('Route')?'route':action.endsWith('Mission')?'mission':action.endsWith('Knowledge')?'knowledge':action.endsWith('Shop')?'shop':action.endsWith('Offer')?'offer':action.endsWith('ClassKit')?'classKit':action.endsWith('Character')?'character':action.endsWith('Recipe')?'recipe':'item';
@@ -72,6 +73,7 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
    const {owner,grant,rights}=await centralAuthority(tx,actor,c,isAdmin);requireThat(rights,'FORBIDDEN');
    const s=await tx.get(`sessions/${c.preparationSessionId??'none'}`),draft=await tx.get(draftPath(cid));requireCentralPreparation(c,s,draft);
    const revision=draft?.revision??0;
+   if(centralSnapshotActions.includes(action))return centralSnapshots(tx,action,actor,input,{c,s,draft,owner,grant,rights,at,uuid});
    if(action==='checkCentralDraft'){
     requireThat(rights.checkCentral,'FORBIDDEN');keys(input,['campaignId','draftRevision']);
     requireThat(whole(input.draftRevision)===revision,'STALE_REVISION');
