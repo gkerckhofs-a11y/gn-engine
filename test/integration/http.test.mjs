@@ -1049,5 +1049,5 @@ test('HTTP + Auth : candidature, naissance, QR, analyse chronométrée et inform
  assert.equal((await call('mySession',{sessionId},player)).actionPoints.available,4);
  assert.equal((await call('knowledgeDetail',{sessionId,knowledgeId:'intel'},player)).knowledge.body,'RENSEIGNEMENT_HTTP_PRIVE');
  assert.equal((await request('knowledgeDetail',{sessionId,knowledgeId:'intel'},other)).status,403);
- await cmd('revokeAccess',{sessionId,uid});assert.equal((await call('mySession',{sessionId},player)).character,null);assert.equal((await request('finishFieldAction',finish,player)).status,403);assert.equal((await request('birthSpaceOutlaws',{...birth,requestId:randomUUID()})).error,'SO_ENTRY_CLOSED');
+ await cmd('revokeAccess',{sessionId,uid});assert.equal((await call('mySession',{sessionId},player)).character,null);assert.equal((await request('finishFieldAction',finish,player)).status,403);assert.equal((await request('birthSpaceOutlaws',{...birth,requestId:randomUUID()},owner)).error,'SO_ENTRY_CLOSED');
 });
