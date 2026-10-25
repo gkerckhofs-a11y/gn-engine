@@ -44,6 +44,16 @@ const validGrant=(g,c)=>g?.active===true&&g.ownerUid===c.ownerUid&&g.campaignId=
  &&Array.isArray(g.editWorkshops)&&g.editWorkshops.every(x=>editableIds.includes(x)&&g.readWorkshops.includes(x))
  &&(g.checkCentral===undefined||typeof g.checkCentral==='boolean')
  &&(!g.checkCentral||ids.every(id=>g.readWorkshops.includes(id))&&Number.isSafeInteger(g.revision)&&g.revision>0);
+// Shared authority/cycle boundary for central commands and admission-to-M2 preparation.
+export async function centralAuthority(tx,actor,c,isAdmin){
+ const owner=isAdmin(actor)&&c.ownerUid===actor.uid,grant=owner?null:await tx.get(centralStaffPath(c.id,actor.email));
+ return {owner,grant,rights:owner?ownerRights:validGrant(grant,c)?{readWorkshops:grant.readWorkshops,editWorkshops:grant.editWorkshops,manageStaff:false,checkCentral:grant.checkCentral===true}:null};
+}
+export function requireCentralPreparation(c,s,draft){
+ requireThat(centralPreparation(c,s),'CENTRAL_PREPARATION_REQUIRED');
+ requireThat(!c.master||c.master.schemaVersion===1&&c.master.openDraftId==='initial'&&c.master.activeVersionId===null&&c.master.pointerRevision===0,'CENTRAL_DRAFT_UNAVAILABLE');
+ requireThat(!draft?!c.master:!!c.master&&draft.id==='initial'&&draft.status==='DRAFT'&&draft.baseVersionId===null&&draft.basePointerRevision===0&&draft.ruleProfile===spaceOutlawsProfile&&Number.isSafeInteger(draft.revision)&&draft.revision>=0,'CENTRAL_DRAFT_UNAVAILABLE');
+}
 export async function centralDashboard(tx,actor,isAdmin){
  const own=isAdmin?await tx.list('campaigns',['ownerUid',actor.uid]):[];
  const grants=await tx.list('campaignStaff',['email',actor.email.toLowerCase()]),result=[];
@@ -59,14 +69,8 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
   signed(actor);const cid=documentId(input.campaignId),at=now();
   return store.runTransaction(async tx=>{
    const c=await tx.get(root(cid));requireThat(c,'FORBIDDEN');
-   const owner=isAdmin(actor)&&c.ownerUid===actor.uid;
-   const grant=owner?null:await tx.get(centralStaffPath(cid,actor.email));
-   requireThat(owner||validGrant(grant,c),'FORBIDDEN');
-   const rights=owner?ownerRights:{readWorkshops:grant.readWorkshops,editWorkshops:grant.editWorkshops,manageStaff:false,checkCentral:grant.checkCentral===true};
-   const s=await tx.get(`sessions/${c.preparationSessionId??'none'}`);requireThat(centralPreparation(c,s),'CENTRAL_PREPARATION_REQUIRED');
-   const draft=await tx.get(draftPath(cid));
-   requireThat(!c.master||c.master.schemaVersion===1&&c.master.openDraftId==='initial'&&c.master.activeVersionId===null&&c.master.pointerRevision===0,'CENTRAL_DRAFT_UNAVAILABLE');
-   requireThat(!draft?!c.master:!!c.master&&draft.id==='initial'&&draft.status==='DRAFT'&&draft.baseVersionId===null&&draft.basePointerRevision===0&&draft.ruleProfile===spaceOutlawsProfile&&Number.isSafeInteger(draft.revision)&&draft.revision>=0,'CENTRAL_DRAFT_UNAVAILABLE');
+   const {owner,grant,rights}=await centralAuthority(tx,actor,c,isAdmin);requireThat(rights,'FORBIDDEN');
+   const s=await tx.get(`sessions/${c.preparationSessionId??'none'}`),draft=await tx.get(draftPath(cid));requireCentralPreparation(c,s,draft);
    const revision=draft?.revision??0;
    if(action==='checkCentralDraft'){
     requireThat(rights.checkCentral,'FORBIDDEN');keys(input,['campaignId','draftRevision']);

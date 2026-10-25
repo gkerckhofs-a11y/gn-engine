@@ -145,7 +145,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const cargoService=createCargoService({store,signed,checkSession,now,uuid});
   const logisticsService=createLogisticsService({store,signed,checkSession,now,uuid});
   const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,now,uuid});
-  const admissionService=createAdmissionService({store,signed,checkSession,now,uuid});
+  const admissionService=createAdmissionService({store,signed,isAdmin,checkSession,now,uuid});
   const centralMasterService=createCentralMasterService({store,signed,isAdmin,now,uuid});
   const groupManagementService=createGroupManagementService({store,signed,checkSession,now,uuid});
   const personService=createPersonService({store,signed,checkSession,checkScenario,now,uuid,rollD6});

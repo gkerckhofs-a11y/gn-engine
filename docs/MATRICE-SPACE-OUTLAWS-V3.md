@@ -1,5 +1,13 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## I3a — candidature approuvée vers une fiche M2 privée
+
+[I3a — préparation M2](SO-01-I3A-ADMISSION-VERS-M2.md) ajoute aperçu et confirmation explicites depuis une admission approuvée, avec droits MJ et lecture/édition M2 indépendants. Une copie native de la fiction et un lien privé stable, une transaction/révision commune, réessais sans doublon. Aucune incarnation, dotation, publication ou donnée civile copiée automatiquement dans M2.
+
+**Local, 25 octobre 2026 (Europe/Brussels) : compilation et 1319/1319 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 22 nouveaux cas partagés Firestore, cinq UI et un HTTP/Auth ; intégrations vérifiées syntaxiquement. Firebase non exécuté localement (Java 17) ; preuves du candidat exact dans la PR après les deux CI. Base C2m `6052b7ab38c3bd56b61beb803144080951ea0434` : deux CI vertes, 1292 applicatifs/1036 Firebase chacune, [preuves archivées](PR-1-HISTORIQUE-AVANT-I3A.md).
+
+Retrait/changement de classe conserve la fiche et signale le rapprochement requis ; les éditions/archives M2 ne sont jamais écrasées par réessai. Lien courant et publication restent à valider avant naissance : I3 complet/INS-06 ne sont pas livrés. 100 fiches archives comprises, empreinte interne 11, budgets 1659/16 Mio/4 Mio inchangés. Conserver lien privé, brouillon, droits, compteurs/verrous, historiques et reçus ensemble ; C2m n’est pas un retour fonctionnel équivalent. Quatre Masters historiques, 55 verdicts complets et SO-GAP-12/13/14 inchangés. C2 complet, I4/I5, restauration globale et recette humaine restent ouverts.
+
 ## C2m — Excel des modèles, ports et routes M3
 
 [C2m — import/export M3](SO-04-C2M-EXCEL-SPATIOPORT.md) réunit Modeles/Ports/Routes dans un lot atomique avec aperçu, confirmation et révision commune. Sélection typée, homonymes, liens finaux, codes privés et validations natives ; caractéristiques V0.7 dérivées, aucun profil/code/barème libre par défaut. Aucune instance, voyage, ressource ou publication activée.

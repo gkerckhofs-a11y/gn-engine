@@ -1,3 +1,4 @@
+import {admissionM2Suite} from '../support/admission-m2-suite.mjs';
 import {centralSpaceImportSuite} from '../support/central-space-import-suite.mjs';
 import {centralShopImportSuite} from '../support/central-shop-import-suite.mjs';
 import {centralStoryImportSuite} from '../support/central-story-import-suite.mjs';
@@ -61,6 +62,7 @@ workflowSuite(()=>firestoreStore(firestore),'Firestore réel émulé');
 preparationsSuite(()=>firestoreStore(firestore),'Préparation SO sur Firestore');
 centralMasterSuite(()=>firestoreStore(firestore),'Master central C1b sur Firestore');
 centralShopsSuite(()=>firestoreStore(firestore),'Boutiques centrales C2g sur Firestore');
+admissionM2Suite(()=>firestoreStore(firestore),'Admission vers M2 I3a sur Firestore');
 centralSpaceImportSuite(()=>firestoreStore(firestore),'Excel spatial C2m sur Firestore');
 centralShopImportSuite(()=>firestoreStore(firestore),'Excel boutiques et offres C2l sur Firestore');
 centralKnowledgeSuite(()=>firestoreStore(firestore),'Informations centrales C2h sur Firestore');

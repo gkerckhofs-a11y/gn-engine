@@ -39,9 +39,10 @@ function validate(c,revision){
  check(Object.hasOwn(owners,c.type)&&c.workshop===owners[c.type]);documentId(c.entityId);
  check(c.id===`${c.type}_${c.entityId}`&&['UPSERT','ARCHIVE'].includes(c.operation));
  check(Number.isSafeInteger(c.revision)&&c.revision>0&&c.revision<=revision);
- check(typeof c.actorUid==='string'&&c.actorUid.length>0&&Number.isSafeInteger(c.at)&&['WEB','XLSX','ADMISSION_SETTINGS'].includes(c.source));
+ check(typeof c.actorUid==='string'&&c.actorUid.length>0&&Number.isSafeInteger(c.at)&&['WEB','XLSX','ADMISSION_SETTINGS','ADMISSION'].includes(c.source));
  if(c.requestId!==undefined)documentId(c.requestId);
- if(c.provenance!==undefined){const p=c.provenance;check(c.source==='XLSX'&&p&&Object.keys(p).every(k=>['schemaVersion','batchId','fileName','sheet','row'].includes(k))&&p.schemaVersion===1&&typeof p.fileName==='string'&&p.fileName.length<=200&&typeof p.sheet==='string'&&p.sheet.length<=100&&Number.isSafeInteger(p.row)&&p.row>=2);documentId(p.batchId);}
+ if(c.source==='ADMISSION')check(c.type==='character'&&c.provenance?.schemaVersion===1&&c.provenance.kind==='APPROVED_SNAPSHOT'&&Object.keys(c.provenance).length===2&&typeof c.requestId==='string');
+ else if(c.provenance!==undefined){const p=c.provenance;check(c.source==='XLSX'&&p&&Object.keys(p).every(k=>['schemaVersion','batchId','fileName','sheet','row'].includes(k))&&p.schemaVersion===1&&typeof p.fileName==='string'&&p.fileName.length<=200&&typeof p.sheet==='string'&&p.sheet.length<=100&&Number.isSafeInteger(p.row)&&p.row>=2);documentId(p.batchId);}
  if(c.source==='XLSX')check(!!c.provenance&&centralImportContracts(c.workshop).some(t=>t.type===c.type&&t.sheet===c.provenance.sheet));
  const d=c.data;let normalized;
  if(c.type==='speciesCatalogue'){
@@ -120,13 +121,13 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
   privateFields:centralSpaceTypes.includes(c.type)?['description','gmNotes',...(c.type==='shipModel'?[]:['navigationCode'])]:c.type==='mission'?['description','gmNotes','steps','conditions','proofExpected']:c.type==='knowledge'?['body','gmTruth','gmNotes','initialCharacterIds','qrCharacterIds']:c.type==='character'?['biography','roleplay','playerSecrets','gmNotes','objectives','relations',...(c.data.creationPlan?['creationPlan']:[])]:c.type==='speciesCatalogue'?[]:['gmNotes'],
   publicAccessCreated:false,resourcesCreated:false}));
  const remainingChecks=[
-  {code:'RULE_PROFILE_PENDING',message:'Raccordement complet du profil canonique V0.7, des classes, compétences, effets et dotations à terminer.'},
+  {code:'RULE_PROFILE_PENDING',message:'Raccordement complet du profil canonique V0.7, des classes, compétences, effets, dotations et liens courants entre admissions et incarnations à terminer.'},
   {code:'OTHER_DOMAINS_PENDING',message:'Autres contenus M1/M2/M3/M5/M6/M7, instances spatiales, rencontres, événements, médias, lieux, QR, habilitations des vendeurs, caisses, stocks, tarifs de jeu et impacts à compléter.'},
   {code:'PUBLICATION_PENDING',message:'Version immuable, reprise de construction, contrôle du parent et activation globale à développer. Ce rapport ne vaut pas autorisation de publier.'},
  ];
  const report={schemaVersion:1,scope:'INITIAL_DRAFT_PREPARATION',campaign:{id:campaign.id,title:campaign.title},draft:{id:'initial',revision,baseVersionId:null,basePointerRevision:0},checkedAt:at,
   authority:authority?{kind:authority.kind,revision:authority.revision}:null,
-  fingerprint:hash({schema:10,actorUid,authority,campaign:{id:campaign.id,revision:campaign.revision,master:campaign.master??null,ruleProfile:campaign.ruleProfile,ownerUid:campaign.ownerUid},session:{id:session.id,revision:session.revision},draft:draft??null,changes:ordered}),
+  fingerprint:hash({schema:11,actorUid,authority,campaign:{id:campaign.id,revision:campaign.revision,master:campaign.master??null,ruleProfile:campaign.ruleProfile,ownerUid:campaign.ownerUid},session:{id:session.id,revision:session.revision},draft:draft??null,changes:ordered}),
   status:diagnostics.length?'CORRECTIONS_REQUIRED':'NO_DETECTED_ERROR',publicationAvailable:false,remainingChecks,
   workshops:centralWorkshops.map(w=>({id:w.id,label:w.label,coverage:'PARTIAL',active:records.filter(c=>c.workshop===w.id&&c.operation==='UPSERT').length,archived:records.filter(c=>c.workshop===w.id&&c.operation==='ARCHIVE').length})),
   totals:{records:changes.length,valid:records.length,invalid:changes.length-records.length,diagnostics:diagnostics.length,references:edges.length},initialPreparation:initial.summary,diff,edges,diagnostics};

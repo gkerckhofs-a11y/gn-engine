@@ -45,6 +45,33 @@ const request=async(action,input={},token)=>{
   return {status:response.status,...await response.json()};
 };
 
+test('HTTP + Auth : admission vers M2, double autorité, réessai et retrait sans activation',async()=>{
+ const owner=await googleTestAccount(process.env.OWNER_EMAIL),email=`admission-m2-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email),playerEmail=`admission-m2-player-${randomUUID()}@example.invalid`,player=await googleTestAccount(playerEmail);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;},cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Admission vers M2 HTTP',title:'Préparation synthétique',capacity:2,privacy:'Notice fictive'});
+ await cmd('saveAdmissionSettings',{sessionId,policyRevision:0,draftRevision:0,settings:admissionTestSettings,reason:'Catalogue synthétique'});
+ const token=randomBytes(32).toString('base64url');await cmd('issueAdmissionInvitation',{sessionId,tokenHash:hash(token),hours:1,maxUses:1,label:'Invitation synthétique'});
+ await cmd('beginAdmission',{sessionId,token,sessionRevision:1,policyRevision:1,draftRevision:1,consent:true},player);
+ await cmd('saveAdmissionProposal',{sessionId,revision:1,sessionRevision:1,policyRevision:1,draftRevision:1,proposal:admissionTestProposal,submit:true,consent:true},player);
+ const uid=(await call('admissionAdmin',{sessionId})).registrations[0].uid;
+ await cmd('reviewAdmission',{sessionId,uid,revision:2,policyRevision:1,draftRevision:1,decision:'APPROVE',reason:'Validation synthétique'});
+ assert.equal((await request('previewAdmissionM2',{sessionId,uid})).status,401);assert.equal((await request('previewAdmissionM2',{sessionId,uid},player)).status,403);
+ const grant={campaignId,email,active:true,readWorkshops:['M2'],editWorkshops:['M2'],revision:0,reason:'Préparer M2'};await cmd('setCentralStaff',grant);
+ assert.equal((await request('previewAdmissionM2',{sessionId,uid},editor)).status,403);
+ await cmd('setStaff',{sessionId,email,active:true,role:'MJ',revision:(await call('session',{sessionId})).revision,reason:'Examiner les dossiers'});
+ assert.equal((await call('admissionAdmin',{sessionId},editor)).canPrepareM2,true);
+ const p=await call('previewAdmissionM2',{sessionId,uid},editor),input={sessionId,uid,confirmation:p.confirmation,reason:'Préparation fiction approuvée',requestId:randomUUID()};
+ assert.equal((await request('prepareAdmissionM2',input,player)).status,403);
+ const saved=await cmd('prepareAdmissionM2',input,editor);assert.deepEqual(await cmd('prepareAdmissionM2',input,editor),saved);assert.deepEqual(await cmd('prepareAdmissionM2',{...input,requestId:randomUUID()},editor),saved);
+ const central=await call('centralMaster',{campaignId,workshop:'M2'},editor);assert.equal(central.changes.filter(c=>c.type==='character').length,1);assert.equal(central.history.length,1);assert.ok(!JSON.stringify(central).includes(playerEmail));assert.ok(!JSON.stringify(central).includes(uid));assert.ok(!JSON.stringify(central).includes(admissionTestProposal.friends));
+ const own=await call('myAdmission',{sessionId},player);assert.doesNotMatch(JSON.stringify(own),/m2Preparation|preparedAt/);assert.equal(own.status,'APPROVED');
+ await cmd('withdrawAdmission',{sessionId,revision:own.revision,reason:'Retrait synthétique'},player);
+ assert.deepEqual(await cmd('prepareAdmissionM2',input,editor),saved);const current=await call('previewAdmissionM2',{sessionId,uid},editor);assert.equal(current.state.approved,false);assert.equal(current.state.changedSincePreparation,true);
+ const s=await call('session',{sessionId});assert.equal(s.accepted,0);for(const kind of ['characters','inventory','accounts'])assert.deepEqual(s[kind],[]);assert.equal(s.versionId,null);
+ assert.equal((await call('checkCentralDraft',{campaignId,draftRevision:2})).publicationAvailable,false);
+ await cmd('setCentralStaff',{...grant,active:false,revision:1});assert.equal((await request('prepareAdmissionM2',input,editor)).status,403);assert.equal((await request('previewAdmissionM2',{sessionId,uid},editor)).status,403);
+});
+
 test('HTTP + Auth : M3 canonique, ports différés, archives et révocation',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`space-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);
  const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};const cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);

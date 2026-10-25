@@ -1,3 +1,5 @@
+import {centralAuthority,requireCentralPreparation} from './central-master.mjs';
+import {admissionM2,admissionM2Actions,admissionM2State} from './admission-m2.mjs';
 import {createHash} from 'node:crypto';
 import {requireThat,documentId,whole} from './validation.mjs';
 import {isPreparation,spaceOutlawsProfile} from './preparation-state.mjs';
@@ -10,11 +12,11 @@ const settingsPath=sid=>`sessions/${sid}/admission/settings`;
 const regPath=(sid,uid)=>`sessions/${sid}/registrations/${hash(uid)}`;
 const draftPath=cid=>`campaigns/${cid}/masterDrafts/initial`;
 const speciesPath=cid=>`${draftPath(cid)}/changes/speciesCatalogue_player`;
-const reads=['admissionAdmin','admissionInvitation','myAdmission','admissionHistory'];
-export const admissionCommands=[...reads,...reviewActions,'saveAdmissionSettings','issueAdmissionInvitation','revokeAdmissionInvitation','beginAdmission','saveAdmissionProposal'];
+const reads=['admissionAdmin','admissionInvitation','myAdmission','admissionHistory','previewAdmissionM2'];
+export const admissionCommands=[...reads,...reviewActions,'prepareAdmissionM2','saveAdmissionSettings','issueAdmissionInvitation','revokeAdmissionInvitation','beginAdmission','saveAdmissionProposal'];
 export const admissionAction=a=>admissionCommands.includes(a);
 
-export function createAdmissionService({store,signed,checkSession,now,uuid}){
+export function createAdmissionService({store,signed,isAdmin,checkSession,now,uuid}){
  const context=async(tx,sid)=>{
   const s=await tx.get(`sessions/${sid}`);requireThat(isPreparation(s),'NOT_A_PREPARATION');
   const c=await tx.get(`campaigns/${s.campaignId}`);requireThat(c?.preparationSessionId===sid&&c.ownerUid===s.ownerUid,'FORBIDDEN');
@@ -40,18 +42,24 @@ export function createAdmissionService({store,signed,checkSession,now,uuid}){
   const fingerprint=isRead?null:hash(JSON.stringify([action,input]));
   return store.runTransaction(async tx=>{
    // Evaluate time and current grants on every Firestore retry, before cached results.
-   const at=now(),staff=['admissionAdmin','reviewAdmission','saveAdmissionSettings','issueAdmissionInvitation','revokeAdmissionInvitation'].includes(action)||(action==='admissionHistory'&&input.uid!==undefined);
+   const at=now(),staff=['admissionAdmin','reviewAdmission','saveAdmissionSettings','issueAdmissionInvitation','revokeAdmissionInvitation',...admissionM2Actions].includes(action)||(action==='admissionHistory'&&input.uid!==undefined);
    if(staff)await checkSession(tx,actor,sid,'content',true);
    const ctx=await context(tx,sid),{s,c,policy,draft,settings}=ctx;
    if(action==='admissionAdmin'){
+    const authority=await centralAuthority(tx,actor,c,isAdmin),canPrepareM2=!!authority.rights?.readWorkshops.includes('M2')&&authority.rights.editWorkshops.includes('M2');
     const [registrations,invitations]=await Promise.all([tx.list(`sessions/${sid}/registrations`),tx.list('invitations',['sessionId',sid])]);
     const rows=registrations.filter(r=>r.admission?.kind===admissionKind),keys=new Map();
     for(const r of rows){try{keys.set(r.uid,admissionIdentity(r.admission.proposal));}catch{/* Incomplete draft. */}}
-    return {sessionId:sid,capacity:s.capacity,accepted:s.accepted,byClass:ctx.occupancy.byClass,policyRevision:policy?.revision??0,draftRevision:draft?.revision??0,settings:settings??{open:false,instructions:'',quotas:Object.fromEntries(admissionClasses.map(c=>[c.id,0])),species:[]},
-     registrations:rows.map(r=>({...r,identityConflict:keys.has(r.uid)&&rows.some(other=>other.uid!==r.uid&&other.admission.status!=='WITHDRAWN'&&keys.get(other.uid)===keys.get(r.uid))})),invitations:invitations.filter(i=>i.purpose==='ADMISSION').map(i=>({id:i.id,label:i.label,status:active(i,at)?'ACTIVE':i.status==='REVOKED'?'REVOKED':'EXPIRED',uses:i.uses,maxUses:i.maxUses,expiresAt:i.expiresAt}))};
+    return {sessionId:sid,campaignId:c.id,canPrepareM2,capacity:s.capacity,accepted:s.accepted,byClass:ctx.occupancy.byClass,policyRevision:policy?.revision??0,draftRevision:draft?.revision??0,settings:settings??{open:false,instructions:'',quotas:Object.fromEntries(admissionClasses.map(c=>[c.id,0])),species:[]},
+     registrations:rows.map(r=>({...r,m2Preparation:admissionM2State(r),identityConflict:keys.has(r.uid)&&rows.some(other=>other.uid!==r.uid&&other.admission.status!=='WITHDRAWN'&&keys.get(other.uid)===keys.get(r.uid))})),invitations:invitations.filter(i=>i.purpose==='ADMISSION').map(i=>({id:i.id,label:i.label,status:active(i,at)?'ACTIVE':i.status==='REVOKED'?'REVOKED':'EXPIRED',uses:i.uses,maxUses:i.maxUses,expiresAt:i.expiresAt}))};
    }
-   const targetUid=staff&&['reviewAdmission','admissionHistory'].includes(action)?documentId(input.uid):actor.uid;
-   const r=staff&&!['reviewAdmission','admissionHistory'].includes(action)?null:await tx.get(regPath(sid,targetUid));
+   const targetUid=staff&&['reviewAdmission','admissionHistory',...admissionM2Actions].includes(action)?documentId(input.uid):actor.uid;
+   const r=staff&&!['reviewAdmission','admissionHistory',...admissionM2Actions].includes(action)?null:await tx.get(regPath(sid,targetUid));
+   if(admissionM2Actions.includes(action)){
+    const authority=await centralAuthority(tx,actor,c,isAdmin);requireThat(authority.rights?.readWorkshops.includes('M2')&&authority.rights.editWorkshops.includes('M2'),'FORBIDDEN');
+    requireCentralPreparation(c,s,draft);
+    return admissionM2({tx,action,input,actor,at,ctx,r,path:regPath(sid,targetUid),authority,op,fingerprint,eventId});
+   }
    if(action==='admissionHistory'){
     admissionKeys(input,['sessionId',...(staff?['uid']:[])]);requireThat(r?.admission?.kind===admissionKind,'FORBIDDEN');
     const versions=await tx.list(`${regPath(sid,targetUid)}/history`);return {versions:staff?versions.sort((a,b)=>Number(a.id)-Number(b.id)):admissionHistoryView(versions)};
