@@ -1,11 +1,17 @@
 import {requireThat} from './validation.mjs';
 import {characterInput} from './character-state.mjs';
-import {centralCharacterPlan,centralPlanProjection} from './central-character-plan.mjs';
+import {centralCharacterPlan,centralPlanProjection,storedCharacterPlan} from './central-character-plan.mjs';
 
 export const centralCharacterBytes=96*1024;
 const check=v=>requireThat(v,'INVALID_CENTRAL_CHARACTER');
 const keys=(v,allowed)=>check(v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).every(k=>allowed.includes(k)));
 const fields=['displayName','profession','description','nature','biography','roleplay','playerSecrets','gmNotes','objectives','relations','creationPlan'];
+export function centralCharacterEditable(d){
+ const strip=rows=>rows?.map(({published,...row})=>({...row,...(row.steps?{steps:row.steps.map(({published,...s})=>s)}:{})}));
+ const plan=Object.hasOwn(d,'creationPlan')?storedCharacterPlan(d.creationPlan):undefined;
+ return {displayName:d.public?.displayName,profession:d.public?.profession,description:d.public?.description,nature:d.nature,biography:d.biography,roleplay:d.roleplay,playerSecrets:d.playerSecrets,gmNotes:d.gmNotes,objectives:strip(d.objectives),relations:strip(d.relations),
+  ...(plan!==undefined?{creationPlan:plan===null?null:{classId:plan.classId,speciesId:plan.speciesId,secondaryId:plan.secondaryId}}:{})};
+}
 export function centralCharacterInput(input,id,old){
  keys(input,fields);requireThat(Buffer.byteLength(JSON.stringify(input))<=centralCharacterBytes,'CENTRAL_CHARACTER_SIZE');
  check(['HUMANOID','DROID',null].includes(input.nature));

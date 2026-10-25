@@ -33,13 +33,22 @@ export function admissionProposal(value,settings,submit){
 export function validM2Preparation(p){
  return p&&Object.keys(p).every(k=>['schemaVersion','characterId','characterRevision','sourceRevision','admissionRevision','draftRevision','preparedAt','actorUid','requestId'].includes(k))&&p.schemaVersion===1&&/^admission_[a-f0-9]{64}$/.test(p.characterId)&&p.characterRevision===1&&Number.isSafeInteger(p.sourceRevision)&&p.sourceRevision>0&&p.admissionRevision===p.sourceRevision+1&&Number.isSafeInteger(p.draftRevision)&&p.draftRevision>0&&Number.isSafeInteger(p.preparedAt)&&typeof p.actorUid==='string'&&p.actorUid&&typeof p.requestId==='string'&&/^[A-Za-z0-9_-]{1,128}$/.test(p.requestId);
 }
+export function validM2Reconciliation(p,preparation){
+ const positive=v=>Number.isSafeInteger(v)&&v>0;
+ return !!p&&Object.keys(p).every(k=>['schemaVersion','characterId','sourceRevision','admissionRevision','characterRevision','draftRevision','at','actorUid','requestId','confirmation','biographyMode','characterChanged'].includes(k))
+  &&validM2Preparation(preparation)&&p.schemaVersion===1&&p.characterId===preparation.characterId&&positive(p.sourceRevision)&&p.sourceRevision>=preparation.admissionRevision&&p.admissionRevision===p.sourceRevision+1
+  &&positive(p.characterRevision)&&positive(p.draftRevision)&&p.draftRevision>=preparation.draftRevision&&Number.isSafeInteger(p.at)&&typeof p.actorUid==='string'&&p.actorUid.length>0&&typeof p.requestId==='string'&&/^[A-Za-z0-9_-]{1,128}$/.test(p.requestId)
+  &&typeof p.confirmation==='string'&&/^[a-f0-9]{64}$/.test(p.confirmation)&&['KEEP','PROPOSAL'].includes(p.biographyMode)&&typeof p.characterChanged==='boolean';
+}
 
 // Only an inert candidature shape can cross the preparation-session boundary.
 export function validAdmissionRecord(r){
  const keys=['id','uid','email','status','characterId','accessActive','admission'];
  if(!r||Object.keys(r).some(k=>!keys.includes(k))||r.status!=='RECEIVED'||r.characterId!==null||r.accessActive!==false)return false;
  const a=r.admission;
- return a?.kind===admissionKind&&(a.m2Preparation===undefined||validM2Preparation(a.m2Preparation)&&a.m2Preparation.admissionRevision<=a.revision)&&['DRAFT','SUBMITTED','APPROVED','WAITLISTED','CORRECTION','REFUSED','WITHDRAWN'].includes(a.status)&&Number.isSafeInteger(a.revision)&&a.revision>0
+ return a?.kind===admissionKind&&(a.m2Preparation===undefined||validM2Preparation(a.m2Preparation)&&a.m2Preparation.admissionRevision<=a.revision)
+  &&(a.m2Reconciliation===undefined||validM2Reconciliation(a.m2Reconciliation,a.m2Preparation)&&a.m2Reconciliation.admissionRevision<=a.revision)
+  &&['DRAFT','SUBMITTED','APPROVED','WAITLISTED','CORRECTION','REFUSED','WITHDRAWN'].includes(a.status)&&Number.isSafeInteger(a.revision)&&a.revision>0
   &&(a.status==='APPROVED'?!!a.confirmation&&admissionClasses.some(c=>c.id===a.confirmation.classId)&&/^[a-f0-9]{64}$/.test(a.confirmation.identityKey):!a.confirmation);
 }
 

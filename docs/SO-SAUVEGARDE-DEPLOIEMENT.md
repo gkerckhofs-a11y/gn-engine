@@ -1,5 +1,13 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## I3b — rapprochement courant du dossier et de M2
+
+[I3b — comparaison et rapprochement](SO-01-I3B-RAPPROCHEMENT-M2.md) ajoute un aperçu privé, une confirmation motivée et l’alignement de l’identité/du plan M2 sur le dossier actuellement approuvé. Biographie conservée par défaut, remplacement explicite ; autres textes, secrets, objectifs et relations conservés. Relecture sans changement = aucune révision centrale supplémentaire. Double autorité MJ/M2, garde de cycle, conflits, réessais et audit préservés.
+
+**Local, 25 octobre 2026 (Europe/Brussels) : compilation et 1347/1347 tests applicatifs réussis**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. 23 nouveaux cas partagés Firestore, cinq UI et un HTTP/Auth ; intégrations vérifiées syntaxiquement. Firebase non exécuté localement (Java 17) ; preuves du candidat exact dans la PR après les deux CI. Base I3a `e97102c92aaef221c57003109112955368b869a9` : deux CI vertes, 1319 applicatifs/1059 Firebase chacune, [preuves archivées](PR-1-HISTORIQUE-AVANT-I3B.md). Plafond CI porté de 40 à 50 minutes après un push I3a de plus de 38 minutes, commandes de test inchangées.
+
+Le reçu privé n’autorise aucune activation et un réessai restitue un résultat historique. Retrait/consentement/choix invalide/archive bloquent une nouvelle application. Provenance RECONCILED_SNAPSHOT et empreinte globale 12 ; budgets 1659/16 Mio/4 Mio et Masters historiques inchangés. Conserver marqueurs privés, brouillon, droits, compteurs/verrous, historiques et reçus ensemble ; I3a n’est pas un retour fonctionnel équivalent. Validation courante dans les futures publication/naissance, C2 complet, I4/I5, restauration globale et recette humaine restent ouverts. INS-06/I3 complets, 55 verdicts complets et SO-GAP-12/13/14 non certifiés par cette tranche.
+
 ## I3a — candidature approuvée vers une fiche M2 privée
 
 [I3a — préparation M2](SO-01-I3A-ADMISSION-VERS-M2.md) ajoute aperçu et confirmation explicites depuis une admission approuvée, avec droits MJ et lecture/édition M2 indépendants. Une copie native de la fiction et un lien privé stable, une transaction/révision commune, réessais sans doublon. Aucune incarnation, dotation, publication ou donnée civile copiée automatiquement dans M2.

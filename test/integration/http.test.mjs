@@ -45,6 +45,30 @@ const request=async(action,input={},token)=>{
   return {status:response.status,...await response.json()};
 };
 
+test('HTTP + Auth : rapprochement M2, texte MJ conservé, blocage et révocation',async()=>{
+ const owner=await googleTestAccount(process.env.OWNER_EMAIL),email=`reconcile-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email),playerEmail=`reconcile-player-${randomUUID()}@example.invalid`,player=await googleTestAccount(playerEmail);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;},cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Rapprochement M2 HTTP',title:'Préparation synthétique',capacity:2,privacy:'Notice fictive'});
+ await cmd('saveAdmissionSettings',{sessionId,policyRevision:0,draftRevision:0,settings:admissionTestSettings,reason:'Catalogue synthétique'});
+ const invitation=randomBytes(32).toString('base64url');await cmd('issueAdmissionInvitation',{sessionId,tokenHash:hash(invitation),hours:1,maxUses:1,label:'Invitation synthétique'});
+ await cmd('beginAdmission',{sessionId,token:invitation,sessionRevision:1,policyRevision:1,draftRevision:1,consent:true},player);
+ await cmd('saveAdmissionProposal',{sessionId,revision:1,sessionRevision:1,policyRevision:1,draftRevision:1,proposal:admissionTestProposal,submit:true,consent:true},player);
+ const uid=(await call('admissionAdmin',{sessionId})).registrations[0].uid;
+ await cmd('reviewAdmission',{sessionId,uid,revision:2,policyRevision:1,draftRevision:1,decision:'APPROVE',reason:'Validation synthétique'});
+ const initialPreview=await call('previewAdmissionM2',{sessionId,uid}),initial=await cmd('prepareAdmissionM2',{sessionId,uid,confirmation:initialPreview.confirmation,reason:'Première copie'});
+ await cmd('saveCentralCharacter',{campaignId,characterId:initial.characterId,characterRevision:1,draftRevision:2,character:{...centralTestCharacter,biography:'Biographie MJ HTTP',relations:[]},reason:'Écriture MJ'});
+ assert.equal((await request('previewAdmissionM2Reconciliation',{sessionId,uid})).status,401);assert.equal((await request('previewAdmissionM2Reconciliation',{sessionId,uid},player)).status,403);
+ const grant={campaignId,email,active:true,readWorkshops:['M2'],editWorkshops:['M2'],revision:0,reason:'Rapprocher M2'};await cmd('setCentralStaff',grant);assert.equal((await request('previewAdmissionM2Reconciliation',{sessionId,uid},editor)).status,403);
+ await cmd('setStaff',{sessionId,email,active:true,role:'MJ',revision:(await call('session',{sessionId})).revision,reason:'Décisions privées'});
+ const admin=await call('admissionAdmin',{sessionId});await cmd('reviewAdmission',{sessionId,uid,revision:admin.registrations[0].admission.revision,policyRevision:admin.policyRevision,draftRevision:admin.draftRevision,decision:'CHANGE_CLASS',classId:'ROG',secondaryId:'MED-02',reason:'Classe approuvée'});
+ const p=await call('previewAdmissionM2Reconciliation',{sessionId,uid},editor),input={sessionId,uid,biographyMode:'KEEP',confirmation:p.confirmations.KEEP,reason:'Aligner les choix et conserver le récit',requestId:randomUUID()};assert.ok(p.differences.includes('classId'));assert.equal((await request('reconcileAdmissionM2',input,player)).status,403);assert.equal((await request('reconcileAdmissionM2',{...input,biographyMode:'PROPOSAL'},editor)).error,'ADMISSION_M2_STALE');
+ const saved=await cmd('reconcileAdmissionM2',input,editor);assert.equal(saved.characterChanged,true);assert.deepEqual(await cmd('reconcileAdmissionM2',input,editor),saved);assert.deepEqual(await cmd('reconcileAdmissionM2',{...input,requestId:randomUUID()},editor),saved);
+ const view=await call('centralMaster',{campaignId,workshop:'M2'},editor),c=view.changes.find(c=>c.type==='character');assert.equal(c.data.biography,'Biographie MJ HTTP');assert.equal(c.data.public.displayName,'Ari Test');assert.equal(c.data.creationPlan.classId,'ROG');assert.equal(c.data.contentRevision,3);assert.ok(!JSON.stringify(view).includes(playerEmail));assert.ok(!JSON.stringify(view).includes(uid));assert.doesNotMatch(JSON.stringify(view),/m2Reconciliation|biographyMode/);
+ const own=await call('myAdmission',{sessionId},player);assert.doesNotMatch(JSON.stringify(own),/m2Reconciliation|m2Preparation/);await cmd('withdrawAdmission',{sessionId,revision:own.revision,reason:'Retrait'},player);const blocked=await call('previewAdmissionM2Reconciliation',{sessionId,uid},editor);assert.deepEqual(blocked.blockers,['ADMISSION_NOT_APPROVED']);assert.equal(blocked.confirmations,null);assert.deepEqual(await cmd('reconcileAdmissionM2',input,editor),saved);
+ const s=await call('session',{sessionId});assert.equal(s.accepted,0);for(const kind of ['characters','inventory','accounts'])assert.deepEqual(s[kind],[]);assert.equal((await call('checkCentralDraft',{campaignId,draftRevision:4})).publicationAvailable,false);
+ await cmd('setCentralStaff',{...grant,active:false,revision:1});assert.equal((await request('reconcileAdmissionM2',input,editor)).status,403);assert.equal((await request('previewAdmissionM2Reconciliation',{sessionId,uid},editor)).status,403);
+});
+
 test('HTTP + Auth : admission vers M2, double autorité, réessai et retrait sans activation',async()=>{
  const owner=await googleTestAccount(process.env.OWNER_EMAIL),email=`admission-m2-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email),playerEmail=`admission-m2-player-${randomUUID()}@example.invalid`,player=await googleTestAccount(playerEmail);
  const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;},cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);

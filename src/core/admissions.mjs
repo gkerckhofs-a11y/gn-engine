@@ -1,5 +1,6 @@
 import {centralAuthority,requireCentralPreparation} from './central-master.mjs';
 import {admissionM2,admissionM2Actions,admissionM2State} from './admission-m2.mjs';
+import {admissionM2Reconciliation,admissionM2ReconciliationActions} from './admission-m2-reconciliation.mjs';
 import {createHash} from 'node:crypto';
 import {requireThat,documentId,whole} from './validation.mjs';
 import {isPreparation,spaceOutlawsProfile} from './preparation-state.mjs';
@@ -12,8 +13,9 @@ const settingsPath=sid=>`sessions/${sid}/admission/settings`;
 const regPath=(sid,uid)=>`sessions/${sid}/registrations/${hash(uid)}`;
 const draftPath=cid=>`campaigns/${cid}/masterDrafts/initial`;
 const speciesPath=cid=>`${draftPath(cid)}/changes/speciesCatalogue_player`;
-const reads=['admissionAdmin','admissionInvitation','myAdmission','admissionHistory','previewAdmissionM2'];
-export const admissionCommands=[...reads,...reviewActions,'prepareAdmissionM2','saveAdmissionSettings','issueAdmissionInvitation','revokeAdmissionInvitation','beginAdmission','saveAdmissionProposal'];
+const m2Actions=[...admissionM2Actions,...admissionM2ReconciliationActions];
+const reads=['admissionAdmin','admissionInvitation','myAdmission','admissionHistory','previewAdmissionM2','previewAdmissionM2Reconciliation'];
+export const admissionCommands=[...reads,...reviewActions,'prepareAdmissionM2','reconcileAdmissionM2','saveAdmissionSettings','issueAdmissionInvitation','revokeAdmissionInvitation','beginAdmission','saveAdmissionProposal'];
 export const admissionAction=a=>admissionCommands.includes(a);
 
 export function createAdmissionService({store,signed,isAdmin,checkSession,now,uuid}){
@@ -42,7 +44,7 @@ export function createAdmissionService({store,signed,isAdmin,checkSession,now,uu
   const fingerprint=isRead?null:hash(JSON.stringify([action,input]));
   return store.runTransaction(async tx=>{
    // Evaluate time and current grants on every Firestore retry, before cached results.
-   const at=now(),staff=['admissionAdmin','reviewAdmission','saveAdmissionSettings','issueAdmissionInvitation','revokeAdmissionInvitation',...admissionM2Actions].includes(action)||(action==='admissionHistory'&&input.uid!==undefined);
+   const at=now(),staff=['admissionAdmin','reviewAdmission','saveAdmissionSettings','issueAdmissionInvitation','revokeAdmissionInvitation',...m2Actions].includes(action)||(action==='admissionHistory'&&input.uid!==undefined);
    if(staff)await checkSession(tx,actor,sid,'content',true);
    const ctx=await context(tx,sid),{s,c,policy,draft,settings}=ctx;
    if(action==='admissionAdmin'){
@@ -53,12 +55,12 @@ export function createAdmissionService({store,signed,isAdmin,checkSession,now,uu
     return {sessionId:sid,campaignId:c.id,canPrepareM2,capacity:s.capacity,accepted:s.accepted,byClass:ctx.occupancy.byClass,policyRevision:policy?.revision??0,draftRevision:draft?.revision??0,settings:settings??{open:false,instructions:'',quotas:Object.fromEntries(admissionClasses.map(c=>[c.id,0])),species:[]},
      registrations:rows.map(r=>({...r,m2Preparation:admissionM2State(r),identityConflict:keys.has(r.uid)&&rows.some(other=>other.uid!==r.uid&&other.admission.status!=='WITHDRAWN'&&keys.get(other.uid)===keys.get(r.uid))})),invitations:invitations.filter(i=>i.purpose==='ADMISSION').map(i=>({id:i.id,label:i.label,status:active(i,at)?'ACTIVE':i.status==='REVOKED'?'REVOKED':'EXPIRED',uses:i.uses,maxUses:i.maxUses,expiresAt:i.expiresAt}))};
    }
-   const targetUid=staff&&['reviewAdmission','admissionHistory',...admissionM2Actions].includes(action)?documentId(input.uid):actor.uid;
-   const r=staff&&!['reviewAdmission','admissionHistory',...admissionM2Actions].includes(action)?null:await tx.get(regPath(sid,targetUid));
-   if(admissionM2Actions.includes(action)){
+   const targetUid=staff&&['reviewAdmission','admissionHistory',...m2Actions].includes(action)?documentId(input.uid):actor.uid;
+   const r=staff&&!['reviewAdmission','admissionHistory',...m2Actions].includes(action)?null:await tx.get(regPath(sid,targetUid));
+   if(m2Actions.includes(action)){
     const authority=await centralAuthority(tx,actor,c,isAdmin);requireThat(authority.rights?.readWorkshops.includes('M2')&&authority.rights.editWorkshops.includes('M2'),'FORBIDDEN');
     requireCentralPreparation(c,s,draft);
-    return admissionM2({tx,action,input,actor,at,ctx,r,path:regPath(sid,targetUid),authority,op,fingerprint,eventId});
+    return (admissionM2ReconciliationActions.includes(action)?admissionM2Reconciliation:admissionM2)({tx,action,input,actor,at,ctx,r,path:regPath(sid,targetUid),authority,op,fingerprint,eventId});
    }
    if(action==='admissionHistory'){
     admissionKeys(input,['sessionId',...(staff?['uid']:[])]);requireThat(r?.admission?.kind===admissionKind,'FORBIDDEN');

@@ -11,9 +11,8 @@ import {createHash} from 'node:crypto';
 import {documentId,requireThat} from './validation.mjs';
 import {itemInput} from './inventory-state.mjs';
 import {recipeInput} from './recipe-state.mjs';
-import {centralCharacterInput,centralCharacterProjection} from './central-characters.mjs';
+import {centralCharacterInput,centralCharacterEditable,centralCharacterProjection} from './central-characters.mjs';
 import {characterImportColumn} from './central-character-import.mjs';
-import {storedCharacterPlan} from './central-character-plan.mjs';
 import {centralRecipeProjection} from './central-recipes.mjs';
 import {admissionSettings,emptyAdmissionCounts} from './admission-state.mjs';
 import {centralWorkshops} from '../shared/central-workshops.mjs';
@@ -33,7 +32,7 @@ const check=v=>requireThat(v,'INVALID_CENTRAL_RECORD');
 const location=(c,field='')=>({workshop:safe(c?.workshop),entityId:safe(c?.entityId),field,source:safe(c?.source),
  fileName:safe(c?.provenance?.fileName),sheet:safe(c?.provenance?.sheet),row:Number.isSafeInteger(c?.provenance?.row)?c.provenance.row:null,column:c?.type==='character'&&c?.source==='XLSX'?characterImportColumn(field):['knowledge','mission'].includes(c?.type)&&c?.source==='XLSX'?storyImportColumn(c.type,field):['shop','offer'].includes(c?.type)&&c?.source==='XLSX'?shopImportColumn(c.type,field):centralSpaceTypes.includes(c?.type)&&c?.source==='XLSX'?spaceImportColumn(c.type,field):field,
  batchId:safe(c?.provenance?.batchId),draftRevision:Number.isSafeInteger(c?.revision)?c.revision:null});
-function validate(c,revision){
+export function validateCentralChange(c,revision){
  check(c&&typeof c==='object'&&!Array.isArray(c));
  check(Object.keys(c).every(k=>['id','type','entityId','workshop','operation','data','revision','source','actorUid','at','requestId','provenance'].includes(k)));
  check(Object.hasOwn(owners,c.type)&&c.workshop===owners[c.type]);documentId(c.entityId);
@@ -41,7 +40,7 @@ function validate(c,revision){
  check(Number.isSafeInteger(c.revision)&&c.revision>0&&c.revision<=revision);
  check(typeof c.actorUid==='string'&&c.actorUid.length>0&&Number.isSafeInteger(c.at)&&['WEB','XLSX','ADMISSION_SETTINGS','ADMISSION'].includes(c.source));
  if(c.requestId!==undefined)documentId(c.requestId);
- if(c.source==='ADMISSION')check(c.type==='character'&&c.provenance?.schemaVersion===1&&c.provenance.kind==='APPROVED_SNAPSHOT'&&Object.keys(c.provenance).length===2&&typeof c.requestId==='string');
+ if(c.source==='ADMISSION')check(c.type==='character'&&c.provenance?.schemaVersion===1&&['APPROVED_SNAPSHOT','RECONCILED_SNAPSHOT'].includes(c.provenance.kind)&&Object.keys(c.provenance).length===2&&typeof c.requestId==='string');
  else if(c.provenance!==undefined){const p=c.provenance;check(c.source==='XLSX'&&p&&Object.keys(p).every(k=>['schemaVersion','batchId','fileName','sheet','row'].includes(k))&&p.schemaVersion===1&&typeof p.fileName==='string'&&p.fileName.length<=200&&typeof p.sheet==='string'&&p.sheet.length<=100&&Number.isSafeInteger(p.row)&&p.row>=2);documentId(p.batchId);}
  if(c.source==='XLSX')check(!!c.provenance&&centralImportContracts(c.workshop).some(t=>t.type===c.type&&t.sheet===c.provenance.sheet));
  const d=c.data;let normalized;
@@ -64,12 +63,7 @@ function validate(c,revision){
   }
   if(c.type==='shop')normalized={...centralShopInput({name:d.name,description:d.description,sellerCharacterId:d.sellerCharacterId,locationTargetId:d.locationTargetId,gmNotes:d.gmNotes},c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
   if(c.type==='offer')normalized={...centralOfferInput({name:d.name,shopId:d.shopId,itemId:d.itemId,unitPrice:d.unitPrice,buybackPrice:d.buybackPrice,conditions:d.conditions,gmNotes:d.gmNotes},c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
-  if(c.type==='character'){
-   const strip=rows=>rows?.map(({published,...row})=>({...row,...(row.steps?{steps:row.steps.map(({published,...s})=>s)}:{})}));
-   const plan=Object.hasOwn(d,'creationPlan')?storedCharacterPlan(d.creationPlan):undefined;
-   normalized={...centralCharacterInput({displayName:d.public?.displayName,profession:d.public?.profession,description:d.public?.description,nature:d.nature,biography:d.biography,roleplay:d.roleplay,playerSecrets:d.playerSecrets,gmNotes:d.gmNotes,objectives:strip(d.objectives),relations:strip(d.relations),
-    ...(plan!==undefined?{creationPlan:plan===null?null:{classId:plan.classId,speciesId:plan.speciesId,secondaryId:plan.secondaryId}}:{})},c.entityId),contentRevision:d.contentRevision,masterArchived:c.operation==='ARCHIVE'};
-  }
+  if(c.type==='character')normalized={...centralCharacterInput(centralCharacterEditable(d),c.entityId),contentRevision:d.contentRevision,masterArchived:c.operation==='ARCHIVE'};
  }
  check(same(normalized,d));
 }
@@ -78,7 +72,7 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
  const revision=draft?.revision??0,ordered=[...changes].sort((a,b)=>safe(a?.id).localeCompare(safe(b?.id),'en')),valid=[],diagnostics=[],invalid=new Set(),seen=new Set(),counts={};
  const add=(c,code,message,field='')=>diagnostics.push({...location(c,field),code,message,reference:null});
  for(const c of ordered){
-  try{validate(c,revision);check(!seen.has(c.id));seen.add(c.id);counts[c.type]=(counts[c.type]??0)+1;check(counts[c.type]<=limits[c.type]);valid.push(c);}
+  try{validateCentralChange(c,revision);check(!seen.has(c.id));seen.add(c.id);counts[c.type]=(counts[c.type]??0)+1;check(counts[c.type]<=limits[c.type]);valid.push(c);}
   catch(e){invalid.add(safe(c?.id));add(c,'INVALID_RECORD',`Définition ou provenance incohérente (${safe(e.code)||'structure'}). Corriger la source avant de poursuivre.`);}
  }
  // A duplicated ID cannot serve as a valid target, even if its first row passed.
@@ -127,7 +121,7 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
  ];
  const report={schemaVersion:1,scope:'INITIAL_DRAFT_PREPARATION',campaign:{id:campaign.id,title:campaign.title},draft:{id:'initial',revision,baseVersionId:null,basePointerRevision:0},checkedAt:at,
   authority:authority?{kind:authority.kind,revision:authority.revision}:null,
-  fingerprint:hash({schema:11,actorUid,authority,campaign:{id:campaign.id,revision:campaign.revision,master:campaign.master??null,ruleProfile:campaign.ruleProfile,ownerUid:campaign.ownerUid},session:{id:session.id,revision:session.revision},draft:draft??null,changes:ordered}),
+  fingerprint:hash({schema:12,actorUid,authority,campaign:{id:campaign.id,revision:campaign.revision,master:campaign.master??null,ruleProfile:campaign.ruleProfile,ownerUid:campaign.ownerUid},session:{id:session.id,revision:session.revision},draft:draft??null,changes:ordered}),
   status:diagnostics.length?'CORRECTIONS_REQUIRED':'NO_DETECTED_ERROR',publicationAvailable:false,remainingChecks,
   workshops:centralWorkshops.map(w=>({id:w.id,label:w.label,coverage:'PARTIAL',active:records.filter(c=>c.workshop===w.id&&c.operation==='UPSERT').length,archived:records.filter(c=>c.workshop===w.id&&c.operation==='ARCHIVE').length})),
   totals:{records:changes.length,valid:records.length,invalid:changes.length-records.length,diagnostics:diagnostics.length,references:edges.length},initialPreparation:initial.summary,diff,edges,diagnostics};
