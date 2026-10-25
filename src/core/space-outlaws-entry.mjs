@@ -44,6 +44,7 @@ async function readVersion(tx,c){
  for(let i=0;i<pages.length;i++){const p=pages[i];requireThat(p?.id===String(i)&&p.versionId===id&&digest(p)===h.pages[i].digest&&Array.isArray(p.entries),'SO_VERSION_INVALID');entries.push(...p.entries);}
  requireThat(digest(entries)===h.contentDigest&&entries.length===h.records&&Buffer.byteLength(JSON.stringify(entries))<=campaignLimits.bytes,'SO_VERSION_INVALID');
  const changes=entries.map(e=>e.data);
+ requireThat(h.combatVersion===undefined||h.combatVersion===1,'SO_VERSION_INVALID');
  requireThat(h.navigationVersion===undefined||h.navigationVersion===1,'SO_VERSION_INVALID');
  requireThat(h.shopsVersion===undefined||h.shopsVersion===1,'SO_VERSION_INVALID');
  requireThat(h.healthVersion===undefined||h.healthVersion===1,'SO_VERSION_INVALID');
@@ -64,7 +65,7 @@ async function releasePlan(tx,actor,ctx,authority,at){
  const entries=changes.sort((a,b)=>a.id.localeCompare(b.id)).map(data=>({path:`changes/${data.id}`,data}));
  requireThat(Buffer.byteLength(JSON.stringify(entries))<=campaignLimits.bytes,'SO_RELEASE_LIMIT');
  const pages=campaignPagesFor(entries);requireThat(pages.length>0&&pages.length<=100,'SO_RELEASE_LIMIT');
- const confirmation=digest({navigationVersion:1,shopsVersion:1,healthVersion:1,actorUid:actor.uid,c:ctx.c,s:ctx.s,draft:ctx.draft,entries,admissions:admissions.fingerprint});
+ const confirmation=digest({combatVersion:1,navigationVersion:1,shopsVersion:1,healthVersion:1,actorUid:actor.uid,c:ctx.c,s:ctx.s,draft:ctx.draft,entries,admissions:admissions.fingerprint});
  return {entries,pages,confirmation,blockers,draftRevision:ctx.draft.revision,characters:changes.filter(c=>c.type==='character'&&c.operation==='UPSERT').length,approved:admissions.totals.approved};
 }
 function optionsInput(v){
@@ -137,7 +138,7 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
     if(read)return {careProfiles:plan.blockers.length?[]:soCareProfiles(plan.entries.map(e=>e.data)).map(p=>({name:p.name,itemId:p.consumable?.itemId??null})),confirmation:plan.confirmation,blockers:plan.blockers,canRelease:!plan.blockers.length,draftRevision:plan.draftRevision,characters:plan.characters,approved:plan.approved};
     const reason=admissionText(input.reason,500,true);requireThat(!plan.blockers.length,'SO_RELEASE_BLOCKED');requireThat(plan.confirmation===input.confirmation,'SO_ENTRY_STALE');
     const id=`so_${plan.confirmation}`,base=`campaigns/${c.id}/versions/${id}`,pages=plan.pages.map((entries,i)=>({id:String(i),versionId:id,entries}));
-    const manifest={id,kind:versionKind,status:'READY',ruleProfile:spaceOutlawsProfile,campaignId:c.id,sessionId:sid,draftRevision:plan.draftRevision,confirmation:plan.confirmation,createdAt:at,actorUid:actor.uid,reason,navigationVersion:1,shopsVersion:1,healthVersion:1,careProfiles:soCareProfiles(plan.entries.map(e=>e.data)),records:plan.entries.length,contentDigest:digest(plan.entries),pages:pages.map(p=>({id:p.id,digest:digest(p)}))};
+    const manifest={id,kind:versionKind,status:'READY',ruleProfile:spaceOutlawsProfile,campaignId:c.id,sessionId:sid,draftRevision:plan.draftRevision,confirmation:plan.confirmation,createdAt:at,actorUid:actor.uid,reason,combatVersion:1,navigationVersion:1,shopsVersion:1,healthVersion:1,careProfiles:soCareProfiles(plan.entries.map(e=>e.data)),records:plan.entries.length,contentDigest:digest(plan.entries),pages:pages.map(p=>({id:p.id,digest:digest(p)}))};
     for(const p of pages)tx.set(`${base}/pages/${p.id}`,p);
     tx.set(base,{...manifest,manifestDigest:digest(manifest)});
     tx.set(`campaigns/${c.id}`,{...c,revision:c.revision+1,master:{...c.master,activeVersionId:id,pointerRevision:1,openDraftId:null}});
@@ -157,11 +158,12 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
     spaceOutlawsSkills:plan.profile,startingInformation:options.startingInformation,birth:{versionId:version.header.id,at,actorUid:actor.uid,weaponApplicable:options.weaponApplicable},
     abilityProfile:{published:true,revision:1,class:{id:plan.profile.classId,name:plan.profile.className,description:''},skills:plan.profile.skills.map(k=>({id:k.id,name:k.name,kind:'PASSIVE',level:k.level??1,revision:1,description:k.kind==='FIXED'?'Technique acquise (sans niveau).':`Niveau ${k.level}`,instructions:'',category:k.source,healing:null}))}};
    const {preparationKind,preparationVersion,...prior}=s;
-   const healthEnabled=version.header.healthVersion===1,shopsEnabled=version.header.shopsVersion===1,navigationEnabled=version.header.navigationVersion===1;
+   const healthEnabled=version.header.healthVersion===1,shopsEnabled=version.header.shopsVersion===1,navigationEnabled=version.header.navigationVersion===1,combatEnabled=version.header.combatVersion===1;
+   requireThat(!s.spaceOutlaws||!!s.spaceOutlaws.combatVersion===combatEnabled,'SO_VERSION_INVALID');
    requireThat(!s.spaceOutlaws||!!s.spaceOutlaws.navigationVersion===navigationEnabled,'SO_VERSION_INVALID');
    requireThat(!s.spaceOutlaws||!!s.spaceOutlaws.shopsVersion===shopsEnabled,'SO_VERSION_INVALID');
    requireThat(!s.spaceOutlaws||!!s.spaceOutlaws.healthVersion===healthEnabled,'SO_VERSION_INVALID');
-   const nextSession={...prior,...(healthEnabled?{vitalClock:s.vitalClock??{elapsedMs:at,runningSince:at},safetyStop:s.safetyStop??{active:false}}:{}),stage:'BRIEFING',revision:s.revision+1,versionId:version.header.id,spaceOutlaws:{ruleProfile:spaceOutlawsProfile,entryVersion:1,actionsVersion:1,...(healthEnabled?{healthVersion:1}:{}),...(shopsEnabled?{shopsVersion:1}:{}),...(navigationEnabled?{navigationVersion:1}:{}),versionId:version.header.id},
+   const nextSession={...prior,...(healthEnabled?{vitalClock:s.vitalClock??{elapsedMs:at,runningSince:at},safetyStop:s.safetyStop??{active:false}}:{}),stage:'BRIEFING',revision:s.revision+1,versionId:version.header.id,spaceOutlaws:{ruleProfile:spaceOutlawsProfile,entryVersion:1,actionsVersion:1,...(healthEnabled?{healthVersion:1}:{}),...(shopsEnabled?{shopsVersion:1}:{}),...(navigationEnabled?{navigationVersion:1}:{}),...(combatEnabled?{combatVersion:1}:{}),versionId:version.header.id},
     actionPointRules:{...portBrecheActionPoints},economyRules:{enabled:true,name:'Crédits',unit:'Cr'},healthRules:{enabled:true,defaultMaxHp:3,returnMode:'HP_POSITIVE',allowed:{discover:false,share:false,publish:false,heal:false,transfer:false,pay:false}}};
    tx[spaceOutlawsTransaction](sid);tx.set(base,nextSession);tx.set(`${base}/characters/${id}`,character);
    const knowledge=version.changes.filter(ch=>ch.type==='knowledge'&&ch.operation==='UPSERT').map(ch=>({...ch.data,publicationState:'PUBLISHED'}));
