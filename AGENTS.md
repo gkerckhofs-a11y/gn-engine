@@ -178,6 +178,13 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 - Calculer les liens sur l’état final des deux feuilles ; prix entiers strictement positifs saisis sans défaut. Blanc conserve, effacement explicite, archives/restauration sans cascade. M1/M2 consultés uniquement avec leurs lectures indépendantes ; préserver réessais, révocation avant reçus, concurrence et interruption atomique.
 - Provenances M5 et colonnes localisées au contrôle commun ; empreinte interne 9, budgets 1659/16 Mio/4 Mio inchangés. C2k ne contrôle pas ces provenances : conserver brouillon, droits, historiques et reçus ensemble. Excel M3, publication et recette humaine restent ouverts.
 
+## Tranche C2m — Excel des modèles, ports et routes M3
+
+- [C2m](docs/SO-04-C2M-EXCEL-SPATIOPORT.md) ajoute Modeles/Ports/Routes au contrat central v1, avec sélection shipModel_{id}/port_{id}/route_{id}. Trois feuilles requises même vides, 100 lignes cumulées/1 Mio ; bornes natives 100/100/200 archives comprises. IDs métier nus dans les cellules, homonymes distincts.
+- Réutiliser les validateurs M3 : profil/distance/risque/codes requis sans défaut, valeurs V0.7 dérivées et champs libres/instances refusés. Liens et doublons de codes calculés sur l’état final des trois feuilles, archives sans cascade. Aucun catalogue étranger consulté ni droit implicite ; aucun vaisseau, voyage, tirage ou ressource créé.
+- Conserver autorité/cycle avant reçus, confirmation liée aux droits et révisions, réessais, concurrence et interruption atomique. Provenance type/feuille stricte et colonnes localisées dans le contrôle commun, empreinte interne 10 ; budgets 1659/16 Mio/4 Mio inchangés, sept ateliers PARTIAL et publication indisponible.
+- Les sept ateliers ont désormais des imports pour leurs types raccordés, pas pour tous les onglets documentaires. Conserver brouillon, droits, historiques et reçus cohérents ; C2l ne contrôle pas les provenances XLSX M3. Lieux/QR, contrôles complets, publication globale, I3/I4/I5, navigation jouée et recette humaine restent à développer.
+
 ## Cycle de chaque ensemble fonctionnel
 
 1. Lire le cadrage V3.5, le livre SPACE OUTLAWS V0.7, les sept gabarits proposés SO_Masters_V01.zip et le vade-mecum ; conserver le rapport de cohérence V0.6 comme historique (sources référencées dans SO-01a et SO-00). Délimiter un parcours complet, ses critères, dépendances et recettes. A01–A38 et l’extension PNJ FOR-01 sont clos : ne pas réinventer leurs barèmes. Distinguer les propositions techniques et les paramètres de session à préparer. Les décisions V3.5/V0.7 prévalent sur les cadrages antérieurs ; les prix/compositions d’exemples V3.2 restent non canoniques.

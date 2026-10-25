@@ -9,7 +9,7 @@ test('Excel M5 UI : sélection typée des homonymes et noms échappés',()=>{
  const h=ui.exportForm(d);assert.match(h,/value="shop_same"/);assert.match(h,/value="offer_same"/);assert.match(h,/Boutiques · &lt;img&gt;Boutique · same · r3/);assert.match(h,/Offres · &lt;b&gt;Offre · same · r2 · archivé/);assert.doesNotMatch(h,/value="foreign"|<img>|<b>|undefined/);
 });
 test('Excel M5 UI : lecture seule autorise export, édition requise pour importer',()=>{
- assert.match(ui.buttons(d),/centralExport/);assert.doesNotMatch(ui.buttons(d),/data-action="centralImport"/);assert.match(ui.buttons({...d,rights:{editWorkshops:['M5']}}),/data-action="centralImport"/);assert.equal(ui.buttons({...d,workshop:'M3'}),'');
+ assert.match(ui.buttons(d),/centralExport/);assert.doesNotMatch(ui.buttons(d),/data-action="centralImport"/);assert.match(ui.buttons({...d,rights:{editWorkshops:['M5']}}),/data-action="centralImport"/);assert.match(ui.buttons({...d,workshop:'M3'}),/centralExport/);
 });
 test('Excel M5 UI : deux feuilles, limite commune et prix sans valeur implicite',()=>{
  const h=ui.importForm(d);for(const text of ['deux feuilles Boutiques et Offres','même vides','100 lignes au total','sans ajouter de préfixe','boutique_id','objet_id','vendeur_personnage_id','prix_vente_cr','prix_rachat_cr','strictement positifs','!EFFACER retire le prix','Aucun prix par défaut'])assert.ok(h.includes(text),text);assert.match(h,/accept=".xlsx" required/);assert.doesNotMatch(ui.importForm({...d,workshop:'M1'}),/deux feuilles Boutiques/);

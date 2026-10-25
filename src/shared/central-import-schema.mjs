@@ -4,9 +4,10 @@ import {masterSheets} from './master-schema.mjs';
 // documentary SO_Masters V0.1 are not converted implicitly.
 export const centralImportFormat='gn-engine-central-draft';
 export const centralImportRows=100;
-export const centralImportTypes={M1:{type:'item',sheet:'Objets'},M2:{type:'character',sheet:'Personnages'},M4:{type:'recipe',sheet:'Recettes'},M5:{sheets:[{type:'shop',sheet:'Boutiques'},{type:'offer',sheet:'Offres'}]},M6:{type:'knowledge',sheet:'Informations'},M7:{type:'mission',sheet:'Missions'}};
+export const centralImportTypes={M1:{type:'item',sheet:'Objets'},M2:{type:'character',sheet:'Personnages'},M3:{sheets:[{type:'shipModel',sheet:'Modeles'},{type:'port',sheet:'Ports'},{type:'route',sheet:'Routes'}]},M4:{type:'recipe',sheet:'Recettes'},M5:{sheets:[{type:'shop',sheet:'Boutiques'},{type:'offer',sheet:'Offres'}]},M6:{type:'knowledge',sheet:'Informations'},M7:{type:'mission',sheet:'Missions'}};
 export const centralImportContracts=workshop=>{const c=Object.hasOwn(centralImportTypes,workshop)?centralImportTypes[workshop]:null;return c?.sheets??(c?[c]:[]);};
 export const centralImportSelection=(workshop,c)=>centralImportContracts(workshop).length>1?`${c.type}_${c.entityId}`:c.entityId;
+export const centralSpaceColumns={shipModel:['nom','description','profil_id','notes_mj'],port:['nom','description','code_navigation','lieu_id','notes_mj'],route:['nom','description','origine_port_id','destination_port_id','distance_id','risque_id','code_navigation','notes_mj']};
 export const centralShopColumns={shop:['nom','description','vendeur_personnage_id','lieu_id','notes_mj'],offer:['nom','boutique_id','objet_id','prix_vente_cr','prix_rachat_cr','conditions','notes_mj']};
 export const centralCharacterColumns=['nom','profession','description','nature','biographie','interpretation','secrets_joueur','notes_mj','objectifs_json','relations_json','profil_initial','classe_id','espece_id','initiation_id'];
 export const centralCharacterCellLimit=32000;
@@ -19,6 +20,9 @@ export const centralImportSheets={
  Meta:['format','version','schema_version','type','campaign_id','scenario_id','rule_profile','central_base_version','draft_id','draft_revision','module_type','import_batch_id'],
  Objets:masterSheets.Objets.filter(x=>!['version','image_media_id','publication'].includes(x)),
  Recettes:masterSheets.Recettes.filter(x=>!['version','publication'].includes(x)),
+ Modeles:['id','operation','revision',...centralSpaceColumns.shipModel],
+ Ports:['id','operation','revision',...centralSpaceColumns.port],
+ Routes:['id','operation','revision',...centralSpaceColumns.route],
  Boutiques:['id','operation','revision',...centralShopColumns.shop],
  Offres:['id','operation','revision',...centralShopColumns.offer],
  Personnages:['id','operation','revision',...centralCharacterColumns],
