@@ -297,7 +297,15 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       return {versions:(await tx.list(`${base}/${cid}/history`)).sort((a,b)=>b.revision-a.revision)};
     });
     if(action==='mySession' || action==='preview') return store.runTransaction(async tx=>{
-      signed(actor); const s=await tx.get(`sessions/${sid}`); requireThat(s && !isPreparation(s) && s.stage!=='ARCHIVED','NOT_FOUND');
+      signed(actor); const s=await tx.get(`sessions/${sid}`); requireThat(s && !isPreparation(s),'NOT_FOUND');
+      if(s.stage==='ARCHIVED'&&s.spaceOutlaws?.episodesVersion===1&&action==='mySession'){
+        const old=await tx.get(regPath(sid,actor.uid));requireThat(old?.status==='ACCEPTED'&&old.accessActive&&actor.authTime>=old.minAuthTime,'FORBIDDEN');
+        const campaign=await tx.get(`campaigns/${s.campaignId}`),nextId=campaign?.activeSessionId;
+        const next=nextId?await tx.get(`sessions/${nextId}`):null,r=next?await tx.get(regPath(nextId,actor.uid)):null,c=r?.characterId?await tx.get(charPath(nextId,r.characterId)):null;
+        const allowed=next&&next.campaignId===s.campaignId&&!next.campaignSealed&&r?.status==='ACCEPTED'&&r.accessActive&&actor.authTime>=r.minAuthTime&&c?.assignedUid===actor.uid;
+        return {session:publicSession(s),character:null,registration:null,reason:'EPISODE_CLOSED',continuation:allowed?{id:next.id,title:next.title}:null};
+      }
+      requireThat(s.stage!=='ARCHIVED','NOT_FOUND');
       const preview=action==='preview';
       if(preview) await checkSession(tx,actor,sid);
       const r=preview ? null : await tx.get(regPath(sid,actor.uid));
@@ -317,7 +325,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       }
       const groups=character && s.modules?.groups===true ? await tx.list(`sessions/${sid}/groups`) : [];
       return {session:publicSession(s),registration:ownRegistration(r),character,economyEnabled:s.economyRules?.enabled===true,actionPoints:rawCharacter&&s.actionPointRules?.enabled?actionPointSummary(s,rawCharacter,await tx.get(actionPointPath(sid,rawCharacter.id)),at):null,health:healthSummary(s,rawCharacter,at),reason,gameTimeMs:gameTime(s.clock,at),
-        globalLevel:character?(rawCharacter.globalLevel??1):null,playerRules:character?playerRules(s):null,
+        globalLevel:character?(rawCharacter.globalLevel??1):null,...(character&&s.spaceOutlaws?.episodesVersion===1?{progression:{xp:rawCharacter.xp??0,earnedXp:rawCharacter.earnedXp??0,completedSessions:r?.progression?.completedSessions??0,pendingXp:r?.progression?.pendingXp??0}}:{}),playerRules:character?playerRules(s):null,
         groups:groups.filter(g=>groupVisible(g,cid)).map(g=>groupSummary(g,cid))};
     });
     signed(actor);
@@ -480,7 +488,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
           if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/contracts`)).some(c=>['PROPOSED','ACTIVE','SUBMITTED'].includes(c.status)),'CONTRACTS_OPEN');
           next.stage=input.stage;
           if(s.stage==='EN_JEU') next.clock=pauseClock(s.clock,at);
-          if(input.stage==='EN_JEU') next.clock=resumeClock(s.clock,at);
+          if(input.stage==='EN_JEU'){next.clock=resumeClock(s.clock,at);if(s.spaceOutlaws?.episodesVersion===1&&s.vitalClock.runningSince===null)next.vitalClock=resumeClock(s.vitalClock,at);}
           if(['FINISHED','ARCHIVED'].includes(input.stage)) next.registrationOpen=false;
         }
         tx.set(`sessions/${sid}`,next); result=privateSession(next);

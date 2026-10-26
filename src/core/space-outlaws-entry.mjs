@@ -45,6 +45,7 @@ async function readVersion(tx,c){
  for(let i=0;i<pages.length;i++){const p=pages[i];requireThat(p?.id===String(i)&&p.versionId===id&&digest(p)===h.pages[i].digest&&Array.isArray(p.entries),'SO_VERSION_INVALID');entries.push(...p.entries);}
  requireThat(digest(entries)===h.contentDigest&&entries.length===h.records&&Buffer.byteLength(JSON.stringify(entries))<=campaignLimits.bytes,'SO_VERSION_INVALID');
  const changes=entries.map(e=>e.data);
+ requireThat(h.episodesVersion===undefined||h.episodesVersion===1&&h.healthVersion===1,'SO_VERSION_INVALID');
  requireThat(h.missionExecutionVersion===undefined||h.missionExecutionVersion===1&&h.missionsVersion===1,'SO_VERSION_INVALID');
  requireThat(h.missionsVersion===undefined||h.missionsVersion===1,'SO_VERSION_INVALID');
  requireThat(h.logisticsVersion===undefined||h.logisticsVersion===1,'SO_VERSION_INVALID');
@@ -69,7 +70,7 @@ async function releasePlan(tx,actor,ctx,authority,at){
  const entries=changes.sort((a,b)=>a.id.localeCompare(b.id)).map(data=>({path:`changes/${data.id}`,data}));
  requireThat(Buffer.byteLength(JSON.stringify(entries))<=campaignLimits.bytes,'SO_RELEASE_LIMIT');
  const pages=campaignPagesFor(entries);requireThat(pages.length>0&&pages.length<=100,'SO_RELEASE_LIMIT');
- const confirmation=digest({missionExecutionVersion:1,missionsVersion:1,logisticsVersion:1,combatVersion:1,navigationVersion:1,shopsVersion:1,healthVersion:1,actorUid:actor.uid,c:ctx.c,s:ctx.s,draft:ctx.draft,entries,admissions:admissions.fingerprint});
+ const confirmation=digest({episodesVersion:1,missionExecutionVersion:1,missionsVersion:1,logisticsVersion:1,combatVersion:1,navigationVersion:1,shopsVersion:1,healthVersion:1,actorUid:actor.uid,c:ctx.c,s:ctx.s,draft:ctx.draft,entries,admissions:admissions.fingerprint});
  return {entries,pages,confirmation,blockers,draftRevision:ctx.draft.revision,characters:changes.filter(c=>c.type==='character'&&c.operation==='UPSERT').length,approved:admissions.totals.approved};
 }
 function optionsInput(v){
@@ -117,7 +118,7 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
   signed(actor);const sid=documentId(input.sessionId),read=reads.includes(action),requestId=read?null:documentId(input.requestId);
   return store.runTransaction(async tx=>{
    const at=now(),s=await tx.get(`sessions/${sid}`);requireThat(s&&(isPreparation(s)||s.spaceOutlaws?.ruleProfile===spaceOutlawsProfile),'NOT_A_PREPARATION');
-   const c=await tx.get(`campaigns/${s.campaignId}`);requireThat(c?.ownerUid===s.ownerUid&&c.preparationSessionId===sid,'FORBIDDEN');
+   const c=await tx.get(`campaigns/${s.campaignId}`);requireThat(c?.ownerUid===s.ownerUid&&(c.preparationSessionId===sid||s.spaceOutlaws?.episodesVersion===1&&s.campaignId===c.id),'FORBIDDEN');
    if(action==='mySpaceOutlawsEntry'){
     admissionKeys(input,['sessionId']);const r=await tx.get(regPath(sid,actor.uid));requireThat(r?.admission,'FORBIDDEN');
     return {session:publicSession(s),released:!!c.master?.activeVersionId,status:r.admission.status,characterId:r.characterId??null,accessActive:r.accessActive===true};
@@ -129,7 +130,7 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
    if(action==='spaceOutlawsEntry'){
     admissionKeys(input,['sessionId']);const version=c.master?.activeVersionId?await readVersion(tx,c):null;
     const registrations=await tx.list(`sessions/${sid}/registrations`,null,{limit:1001});requireThat(registrations.length<=1000,'SO_RELEASE_LIMIT');
-    return {session:{...publicSession(s),revision:s.revision},stage:s.stage,canRelease:authority.owner,actionsReady:s.spaceOutlaws?.actionsVersion===1,missionsReady:s.spaceOutlaws?.missionsVersion===1,navigationReady:s.spaceOutlaws?.navigationVersion===1,shopsReady:s.spaceOutlaws?.shopsVersion===1,healthReady:s.spaceOutlaws?.healthVersion===1,safetyStopped:s.safetyStop?.active===true,versionId:version?.header.id??null,draftRevision:ctx.draft?.revision??0,
+    return {session:{...publicSession(s),revision:s.revision},campaignId:c.id,campaignEpisode:s.campaignEpisode,episodesReady:s.spaceOutlaws?.episodesVersion===1,stage:s.stage,canRelease:authority.owner,actionsReady:s.spaceOutlaws?.actionsVersion===1,missionsReady:s.spaceOutlaws?.missionsVersion===1,navigationReady:s.spaceOutlaws?.navigationVersion===1,shopsReady:s.spaceOutlaws?.shopsVersion===1,healthReady:s.spaceOutlaws?.healthVersion===1,safetyStopped:s.safetyStop?.active===true,versionId:version?.header.id??null,draftRevision:ctx.draft?.revision??0,
      targets:(version?.changes??[]).filter(ch=>ch.type==='fieldTarget'&&ch.operation==='UPSERT').map(ch=>({id:ch.entityId,title:ch.data.title})),
      registrations:registrations.filter(r=>r.admission?.status==='APPROVED').map(r=>({uid:r.uid,name:`${r.admission.proposal.firstName} ${r.admission.proposal.lastName}`,classId:r.admission.proposal.classId,characterId:r.characterId??null,accessActive:r.accessActive,m2Prepared:!!r.admission.m2Preparation}))};
    }
@@ -142,7 +143,7 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
     if(read)return {careProfiles:plan.blockers.length?[]:soCareProfiles(plan.entries.map(e=>e.data)).map(p=>({name:p.name,itemId:p.consumable?.itemId??null})),confirmation:plan.confirmation,blockers:plan.blockers,canRelease:!plan.blockers.length,draftRevision:plan.draftRevision,characters:plan.characters,approved:plan.approved};
     const reason=admissionText(input.reason,500,true);requireThat(!plan.blockers.length,'SO_RELEASE_BLOCKED');requireThat(plan.confirmation===input.confirmation,'SO_ENTRY_STALE');
     const id=`so_${plan.confirmation}`,base=`campaigns/${c.id}/versions/${id}`,pages=plan.pages.map((entries,i)=>({id:String(i),versionId:id,entries}));
-    const manifest={id,kind:versionKind,status:'READY',ruleProfile:spaceOutlawsProfile,campaignId:c.id,sessionId:sid,draftRevision:plan.draftRevision,confirmation:plan.confirmation,createdAt:at,actorUid:actor.uid,reason,missionExecutionVersion:1,missionsVersion:1,logisticsVersion:1,combatVersion:1,navigationVersion:1,shopsVersion:1,healthVersion:1,careProfiles:soCareProfiles(plan.entries.map(e=>e.data)),records:plan.entries.length,contentDigest:digest(plan.entries),pages:pages.map(p=>({id:p.id,digest:digest(p)}))};
+    const manifest={id,kind:versionKind,status:'READY',ruleProfile:spaceOutlawsProfile,campaignId:c.id,sessionId:sid,draftRevision:plan.draftRevision,confirmation:plan.confirmation,createdAt:at,actorUid:actor.uid,reason,episodesVersion:1,missionExecutionVersion:1,missionsVersion:1,logisticsVersion:1,combatVersion:1,navigationVersion:1,shopsVersion:1,healthVersion:1,careProfiles:soCareProfiles(plan.entries.map(e=>e.data)),records:plan.entries.length,contentDigest:digest(plan.entries),pages:pages.map(p=>({id:p.id,digest:digest(p)}))};
     for(const p of pages)tx.set(`${base}/pages/${p.id}`,p);
     tx.set(base,{...manifest,manifestDigest:digest(manifest)});
     tx.set(`campaigns/${c.id}`,{...c,revision:c.revision+1,master:{...c.master,activeVersionId:id,pointerRevision:1,openDraftId:null}});
@@ -162,6 +163,7 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
     spaceOutlawsSkills:plan.profile,startingInformation:options.startingInformation,birth:{versionId:version.header.id,at,actorUid:actor.uid,weaponApplicable:options.weaponApplicable},
     abilityProfile:{published:true,revision:1,class:{id:plan.profile.classId,name:plan.profile.className,description:''},skills:plan.profile.skills.map(k=>({id:k.id,name:k.name,kind:'PASSIVE',level:k.level??1,revision:1,description:k.kind==='FIXED'?'Technique acquise (sans niveau).':`Niveau ${k.level}`,instructions:'',category:k.source,healing:null}))}};
    const {preparationKind,preparationVersion,...prior}=s;
+   const episodesEnabled=version.header.episodesVersion===1;requireThat(!s.spaceOutlaws||!!s.spaceOutlaws.episodesVersion===episodesEnabled,'SO_VERSION_INVALID');
    const missionsEnabled=version.header.missionsVersion===1,missionExecutionEnabled=version.header.missionExecutionVersion===1;
    requireThat(!s.spaceOutlaws||!!s.spaceOutlaws.missionExecutionVersion===missionExecutionEnabled,'SO_VERSION_INVALID');
    requireThat(!s.spaceOutlaws||!!s.spaceOutlaws.missionsVersion===missionsEnabled,'SO_VERSION_INVALID');
@@ -171,8 +173,9 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
    requireThat(!s.spaceOutlaws||!!s.spaceOutlaws.navigationVersion===navigationEnabled,'SO_VERSION_INVALID');
    requireThat(!s.spaceOutlaws||!!s.spaceOutlaws.shopsVersion===shopsEnabled,'SO_VERSION_INVALID');
    requireThat(!s.spaceOutlaws||!!s.spaceOutlaws.healthVersion===healthEnabled,'SO_VERSION_INVALID');
-   const nextSession={...prior,...(healthEnabled?{vitalClock:s.vitalClock??{elapsedMs:at,runningSince:at},safetyStop:s.safetyStop??{active:false}}:{}),stage:'BRIEFING',revision:s.revision+1,versionId:version.header.id,spaceOutlaws:{ruleProfile:spaceOutlawsProfile,entryVersion:1,actionsVersion:1,...(missionsEnabled?{missionsVersion:1}:{}),...(missionExecutionEnabled?{missionExecutionVersion:1}:{}),...(healthEnabled?{healthVersion:1}:{}),...(shopsEnabled?{shopsVersion:1}:{}),...(navigationEnabled?{navigationVersion:1}:{}),...(combatEnabled?{combatVersion:1}:{}),...(logisticsEnabled?{logisticsVersion:1}:{}),versionId:version.header.id},
+   const nextSession={...prior,...(episodesEnabled?{campaignEpisode:1}:{}),...(healthEnabled?{vitalClock:s.vitalClock??{elapsedMs:at,runningSince:at},safetyStop:s.safetyStop??{active:false}}:{}),stage:'BRIEFING',revision:s.revision+1,versionId:version.header.id,spaceOutlaws:{ruleProfile:spaceOutlawsProfile,entryVersion:1,actionsVersion:1,...(episodesEnabled?{episodesVersion:1}:{}),...(missionsEnabled?{missionsVersion:1}:{}),...(missionExecutionEnabled?{missionExecutionVersion:1}:{}),...(healthEnabled?{healthVersion:1}:{}),...(shopsEnabled?{shopsVersion:1}:{}),...(navigationEnabled?{navigationVersion:1}:{}),...(combatEnabled?{combatVersion:1}:{}),...(logisticsEnabled?{logisticsVersion:1}:{}),versionId:version.header.id},
     actionPointRules:{...portBrecheActionPoints},economyRules:{enabled:true,name:'Crédits',unit:'Cr'},healthRules:{enabled:true,defaultMaxHp:3,returnMode:'HP_POSITIVE',allowed:{discover:false,share:false,publish:false,heal:false,transfer:false,pay:false}}};
+   if(episodesEnabled&&!s.spaceOutlaws){requireThat(!c.activeSessionId&&!c.activeBuildId,'CAMPAIGN_EPISODE_ACTIVE');tx.set(`campaigns/${c.id}`,{...c,episodesVersion:1,activeSessionId:sid,episodeCount:1,revision:c.revision+1});}
    tx[spaceOutlawsTransaction](sid);tx.set(base,nextSession);tx.set(`${base}/characters/${id}`,character);
    const knowledge=version.changes.filter(ch=>ch.type==='knowledge'&&ch.operation==='UPSERT').map(ch=>({...ch.data,publicationState:'PUBLISHED'}));
    if(!s.spaceOutlaws){

@@ -9,6 +9,8 @@ import {gameTime} from './clock.mjs';
 import {recordPublication} from './narrative.mjs';
 import {actionPointPath,actionPointMaximum} from './action-point-state.mjs';
 import {accountId,moneyState,writeLedger} from './economy-state.mjs';
+import {hasSoEpisodes,readSoEpisode,soClosure,soEpisodeHeader,soEpisodeEntries} from './space-outlaws-episodes.mjs';
+import {staffPath} from './staff.mjs';
 
 const hash=v=>createHash('sha256').update(v).digest('hex');
 const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
@@ -29,7 +31,7 @@ export function campaignGuardStore(store){
  return {get:store.get.bind(store),list:store.list.bind(store),runTransaction:callback=>store.runTransaction(async tx=>{
   const pending=new Map(),authorized=new Set(),scopes=new Map(),result=await callback({...tx,[spaceOutlawsTransaction]:sid=>authorized.add(sid),[spaceOutlawsGameplay]:(sid,scope)=>{if(!scopes.has(sid))scopes.set(sid,new Set());scopes.get(sid).add(scope);},set:(path,data)=>pending.set(path,data)});
   const ids=new Set([...pending.keys()].filter(p=>p.startsWith('sessions/')).map(p=>p.split('/')[1]));
-  for(const sid of ids){const s=await tx.get(`sessions/${sid}`);requireThat(!s?.campaignSealed,'CAMPAIGN_SESSION_SEALED');if(!guardSpaceOutlawsEntry(s,pending,authorized.has(sid),scopes.get(sid)))guardPreparationWrites(s,pending);else if(!authorized.has(sid))for(const [path,next] of pending)if(path.startsWith(`sessions/${sid}/registrations/`)&&path.split('/').length===4)guardSpaceOutlawsRegistration(await tx.get(path),next);}
+  for(const sid of ids){const s=await tx.get(`sessions/${sid}`);requireThat(!s?.campaignSealed,'CAMPAIGN_SESSION_SEALED');if(!guardSpaceOutlawsEntry(s,pending,authorized.has(sid),scopes.get(sid)))guardPreparationWrites(s,pending);else if(!authorized.has(sid))for(const [path,next] of pending)if(path.startsWith(`sessions/${sid}/registrations/`)&&path.split('/').length===4)guardSpaceOutlawsRegistration(await tx.get(path),next,scopes.get(sid)?.has('EPISODES'));}
   for(const [path,data] of pending)tx.set(path,data);return result;
  })};
 }
@@ -41,15 +43,16 @@ async function readState(tx,s){
  return data;
 }
 function stateSummary(data,healthPolicy='PRESERVE'){
- return {characters:data.characters.map(c=>({id:c.id,name:c.public.displayName,level:c.globalLevel??1,skills:c.abilityProfile?.skills.length??0,
+ return {characters:data.characters.map(c=>({id:c.id,name:c.public.displayName,level:c.globalLevel??1,skills:c.abilityProfile?.skills.length??0,...(c.birth?{xp:c.xp??0}:{}),
   balance:data.accounts.find(a=>a.id===accountId(c.id))?.balance??null,hpBefore:c.hp??null,hpAfter:healthPolicy==='RESTORE'&&c.maxHp!=null?c.maxHp:c.hp??null,maxHp:c.maxHp??null,
   lots:data.inventory.filter(l=>l.ownerType!=='GROUP'&&l.ownerId===c.id&&l.quantity>0).length,knowledge:(data.receipts[c.id]??[]).filter(r=>r.active).length})),
   accounts:data.accounts.map(a=>({id:a.id,ownerType:a.ownerType,label:a.ownerType==='GROUP'?a.label:data.characters.find(c=>c.id===a.characterId)?.public.displayName??a.id,balance:a.balance,reserved:a.reserved})),
   groups:data.groups.length,lots:data.inventory.length,quantity:data.inventory.reduce((n,l)=>n+l.quantity,0),receipts:Object.values(data.receipts).reduce((n,r)=>n+r.length,0)};
 }
-const cpSummary=c=>({id:c.id,title:c.title,revision:c.revision,activeSessionId:c.activeSessionId,activeBuildId:c.activeBuildId,latestSessionId:c.latestSessionId,episodeCount:c.episodeCount,...(c.preparationSessionId?{preparationSessionId:c.preparationSessionId,ruleProfile:c.ruleProfile}:{})});
+const cpSummary=c=>({id:c.id,title:c.title,revision:c.revision,activeSessionId:c.activeSessionId,activeBuildId:c.activeBuildId,latestSessionId:c.latestSessionId,episodeCount:c.episodeCount,...(c.episodesVersion?{episodesVersion:c.episodesVersion}:{}),...(c.preparationSessionId?{preparationSessionId:c.preparationSessionId,ruleProfile:c.ruleProfile}:{})});
 const sourceIdentity=s=>({id:s.id,revision:s.revision,scenarioId:s.scenarioId,versionId:s.versionId,actionPointRules:s.actionPointRules??null,healthRules:s.healthRules??null,economyRules:s.economyRules??null,modules:s.modules??{},transportRules:s.transportRules??null});
 function episodeHeader(input,source,campaign,newId,actor,at){
+ if(source.spaceOutlaws)return soEpisodeHeader(input,source,campaign,newId,at);
  requireThat(['PRESERVE','RESTORE'].includes(input.healthPolicy),'CAMPAIGN_HEALTH_POLICY_REQUIRED');
  const template={v:{transportRules:source.transportRules??null,masterRowBaseline:source.masterRowBaseline??[],summary:source.summary,economyRules:source.economyRules??null,healthRules:null,actionPointRules:source.actionPointRules??null},chars:[],groups:[]};
  const s=sessionFromVersion({...input,scenarioId:source.scenarioId,versionId:source.versionId},template,newId,actor,at);
@@ -57,6 +60,7 @@ function episodeHeader(input,source,campaign,newId,actor,at){
   previousSessionId:source.id,campaignSealed:false,campaignHealthPolicy:input.healthPolicy};
 }
 function episodeEntries(data,source,s,actor,at){
+ if(source.spaceOutlaws)return soEpisodeEntries(data,source,s,actor,at);
  const entries=[],put=(path,value)=>entries.push({path,data:value});
  const reason=`Reprise de l’épisode ${source.campaignEpisode} — ${source.id}`;
  for(const c of data.characters){
@@ -106,7 +110,12 @@ export function createCampaignService({store,signed,admin,checkScenario,checkSes
   return {data,title,confirmation:digest({title,header,data}),summary:{characters:data.chars.length,groups:data.groups.length,mode:'NEW_CAMPAIGN',title}};
  }
  async function closurePlan(tx,s,c,input,at){
+  if(s.spaceOutlaws)requireThat(hasSoEpisodes(s),'SO_GAMEPLAY_NOT_OPEN');
   requireThat(!s.campaignSealed&&c.activeSessionId===s.id,'CAMPAIGN_SESSION_SEALED');
+  if(hasSoEpisodes(s)){
+   const data=await readSoEpisode(tx,s),plan=soClosure(s,data,input,at),reason=text(input.reason),summary={...stateSummary(data),continuity:plan.continuity};
+   return {...plan,data,summary,reason,confirmation:digest({session:s,revision:c.revision,entries:data.entries,participants:input.participantUids,reason})};
+  }
   requireThat(['PREPARATION','BRIEFING','PAUSE','FINISHED'].includes(s.stage),'CAMPAIGN_PAUSE_REQUIRED');
   const data=await readState(tx,s),base=`sessions/${s.id}`,blocks=[],changes=[];
   const [contracts,bounties,sales,transfers,listings,resources]=await Promise.all([
@@ -139,11 +148,11 @@ export function createCampaignService({store,signed,admin,checkScenario,checkSes
   return {data,changes,summary,blocks,cancelled,reason,confirmation,canClose:blocks.length===0&&(Object.values(cancelled).every(n=>n===0)||input.cancelOffers===true)};
  }
  async function episodePlan(tx,actor,c,input){
-  requireThat(!c.preparationSessionId,'PREPARATION_ONLY');
+  requireThat(!c.preparationSessionId||c.episodesVersion===1,'PREPARATION_ONLY');
   requireThat(!c.activeSessionId&&!c.activeBuildId,'CAMPAIGN_EPISODE_ACTIVE');requireThat(c.latestSessionId,'CAMPAIGN_NO_CHECKPOINT');
   const source=await tx.get(`sessions/${c.latestSessionId}`);requireThat(source?.campaignSealed&&source.campaignId===c.id,'CAMPAIGN_NO_CHECKPOINT');
-  const data=await readState(tx,source),header=episodeHeader(input,source,c,'preview',actor,0);
-  const entries=episodeEntries(data,source,header,actor,0),summary=stateSummary(data,input.healthPolicy),reason=text(input.reason);
+  const data=source.spaceOutlaws?await readSoEpisode(tx,source):await readState(tx,source),header=episodeHeader(input,source,c,'preview',actor,0);
+  const entries=episodeEntries(data,source,header,actor,0),summary=stateSummary(hasSoEpisodes(source)?{...data,characters:entries.filter(e=>/^characters\/[^/]+$/.test(e.path)).map(e=>e.data),accounts:entries.filter(e=>/^accounts\/[^/]+$/.test(e.path)).map(e=>e.data)}:data,input.healthPolicy),reason=text(input.reason);
   return {source,data,summary,confirmation:digest({campaign:cpSummary(c),source:sourceIdentity(source),header,entries,reason}),recordCount:entries.length};
  }
  return async function dispatch(action,actor,input){
@@ -205,13 +214,14 @@ export function createCampaignService({store,signed,admin,checkScenario,checkSes
     tx.set(`${root(c.id)}/history/${newId}`,{id:newId,action,at,actorUid:actor.uid,sessionId:s.id});result={id:s.id,campaignId:c.id};
    }else if(action==='closeCampaignSession'){
     const p=await closurePlan(tx,s,c,input,at);requireThat(input.confirmation===p.confirmation,'STALE_REVISION');requireThat(p.canClose,'CAMPAIGN_UNRESOLVED');
+    if(hasSoEpisodes(s))tx[spaceOutlawsGameplay](s.id,'EPISODES');
     for(const change of p.changes)tx.set(`sessions/${s.id}/${change.path}`,change.data);
     const seal={id:s.id,title:s.title,episode:s.campaignEpisode,at,actorUid:actor.uid,reason:p.reason,gameTimeMs:gameTime(s.clock,at),summary:p.summary,cancelled:p.cancelled};
-    tx.set(`sessions/${s.id}`,{...s,stage:'ARCHIVED',registrationOpen:false,campaignSealed:true,campaignClosedAt:at,revision:s.revision+1});
+    tx.set(`sessions/${s.id}`,{...s,...(hasSoEpisodes(s)?{vitalClock:{elapsedMs:gameTime(s.vitalClock,at),runningSince:null}}:{}),stage:'ARCHIVED',registrationOpen:false,campaignSealed:true,campaignClosedAt:at,revision:s.revision+1});
     tx.set(`${root(c.id)}/checkpoints/${s.id}`,seal);tx.set(root(c.id),{...c,activeSessionId:null,latestSessionId:s.id,revision:c.revision+1});
-    tx.set(`sessions/${s.id}/audit/${newId}`,{id:newId,action,at,actorUid:actor.uid,reason:p.reason,cancelled:p.cancelled});result={id:s.id,campaignId:c.id,closed:true};
+    tx.set(`sessions/${s.id}/audit/${newId}`,{id:newId,action,at,actorUid:actor.uid,reason:p.reason,cancelled:p.cancelled,...(p.continuity?{participants:p.continuity.participants}:{})});result={id:s.id,campaignId:c.id,closed:true};
    }else if(action==='reopenCampaignSession'){
-    requireThat(c.activeSessionId===s.id&&!s.campaignSealed&&s.stage==='FINISHED','INVALID_TRANSITION');const reason=text(input.reason);
+    requireThat(c.activeSessionId===s.id&&!s.campaignSealed&&s.stage==='FINISHED','INVALID_TRANSITION');const reason=text(input.reason);if(hasSoEpisodes(s))tx[spaceOutlawsGameplay](s.id,'RHYTHM');
     tx.set(`sessions/${s.id}`,{...s,stage:'PAUSE',revision:s.revision+1});tx.set(`sessions/${s.id}/audit/${newId}`,{id:newId,action,at,actorUid:actor.uid,reason});result={id:s.id};
    }else if(action==='beginCampaignEpisode'){
     const p=await episodePlan(tx,actor,c,input);requireThat(input.confirmation===p.confirmation,'STALE_REVISION');const reason=text(input.reason);
@@ -225,9 +235,11 @@ export function createCampaignService({store,signed,admin,checkScenario,checkSes
      requireThat(c.activeBuildId===build.id&&!c.activeSessionId,'CAMPAIGN_EPISODE_ACTIVE');
      const page=await tx.get(`campaignBuilds/${build.id}/pages/${build.cursor}`);requireThat(page,'CAMPAIGN_BUILD_INVALID');
      const last=build.cursor+1===build.pages;
+     const staff=last&&hasSoEpisodes(build.header)?await tx.list('sessionStaff',['sessionId',build.sourceSessionId],{limit:101}):[];requireThat(staff.length<=100,'CAMPAIGN_TOO_LARGE');
      for(const entry of page.entries)tx.set(`sessions/${build.sessionId}/${entry.path}`,entry.data);
      const next={...build,cursor:build.cursor+1,status:last?'READY':'COPYING'};tx.set(`campaignBuilds/${build.id}`,next);
      if(last){
+      for(const grant of staff)tx.set(staffPath(build.sessionId,grant.email),{...grant,sessionId:build.sessionId});
       tx.set(`sessions/${build.sessionId}`,{...build.header,createdAt:at});
       tx.set(root(c.id),{...c,activeBuildId:null,activeSessionId:build.sessionId,episodeCount:build.header.campaignEpisode,revision:c.revision+1});
       tx.set(`${root(c.id)}/history/${newId}`,{id:newId,action:'startEpisode',at,actorUid:actor.uid,reason:build.reason,sourceSessionId:build.sourceSessionId,sessionId:build.sessionId});
