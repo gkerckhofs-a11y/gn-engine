@@ -23,6 +23,7 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(!path.startsWith(base)&&path!==base.slice(0,-1))continue;
   if(path.startsWith(`${base}audit/`))continue;
   const relative=path.slice(base.length);
+  if(scopes.has('LEARNING')&&session.spaceOutlaws.learningVersion===1&&/^(characters\/[^/]+(?:\/history\/[^/]+)?|registrations\/[a-f0-9]{64})$/.test(relative))continue;
   if(scopes.has('SUCCESSION')&&session.spaceOutlaws.successionVersion===1&&/^(characters\/[^/]+(?:\/(history\/[^/]+|resources\/actionPoints|knowledge\/[^/]+))?|publicCharacters\/[^/]+|registrations\/[a-f0-9]{64}(?:\/successionHistory\/[^/]+)?|admission\/occupancy|admissionIdentities\/[a-f0-9]{64}|groups\/[^/]+(?:\/history\/[^/]+)?|inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('MEDIA')&&session.spaceOutlaws.mediaVersion===1&&/^(characters|items|inventory|announcements|ships)\/[^/]+(?:\/(mediaHistory|history)\/[^/]+)?$/.test(relative))continue;
   if(scopes.has('MEDIA')&&session.spaceOutlaws.mediaVersion===1&&/^publicCharacters\/[^/]+$/.test(relative))continue;
@@ -65,8 +66,12 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
  }
  return true;
 }
-export function guardSpaceOutlawsRegistration(before,after,episode=false,succession=false){
- const allowed=new Set(succession?['succession','admission','characterId','previousCharacterId','progression','accessVersion','briefingReadAt','briefingReadRevision']:episode?['progression']:['accessActive','accessVersion','minAuthTime','briefingReadAt','briefingReadRevision']);
+export function guardSpaceOutlawsRegistration(before,after,episode=false,succession=false,learning=false){
+ if(learning){
+  const strip=({learningSessionId,lastLearning,retraining,...rest}={})=>rest;
+  requireThat(isDeepStrictEqual(strip(before?.progression),strip(after?.progression)),'SO_GAMEPLAY_NOT_OPEN');
+ }
+ const allowed=new Set(succession?['succession','admission','characterId','previousCharacterId','progression','accessVersion','briefingReadAt','briefingReadRevision']:episode||learning?['progression']:['accessActive','accessVersion','minAuthTime','briefingReadAt','briefingReadRevision']);
  const fixed=x=>Object.fromEntries(Object.entries(x??{}).filter(([k])=>!allowed.has(k)));
  requireThat(before&&isDeepStrictEqual(fixed(before),fixed(after)),'SO_GAMEPLAY_NOT_OPEN');
 }

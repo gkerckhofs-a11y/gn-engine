@@ -8,6 +8,9 @@ const names={COM:['Vétéran','Désarmement','Lecture tactique'],ROG:['Neutralis
  COU:['Expertise marchande','Négociation commerciale','Réseau de contacts'],INF:['Intrusion','Déchiffrement','Falsification']};
 export const initialSkillIds=Object.keys(names).flatMap(k=>[1,2,3].map(n=>`${k}-0${n}`));
 const fixed=new Set(['COM-01','COM-02','ROG-01']);
+export const initialClassSkills=Object.entries(names).flatMap(([classId,list])=>list.map((name,i)=>{
+ const id=`${classId}-0${i+1}`;return {id,name,classId,kind:fixed.has(id)?'FIXED':'EVOLVING'};
+}));
 export const initialSecondaryChoices=classId=>admissionClasses.filter(c=>c.id!==classId);
 export function initialCharacterProfile(classId,secondaryId){
  const model=admissionClasses.find(c=>c.id===classId),secondary=initialSecondaryChoices(classId).find(c=>c.secondaryId===secondaryId);

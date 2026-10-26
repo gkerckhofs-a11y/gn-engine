@@ -1,3 +1,4 @@
+import {createSoLearningService,soLearningActions} from './space-outlaws-learning.mjs';
 import {createSpaceOutlawsSuccessionService,spaceOutlawsSuccessionActions} from './space-outlaws-succession.mjs';
 import {rewardsOpen} from './space-outlaws-mission-rewards.mjs';
 import {createSpaceMaintenanceService,spaceMaintenanceActions} from './space-maintenance.mjs';
@@ -161,6 +162,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const logisticsService=createLogisticsService({store,signed,checkSession,now,uuid});
   const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,now,uuid});
   const admissionService=createAdmissionService({store,signed,isAdmin,checkSession,now,uuid});
+  const learningService=createSoLearningService({store,signed,checkSession,now,uuid});
   const successionService=createSpaceOutlawsSuccessionService({store,signed,checkSession,now,uuid});
   const entryService=createSpaceOutlawsEntryService({store,signed,isAdmin,checkSession,now,uuid});
   const centralMasterService=createCentralMasterService({store,signed,isAdmin,now,uuid});
@@ -189,6 +191,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
 
   async function dispatch(action,actor,input={}) {
     if(shopActions.includes(action))return shopService(action,actor,input);
+    if(soLearningActions.includes(action))return learningService(action,actor,input);
     if(spaceOutlawsSuccessionActions.includes(action))return successionService(action,actor,input);
     if(spaceOutlawsEntryActions.includes(action))return entryService(action,actor,input);
     if(admissionAction(action))return admissionService(action,actor,input);

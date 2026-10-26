@@ -1,5 +1,16 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## État courant — progression entre épisodes
+
+L’état évolutif autoritaire et les preuves actuelles sont dans [SO-VALIDATION](SO-VALIDATION.md). Les sections C2 ci-dessous sont historiques.
+
+| Exigence | Couverture ajoutée | Limite |
+| --- | --- | --- |
+| A08, REC-SO-01 | Acquisition/augmentation, cinq secondaires, 34 entrées, exclusivités, coûts, rares et reconversion consentie ; 18 cas métier partagés et deux UI | Les effets des compétences encore non raccordées et la recette humaine ne sont pas certifiés |
+| A09, REC-SO-02 | Solde débité sans modifier XP gagnés/hérités, plafond du participant conservé après relève, acquisitions conservées dans l’épisode suivant | Parcours acquis distinct de la validation complète de tous les 55 cas |
+| SEC-SO, persistance A38 | Droits avant reçus, interruption/concurrence, aperçu périmé, HTTP/Auth, ancien manifeste fermé | CI du candidat à consulter dans la PR ; aucune migration ni production |
+
+
 ## C2q — Excel des lieux et informations M6
 
 [C2q — contrat, tests et limites](SO-06-C2Q-EXCEL-LIEUX.md). Schéma M6 2, Informations/Lieux dans un lot atomique ; anciens contrats M6 1 conservés. Profils/récompenses natifs, homonymes typés, droits, localisation et captures. REC-SO-MST-02/03/05/06/07/08 : preuves préparatoires partielles ; 55 verdicts complets et SO-GAP-12/13/14 inchangés. Aucun stock, action, QR ou laboratoire activé ; conformité canonique, publication, I3 complet et I4/I5 restent à livrer.
