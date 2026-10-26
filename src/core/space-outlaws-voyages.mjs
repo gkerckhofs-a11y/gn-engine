@@ -1,3 +1,4 @@
+import {mediaFields} from './media-state.mjs';
 import {publicJourney} from './navigation-state.mjs';
 import {randomInt} from 'node:crypto';
 import {documentId,requireThat,whole} from './validation.mjs';
@@ -22,7 +23,7 @@ const active=s=>{requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat
 const available=(s,c,time)=>c.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeMaintenanceId&&!c.activeCargoId&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&!(c.convalescentUntilGameMs>time);
 const characterPort=(s,c)=>c.spacePortId??s.transportRules?.homePort;
 const receipt=(s,ship,version)=>hash(JSON.stringify([s.id,s.revision,ship,version??null]));
-export const safeSoShip=(s,ship,time)=>({...navigationView(s,ship,time),...(ship.journey?.suspended?{journey:{...publicJourney(ship.journey),remainingSeconds:Math.ceil(ship.journey.remainingMs/1000)}}:{}),maintenanceId:ship.maintenanceId??null,combatId:ship.combatId??null,rescueId:ship.rescueId??null,ambushId:ship.ambushId??null,revision:ship.revision,profile:ship.soProfile,ownerId:ship.ownerId,pilotId:ship.pilotId,hull:ship.hull,shield:ship.shield,revisionRequired:ship.revisionRequired,operation:ship.operation?{id:ship.operation.id,kind:ship.operation.kind,remainingSeconds:Math.max(0,Math.ceil((ship.operation.readyAtGameMs-time)/1000)),manifest:ship.operation.manifest?.map(m=>({id:m.id,name:m.name}))??[],route:ship.operation.route??null}:null});
+export const safeSoShip=(s,ship,time)=>({...mediaFields(ship,['illustration']),...navigationView(s,ship,time),...(ship.journey?.suspended?{journey:{...publicJourney(ship.journey),remainingSeconds:Math.ceil(ship.journey.remainingMs/1000)}}:{}),maintenanceId:ship.maintenanceId??null,combatId:ship.combatId??null,rescueId:ship.rescueId??null,ambushId:ship.ambushId??null,revision:ship.revision,profile:ship.soProfile,ownerId:ship.ownerId,pilotId:ship.pilotId,hull:ship.hull,shield:ship.shield,revisionRequired:ship.revisionRequired,operation:ship.operation?{id:ship.operation.id,kind:ship.operation.kind,remainingSeconds:Math.max(0,Math.ceil((ship.operation.readyAtGameMs-time)/1000)),manifest:ship.operation.manifest?.map(m=>({id:m.id,name:m.name}))??[],route:ship.operation.route??null}:null});
 
 // Canonical constraints on the native ships, voyages, inventory, PA and clocks.
 // No second fleet, wallet, cargo engine or arbitrary route generator.

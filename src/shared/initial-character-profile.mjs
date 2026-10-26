@@ -6,6 +6,7 @@ const names={COM:['Vétéran','Désarmement','Lecture tactique'],ROG:['Neutralis
  TRA:['Lecture des traces','Fouille méthodique','Vérification documentaire'],MED:['Diagnostic','Soins de terrain','Traitement clinique'],
  MEC:['Diagnostic technique','Réparation','Amélioration'],PIL:['Navigation','Préparation de vol','Manœuvres de pilotage'],
  COU:['Expertise marchande','Négociation commerciale','Réseau de contacts'],INF:['Intrusion','Déchiffrement','Falsification']};
+export const initialSkillIds=Object.keys(names).flatMap(k=>[1,2,3].map(n=>`${k}-0${n}`));
 const fixed=new Set(['COM-01','COM-02','ROG-01']);
 export const initialSecondaryChoices=classId=>admissionClasses.filter(c=>c.id!==classId);
 export function initialCharacterProfile(classId,secondaryId){

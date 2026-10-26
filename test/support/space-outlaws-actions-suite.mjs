@@ -19,7 +19,7 @@ export async function actionsFixture(makeStore,{classId='COM',nature='HUMANOID',
  for(const id of ['scene','elsewhere'])await f.cc('saveCentralFieldTarget',{fieldTargetId:id,fieldTargetRevision:0,draftRevision:revision++,fieldTarget:target,reason:'Scène V0.7'});
  if(release){const p=await f.releasePreview();assert.deepEqual(p.blockers,[]);await f.release(p);await f.birth(await f.birthPreview());if(helper){const p=await f.birthPreview(f.owner,{uid:f.other.uid});await f.birth(p,{uid:f.other.uid});}}
  let at=1000000,die=1,dice=[];
- const workflow=createWorkflow({store:f.store,ownerEmail:f.owner.email,now:()=>at,rollD6:()=>dice.length?dice.shift():die});
+ const workflow=createWorkflow({store:f.store,ownerEmail:f.owner.email,now:()=>at,rollD6:()=>dice.length?dice.shift():die,rollD12:()=>die});
  const read=(a,input={},actor=f.player)=>workflow.dispatch(a,actor,{sessionId:f.sid,...input});
  const cmd=(a,input={},actor=f.player)=>read(a,{requestId:randomUUID(),...input},actor);
  const stage=async stage=>cmd('setStage',{stage,revision:(await read('session',{},f.owner)).revision},f.owner);

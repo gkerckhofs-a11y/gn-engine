@@ -12,7 +12,7 @@ const hash=v=>createHash('sha256').update(v).digest('hex');
 // Runtime collections of the connected SO services. Global request receipts and
 // invitations stay attached to their original session; histories retain IDs.
 const roots=['characters','registrations','groups','knowledge','skills','classes','items','accounts','inventory','masterRows','fieldTargets','fieldStates','personProfiles','warehouses','ships','routes','commodityPrices','priceEvents','cargoTariffs','recipes','shops','shopProvisions','shipModels','ports','missions','announcements','applications','contracts','lotSales','lotTransfers','marketListings','bounties','fieldActions','personActions','aidOffers','cargoTransfers','voyages','spaceAmbushes','spaceCombats','spaceRescues','shipMaintenance','ledger','logisticsHistory','audit'];
-const children={characters:['history','knowledge','healthHistory'],inventory:['history'],accounts:['history'],shops:['offers'],announcements:['history'],applications:['messages'],contracts:['history'],spaceCombats:['rounds'],groups:['updates']};
+const children={characters:['history','knowledge','healthHistory','mediaHistory'],items:['mediaHistory'],ships:['mediaHistory'],fieldTargets:['history'],inventory:['history','mediaHistory'],accounts:['history'],shops:['offers'],announcements:['history','mediaHistory'],applications:['messages'],contracts:['history'],spaceCombats:['rounds'],groups:['updates']};
 const limits={records:5000,bytes:6*1024*1024};
 export async function readSoEpisode(tx,s){
  const base=`sessions/${s.id}`,entries=[],data={};

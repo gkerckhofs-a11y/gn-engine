@@ -1,3 +1,4 @@
+import {placeFindRow} from './place-search.mjs';
 import {missionExecutionPayload} from './mission-execution.mjs';
 import {soResolutionPayload,soResolutionConfirmation,soMissionErrors} from './space-missions.mjs';
 import {maintenanceHtml,maintenanceConfirmHtml,maintenanceErrors} from './space-maintenance.mjs';
@@ -368,7 +369,8 @@ document.addEventListener('click',async event=>{
     if(a==='soStage'){if(!confirm(b.dataset.stage==='FINISHED'?'Terminer la session ? Les actions en cours doivent être interrompues ou résolues.':'Confirmer ce changement de rythme de jeu ?'))return;await mutate('setStage',{sessionId:b.dataset.sid,revision:Number(b.dataset.revision),stage:b.dataset.stage});await route();return;}
     if(a==='centralFieldTarget'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.type==='fieldTarget'&&c.entityId===id);modal(centralUi.fieldTargetForm(currentCentral,id,c,['INSTALLATION','ANALYSIS'].includes(b.dataset.kind)?b.dataset.kind:'SEARCH'));return;}
     if(a==='centralFieldTargetArchive'){const c=currentCentral.changes.find(c=>c.type==='fieldTarget'&&c.entityId===b.dataset.id);if(c)modal(centralUi.fieldTargetArchiveForm(currentCentral,c));return;}
-    if(a==='centralFieldRewardAdd'){const rows=b.closest('form').querySelector('[data-central-field-rewards]');if(rows.children.length<20)rows.insertAdjacentHTML('beforeend',centralUi.fieldTargetRewardRow(crypto.randomUUID(),{},false,b.closest('form').elements.kind.value==='ANALYSIS'));return;}
+    if(a==='placeFindUp'||a==='placeFindDown'){const row=b.closest('[data-central-field-reward]'),sibling=a==='placeFindUp'?row.previousElementSibling:row.nextElementSibling;if(sibling){if(a==='placeFindUp')row.parentNode.insertBefore(row,sibling);else row.parentNode.insertBefore(sibling,row);}return;}
+    if(a==='centralFieldRewardAdd'){const rows=b.closest('form').querySelector('[data-central-field-rewards]');if(rows.children.length<20)rows.insertAdjacentHTML('beforeend',b.closest('form').elements.searchVersion?.value==='1'?placeFindRow(crypto.randomUUID()):centralUi.fieldTargetRewardRow(crypto.randomUUID(),{},false,b.closest('form').elements.kind.value==='ANALYSIS'));return;}
     if(a==='centralFieldRewardRemove'){b.closest('[data-central-field-reward]').remove();return;}
     if(a==='centralKnowledge'){const id=b.dataset.id||crypto.randomUUID(),c=currentCentral.changes.find(c=>c.type==='knowledge'&&c.entityId===id);modal(centralUi.knowledgeForm(currentCentral,id,c));return;}
     if(a==='centralKnowledgeArchive'){const c=currentCentral.changes.find(c=>c.type==='knowledge'&&c.entityId===b.dataset.id);if(c)modal(centralUi.knowledgeArchiveForm(currentCentral,c));return;}

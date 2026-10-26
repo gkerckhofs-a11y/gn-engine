@@ -23,6 +23,9 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(!path.startsWith(base)&&path!==base.slice(0,-1))continue;
   if(path.startsWith(`${base}audit/`))continue;
   const relative=path.slice(base.length);
+  if(scopes.has('MEDIA')&&session.spaceOutlaws.mediaVersion===1&&/^(characters|items|inventory|announcements|ships)\/[^/]+(?:\/(mediaHistory|history)\/[^/]+)?$/.test(relative))continue;
+  if(scopes.has('MEDIA')&&session.spaceOutlaws.mediaVersion===1&&/^publicCharacters\/[^/]+$/.test(relative))continue;
+  if(scopes.has('SEARCH')&&session.spaceOutlaws.searchVersion===1&&/^(fieldTargets\/[^/]+(?:\/history\/[^/]+)?|fieldStates\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('EPISODES')&&session.spaceOutlaws.episodesVersion===1){
    if(/^registrations\/[a-f0-9]{64}$/.test(relative))continue;
    if(/^characters\/[^/]+$/.test(relative))continue;

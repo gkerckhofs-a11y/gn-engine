@@ -2,6 +2,8 @@
 
 ## Priorité de reprise — 26 octobre 2026
 
+Extension autoritaire : [V3.6 Fouilles et médias](docs/source/SO_CDC_V36_Fouilles_Medias.md). Les nouveaux manifestes `searchVersion=1` ouvrent les fouilles universelles de lieux au D12 via les services de terrain natifs ; `mediaVersion=1` autorise les images principales dans la médiathèque existante. Ne pas modifier les D6 ni TRA-02. Objets affectés depuis du stock PNJ réel, crédits réservés sur caisse réelle ; publication sans dotation. Une prise atomique conserve sa génération et ses reçus entre épisodes. Réinitialisation explicite par le propriétaire en préparation du nouvel épisode, jamais à la republication ; les anciens manifestes restent fermés. Prochaine tranche après ce jalon : succession et apprentissage entre épisodes, puis recette terrain.
+
 Instruction utilisateur actuelle : C2a–C2q constitue un socle suffisant. Poursuivre par parcours joueur → personnage → validation MJ → interface → QR/actions → compétences/PA → inventaire/économie → boutique → vaisseau → voyage/combat → missions/régie. Ne plus perfectionner les XLSX ou la généricité sans dépendance directe du jeu. Pas de réaudit historique si HEAD et CI attendus sont confirmés.
 
 Un seul état évolutif : [SO-VALIDATION.md](docs/SO-VALIDATION.md). Les sections historiques ci-dessous ne prescrivent plus de nouveaux micro-lots documentaires. Tests ciblés pendant le travail, suite complète aux jalons cohérents. Réutiliser les services existants. Branche `work/l1-modular-workshop`, PR #1 ; aucune fusion main ni production sans accord explicite.

@@ -1,3 +1,4 @@
+import {spaceSearchSuite} from '../support/space-search-suite.mjs';
 import {spaceEpisodesSuite} from '../support/space-episodes-suite.mjs';
 import {missionExecutionSuite} from '../support/mission-execution-suite.mjs';
 import {spaceMissionsSuite} from '../support/space-missions-suite.mjs';
@@ -166,3 +167,5 @@ spaceMissionsSuite(()=>firestoreStore(firestore),'Missions SO sur Firestore');
 missionExecutionSuite(()=>firestoreStore(firestore),'Exécution missions SO sur Firestore');
 
 spaceEpisodesSuite(()=>firestoreStore(firestore),'Épisodes SO sur Firestore');
+
+spaceSearchSuite(()=>firestoreStore(firestore),'Fouilles V3.6 sur Firestore');

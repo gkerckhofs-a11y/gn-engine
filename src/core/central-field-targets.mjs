@@ -1,16 +1,19 @@
 import {requireThat} from './validation.mjs';
 import {fieldTargetInput} from './field-state.mjs';
 import {analysisProfile} from '../shared/space-outlaws-analysis.mjs';
+import {isPlaceSearch} from './space-outlaws-search-state.mjs';
+import {initialSkillIds} from '../shared/initial-character-profile.mjs';
 
-const fields=['kind','title','description','gmNotes','profiles','rewards','dependencyId','offlineSeconds','failureLockSeconds','repairProtectionSeconds'];
+const fields=['kind','title','description','gmNotes','profiles','rewards','dependencyId','offlineSeconds','failureLockSeconds','repairProtectionSeconds','searchVersion','search','finds'];
 const profileFields=['skillId','minLevel','instructions','durationSeconds','durationByLevel','test','threshold','cost','cooldownSeconds','bonusItems','consumable','successText','failureText'];
 const keys=(v,allowed)=>requireThat(v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).every(k=>allowed.includes(k)),'INVALID_CENTRAL_FIELD_TARGET');
 export const centralFieldTargetBytes=96*1024;
 export function centralFieldTargetEditable(d){
- return {...Object.fromEntries(fields.map(k=>[k,d[k]])),profiles:Object.fromEntries(Object.entries(d.profiles).map(([kind,{kind:storedKind,...p}])=>[kind,p]))};
+ return {...Object.fromEntries(fields.filter(k=>d[k]!==undefined).map(k=>[k,d[k]])),profiles:Object.fromEntries(Object.entries(d.profiles).map(([kind,{kind:storedKind,...p}])=>[kind,p]))};
 }
 export function centralFieldTargetInput(v,id,old={}){
  keys(v,fields);requireThat(Buffer.byteLength(JSON.stringify(v))<=centralFieldTargetBytes,'CENTRAL_FIELD_TARGET_SIZE');
+ if(isPlaceSearch(v))return {...fieldTargetInput({...v,publicationState:'DRAFT'},id,old),masterArchived:false};
  keys(v.profiles,['SEARCH','SABOTAGE','REPAIR','ANALYZE']);
  for(const p of Object.values(v.profiles)){
   keys(p,profileFields);
@@ -36,6 +39,10 @@ export function centralLocationDiagnostics(c,field,id,changes,required=false){
 }
 export function centralFieldTargetReferences(d){
  const refs=[];const add=(field,type,id,extra={})=>{if(id)refs.push({field,type,id,...extra});};
+ if(isPlaceSearch(d)){
+  d.finds.forEach((f,i)=>{add(`finds.${i}.itemId`,'item',f.itemId,{quantity:f.quantity});add(`finds.${i}.knowledgeId`,'knowledge',f.knowledgeId);f.characterIds.forEach(cid=>add(`finds.${i}.characterIds`,'character',cid));});
+  d.search.bonuses.forEach((b,i)=>add(`search.bonuses.${i}.sourceId`,b.kind==='ITEM'?'item':'skill',b.sourceId));return refs;
+ }
  add('dependencyId','fieldTarget',d.dependencyId);
  for(const [kind,p] of Object.entries(d.profiles)){
   const prefix=`profiles.${kind}`;add(`${prefix}.skillId`,'skill',p.skillId);
@@ -49,7 +56,7 @@ export function centralFieldTargetProjection(changes,itemChanges=null){
  for(const c of changes.filter(c=>c.type==='fieldTarget'&&c.operation==='UPSERT')){
   const add=(field,ref,type,code,message)=>diagnostics.push(diagnostic(c,field,ref,type,code,message));
   for(const ref of centralFieldTargetReferences(c.data)){
-   if(ref.type==='skill'){if(c.data.kind!=='ANALYSIS'||!analysisProfile(ref.id))add(ref.field,ref.id,ref.type,'REFERENCE_NOT_CHECKED','Catalogue canonique et profil de compétence à raccorder.');continue;}
+   if(ref.type==='skill'){if(!(isPlaceSearch(c.data)?initialSkillIds.includes(ref.id):c.data.kind==='ANALYSIS'&&analysisProfile(ref.id)))add(ref.field,ref.id,ref.type,'REFERENCE_NOT_CHECKED','Catalogue canonique et profil de compétence à raccorder.');continue;}
    if(ref.type==='item'&&itemChanges===null){add(ref.field,ref.id,ref.type,'REFERENCE_NOT_CHECKED','Lecture M1 requise pour contrôler cet objet.');continue;}
    const target=(ref.type==='item'?items:changes).find(t=>t.type===ref.type&&t.entityId===ref.id);
    if(!target){add(ref.field,ref.id,ref.type,'REFERENCE_MISSING','Préparer la définition cible dans son atelier ou corriger son identifiant.');continue;}
@@ -58,7 +65,7 @@ export function centralFieldTargetProjection(changes,itemChanges=null){
    if(ref.type==='item'&&ref.consumable&&!target.data.consumable)add(ref.field,ref.id,ref.type,'FIELD_CONSUMABLE','Choisir un objet consommable.');
    if(ref.type==='item'&&ref.quantity!==undefined&&target.data.kind==='INDIVIDUAL'&&ref.quantity!==1)add(ref.field,ref.id,ref.type,'FIELD_ITEM_QUANTITY','Un objet individuel exige une quantité de 1.');
   }
-  if(c.data.kind!=='ANALYSIS'){
+  if(c.data.kind!=='ANALYSIS'&&!isPlaceSearch(c.data)){
    add('profiles',null,null,'FIELD_RULES_PENDING','Paramètres préparatoires : conformité V0.7, compétences, autorisations et QR de jeu restent à valider avant toute activation.');
    if(c.data.rewards.length)add('rewards',null,null,'FIELD_REWARD_SOURCE_PENDING','Quantités et plafonds proposés seulement ; source, réserve réelle et attribution transactionnelle restent à raccorder.');
   }

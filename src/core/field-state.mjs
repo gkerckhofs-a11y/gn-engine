@@ -2,6 +2,7 @@ import {documentId,requireThat,whole} from './validation.mjs';
 import {gameTime} from './clock.mjs';
 import {isDeepStrictEqual} from 'node:util';
 import {analysisProfile} from '../shared/space-outlaws-analysis.mjs';
+import {isPlaceSearch,searchTargetInput,initialSearchState} from './space-outlaws-search-state.mjs';
 
 const check=v=>requireThat(v,'INVALID_FIELD_TARGET');
 const text=(v,max,required=false)=>{check(typeof v==='string'&&v.length<=max&&(!required||v.trim()));return v.trim();};
@@ -20,6 +21,7 @@ export function fieldProfile(v,kind){
   bonusItems,consumable,successText:text(v.successText??'',4000),failureText:text(v.failureText??'',4000)};
 }
 export function fieldTargetInput(v,id,old={}){
+ if(isPlaceSearch(v))return searchTargetInput(v,id,old);
  check(v&&['SEARCH','INSTALLATION','ANALYSIS'].includes(v.kind));check(['DRAFT','READY','PUBLISHED'].includes(v.publicationState));
  check(v.profiles&&typeof v.profiles==='object'&&!Array.isArray(v.profiles));check(Array.isArray(v.rewards??[]));
  const analysis=v.kind==='ANALYSIS';
@@ -41,6 +43,11 @@ export function fieldTargetInput(v,id,old={}){
 export function validateFieldReferences(t,records){
  const find=(kind,id)=>records[kind]?.find(x=>x.id===id),published=t.publicationState==='PUBLISHED';
  const reference=(kind,id)=>{const x=find(kind,id);requireThat(x&&(!published||x.publicationState==='PUBLISHED'),'FIELD_REFERENCE');return x;};
+ if(isPlaceSearch(t)){
+  for(const f of t.finds){if(f.itemId){const i=reference('items',f.itemId);requireThat(i.kind!=='INDIVIDUAL'||f.quantity===1,'FIELD_REFERENCE');}if(f.knowledgeId)reference('knowledge',f.knowledgeId);}
+  for(const b of t.search.bonuses)if(b.kind==='ITEM')reference('items',b.sourceId);
+  return;
+ }
  for(const p of Object.values(t.profiles)){
   if(p.skillId&&t.kind!=='ANALYSIS')requireThat(reference('skills',p.skillId).kind==='PASSIVE','FIELD_REFERENCE');
   for(const b of p.bonusItems)reference('items',b.itemId);
@@ -49,7 +56,7 @@ export function validateFieldReferences(t,records){
  for(const r of t.rewards){if(r.kind==='ITEM'){const i=reference('items',r.itemId);requireThat(i.kind!=='INDIVIDUAL'||r.quantity===1,'FIELD_REFERENCE');}if(r.kind==='KNOWLEDGE')reference('knowledge',r.knowledgeId);}
  if(t.dependencyId)requireThat(reference('fieldTargets',t.dependencyId).kind==='INSTALLATION','FIELD_REFERENCE');
 }
-export const initialFieldState=t=>({id:t.id,revision:1,status:'ONLINE',offlineUntilGameMs:null,protectedUntilGameMs:0,lockedUntilGameMs:0,activeActionId:null,stock:Object.fromEntries(t.rewards.map(r=>[r.id,r.stock])),claims:{}});
+export const initialFieldState=t=>({id:t.id,revision:1,status:'ONLINE',offlineUntilGameMs:null,protectedUntilGameMs:0,lockedUntilGameMs:0,activeActionId:null,stock:Object.fromEntries(t.rewards.map(r=>[r.id,r.stock])),claims:{},...(isPlaceSearch(t)?initialSearchState(t):{})});
 export function effectiveFieldState(s,state,at){
  const time=gameTime(s.clock,at);return state.status==='OFFLINE'&&state.offlineUntilGameMs!==null&&time>=state.offlineUntilGameMs?{...state,status:'ONLINE',offlineUntilGameMs:null}:state;
 }

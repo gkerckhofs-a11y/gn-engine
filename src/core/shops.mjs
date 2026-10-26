@@ -1,3 +1,4 @@
+import {mediaFields} from './media-state.mjs';
 import {shopCustody,receivedShopLot} from './shop-custody.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {inventoryHash as hash,itemQuantity,lotState,newLot} from './inventory-state.mjs';
@@ -61,7 +62,8 @@ export function createShopService({store,signed,checkSession,now,uuid}){
      requireThat(shop?.versionId===s.versionId,'NOT_FOUND');const offers=[];
      for(const o of await tx.list(`${base}/shops/${shop.id}/offers`)){
       const lot=await tx.get(`${base}/inventory/${shopStockId(o.id)}`),valid=stockValid(lot,shop,o),quantity=valid?lot.quantity:0;
-      offers.push({...o,stock:quantity,restricted:valid&&lot.transferable===false,canBuy:!admin&&quantity>0&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&canGameAction(s,c,'pay',at)});
+      const item=await tx.get(`${base}/items/${o.item.id}`);
+      offers.push({...o,item:{...o.item,...mediaFields(item,['illustration'])},stock:quantity,restricted:valid&&lot.transferable===false,canBuy:!admin&&quantity>0&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&canGameAction(s,c,'pay',at)});
      }
      const a=admin?await tx.get(`${base}/accounts/${shopAccountId(shop.id)}`):null;
      result.push({id:shop.id,name:shop.name,description:shop.description,location:shop.location,offers,...(admin?{account:a?moneyState(a):null}:{})});

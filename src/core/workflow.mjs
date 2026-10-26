@@ -81,7 +81,7 @@ const ownRegistration = r => r ? ({name:r.name, email:r.email, answers:r.answers
 
 
 /** Authenticated actor is supplied by the HTTP adapter, never by input JSON. */
-export function createWorkflow({store, ownerEmail, now = Date.now, uuid = randomUUID, images=null, processImage=null,rollD6}) {
+export function createWorkflow({store, ownerEmail, now = Date.now, uuid = randomUUID, images=null, processImage=null,rollD6,rollD12}) {
   store=mediaTrackedStore(campaignGuardStore(store));
   const isAdmin = actor => !!actor && actor.emailVerified === true && actor.provider === 'google.com'
     && actor.email?.toLowerCase() === ownerEmail?.toLowerCase();
@@ -132,7 +132,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(context.mode==='organizer')return store.runTransaction(async tx=>{
       requireThat(['scenario','session'].includes(context.scope),'INVALID_MEDIA_TARGET');
       if(context.scope==='session')await checkSession(tx,actor,scopeId);else await checkScenario(tx,actor,scopeId);
-      const kinds={character:'characters',item:'items',inventory:'inventory',announcement:'announcements',contract:'contracts'};requireThat(kinds[context.kind],'INVALID_MEDIA_TARGET');
+      const kinds={ship:'ships',character:'characters',item:'items',inventory:'inventory',announcement:'announcements',contract:'contracts'};requireThat(kinds[context.kind],'INVALID_MEDIA_TARGET');
       const r=await tx.get(`${context.scope==='session'?'sessions':'scenarios'}/${scopeId}/${kinds[context.kind]}/${id}`);requireThat(r,'FORBIDDEN');return (context.kind==='inventory'?r.item:r).mediaImages?.[slot]??null;
     });
     if(context.mode==='public'){
@@ -142,6 +142,9 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       signed(actor);requireThat(context.mode==='player'&&context.scope==='session','FORBIDDEN');
       if(context.kind==='character'){const d=await dispatch('mySession',actor,{sessionId:scopeId});requireThat(d.character?.id===id,'FORBIDDEN');record=d.character;}
       else if(context.kind==='inventory'){const d=await dispatch('myInventory',actor,{sessionId:scopeId}),l=[...d.lots,...d.stored,...d.ownedElsewhere,...d.heldForOthers].find(l=>l.id===id);requireThat(l,'FORBIDDEN');record=l.item;}
+      else if(context.kind==='item'){requireThat(slot==='illustration','FORBIDDEN');const d=await dispatch('shops',actor,{sessionId:scopeId});const offer=d.shops.flatMap(s=>s.offers).find(o=>o.item.id===id);requireThat(offer,'FORBIDDEN');record=offer.item;}
+      else if(context.kind==='fieldFind'){requireThat(slot==='illustration','FORBIDDEN');const d=await dispatch('myFieldActions',actor,{sessionId:scopeId});record=d.actions.find(a=>a.id===id)?.result?.discoveries?.find(f=>f.id===context.findId)?.item;requireThat(record,'FORBIDDEN');}
+      else if(context.kind==='ship'){requireThat(slot==='illustration','FORBIDDEN');record=(await dispatch('shipNavigation',actor,{sessionId:scopeId,shipId:id})).ship;}
       else if(context.kind==='announcement')record=(await dispatch('announcementDetail',actor,{sessionId:scopeId,announcementId:id})).announcement;
       else if(context.kind==='contract')record=(await dispatch('contractDetail',actor,{sessionId:scopeId,contractId:id})).contract;
       else requireThat(false,'FORBIDDEN');
@@ -160,8 +163,8 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const entryService=createSpaceOutlawsEntryService({store,signed,isAdmin,checkSession,now,uuid});
   const centralMasterService=createCentralMasterService({store,signed,isAdmin,now,uuid});
   const groupManagementService=createGroupManagementService({store,signed,checkSession,now,uuid});
-  const personService=createPersonService({store,signed,checkSession,checkScenario,now,uuid,rollD6});
-  const fieldService=createFieldService({store,signed,checkSession,checkScenario,now,uuid,rollD6});
+  const personService=createPersonService({store,signed,checkSession,checkScenario,now,uuid,rollD6,rollD12});
+  const fieldService=createFieldService({store,signed,checkSession,checkScenario,now,uuid,rollD6,rollD12});
   const masterService=createMasterService({store,admin,checkSession,checkScenario,now,uuid});
   const archiveService=createScenarioArchiveService({store,admin,checkScenario,now,uuid,images,archiveUpload:mediaService.archiveUpload});
   const actionPointService=createActionPointService({store,signed,checkSession,checkScenario,now,uuid});
