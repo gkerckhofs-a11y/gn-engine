@@ -1,3 +1,4 @@
+import {soMissionAccess,soMissionFunding,soMissionRunning,soProofSteps,soResolutionActions,soResolutionAdminActions,soResolutionKind,soResolutionView,prepareSoResolution,applySoResolution} from './space-outlaws-mission-state.mjs';
 import {mediaFields} from './media-state.mjs';
 import {participantOf,participantAllowed,participantAccount,participantAccess,participantCurrent,missionReadState,withMissionRead} from './mission-parties.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
@@ -8,13 +9,13 @@ import {accountId,amountInput,currencyView,moneyState,writeLedger} from './econo
 import {accountEntry} from './collective-accounts.mjs';
 import {gameTime} from './clock.mjs';
 import {canGameAction,requireGameAction} from './health-state.mjs';
-const adminActions=new Set(['sessionContracts','sessionContract','prepareMissionContract','proposeMissionContract','prepareContractReview','reviewContract','prepareContractClosure','closeContract']);
-const actions=new Set([...adminActions,'myContracts','contractDetail','prepareContractAcceptance','acceptContract','declineContract','prepareContractProof','submitContractProof','markContractRead']);
+const adminActions=new Set([...soResolutionAdminActions,'sessionContracts','sessionContract','prepareMissionContract','proposeMissionContract','prepareContractReview','reviewContract','prepareContractClosure','closeContract']);
+const actions=new Set([...soResolutionActions,...adminActions,'myContracts','contractDetail','prepareContractAcceptance','acceptContract','declineContract','prepareContractProof','submitContractProof','markContractRead']);
 export const contractAction=a=>actions.has(a);
 const digest=x=>hash(JSON.stringify(x));
 const text=(v,max=5000)=>{requireThat(typeof v==='string'&&v.trim()&&v.length<=max,'INVALID_CONTRACT');return v.trim();};
 const active=c=>['ACTIVE','SUBMITTED'].includes(c.status);
-const terminal=c=>['PAID','CANCELLED','EXPIRED','DECLINED'].includes(c.status);
+const terminal=c=>['PAID','SETTLED','CANCELLED','EXPIRED','DECLINED'].includes(c.status);
 const status=(c,s,at)=>c.status==='ACTIVE'&&gameTime(s.clock,at)>=c.deadlineGameMs?'OVERDUE':c.status;
 const summary=(c,s,at,ctx=null)=>({id:c.id,revision:c.revision,title:c.terms.title,announcementId:c.announcementId,applicationId:c.applicationId,status:status(c,s,at),applicant:c.terms.applicant,sponsor:c.terms.sponsor,amount:c.terms.amount,currency:c.terms.currency,createdAt:c.createdAt,updatedAt:c.updatedAt,unread:(ctx?missionReadState(c,ctx).revision:c.lastReadRevision??0)<c.revision});
 const candidate=participantCurrent;
@@ -30,48 +31,55 @@ export function createContractService({store,signed,checkSession,now,uuid}){
     await checkSession(tx,c.approvedBy,s.id);
   }
   async function prepare(tx,s,actor,input,at){
-    requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireThat(s.economyRules?.enabled,'ECONOMY_DISABLED');
+    requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');soMissionRunning(s);requireThat(s.economyRules?.enabled,'ECONOMY_DISABLED');
     const t=await tx.get(`sessions/${s.id}/applications/${documentId(input.applicationId)}`);requireThat(t&&t.intent==='APPLICATION'&&['SENT','DISCUSSION'].includes(t.status),'APPLICATION_CLOSED');
     const a=await tx.get(`sessions/${s.id}/announcements/${t.announcementId}`);requireThat(a?.mode==='ASSIGNMENT','ASSIGNMENT_REQUIRED');
     requireThat(announcementState(a,at)==='OPEN','ANNOUNCEMENT_CLOSED');requireThat((a.assignedCount??0)<a.places,'MISSION_FULL');
     const p=await candidate(tx,s,t);let eligible=false;for(const cid of p.representatives)if(await announcementReadable(tx,s,a,cid,at))eligible=true;requireThat(p.current&&eligible&&participantAllowed(a,participantOf(t)),'STALE_APPLICATION');
     if(t.contractId){const old=await tx.get(`sessions/${s.id}/contracts/${t.contractId}`);requireThat(!old||['CANCELLED','EXPIRED','DECLINED'].includes(old.status),'CONTRACT_EXISTS');}
+    if(s.spaceOutlaws)requireThat(input.funding==='ACCOUNT'&&participantOf(t).kind==='CHARACTER','SO_MISSION_FUNDING_REQUIRED');
     const amount=amountInput(input.amount),durationMinutes=whole(input.durationMinutes,'INVALID_CONTRACT');requireThat(durationMinutes>0&&durationMinutes<=10080,'INVALID_CONTRACT');
     requireThat(input.advance===0&&input.guarantee===0,'UNSUPPORTED_CONTRACT');requireThat(['ACCOUNT','GM_EXTERNAL'].includes(input.funding),'INVALID_CONTRACT');
     const to=await wallet(tx,s,participantAccount(participantOf(t)));let source=null,sourceGuard=null,sourceName=null;
     if(input.funding==='ACCOUNT'){
       source=await wallet(tx,s,input.sourceAccountId);requireThat(source.id!==to.id,'INVALID_RECIPIENT');requireThat(moneyState(source).available>=amount,'INSUFFICIENT_FUNDS');
-      if(source.ownerType==='CHARACTER'){const payer=await inventoryParty(tx,s.id,source.characterId);requireThat(payer.active,'INVALID_RECIPIENT');sourceGuard=payer.version;sourceName=payer.c.public.displayName;}
+      if(s.spaceOutlaws){sourceName=await soMissionFunding(tx,s,a,source);}
+      else if(source.ownerType==='CHARACTER'){const payer=await inventoryParty(tx,s.id,source.characterId);requireThat(payer.active,'INVALID_RECIPIENT');sourceGuard=payer.version;sourceName=payer.c.public.displayName;}
       else {requireThat(source.ownerType==='GROUP','INVALID_ACCOUNT');sourceName=source.label;}
     }
-    const reason=text(input.reason,500),terms={title:a.title,description:a.description,sponsor:{kind:a.sponsorKind,name:a.sponsorName},applicant:participantOf(t),announcementReward:a.rewardText,amount,currency:currencyView(s.economyRules),funding:input.funding,durationMinutes,conditions:text(input.conditions),proofExpected:text(input.proofExpected,2000),confidentiality:text(input.confidentiality,2000),failureTerms:text(input.failureTerms,2000),validator:'MJ',advance:0,guarantee:0};
+    const reason=text(input.reason,500),terms={...(s.spaceOutlaws?{spaceOutlaws:true}:{}),title:a.title,description:a.description,sponsor:{kind:a.sponsorKind,name:a.sponsorName},applicant:participantOf(t),announcementReward:a.rewardText,amount,currency:currencyView(s.economyRules),funding:input.funding,durationMinutes,conditions:text(input.conditions),proofExpected:text(input.proofExpected,2000),confidentiality:text(input.confidentiality,2000),failureTerms:text(input.failureTerms,2000),validator:'MJ',advance:0,guarantee:0};
     const result={terms,announcement:announcementView(a,at),briefing:a.briefing,source:source?{id:source.id,name:sourceName,before:moneyState(source)}:null,reason};
     return {t,a,terms,source,sourceGuard,sourceName,reason,result:{...result,confirmation:digest([s.id,t.revision,t.applicantVersion,p.version,to.revision,a.revision,a.briefing,source?.revision??null,sourceGuard,result])}};
   }
   async function acceptance(tx,s,c,ctx,at){
+    soMissionRunning(s);
     requireThat(c.status==='PROPOSED','CONTRACT_CLOSED');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,ctx.c,'publish');requireThat(s.economyRules?.enabled,'ECONOMY_DISABLED');
     const a=await tx.get(`sessions/${s.id}/announcements/${c.announcementId}`);await authorisedOffer(tx,s,c,a,at,ctx);
     const to=await wallet(tx,s,participantAccount(participantOf(c)));let source=null;
     if(c.sourceAccountId){source=await wallet(tx,s,c.sourceAccountId);requireThat(source.id!==to.id,'INVALID_RECIPIENT');requireThat(moneyState(source).available>=c.terms.amount,'INSUFFICIENT_FUNDS');
+      if(s.spaceOutlaws)await soMissionFunding(tx,s,c,source);
       if(c.sourceGuard){const p=await inventoryParty(tx,s.id,source.characterId);requireThat(p.active&&p.version===c.sourceGuard,'STALE_CONTRACT');}}
     const result={contract:{...summary(c,s,at),terms:c.terms},confirmation:digest([c.id,c.revision,c.termsHash,ctx.partyGuard??ctx.version,source?.revision??null,to.revision,s.healthRules])};return {a,to,source,result};
   }
   async function proof(s,c,ctx,input,at){
-    requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,ctx.c,'publish');requireThat(c.status==='ACTIVE','CONTRACT_CLOSED');requireThat(gameTime(s.clock,at)<c.deadlineGameMs,'CONTRACT_OVERDUE');
-    const body=text(input.body,6000),result={contract:summary(c,s,at),body,proofExpected:c.terms.proofExpected};return {body,result:{...result,confirmation:digest([c.id,c.revision,ctx.partyGuard??ctx.version,body,s.healthRules])}};
+    soMissionRunning(s);
+    requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,ctx.c,'publish');requireThat(c.status==='ACTIVE','CONTRACT_CLOSED');requireThat(s.spaceOutlaws||gameTime(s.clock,at)<c.deadlineGameMs,'CONTRACT_OVERDUE');
+    const steps={...soProofSteps(s,c,input),...(s.spaceOutlaws?{lateByMs:Math.max(0,gameTime(s.clock,at)-c.deadlineGameMs)}:{})},body=text(input.body,6000),result={...steps,contract:summary(c,s,at),body,proofExpected:c.terms.proofExpected};return {body,steps,result:{...result,confirmation:digest([c.id,c.revision,ctx.partyGuard??ctx.version,body,steps.completedStepIds??[],s.healthRules])}};
   }
   async function review(tx,s,c,input,at){
-    requireThat(c.status==='SUBMITTED','CONTRACT_NOT_SUBMITTED');requireThat(['PAY','RETURN'].includes(input.decision),'INVALID_CONTRACT');
+    soMissionRunning(s);
+    requireThat(c.status==='SUBMITTED','CONTRACT_NOT_SUBMITTED');requireThat((s.spaceOutlaws?['PAY','RETURN','REJECT']:['PAY','RETURN']).includes(input.decision),'INVALID_CONTRACT');
     const reason=text(input.reason,2000),p=await candidate(tx,s,c);requireThat(p.current,'STALE_CONTRACT');
     let source=null,to=null;
-    if(input.decision==='PAY'){
+    if(input.decision==='PAY'||input.decision==='REJECT'){
       requireThat(s.economyRules?.enabled,'ECONOMY_DISABLED');to=await wallet(tx,s,participantAccount(participantOf(c)));whole(to.balance+c.terms.amount,'BALANCE_OVERFLOW');
-      if(c.sourceAccountId){source=await wallet(tx,s,c.sourceAccountId);requireThat(source.reserved>=c.terms.amount,'INVALID_ACCOUNT');}
-    }else requireThat(s.stage!=='FINISHED'&&gameTime(s.clock,at)<c.deadlineGameMs,'CONTRACT_OVERDUE');
-    const result={contract:summary(c,s,at),proof:c.proof,decision:input.decision,reason,amount:input.decision==='PAY'?c.terms.amount:0,currency:c.terms.currency,createdCurrency:input.decision==='PAY'&&!source?c.terms.amount:0,source:source?{name:c.sourceName,before:moneyState(source),after:moneyState({...source,balance:source.balance-c.terms.amount,reserved:source.reserved-c.terms.amount,revision:source.revision+1})}:null};
+      if(c.sourceAccountId){source=await wallet(tx,s,c.sourceAccountId);requireThat(source.reserved>=c.terms.amount,'INVALID_ACCOUNT');if(s.spaceOutlaws)await soMissionFunding(tx,s,c,source);}
+    }else requireThat(s.stage!=='FINISHED'&&(s.spaceOutlaws||gameTime(s.clock,at)<c.deadlineGameMs),'CONTRACT_OVERDUE');
+    const result={...(s.spaceOutlaws?{deferred:true,contestSeconds:600}:{}),contract:summary(c,s,at),proof:c.proof,decision:input.decision,reason,amount:input.decision==='PAY'?c.terms.amount:0,currency:c.terms.currency,createdCurrency:input.decision==='PAY'&&!source?c.terms.amount:0,source:source?{name:c.sourceName,before:moneyState(source),after:moneyState({...source,balance:source.balance-c.terms.amount,reserved:source.reserved-c.terms.amount,revision:source.revision+1})}:null};
     return {source,to,reason,result:{...result,confirmation:digest([c.id,c.revision,p.version,source?.revision??null,to?.revision??null,result])}};
   }
   async function closure(tx,s,c,input,at){
+    if(s.spaceOutlaws){requireThat(!s.safetyStop?.active&&['EN_JEU','PAUSE'].includes(s.stage),'SESSION_NOT_RUNNING');requireThat(c.status==='PROPOSED'||(c.status==='ACTIVE'&&!c.proof&&input.notStarted===true),'SO_MISSION_CLOSURE_REQUIRES_REVIEW');}
     requireThat(!terminal(c),'CONTRACT_CLOSED');requireThat(['CANCEL','EXPIRE'].includes(input.decision),'INVALID_CONTRACT');
     if(input.decision==='EXPIRE')requireThat((c.status==='ACTIVE'&&gameTime(s.clock,at)>=c.deadlineGameMs)||(c.status==='PROPOSED'&&at>=c.offerDeadline),'CONTRACT_NOT_OVERDUE');
     const reason=text(input.reason,2000),source=active(c)&&c.sourceAccountId?await wallet(tx,s,c.sourceAccountId):null;
@@ -87,10 +95,10 @@ export function createContractService({store,signed,checkSession,now,uuid}){
     const p=await candidate(tx,s,c);let canAccept=false,unavailable=null;
     if(!admin&&c.status==='PROPOSED')try{await acceptance(tx,s,c,ctx,at);canAccept=true;}catch(e){if(!e.code)throw e;unavailable=e.code;}
     const history=await tx.list(`sessions/${s.id}/contracts/${c.id}/history`,null,{orderBy:'at',direction:'desc',limit:30});
-    return {session:{id:s.id},admin,contract:{...mediaFields(c,c.acceptedAt!=null||admin?['illustration','briefing']:['illustration']),...summary(c,s,at,ctx),terms:c.terms,acceptedAt:c.acceptedAt??null,deadlineGameMs:c.deadlineGameMs??null,remainingGameMs:c.deadlineGameMs==null?null:Math.max(0,c.deadlineGameMs-gameTime(s.clock,at)),proof:c.proof??null,briefing:c.acceptedAt!=null||admin?c.briefing:null},
-      history:admin?history:history.map(e=>({id:e.id,at:e.at,action:e.action,body:e.body??'',reason:e.publicReason??'',decision:e.decision??'',amount:e.amount??0})),candidateCurrent:p.current,canAccept,unavailable,
-      canDecline:!admin&&c.status==='PROPOSED',canSubmit:!admin&&c.status==='ACTIVE'&&gameTime(s.clock,at)<c.deadlineGameMs&&s.stage==='EN_JEU'&&canGameAction(s,ctx.c,'publish'),
-      canReview:admin&&p.current&&c.status==='SUBMITTED',canClose:admin&&!terminal(c),canExpire:admin&&((c.status==='ACTIVE'&&gameTime(s.clock,at)>=c.deadlineGameMs)||(c.status==='PROPOSED'&&at>=c.offerDeadline)),
+    return {session:{id:s.id},admin,contract:{...mediaFields(c,c.acceptedAt!=null||admin?['illustration','briefing']:['illustration']),...summary(c,s,at,ctx),terms:c.terms,acceptedAt:c.acceptedAt??null,deadlineGameMs:c.deadlineGameMs??null,remainingGameMs:c.deadlineGameMs==null?null:Math.max(0,c.deadlineGameMs-gameTime(s.clock,at)),proof:c.proof??null,...(c.appeal?{appeal:c.appeal}:{}),steps:c.acceptedAt!=null||admin?c.missionSteps??[]:[],briefing:c.acceptedAt!=null||admin?c.briefing:null},
+      ...soResolutionView(s,c,at,admin),history:admin?history:history.map(e=>({id:e.id,at:e.at,action:e.action,body:e.body??'',reason:e.publicReason??'',decision:e.decision??'',amount:e.amount??0})),candidateCurrent:p.current,canAccept,unavailable,
+      canDecline:!admin&&c.status==='PROPOSED',canSubmit:!admin&&c.status==='ACTIVE'&&(s.spaceOutlaws||gameTime(s.clock,at)<c.deadlineGameMs)&&s.stage==='EN_JEU'&&canGameAction(s,ctx.c,'publish'),
+      canReview:admin&&p.current&&c.status==='SUBMITTED',canClose:admin&&!terminal(c)&&(!s.spaceOutlaws||c.status==='PROPOSED'||(c.status==='ACTIVE'&&!c.proof)),canExpire:admin&&((c.status==='ACTIVE'&&gameTime(s.clock,at)>=c.deadlineGameMs)||(c.status==='PROPOSED'&&at>=c.offerDeadline)),
       ...(admin?{finance:{funding:c.terms.funding,sourceName:c.sourceName,sourceAccountId:c.sourceAccountId,approvedBy:c.approvedBy.email,reason:c.reason}}:{})};
   }
   function ledger(tx,s,c,id,at,actor,kind,source,to,sourceNext,toNext,reason){
@@ -100,7 +108,8 @@ export function createContractService({store,signed,checkSession,now,uuid}){
   }
   return async(action,actor,input)=>{
     signed(actor);const at=now(),id=uuid();return store.runTransaction(async tx=>{
-      const admin=adminActions.has(action),ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId)),version:actor.uid}:await inventoryPlayer(tx,actor,input),{s}=ctx,base=`sessions/${s.id}`;requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
+      const admin=adminActions.has(action),ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId)),version:actor.uid}:await inventoryPlayer(tx,actor,input),{s}=ctx,base=`sessions/${s.id}`;requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');soMissionAccess(tx,s);
+      if(s.spaceOutlaws&&!['sessionContracts','myContracts','sessionContract','contractDetail'].includes(action))requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
       if(action==='sessionContracts'||action==='myContracts'){
         const contracts=[];for(const c of await tx.list(`${base}/contracts`)){
           if(!admin){if(!await participantAccess(tx,s,ctx,actor,c))continue;if(c.status==='PROPOSED'){const a=await tx.get(`${base}/announcements/${c.announcementId}`);if(!await announcementReadable(tx,s,a,ctx.c.id,at))continue;}}
@@ -112,6 +121,7 @@ export function createContractService({store,signed,checkSession,now,uuid}){
       if(action!=='proposeMissionContract'){
         c=await tx.get(`${base}/contracts/${documentId(input.contractId)}`);requireThat(c,admin?'NOT_FOUND':'FORBIDDEN');if(!admin)await readable(tx,s,c,ctx,actor,at);
         if(action==='sessionContract'||action==='contractDetail')return detail(tx,s,c,ctx,at,admin);
+        if(soResolutionKind(action)&&action.startsWith('prepare'))return (await prepareSoResolution(tx,s,c,ctx,input,at,soResolutionKind(action),candidate)).result;
         if(action==='prepareContractAcceptance')return (await acceptance(tx,s,c,ctx,at)).result;
         if(action==='prepareContractProof')return (await proof(s,c,ctx,input,at)).result;
         if(action==='prepareContractReview')return (await review(tx,s,c,input,at)).result;
@@ -120,9 +130,11 @@ export function createContractService({store,signed,checkSession,now,uuid}){
       const op=`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`,fingerprint=digest([action,input]),previous=await tx.get(op);
       if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');requireThat(previous.guard===(ctx.partyGuard??ctx.version),'FORBIDDEN');return previous.result;}
       let next,event={id,action,at,actorUid:actor.uid};
-      if(action==='proposeMissionContract'){
+      if(soResolutionKind(action)){
+        const kind=soResolutionKind(action),x=await prepareSoResolution(tx,s,c,ctx,input,at,kind,candidate);requireThat(input.confirmation===x.result.confirmation,'STALE_REVISION');next=applySoResolution(tx,s,c,x,kind,at,actor,id,ledger);event.publicReason=x.result.reason;event.decision=kind;event.amount=x.result.pay;event.newEvidence=x.result.newEvidence??null;event.outcome=x.result.outcome??null;
+      }else if(action==='proposeMissionContract'){
         const x=await prepare(tx,s,actor,input,at);requireThat(input.confirmation===x.result.confirmation,'STALE_REVISION');
-        c={...mediaFields(x.a,['illustration','briefing']),id,revision:1,status:'PROPOSED',announcementId:x.a.id,announcementRevision:x.a.revision,applicationId:x.t.id,participant:participantOf(x.t),applicantUid:x.t.applicantUid,characterId:x.t.characterId,applicantVersion:x.t.applicantVersion,terms:x.terms,termsHash:digest(x.terms),briefing:x.a.briefing,sourceAccountId:x.source?.id??null,sourceGuard:x.sourceGuard,sourceName:x.sourceName,reason:x.reason,approvedBy:{uid:actor.uid,email:actor.email,emailVerified:true,provider:actor.provider},offerDeadline:x.a.deadline,createdAt:at,updatedAt:at,lastReadRevision:0};next=c;
+        c={...(s.spaceOutlaws?{missionId:x.a.missionId,missionVersionId:x.a.missionVersionId,missionSteps:x.a.missionSteps,giverCharacterId:x.a.giverCharacterId}:{}),...mediaFields(x.a,['illustration','briefing']),id,revision:1,status:'PROPOSED',announcementId:x.a.id,announcementRevision:x.a.revision,applicationId:x.t.id,participant:participantOf(x.t),applicantUid:x.t.applicantUid,characterId:x.t.characterId,applicantVersion:x.t.applicantVersion,terms:x.terms,termsHash:digest(x.terms),briefing:x.a.briefing,sourceAccountId:x.source?.id??null,sourceGuard:x.sourceGuard,sourceName:x.sourceName,reason:x.reason,approvedBy:{uid:actor.uid,email:actor.email,emailVerified:true,provider:actor.provider},offerDeadline:x.a.deadline,createdAt:at,updatedAt:at,lastReadRevision:0};next=c;
         tx.set(`${base}/applications/${x.t.id}`,{...x.t,contractId:c.id,revision:x.t.revision+1,updatedAt:at});event.terms=c.terms;event.reason=x.reason;
       }else if(action==='acceptContract'){
         const x=await acceptance(tx,s,c,ctx,at);requireThat(input.confirmation===x.result.confirmation,'STALE_REVISION');const t=await tx.get(`${base}/applications/${c.applicationId}`),gameAt=gameTime(s.clock,at);
@@ -132,11 +144,12 @@ export function createContractService({store,signed,checkSession,now,uuid}){
       }else if(action==='declineContract'){
         requireThat(c.status==='PROPOSED','CONTRACT_CLOSED');requireThat(input.revision===c.revision,'STALE_REVISION');next={...c,status:'DECLINED'};
       }else if(action==='submitContractProof'){
-        const x=await proof(s,c,ctx,input,at);requireThat(input.confirmation===x.result.confirmation,'STALE_REVISION');next={...c,status:'SUBMITTED',proof:{body:x.body,at,gameMs:gameTime(s.clock,at)}};event.body=x.body;
+        const x=await proof(s,c,ctx,input,at);requireThat(input.confirmation===x.result.confirmation,'STALE_REVISION');next={...c,status:'SUBMITTED',proof:{...x.steps,body:x.body,at,gameMs:gameTime(s.clock,at)}};event.body=x.body;
       }else if(action==='reviewContract'){
         const x=await review(tx,s,c,input,at);requireThat(input.confirmation===x.result.confirmation,'STALE_REVISION');
-        next={...c,status:input.decision==='PAY'?'PAID':'ACTIVE'};event.publicReason=x.reason;event.decision=input.decision;
-        if(input.decision==='PAY'){
+        next={...c,status:input.decision==='RETURN'?'ACTIVE':s.spaceOutlaws?'REVIEWED':'PAID'};event.publicReason=x.reason;event.decision=input.decision;
+        if(input.decision!=='RETURN'&&s.spaceOutlaws){next.contestUntilGameMs=gameTime(s.clock,at)+600000;next.paidAmount=0;next.disputedAmount=input.decision==='REJECT'?c.terms.amount:0;if(input.decision==='REJECT')next.mediationUntilGameMs=gameTime(s.clock,at)+1200000;}
+        if(input.decision==='PAY'&&!s.spaceOutlaws){
           next.paidAt=at;next.paymentId=id;event.amount=c.terms.amount;
           ledger(tx,s,c,id,at,actor,x.source?'CONTRACT_PAY':'GM_CONTRACT_PAY',x.source,x.to,x.source?{...x.source,balance:x.source.balance-c.terms.amount,reserved:x.source.reserved-c.terms.amount,revision:x.source.revision+1}:null,{...x.to,balance:x.to.balance+c.terms.amount,revision:x.to.revision+1},x.reason);
         }
