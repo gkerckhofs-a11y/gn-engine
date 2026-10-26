@@ -50,11 +50,12 @@ const kinds={prepareContractAppeal:'APPEAL',appealContract:'APPEAL',prepareContr
 export const soResolutionKind=a=>kinds[a];
 export const soResolutionActions=Object.keys(kinds);
 export const soResolutionAdminActions=soResolutionActions.filter(a=>!['prepareContractDispute','disputeContract','prepareContractAppeal','appealContract'].includes(a));
+const appealStage=s=>['EN_JEU','PAUSE','FINISHED'].includes(s.stage)&&!s.safetyStop?.active;
 const appealOpen=(s,c)=>s.spaceOutlaws?.episodesVersion!==1||c.settledEpisode==null||s.campaignEpisode<=c.settledEpisode+1;
 export function soResolutionView(s,c,at,admin){
  if(!s.spaceOutlaws)return {};
  const g=gameTime(s.clock,at),running=s.stage==='EN_JEU'&&!s.safetyStop?.active,open=['REVIEWED','DISPUTED'].includes(c.status),window=c.contestUntilGameMs??null;
- return {canAppeal:appealOpen(s,c)&&['PAID','SETTLED'].includes(c.status)&&!s.safetyStop?.active&&c.appeal?.status!=='PENDING',canDecideAppeal:admin&&c.appeal?.status==='PENDING'&&!s.safetyStop?.active,settlement:{paid:c.paidAmount??0,disputed:c.disputedAmount??0,contestRemainingMs:window==null?null:Math.max(0,window-g),mediationRemainingMs:c.mediationUntilGameMs==null?null:Math.max(0,c.mediationUntilGameMs-g)},
+ return {canAppeal:appealStage(s)&&appealOpen(s,c)&&['PAID','SETTLED'].includes(c.status)&&c.appeal?.status!=='PENDING',canDecideAppeal:admin&&appealStage(s)&&c.appeal?.status==='PENDING',settlement:{paid:c.paidAmount??0,disputed:c.disputedAmount??0,contestRemainingMs:window==null?null:Math.max(0,window-g),mediationRemainingMs:c.mediationUntilGameMs==null?null:Math.max(0,c.mediationUntilGameMs-g)},
  canDispute:running&&open&&g<window,canSettle:admin&&running&&open&&g>=window&&(c.status==='REVIEWED'||c.terms.amount-(c.disputedAmount??0)-(c.paidAmount??0)>0||rewardsFree(c)),canArbitrate:admin&&running&&open&&((c.disputedAmount??0)>0||rewardsDisputed(c))&&g>=Math.max(window,c.mediationUntilGameMs)};
 }
 export async function prepareSoResolution(tx,s,c,ctx,input,at,kind,candidate){
