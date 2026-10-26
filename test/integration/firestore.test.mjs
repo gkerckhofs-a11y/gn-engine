@@ -1,3 +1,4 @@
+import {spaceConvoySuite} from '../support/space-convoy-suite.mjs';
 import {spaceTransportSuite} from '../support/space-transport-suite.mjs';
 import {spaceLearningSuite} from '../support/space-learning-suite.mjs';
 import {spaceSuccessionSuite} from '../support/space-succession-suite.mjs';
@@ -177,3 +178,5 @@ spaceSuccessionSuite(()=>firestoreStore(firestore),'Succession SO sur Firestore'
 
 spaceTransportSuite(()=>firestoreStore(firestore),'Transport SO sur Firestore');
 spaceLearningSuite(()=>firestoreStore(firestore),'Apprentissage SO sur Firestore');
+
+spaceConvoySuite(()=>firestoreStore(firestore),'Convois SO sur Firestore');

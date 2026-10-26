@@ -1,3 +1,4 @@
+import {hasSoConvoy,convoyFields,convoyInvitations,convoyCommand,convoyFleet,finishConvoy} from './space-convoy.mjs';
 import {transportDeparture} from './space-transport.mjs';
 import {mediaFields} from './media-state.mjs';
 import {publicJourney} from './navigation-state.mjs';
@@ -14,30 +15,30 @@ import {actionPointPath,actionPointState,reserveActionPoints,resolveActionPoints
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {hasSoNavigation,navigationSkill,soRoute,soShipProfile,soVoyageEvent} from './space-outlaws-navigation-state.mjs';
 
-const admins=new Set(['spaceportAdmin','prepareSoShip','provisionSoShip','cancelSoNavigationAdmin','continueSoVoyage','arriveSoShipAdmin']);
-const reads=new Set(['spaceportAdmin','mySpaceport','prepareSoShip','shipNavigation','prepareRefuel','prepareVoyage']);
+const admins=new Set(['leaveSoConvoyAdmin','spaceportAdmin','prepareSoShip','provisionSoShip','cancelSoNavigationAdmin','continueSoVoyage','arriveSoShipAdmin']);
+const reads=new Set(['prepareSoConvoy','spaceportAdmin','mySpaceport','prepareSoShip','shipNavigation','prepareRefuel','prepareVoyage']);
 const provisionFields=['shipId','modelId','name','ownerId','pilotId','homePort','fuelItemId','source','reason'];
 const flightFields=['shipId','navigationCode','passengerCodes'];
-const fields={spaceportAdmin:[],mySpaceport:[],prepareSoShip:provisionFields,provisionSoShip:[...provisionFields,'confirmation'],shipNavigation:['shipId'],prepareRefuel:['shipId','lotId','quantity'],refuelShip:['shipId','lotId','quantity','confirmation','present'],finishSoRefuel:['shipId','confirmation','present'],prepareVoyage:flightFields,departShip:[...flightFields,'confirmation','present'],finishSoPreparation:['shipId','confirmation','present'],cancelSoNavigation:['shipId','confirmation','reason'],cancelSoNavigationAdmin:['shipId','confirmation','reason'],arriveShip:['shipId','confirmation'],arriveSoShipAdmin:['shipId','confirmation','reason'],continueSoVoyage:['shipId','confirmation','reason']};
+const fields={...convoyFields,spaceportAdmin:[],mySpaceport:[],prepareSoShip:provisionFields,provisionSoShip:[...provisionFields,'confirmation'],shipNavigation:['shipId'],prepareRefuel:['shipId','lotId','quantity'],refuelShip:['shipId','lotId','quantity','confirmation','present'],finishSoRefuel:['shipId','confirmation','present'],prepareVoyage:flightFields,departShip:[...flightFields,'confirmation','present'],finishSoPreparation:['shipId','confirmation','present'],cancelSoNavigation:['shipId','confirmation','reason'],cancelSoNavigationAdmin:['shipId','confirmation','reason'],arriveShip:['shipId','confirmation'],arriveSoShipAdmin:['shipId','confirmation','reason'],continueSoVoyage:['shipId','confirmation','reason']};
 export const soVoyageCommands=Object.keys(fields);
 const active=s=>{requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');};
 const available=(s,c,time)=>c.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeMaintenanceId&&!c.activeCargoId&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&!(c.convalescentUntilGameMs>time);
 const characterPort=(s,c)=>c.spacePortId??s.transportRules?.homePort;
 const receipt=(s,ship,version)=>hash(JSON.stringify([s.id,s.revision,ship,version??null]));
-export const safeSoShip=(s,ship,time)=>({...mediaFields(ship,['illustration']),...navigationView(s,ship,time),...(ship.journey?.suspended?{journey:{...publicJourney(ship.journey),remainingSeconds:Math.ceil(ship.journey.remainingMs/1000)}}:{}),maintenanceId:ship.maintenanceId??null,combatId:ship.combatId??null,rescueId:ship.rescueId??null,ambushId:ship.ambushId??null,revision:ship.revision,profile:ship.soProfile,ownerId:ship.ownerId,pilotId:ship.pilotId,hull:ship.hull,shield:ship.shield,revisionRequired:ship.revisionRequired,operation:ship.operation?{id:ship.operation.id,kind:ship.operation.kind,remainingSeconds:Math.max(0,Math.ceil((ship.operation.readyAtGameMs-time)/1000)),manifest:ship.operation.manifest?.map(m=>({id:m.id,name:m.name}))??[],route:ship.operation.route??null}:null});
+export const safeSoShip=(s,ship,time)=>({...mediaFields(ship,['illustration']),...navigationView(s,ship,time),...(ship.journey?.suspended?{journey:{...publicJourney(ship.journey),remainingSeconds:Math.ceil(ship.journey.remainingMs/1000)}}:{}),maintenanceId:ship.maintenanceId??null,combatId:ship.combatId??null,rescueId:ship.rescueId??null,ambushId:ship.ambushId??null,convoy:ship.convoy?{id:ship.convoy.id,shipIds:ship.convoy.shipIds,shipNames:ship.convoy.shipNames,leaderShipId:ship.convoy.leaderShipId,routeName:ship.convoy.routeName,toPort:ship.convoy.toPort}:null,convoyOffer:ship.convoyOffer?{escortName:ship.convoyOffer.escortName,toPort:ship.convoyOffer.toPort}:null,revision:ship.revision,profile:ship.soProfile,ownerId:ship.ownerId,pilotId:ship.pilotId,hull:ship.hull,shield:ship.shield,revisionRequired:ship.revisionRequired,operation:ship.operation?{id:ship.operation.id,kind:ship.operation.kind,convoyReady:ship.operation.convoyReady===true,remainingSeconds:Math.max(0,Math.ceil((ship.operation.readyAtGameMs-time)/1000)),manifest:ship.operation.manifest?.map(m=>({id:m.id,name:m.name}))??[],route:ship.operation.route??null}:null});
 
 // Canonical constraints on the native ships, voyages, inventory, PA and clocks.
 // No second fleet, wallet, cargo engine or arbitrary route generator.
 export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6=()=>randomInt(1,7)}){
  return async(action,actor,input)=>{
   signed(actor);requireThat(fields[action],'SO_GAMEPLAY_NOT_OPEN');admissionKeys(input,['sessionId',...fields[action],...(reads.has(action)?[]:['requestId'])]);
-  const at=now(),id=uuid(),dice=action==='finishSoPreparation'?[rollD6(),rollD6()]:null;
+  const at=now(),id=uuid(),dice=action==='finishSoPreparation'?[rollD6(),rollD6(),rollD6()]:null;
   return store.runTransaction(async tx=>{
    const admin=admins.has(action),ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId))}:await inventoryPlayer(tx,actor,input),{s,c,version}=ctx,base=`sessions/${s.id}`,time=gameTime(s.clock,at);
    requireThat(hasSoNavigation(s),'SO_GAMEPLAY_NOT_OPEN');requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
    if(action==='spaceportAdmin'||action==='mySpaceport'){
     const ships=(await tx.list(`${base}/ships`)).filter(x=>x.soProfile&&(admin||shipAccess(x,c.id,[]).access||(x.journey?.manifest??x.operation?.manifest??[]).some(m=>m.id===c.id)));
-    return {session:{id:s.id,stage:s.stage,logisticsReady:s.spaceOutlaws.logisticsVersion===1,combatReady:s.spaceOutlaws.combatVersion===1},admin,ships:ships.map(x=>({...safeSoShip(s,x,time),confirmation:receipt(s,x,version)})),...(admin?{models:await tx.list(`${base}/shipModels`),ports:await tx.list(`${base}/ports`),items:(await tx.list(`${base}/items`)).filter(i=>i.consumable&&i.kind==='STACKABLE'&&!i.laserRecharge),characters:(await tx.list(`${base}/characters`)).filter(c=>c.birth).map(c=>({id:c.id,name:c.public.displayName})),homePort:s.transportRules?.homePort??null}:{} )};
+    return {invitations:await convoyInvitations(tx,s,c),session:{id:s.id,stage:s.stage,convoyReady:hasSoConvoy(s),logisticsReady:s.spaceOutlaws.logisticsVersion===1,combatReady:s.spaceOutlaws.combatVersion===1},admin,ships:ships.map(x=>({...safeSoShip(s,x,time),confirmation:receipt(s,x,version)})),...(admin?{models:await tx.list(`${base}/shipModels`),ports:await tx.list(`${base}/ports`),items:(await tx.list(`${base}/items`)).filter(i=>i.consumable&&i.kind==='STACKABLE'&&!i.laserRecharge),characters:(await tx.list(`${base}/characters`)).filter(c=>c.birth).map(c=>({id:c.id,name:c.public.displayName})),homePort:s.transportRules?.homePort??null}:{} )};
    }
    let ship=input.shipId?await tx.get(`${base}/ships/${documentId(input.shipId)}`):null;
    const provisioning=['prepareSoShip','provisionSoShip'].includes(action);
@@ -63,17 +64,19 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
    }
    const confirmation=receipt(s,ship,version),isPilot=!admin&&ship.pilotId===c.id;
    const fuelAllowed=l=>personalLot(l,c?.id)&&l.status==='AVAILABLE'&&l.quantity>0&&l.item.id===ship.navigation.fuelItemId&&(l.transferable!==false||ship.ownerId===c.id);
-   if(action==='shipNavigation')return {session:{id:s.id,stage:s.stage},spaceOutlaws:true,logisticsReady:s.spaceOutlaws.logisticsVersion===1,combatReady:s.spaceOutlaws.combatVersion===1,ship:safeSoShip(s,ship,time),canPilot:isPilot,canAct:isPilot&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&available(s,c,time),confirmation,lots:isPilot?(await tx.list(`${base}/inventory`)).filter(fuelAllowed).map(publicLot):[]};
+   if(action==='shipNavigation')return {convoyReady:hasSoConvoy(s),convoyCode:isPilot?ship.convoy?.navigationCode??null:null,invitations:(await convoyInvitations(tx,s,c)).filter(o=>o.escortShipId===ship.id),session:{id:s.id,stage:s.stage},spaceOutlaws:true,logisticsReady:s.spaceOutlaws.logisticsVersion===1,combatReady:s.spaceOutlaws.combatVersion===1,ship:safeSoShip(s,ship,time),canPilot:isPilot,canAct:isPilot&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&available(s,c,time),confirmation,lots:isPilot?(await tx.list(`${base}/inventory`)).filter(fuelAllowed).map(publicLot):[]};
    if(!admin)requireThat(isPilot,'FORBIDDEN');
    requireThat(!ship.combatId&&!ship.rescueId&&!ship.maintenanceId,'SPACE_SHIP_BUSY');
-   const cancelling=['cancelSoNavigation','cancelSoNavigationAdmin'].includes(action);
+   const cancelling=['cancelSoNavigation','cancelSoNavigationAdmin','leaveSoConvoy','leaveSoConvoyAdmin'].includes(action);
    if(cancelling){requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage),'SESSION_NOT_RUNNING');}else active(s);
    if(!admin&&!cancelling)requireThat(available(s,c,time),'OUT_OF_COMBAT');
+   if(convoyFields[action]){if(action.startsWith('leaveSoConvoy')){requireThat(input.confirmation===confirmation,'STALE_REVISION');moneyText(input.reason);}const result=await convoyCommand(tx,s,ship,c,version,input,action,id,at);if(reads.has(action))return result;return audit(result,ship,null,{reason:input.reason??null});}
    if(['finishSoRefuel','finishSoPreparation',...['cancelSoNavigation','cancelSoNavigationAdmin']].includes(action)){
     requireThat(input.confirmation===confirmation,'STALE_REVISION');const a=ship.operation;requireThat(a,'NAVIGATION_OPERATION_CLOSED');
     const pilot=await inventoryParty(tx,s.id,a.pilotId),members=[];for(const m of a.manifest??[])members.push(await inventoryParty(tx,s.id,m.id));
     const pilotCharacter=pilot.c;requireThat(pilotCharacter?.activeNavigationId===a.id,'NAVIGATION_OPERATION_CLOSED');
     if(!cancelling){requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');requireThat(pilot.active&&pilot.version===a.pilotVersion,'INVALID_RECIPIENT');requireThat(time>=a.readyAtGameMs,'VOYAGE_NOT_READY');}
+    if(!cancelling&&a.kind==='PREPARE'&&ship.convoy){const result=await finishConvoy(tx,s,ship,at,id,dice,available);return audit(result,ship,null);}
     const clear={...pilotCharacter,activeNavigationId:null};let next={...ship,operation:null,revision:ship.revision+1};
     if(a.kind==='REFUEL'){
      requireThat(cancelling||action==='finishSoRefuel','NAVIGATION_OPERATION_CLOSED');const lot=await tx.get(`${base}/inventory/${a.lotId}`);requireThat(lot?.status==='FIELD_RESERVED'&&lot.fieldActionId===a.id,'INVALID_FUEL');
@@ -85,7 +88,7 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
      const points=actionPointState(s,pilotCharacter,await tx.get(actionPointPath(s.id,pilotCharacter.id)),at);
      if(!cancelling){requireThat(members.every((m,i)=>m.active&&m.version===a.manifest[i].version&&m.c.activeNavigationId===a.id&&!m.c.activeVoyageId&&available(s,m.c,time)),'INVALID_MANIFEST');requireThat(ship.hull>=1&&!ship.revisionRequired&&ship.fuel>=a.route.fuelCost,'SHIP_UNAVAILABLE');requireThat(navigationSkill(pilotCharacter,'PIL-02')>=a.level,'FIELD_SKILL_REQUIRED');}
      let j=null;
-     if(!cancelling){const event=soVoyageEvent(a.route,...dice,ship.fuel-a.route.fuelCost),duration=a.route.durationSeconds+event.delaySeconds,suspended=event.needsMJ||event.fuelDebt>0;
+     if(!cancelling){const event=soVoyageEvent(a.route,dice[0],dice[1],ship.fuel-a.route.fuelCost),duration=a.route.durationSeconds+event.delaySeconds,suspended=event.needsMJ||event.fuelDebt>0;
       const transportManifest=await transportDeparture(tx,s,ship,a.route,id,at);
       j={...(transportManifest.length?{transportManifest}:{}),...a.route,routeId:a.route.id,id,manifest:a.manifest.map(m=>({id:m.id,name:m.name})),...(s.spaceOutlaws.missionExecutionVersion===1?{missionManifest:a.manifest.map(m=>({id:m.id,version:m.version}))}:{}),pilotId:a.pilotId,departedAt:at,departedAtGameMs:time,arrivesAtGameMs:time+duration*1000,event,suspended,remainingMs:suspended?duration*1000:null};
       next={...next,fuel:ship.fuel-a.route.fuelCost-event.fuelCost,docked:false,journey:j};tx.set(`${base}/voyages/${id}`,{...j,shipId:ship.id,status:suspended?'SUSPENDED':'IN_TRANSIT'});
@@ -106,7 +109,7 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
    if(['prepareVoyage','departShip'].includes(action)){
     requireThat(ship.docked&&ship.enabled&&!ship.journey&&!ship.operation&&ship.hull>=1&&!ship.revisionRequired,'SHIP_UNAVAILABLE');requireThat(characterPort(s,c)===ship.portId,'SHIP_NOT_LOCAL');
     const code=admissionText(input.navigationCode,80,true),routes=await tx.list(`${base}/routes`),ports=await tx.list(`${base}/ports`);
-    const candidates=routes.filter(r=>r.fromPort===ship.portId&&(r.navigationCode===code||ports.find(p=>p.id===r.toPort)?.navigationCode===code));requireThat(candidates.length===1,'ROUTE_UNAVAILABLE');const route=soRoute(candidates[0],ship);
+    const candidates=routes.filter(r=>r.fromPort===ship.portId&&(r.navigationCode===code||ports.find(p=>p.id===r.toPort)?.navigationCode===code));requireThat(candidates.length===1,'ROUTE_UNAVAILABLE');const route=soRoute(candidates[0],ship);requireThat(!ship.convoyOffer,'SO_CONVOY_NOT_READY');if(ship.convoy){await convoyFleet(tx,s,ship);requireThat(route.id===ship.convoy.routeId,'SO_CONVOY_ROUTE');}
     const level=navigationSkill(c,'PIL-02');requireThat(level>=1&&level<=5,'FIELD_SKILL_REQUIRED');
     requireThat(Array.isArray(input.passengerCodes)&&input.passengerCodes.length<ship.soProfile.seats&&input.passengerCodes.every(x=>typeof x==='string'&&x.length<=128),'INVALID_MANIFEST');
     const characters=await tx.list(`${base}/characters`),ids=[c.id,...input.passengerCodes.map(code=>characters.find(x=>x.publicCode===code||x.id===code)?.id)];requireThat(ids.every(Boolean)&&new Set(ids).size===ids.length,'INVALID_MANIFEST');
@@ -116,15 +119,16 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
     const consent=hash(JSON.stringify([confirmation,manifest,route,stock,points])),durationSeconds=[0,180,150,120,90,60][level];
     if(action==='prepareVoyage')return {shipName:ship.name,route,manifest:manifest.map(m=>({id:m.id,name:m.name})),remainingFuel:ship.fuel-route.fuelCost,durationSeconds,cost:1,confirmation:consent};
     requireThat(input.confirmation===consent,'STALE_REVISION');requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');
-    const operation={id,kind:'PREPARE',pilotId:c.id,pilotVersion:version,level,route,manifest:manifest.map(({character,...m})=>m),readyAtGameMs:time+durationSeconds*1000},next={...ship,operation,revision:ship.revision+1};
+    const operation={id,kind:'PREPARE',...(ship.convoy?{convoyId:ship.convoy.id}:{}),pilotId:c.id,pilotVersion:version,level,route,manifest:manifest.map(({character,...m})=>m),readyAtGameMs:time+durationSeconds*1000},next={...ship,operation,revision:ship.revision+1};
     for(const m of manifest)tx.set(`${base}/characters/${m.id}`,{...m.character,activeNavigationId:id});tx.set(actionPointPath(s.id,c.id),reserveActionPoints(points,1));tx.set(`${base}/ships/${ship.id}`,next);return audit({id:ship.id,status:'PREPARING'},ship,next);
    }
    requireThat(input.confirmation===confirmation,'STALE_REVISION');const j=ship.journey;requireThat(j,'VOYAGE_CLOSED');
    if(action==='continueSoVoyage'){
-    requireThat(ship.hull>0&&j.suspended&&j.event.needsMJ&&j.event.fuelDebt===0,'VOYAGE_SUSPENDED');const reason=moneyText(input.reason),nextJourney={...j,suspended:false,remainingMs:null,arrivesAtGameMs:time+j.remainingMs,event:{...j.event,needsMJ:false,resolvedAt:at}};
+    requireThat(ship.hull>0&&j.suspended&&(j.event.needsMJ||ship.convoy)&&j.event.fuelDebt===0,'VOYAGE_SUSPENDED');const reason=moneyText(input.reason);if(ship.convoy){const rows=await convoyFleet(tx,s,ship);requireThat(rows.every(x=>x.journey?.convoyId===ship.convoy.id&&x.journey.suspended&&x.hull>0&&!x.combatId&&!x.rescueId&&!x.maintenanceId&&x.journey.event.fuelDebt===0),'VOYAGE_SUSPENDED');for(const x of rows){const nextJourney={...x.journey,suspended:false,remainingMs:null,arrivesAtGameMs:time+x.journey.remainingMs,event:{...x.journey.event,needsMJ:false,resolvedAt:at}};tx.set(`${base}/ships/${x.id}`,{...x,journey:nextJourney,revision:x.revision+1});tx.set(`${base}/voyages/${nextJourney.id}`,{...nextJourney,shipId:x.id,status:'IN_TRANSIT'});}return audit({id:ship.convoy.id},ship,null,{reason});}const nextJourney={...j,suspended:false,remainingMs:null,arrivesAtGameMs:time+j.remainingMs,event:{...j.event,needsMJ:false,resolvedAt:at}};
     const next={...ship,journey:nextJourney,revision:ship.revision+1};tx.set(`${base}/ships/${ship.id}`,next);tx.set(`${base}/voyages/${j.id}`,{...nextJourney,shipId:ship.id,status:'IN_TRANSIT'});return audit({id:ship.id},ship,next,{reason});
    }
    requireThat(['arriveShip','arriveSoShipAdmin'].includes(action)&&!j.suspended&&ship.hull>0,'VOYAGE_SUSPENDED');requireThat(time>=j.arrivesAtGameMs,'VOYAGE_NOT_READY');
+   if(ship.convoy){const rows=await convoyFleet(tx,s,ship);requireThat(rows.every(x=>x.journey?.convoyId===ship.convoy.id&&!x.journey.suspended&&x.hull>0&&!x.combatId&&!x.rescueId&&!x.maintenanceId&&time>=x.journey.arrivesAtGameMs),'VOYAGE_NOT_READY');const all=[];for(const x of rows)for(const m of x.journey.manifest){const ch=await tx.get(`${base}/characters/${m.id}`);requireThat(ch?.activeVoyageId===x.journey.id,'INVALID_MANIFEST');all.push({ch,toPort:x.journey.toPort});}for(const {ch,toPort} of all)tx.set(`${base}/characters/${ch.id}`,{...ch,activeVoyageId:null,spacePortId:toPort});for(const x of rows){tx.set(`${base}/ships/${x.id}`,{...x,docked:true,portId:x.journey.toPort,journey:null,convoy:null,revision:x.revision+1});tx.set(`${base}/voyages/${x.journey.id}`,{...x.journey,shipId:x.id,status:'ARRIVED',closedAt:at});}return audit({id:ship.convoy.id,status:'ARRIVED'},ship,null);}
    const members=[];for(const m of j.manifest){const ch=await tx.get(`${base}/characters/${m.id}`);requireThat(ch?.activeVoyageId===j.id,'INVALID_MANIFEST');members.push(ch);}
    if(ship.ambushId){const ambush=await tx.get(`${base}/spaceAmbushes/${ship.ambushId}`);requireThat(s.spaceOutlaws.combatVersion===1&&ambush?.journeyId===j.id,'SPACE_SHIP_BUSY');authorizeSpaceOutlaws(tx,s,'SPACE_COMBAT');tx.set(`${base}/spaceAmbushes/${ambush.id}`,{...ambush,status:'EXPIRED',closedAt:at});}
    for(const m of members)tx.set(`${base}/characters/${m.id}`,{...m,activeVoyageId:null,spacePortId:j.toPort});const next={...ship,docked:true,portId:j.toPort,journey:null,ambushId:null,revision:ship.revision+1};

@@ -6,7 +6,7 @@ import {missionExecutionPayload} from './mission-execution.mjs';
 import {soResolutionPayload,soResolutionConfirmation,soMissionErrors} from './space-missions.mjs';
 import {maintenanceHtml,maintenanceConfirmHtml,maintenanceErrors} from './space-maintenance.mjs';
 import {spaceCombatsHtml,spaceRescuesHtml,spaceConfirmHtml,spaceFormInput,spaceEncounterErrors} from './space-encounters.mjs';
-import {soSpaceportHtml,soShipConfirmHtml,soNavigationHtml,soFlightConfirmHtml,passengerCodesInput,soNavigationErrors} from './space-outlaws-voyages.mjs';
+import {convoyConfirmHtml,soSpaceportHtml,soShipConfirmHtml,soNavigationHtml,soFlightConfirmHtml,passengerCodesInput,soNavigationErrors} from './space-outlaws-voyages.mjs';
 import {shopsHtml,shopPurchaseHtml,shopProvisionHtml,shopProvisionConfirmHtml,soInventoryHtml,shopErrors} from './shops.mjs';
 import {soHealthErrors,survivalAdminHtml} from './health.mjs';
 import {createEntryUi,entryErrors,entrySkills} from './space-outlaws-entry.mjs';
@@ -669,6 +669,7 @@ document.addEventListener('submit',async event=>{
     else if(kind==='transportRules')await mutate('saveTransportRules',{...JSON.parse(form.dataset.payload),homePort:v.homePort,reason:v.reason});
     else if(kind==='routeEditor')await mutate('saveRoute',{...JSON.parse(form.dataset.payload),...v,durationSeconds:Number(v.durationSeconds),fuelCost:Number(v.fuelCost),enabled:v.enabled==='on'});
     else if(kind==='soShipPrepare'){const p={...JSON.parse(form.dataset.payload),...v},d=await api('prepareSoShip',p);if(submitVersion!==routeVersion)return;modal(soShipConfirmHtml(d,p));return;}
+    else if(kind==='soConvoyPrepare'){const p={...JSON.parse(form.dataset.payload),escortShipId:v.escortShipId,navigationCode:v.navigationCode},d=await api('prepareSoConvoy',p);if(submitVersion!==routeVersion)return;modal(convoyConfirmHtml(d,p));return;}
     else if(kind==='soNavigationPrepare'){const p={...JSON.parse(form.dataset.payload),...(form.dataset.kind==='refuel'?{lotId:v.lotId,quantity:Number(v.quantity)}:{navigationCode:v.navigationCode,passengerCodes:passengerCodesInput(v.passengerCodes)})},d=await api(form.dataset.kind==='refuel'?'prepareRefuel':'prepareVoyage',p);if(submitVersion!==routeVersion)return;modal(soFlightConfirmHtml(form.dataset.kind,d,p));return;}
     else if(kind==='spacePrepare'){const p=spaceFormInput(form,v),d=await api(form.dataset.command,p);if(submitVersion!==routeVersion)return;modal(form.dataset.command.startsWith('prepareSpaceMaintenance')?maintenanceConfirmHtml(form.dataset.command,d,p):spaceConfirmHtml(form.dataset.command,d,p));return;}
     else if(kind==='spaceCommand'||kind==='spaceOrder'){await mutate(kind==='spaceOrder'?'submitSpaceOrder':form.dataset.command,spaceFormInput(form,v));successMessage='Rencontre spatiale mise à jour.';}

@@ -3,11 +3,12 @@ import {admissionKeys} from './admission-state.mjs';
 
 export const hasSoCombat=s=>s.spaceOutlaws?.combatVersion===1&&s.spaceOutlaws?.navigationVersion===1;
 export const spaceOrderKinds=['ATTACK','DEFEND','FLEE','PURSUE','PASSIVE','SURRENDER','PIL03_2','PIL03_3','PIL03_4','PIL03_5'];
-export function spaceOrderInput(v){
- admissionKeys(v,['kind','fallback','acceptSurrender','ceasefire']);
+export function spaceOrderInput(v,targets=false){
+ admissionKeys(v,['kind','fallback','acceptSurrender','ceasefire',...(targets?['targetId','defenseIds']:[])]);
  requireThat(spaceOrderKinds.includes(v.kind)&&typeof v.acceptSurrender==='boolean'&&typeof v.ceasefire==='boolean','INVALID_SPACE_ORDER');
  const fallback=v.fallback??'PASSIVE';requireThat(['ATTACK','DEFEND','FLEE','PURSUE','PASSIVE'].includes(fallback),'INVALID_SPACE_ORDER');
- return {kind:v.kind,fallback,acceptSurrender:v.acceptSurrender,ceasefire:v.ceasefire};
+ if(targets)requireThat(typeof v.targetId==='string'&&Array.isArray(v.defenseIds)&&v.defenseIds.length<=(v.kind==='PIL03_2'?2:1)&&new Set(v.defenseIds).size===v.defenseIds.length&&v.defenseIds.every(x=>typeof x==='string'),'INVALID_SPACE_ORDER');
+ return {...(targets?{targetId:v.targetId,defenseIds:v.defenseIds}:{}),kind:v.kind,fallback,acceptSurrender:v.acceptSurrender,ceasefire:v.ceasefire};
 }
 export const spaceSpecialLevel=o=>o.kind.startsWith('PIL03_')?Number(o.kind.slice(-1)):0;
 export function pauseSpaceJourney(ship,time){
@@ -16,7 +17,7 @@ export function pauseSpaceJourney(ship,time){
 }
 export function resumeSpaceJourney(ship,time){
  const j=ship.journey;if(!j)return ship;
- const suspended=!!ship.combatId||!!ship.rescueId||!!ship.maintenanceId||ship.hull===0||j.immobilized&&ship.revisionRequired||j.event.needsMJ||j.event.fuelDebt>0;
+ const suspended=!!ship.convoy&&j.suspended||!!ship.combatId||!!ship.rescueId||!!ship.maintenanceId||ship.hull===0||j.immobilized&&ship.revisionRequired||j.event.needsMJ||j.event.fuelDebt>0;
  return {...ship,journey:{...j,suspended,immobilized:ship.hull===0||!!j.immobilized&&ship.revisionRequired,arrivesAtGameMs:suspended?j.arrivesAtGameMs:time+j.remainingMs,remainingMs:suspended?j.remainingMs:null}};
 }
 const damage=(s,n)=>{const shield=Math.max(0,s.shield-n);return {...s,shield,hull:Math.max(0,s.hull-Math.max(0,n-s.shield))};};
