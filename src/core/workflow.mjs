@@ -1,3 +1,4 @@
+import {createSpaceMaintenanceService,spaceMaintenanceActions} from './space-maintenance.mjs';
 import {createSpaceCombatService,spaceCombatActions} from './space-combat.mjs';
 import {createSpaceRescueService,spaceRescueActions} from './space-rescue.mjs';
 import {createShopService,shopActions} from './shops.mjs';
@@ -147,6 +148,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     return record.mediaImages?.[slot]??null;
   }});
   const priceService=createPriceService({store,signed,checkSession,now,uuid});
+  const spaceMaintenanceService=createSpaceMaintenanceService({store,signed,checkSession,now,uuid});
   const spaceCombatService=createSpaceCombatService({store,signed,checkSession,now,uuid,rollD6});
   const spaceRescueService=createSpaceRescueService({store,signed,checkSession,now,uuid});
   const voyageService=createVoyageService({store,signed,checkSession,now,uuid,rollD6});
@@ -186,6 +188,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(centralMasterAction(action))return centralMasterService(action,actor,input);
     if(groupManagementAction(action))return groupManagementService(action,actor,input);
     if(priceAction(action))return priceService(action,actor,input);
+    if(spaceMaintenanceActions.includes(action))return spaceMaintenanceService(action,actor,input);
     if(spaceCombatActions.includes(action))return spaceCombatService(action,actor,input);
     if(spaceRescueActions.includes(action))return spaceRescueService(action,actor,input);
     if(voyageAction(action))return voyageService(action,actor,input);
@@ -460,7 +463,8 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
             if(s.stage==='BRIEFING'&&!hasSoHealth(s))requireThat((await tx.list(`sessions/${sid}/fieldTargets`)).some(t=>t.kind==='ANALYSIS'&&t.publicationState==='PUBLISHED'),'SO_ACTION_TARGET_REQUIRED');
             if(input.stage==='FINISHED'){
               requireThat(!(await tx.list(`sessions/${sid}/fieldActions`)).some(a=>a.status==='ACTIVE'),'FIELD_ACTIONS_OPEN');
-              requireThat(!(await tx.list(`sessions/${sid}/ships`)).some(x=>x.journey||x.operation||x.combatId||x.rescueId),'VOYAGES_OPEN');
+              requireThat(!(await tx.list(`sessions/${sid}/cargoTransfers`)).some(t=>t.status==='LOADING'),'CARGO_TRANSFERS_OPEN');
+              requireThat(!(await tx.list(`sessions/${sid}/ships`)).some(x=>x.journey||x.operation||x.combatId||x.rescueId||x.maintenanceId),'VOYAGES_OPEN');
               requireThat(!(await tx.list(`sessions/${sid}/personActions`)).some(personOpen),'PERSON_ACTIONS_OPEN');
               if(hasSoHealth(s))requireThat(!(await tx.list(`sessions/${sid}/characters`)).some(c=>['URGENT','EXPIRED'].includes(survival(s,c,at).status)),'SO_SURVIVAL_OPEN');
             }

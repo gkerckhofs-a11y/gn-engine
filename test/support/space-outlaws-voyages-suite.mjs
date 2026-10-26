@@ -5,7 +5,7 @@ import {shopsFixture} from './space-outlaws-shops-suite.mjs';
 import {centralTestItem} from './central-master-suite.mjs';
 import {accountId} from '../../src/core/economy-state.mjs';
 
-export async function soVoyagesFixture(makeStore,{profileId='CARGO',riskId='SECURED',distanceId='SHORT',release=true}={}){
+export async function soVoyagesFixture(makeStore,{profileId='CARGO',riskId='SECURED',distanceId='SHORT',release=true,prepareExtra=null}={}){
  const f=await shopsFixture(makeStore,{classId:'PIL',release:false}),read=f.actionRead,cmd=f.actionCmd;let revision=(await f.view()).draft.revision;
  // The shop fixture references a medical supply: prepare it explicitly for this pilot fixture.
  await f.cc('saveCentralItem',{itemId:'kit_medical-supplies',itemRevision:0,draftRevision:revision++,item:{...centralTestItem,name:'Fourniture de soins',kind:'STACKABLE',consumable:true,pillable:true},reason:'Offre de soins'});
@@ -14,6 +14,7 @@ export async function soVoyagesFixture(makeStore,{profileId='CARGO',riskId='SECU
  await f.cc('saveCentralShipModel',{shipModelId:'model',shipModelRevision:0,draftRevision:revision++,shipModel:{name:'Modèle de vol',description:'Coque standard',gmNotes:'SECRET_MODEL',profileId},reason:'Modèle V0.7'});
  for(const [portId,navigationCode] of [['home','HOME-CODE'],['away','AWAY-CODE']])await f.cc('saveCentralPort',{portId,portRevision:0,draftRevision:revision++,port:{name:portId,description:'Port',gmNotes:'SECRET_PORT',navigationCode,locationTargetId:null},reason:'Port préparé'});
  for(const [routeId,fromPort,toPort,navigationCode] of [['out','home','away','OUT-SECRET'],['back','away','home','BACK-SECRET']])await f.cc('saveCentralRoute',{routeId,routeRevision:0,draftRevision:revision++,route:{name:routeId,description:'Liaison',gmNotes:'SECRET_ROUTE',fromPort,toPort,navigationCode,distanceId,riskId},reason:'Liaison préparée'});
+ if(prepareExtra)await prepareExtra(f,revision);
  let cid,otherId;
  const provisionInput=(patch={})=>({shipId:'ship',modelId:'model',name:'Nom du vaisseau',ownerId:cid,pilotId:cid,homePort:'home',fuelItemId:'propellant',source:'Vaisseau existant du scénario autorisé',reason:'Attribution MJ documentée',...patch});
  const provision=async(patch={},actor=f.owner)=>{const input=provisionInput(patch),p=await read('prepareSoShip',input,actor);return cmd('provisionSoShip',{...input,confirmation:p.confirmation},actor);};

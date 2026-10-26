@@ -34,7 +34,7 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
  }
  async function lootLots(tx,s,t,at){return (await tx.list(`sessions/${s.id}/inventory`,['holderId',t.id])).map(l=>l.status==='RESERVED'&&l.marketReservation?.expiresAt<=at?{...l,status:'AVAILABLE',revision:l.revision+1,marketReservation:null}:l).filter(l=>personalLot(l,t.id)&&l.quantity>0&&l.status==='AVAILABLE'&&(l.pillable??l.item.pillable)===true);}
  function eligible(s,c,t,p,level,at){
-  if(s.spaceOutlaws?.navigationVersion)requireThat(!t.activeNavigationId&&!t.activeVoyageId&&(!t.spacePortId||t.spacePortId===s.transportRules?.homePort),'FIELD_TARGET_BUSY');
+  if(s.spaceOutlaws?.navigationVersion)requireThat(!t.activeMaintenanceId&&!t.activeCargoId&&!t.activeNavigationId&&!t.activeVoyageId&&(!t.spacePortId||t.spacePortId===s.transportRules?.homePort),'FIELD_TARGET_BUSY');
   requireThat(c.id!==t.id||p.kind==='FIELD_CARE','INVALID_RECIPIENT');
   requireGameAction(s,c,isLoot(p)?'discover':'heal',at);requireThat(!convalescent(s,c,at),'OUT_OF_COMBAT');
   if(s.healthRules?.enabled)requireThat(c.hp>0,'OUT_OF_COMBAT');

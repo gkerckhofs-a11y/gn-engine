@@ -15,7 +15,7 @@ export const spaceRescueActions=Object.keys(fields);
 const reads=new Set(['spaceRescues','spaceRescueAdmin','prepareSpaceRescueOffer','prepareSpaceRescue']);
 const admins=new Set(['spaceRescueAdmin','prepareSpaceRescueOffer','offerSpaceRescue','cancelSpaceRescueAdmin']);
 const active=s=>{requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');};
-const eligible=(ship,journeyId)=>ship?.journey?.id===journeyId&&ship.journey.suspended&&ship.journey.event.fuelDebt>0&&!ship.combatId&&!ship.operation;
+const eligible=(ship,journeyId)=>ship?.journey?.id===journeyId&&ship.journey.suspended&&ship.journey.event.fuelDebt>0&&!ship.combatId&&!ship.maintenanceId&&!ship.operation;
 const view=(r,time,confirmation)=>({id:r.id,shipId:r.shipId,shipName:r.shipName,provider:r.provider,quantity:r.quantity,amount:r.amount,intervention:100,fuelPrice:25,status:r.status,remainingSeconds:r.status==='ACTIVE'?Math.max(0,Math.ceil((r.readyAtGameMs-time)/1000)):null,confirmation});
 export function createSpaceRescueService({store,signed,checkSession,now,uuid}){
  return async(action,actor,input)=>{

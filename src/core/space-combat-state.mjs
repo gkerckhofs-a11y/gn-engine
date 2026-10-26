@@ -16,8 +16,8 @@ export function pauseSpaceJourney(ship,time){
 }
 export function resumeSpaceJourney(ship,time){
  const j=ship.journey;if(!j)return ship;
- const suspended=!!ship.combatId||!!ship.rescueId||ship.hull===0||j.event.needsMJ||j.event.fuelDebt>0;
- return {...ship,journey:{...j,suspended,immobilized:ship.hull===0,arrivesAtGameMs:suspended?j.arrivesAtGameMs:time+j.remainingMs,remainingMs:suspended?j.remainingMs:null}};
+ const suspended=!!ship.combatId||!!ship.rescueId||!!ship.maintenanceId||ship.hull===0||j.immobilized&&ship.revisionRequired||j.event.needsMJ||j.event.fuelDebt>0;
+ return {...ship,journey:{...j,suspended,immobilized:ship.hull===0||!!j.immobilized&&ship.revisionRequired,arrivesAtGameMs:suspended?j.arrivesAtGameMs:time+j.remainingMs,remainingMs:suspended?j.remainingMs:null}};
 }
 const damage=(s,n)=>{const shield=Math.max(0,s.shield-n);return {...s,shield,hull:Math.max(0,s.hull-Math.max(0,n-s.shield))};};
 // Two-ship encounters only. Orders and dice are fixed before resolving either ship.

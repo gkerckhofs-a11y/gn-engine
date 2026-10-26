@@ -25,9 +25,10 @@ export function spaceConfirmHtml(action,d,p){
 }
 export function spaceFormInput(form,v){
  const p={...JSON.parse(form.dataset.payload)};
- for(const name of ['shipId','navigationCode','source','reason'])if(v[name]!==undefined)p[name]=v[name];
+ for(const name of ['shipId','navigationCode','source','reason','payerId'])if(v[name]!==undefined)p[name]=v[name];
+ if(v.technicianId!==undefined)p.technicianId=v.technicianId==='PNJ'?null:v.technicianId;if(v.points!==undefined)p.points=Number(v.points);if(form.dataset.form!=='spaceOrder'&&v.kind!==undefined)p.kind=v.kind;
  if(v.quantity!==undefined)p.quantity=Number(v.quantity);if(v.offer!==undefined)Object.assign(p,JSON.parse(v.offer));
- for(const name of ['present','received','briefed'])if(form.elements.namedItem(name))p[name]=form.elements.namedItem(name).checked;
+ for(const name of ['present','received','briefed','performed'])if(form.elements.namedItem(name))p[name]=form.elements.namedItem(name).checked;
  if(form.dataset.form==='spaceOrder')p.order={kind:v.kind,fallback:v.fallback,acceptSurrender:form.elements.namedItem('acceptSurrender').checked,ceasefire:form.elements.namedItem('ceasefire').checked};
  return p;
 }
