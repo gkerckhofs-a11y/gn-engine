@@ -71,7 +71,7 @@ export function spaceSuccessionSuite(makeStore,prefix='Succession SO'){
  });
  test(`${prefix} : autorité MJ et accès courant avant aperçu ou reçu`,async()=>{
   const f=await successionFixture(makeStore);for(const actor of [f.player,f.other])await assert.rejects(f.previewSuccession(f.input(),actor),{code:'FORBIDDEN'});await f.role(true,'RECEPTION');await assert.rejects(f.previewSuccession(f.input(),f.mj),{code:'FORBIDDEN'});await f.role();
-  const q=await f.previewSuccession(f.input(),f.mj),extra={requestId:randomUUID()};await f.succeed(q,f.input(),extra,f.mj);await f.role(false);await assert.rejects(f.succeed(q,f.input(),extra,f.mj),{code:'FORBIDDEN'});
+  const q=await f.previewSuccession(f.input(),f.mj),extra={requestId:randomUUID()};await f.succeed(q,f.input(),extra,f.mj);const r=await f.get(`registrations/${hash(f.player.uid)}`);assert.equal(r.admission.confirmation.actorUid,f.mj.uid);assert.equal(r.admission.confirmation.sourceRevision,r.admission.revision-1);await f.role(false);await assert.rejects(f.succeed(q,f.input(),extra,f.mj),{code:'FORBIDDEN'});
   await f.cmdSuccession('revokeAccess',{uid:f.player.uid});await assert.rejects(f.readSuccession('mySpaceOutlawsSuccession',{},f.player),{code:'FORBIDDEN'});await assert.rejects(f.succeed(q,f.input(),extra),{code:'FORBIDDEN'});
  });
  test(`${prefix} : droits de groupe retirés dès le décès, patrimoine et secrets restent au défunt`,async()=>{

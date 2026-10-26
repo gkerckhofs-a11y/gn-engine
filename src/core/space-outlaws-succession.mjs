@@ -130,7 +130,7 @@ export function createSpaceOutlawsSuccessionService({store,signed,checkSession,n
    const character=soBornCharacter({definition:p.definition,sid,uid,profile:p.profile,options:p.options,version:ctx.version,at,actor,uuid,progression:p.progression});
    character.birth={...character.birth,predecessorId:p.old.id,order:(p.old.birth?.order??1)+1,source:input.source};
    const succession={version:1,predecessorId:p.old.id,successorId:p.id,status:'COMPLETED',revision:(r.succession?.revision??0)+1,at,actorUid:actor.uid,source:input.source};
-   const admission={...r.admission,revision:r.admission.revision+1,proposal:p.proposal,confirmation:{...r.admission.confirmation,classId:p.proposal.classId,identityKey:admissionIdentity(p.proposal),exception:false},updatedAt:at};
+   const admission={...r.admission,revision:r.admission.revision+1,proposal:p.proposal,confirmation:{classId:p.proposal.classId,identityKey:admissionIdentity(p.proposal),approvedAt:at,actorUid:actor.uid,sourceRevision:r.admission.revision,exception:false,exceptionReason:null},updatedAt:at};
    const next={...r,previousCharacterId:p.old.id,characterId:p.id,accessVersion:r.accessVersion+1,briefingReadAt:null,briefingReadRevision:null,admission,succession,progression:{...r.progression,completedSessions:whole(r.progression?.completedSessions??0),pendingXp:0}};
    authorizeSpaceOutlaws(tx,s,'SUCCESSION');
    tx.set(`${base}/characters/${p.old.id}`,{...p.old,assignedUid:null,successorId:p.id});tx.set(`${base}/characters/${p.id}`,character);
