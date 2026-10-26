@@ -23,6 +23,7 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(!path.startsWith(base)&&path!==base.slice(0,-1))continue;
   if(path.startsWith(`${base}audit/`))continue;
   const relative=path.slice(base.length);
+  if(scopes.has('SUCCESSION')&&session.spaceOutlaws.successionVersion===1&&/^(characters\/[^/]+(?:\/(history\/[^/]+|resources\/actionPoints|knowledge\/[^/]+))?|publicCharacters\/[^/]+|registrations\/[a-f0-9]{64}(?:\/successionHistory\/[^/]+)?|admission\/occupancy|admissionIdentities\/[a-f0-9]{64}|groups\/[^/]+(?:\/history\/[^/]+)?|inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('MEDIA')&&session.spaceOutlaws.mediaVersion===1&&/^(characters|items|inventory|announcements|ships)\/[^/]+(?:\/(mediaHistory|history)\/[^/]+)?$/.test(relative))continue;
   if(scopes.has('MEDIA')&&session.spaceOutlaws.mediaVersion===1&&/^publicCharacters\/[^/]+$/.test(relative))continue;
   if(scopes.has('SEARCH')&&session.spaceOutlaws.searchVersion===1&&/^(fieldTargets\/[^/]+(?:\/history\/[^/]+)?|fieldStates\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
@@ -64,8 +65,8 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
  }
  return true;
 }
-export function guardSpaceOutlawsRegistration(before,after,episode=false){
- const allowed=new Set(episode?['progression']:['accessActive','accessVersion','minAuthTime','briefingReadAt','briefingReadRevision']);
+export function guardSpaceOutlawsRegistration(before,after,episode=false,succession=false){
+ const allowed=new Set(succession?['succession','admission','characterId','previousCharacterId','progression','accessVersion','briefingReadAt','briefingReadRevision']:episode?['progression']:['accessActive','accessVersion','minAuthTime','briefingReadAt','briefingReadRevision']);
  const fixed=x=>Object.fromEntries(Object.entries(x??{}).filter(([k])=>!allowed.has(k)));
  requireThat(before&&isDeepStrictEqual(fixed(before),fixed(after)),'SO_GAMEPLAY_NOT_OPEN');
 }

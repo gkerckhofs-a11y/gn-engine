@@ -18,3 +18,13 @@ export function validateRosters(groups){
   if(r.kind==='TEAM'&&!r.archived)for(const m of active){requireThat(!teams.has(m.characterId),'GROUP_PRIMARY_CONFLICT');teams.set(m.characterId,g.id);}
  }
 }
+
+// Keep historical memberships and group-owned assets, revoke every live mandate.
+export function retireCharacterMemberships(tx,s,groups,characterId,event){
+ for(const g of groups){
+  if(!g.members.some(m=>m.characterId===characterId&&(m.active||Object.values(m.permissions??{}).some(Boolean)))&&g.roster?.leaderId!==characterId)continue;
+  const next={...g,revision:g.revision+1,members:g.members.map(m=>m.characterId===characterId?{...m,active:false,permissions:Object.fromEntries(Object.keys(m.permissions??{}).map(k=>[k,false]))}:m),...(g.roster?{roster:{...g.roster,leaderId:g.roster.leaderId===characterId?null:g.roster.leaderId}}:{})};
+  tx.set(`sessions/${s.id}/groups/${g.id}`,next);
+  tx.set(`sessions/${s.id}/groups/${g.id}/history/${event.id}`,{...event,kind:'SO_DEATH_MEMBERSHIP',characterId,before:g,after:next});
+ }
+}

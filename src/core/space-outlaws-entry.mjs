@@ -37,7 +37,7 @@ async function context(tx,s,c){
  const [draft,policy,counts,species]=await Promise.all([tx.get(base),tx.get(`sessions/${s.id}/admission/settings`),tx.get(`sessions/${s.id}/admission/occupancy`),tx.get(`${base}/changes/speciesCatalogue_player`)]);
  return {c,s,draft,policy,occupancy:admissionOccupancy(counts,s.accepted),settings:policy?{...policy,species:species?.data??[]}:null};
 }
-async function readVersion(tx,c){
+export async function readSoEntryVersion(tx,c){
  const id=c.master?.activeVersionId;requireThat(id,'SO_RELEASE_REQUIRED');
  const base=`campaigns/${c.id}/versions/${id}`,h=await tx.get(base);
  requireThat(h?.kind===versionKind&&h.status==='READY'&&h.id===id&&h.campaignId===c.id&&h.ruleProfile===spaceOutlawsProfile&&Array.isArray(h.pages)&&h.pages.length<=100,'SO_VERSION_INVALID');
@@ -46,6 +46,7 @@ async function readVersion(tx,c){
  for(let i=0;i<pages.length;i++){const p=pages[i];requireThat(p?.id===String(i)&&p.versionId===id&&digest(p)===h.pages[i].digest&&Array.isArray(p.entries),'SO_VERSION_INVALID');entries.push(...p.entries);}
  requireThat(digest(entries)===h.contentDigest&&entries.length===h.records&&Buffer.byteLength(JSON.stringify(entries))<=campaignLimits.bytes,'SO_VERSION_INVALID');
  const changes=entries.map(e=>e.data);
+ requireThat(h.successionVersion===undefined||h.successionVersion===1&&h.episodesVersion===1,'SO_VERSION_INVALID');
  requireThat(h.searchVersion===undefined||h.searchVersion===1,'SO_VERSION_INVALID');
  requireThat(h.mediaVersion===undefined||h.mediaVersion===1,'SO_VERSION_INVALID');
  requireThat(h.episodesVersion===undefined||h.episodesVersion===1&&h.healthVersion===1,'SO_VERSION_INVALID');
@@ -73,10 +74,10 @@ async function releasePlan(tx,actor,ctx,authority,at){
  const entries=changes.sort((a,b)=>a.id.localeCompare(b.id)).map(data=>({path:`changes/${data.id}`,data}));
  requireThat(Buffer.byteLength(JSON.stringify(entries))<=campaignLimits.bytes,'SO_RELEASE_LIMIT');
  const pages=campaignPagesFor(entries);requireThat(pages.length>0&&pages.length<=100,'SO_RELEASE_LIMIT');
- const confirmation=digest({searchVersion:1,mediaVersion:1,episodesVersion:1,missionExecutionVersion:1,missionsVersion:1,logisticsVersion:1,combatVersion:1,navigationVersion:1,shopsVersion:1,healthVersion:1,actorUid:actor.uid,c:ctx.c,s:ctx.s,draft:ctx.draft,entries,admissions:admissions.fingerprint});
+ const confirmation=digest({successionVersion:1,searchVersion:1,mediaVersion:1,episodesVersion:1,missionExecutionVersion:1,missionsVersion:1,logisticsVersion:1,combatVersion:1,navigationVersion:1,shopsVersion:1,healthVersion:1,actorUid:actor.uid,c:ctx.c,s:ctx.s,draft:ctx.draft,entries,admissions:admissions.fingerprint});
  return {entries,pages,confirmation,blockers,draftRevision:ctx.draft.revision,characters:changes.filter(c=>c.type==='character'&&c.operation==='UPSERT').length,approved:admissions.totals.approved};
 }
-function optionsInput(v){
+export function soBirthOptions(v){
  admissionKeys(v,['weaponApplicable','startingInformation']);requireThat(typeof v.weaponApplicable==='boolean','SO_BIRTH_OPTIONS_REQUIRED');
  return {weaponApplicable:v.weaponApplicable,startingInformation:admissionText(v.startingInformation??'',4000)};
 }
@@ -98,9 +99,15 @@ async function birthPlan(tx,actor,ctx,version,uid,options){
  if(existing){requireThat(existing.birth?.versionId===version.header.id&&existing.assignedUid===uid&&r.characterId===id,'SO_BIRTH_CONFLICT');return {alreadyBorn:true,characterId:id,accessActive:r.accessActive};}
  requireThat(r.status==='RECEIVED'&&!r.characterId&&!r.accessActive,'SO_BIRTH_CONFLICT');
  requireThat(!(await tx.list(`sessions/${s.id}/characters`,['assignedUid',uid],{limit:1})).length,'SO_BIRTH_CONFLICT');
+ const {profile,lots}=await planSoBirthAssets(tx,s,version,id,proposal.classId,proposal.secondaryId,options);
+ return {r,definition:d,characterId:id,profile,lots,options,confirmation:digest({actorUid:actor.uid,s,c,admission:r.admission,policy:ctx.policy,occupancy:ctx.occupancy,version:version.header.manifestDigest,options})};
+}
+
+// Shared by the first birth and the explicitly validated successor transaction.
+export async function planSoBirthAssets(tx,s,version,id,classId,secondaryId,options){
  requireThat(!await tx.get(`sessions/${s.id}/accounts/${accountId(id)}`)&&!await tx.get(actionPointPath(s.id,id)),'SO_BIRTH_CONFLICT');
- const profile=initialCharacterProfile(proposal.classId,proposal.secondaryId),spec=initialClassKit(proposal.classId);
- const kit=version.changes.find(ch=>ch.type==='classKit'&&ch.entityId===proposal.classId&&ch.operation==='UPSERT');requireThat(kit,'CLASS_KIT_MISSING');
+ const profile=initialCharacterProfile(classId,secondaryId),spec=initialClassKit(classId);
+ const kit=version.changes.find(ch=>ch.type==='classKit'&&ch.entityId===classId&&ch.operation==='UPSERT');requireThat(kit,'CLASS_KIT_MISSING');
  if(['PIL','COU'].includes(profile.classId))requireThat(options.startingInformation.length>0,'SO_INITIAL_INFORMATION_REQUIRED');
  const lots=[];
  for(const slot of spec.slots){
@@ -113,7 +120,24 @@ async function birthPlan(tx,actor,ctx,version,uid,options){
    lots.push({slotId:slot.id,id:lotId,item,quantity:item.kind==='INDIVIDUAL'?1:slot.quantity});
   }
  }
- return {r,definition:d,characterId:id,profile,lots,options,confirmation:digest({actorUid:actor.uid,s,c,admission:r.admission,policy:ctx.policy,occupancy:ctx.occupancy,version:version.header.manifestDigest,options})};
+ return {profile,lots};
+}
+export function soBornCharacter({definition,sid,uid,profile,options,version,at,actor,uuid,progression={}}){
+ const maxHp=profile.classId==='COM'?4:3;
+ return {...definition,sessionId:sid,assignedUid:uid,publicCode:uuid(),publicationState:'PUBLISHED',public:{...definition.public,publicationState:'PUBLISHED'},
+    objectives:definition.objectives.map(o=>({...o,published:true,steps:o.steps.map(st=>({...st,published:true}))})),relations:definition.relations.map(r=>({...r,published:true})),
+    globalLevel:progression.globalLevel??1,xp:progression.xp??0,...progression,hp:maxHp,maxHp,outOfCombat:false,healthRevision:1,protection:profile.classId==='COM'?1:0,
+    spaceOutlawsSkills:profile,startingInformation:options.startingInformation,birth:{versionId:version.header.id,at,actorUid:actor.uid,weaponApplicable:options.weaponApplicable},
+    abilityProfile:{published:true,revision:1,class:{id:profile.classId,name:profile.className,description:''},skills:profile.skills.map(k=>({id:k.id,name:k.name,kind:'PASSIVE',level:k.level??1,revision:1,description:k.kind==='FIXED'?'Technique acquise (sans niveau).':`Niveau ${k.level}`,instructions:'',category:k.source,healing:null}))}};
+}
+export function writeSoBirthAssets({tx,s,character,lots,version,at,actor,reason,eventId}){
+ const sid=s.id,id=character.id,base=`sessions/${sid}`;
+   recordPublication(tx,`${base}/characters`,null,character,{id:eventId,at,actorUid:actor.uid,reason,stage:s.stage});
+   tx.set(actionPointPath(sid,id),{...actionPointState(s,character,null,at),revision:1});
+   const wallet=openWallet(tx,sid,character,0,at,actor.uid,'SO_BIRTH'),protectedWallet={...wallet,protectedCredits:200,protectedOrigin:{kind:'SO_BIRTH',characterId:id,sessionId:sid},revision:2};
+   tx.set(`${base}/accounts/${wallet.id}`,protectedWallet);
+   writeLedger(tx,sid,{id:eventId,at,kind:'SO_PROTECTED_GRANT',actorUid:actor.uid,memo:'200 Cr de création protégés',reason,createdCurrency:200,removedCurrency:0,entries:[{accountId:wallet.id,characterId:id,delta:0,protectedDelta:200,before:moneyState(wallet),after:moneyState(protectedWallet)}]});
+   for(const l of lots){const lot={...newLot(l.id,{...l.item,pillable:false},l.quantity,id,at,{kind:'SO_BIRTH',slotId:l.slotId,versionId:version.header.id}),pillable:false,transferable:false,resellable:false};tx.set(`${base}/inventory/${l.id}`,lot);tx.set(`${base}/inventory/${l.id}/history/${eventId}`,{id:eventId,kind:'SO_BIRTH',at,actorUid:actor.uid,reason,before:null,after:lotState(lot)});}
 }
 
 export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSession,now,uuid}){
@@ -131,9 +155,9 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
    if(publishing)requireThat(authority.owner,'FORBIDDEN');
    const ctx=await context(tx,s,c);
    if(action==='spaceOutlawsEntry'){
-    admissionKeys(input,['sessionId']);const version=c.master?.activeVersionId?await readVersion(tx,c):null;
+    admissionKeys(input,['sessionId']);const version=c.master?.activeVersionId?await readSoEntryVersion(tx,c):null;
     const registrations=await tx.list(`sessions/${sid}/registrations`,null,{limit:1001});requireThat(registrations.length<=1000,'SO_RELEASE_LIMIT');
-    return {session:{...publicSession(s),revision:s.revision},campaignId:c.id,campaignEpisode:s.campaignEpisode,episodesReady:s.spaceOutlaws?.episodesVersion===1,stage:s.stage,canRelease:authority.owner,actionsReady:s.spaceOutlaws?.actionsVersion===1,missionsReady:s.spaceOutlaws?.missionsVersion===1,navigationReady:s.spaceOutlaws?.navigationVersion===1,shopsReady:s.spaceOutlaws?.shopsVersion===1,healthReady:s.spaceOutlaws?.healthVersion===1,safetyStopped:s.safetyStop?.active===true,versionId:version?.header.id??null,draftRevision:ctx.draft?.revision??0,
+    return {session:{...publicSession(s),revision:s.revision},campaignId:c.id,campaignEpisode:s.campaignEpisode,successionReady:s.spaceOutlaws?.successionVersion===1,episodesReady:s.spaceOutlaws?.episodesVersion===1,stage:s.stage,canRelease:authority.owner,actionsReady:s.spaceOutlaws?.actionsVersion===1,missionsReady:s.spaceOutlaws?.missionsVersion===1,navigationReady:s.spaceOutlaws?.navigationVersion===1,shopsReady:s.spaceOutlaws?.shopsVersion===1,healthReady:s.spaceOutlaws?.healthVersion===1,safetyStopped:s.safetyStop?.active===true,versionId:version?.header.id??null,draftRevision:ctx.draft?.revision??0,
      targets:(version?.changes??[]).filter(ch=>ch.type==='fieldTarget'&&ch.operation==='UPSERT').map(ch=>({id:ch.entityId,title:ch.data.title})),
      registrations:registrations.filter(r=>r.admission?.status==='APPROVED').map(r=>({uid:r.uid,name:`${r.admission.proposal.firstName} ${r.admission.proposal.lastName}`,classId:r.admission.proposal.classId,characterId:r.characterId??null,accessActive:r.accessActive,m2Prepared:!!r.admission.m2Preparation}))};
    }
@@ -141,12 +165,12 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
    if(op){const receipt=await tx.get(op);if(receipt){requireThat(receipt.fingerprint===fingerprint,'REQUEST_ID_REUSED');return receipt.result;}}
    if(publishing){
     admissionKeys(input,['sessionId',...(read?[]:['requestId','confirmation','reason'])]);
-    if(c.master?.activeVersionId){const version=await readVersion(tx,c);requireThat(!read&&version.header.confirmation===input.confirmation,'SO_ALREADY_RELEASED');return {versionId:version.header.id};}
+    if(c.master?.activeVersionId){const version=await readSoEntryVersion(tx,c);requireThat(!read&&version.header.confirmation===input.confirmation,'SO_ALREADY_RELEASED');return {versionId:version.header.id};}
     const plan=await releasePlan(tx,actor,ctx,authority,at);
     if(read)return {careProfiles:plan.blockers.length?[]:soCareProfiles(plan.entries.map(e=>e.data)).map(p=>({name:p.name,itemId:p.consumable?.itemId??null})),confirmation:plan.confirmation,blockers:plan.blockers,canRelease:!plan.blockers.length,draftRevision:plan.draftRevision,characters:plan.characters,approved:plan.approved};
     const reason=admissionText(input.reason,500,true);requireThat(!plan.blockers.length,'SO_RELEASE_BLOCKED');requireThat(plan.confirmation===input.confirmation,'SO_ENTRY_STALE');
     const id=`so_${plan.confirmation}`,base=`campaigns/${c.id}/versions/${id}`,pages=plan.pages.map((entries,i)=>({id:String(i),versionId:id,entries}));
-    const manifest={id,kind:versionKind,status:'READY',ruleProfile:spaceOutlawsProfile,campaignId:c.id,sessionId:sid,draftRevision:plan.draftRevision,confirmation:plan.confirmation,createdAt:at,actorUid:actor.uid,reason,searchVersion:1,mediaVersion:1,episodesVersion:1,missionExecutionVersion:1,missionsVersion:1,logisticsVersion:1,combatVersion:1,navigationVersion:1,shopsVersion:1,healthVersion:1,careProfiles:soCareProfiles(plan.entries.map(e=>e.data)),records:plan.entries.length,contentDigest:digest(plan.entries),pages:pages.map(p=>({id:p.id,digest:digest(p)}))};
+    const manifest={id,kind:versionKind,status:'READY',ruleProfile:spaceOutlawsProfile,campaignId:c.id,sessionId:sid,draftRevision:plan.draftRevision,confirmation:plan.confirmation,createdAt:at,actorUid:actor.uid,reason,successionVersion:1,searchVersion:1,mediaVersion:1,episodesVersion:1,missionExecutionVersion:1,missionsVersion:1,logisticsVersion:1,combatVersion:1,navigationVersion:1,shopsVersion:1,healthVersion:1,careProfiles:soCareProfiles(plan.entries.map(e=>e.data)),records:plan.entries.length,contentDigest:digest(plan.entries),pages:pages.map(p=>({id:p.id,digest:digest(p)}))};
     for(const p of pages)tx.set(`${base}/pages/${p.id}`,p);
     tx.set(base,{...manifest,manifestDigest:digest(manifest)});
     tx.set(`campaigns/${c.id}`,{...c,revision:c.revision+1,master:{...c.master,activeVersionId:id,pointerRevision:1,openDraftId:null}});
@@ -155,16 +179,12 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
     const result={versionId:id};tx.set(op,{fingerprint,result,at});return result;
    }
    admissionKeys(input,['sessionId','uid','options',...(read?[]:['requestId','confirmation','reason'])]);
-   const uid=documentId(input.uid),options=optionsInput(input.options),version=await readVersion(tx,c),plan=await birthPlan(tx,actor,ctx,version,uid,options);
+   const uid=documentId(input.uid),options=soBirthOptions(input.options),version=await readSoEntryVersion(tx,c),plan=await birthPlan(tx,actor,ctx,version,uid,options);
    if(plan.alreadyBorn)return {characterId:plan.characterId,alreadyBorn:true,accessActive:plan.accessActive};
    if(read)return {characterId:plan.characterId,name:plan.definition.public.displayName,profile:plan.profile,hp:plan.profile.classId==='COM'?4:3,protection:plan.profile.classId==='COM'?1:0,actionPoints:5,protectedCredits:200,kit:plan.lots.map(l=>({name:l.item.name,quantity:l.quantity})),options,confirmation:plan.confirmation};
    const reason=admissionText(input.reason,500,true);requireThat(plan.confirmation===input.confirmation,'SO_ENTRY_STALE');
-   const id=plan.characterId,eventId=uuid(),base=`sessions/${sid}`,maxHp=plan.profile.classId==='COM'?4:3;
-   const character={...plan.definition,sessionId:sid,assignedUid:uid,publicCode:uuid(),publicationState:'PUBLISHED',public:{...plan.definition.public,publicationState:'PUBLISHED'},
-    objectives:plan.definition.objectives.map(o=>({...o,published:true,steps:o.steps.map(st=>({...st,published:true}))})),relations:plan.definition.relations.map(r=>({...r,published:true})),
-    globalLevel:1,xp:0,hp:maxHp,maxHp,outOfCombat:false,healthRevision:1,protection:plan.profile.classId==='COM'?1:0,
-    spaceOutlawsSkills:plan.profile,startingInformation:options.startingInformation,birth:{versionId:version.header.id,at,actorUid:actor.uid,weaponApplicable:options.weaponApplicable},
-    abilityProfile:{published:true,revision:1,class:{id:plan.profile.classId,name:plan.profile.className,description:''},skills:plan.profile.skills.map(k=>({id:k.id,name:k.name,kind:'PASSIVE',level:k.level??1,revision:1,description:k.kind==='FIXED'?'Technique acquise (sans niveau).':`Niveau ${k.level}`,instructions:'',category:k.source,healing:null}))}};
+   const id=plan.characterId,eventId=uuid(),base=`sessions/${sid}`;
+   const character=soBornCharacter({definition:plan.definition,sid,uid,profile:plan.profile,options,version,at,actor,uuid});
    const {preparationKind,preparationVersion,...prior}=s;
    const episodesEnabled=version.header.episodesVersion===1;requireThat(!s.spaceOutlaws||!!s.spaceOutlaws.episodesVersion===episodesEnabled,'SO_VERSION_INVALID');
    const missionsEnabled=version.header.missionsVersion===1,missionExecutionEnabled=version.header.missionExecutionVersion===1;
@@ -176,7 +196,7 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
    requireThat(!s.spaceOutlaws||!!s.spaceOutlaws.navigationVersion===navigationEnabled,'SO_VERSION_INVALID');
    requireThat(!s.spaceOutlaws||!!s.spaceOutlaws.shopsVersion===shopsEnabled,'SO_VERSION_INVALID');
    requireThat(!s.spaceOutlaws||!!s.spaceOutlaws.healthVersion===healthEnabled,'SO_VERSION_INVALID');
-   const nextSession={...prior,...(episodesEnabled?{campaignEpisode:1}:{}),...(healthEnabled?{vitalClock:s.vitalClock??{elapsedMs:at,runningSince:at},safetyStop:s.safetyStop??{active:false}}:{}),stage:'BRIEFING',revision:s.revision+1,versionId:version.header.id,spaceOutlaws:{ruleProfile:spaceOutlawsProfile,entryVersion:1,actionsVersion:1,...(version.header.searchVersion===1?{searchVersion:1}:{}),...(version.header.mediaVersion===1?{mediaVersion:1}:{}),...(episodesEnabled?{episodesVersion:1}:{}),...(missionsEnabled?{missionsVersion:1}:{}),...(missionExecutionEnabled?{missionExecutionVersion:1}:{}),...(healthEnabled?{healthVersion:1}:{}),...(shopsEnabled?{shopsVersion:1}:{}),...(navigationEnabled?{navigationVersion:1}:{}),...(combatEnabled?{combatVersion:1}:{}),...(logisticsEnabled?{logisticsVersion:1}:{}),versionId:version.header.id},
+   const nextSession={...prior,...(episodesEnabled?{campaignEpisode:1}:{}),...(healthEnabled?{vitalClock:s.vitalClock??{elapsedMs:at,runningSince:at},safetyStop:s.safetyStop??{active:false}}:{}),stage:'BRIEFING',revision:s.revision+1,versionId:version.header.id,spaceOutlaws:{ruleProfile:spaceOutlawsProfile,entryVersion:1,actionsVersion:1,...(version.header.successionVersion===1?{successionVersion:1}:{}),...(version.header.searchVersion===1?{searchVersion:1}:{}),...(version.header.mediaVersion===1?{mediaVersion:1}:{}),...(episodesEnabled?{episodesVersion:1}:{}),...(missionsEnabled?{missionsVersion:1}:{}),...(missionExecutionEnabled?{missionExecutionVersion:1}:{}),...(healthEnabled?{healthVersion:1}:{}),...(shopsEnabled?{shopsVersion:1}:{}),...(navigationEnabled?{navigationVersion:1}:{}),...(combatEnabled?{combatVersion:1}:{}),...(logisticsEnabled?{logisticsVersion:1}:{}),versionId:version.header.id},
     actionPointRules:{...portBrecheActionPoints},economyRules:{enabled:true,name:'Crédits',unit:'Cr'},healthRules:{enabled:true,defaultMaxHp:3,returnMode:'HP_POSITIVE',allowed:{discover:false,share:false,publish:false,heal:false,transfer:false,pay:false}}};
    if(episodesEnabled&&!s.spaceOutlaws){requireThat(!c.activeSessionId&&!c.activeBuildId,'CAMPAIGN_EPISODE_ACTIVE');tx.set(`campaigns/${c.id}`,{...c,episodesVersion:1,activeSessionId:sid,episodeCount:1,revision:c.revision+1});}
    tx[spaceOutlawsTransaction](sid);tx.set(base,nextSession);tx.set(`${base}/characters/${id}`,character);
@@ -191,12 +211,7 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
    }
    for(const k of knowledge)if(k.initialCharacterIds.includes(id))tx.set(`${base}/characters/${id}/knowledge/${k.id}`,initialReceipt(k,at));
    tx.set(regPath(sid,uid),{...plan.r,status:'ACCEPTED',characterId:id,accessActive:true,accessVersion:1,minAuthTime:0});
-   recordPublication(tx,`${base}/characters`,null,character,{id:eventId,at,actorUid:actor.uid,reason,stage:'BRIEFING'});
-   tx.set(actionPointPath(sid,id),{...actionPointState(nextSession,character,null,at),revision:1});
-   const wallet=openWallet(tx,sid,character,0,at,actor.uid,'SO_BIRTH'),protectedWallet={...wallet,protectedCredits:200,protectedOrigin:{kind:'SO_BIRTH',characterId:id,sessionId:sid},revision:2};
-   tx.set(`${base}/accounts/${wallet.id}`,protectedWallet);
-   writeLedger(tx,sid,{id:eventId,at,kind:'SO_PROTECTED_GRANT',actorUid:actor.uid,memo:'200 Cr de création protégés',reason,createdCurrency:200,removedCurrency:0,entries:[{accountId:wallet.id,characterId:id,delta:0,protectedDelta:200,before:moneyState(wallet),after:moneyState(protectedWallet)}]});
-   for(const l of plan.lots){const lot={...newLot(l.id,{...l.item,pillable:false},l.quantity,id,at,{kind:'SO_BIRTH',slotId:l.slotId,versionId:version.header.id}),pillable:false,transferable:false,resellable:false};tx.set(`${base}/inventory/${l.id}`,lot);tx.set(`${base}/inventory/${l.id}/history/${eventId}`,{id:eventId,kind:'SO_BIRTH',at,actorUid:actor.uid,reason,before:null,after:lotState(lot)});}
+   writeSoBirthAssets({tx,s:nextSession,character,lots:plan.lots,version,at,actor,reason,eventId});
    tx.set(`${base}/audit/${eventId}`,{id:eventId,action,at,actorUid:actor.uid,reason,characterId:id,versionId:version.header.id});
    const result={characterId:id,accessActive:true};tx.set(op,{fingerprint,result,at});return result;
   });

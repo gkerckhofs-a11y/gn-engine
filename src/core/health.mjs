@@ -1,4 +1,5 @@
 import {acceptsPatientNature} from '../shared/character-nature.mjs';
+import {retireCharacterMemberships} from './group-roster.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {hasSoHealth,survival,vitalTime,securedPatient} from './space-outlaws-health-state.mjs';
 import {pauseClock,resumeClock} from './clock.mjs';
@@ -103,6 +104,10 @@ export function createHealthService({store,signed,checkSession,checkScenario,now
         requireThat(survival(s,c,at).status==='EXPIRED'&&!s.safetyStop?.active,'SO_DEATH_NOT_DUE');
         requireThat(!c.activeFieldActionId&&!c.activePersonActionId,'PERSON_ACTIONS_OPEN');
         const next={...c,survival:{...c.survival,dead:true,recordedAt:at},healthRevision:c.healthRevision+1};
+        if(s.spaceOutlaws.successionVersion===1){
+          const groups=await tx.list(`sessions/${sid}/groups`,null,{limit:51});requireThat(groups.length<=50,'SO_RELEASE_LIMIT');
+          authorizeSpaceOutlaws(tx,s,'SUCCESSION');retireCharacterMemberships(tx,s,groups,cid,{id:newId,at,actorUid:actor.uid,reason:memo});
+        }
         authorizeSpaceOutlaws(tx,s,'HEALTH');tx.set(charPath(sid,cid),next);
         tx.set(`${charPath(sid,cid)}/healthHistory/${newId}`,{id:newId,kind:'DEATH',at,actorUid:actor.uid,reason:memo,before:healthState(c),after:healthState(next)});
         result={characterId:cid,status:'DEAD'};

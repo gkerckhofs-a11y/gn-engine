@@ -31,7 +31,7 @@ export function campaignGuardStore(store){
  return {get:store.get.bind(store),list:store.list.bind(store),runTransaction:callback=>store.runTransaction(async tx=>{
   const pending=new Map(),authorized=new Set(),scopes=new Map(),result=await callback({...tx,[spaceOutlawsTransaction]:sid=>authorized.add(sid),[spaceOutlawsGameplay]:(sid,scope)=>{if(!scopes.has(sid))scopes.set(sid,new Set());scopes.get(sid).add(scope);},set:(path,data)=>pending.set(path,data)});
   const ids=new Set([...pending.keys()].filter(p=>p.startsWith('sessions/')).map(p=>p.split('/')[1]));
-  for(const sid of ids){const s=await tx.get(`sessions/${sid}`);requireThat(!s?.campaignSealed,'CAMPAIGN_SESSION_SEALED');if(!guardSpaceOutlawsEntry(s,pending,authorized.has(sid),scopes.get(sid)))guardPreparationWrites(s,pending);else if(!authorized.has(sid))for(const [path,next] of pending)if(path.startsWith(`sessions/${sid}/registrations/`)&&path.split('/').length===4)guardSpaceOutlawsRegistration(await tx.get(path),next,scopes.get(sid)?.has('EPISODES'));}
+  for(const sid of ids){const s=await tx.get(`sessions/${sid}`);requireThat(!s?.campaignSealed,'CAMPAIGN_SESSION_SEALED');if(!guardSpaceOutlawsEntry(s,pending,authorized.has(sid),scopes.get(sid)))guardPreparationWrites(s,pending);else if(!authorized.has(sid))for(const [path,next] of pending)if(path.startsWith(`sessions/${sid}/registrations/`)&&path.split('/').length===4)guardSpaceOutlawsRegistration(await tx.get(path),next,scopes.get(sid)?.has('EPISODES'),s.spaceOutlaws?.successionVersion===1&&scopes.get(sid)?.has('SUCCESSION'));}
   for(const [path,data] of pending)tx.set(path,data);return result;
  })};
 }

@@ -91,7 +91,7 @@ export function spaceOutlawsHealthSuite(makeStore,prefix='Santé SPACE OUTLAWS')
  test(`${prefix} : ancienne version scellée conserve son périmètre sans soins implicites`,async()=>{
   const f=await actionsFixture(makeStore,{release:false}),released=await f.release(await f.releasePreview()),path=`campaigns/${f.campaignId}/versions/${released.versionId}`;
   const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
-  await f.store.runTransaction(async tx=>{const {healthVersion,episodesVersion,careProfiles,manifestDigest,...old}=await tx.get(path);tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});
+  await f.store.runTransaction(async tx=>{const {healthVersion,episodesVersion,successionVersion,careProfiles,manifestDigest,...old}=await tx.get(path);tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});
   await f.birth(await f.birthPreview());await f.stage('EN_JEU');assert.equal((await f.actionRead('mySession')).session.spaceOutlaws.healthVersion,undefined);assert.deepEqual(await f.store.list(`sessions/${f.sid}/personProfiles`),[]);await assert.rejects(f.actionRead('prepareDamage',{amount:1}),{code:'SO_GAMEPLAY_NOT_OPEN'});
  });
 
