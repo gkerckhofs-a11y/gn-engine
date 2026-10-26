@@ -89,5 +89,5 @@ export function applySoResolution(tx,s,c,x,kind,at,actor,id,ledger){
  }
  c=applyRewardSettlement(tx,s,c,x.rewardPlans,id,at,actor,r.reason);
  const paid=(c.paidAmount??0)+r.pay,status=r.remainingDisputed||rewardsDisputed(c)?'DISPUTED':paid===c.terms.amount?'PAID':'SETTLED';
- return {...c,status,paidAmount:paid,disputedAmount:r.remainingDisputed,...(!r.remainingDisputed&&!rewardsDisputed(c)?{paidAt:at,paymentId:id}:{})};
+ return {...c,status,paidAmount:paid,disputedAmount:r.remainingDisputed,...(r.pay||r.release?{paymentId:id}:{}),...(!r.remainingDisputed&&!rewardsDisputed(c)?{paidAt:at}:{})};
 }
