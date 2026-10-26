@@ -23,6 +23,7 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(!path.startsWith(base)&&path!==base.slice(0,-1))continue;
   if(path.startsWith(`${base}audit/`))continue;
   const relative=path.slice(base.length);
+  if(scopes.has('TRANSPORT')&&session.spaceOutlaws.transportVersion===1&&/^inventory\/[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
   if(scopes.has('LEARNING')&&session.spaceOutlaws.learningVersion===1&&/^(characters\/[^/]+(?:\/history\/[^/]+)?|registrations\/[a-f0-9]{64})$/.test(relative))continue;
   if(scopes.has('SUCCESSION')&&session.spaceOutlaws.successionVersion===1&&/^(characters\/[^/]+(?:\/(history\/[^/]+|resources\/actionPoints|knowledge\/[^/]+))?|publicCharacters\/[^/]+|registrations\/[a-f0-9]{64}(?:\/successionHistory\/[^/]+)?|admission\/occupancy|admissionIdentities\/[a-f0-9]{64}|groups\/[^/]+(?:\/history\/[^/]+)?|inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('MEDIA')&&session.spaceOutlaws.mediaVersion===1&&/^(characters|items|inventory|announcements|ships)\/[^/]+(?:\/(mediaHistory|history)\/[^/]+)?$/.test(relative))continue;

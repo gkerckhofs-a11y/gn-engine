@@ -1,11 +1,12 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
-## État courant — progression entre épisodes
+## État courant — transport PNJ confié
 
 L’état évolutif autoritaire et les preuves actuelles sont dans [SO-VALIDATION](SO-VALIDATION.md). Les sections C2 ci-dessous sont historiques.
 
 | Exigence | Couverture ajoutée | Limite |
 | --- | --- | --- |
+| A35–A36, REC-SO-21 | Contrat M7 de fret PNJ, salaire/stock réservés, chargement/voyage/livraison, réception MJ, retour physique et médiation ; dix cas partagés et deux UI | Escorte, assurance, clients joueurs/groupes, livraison partielle, QR autonome et barèmes exceptionnels complets restent ouverts |
 | A08, REC-SO-01 | Acquisition/augmentation, cinq secondaires, 34 entrées, exclusivités, coûts, rares et reconversion consentie ; 18 cas métier partagés et deux UI | Les effets des compétences encore non raccordées et la recette humaine ne sont pas certifiés |
 | A09, REC-SO-02 | Solde débité sans modifier XP gagnés/hérités, plafond du participant conservé après relève, acquisitions conservées dans l’épisode suivant | Parcours acquis distinct de la validation complète de tous les 55 cas |
 | SEC-SO, persistance A38 | Droits avant reçus, interruption/concurrence, aperçu périmé, HTTP/Auth, ancien manifeste fermé | CI du candidat à consulter dans la PR ; aucune migration ni production |

@@ -1,3 +1,4 @@
+import {hasSoTransport,transportSettlementPlan,releaseTransport} from './space-transport.mjs';
 import {hasMissionExecution} from './space-outlaws-mission-evidence.mjs';
 import {rewardDispute,rewardSettlement,applyRewardSettlement,rewardsDisputed,rewardsFree} from './space-outlaws-mission-rewards.mjs';
 import {requireThat,documentId,whole} from './validation.mjs';
@@ -19,7 +20,7 @@ export function seedSoMissions(tx,sid,changes,versionId){
 export async function soAnnouncement(tx,s,input,old){
  if(!s.spaceOutlaws)return {};
  requireThat(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)&&!s.safetyStop?.active,'SESSION_NOT_RUNNING');
- requireThat(input.mode==='ASSIGNMENT'&&(input.participation??'PERSONAL')==='PERSONAL'&&['INFORMATION','MERCENARY','OTHER'].includes(input.category)&&['NPC','AUTHORITY'].includes(input.sponsorKind),'SO_MISSION_UNSUPPORTED');
+ requireThat(input.mode==='ASSIGNMENT'&&(input.participation??'PERSONAL')==='PERSONAL'&&(['INFORMATION','MERCENARY','OTHER'].includes(input.category)||hasSoTransport(s)&&input.category==='TRANSPORT')&&['NPC','AUTHORITY'].includes(input.sponsorKind),'SO_MISSION_UNSUPPORTED');
  requireThat(input.audience?.groupIds?.length===0,'SO_MISSION_UNSUPPORTED');
  const mid=documentId(input.missionId),m=await tx.get(`sessions/${s.id}/missions/${mid}`);
  requireThat(m?.versionId===s.spaceOutlaws.versionId&&m.publicationState==='PUBLISHED'&&(!m.rewardItems.length||hasMissionExecution(s)),'SO_MISSION_UNSUPPORTED');
@@ -77,8 +78,9 @@ export async function prepareSoResolution(tx,s,c,ctx,input,at,kind,candidate){
   rewardPlans=await rewardSettlement(tx,s,c,input,kind);
   if(pay||rewardPlans.some(r=>r.pay>0)){requireThat((await candidate(tx,s,c)).current,'STALE_CONTRACT');to=await tx.get(`sessions/${s.id}/accounts/${accountId(c.characterId)}`);moneyState(to);whole(to.balance+pay,'BALANCE_OVERFLOW');}
  }
+ const transportRelease=!kind.startsWith('APPEAL')&&kind!=='DISPUTE'&&(kind==='ARBITRATE'||disputed===0)?await transportSettlementPlan(tx,s,c):null;
  const result={rewardChanges:rewardPlans.map(({r,pay,release})=>({item:r.item,pay,release,disputed:r.remaining-pay-release})),...(rewardReservations?{rewardDisputes:rewardReservations.map(r=>({item:r.item,quantity:r.disputed}))}:{}),contract:{id:c.id,title:c.terms.title},kind,newEvidence,outcome,reason:reason.trim(),amount,pay,release,remainingDisputed:kind==='ARBITRATE'?0:kind==='DISPUTE'?amount:disputed,currency:c.terms.currency};
- return {source,to,rewardPlans,rewardReservations,result:{...result,confirmation:hash(JSON.stringify([c.id,c.revision,ctx.partyGuard??ctx.version,source?.revision??null,to?.revision??null,rewardPlans.map(x=>[x.lot.revision,x.source.revision]),result]))}};
+ return {source,to,rewardPlans,rewardReservations,transportRelease,result:{...result,confirmation:hash(JSON.stringify([c.id,c.revision,ctx.partyGuard??ctx.version,source?.revision??null,to?.revision??null,rewardPlans.map(x=>[x.lot.revision,x.source.revision]),transportRelease,result]))}};
 }
 export function applySoResolution(tx,s,c,x,kind,at,actor,id,ledger){
  const r=x.result,g=gameTime(s.clock,at);
@@ -89,6 +91,7 @@ export function applySoResolution(tx,s,c,x,kind,at,actor,id,ledger){
   const sourceNext={...x.source,balance:x.source.balance-r.pay,reserved:x.source.reserved-r.pay-r.release,revision:x.source.revision+1},toNext=x.to?{...x.to,balance:x.to.balance+r.pay,revision:x.to.revision+1}:null;
   ledger(tx,s,c,id,at,actor,'CONTRACT_PAY',x.source,x.to,sourceNext,toNext,r.reason);
  }
+ releaseTransport(tx,s,c,x.transportRelease,at,actor.uid,id);
  c=applyRewardSettlement(tx,s,c,x.rewardPlans,id,at,actor,r.reason);
  const paid=(c.paidAmount??0)+r.pay,status=r.remainingDisputed||rewardsDisputed(c)?'DISPUTED':paid===c.terms.amount?'PAID':'SETTLED';
  return {...c,status,paidAmount:paid,disputedAmount:r.remainingDisputed,...(r.pay||r.release?{paymentId:id}:{}),...(!r.remainingDisputed&&!rewardsDisputed(c)?{paidAt:at,...(s.spaceOutlaws?.episodesVersion===1?{settledEpisode:s.campaignEpisode}:{})}:{})};

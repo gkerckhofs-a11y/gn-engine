@@ -32,5 +32,5 @@ export function shipAccess(ship,cid,groups){
  const pilot=ship.soProfile?ship.pilotId===cid:ship.ownerType==='CHARACTER'?ship.ownerId===cid:groups.find(g=>g.id===ship.ownerId)?.permissions.pilotShip===true;
  return {...a,pilot,access:a.access||pilot};
 }
-export const publicJourney=({missionManifest,...j})=>j;
+export const publicJourney=({transportManifest,missionManifest,...j})=>j;
 export const navigationView=(s,ship,time)=>({shipId:ship.id,name:ship.name,docked:ship.docked,enabled:ship.enabled,configured:!!ship.navigation,local:localShip(s,ship),portId:ship.portId??null,fuel:ship.fuel??0,tankCapacity:ship.navigation?.tankCapacity??null,journey:ship.journey?{...publicJourney(ship.journey),remainingSeconds:Math.max(0,Math.ceil((ship.journey.arrivesAtGameMs-time)/1000))}:null});

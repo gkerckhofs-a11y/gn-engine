@@ -1,3 +1,4 @@
+import {transportOptions} from './space-transport.mjs';
 import {documentId,requireThat} from './validation.mjs';
 
 export const hasMissionExecution=s=>s.spaceOutlaws?.missionExecutionVersion===1;
@@ -8,7 +9,7 @@ export async function missionExecutionOptions(tx,s,a){
  if(!hasMissionExecution(s))return {};
  const base=`sessions/${s.id}`,offers=[];
  for(const shop of await tx.list(`${base}/shops`))for(const o of await tx.list(`${base}/shops/${shop.id}/offers`))if(o.versionId===s.spaceOutlaws.versionId)offers.push({id:o.id,name:o.name,shopId:shop.id,shopName:shop.name,itemId:o.item.id});
- return {missionExecution:{steps:a.missionSteps,rewards:a.rewardItems??[],
+ return {...await transportOptions(tx,s),missionExecution:{steps:a.missionSteps,rewards:a.rewardItems??[],
   targets:(await tx.list(`${base}/fieldTargets`)).filter(t=>t.publicationState==='PUBLISHED'&&t.kind==='ANALYSIS').map(t=>({id:t.id,name:t.title})),
   routes:(await tx.list(`${base}/routes`)).filter(r=>r.versionId===s.spaceOutlaws.versionId).map(r=>({id:r.id,name:r.name})),
   offers}};

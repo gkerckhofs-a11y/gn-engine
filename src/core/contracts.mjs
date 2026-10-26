@@ -1,3 +1,4 @@
+import {prepareTransport,transportAcceptance,reserveTransport,transportView,transportProof,transportReview,transportReleasePlan,releaseTransport} from './space-transport.mjs';
 import {missionStepBindings,missionEvidence} from './space-outlaws-mission-evidence.mjs';
 import {prepareMissionRewards,rewardTerms,rewardStock,reserveMissionRewards,readRewardReserves,applyRewardSettlement,missionRewardsView,rewardActions,takeMissionReward} from './space-outlaws-mission-rewards.mjs';
 import {soMissionAccess,soMissionFunding,soMissionRunning,soProofSteps,soResolutionActions,soResolutionAdminActions,soResolutionKind,soResolutionView,prepareSoResolution,applySoResolution} from './space-outlaws-mission-state.mjs';
@@ -50,9 +51,10 @@ export function createContractService({store,signed,checkSession,now,uuid}){
       else {requireThat(source.ownerType==='GROUP','INVALID_ACCOUNT');sourceName=source.label;}
     }
     const missionSteps=await missionStepBindings(tx,s,a,input),rewards=await prepareMissionRewards(tx,s,a,source,input);
-    const reason=text(input.reason,500),terms={...(s.spaceOutlaws?{spaceOutlaws:true,...(rewards.length?{rewards:rewardTerms(rewards)}:{})}:{}),title:a.title,description:a.description,sponsor:{kind:a.sponsorKind,name:a.sponsorName},applicant:participantOf(t),announcementReward:a.rewardText,amount,currency:currencyView(s.economyRules),funding:input.funding,durationMinutes,conditions:text(input.conditions),proofExpected:text(input.proofExpected,2000),confidentiality:text(input.confidentiality,2000),failureTerms:text(input.failureTerms,2000),validator:'MJ',advance:0,guarantee:0};
+    const transport=await prepareTransport(tx,s,a,input,source,t.characterId);
+    const reason=text(input.reason,500),terms={...(s.spaceOutlaws?{spaceOutlaws:true,...(rewards.length?{rewards:rewardTerms(rewards)}:{})}:{}),...(transport?{transport:transport.terms}:{}),title:a.title,description:a.description,sponsor:{kind:a.sponsorKind,name:a.sponsorName},applicant:participantOf(t),announcementReward:a.rewardText,amount,currency:currencyView(s.economyRules),funding:input.funding,durationMinutes,conditions:text(input.conditions),proofExpected:text(input.proofExpected,2000),confidentiality:text(input.confidentiality,2000),failureTerms:text(input.failureTerms,2000),validator:'MJ',advance:0,guarantee:0};
     const result={terms,missionSteps,announcement:announcementView(a,at),briefing:a.briefing,source:source?{id:source.id,name:sourceName,before:moneyState(source)}:null,reason};
-    return {t,a,terms,missionSteps,rewards,source,sourceGuard,sourceName,reason,result:{...result,confirmation:digest([s.id,t.revision,t.applicantVersion,p.version,to.revision,a.revision,a.briefing,source?.revision??null,sourceGuard,rewards,result])}};
+    return {t,a,terms,transport,missionSteps,rewards,source,sourceGuard,sourceName,reason,result:{...result,confirmation:digest([s.id,t.revision,t.applicantVersion,p.version,to.revision,a.revision,a.briefing,source?.revision??null,sourceGuard,rewards,transport?.guard??null,result])}};
   }
   async function acceptance(tx,s,c,ctx,at){
     soMissionRunning(s);
@@ -62,14 +64,15 @@ export function createContractService({store,signed,checkSession,now,uuid}){
     if(c.sourceAccountId){source=await wallet(tx,s,c.sourceAccountId);requireThat(source.id!==to.id,'INVALID_RECIPIENT');requireThat(moneyState(source).available>=c.terms.amount,'INSUFFICIENT_FUNDS');
       if(s.spaceOutlaws)await soMissionFunding(tx,s,c,source);
       if(c.sourceGuard){const p=await inventoryParty(tx,s.id,source.characterId);requireThat(p.active&&p.version===c.sourceGuard,'STALE_CONTRACT');}}
-    const rewards=await rewardStock(tx,s,c);
-    const result={contract:{...summary(c,s,at),terms:c.terms},confirmation:digest([c.id,c.revision,c.termsHash,ctx.partyGuard??ctx.version,source?.revision??null,to.revision,rewards.map(x=>x.lot.revision),s.healthRules])};return {a,to,source,rewards,result};
+    const rewards=await rewardStock(tx,s,c),transport=await transportAcceptance(tx,s,c);
+    const result={contract:{...summary(c,s,at),terms:c.terms},confirmation:digest([c.id,c.revision,c.termsHash,ctx.partyGuard??ctx.version,source?.revision??null,to.revision,rewards.map(x=>x.lot.revision),transport?.guard??null,s.healthRules])};return {a,to,source,rewards,transport,result};
   }
   async function proof(tx,s,c,ctx,input,at){
     soMissionRunning(s);
     requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,ctx.c,'publish');requireThat(c.status==='ACTIVE','CONTRACT_CLOSED');requireThat(s.spaceOutlaws||gameTime(s.clock,at)<c.deadlineGameMs,'CONTRACT_OVERDUE');
     const evidence=await missionEvidence(tx,s,c,ctx);requireThat(evidence.every(e=>e.verified),'SO_MISSION_EVIDENCE_REQUIRED');
-    const steps={...(evidence.length?{evidence}:{}),...soProofSteps(s,c,input),...(s.spaceOutlaws?{lateByMs:Math.max(0,gameTime(s.clock,at)-c.deadlineGameMs)}:{})},body=text(input.body,6000),result={...steps,contract:summary(c,s,at),body,proofExpected:c.terms.proofExpected};return {body,steps,result:{...result,confirmation:digest([c.id,c.revision,ctx.partyGuard??ctx.version,body,steps.completedStepIds??[],evidence,s.healthRules])}};
+    const transportProofData=await transportProof(tx,s,c);
+    const steps={...transportProofData,...(evidence.length?{evidence}:{}),...soProofSteps(s,c,input),...(s.spaceOutlaws?{lateByMs:transportProofData.transportEvidence?.lateByMs??Math.max(0,gameTime(s.clock,at)-c.deadlineGameMs)}:{})},body=text(input.body,6000),result={...steps,contract:summary(c,s,at),body,proofExpected:c.terms.proofExpected};return {body,steps,result:{...result,confirmation:digest([c.id,c.revision,ctx.partyGuard??ctx.version,body,steps,evidence,s.healthRules])}};
   }
   async function review(tx,s,c,input,at){
     soMissionRunning(s);
@@ -80,7 +83,8 @@ export function createContractService({store,signed,checkSession,now,uuid}){
       requireThat(s.economyRules?.enabled,'ECONOMY_DISABLED');to=await wallet(tx,s,participantAccount(participantOf(c)));whole(to.balance+c.terms.amount,'BALANCE_OVERFLOW');
       if(c.sourceAccountId){source=await wallet(tx,s,c.sourceAccountId);requireThat(source.reserved>=c.terms.amount,'INVALID_ACCOUNT');if(s.spaceOutlaws)await soMissionFunding(tx,s,c,source);}
     }else requireThat(s.stage!=='FINISHED'&&(s.spaceOutlaws||gameTime(s.clock,at)<c.deadlineGameMs),'CONTRACT_OVERDUE');
-    const result={...(s.spaceOutlaws?{deferred:true,contestSeconds:600}:{}),contract:summary(c,s,at),proof:c.proof,decision:input.decision,reason,amount:input.decision==='PAY'?c.terms.amount:0,currency:c.terms.currency,createdCurrency:input.decision==='PAY'&&!source?c.terms.amount:0,source:source?{name:c.sourceName,before:moneyState(source),after:moneyState({...source,balance:source.balance-c.terms.amount,reserved:source.reserved-c.terms.amount,revision:source.revision+1})}:null};
+    const transportDecision=await transportReview(tx,s,c,input);
+    const result={...transportDecision,...(s.spaceOutlaws?{deferred:true,contestSeconds:600}:{}),contract:summary(c,s,at),proof:c.proof,decision:input.decision,reason,amount:input.decision==='PAY'?c.terms.amount:0,currency:c.terms.currency,createdCurrency:input.decision==='PAY'&&!source?c.terms.amount:0,source:source?{name:c.sourceName,before:moneyState(source),after:moneyState({...source,balance:source.balance-c.terms.amount,reserved:source.reserved-c.terms.amount,revision:source.revision+1})}:null};
     return {source,to,reason,result:{...result,confirmation:digest([c.id,c.revision,p.version,source?.revision??null,to?.revision??null,result])}};
   }
   async function closure(tx,s,c,input,at){
@@ -90,9 +94,9 @@ export function createContractService({store,signed,checkSession,now,uuid}){
     const reason=text(input.reason,2000),source=active(c)&&c.sourceAccountId?await wallet(tx,s,c.sourceAccountId):null;
     if(source)requireThat(source.reserved>=c.terms.amount,'INVALID_ACCOUNT');
     const a=await tx.get(`sessions/${s.id}/announcements/${c.announcementId}`),t=await tx.get(`sessions/${s.id}/applications/${c.applicationId}`);requireThat(a&&t,'NOT_FOUND');
-    const rewards=active(c)?await readRewardReserves(tx,s,c):[];
+    const rewards=active(c)?await readRewardReserves(tx,s,c):[],transport=active(c)?await transportReleasePlan(tx,s,c):null;
     const result={releasedRewards:rewards.map(x=>({item:x.r.item,quantity:x.r.remaining})),contract:summary(c,s,at),decision:input.decision,reason,released:source?c.terms.amount:0,currency:c.terms.currency};
-    return {source,a,t,reason,rewards,result:{...result,confirmation:digest([c.id,c.revision,source?.revision??null,rewards.map(x=>[x.lot.revision,x.source.revision]),result])}};
+    return {source,a,t,reason,rewards,transport,result:{...result,confirmation:digest([c.id,c.revision,source?.revision??null,rewards.map(x=>[x.lot.revision,x.source.revision]),transport,result])}};
   }
   async function readable(tx,s,c,ctx,actor,at){
     const access=await participantAccess(tx,s,ctx,actor,c);requireThat(access,'FORBIDDEN');ctx.partyGuard=access.guard;if(c.status==='PROPOSED'){const a=await tx.get(`sessions/${s.id}/announcements/${c.announcementId}`);requireThat(await announcementReadable(tx,s,a,ctx.c.id,at),'FORBIDDEN');}
@@ -101,7 +105,7 @@ export function createContractService({store,signed,checkSession,now,uuid}){
     const p=await candidate(tx,s,c);let canAccept=false,unavailable=null;
     if(!admin&&c.status==='PROPOSED')try{await acceptance(tx,s,c,ctx,at);canAccept=true;}catch(e){if(!e.code)throw e;unavailable=e.code;}
     const history=await tx.list(`sessions/${s.id}/contracts/${c.id}/history`,null,{orderBy:'at',direction:'desc',limit:30});
-    return {session:{id:s.id},admin,contract:{...mediaFields(c,c.acceptedAt!=null||admin?['illustration','briefing']:['illustration']),...summary(c,s,at,ctx),terms:c.terms,acceptedAt:c.acceptedAt??null,deadlineGameMs:c.deadlineGameMs??null,remainingGameMs:c.deadlineGameMs==null?null:Math.max(0,c.deadlineGameMs-gameTime(s.clock,at)),proof:c.proof??null,...(c.appeal?{appeal:c.appeal}:{}),steps:c.acceptedAt!=null||admin?c.missionSteps??[]:[],briefing:c.acceptedAt!=null||admin?c.briefing:null},
+    return {session:{id:s.id},admin,transport:await transportView(tx,s,c),contract:{...mediaFields(c,c.acceptedAt!=null||admin?['illustration','briefing']:['illustration']),...summary(c,s,at,ctx),terms:c.terms,acceptedAt:c.acceptedAt??null,deadlineGameMs:c.deadlineGameMs??null,remainingGameMs:c.deadlineGameMs==null?null:Math.max(0,c.deadlineGameMs-gameTime(s.clock,at)),proof:c.proof??null,...(c.appeal?{appeal:c.appeal}:{}),steps:c.acceptedAt!=null||admin?c.missionSteps??[]:[],briefing:c.acceptedAt!=null||admin?c.briefing:null},
       ...soResolutionView(s,c,at,admin),...await missionRewardsView(tx,s,c,at,admin),...(!admin&&c.acceptedAt!=null?{evidence:await missionEvidence(tx,s,c,ctx)}:{}),history:admin?history:history.map(e=>({id:e.id,at:e.at,action:e.action,body:e.body??'',reason:e.publicReason??'',decision:e.decision??'',amount:e.amount??0})),candidateCurrent:p.current,canAccept,unavailable,
       canDecline:!admin&&c.status==='PROPOSED',canSubmit:!admin&&c.status==='ACTIVE'&&(s.spaceOutlaws||gameTime(s.clock,at)<c.deadlineGameMs)&&s.stage==='EN_JEU'&&canGameAction(s,ctx.c,'publish'),
       canReview:admin&&p.current&&c.status==='SUBMITTED',canClose:admin&&!terminal(c)&&(!s.spaceOutlaws||c.status==='PROPOSED'||(c.status==='ACTIVE'&&!c.proof)),canExpire:admin&&((c.status==='ACTIVE'&&gameTime(s.clock,at)>=c.deadlineGameMs)||(c.status==='PROPOSED'&&at>=c.offerDeadline)),
@@ -147,6 +151,7 @@ export function createContractService({store,signed,checkSession,now,uuid}){
       }else if(action==='acceptContract'){
         const x=await acceptance(tx,s,c,ctx,at);requireThat(input.confirmation===x.result.confirmation,'STALE_REVISION');const t=await tx.get(`${base}/applications/${c.applicationId}`),gameAt=gameTime(s.clock,at);
         next={...c,status:'ACTIVE',acceptedAt:at,acceptedGameMs:gameAt,deadlineGameMs:whole(gameAt+c.terms.durationMinutes*60000,'INVALID_CONTRACT'),acceptedTermsHash:c.termsHash,acceptedBy:actor.uid};
+        reserveTransport(tx,s,c,x.transport,at,actor.uid);
         if(x.rewards.length)next.rewardReservations=reserveMissionRewards(tx,s,c,x.rewards,id,at,actor);
         if(x.source)ledger(tx,s,c,id,at,actor,'CONTRACT_RESERVE',x.source,null,{...x.source,reserved:x.source.reserved+c.terms.amount,revision:x.source.revision+1},null,'Accord organisateur et candidat sur la même version');
         tx.set(`${base}/announcements/${x.a.id}`,{...x.a,assignedCount:(x.a.assignedCount??0)+1});tx.set(`${base}/applications/${t.id}`,{...t,status:'ASSIGNED',revision:t.revision+1,updatedAt:at});
@@ -165,6 +170,7 @@ export function createContractService({store,signed,checkSession,now,uuid}){
       }else if(action==='closeContract'){
         const x=await closure(tx,s,c,input,at);requireThat(input.confirmation===x.result.confirmation,'STALE_REVISION');next={...c,status:input.decision==='EXPIRE'?'EXPIRED':'CANCELLED'};event.publicReason=x.reason;event.decision=input.decision;
         if(active(c)){
+          releaseTransport(tx,s,c,x.transport,at,actor.uid,id);
           next=applyRewardSettlement(tx,s,next,x.rewards.map(x=>({...x,pay:0,release:x.r.remaining})),id,at,actor,x.reason);
           requireThat((x.a.assignedCount??0)>0,'INVALID_CONTRACT');tx.set(`${base}/announcements/${x.a.id}`,{...x.a,assignedCount:x.a.assignedCount-1});
           if(x.source)ledger(tx,s,c,id,at,actor,'CONTRACT_RELEASE',x.source,null,{...x.source,reserved:x.source.reserved-c.terms.amount,revision:x.source.revision+1},null,x.reason);

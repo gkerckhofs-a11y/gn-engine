@@ -1,3 +1,4 @@
+import {transportDeparture} from './space-transport.mjs';
 import {mediaFields} from './media-state.mjs';
 import {publicJourney} from './navigation-state.mjs';
 import {randomInt} from 'node:crypto';
@@ -85,7 +86,8 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
      if(!cancelling){requireThat(members.every((m,i)=>m.active&&m.version===a.manifest[i].version&&m.c.activeNavigationId===a.id&&!m.c.activeVoyageId&&available(s,m.c,time)),'INVALID_MANIFEST');requireThat(ship.hull>=1&&!ship.revisionRequired&&ship.fuel>=a.route.fuelCost,'SHIP_UNAVAILABLE');requireThat(navigationSkill(pilotCharacter,'PIL-02')>=a.level,'FIELD_SKILL_REQUIRED');}
      let j=null;
      if(!cancelling){const event=soVoyageEvent(a.route,...dice,ship.fuel-a.route.fuelCost),duration=a.route.durationSeconds+event.delaySeconds,suspended=event.needsMJ||event.fuelDebt>0;
-      j={...a.route,routeId:a.route.id,id,manifest:a.manifest.map(m=>({id:m.id,name:m.name})),...(s.spaceOutlaws.missionExecutionVersion===1?{missionManifest:a.manifest.map(m=>({id:m.id,version:m.version}))}:{}),pilotId:a.pilotId,departedAt:at,departedAtGameMs:time,arrivesAtGameMs:time+duration*1000,event,suspended,remainingMs:suspended?duration*1000:null};
+      const transportManifest=await transportDeparture(tx,s,ship,a.route,id,at);
+      j={...(transportManifest.length?{transportManifest}:{}),...a.route,routeId:a.route.id,id,manifest:a.manifest.map(m=>({id:m.id,name:m.name})),...(s.spaceOutlaws.missionExecutionVersion===1?{missionManifest:a.manifest.map(m=>({id:m.id,version:m.version}))}:{}),pilotId:a.pilotId,departedAt:at,departedAtGameMs:time,arrivesAtGameMs:time+duration*1000,event,suspended,remainingMs:suspended?duration*1000:null};
       next={...next,fuel:ship.fuel-a.route.fuelCost-event.fuelCost,docked:false,journey:j};tx.set(`${base}/voyages/${id}`,{...j,shipId:ship.id,status:suspended?'SUSPENDED':'IN_TRANSIT'});
      }
      for(const m of members){requireThat(m.c&&m.c.activeNavigationId===a.id,'INVALID_MANIFEST');tx.set(`${base}/characters/${m.c.id}`,{...m.c,activeNavigationId:null,...(j?{activeVoyageId:j.id}:{} )});}
@@ -109,7 +111,7 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
     requireThat(Array.isArray(input.passengerCodes)&&input.passengerCodes.length<ship.soProfile.seats&&input.passengerCodes.every(x=>typeof x==='string'&&x.length<=128),'INVALID_MANIFEST');
     const characters=await tx.list(`${base}/characters`),ids=[c.id,...input.passengerCodes.map(code=>characters.find(x=>x.publicCode===code||x.id===code)?.id)];requireThat(ids.every(Boolean)&&new Set(ids).size===ids.length,'INVALID_MANIFEST');
     const manifest=[];for(const cid of ids){const p=await inventoryParty(tx,s.id,cid);requireThat(p.active&&!p.c.activeVoyageId&&!p.c.activeNavigationId&&!p.c.activeFieldActionId&&!p.c.activePersonActionId&&!p.c.activeAidId&&available(s,p.c,time)&&characterPort(s,p.c)===ship.portId,'INVALID_MANIFEST');manifest.push({id:cid,name:p.c.public.displayName,version:p.version,character:p.c});}
-    requireThat(ship.fuel>=route.fuelCost,'INSUFFICIENT_FUEL');const stock=await warehouseStock(tx,s.id,ship.id,'HOLD');requireThat(stockVolume(stock)<=ship.capacity&&stock.every(l=>l.status==='AVAILABLE'||l.status==='SEIZED'),'CARGO_TRANSFERS_OPEN');requireThat(!(await tx.list(`${base}/cargoTransfers`)).some(t=>t.status==='LOADING'&&[t.source,t.destination].some(l=>l.kind==='HOLD'&&l.id===ship.id)),'CARGO_TRANSFERS_OPEN');
+    requireThat(ship.fuel>=route.fuelCost,'INSUFFICIENT_FUEL');await transportDeparture(tx,s,ship,route,null,at);const stock=await warehouseStock(tx,s.id,ship.id,'HOLD');requireThat(stockVolume(stock)<=ship.capacity&&stock.every(l=>l.status==='AVAILABLE'||l.status==='SEIZED'),'CARGO_TRANSFERS_OPEN');requireThat(!(await tx.list(`${base}/cargoTransfers`)).some(t=>t.status==='LOADING'&&[t.source,t.destination].some(l=>l.kind==='HOLD'&&l.id===ship.id)),'CARGO_TRANSFERS_OPEN');
     const points=actionPointState(s,c,await tx.get(actionPointPath(s.id,c.id)),at);requireThat(points.available>=1,'NOT_ENOUGH_ACTION_POINTS');
     const consent=hash(JSON.stringify([confirmation,manifest,route,stock,points])),durationSeconds=[0,180,150,120,90,60][level];
     if(action==='prepareVoyage')return {shipName:ship.name,route,manifest:manifest.map(m=>({id:m.id,name:m.name})),remainingFuel:ship.fuel-route.fuelCost,durationSeconds,cost:1,confirmation:consent};
