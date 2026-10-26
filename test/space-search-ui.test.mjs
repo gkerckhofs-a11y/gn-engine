@@ -8,7 +8,7 @@ import {MemoryStore} from './support/memory.mjs';
 test('V36 UI : QR universel, D12 12 lisible, seuil caché, prise confirmée et état après reconnexion',async()=>{
  const f=await searchFixture(()=>new MemoryStore()),d=await f.actionRead('fieldTarget',{targetId:'cache'}),h=fieldTargetHtml(d);assert.match(h,/1D12/);assert.doesNotMatch(h,/D6|Gravure|Datapad|seuil null/);assert.match(h,/data-field-form="prepare"/);
  const a=await f.search(),r=fieldResultHtml(a);assert.match(r,/D12 · 12/);assert.doesNotMatch(r,/undefined|seuil null/);assert.match(r,/data-field-form="take"/);await f.take(a,'cash');const mine=await f.actionRead('myFieldActions'),taken=mine.actions[0].result.discoveries.find(d=>d.id==='cash');assert.equal(taken.status,'TAKEN');assert.doesNotMatch(placeDiscoveriesHtml({...a,result:{discoveries:[taken]}}),/data-field-form="take"/);
- const admin=fieldAdminHtml(await f.actionRead('fieldAdmin',{},f.owner));assert.match(admin,/pris par/);assert.match(admin,/session/);
+ const admin=fieldAdminHtml(await f.actionRead('fieldAdmin',{},f.owner));assert.match(admin,/pris par/);assert.match(admin,/Résolution :/);assert.match(admin,/session/);assert.equal(Number.isSafeInteger(a.finishedAt),true);
 });
 test('V36 UI : édition M6 des quatre types, bornes et bonus sans moteur de formulaire parallèle',()=>{
  const h=placeFields();assert.match(h,/min="1" max="12"/);assert.match(h,/INDICE_A_VOIR/);assert.match(h,/CREDITS_A_TROUVER/);assert.match(h,/placeFindUp/);assert.doesNotMatch(h,/textarea name="bonuses"/);
