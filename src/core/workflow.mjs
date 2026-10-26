@@ -1,3 +1,4 @@
+import {rewardsOpen} from './space-outlaws-mission-rewards.mjs';
 import {createSpaceMaintenanceService,spaceMaintenanceActions} from './space-maintenance.mjs';
 import {createSpaceCombatService,spaceCombatActions} from './space-combat.mjs';
 import {createSpaceRescueService,spaceRescueActions} from './space-rescue.mjs';
@@ -462,7 +463,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
             requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
             if(s.stage==='BRIEFING'&&!hasSoHealth(s))requireThat((await tx.list(`sessions/${sid}/fieldTargets`)).some(t=>t.kind==='ANALYSIS'&&t.publicationState==='PUBLISHED'),'SO_ACTION_TARGET_REQUIRED');
             if(input.stage==='FINISHED'){
-              requireThat(!(await tx.list(`sessions/${sid}/contracts`)).some(c=>['PROPOSED','ACTIVE','SUBMITTED','REVIEWED','DISPUTED'].includes(c.status)),'CONTRACTS_OPEN');
+              requireThat(!(await tx.list(`sessions/${sid}/contracts`)).some(c=>(['PROPOSED','ACTIVE','SUBMITTED','REVIEWED','DISPUTED'].includes(c.status)||rewardsOpen(c))),'CONTRACTS_OPEN');
               requireThat(!(await tx.list(`sessions/${sid}/fieldActions`)).some(a=>a.status==='ACTIVE'),'FIELD_ACTIONS_OPEN');
               requireThat(!(await tx.list(`sessions/${sid}/cargoTransfers`)).some(t=>t.status==='LOADING'),'CARGO_TRANSFERS_OPEN');
               requireThat(!(await tx.list(`sessions/${sid}/ships`)).some(x=>x.journey||x.operation||x.combatId||x.rescueId||x.maintenanceId),'VOYAGES_OPEN');

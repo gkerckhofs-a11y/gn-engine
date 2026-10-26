@@ -23,6 +23,7 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(!path.startsWith(base)&&path!==base.slice(0,-1))continue;
   if(path.startsWith(`${base}audit/`))continue;
   const relative=path.slice(base.length);
+  if(scopes.has('MISSION_REWARDS')&&session.spaceOutlaws.missionExecutionVersion===1&&/^inventory\/[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
   if(scopes.has('MISSIONS')&&/^(announcements\/[^/]+(?:\/history\/[^/]+)?|applications\/[^/]+(?:\/messages\/[^/]+)?|contracts\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('MAINTENANCE')&&/^(ships\/[^/]+|voyages\/[^/]+|shipMaintenance\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+|characters\/[^/]+(?:\/resources\/actionPoints)?|logisticsHistory\/[^/]+)$/.test(relative))continue;
   if(scopes.has('SO_CARGO')&&/^(ships\/[^/]+|cargoTransfers\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+|logisticsHistory\/[^/]+)$/.test(relative))continue;

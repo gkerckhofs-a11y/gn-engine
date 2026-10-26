@@ -1,3 +1,4 @@
+import {publicJourney} from './navigation-state.mjs';
 import {randomInt} from 'node:crypto';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {admissionKeys,admissionText} from './admission-state.mjs';
@@ -21,7 +22,7 @@ const active=s=>{requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat
 const available=(s,c,time)=>c.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeMaintenanceId&&!c.activeCargoId&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&!(c.convalescentUntilGameMs>time);
 const characterPort=(s,c)=>c.spacePortId??s.transportRules?.homePort;
 const receipt=(s,ship,version)=>hash(JSON.stringify([s.id,s.revision,ship,version??null]));
-export const safeSoShip=(s,ship,time)=>({...navigationView(s,ship,time),...(ship.journey?.suspended?{journey:{...ship.journey,remainingSeconds:Math.ceil(ship.journey.remainingMs/1000)}}:{}),maintenanceId:ship.maintenanceId??null,combatId:ship.combatId??null,rescueId:ship.rescueId??null,ambushId:ship.ambushId??null,revision:ship.revision,profile:ship.soProfile,ownerId:ship.ownerId,pilotId:ship.pilotId,hull:ship.hull,shield:ship.shield,revisionRequired:ship.revisionRequired,operation:ship.operation?{id:ship.operation.id,kind:ship.operation.kind,remainingSeconds:Math.max(0,Math.ceil((ship.operation.readyAtGameMs-time)/1000)),manifest:ship.operation.manifest?.map(m=>({id:m.id,name:m.name}))??[],route:ship.operation.route??null}:null});
+export const safeSoShip=(s,ship,time)=>({...navigationView(s,ship,time),...(ship.journey?.suspended?{journey:{...publicJourney(ship.journey),remainingSeconds:Math.ceil(ship.journey.remainingMs/1000)}}:{}),maintenanceId:ship.maintenanceId??null,combatId:ship.combatId??null,rescueId:ship.rescueId??null,ambushId:ship.ambushId??null,revision:ship.revision,profile:ship.soProfile,ownerId:ship.ownerId,pilotId:ship.pilotId,hull:ship.hull,shield:ship.shield,revisionRequired:ship.revisionRequired,operation:ship.operation?{id:ship.operation.id,kind:ship.operation.kind,remainingSeconds:Math.max(0,Math.ceil((ship.operation.readyAtGameMs-time)/1000)),manifest:ship.operation.manifest?.map(m=>({id:m.id,name:m.name}))??[],route:ship.operation.route??null}:null});
 
 // Canonical constraints on the native ships, voyages, inventory, PA and clocks.
 // No second fleet, wallet, cargo engine or arbitrary route generator.
@@ -83,7 +84,7 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
      if(!cancelling){requireThat(members.every((m,i)=>m.active&&m.version===a.manifest[i].version&&m.c.activeNavigationId===a.id&&!m.c.activeVoyageId&&available(s,m.c,time)),'INVALID_MANIFEST');requireThat(ship.hull>=1&&!ship.revisionRequired&&ship.fuel>=a.route.fuelCost,'SHIP_UNAVAILABLE');requireThat(navigationSkill(pilotCharacter,'PIL-02')>=a.level,'FIELD_SKILL_REQUIRED');}
      let j=null;
      if(!cancelling){const event=soVoyageEvent(a.route,...dice,ship.fuel-a.route.fuelCost),duration=a.route.durationSeconds+event.delaySeconds,suspended=event.needsMJ||event.fuelDebt>0;
-      j={...a.route,routeId:a.route.id,id,manifest:a.manifest.map(m=>({id:m.id,name:m.name})),pilotId:a.pilotId,departedAt:at,departedAtGameMs:time,arrivesAtGameMs:time+duration*1000,event,suspended,remainingMs:suspended?duration*1000:null};
+      j={...a.route,routeId:a.route.id,id,manifest:a.manifest.map(m=>({id:m.id,name:m.name})),...(s.spaceOutlaws.missionExecutionVersion===1?{missionManifest:a.manifest.map(m=>({id:m.id,version:m.version}))}:{}),pilotId:a.pilotId,departedAt:at,departedAtGameMs:time,arrivesAtGameMs:time+duration*1000,event,suspended,remainingMs:suspended?duration*1000:null};
       next={...next,fuel:ship.fuel-a.route.fuelCost-event.fuelCost,docked:false,journey:j};tx.set(`${base}/voyages/${id}`,{...j,shipId:ship.id,status:suspended?'SUSPENDED':'IN_TRANSIT'});
      }
      for(const m of members){requireThat(m.c&&m.c.activeNavigationId===a.id,'INVALID_MANIFEST');tx.set(`${base}/characters/${m.c.id}`,{...m.c,activeNavigationId:null,...(j?{activeVoyageId:j.id}:{} )});}

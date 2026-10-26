@@ -1,3 +1,4 @@
+import {shopCustody,receivedShopLot} from './shop-custody.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {inventoryHash as hash,itemQuantity,lotState,newLot} from './inventory-state.mjs';
 import {inventoryPlayer,inventoryParty} from './inventory-transfers.mjs';
@@ -45,9 +46,7 @@ export function createShopService({store,signed,checkSession,now,uuid}){
  }
  async function order(tx,s,p,at){
   const buyer=await inventoryParty(tx,s.id,p.buyerId),lot=await tx.get(`sessions/${s.id}/inventory/${p.purchasedLotId}`);
-  const custody=buyer.active&&lot?.ownerType==='CHARACTER'&&lot.ownerId===p.buyerId&&lot.holderId===p.shopId&&lot.location.kind==='SHOP'&&lot.location.id===p.shopId&&lot.status==='AVAILABLE'&&lot.quantity===p.quantity;
-  const ready=custody&&p.pickupStatus==='READY'&&p.pickupLotRevision===lot.revision&&p.pickupBuyerVersion===buyer.version;
-  const allowed=custody&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&canGameAction(s,buyer.c,'transfer',at);
+  const {custody,ready,allowed}=shopCustody(s,p,buyer,lot,at);
   return {buyer,lot,custody,ready,allowed,view:{...saleView(p),pickupStatus:p.pickupStatus==='READY'&&!ready?'STALE':p.pickupStatus,canOfferPickup:!!allowed&&p.pickupStatus!=='RECEIVED'&&!ready,canPickup:!!allowed&&ready,confirmation:hash(JSON.stringify([p.id,p.revision,lot?.revision??null,buyer.version]))}};
  }
  return async(action,actor,input)=>{
@@ -102,7 +101,7 @@ export function createShopService({store,signed,checkSession,now,uuid}){
     if(action==='offerShopPickup')next={...next,pickupStatus:'READY',pickupBuyerVersion:x.buyer.version,pickupLotRevision:x.lot.revision};
     else{
      requireThat(x.ready,'STALE_PICKUP');requireThat(input.received===true,'HANDOVER_REQUIRED');
-     const moved={...x.lot,holderId:c.id,location:{kind:'CHARACTER',id:c.id},revision:x.lot.revision+1};tx.set(`${base}/inventory/${moved.id}`,moved);tx.set(`${base}/inventory/${moved.id}/history/${eventId}`,{id:eventId,kind:'PICKUP',at,actorUid:actor.uid,saleId:p.id,reason:'Remise PNJ présentée puis réception confirmée par le joueur',before:movement(x.lot),after:movement(moved)});
+     const moved=receivedShopLot(x.lot,c.id);tx.set(`${base}/inventory/${moved.id}`,moved);tx.set(`${base}/inventory/${moved.id}/history/${eventId}`,{id:eventId,kind:'PICKUP',at,actorUid:actor.uid,saleId:p.id,reason:'Remise PNJ présentée puis réception confirmée par le joueur',before:movement(x.lot),after:movement(moved)});
      next={...next,pickupStatus:'RECEIVED',pickedUpAt:at};
     }
     tx.set(`${base}/lotSales/${p.id}`,next);result={id:p.id,pickupStatus:next.pickupStatus,purchasedLotId:p.purchasedLotId};

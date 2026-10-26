@@ -1,3 +1,4 @@
+import {missionExecutionOptions} from './space-outlaws-mission-evidence.mjs';
 import {soMissionAccess,soAnnouncement,soMissionReadable} from './space-outlaws-mission-state.mjs';
 import {mediaFields} from './media-state.mjs';
 import {participationOf,participationInput,participantOf,participantAllowed,selectParticipant,participantOptions,participantAccess,participantCurrent,missionReadState,withMissionRead} from './mission-parties.mjs';
@@ -55,7 +56,7 @@ export function createAnnouncementService({store,signed,checkSession,now,uuid}){
   async function detail(tx,s,ctx,t,a,at,admin){
     const messages=await tx.list(`sessions/${s.id}/applications/${t.id}/messages`,null,{orderBy:'sequence',direction:'desc',limit:50});
     const current=admin?await candidateCurrent(tx,s,t,a,at):true;
-    return {admin,session:{id:s.id,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{})},application:summary(t,a,at,admin,ctx),terms:t.terms,reviewedTerms:t.reviewedTerms,announcement:view(a,at),messages:messages.reverse().map(messageView),messageCount:t.messageCount,
+    return {...(admin?await missionExecutionOptions(tx,s,a):{}),admin,session:{id:s.id,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{})},application:summary(t,a,at,admin,ctx),terms:t.terms,reviewedTerms:t.reviewedTerms,announcement:view(a,at),messages:messages.reverse().map(messageView),messageCount:t.messageCount,
       canRespond:!admin&&!closed(t)&&participantAllowed(a,participantOf(t))&&responseAllowed(s,ctx.c,a,at),canWithdraw:!admin&&!closed(t),participantOptions:!admin?[{...participantOf(t),groupId:participantOf(t).kind==='GROUP'?participantOf(t).id:null,ready:true}]:[],canReply:admin&&current&&!closed(t),candidateCurrent:current,
       ...(!admin?{confirmation:digest([t.id,t.revision,ctx.partyGuard??ctx.version])}:{})};
   }

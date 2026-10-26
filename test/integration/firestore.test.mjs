@@ -1,3 +1,4 @@
+import {missionExecutionSuite} from '../support/mission-execution-suite.mjs';
 import {spaceMissionsSuite} from '../support/space-missions-suite.mjs';
 import {spaceLogisticsSuite} from '../support/space-logistics-suite.mjs';
 import {spaceEncountersSuite} from '../support/space-encounters-suite.mjs';
@@ -160,3 +161,5 @@ spaceEncountersSuite(()=>firestoreStore(firestore),'Rencontres spatiales SO sur 
 spaceLogisticsSuite(()=>firestoreStore(firestore),'Entretien et fret SO sur Firestore');
 
 spaceMissionsSuite(()=>firestoreStore(firestore),'Missions SO sur Firestore');
+
+missionExecutionSuite(()=>firestoreStore(firestore),'Exécution missions SO sur Firestore');
