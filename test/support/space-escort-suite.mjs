@@ -86,4 +86,10 @@ export function spaceEscortSuite(makeStore,prefix='Escortes SO'){
  test(`${prefix} : échec transactionnel du plein ne consomme aucune provision`,async()=>{
   const raw=makeStore();let fail=false;const store={get:raw.get.bind(raw),list:raw.list.bind(raw),runTransaction:cb=>raw.runTransaction(async tx=>{const r=await cb(tx);if(fail)throw Error('INTERRUPTION');return r;})};const f=await escortFixture(()=>store,{accept:true});await f.fuel(4,false);f.advance(120000);const n=await f.navigation('escort',f.other),p={shipId:'escort',confirmation:n.confirmation,present:true,requestId:randomUUID()};fail=true;await assert.rejects(f.cmd('finishSoRefuel',p,f.other),/INTERRUPTION/);fail=false;assert.equal((await f.escort()).fuel,0);assert.equal((await f.detail()).escort.fuel.remaining,100);await f.cmd('finishSoRefuel',p,f.other);assert.equal((await f.escort()).fuel,4);assert.equal((await f.detail()).escort.fuel.remaining,0);
  });
+
+ test(`${prefix} : obligations et bilan séparent le salaire réglé du carburant encore réservé`,async()=>{
+  const f=await escortFixture(makeStore,{accept:true});await f.fuel(2);await f.launch();await f.deliverEscort();await f.escortProof();await f.escortReview();f.advance(600000);await f.settleEscort();const row=async()=>(await f.read('sessionContracts',{},f.owner)).contracts.find(c=>c.id===f.ec.id).obligations;let o=await row();assert.equal(o.salaryPaid,100);assert.equal(o.salaryReserved,0);assert.equal(o.fuelReserved,50);assert.deepEqual(o.tasks,[{kind:'FUEL'}]);
+  const e=await episodeHarness(f);await e.stage('PAUSE');const q=await e.read('prepareCampaignClosure',e.closeInput()),report=q.summary.continuity.contracts.find(c=>c.id===f.ec.id);assert.equal(report.reserved,50);assert.equal(report.obligations.fuelReserved,50);assert.equal(q.summary.continuity.contracts.reduce((n,c)=>n+c.reserved,0),(await f.till()).reserved);assert.deepEqual(report.obligations,o);await e.stage('EN_JEU');const ship=await f.escort();await f.releaseFuel(true);o=await row();assert.equal(o.pending,false);assert.equal(o.reserved,0);assert.deepEqual(await f.escort(),ship);
+ });
+
 }

@@ -51,15 +51,19 @@ export function transportProgress(c,lots){
  const indices=lots.map(l=>l.transportLegIndex??(l.transportVoyageId?1:0));
  return {index:indices[0]??0,unanimous:indices.every(i=>i===indices[0])};
 }
+export function transportDeliveryState(c,lots,transfers){
+ const delivered=lots.filter(l=>l.transportDelivered&&l.location.kind==='PORT'&&l.location.id===c.terms.transport.toPort),quantity=delivered.reduce((n,l)=>n+l.quantity,0);
+ return {delivered:quantity,complete:quantity===c.terms.transport.quantity&&transfers.length===0,deliveredGameMs:quantity===c.terms.transport.quantity?Math.max(...delivered.map(l=>l.transportDeliveredGameMs)):null};
+}
 export async function transportView(tx,s,c){
  if(!c.terms.transport||c.acceptedAt==null)return null;
  const t=c.terms.transport,lots=await transportLots(tx,s,c),transfers=(await tx.list(`${base(s)}/cargoTransfers`)).filter(x=>x.transportContractId===c.id&&x.status==='LOADING');
- const delivered=lots.filter(l=>l.transportDelivered&&l.location.kind==='PORT'&&l.location.id===t.toPort),quantity=delivered.reduce((n,l)=>n+l.quantity,0),deliveredGameMs=quantity===t.quantity?Math.max(...delivered.map(l=>l.transportDeliveredGameMs)):null;
+ const delivery=transportDeliveryState(c,lots,transfers);
  const progress=transportProgress(c,lots),next=c.transportPlan?.routes[progress.index],port=await tx.get(`${base(s)}/ports/${next?.toPort??t.toPort}`),route=next?await tx.get(`${base(s)}/routes/${next.id}`):null;
  const detour=s.spaceOutlaws.detourVersion===1?lots[0]?.transportDetour:null,voyage=detour?await tx.get(`${base(s)}/voyages/${detour.voyageId}`):null;
  const recovery=voyage?.status==='ARRIVED'&&voyage.toPort!==detour.toPort?{fromPort:voyage.toPort,toPort:detour.toPort}:null;
  const recoveryRoutes=recovery?(await tx.list(`${base(s)}/routes`)).filter(r=>r.versionId===s.versionId&&r.fromPort===recovery.fromPort&&r.toPort===recovery.toPort):[];
- return {lots:lots.map(publicLot),transfers:transfers.map(x=>({id:x.id,name:x.name,quantity:x.quantity})),delivered:quantity,complete:quantity===t.quantity&&transfers.length===0,deliveredGameMs,navigationCode:recovery?(recoveryRoutes.length===1?recoveryRoutes[0].navigationCode:null):route?.navigationCode??port?.navigationCode??null,...(recovery?{recovery}:{}),...(c.transportPlan?{itinerary:{routes:c.transportPlan.routes,index:progress.index}}:{})};
+ return {lots:lots.map(publicLot),transfers:transfers.map(x=>({id:x.id,name:x.name,quantity:x.quantity})),...delivery,navigationCode:recovery?(recoveryRoutes.length===1?recoveryRoutes[0].navigationCode:null):route?.navigationCode??port?.navigationCode??null,...(recovery?{recovery}:{}),...(c.transportPlan?{itinerary:{routes:c.transportPlan.routes,index:progress.index}}:{})};
 }
 export async function transportProof(tx,s,c){
  const d=await transportView(tx,s,c);if(!d)return {};

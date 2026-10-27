@@ -1,3 +1,4 @@
+import {missionObligations} from './space-mission-obligations.mjs';
 import {createHash} from 'node:crypto';
 import {requireThat,documentId,whole} from './validation.mjs';
 import {preparationInput} from './preparation-state.mjs';
@@ -75,7 +76,7 @@ export function soClosure(s,data,input,at){
  });
  if(changes.length>200)block('TOO_MANY_PARTICIPANTS',[{id:s.id}]);
  const time=gameTime(s.clock,at);
- const continuity={participants,bounties:data.bounties.filter(b=>b.terms.spaceOutlaws).map(b=>({id:b.id,title:b.terms.title,status:b.status,reserved:b.status==='OPEN'?(b.terms.quota-b.awardedCount)*b.terms.amount:0,awardedCount:b.awardedCount,pending:data.entries.filter(e=>e.path.startsWith(`bounties/${b.id}/claims/`)&&/^bounties\/[^/]+\/claims\/[^/]+$/.test(e.path)&&e.data.status==='SUBMITTED').length})),contracts:data.contracts.filter(c=>!['CANCELLED','DECLINED'].includes(c.status)).map(c=>({id:c.id,title:c.terms.title,status:c.status,reserved:['ACTIVE','SUBMITTED','REVIEWED','DISPUTED'].includes(c.status)?Math.max(0,c.terms.amount-(c.paidAmount??0)):0,deadlineMs:c.deadlineGameMs==null?null:Math.max(0,c.deadlineGameMs-time),appeal:c.appeal?.status??null})),
+ const continuity={participants,bounties:data.bounties.filter(b=>b.terms.spaceOutlaws).map(b=>({id:b.id,title:b.terms.title,status:b.status,reserved:b.status==='OPEN'?(b.terms.quota-b.awardedCount)*b.terms.amount:0,awardedCount:b.awardedCount,pending:data.entries.filter(e=>e.path.startsWith(`bounties/${b.id}/claims/`)&&/^bounties\/[^/]+\/claims\/[^/]+$/.test(e.path)&&e.data.status==='SUBMITTED').length})),contracts:data.contracts.map(c=>({c,obligations:missionObligations(s,c,at,data)})).filter(({c,obligations})=>!['CANCELLED','DECLINED'].includes(c.status)||obligations?.pending).map(({c,obligations})=>({id:c.id,title:c.terms.title,status:c.status,reserved:obligations?.reserved??(['ACTIVE','SUBMITTED','REVIEWED','DISPUTED'].includes(c.status)?Math.max(0,c.terms.amount-(c.paidAmount??0)):0),deadlineMs:c.deadlineGameMs==null?null:Math.max(0,c.deadlineGameMs-time),appeal:c.appeal?.status??null,...(obligations?{obligations}:{})})),
   voyages:data.ships.filter(sh=>sh.journey).map(sh=>({id:sh.id,name:sh.name,hull:sh.hull,shield:sh.shield,fuel:sh.fuel,remainingMs:sh.journey.suspended?sh.journey.remainingMs:Math.max(0,sh.journey.arrivesAtGameMs-time),combatId:sh.combatId??null})),
   pickups:data.lotSales.filter(x=>x.status==='SOLD'&&x.pickupStatus!=='RECEIVED').length+data.contracts.reduce((n,c)=>n+(c.rewardPickups??[]).filter(x=>x.pickupStatus!=='RECEIVED').length,0),gameTimeMs:time};
  return {changes,blocks,continuity,cancelled:{market:0,sales:0,transfers:0},canClose:blocks.length===0};

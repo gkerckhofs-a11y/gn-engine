@@ -77,4 +77,14 @@ export function spaceContractAppealsSuite(makeStore,prefix='Recours financiers S
   const f=await spaceMissionsFixture(makeStore,{release:false}),r=await f.release(await f.releasePreview()),path=`campaigns/${f.campaignId}/versions/${r.versionId}`,canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
   await f.store.runTransaction(async tx=>{const {appealFinanceVersion,bountyVersion,manifestDigest,...old}=await tx.get(path);tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});await f.birth(await f.birthPreview());assert.equal((await f.get('')).spaceOutlaws.appealFinanceVersion,undefined);await assert.rejects(f.read('prepareContractAppealAdjustment',{contractId:'unknown',basis:'MATERIAL_ERROR',adjustedAmount:0,reason:'Tentative'},f.owner),{code:'SO_GAMEPLAY_NOT_OPEN'});
  });
+
+ test(`${prefix} : obligations de recours suivent le reliquat sans le compter comme réserve`,async()=>{
+  for(const paid of [100,40]){
+   const f=await contractAppealsFixture(makeStore,{paid}),row=async()=>(await f.read('sessionContracts',{},f.owner)).contracts.find(c=>c.id===f.c.id).obligations;await f.file();assert.deepEqual((await row()).tasks,[{kind:'APPEAL'}]);await f.adjust(paid===100?40:100);let o=await row();assert.equal(o.reserved,0);assert.equal(o.appealBalance.remaining,60);assert.equal(o.appealBalance.direction,paid===100?'TO_SPONSOR':'TO_CHARACTER');assert.deepEqual(o.tasks,[{kind:'APPEAL_PAYMENT'}]);await f.pay(20,paid!==100);o=await row();assert.equal(o.appealBalance.remaining,40);assert.equal(o.salaryPaid,paid);await f.pay(40,paid!==100);assert.equal((await row()).pending,false);assert.equal((await row()).appealBalance,null);
+  }
+ });
+ test(`${prefix} : obligations maintiennent le suivi narratif après clôture et délai de recours`,async()=>{
+  const f=await contractAppealsFixture(makeStore);await f.file();await f.confirm('prepareContractAppealDecision','decideContractAppeal',{contractId:f.c.id,reason:'Pièce à examiner plus tard',outcome:'FOLLOW_UP'});await f.edit('',s=>({...s,campaignEpisode:4}));const before=[await f.wallet(),await f.till()],o=(await f.read('sessionContracts',{},f.owner)).contracts[0].obligations;assert.deepEqual(o.tasks,[{kind:'APPEAL'}]);assert.equal(o.appealStatus,'FOLLOW_UP');assert.equal(o.appealBalance,null);assert.equal(o.reserved,0);assert.deepEqual([await f.wallet(),await f.till()],before);
+ });
+
 }

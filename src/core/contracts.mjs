@@ -1,3 +1,4 @@
+import {missionObligations} from './space-mission-obligations.mjs';
 import {appealFinanceActions,appealFinanceAdminActions,requireAppealFinance,appealFinanceView,appealFinanceCommand} from './space-contract-appeals.mjs';
 import {amendmentActions,amendmentAdminActions,amendmentView,amendmentCommand} from './space-escort-amendments.mjs';
 import {prepareEscort,escortAcceptance,escortEvidence,escortReview,escortClosure,escortView,escortActions,escortAdminActions,escortCommand,contractReserve,escortFuelRemaining} from './space-escort.mjs';
@@ -128,10 +129,12 @@ export function createContractService({store,signed,checkSession,now,uuid}){
       const admin=adminActions.has(action),ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId)),version:actor.uid}:await inventoryPlayer(tx,actor,input),{s}=ctx,base=`sessions/${s.id}`;requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');soMissionAccess(tx,s);if(appealFinanceActions.includes(action))requireAppealFinance(s);
       if(s.spaceOutlaws&&!['sessionContracts','myContracts','sessionContract','contractDetail'].includes(action))requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
       if(action==='sessionContracts'||action==='myContracts'){
-        const contracts=[];for(const c of await tx.list(`${base}/contracts`)){
+        const obligationsReady=admin&&s.spaceOutlaws?.missionsVersion===1,rows=await tx.list(`${base}/contracts`),freight=obligationsReady&&s.spaceOutlaws.transportVersion===1&&rows.some(c=>c.terms.transport&&c.acceptedAt!=null);
+        const data=freight?{inventory:await tx.list(`${base}/inventory`),cargoTransfers:await tx.list(`${base}/cargoTransfers`)}:{},contracts=[];
+        for(const c of rows){
           if(!admin){if(!await participantAccess(tx,s,ctx,actor,c))continue;if(c.status==='PROPOSED'){const a=await tx.get(`${base}/announcements/${c.announcementId}`);if(!await announcementReadable(tx,s,a,ctx.c.id,at))continue;}}
-          contracts.push(summary(c,s,at,ctx));}
-        return {session:{id:s.id},admin,contracts:contracts.sort((a,b)=>b.updatedAt-a.updatedAt||a.id.localeCompare(b.id))};
+          contracts.push({...summary(c,s,at,ctx),...(obligationsReady?{obligations:missionObligations(s,c,at,data,await candidate(tx,s,c))}:{})});}
+        return {session:{id:s.id,...(obligationsReady?{stage:s.stage,safetyStopped:!!s.safetyStop?.active}:{} )},admin,...(obligationsReady?{obligationsReady:true}:{}),contracts:contracts.sort((a,b)=>b.updatedAt-a.updatedAt||a.id.localeCompare(b.id))};
       }
       if(action==='prepareMissionContract')return (await prepare(tx,s,actor,input,at)).result;
       let c;

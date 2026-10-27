@@ -145,4 +145,13 @@ function missionCounterSuite(makeStore,prefix){
   const {f,c}=await settledCounter(()=>store),p=await presentCounter(f,c),input={...rewardInput(p),received:true,requestId:randomUUID()};fail=true;await assert.rejects(f.cmd('confirmContractRewardPickup',input),/PICKUP_INTERRUPTED/);fail=false;
   assert.equal((await f.get(`inventory/${p.id}`)).holderId,'counter');assert.equal((await counter(f)).missionRewards[0].pickupStatus,'READY');const result=await f.cmd('confirmContractRewardPickup',input);assert.deepEqual(await f.cmd('confirmContractRewardPickup',input),result);assert.equal((await f.store.list(`sessions/${f.sid}/inventory/${p.id}/history`)).filter(x=>x.kind==='PICKUP').length,1);
  });
+
+ test(`${prefix} : obligations conservent les retraits d’un salaire déjà payé`,async()=>{
+  const {f,c}=await settledCounter(makeStore),row=async()=>(await f.read('sessionContracts',{},f.owner)).contracts.find(x=>x.id===c.id),before=[await f.wallet(),await f.till(),await f.get(`contracts/${c.id}`)];let r=await row();assert.equal(r.status,'PAID');assert.equal(r.obligations.pending,true);assert.deepEqual(r.obligations.tasks,[{kind:'MATERIALS'}]);assert.equal(r.obligations.pickups.length,1);assert.equal(r.obligations.pickups[0].quantity,3);assert.equal(r.obligations.salaryReserved,0);assert.equal(r.obligations.salaryPaid,100);assert.deepEqual([await f.wallet(),await f.till(),await f.get(`contracts/${c.id}`)],before);
+  const p=await presentCounter(f,c);assert.equal((await row()).obligations.pending,true);await f.cmd('confirmContractRewardPickup',{...rewardInput(p),received:true});r=await row();assert.equal(r.obligations.pending,false);assert.deepEqual(r.obligations.pickups,[]);assert.equal((await f.wallet()).balance,before[0].balance);
+ });
+ test(`${prefix} : obligations d’un litige matériel restent visibles sans réserve salariale`,async()=>{
+  const f=await spaceMissionsFixture(makeStore,{rewardItems}),{c}=await f.validated();await f.confirm('prepareContractDispute','disputeContract',{contractId:c.id,amount:0,rewardDisputes:[{itemId:rewardItems[0].itemId,quantity:2}],reason:'Deux objets contestés'},f.player);f.advance(600000);await f.settle(c);const o=(await f.read('sessionContracts',{},f.owner)).contracts.find(x=>x.id===c.id).obligations;assert.equal(o.reserved,0);assert.equal(o.salaryPaid,100);assert.equal(o.rewards[0].remaining,2);assert.equal(o.rewards[0].disputed,2);assert.equal(o.pickups[0].quantity,1);assert.deepEqual(o.tasks.map(t=>t.kind),['MEDIATION','MATERIALS']);assert.equal((await f.till()).reserved,0);
+ });
+
 }

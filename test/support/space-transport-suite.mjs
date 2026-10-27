@@ -132,6 +132,10 @@ export function spaceTransportSuite(makeStore,prefix='Transport SO'){
   const lot=d.contracts[0].lots[0].lot,p={portId:'away',lotId:lot.id,quantity:lot.quantity,destination:{kind:'PORT',id:'away'}},q=await e.read('prepareCargoTransfer',p,f.player),t=await e.cmd('startCargoTransfer',{...p,confirmation:q.confirmation,present:true},f.player);f.advance(180000);const v=(await e.read('cargoPort',{portId:'away'},f.player)).contracts[0].transfers[0];await e.cmd('receiveCargoTransfer',{portId:'away',transferId:t.id,confirmation:v.confirmation,received:true},f.player);assert.equal((await e.read('cargoPort',{portId:'away'},f.player)).contracts[0].complete,true);assert.equal((await e.get(`contracts/${f.c.id}`)).status,'ACTIVE');await assert.rejects(f.cmd('receiveCargoTransfer',{portId:'away',transferId:t.id,confirmation:v.confirmation,received:true}),{code:'FORBIDDEN'});
  });
 
+ test(`${prefix} : obligations de fret suivent la garde réelle et les tranches reçues`,async()=>{
+  const f=await transportFixture(makeStore),row=async()=>(await f.read('sessionContracts',{},f.owner)).contracts.find(c=>c.id===f.c.id).obligations;await f.accept();let o=await row();assert.equal(o.freight.inCustody,6);assert.equal(o.freight.delivered,0);await f.load();await f.arrive();const lots=await f.lots(),t=await f.start(lots[0],{kind:'PORT',id:'away'});o=await row();assert.equal(o.freight.loading,1);assert.equal(o.freight.delivered,0);await f.receive(t);o=await row();assert.equal(o.freight.delivered,lots[0].quantity);assert.equal(o.freight.inCustody,lots[1].quantity);assert.equal(o.freight.loading,0);await f.deliver();o=await row();assert.equal(o.freight.complete,true);assert.equal(o.freight.inCustody,0);assert.ok(!o.tasks.some(t=>t.kind==='FREIGHT'));assert.equal(o.salaryReserved,100);assert.equal(o.tasks[0].kind,'MISSION');assert.doesNotMatch(JSON.stringify(o),/SECRET_|navigationCode|voyageId|applicantUid/);
+ });
+
 }
 
 async function freightEdit(f,path,change){await f.store.runTransaction(async tx=>{const key=`sessions/${f.sid}${path?'/'+path:''}`,old=await tx.get(key);tx.set(key,change(old));});}

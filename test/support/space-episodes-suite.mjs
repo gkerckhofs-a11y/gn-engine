@@ -1,3 +1,4 @@
+import {shopAccountId} from '../../src/core/space-outlaws-shop-state.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID,createHash} from 'node:crypto';
@@ -90,4 +91,11 @@ export function spaceEpisodesSuite(makeStore,prefix='Épisodes SO'){
   assert.equal((await e.get(`registrations/${hash(f.player.uid)}`)).progression.pendingXp,3);assert.equal((await e.get(`characters/${f.cid}`)).xp,0);await e.cmd('setStaff',{revision:(await e.get('')).revision,email:mj.email,role:'MJ',active:false,reason:'Fin de mandat'});await assert.rejects(e.cmd('closeCampaignSession',command,mj),{code:'FORBIDDEN'});
   await e.resume(await e.begin());assert.equal((await f.store.get(staffPath(e.sid,mj.email))).active,false);await assert.rejects(e.read('session',{},mj),{code:'FORBIDDEN'});assert.equal((await e.get(`accounts/${accountId(f.cid)}`)).balance,0);assert.equal((await e.get(`accounts/${accountId(f.cid)}`)).protectedCredits,0);
  });
+
+ test(`${prefix} : obligations après paiement conservées dans le bilan et l’épisode repris`,async()=>{
+  const f=await spaceMissionsFixture(makeStore,{rewardItems:[{itemId:'kit_medical-supplies',quantity:3}]}),{c}=await f.validated();f.advance(600000);await f.settle(c);await f.confirm('prepareContractAppeal','appealContract',{contractId:c.id,reason:'Erreur matérielle',newEvidence:'Document retrouvé'},f.player);await f.confirm('prepareContractAppealAdjustment','adjustContractAppeal',{contractId:c.id,basis:'MATERIAL_ERROR',adjustedAmount:40,reason:'Correction reconnue'});
+  const before=[await f.wallet(),await f.till(),await f.get(`contracts/${c.id}`)],o=(await f.read('sessionContracts',{},f.owner)).contracts[0].obligations,e=await episodeHarness(f);await e.stage('PAUSE');const q=await e.read('prepareCampaignClosure',e.closeInput());assert.deepEqual(q.summary.continuity.contracts[0].obligations,o);assert.equal(q.summary.continuity.contracts[0].reserved,0);assert.equal(q.summary.continuity.contracts[0].obligations.appealBalance.remaining,60);assert.deepEqual([await f.wallet(),await f.till(),await f.get(`contracts/${c.id}`)],before);await e.close();await e.resume(await e.begin());
+  const d=await e.read('sessionContracts'),next=d.contracts.find(x=>x.id===c.id);assert.equal(d.session.id,e.sid);assert.equal(next.status,'PAID');assert.deepEqual(next.obligations,o);assert.equal(next.obligations.pickups[0].quantity,3);assert.deepEqual(await e.get(`contracts/${c.id}`),before[2]);assert.equal((await e.get(`accounts/${shopAccountId('counter')}`)).reserved,0);await assert.rejects(f.read('sessionContracts',{},f.owner),{code:'SESSION_CLOSED'});
+ });
+
 }

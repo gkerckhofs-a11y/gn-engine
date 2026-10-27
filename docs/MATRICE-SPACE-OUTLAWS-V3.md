@@ -1,11 +1,12 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
-## État courant — réception du fret par QR, retraits de mission et contrats natifs
+## État courant — régie des obligations de mission et bilan de clôture
 
 L’état évolutif autoritaire et les preuves actuelles sont dans [SO-VALIDATION](SO-VALIDATION.md). Les sections C2 ci-dessous sont historiques. CI adaptée le 27 octobre à la demande utilisateur : tous les tests applicatifs, intégration ciblée sur PR brouillon avec repli complet, Firestore réparti en lots indépendants et HTTP/Auth complet lorsque requis. Avant fusion/publication, suite complète sur le candidat. Aucun acquis fonctionnel supplémentaire ni recette terrain revendiqués par cette optimisation.
 
 | Exigence | Couverture ajoutée | Limite |
 | --- | --- | --- |
+| V3.5 §7.2/§8.1–8.2, V0.7 chapitre 25/A38 | Régie MJ filtrable et bilan commun : salaires libres/litigieux, objets et retraits, fret, provision carburant et recours ; contrats payés encore à suivre, continuité native ; onze cas partagés, quatre UI, cinq HTTP/Auth enrichis | Lecture seule : aucune permission de paiement/transfert déduite ; créances séparées des réserves. Anciens bilans lisibles, capacités historiques respectées, recette terrain non effectuée |
 | V3.5 §4.1–4.2/§7.2/§8/A.8, V0.7 chapitres 3/25/A38 | QR du port → contrats privés du transporteur → déchargement natif chronométré → réception physique et suivi MJ ; dix cas partagés, quatre UI, HTTP/Auth et détour enrichis | Fret PNJ individuel accepté ; scan sans preuve de présence ni paiement. Livraison complète exigée pour le salaire, pas de règlement partiel nouveau |
 | V3.5 §4.1–4.2/§7.1–7.2/A.8, V0.7 chapitres 3/25/A38 | QR comptoir → récompenses privées du titulaire → présentation MJ et réception personnelle, même lot/contrat sans second paiement ; 12 cas partagés, quatre UI, parcours HTTP/Auth étendu | Récompenses matérielles déjà attribuées ; aucun scan valant présence, ni réception automatique du fret ou validation de mission |
 | V3.5 §7.1–7.2/A.8, V0.7 chapitre 25/A38, REC-SO-21 | Prime PNJ : cagnotte réelle, preuves privées et consenties, attribution unique vers contrat contestable, clôture sans libérer les réserves contractuelles et reprise complète ; 20 cas partagés, quatre UI, un HTTP/Auth | Monétaire/individuelle avec preuve narrative MJ ; groupes, objets et événements QR/voyage restent distincts |

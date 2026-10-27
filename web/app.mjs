@@ -1,3 +1,4 @@
+import {missionObligationMatches} from './mission-obligations.mjs';
 import {appealFinancePayload,appealFinanceConfirmation} from './space-contract-appeals.mjs';
 import {detourConfirmHtml} from './space-detours.mjs';
 import {amendmentPayload,amendmentConfirm,amendmentErrors} from './space-escort-amendments.mjs';
@@ -285,6 +286,7 @@ async function announcementsPage(sid,id,mode='board'){const render=pageRenderer(
   else {const [d,mine]=await Promise.all([api('announcements',{sessionId:sid}),api('myApplications',{sessionId:sid})]);content=announcementUi.board(d,mine);}
   render(`<div class="narrow"><nav class="breadcrumb">${mode==='admin'?link('Régie de session',`session/${sid}`,''):link('Terminal',`terminal/${sid}`,'')+link('Petites annonces',`missions/${sid}`,'')}</nav>${content}</div>`);
 }
+function filterMissionObligations(root){const kind=root.querySelector('[data-obligation-filter]').value;let count=0;for(const row of root.querySelectorAll('[data-obligation-row]')){row.hidden=!missionObligationMatches(row.dataset.obligationKinds.split(' '),kind);if(!row.hidden)count++;}root.querySelector('[data-obligation-empty]').hidden=count>0;}
 function filterAnnouncements(root){const term=root.querySelector('[data-announcement-search]').value,category=root.querySelector('[data-announcement-category]').value;let count=0;for(const row of root.querySelectorAll('[data-announcement-row]')){row.hidden=!announcementMatches(JSON.parse(row.dataset.announcementValue),term,category);if(!row.hidden)count++;}root.querySelector('[data-announcement-empty]').hidden=count>0;}
 async function cargoPage(sid,id=null,mode='cargo'){
  if(currentPlayer?.session.spaceOutlaws?.navigationVersion&&!currentPlayer.session.spaceOutlaws.logisticsVersion)return spaceportPage(sid,mode==='hold'?id:null);
@@ -834,6 +836,7 @@ document.addEventListener('input',event=>{
   for(const row of app.querySelectorAll('[data-search]'))row.hidden=!row.dataset.search.includes(term);
 }});
 document.addEventListener('change',event=>{
+  if(event.target.matches('[data-obligation-filter]'))filterMissionObligations(event.target.closest('[data-obligation-root]'));
   if(event.target.matches('[data-form="ability"] select[name="kind"]')){const fields=event.target.form.querySelector('[data-healing-fields]');fields.hidden=event.target.value==='PASSIVE';fields.disabled=fields.hidden;}
   if(event.target.matches('[data-form="healthCorrection"] input[name="hp"]')&&Number(event.target.value)===0)event.target.form.elements.outOfCombat.checked=true;
   if(event.target.matches('[data-seed-picked]'))event.target.closest('[data-seed-row]').querySelector('[data-seed-quantity]').disabled=!event.target.checked;
