@@ -2,7 +2,7 @@
 
 ## État courant — escorte PNJ rémunérée et provision carburant
 
-L’état évolutif autoritaire et les preuves actuelles sont dans [SO-VALIDATION](SO-VALIDATION.md). Les sections C2 ci-dessous sont historiques.
+L’état évolutif autoritaire et les preuves actuelles sont dans [SO-VALIDATION](SO-VALIDATION.md). Les sections C2 ci-dessous sont historiques. CI adaptée le 27 octobre à la demande utilisateur : tous les tests applicatifs, intégration ciblée sur PR brouillon avec repli complet, Firestore réparti en lots indépendants et HTTP/Auth complet lorsque requis. Avant fusion/publication, suite complète sur le candidat. Aucun acquis fonctionnel supplémentaire ni recette terrain revendiqués par cette optimisation.
 
 | Exigence | Couverture ajoutée | Limite |
 | --- | --- | --- |

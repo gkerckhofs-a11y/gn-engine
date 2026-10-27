@@ -12,6 +12,8 @@
     "build": "node scripts/build.mjs",
     "gcp-build": "",
     "test:emulator": "firebase emulators:exec --project demo-gn-engine --only firestore,auth,storage 'node --test test/integration/*.test.mjs'",
+    "test:emulator:firestore": "firebase emulators:exec --project demo-gn-engine --only firestore,auth,storage 'node --test test/integration/firestore.test.mjs'",
+    "test:emulator:http": "firebase emulators:exec --project demo-gn-engine --only firestore,auth,storage 'node --test test/integration/http.test.mjs'",
     "deploy": "bash scripts/deploy.sh"
   },
   "dependencies": {

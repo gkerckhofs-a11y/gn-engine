@@ -1,10 +1,22 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
-## État actif — contrats d’escorte PNJ et carburant réservé, 27 octobre 2026
+## État actif — CI ciblée et parallèle, escorte PNJ conservée, 27 octobre 2026
 
 Priorité : SPACE OUTLAWS jouable, services existants, un seul suivi évolutif. Les sections C2 ci-dessous restent historiques. Extension prioritaire : [SO_CDC_V36_Fouilles_Medias](source/SO_CDC_V36_Fouilles_Medias.md), texte intégral fourni. Références générales : [SO_CDC_V35](source/SO_CDC_V35.md), §7.2, §8 et annexes A.8/A.9 ; [SO_Regles_V07](source/SO_Regles_V07.txt), chapitres 3, 6, 25 et continuité entre épisodes.
 
-**Base confirmée** : branche `work/l1-modular-workshop`, PR #1, HEAD `6b9e2b3069d6dab9e2111db615ca75e28fc65331`, arbre `801f8cf9cc65270b6c515615575a52c69d66cd52`. Les deux CI [branche 40400589492](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40400589492) et [PR 40400601829](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40400601829) sont réussies : chacune 1767 tests applicatifs et 1442 Firebase/Auth. Aucun audit historique relancé. Main demeure `03eaace155b052d1b7d1960347746e9ee60ed514`.
+**Base confirmée** : branche `work/l1-modular-workshop`, PR #1, HEAD `ce0fb206465d23f83d45d75b24ba6185e56ee1b4`, arbre `c81284136d23b920117c17bee1c407a65423393f`. Les deux CI [branche 40439387992](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40439387992) et [PR 40439392499](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40439392499) sont réussies : chacune 1787 tests applicatifs et 1461 Firebase/Auth. Aucun audit historique relancé. Main demeure `03eaace155b052d1b7d1960347746e9ee60ed514`.
+
+### CI ciblée demandée par l’utilisateur
+
+Mesure du dernier push : 45 s pour les tests applicatifs, 56 min 51 s pour Firebase/Auth, deux exécutions push/PR redondantes. Le workflow de vérification conserve tous les tests rapides et le build, supprime le push redondant des branches de travail et répartit Firestore sur des émulateurs indépendants. Aucun test métier supprimé ; les 74 suites partagées et le test de règles restent enregistrés, sans doublon entre lots. Les durées de ce dernier run servent uniquement à équilibrer les lots, jamais à décider de leur couverture.
+
+- PR brouillon : diff de tous les changements depuis le dernier ancêtre CI réussi de la même branche/dépôt jusqu’au checkout, y compris les changements de base de PR. Échec, annulation ou historique indisponible ne deviennent jamais une référence validée.
+- Profil spatial explicite : 30 suites incluant navigation, escorte, fret, contrats natifs, argent/inventaire, PA, épisodes et règles, réparties en quatre lots. Tous les parcours HTTP/Auth/Storage sont exécutés. Les dépendances génériques (`workflow`, contrats génériques, gardes, serveur, adapter, règles, paquets) et tout fichier inconnu imposent le complet, six lots Firestore + HTTP complet.
+- Interface seule : build/tous les tests applicatifs + HTTP complet. Documentation/tests applicatifs seuls : build/tous les tests applicatifs. Le plan JSON et le résumé Actions rendent la sélection et sa référence consultables ; le statut `core` exige le succès de chaque contrôle requis.
+- Complet forcé : PR prête/non brouillon, message de commit contenant `[ci full]`, push main, lancement manuel. `npm run test:emulator` reste complet par défaut. Avant fusion/publication, exiger ce contrôle complet sur le candidat ; aucune fusion/publication n’est autorisée par ce changement.
+- Une nouvelle révision de PR annule ses anciens runs devenus inutiles. La première validation de cette modification de CI est complète ; les résultats et durées effectivement observés seront consignés dans la PR sur le SHA exact.
+
+Validation locale : 11 nouveaux tests de sélection/répartition, repli complet, historique échoué/annulé, référence ancestrale, fork et absence de perte d’une suite mémoire. Total applicatif et preuve CI à consulter dans la PR. Aucun changement de règle de jeu, donnée réelle ou workflow de déploiement. Prochaine tranche fonctionnelle : avenants de détour et navigation/séparation cohérentes, puis ESC-01.
 
 ### Contrats d’escorte PNJ et provision carburant distincte
 
