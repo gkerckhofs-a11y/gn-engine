@@ -1,3 +1,4 @@
+import {requireRouteAnalysis} from './space-route-analysis.mjs';
 import {hasSoHealth,vitalTime,careTime,securedPatient,requireSoPatient} from './space-outlaws-health-state.mjs';
 import {requirePatientNature} from './character-nature.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
@@ -79,7 +80,7 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
     const {s,c,r}=ctx,all=await tx.list(`sessions/${s.id}/personActions`),actions=[];
     for(const a of all){const identity=c.id===a.characterId?[a.actorUid,a.accessVersion]:c.id===a.targetId?[a.targetUid,a.targetAccessVersion]:c.id===a.aid?.characterId?[a.aid.uid,a.aid.accessVersion]:null;if(!identity||identity[0]!==actor.uid||identity[1]!==r.accessVersion)continue;const v=view(a,s,c.id,at);if(v.canChoose){const t=await tx.get(cp(s.id,a.targetId));v.lootLots=(await lootLots(tx,s,t,at)).map(l=>({id:l.id,name:l.item.name}));}actions.push(v);}
     const offers=(await tx.list(`sessions/${s.id}/aidOffers`,['helperId',c.id])).filter(o=>o.helperUid===actor.uid&&o.accessVersion===r.accessVersion&&['OFFERED','ACTIVE'].includes(o.status));
-    return {session:{id:s.id,stage:s.stage,...(s.spaceOutlaws?{spaceOutlaws:true,healthReady:hasSoHealth(s)}:{})},character:{id:c.id,name:c.public.displayName},skills:(c.abilityProfile?.published?c.abilityProfile.skills:[]).filter(k=>k.kind==='PASSIVE'&&(!s.spaceOutlaws||analysisProfile(k.id)?.test==='D6')).map(k=>({id:k.id,name:k.name})),actions:actions.sort((a,b)=>b.startedAt-a.startedAt).slice(0,100),aidOffers:offers.map(o=>({id:o.id,status:o.status,recipientName:o.recipientName,skillId:o.skillId,actionId:o.actionId??null,collection:o.collection??null})),encounter:encounter(c,at),convalescenceMs:Math.max(0,(c.convalescentUntilGameMs??0)-gameTime(s.clock,at)),captureMs:Math.max(0,(c.lootEncounter?.captureUntil??0)-at)};
+    return {session:{id:s.id,stage:s.stage,...(s.spaceOutlaws?{spaceOutlaws:true,healthReady:hasSoHealth(s)}:{})},character:{id:c.id,name:c.public.displayName},skills:(c.abilityProfile?.published?c.abilityProfile.skills:[]).filter(k=>k.kind==='PASSIVE'&&(!s.spaceOutlaws||analysisProfile(k.id)?.test==='D6'&&(k.id!=='PIL-01'||s.spaceOutlaws.routeAnalysisVersion===1))).map(k=>({id:k.id,name:k.name})),actions:actions.sort((a,b)=>b.startedAt-a.startedAt).slice(0,100),aidOffers:offers.map(o=>({id:o.id,status:o.status,recipientName:o.recipientName,skillId:o.skillId,actionId:o.actionId??null,collection:o.collection??null})),encounter:encounter(c,at),convalescenceMs:Math.max(0,(c.convalescentUntilGameMs??0)-gameTime(s.clock,at)),captureMs:Math.max(0,(c.lootEncounter?.captureUntil??0)-at)};
    }
    if(action==='personTarget'){
     const {s,c}=ctx,{c:t}=await activeCharacter(tx,s.id,input.targetId),profiles=(await tx.list(`sessions/${s.id}/personProfiles`)).filter(p=>p.publicationState==='PUBLISHED'&&(isLoot(p)||acceptsPatientNature(p,t))&&(!s.spaceOutlaws||(hasSoHealth(s)&&['STABILIZE','FIELD_CARE'].includes(p.kind)&&(!p.skillId||abilityLevel(c,p.skillId)>=p.minLevel)))),lots=(await tx.list(`sessions/${s.id}/inventory`,['holderId',c.id])).filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.quantity>0);
@@ -89,6 +90,7 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
    if((ctx??org).s.spaceOutlaws){
     const aid=['offerAid','cancelAidOffer'].includes(action);
     requireThat(aid||(hasSoHealth((ctx??org).s)&&['startPersonAction','finishPersonAction','cancelPersonAction','cancelPersonActionMJ'].includes(action)),'SO_GAMEPLAY_NOT_OPEN');
+    if(action==='offerAid'&&input.skillId==='PIL-01')requireRouteAnalysis((ctx??org).s);
     if(action==='offerAid')requireThat(analysisProfile(input.skillId)?.test==='D6','AID_NOT_ALLOWED');
     authorizeSpaceOutlaws(tx,(ctx??org).s,aid?'AID':'CARE');
    }

@@ -9,7 +9,7 @@ const text=(v,max,required=false)=>{requireThat(typeof v==='string'&&v.length<=m
 export const centralSpaceTypes=['shipModel','port','route'];
 export function centralSpaceInput(type,v,id,old={}){
  requireThat(centralSpaceTypes.includes(type),code);
- keys(v,['name','description','gmNotes',...(type==='shipModel'?['profileId']:type==='port'?['navigationCode','locationTargetId']:['fromPort','toPort','distanceId','riskId','navigationCode'])]);
+ keys(v,['name','description','gmNotes',...(type==='shipModel'?['profileId']:type==='port'?['navigationCode','locationTargetId']:['fromPort','toPort','distanceId','riskId','navigationCode','analysisTargetId'])]);
  const common={id,name:text(v.name,150,true),description:text(v.description??'',4000),gmNotes:text(v.gmNotes??'',4000)},revision=(old.revision??0)+1;
  let detail;
  if(type==='shipModel'){
@@ -21,24 +21,27 @@ export function centralSpaceInput(type,v,id,old={}){
   // Reuse the native route's IDs, distinct endpoints and textual validation.
   // Its legacy fixed fuelCost/enabled fields are not part of this definition.
   const {fromPort,toPort,durationSeconds}=routeInput({...common,fromPort:v.fromPort,toPort:v.toPort,durationSeconds:distance.durationSeconds,fuelCost:0,enabled:false},id);
-  detail={fromPort,toPort,distanceId:distance.id,riskId:risk.id,durationSeconds,distanceFactor:distance.distanceFactor,eventFaces:risk.eventFaces,navigationCode:text(v.navigationCode,80,true)};
+  detail={...(v.analysisTargetId==null||v.analysisTargetId===''?{}:{analysisTargetId:documentId(v.analysisTargetId)}),fromPort,toPort,distanceId:distance.id,riskId:risk.id,durationSeconds,distanceFactor:distance.distanceFactor,eventFaces:risk.eventFaces,navigationCode:text(v.navigationCode,80,true)};
  }
  return {...common,...detail,schemaVersion:1,publicationState:'DRAFT',masterArchived:false,revision};
 }
 // Keep the editable boundary identical for validation of persisted definitions.
 export function centralSpaceEditable(type,d){
- const fields=['name','description','gmNotes',...(type==='shipModel'?['profileId']:type==='port'?['navigationCode','locationTargetId']:['fromPort','toPort','distanceId','riskId','navigationCode'])];
- return Object.fromEntries(fields.map(k=>[k,d[k]]));
+ const fields=['name','description','gmNotes',...(type==='shipModel'?['profileId']:type==='port'?['navigationCode','locationTargetId']:['fromPort','toPort','distanceId','riskId','navigationCode','analysisTargetId'])];
+ return Object.fromEntries(fields.filter(k=>k!=='analysisTargetId'||d[k]!==undefined).map(k=>[k,d[k]]));
 }
 export function centralSpaceReferences(c){
- return c.type==='route'?[{field:'fromPort',type:'port',id:c.data.fromPort},{field:'toPort',type:'port',id:c.data.toPort}]:c.type==='port'&&c.data.locationTargetId?[{field:'locationTargetId',type:'fieldTarget',id:c.data.locationTargetId}]:[];
+ return c.type==='route'?[{field:'fromPort',type:'port',id:c.data.fromPort},{field:'toPort',type:'port',id:c.data.toPort},...(c.data.analysisTargetId?[{field:'analysisTargetId',type:'fieldTarget',id:c.data.analysisTargetId}]:[])]:c.type==='port'&&c.data.locationTargetId?[{field:'locationTargetId',type:'fieldTarget',id:c.data.locationTargetId}]:[];
 }
 export function centralSpaceProjection(changes,locationChanges=null){
  const active=changes.filter(c=>centralSpaceTypes.includes(c.type)&&c.operation==='UPSERT'),diagnostics=[];
  const add=(c,field,reference,referenceType,code,message)=>diagnostics.push({workshop:'M3',entityType:c.type,entityId:c.entityId,field,reference,referenceType,code,message,source:c.source,draftRevision:c.revision});
  for(const c of active){
   for(const ref of centralSpaceReferences(c)){
-   if(ref.type==='fieldTarget'){diagnostics.push(...centralLocationDiagnostics(c,ref.field,ref.id,locationChanges));continue;}
+   if(ref.type==='fieldTarget'){diagnostics.push(...centralLocationDiagnostics(c,ref.field,ref.id,locationChanges));
+    const t=locationChanges?.find(t=>t.type==='fieldTarget'&&t.entityId===ref.id&&t.operation==='UPSERT');
+    if(ref.field==='analysisTargetId'&&t&&(t.data.kind!=='ANALYSIS'||t.data.profiles?.ANALYZE?.skillId!=='PIL-01'))add(c,ref.field,ref.id,'fieldTarget','REFERENCE_INVALID','Lier un dossier d’analyse PIL-01 préparé dans M6.');
+    continue;}
    const target=changes.find(t=>t.type===ref.type&&t.entityId===ref.id);
    if(!target)add(c,ref.field,ref.id,ref.type,'REFERENCE_MISSING','Préparer ce port dans M3 ou corriger son identifiant.');
    else if(target.operation!=='UPSERT')add(c,ref.field,ref.id,ref.type,'REFERENCE_ARCHIVED','Restaurer ce port ou modifier la route.');
