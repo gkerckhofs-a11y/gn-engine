@@ -33,7 +33,7 @@ export function scopeForChanges(paths, {forceFull=false, reliableBase=true}={}) 
     if(path==='AGENTS.md'||path==='README.md'||path.startsWith('docs/'))continue;
     if(/^web\//.test(path)){http=true;continue;}
     if(/^test\/[^/]+\.test\.mjs$/.test(path))continue; // All application tests always run.
-    if(path==='test/integration/http.test.mjs'){http=true;continue;}
+    if(path==='test/integration/http.test.mjs'||path==='test/browser/recette.spec.mjs'){http=true;continue;}
     const core=path.match(/^src\/core\/([^/]+)\.mjs$/);
     const support=path.match(/^test\/support\/([^/]+)-suite\.mjs$/);
     if(core&&spatialModules.has(core[1])||support&&spatialFixtures.has(support[1])){

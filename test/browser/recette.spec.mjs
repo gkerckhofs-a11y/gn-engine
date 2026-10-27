@@ -104,3 +104,68 @@ test('Navigateur : preuve après reconnexion, validation MJ sans paiement et dé
   expect(a.settlement.contestRemainingMs).toBeGreaterThan(0);expect(b.settlement.contestRemainingMs).toBe(a.settlement.contestRemainingMs);
   await capture(owner,info,'preuve-validee-fonds-conserves');
 });
+
+async function setStage(page,stage){
+  await navigate(page,`session/${scenario.sessionId}`,'spaceOutlawsEntry');page.once('dialog',dialog=>dialog.accept());
+  return clickCommand(page,`[data-action="soStage"][data-stage="${stage}"]`,'setStage');
+}
+async function readPage(page,path,action){const response=await navigate(page,path,action);expect(response.status()).toBe(200);return (await response.json()).result;}
+
+test('Navigateur : achat préparé avant STOP refusé, puis devis périmé sans débit',async({browser},info)=>{
+  const {page:owner}=await login(browser,'owner'),{page:player}=await login(browser,'player');
+  await setStage(owner,'EN_JEU');await navigate(player,`shops/${scenario.sessionId}`,'shops');
+  await clickCommand(player,'[data-form="shopPurchase"][data-offer="supply"] button','prepareShopPurchase');
+  await clickCommand(owner,'[data-action="soSafetyStopMJ"]','stopSafetyMJ');
+  const stopped=apiResponse(player,'buyShopOffer');await player.locator('[data-command="buyShopOffer"] button').click();
+  const denied=await stopped;expect(denied.status()).toBe(400);expect((await denied.json()).error).toBe('SO_SAFETY_STOP');
+  await expect(player.locator('#dialog [role="alert"]')).toContainText('STOP SÉCURITÉ actif');await capture(player,info,'achat-bloque-stop');
+  await navigate(owner,`session/${scenario.sessionId}`,'spaceOutlawsEntry');owner.once('dialog',dialog=>dialog.accept('Danger fictif résolu, contrôle du devis antérieur'));
+  await clickCommand(owner,'[data-action="soSafetyResume"]','resumeSafety');
+  const stale=apiResponse(player,'buyShopOffer');await player.locator('[data-command="buyShopOffer"] button').click();
+  const expired=await stale;expect(expired.status()).toBe(400);expect((await expired.json()).error).toBe('STALE_REVISION');
+  await expect(player.locator('#dialog [role="alert"]')).toBeVisible();
+  const wallet=await readPage(player,`wallet/${scenario.sessionId}`,'myWallet');expect(wallet.account.balance).toBe(0);expect(wallet.account.protectedCredits).toBe(50);
+  const admin=await readPage(owner,`shops-admin/${scenario.sessionId}`,'shopAdmin'),shop=admin.shops.find(s=>s.id==='counter');
+  expect(shop.account.balance).toBe(150);expect(shop.account.reserved).toBe(100);expect(shop.offers.find(o=>o.id==='supply').stock).toBe(2);expect(admin.orders).toHaveLength(1);
+  await setStage(owner,'PAUSE');
+});
+
+test('Navigateur : réponse perdue après achat, réessai et double clic sans second débit ni lot',async({browser},info)=>{
+  const {page:owner}=await login(browser,'owner'),{page:buyer}=await login(browser,'other');
+  await setStage(owner,'EN_JEU');
+  const before=await readPage(buyer,`wallet/${scenario.sessionId}`,'myWallet');expect(before.account.protectedCredits).toBe(200);
+  await navigate(buyer,`shops/${scenario.sessionId}`,'shops');
+  await clickCommand(buyer,'[data-form="shopPurchase"][data-offer="supply"] button','prepareShopPurchase');
+  const attempts=[],pickups=[],serverReceipts=[];let interrupted=0;
+  buyer.on('request',request=>{if(!request.url().endsWith('/api/command'))return;const p=request.postDataJSON();if(p.action==='buyShopOffer')attempts.push(p.input.requestId);if(p.action==='confirmShopPickup')pickups.push(p.input.requestId);});
+  // Forward the original UI request, then lose its response AFTER the server commits.
+  await buyer.route('**/api/command',async route=>{
+    if(route.request().postDataJSON()?.action!=='buyShopOffer'||interrupted>=2)return route.fallback();
+    const attempt=interrupted++,response=await route.fetch();serverReceipts.push({status:response.status(),body:await response.json()});
+    if(attempt===0)return route.abort('failed');
+    const body='{"result":';return route.fulfill({response,body,headers:{...response.headers(),'content-type':'application/json','content-length':String(Buffer.byteLength(body))}});
+  });
+  const failed=buyer.waitForEvent('requestfailed',r=>r.url().endsWith('/api/command')&&r.postDataJSON()?.action==='buyShopOffer');
+  const pay=buyer.locator('[data-command="buyShopOffer"] button');await pay.click();await failed;
+  const committed=serverReceipts[0];expect(committed.status).toBe(200);expect(committed.body.result.amount).toBe(30);
+  await expect(buyer.locator('#dialog [role="alert"]')).toContainText('L’opération peut déjà être enregistrée');await expect(pay).toBeEnabled();await capture(buyer,info,'achat-reponse-perdue');
+  const malformed=apiResponse(buyer,'buyShopOffer');await pay.click();expect((await malformed).status()).toBe(200);await expect(pay).toBeEnabled();
+  expect(serverReceipts).toHaveLength(2);expect(serverReceipts[1]).toEqual(committed);await expect(buyer.locator('#dialog [role="alert"]')).toContainText('L’opération peut déjà être enregistrée');
+  const retried=apiResponse(buyer,'buyShopOffer');await pay.dblclick();const replay=await retried;expect(replay.status()).toBe(200);const receipt=(await replay.json()).result;
+  expect(receipt).toEqual(committed.body.result);expect(attempts).toHaveLength(3);expect(new Set(attempts).size).toBe(1);
+  let d=await readPage(buyer,`shops/${scenario.sessionId}`,'shops');expect(d.orders).toHaveLength(1);
+  const order=d.orders[0];expect(order.id).toBe(receipt.id);expect(order.quantity).toBe(1);expect(order.amount).toBe(30);expect(order.protectedAmount).toBe(30);expect(order.pickupStatus).toBe('WAITING');
+  const wallet=await readPage(buyer,`wallet/${scenario.sessionId}`,'myWallet');expect(wallet.account.balance).toBe(0);expect(wallet.account.protectedCredits).toBe(170);
+  let admin=await readPage(owner,`shops-admin/${scenario.sessionId}`,'shopAdmin'),shop=admin.shops.find(s=>s.id==='counter');
+  expect(shop.account.balance).toBe(180);expect(shop.account.reserved).toBe(100);expect(shop.offers.find(o=>o.id==='supply').stock).toBe(1);expect(admin.orders).toHaveLength(2);
+  await clickCommand(owner,`[data-command="offerShopPickup"][data-payload*="${order.id}"] button`,'offerShopPickup');
+  await navigate(buyer,`shops/${scenario.sessionId}`,'shops');const pickup=buyer.locator('[data-command="confirmShopPickup"]');
+  await pickup.locator('[name="received"]').check();const received=apiResponse(buyer,'confirmShopPickup');await pickup.getByRole('button').dblclick();expect((await received).status()).toBe(200);expect(pickups).toHaveLength(1);
+  d=await readPage(buyer,`shops/${scenario.sessionId}`,'shops');expect(d.orders).toHaveLength(1);expect(d.orders[0].pickupStatus).toBe('RECEIVED');
+  const bag=await readPage(buyer,`bag/${scenario.sessionId}`,'myInventory'),lots=bag.lots.filter(l=>l.id===order.purchasedLotId);
+  expect(lots).toHaveLength(1);expect(lots[0].quantity).toBe(1);expect(lots[0].status).toBe('AVAILABLE');expect(lots[0].transferable).toBe(false);expect(lots[0].resellable).toBe(false);expect(lots[0].pillable).toBe(false);
+  await expect(buyer.locator('#app')).toContainText('170 Cr de création protégés');await capture(buyer,info,'achat-recu-une-fois');
+  admin=await readPage(owner,`shops-admin/${scenario.sessionId}`,'shopAdmin');expect(admin.shops.find(s=>s.id==='counter').account.balance).toBe(180);
+  await info.attach('reprise-achat',{body:Buffer.from(JSON.stringify({scope:'AUTOMATED_CHROMIUM_PURCHASE',faults:['RESPONSE_LOST_AFTER_COMMIT','TRUNCATED_JSON_RECEIPT'],requests:attempts,receiptId:receipt.id,pickupRequests:pickups.length,protectedBefore:200,protectedAfter:170,shopBalance:180,salaryReserved:100,stockRemaining:1,receivedQuantity:1,humanAcceptance:'NOT_EXECUTED'},null,2)),contentType:'application/json'});
+  await setStage(owner,'PAUSE');
+});

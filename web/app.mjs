@@ -88,8 +88,10 @@ function pageRenderer(){return createPlayerRenderer({version:routeVersion,getVer
 function notice(message,error=false){const n=document.querySelector('#notice');n.textContent=message;n.className=error?'error':'';n.style.display='block';clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>n.style.display='none',6500);}
 async function api(action,input={}) {
   const token=auth.currentUser ? await auth.currentUser.getIdToken() : null;
-  const response=await fetch('/api/command',{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,input}),cache:'no-store'});
-  let body; try{body=await response.json();}catch{throw new Error('Le service Firebase n’est pas encore disponible sur cette adresse.');}
+  let response;
+  try{response=await fetch('/api/command',{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,input}),cache:'no-store'});}
+  catch{const e=new Error('Connexion au serveur interrompue. Vérifiez le réseau puis réessayez.');e.code='NETWORK_UNAVAILABLE';throw e;}
+  let body; try{body=await response.json();}catch{const e=new Error('Réponse du serveur illisible. Actualisez ou réessayez.');e.code='RESPONSE_UNREADABLE';throw e;}
   if(!response.ok || body.error) {const e=new Error(errors[body.error] ?? 'La demande n’a pas pu être traitée. Vérifiez les champs.');e.code=body.error;throw e;}
   return body.result;
 }
@@ -97,7 +99,8 @@ async function mutate(action,input={}){
   const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify([action,input])));
   const key=Array.from(new Uint8Array(digest)).map(n=>n.toString(16).padStart(2,'0')).join('');
   const requestId=pendingCommands.get(key)??crypto.randomUUID();pendingCommands.set(key,requestId);
-  const result=await api(action,{...input,requestId});pendingCommands.delete(key);return result;
+  try{const result=await api(action,{...input,requestId});pendingCommands.delete(key);return result;}
+  catch(e){if(['NETWORK_UNAVAILABLE','RESPONSE_UNREADABLE'].includes(e.code))e.message='Réponse du serveur non reçue. L’opération peut déjà être enregistrée. Réessayez cette confirmation sans la modifier, ou actualisez pour vérifier son état.';throw e;}
 }
 function button(label,action,extra='',kind=''){return `<button class="${kind}" data-action="${action}" ${extra}>${label}</button>`;}
 function link(label,path,kind='button'){return `<a class="${kind}" href="#/${path}">${label}</a>`;}
@@ -821,7 +824,7 @@ document.addEventListener('submit',async event=>{
     else if(kind==='assign')await mutate('assign',{sessionId:currentSession.id,uid:form.dataset.uid,characterId:v.characterId,replace:v.replace==='on'});
     if(submitVersion!==routeVersion)return;
     dialog.close();notice(successMessage);if(destination&&location.hash!==`#/${destination}`)location.hash=`#/${destination}`;else await route();
-  }catch(e){notice(errors[e.code]||e.message,true);}finally{busy=false;if(b)b.disabled=false;}
+  }catch(e){const message=errors[e.code]||e.message;notice(message,true);if(dialog.open&&dialog.contains(form)){let alert=dialog.querySelector('[data-command-error]');if(!alert){alert=document.createElement('p');alert.dataset.commandError='';alert.className='panel error-panel';alert.setAttribute('role','alert');dialog.prepend(alert);}alert.textContent=message;}}finally{busy=false;if(b)b.disabled=false;}
 });
 document.addEventListener('input',event=>{
   if(event.target.closest('[data-form="noteEditor"]'))event.target.closest('form').dataset.dirty='true';

@@ -36,7 +36,7 @@ test('CI : sélection invalide, doublon, suite inconnue et lot vide échouent ex
   assert.throws(()=>selectFirestoreSuites({GN_FIRESTORE_SUITES:'["workflow"]',GN_FIRESTORE_SHARD:'2/2'}));
 });
 test('CI : fondations, dépendances, règles, fichiers inconnus et orchestration imposent le complet',()=>{
-  for(const path of ['src/core/workflow.mjs','src/core/contracts.mjs','src/core/space-outlaws-entry-guard.mjs','src/core/new-feature.mjs','src/adapters/firestore.mjs','src/server/index.mjs','src/shared/space-outlaws-rules.mjs','package-lock.json','firestore.rules','storage.rules','.github/workflows/check.yml','scripts/ci-plan.mjs','test/integration/firestore.test.mjs','test/support/firestore-suites.mjs']){
+  for(const path of ['src/core/workflow.mjs','src/core/contracts.mjs','src/core/space-outlaws-entry-guard.mjs','src/core/new-feature.mjs','src/adapters/firestore.mjs','src/server/index.mjs','src/shared/space-outlaws-rules.mjs','package-lock.json','firestore.rules','storage.rules','.github/workflows/check.yml','scripts/ci-plan.mjs','scripts/ci-scope.mjs','test/browser/recette.config.mjs','test/browser/unknown.spec.mjs','scripts/recette/scenario.mjs','test/integration/firestore.test.mjs','test/support/firestore-suites.mjs']){
     assert.equal(scopeForChanges(['src/core/space-escort.mjs',path]).profile,'full',path);
   }
   assert.equal(scopeForChanges([],{reliableBase:false}).profile,'full');
@@ -45,7 +45,7 @@ test('CI : fondations, dépendances, règles, fichiers inconnus et orchestration
   assert.equal(scopeForChanges(['test/support/space-escort-suite.mjs']).profile,'spatial');
 });
 test('CI : interface et HTTP gardent tous les parcours Auth ; documentation garde les tests applicatifs',()=>{
-  for(const paths of [['web/app.mjs'],['test/integration/http.test.mjs']]){
+  for(const paths of [['web/app.mjs'],['test/integration/http.test.mjs'],['test/browser/recette.spec.mjs']]){
     const scope=scopeForChanges(paths);assert.equal(scope.profile,'http');assert.equal(scope.http,true);assert.deepEqual(scope.suites,[]);
   }
   const scope=scopeForChanges(['AGENTS.md','docs/SO-VALIDATION.md','test/space-escort-ui.test.mjs']);
