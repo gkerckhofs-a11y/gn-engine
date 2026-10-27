@@ -1,5 +1,7 @@
 # GN Engine
 
+État courant SPACE OUTLAWS : [suivi de validation](docs/SO-VALIDATION.md). [Kit de recette locale](docs/SO-RECETTE-LOCALE.md) : `npm run recette:check`, puis `npm run recette` sur un poste avec Java 21. Émulateurs, identités fictives et relevé manuel ; aucune publication ni recette terrain certifiée. Les jalons ci-dessous sont historiques.
+
 **C2q — Excel des lieux et informations M6.** [Guide du contrat versionné](docs/SO-06-C2Q-EXCEL-LIEUX.md). Aperçu et lot commun, profils/récompenses natifs, anciens fichiers M6 conservés. Compilation et 1477 tests applicatifs locaux réussis le 25 octobre 2026 ; preuves finales des deux CI dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Aucune activation ni publication.
 
 **C2p — lieux, fouilles et installations M6.** [Guide, tests et limites](docs/SO-02-C2P-LIEUX-CENTRAUX.md). Définitions natives privées, profils/récompenses proposés, références M3/M4/M5 sous droits M6, import M6 homonyme préservé et captures compatibles. Compilation et 1456 tests applicatifs locaux réussis le 25 octobre 2026 ; preuves finales des deux CI dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Aucun stock, QR, action ou droit de laboratoire activé ; publication et conformité complète restent à livrer.

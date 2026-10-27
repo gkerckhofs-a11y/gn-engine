@@ -10,6 +10,8 @@
   "scripts": {
     "test": "node --test test/*.test.mjs",
     "build": "node scripts/build.mjs",
+    "recette": "node scripts/recette.mjs",
+    "recette:check": "node scripts/recette.mjs --check",
     "gcp-build": "",
     "test:emulator": "firebase emulators:exec --project demo-gn-engine --only firestore,auth,storage 'node --test test/integration/*.test.mjs'",
     "test:emulator:firestore": "firebase emulators:exec --project demo-gn-engine --only firestore,auth,storage 'node --test test/integration/firestore.test.mjs'",

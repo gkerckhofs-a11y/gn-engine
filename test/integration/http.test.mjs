@@ -1323,3 +1323,16 @@ test('HTTP + Auth : prime PNJ préfinancée, attribution sans débit puis contra
  const contractId=(await call('bountyDetail',{bountyId})).claims[0].contractId;assert.equal((await request('prepareContractSettlement',{sessionId,contractId,reason:'Trop tôt'},owner)).error,'SO_CONTEST_OPEN');await confirm('prepareBountyClosure','closeBounty',{bountyId,reason:'Fin des nouvelles attributions'});assert.equal((await db.doc(`${base}/accounts/${sourceAccountId}`).get()).data().reserved,50);const s=(await db.doc(base).get()).data();await db.doc(base).update({clock:{...s.clock,elapsedMs:s.clock.elapsedMs+600000}});await confirm('prepareContractSettlement','settleContract',{contractId,reason:'Délai écoulé'});assert.equal((await call('myWallet')).account.balance,50);assert.equal((await call('myWallet')).account.protectedCredits,50);assert.equal((await db.doc(`${base}/accounts/${sourceAccountId}`).get()).data().reserved,0);
  await cmd('revokeAccess',{uid:uid(player)},owner);assert.equal((await request('bountyDetail',{sessionId,bountyId},player)).status,403);assert.equal((await request('contractDetail',{sessionId,contractId},player)).status,403);
 });
+
+test('HTTP + Auth : scénario de recette local par commandes natives, rôles et réserves réelles',async()=>{
+ const {seedMissionScenario}=await import('../../scripts/recette/scenario.mjs'),{createRecetteIdentities}=await import('../../scripts/recette/auth.mjs');
+ const previousOwner=process.env.OWNER_EMAIL;process.env.OWNER_EMAIL='owner@recette.example.invalid';
+ try{
+ const {tokens,uids}=await createRecetteIdentities(process.env);
+ const call=async(action,input={},role='owner')=>{const r=await request(action,input,tokens[role]);assert.equal(r.status,200,`${action}: ${JSON.stringify(r)}`);return r.result;};
+ const s=await seedMissionScenario(call,uids),input={sessionId:s.sessionId},registry=await call('sessionContracts',input);assert.equal(registry.session.stage,'PAUSE');assert.equal(registry.contracts[0].obligations.salaryReserved,100);assert.equal(registry.contracts[0].obligations.rewards[0].remaining,3);assert.equal((await call('myWallet',input,'player')).account.protectedCredits,50);assert.equal((await call('myWallet',input,'other')).account.protectedCredits,200);assert.equal((await call('shops',input,'player')).shops[0].offers[0].stock,2);
+ assert.equal((await request('sessionContracts',input)).status,401);assert.equal((await call('sessionContracts',input,'mj')).contracts.length,1);for(const role of ['reception','player','other','outsider'])assert.equal((await request('sessionContracts',input,tokens[role])).status,403);
+ assert.match(JSON.stringify(await call('contractDetail',{...input,contractId:s.contractId},'player')),/SECRET_RECETTE_BRIEFING/);assert.equal((await request('contractDetail',{...input,contractId:s.contractId},tokens.other)).status,403);assert.equal((await request('session',{sessionId:s.otherSessionId},tokens.mj)).status,403);
+ const session=await call('session',input),till=session.accounts.find(a=>a.ownerType==='SHOP');assert.equal(till.balance,150);assert.equal(till.reserved,100);assert.doesNotMatch(JSON.stringify(s),/idToken|SECRET_|email/);assert.equal(s.humanAcceptance,'NOT_EXECUTED');
+ }finally{process.env.OWNER_EMAIL=previousOwner;}
+});
