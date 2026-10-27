@@ -23,6 +23,7 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(!path.startsWith(base)&&path!==base.slice(0,-1))continue;
   if(path.startsWith(`${base}audit/`))continue;
   const relative=path.slice(base.length);
+  if(scopes.has('ESCORT_AMENDMENT')&&session.spaceOutlaws.escortAmendmentVersion===1&&/^(ships\/[^/]+|contracts\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('ESCORT')&&session.spaceOutlaws.escortVersion===1&&/^(ships\/[^/]+|characters\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|contracts\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('TRANSPORT')&&session.spaceOutlaws.transportVersion===1&&/^inventory\/[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
   if(scopes.has('LEARNING')&&session.spaceOutlaws.learningVersion===1&&/^(characters\/[^/]+(?:\/history\/[^/]+)?|registrations\/[a-f0-9]{64})$/.test(relative))continue;

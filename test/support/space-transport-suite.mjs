@@ -5,8 +5,8 @@ import {soVoyagesFixture} from './space-outlaws-voyages-suite.mjs';
 import {episodeHarness} from './space-episodes-suite.mjs';
 import {shopAccountId,shopStockId} from '../../src/core/space-outlaws-shop-state.mjs';
 import {accountId} from '../../src/core/economy-state.mjs';
-export async function transportFixture(makeStore,{quantity=6,durationMinutes=60}={}){
- const f=await soVoyagesFixture(makeStore,{prepareExtra:async(f,draftRevision)=>f.cc('saveCentralMission',{missionId:'freight',missionRevision:0,draftRevision,mission:{title:'Fournitures pour le dispensaire',description:'Livraison de fret confié',gmNotes:'SECRET_MJ',steps:[{id:'delivery',title:'Livrer les fournitures',description:'Remettre au destinataire annoncé'}],giverCharacterId:'merchant',requiredKnowledgeIds:[],rewardItems:[],conditions:'Livraison complète au port indiqué',proofExpected:'Réception contrôlée par le MJ'},reason:'Mission de transport'})});
+export async function transportFixture(makeStore,{quantity=6,durationMinutes=60,prepareExtra=null}={}){
+ const f=await soVoyagesFixture(makeStore,{prepareExtra:async(f,draftRevision)=>{await f.cc('saveCentralMission',{missionId:'freight',missionRevision:0,draftRevision,mission:{title:'Fournitures pour le dispensaire',description:'Livraison de fret confié',gmNotes:'SECRET_MJ',steps:[{id:'delivery',title:'Livrer les fournitures',description:'Remettre au destinataire annoncé'}],giverCharacterId:'merchant',requiredKnowledgeIds:[],rewardItems:[],conditions:'Livraison complète au port indiqué',proofExpected:'Réception contrôlée par le MJ'},reason:'Mission de transport'});if(prepareExtra)await prepareExtra(f,draftRevision+1);}});
  const read=f.read,cmd=f.cmd,get=p=>f.store.get(`sessions/${f.sid}/${p}`);
  const confirm=async(prep,act,p,actor=f.owner)=>{const q=await read(prep,p,actor);return cmd(act,{...p,confirmation:q.confirmation},actor);};
  const stock={shopId:'counter',offerId:'supply',provisionId:randomUUID(),quantity:10,restricted:false,source:'Dix caisses présentes au comptoir',reason:'Stock réel de la mission'};

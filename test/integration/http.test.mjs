@@ -1222,6 +1222,25 @@ test('HTTP + Auth : convoi consenti, deux préparations, événement commun et a
  await cmd('revokeAccess',{uid:uid(escort)},owner);assert.equal((await request('acceptSoConvoy',{sessionId,...accept},escort)).status,403);
 });
 
+test('HTTP + Auth : avenant de détour, deux comptes authentifiés, réserve unique et confidentialité',async()=>{
+ const {amendmentFixture}=await import('../support/space-escort-amendments-suite.mjs'),{inventoryParty}=await import('../../src/core/inventory-transfers.mjs'),db=getFirestore(),store=firestoreStore(db),f=await amendmentFixture(()=>store);
+ const owner=await googleTestAccount(process.env.OWNER_EMAIL),cargo=await googleTestAccount(`detour-cargo-${randomUUID()}@example.invalid`),escort=await googleTestAccount(`detour-escort-${randomUUID()}@example.invalid`),outsider=await googleTestAccount(`detour-other-${randomUUID()}@example.invalid`),uid=t=>JSON.parse(Buffer.from(t.split('.')[1],'base64url').toString()).sub,sessionId=f.sid,base=`sessions/${sessionId}`;
+ // Bind the two already-signed synthetic fixture identities to real emulator Auth accounts.
+ for(const [actor,token,cid,contract] of [[f.player,cargo,f.cid,f.c],[f.other,escort,f.otherId,f.ec]]){
+  const old=(await db.doc(`${base}/registrations/${hash(actor.uid)}`).get()).data();await db.doc(`${base}/registrations/${hash(actor.uid)}`).delete();await db.doc(`${base}/registrations/${hash(uid(token))}`).set({...old,id:hash(uid(token)),uid:uid(token),minAuthTime:0});await db.doc(`${base}/characters/${cid}`).update({assignedUid:uid(token)});
+  const party=await store.runTransaction(tx=>inventoryParty(tx,sessionId,cid));await db.doc(`${base}/contracts/${contract.id}`).update({applicantUid:uid(token),applicantVersion:party.version});
+ }
+ await db.doc(base).update({ownerUid:uid(owner),clock:{elapsedMs:0,runningSince:Date.now()}});await db.doc(`campaigns/${f.campaignId}`).update({ownerUid:uid(owner)});
+ const call=async(action,input={},token=owner)=>{const r=await request(action,{sessionId,...input},token);assert.equal(r.status,200,JSON.stringify(r));return r.result;},cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token),confirm=async(prep,action,p,token=owner)=>{const q=await call(prep,p,token);return cmd(action,{...p,confirmation:q.confirmation},token);};
+ assert.equal((await request('prepareEscortAmendmentAdmin',{sessionId,...f.input})).status,401);assert.equal((await request('prepareEscortAmendmentAdmin',{sessionId,...f.input},escort)).status,403);
+ await confirm('prepareEscortAmendmentAdmin','proposeEscortAmendmentAdmin',f.input);assert.equal((await request('contractDetail',{sessionId,contractId:f.ec.id},outsider)).status,403);
+ const d=await call('contractDetail',{contractId:f.c.id},cargo);assert.equal(d.amendment.canRespond,true);assert.equal(d.amendment.proposal.newSalary,undefined);assert.doesNotMatch(JSON.stringify(d),/SECRET_ESCORT|SECRET_MJ|contextGuard|routeGuard/);
+ const response={contractId:f.ec.id,decision:'ACCEPT',reason:'Détour accepté'};assert.equal((await request('prepareEscortAmendmentResponse',{sessionId,...response},cargo)).status,403);
+ await confirm('prepareTransportAmendmentResponse','respondTransportAmendment',{...response,contractId:f.c.id},cargo);assert.equal((await db.doc(`${base}/accounts/${f.ep.sourceAccountId}`).get()).data().reserved,300);
+ const q=await call('prepareEscortAmendmentResponse',response,escort),input={...response,confirmation:q.confirmation,requestId:randomUUID()},r=await cmd('respondEscortAmendment',input,escort);assert.deepEqual(await cmd('respondEscortAmendment',input,escort),r);assert.equal((await db.doc(`${base}/accounts/${f.ep.sourceAccountId}`).get()).data().reserved,375);assert.equal((await call('contractDetail',{contractId:f.ec.id},escort)).contract.terms.amount,125);
+ await cmd('revokeAccess',{uid:uid(escort)});assert.equal((await request('respondEscortAmendment',{sessionId,...input},escort)).status,403);
+});
+
 test('HTTP + Auth : escorte financée, plein natif, restitution distincte et droits avant reçu',async()=>{
  const {escortFixture}=await import('../support/space-escort-suite.mjs'),db=getFirestore(),f=await escortFixture(()=>firestoreStore(db));await f.closeEscort();
  const owner=await googleTestAccount(process.env.OWNER_EMAIL),escort=await googleTestAccount(`paid-escort-${randomUUID()}@example.invalid`),outsider=await googleTestAccount(`paid-escort-other-${randomUUID()}@example.invalid`),uid=t=>JSON.parse(Buffer.from(t.split('.')[1],'base64url').toString()).sub,sessionId=f.sid,base=`sessions/${sessionId}`;

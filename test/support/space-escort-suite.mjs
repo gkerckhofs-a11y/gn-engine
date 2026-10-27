@@ -5,8 +5,8 @@ import {transportFixture} from './space-transport-suite.mjs';
 import {shopStockId,shopAccountId} from '../../src/core/space-outlaws-shop-state.mjs';
 import {accountId} from '../../src/core/economy-state.mjs';
 import {episodeHarness} from './space-episodes-suite.mjs';
-export async function escortFixture(makeStore,{accept=false,amount=100}={}){
- const f=await transportFixture(makeStore,{quantity:5});await f.accept();await f.provision({shipId:'escort',name:'Protecteur',ownerId:f.otherId,pilotId:f.otherId});
+export async function escortFixture(makeStore,{accept=false,amount=100,prepareExtra=null}={}){
+ const f=await transportFixture(makeStore,{quantity:5,prepareExtra});await f.accept();await f.provision({shipId:'escort',name:'Protecteur',ownerId:f.otherId,pilotId:f.otherId});
  await f.confirm('prepareShopProvision','provisionShop',{shopId:'counter',offerId:'fuel',provisionId:randomUUID(),quantity:20,restricted:true,source:'Vingt unités de carburant existantes',reason:'Recette de provision séparée'});
  const a=await f.confirm('prepareAnnouncement','saveAnnouncement',{missionId:'freight',revision:0,title:'Protection du dispensaire',description:'Accompagner le fret',category:'ESCORT',mode:'ASSIGNMENT',participation:'PERSONAL',sponsorKind:'NPC',sponsorName:'Dispensaire',rewardType:'FIXED',rewardText:'100 Cr + carburant',places:1,conditions:'Protection raisonnable, sans sacrifice imposé',proofExpected:'Service et livraison vérifiés par MJ',briefing:'SECRET_ESCORT_BRIEFING',gmNotes:'SECRET_MJ_ESCORT',publication:'PUBLISHED',opensAt:0,deadline:8640000000000000,audience:{kind:'ALL',characterIds:[],groupIds:[]},reason:'Contrat distinct du fret'});
  const application=await f.confirm('prepareAnnouncementResponse','respondAnnouncement',{announcementId:a.id,intent:'APPLICATION',body:'Je protège le cargo'},f.other);

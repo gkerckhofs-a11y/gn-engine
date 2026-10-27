@@ -45,20 +45,23 @@ export async function escortEvidence(tx,s,c){
  if(!c.terms.escort||c.acceptedAt==null)return null;
  requireThat(hasSoEscort(s),'SO_GAMEPLAY_NOT_OPEN');const t=c.terms.escort,all=await tx.list(`${base(s)}/voyages`);
  // Evidence stays tied to the accepted incarnation and an actual common departure.
- const escort=all.filter(v=>v.shipId===t.shipId&&v.routeId===t.routeId&&v.departedAt>=c.acceptedAt&&v.convoyLeaderId===t.cargoShipId&&v.convoyShipIds?.includes(t.cargoShipId)&&v.missionManifest?.some(m=>m.id===c.characterId&&m.version===c.applicantVersion)).sort((a,b)=>a.departedAt-b.departedAt)[0];
+ const initialRoute=c.escortRoutePlan?.routes[0]?.id??t.routeId;
+ const escort=all.filter(v=>v.shipId===t.shipId&&v.routeId===initialRoute&&v.departedAt>=c.acceptedAt&&v.convoyLeaderId===t.cargoShipId&&v.convoyShipIds?.includes(t.cargoShipId)&&v.missionManifest?.some(m=>m.id===c.characterId&&m.version===c.applicantVersion)).sort((a,b)=>a.departedAt-b.departedAt)[0];
  const cargo=escort?all.find(v=>v.shipId===t.cargoShipId&&v.convoyId===escort.convoyId&&v.departedAt===escort.departedAt):null,freight=await tx.get(`${base(s)}/contracts/${t.transportContractId}`),delivery=freight?await transportView(tx,s,freight):null;
  return {departed:!!(cargo&&escort),freightEmbarked:!!cargo?.transportManifest?.some(m=>m.contractId===t.transportContractId),escortVoyageId:escort?.id??null,cargoVoyageId:cargo?.id??null,escortArrived:escort?.status==='ARRIVED',cargoArrived:cargo?.status==='ARRIVED',delivered:!!(cargo?.status==='ARRIVED'&&delivery?.complete)};
 }
 export async function escortReview(tx,s,c,input){
  if(!c.terms.escort||input.decision==='RETURN')return null;
  const e=await escortEvidence(tx,s,c),outcome=input.escortOutcome;
- requireThat(['DELIVERED','DEFENDED','FAULT','NOT_STARTED'].includes(outcome),'SO_ESCORT_OUTCOME');
- requireThat(input.decision===(['DELIVERED','DEFENDED'].includes(outcome)?'PAY':'REJECT'),'SO_ESCORT_OUTCOME');
+ requireThat(['DELIVERED','DEFENDED','FAULT','NOT_STARTED','DETOUR_REFUSED'].includes(outcome),'SO_ESCORT_OUTCOME');
+ requireThat(input.decision===(['DELIVERED','DEFENDED','DETOUR_REFUSED'].includes(outcome)?'PAY':'REJECT'),'SO_ESCORT_OUTCOME');
  if(outcome==='NOT_STARTED')requireThat(!e.departed,'SO_ESCORT_STARTED');else requireThat(e.departed,'SO_ESCORT_EVIDENCE');
+ if(c.escortSeparation)requireThat(['DETOUR_REFUSED','FAULT'].includes(outcome),'SO_ESCORT_OUTCOME');
+ if(outcome==='DETOUR_REFUSED')requireThat(c.escortSeparation&&e.freightEmbarked,'SO_ESCORT_EVIDENCE');
  if(outcome==='DELIVERED')requireThat(e.freightEmbarked&&e.delivered&&input.protectionConfirmed===true,'SO_ESCORT_EVIDENCE');
  if(outcome==='DEFENDED')requireThat(e.freightEmbarked&&!e.delivered&&input.protectionConfirmed===true,'SO_ESCORT_EVIDENCE');
  if(outcome==='FAULT')requireThat(input.faultConfirmed===true,'SO_ESCORT_OUTCOME');
- return {outcome,evidence:e,award:outcome==='DELIVERED'?c.terms.amount:outcome==='DEFENDED'?Math.round(c.terms.amount/2):0};
+ return {outcome,evidence:e,award:outcome==='DETOUR_REFUSED'?c.escortSeparation.award:outcome==='DELIVERED'?c.terms.amount:outcome==='DEFENDED'?Math.round(c.terms.amount/2):0};
 }
 export async function escortClosure(tx,s,c){
  if(!c.terms.escort||c.acceptedAt==null)return;
@@ -71,7 +74,7 @@ export async function escortView(tx,s,c,admin){
  if(!admin&&open(c)&&escortFuelRemaining(c)>0&&idle(ship)&&ship.portId===s.transportRules?.homePort){
   for(const shop of await tx.list(`${base(s)}/shops`))for(const o of await tx.list(`${base(s)}/shops/${shop.id}/offers`))if(o.item.id===ship.navigation.fuelItemId&&o.unitPrice===25){const l=await tx.get(`${base(s)}/inventory/${shopStockId(o.id)}`);if(l?.status==='AVAILABLE'&&l.quantity>0)offers.push({id:o.id,shopId:shop.id,name:`${shop.name} · ${o.name}`,quantity:l.quantity});}
  }
- return {evidence:e,fuel:c.escortFuel??null,review:c.escortReview??null,offers,canRelease:open(c)&&escortFuelRemaining(c)>0&&!ship?.operation?.escortContractId&&(admin||idle(ship)&&ship.portId===t.fromPort),...(!admin&&c.acceptedAt!=null?{navigationCode:ports.find(p=>p.id===t.toPort)?.navigationCode??null,returnCode:ports.find(p=>p.id===t.fromPort)?.navigationCode??null}:{})};
+ return {evidence:e,fuel:c.escortFuel??null,review:c.escortReview??null,offers,canRelease:open(c)&&escortFuelRemaining(c)>0&&!ship?.operation?.escortContractId&&(admin||idle(ship)&&ship.portId===t.fromPort),...(!admin&&c.acceptedAt!=null?{navigationCode:(await transportView(tx,s,await tx.get(`${base(s)}/contracts/${t.transportContractId}`)))?.navigationCode??null,returnCode:ports.find(p=>p.id===t.fromPort)?.navigationCode??null}:{})};
 }
 export const escortActions=['prepareEscortRefuel','startEscortRefuel','prepareEscortFuelRelease','releaseEscortFuel','prepareEscortFuelReleaseAdmin','releaseEscortFuelAdmin'];
 export const escortAdminActions=escortActions.filter(a=>a.endsWith('Admin'));

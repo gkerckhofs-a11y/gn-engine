@@ -15,7 +15,7 @@ test('CI : chaque suite complète est exécutée une seule fois entre les six lo
 test('CI : le profil spatial conserve les dépendances et les règles, sans doublon',()=>{
   const scope=scopeForChanges(['src/core/space-escort.mjs','web/space-escort.mjs','docs/SO-VALIDATION.md']);
   assert.equal(scope.profile,'spatial');assert.equal(scope.http,true);
-  for(const id of ['contracts','economy','inventory','space-transport','space-convoy','space-episodes','firestore-rules'])assert.ok(scope.suites.includes(id));
+  for(const id of ['contracts','economy','inventory','space-transport','space-convoy','space-escort-amendments','space-episodes','firestore-rules'])assert.ok(scope.suites.includes(id));
   const chosen=matrixFor(scope.suites).flatMap(({shard})=>selectFirestoreSuites({GN_FIRESTORE_SUITES:JSON.stringify(scope.suites),GN_FIRESTORE_SHARD:shard}));
   assert.deepEqual(chosen.map(s=>s.id).sort(),[...spatialSuites].sort());
 });

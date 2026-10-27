@@ -75,4 +75,5 @@ export const firestoreSuites = [
   {"id":"space-learning","module":"../support/space-learning-suite.mjs","exportName":"spaceLearningSuite","label":"Apprentissage SO sur Firestore","seconds":201},
   {"id":"space-convoy","module":"../support/space-convoy-suite.mjs","exportName":"spaceConvoySuite","label":"Convois SO sur Firestore","seconds":120},
   {"id":"space-escort","module":"../support/space-escort-suite.mjs","exportName":"spaceEscortSuite","label":"Escortes SO sur Firestore","seconds":120},
+  {"id":"space-escort-amendments","module":"../support/space-escort-amendments-suite.mjs","exportName":"spaceEscortAmendmentsSuite","label":"Avenants escorte SO sur Firestore","seconds":180},
 ];
