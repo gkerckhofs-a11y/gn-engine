@@ -47,6 +47,7 @@ test('Navigateur : six identités, filtres et secrets du contrat',async({browser
   for(const role of ['owner','mj','reception','player','other','outsider']){
     const {page}=await login(browser,role),response=await navigate(page,`contracts-admin/${scenario.sessionId}`,'sessionContracts');
     expect(response.status()).toBe(['owner','mj'].includes(role)?200:403);
+    await expect(page.locator('#recette-identity')).toHaveValue(role);
     if(['owner','mj'].includes(role)){
       await expect(page.getByRole('heading',{name:'Régie des missions',exact:true})).toBeVisible();
       await page.locator('[data-obligation-filter]').selectOption('FUEL');await expect(page.locator('[data-obligation-empty]')).toBeVisible();await expect(page.locator('[data-obligation-row]')).toBeHidden();
@@ -59,7 +60,9 @@ test('Navigateur : six identités, filtres et secrets du contrat',async({browser
       const contract=await navigate(page,`contract/${scenario.sessionId}/${scenario.contractId}`,'contractDetail');expect(contract.status()).toBe(role==='player'?200:403);
       if(role==='player'){
         await expect(page.locator('#app')).toContainText('SECRET_RECETTE_BRIEFING');await page.setViewportSize({width:390,height:844});
-        expect(await page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth)).toBe(true);
+        const layout=await page.evaluate(()=>({viewport:innerWidth,width:document.documentElement.scrollWidth,overflow:[...document.querySelectorAll('body *')].filter(e=>e.getBoundingClientRect().right>innerWidth).map(e=>({tag:e.tagName,id:e.id,width:e.getBoundingClientRect().width}))}));
+        await info.attach('disposition-390px',{body:Buffer.from(JSON.stringify(layout,null,2)),contentType:'application/json'});
+        expect(layout.width).toBeLessThanOrEqual(layout.viewport);
         await capture(page,info,'titulaire-390px');
       }else await expect(page.locator('#app')).not.toContainText('SECRET_RECETTE_BRIEFING');
     }

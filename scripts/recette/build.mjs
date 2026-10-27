@@ -14,7 +14,7 @@ export async function buildRecette(){
     name:'local-auth-only',setup(b){b.onResolve({filter:/^\.\/firebase-client\.mjs$/},args=>args.importer===resolve(root,'web/app.mjs')?{path:resolve(root,'scripts/recette/firebase-client.mjs')}:null);},
   }]});
   const version=JSON.parse(await readFile(resolve(root,'package.json'),'utf8')).version;
-  const toolbar=`<aside class="panel" aria-label="Recette locale"><strong>RECETTE LOCALE · DONNÉES FICTIVES</strong><p>Commit ${metadata.commit}${metadata.dirty?' · fichiers locaux modifiés':''}. Émulateurs uniquement. <a href="/recette.html">Parcours et relevé des résultats</a></p><label>Identité de test<select id="recette-identity"></select></label><button id="recette-login" type="button">Connexion fictive</button><p id="recette-status" role="status"></p></aside>`;
+  const toolbar=`<aside class="panel" aria-label="Recette locale"><strong>RECETTE LOCALE · DONNÉES FICTIVES</strong><p style="overflow-wrap:anywhere">Commit ${metadata.commit}${metadata.dirty?' · fichiers locaux modifiés':''}. Émulateurs uniquement. <a href="/recette.html">Parcours et relevé des résultats</a></p><label>Identité de test<select id="recette-identity"></select></label><button id="recette-login" type="button">Connexion fictive</button><p id="recette-status" role="status"></p></aside>`;
   const html=(await readFile(resolve(root,'web/index.html'),'utf8')).replace('{{APP_VERSION}}',version).replace('<body>',`<body>${toolbar}`);
   await writeFile(resolve(output,'index.html'),html);
   for(const name of ['style.css','galactic.css'])await copyFile(resolve(root,'web',name),resolve(output,name));

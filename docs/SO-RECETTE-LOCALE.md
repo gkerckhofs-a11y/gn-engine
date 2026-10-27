@@ -73,13 +73,13 @@ Ces sept cas ne couvrent pas intégralement les 55 recettes ni les dix SEC-SO. I
 Après `npm ci`, sur un poste Node 22/Java 21 équipé pour Chromium :
 
 ```sh
-npx --no-install playwright install chromium
+npx --no-install playwright install --only-shell chromium
 npm run test:recette:browser
 ```
 
-Le test démarre et arrête lui-même le kit et ses émulateurs. Fermer une autre instance du kit avant lancement. La CI installe également les dépendances système Chromium dans le job HTTP existant ; elle ne déploie aucun service.
+Le test démarre et arrête lui-même le kit et ses émulateurs. Fermer une autre instance du kit avant lancement. La CI installe seulement Chromium Headless Shell dans le job HTTP existant, avec les bibliothèques déjà présentes sur le runner ; elle ne déploie aucun service. Sur un autre poste Linux, les dépendances système peuvent être nécessaires (`npx --no-install playwright install-deps chromium`).
 
-Quatre parcours couvrent l’export initial non exécuté et ses champs obligatoires, les six identités/droits et filtres, STOP/reprise, puis une préparation de preuve interrompue avant envoi et reprise en ligne, la validation MJ sans paiement et le gel du délai en pause. Le scénario est modifié seulement par l’interface native. Aucun saut d’horloge ; les paiements après échéance, litiges et remises physiques restent à jouer. Le contrôle à 390 pixels mesure le débordement horizontal dans Chromium, pas le comportement d’un téléphone réel.
+Quatre parcours couvrent l’export initial non exécuté et ses champs obligatoires, les six identités/droits et filtres, STOP/reprise, puis une préparation de preuve interrompue avant envoi et reprise en ligne, la validation MJ sans paiement et le gel du délai en pause. Le scénario est modifié seulement par l’interface native. Aucun saut d’horloge ; les paiements après échéance, litiges et remises physiques restent à jouer. Le bandeau replie le SHA long et reflète l’identité réellement connectée après rechargement. Le contrôle à 390 pixels mesure le débordement horizontal dans Chromium, pas le comportement d’un téléphone réel.
 
 Les rapports JSON/HTML, captures et `context.json` sont dans `dist/recette-browser/` (artefact CI `recette-browser`, sept jours). Le contexte relève version Chromium, viewport, commit/arbre et état modifié du build. Les captures contiennent uniquement les données fictives. Pas de traces réseau ou de vidéo ; aucun jeton de connexion exporté. Les connexions de l’application sont limitées aux trois origines locales attendues ; tout appel distant ou erreur JavaScript fait échouer le parcours concerné.
 
