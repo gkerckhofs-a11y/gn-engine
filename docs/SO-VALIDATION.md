@@ -1,10 +1,23 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
-## État actif — réessais d’achat et confirmations après STOP, 27 octobre 2026
+## État actif — suspension et réouverture des accès joueurs, 27 octobre 2026
 
 Priorité : SPACE OUTLAWS jouable, services existants, un seul suivi évolutif. Les sections C2 ci-dessous restent historiques. Extension prioritaire : [SO_CDC_V36_Fouilles_Medias](source/SO_CDC_V36_Fouilles_Medias.md), texte intégral fourni. Références générales : [SO_CDC_V35](source/SO_CDC_V35.md), §7.2, §8 et annexes A.8/A.9 ; [SO_Regles_V07](source/SO_Regles_V07.txt), chapitres 3, 6, 25 et continuité entre épisodes.
 
-**Base confirmée** : branche `work/l1-modular-workshop`, PR #1, HEAD `db0d4d688727464776fab208b7dacad241768a54`, arbre `cf209327952d1e914adc6aafa94fb3f69c02f1c2`. CI unique [40498339506](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40498339506) réussie : 1986 applicatifs, 1611 intégration (1543 Firestore, 68 HTTP/Auth/Storage) et quatre parcours Chromium. Durée observée : 7 min 37 s d’exécution, 8 min 55 s de la création au statut final. Aucun audit historique relancé. Main demeure `03eaace155b052d1b7d1960347746e9ee60ed514`.
+**Base confirmée** : branche `work/l1-modular-workshop`, PR #1, HEAD `e33e635dfe367c437970f3fcf00e4118643c1960`, arbre `61544820db107ec23db6f581dcc8792cd4efa253`. CI unique [40504563898](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40504563898) réussie : build et 1986 applicatifs, profil documentaire depuis `cb72d9d`. Ce commit fonctionnel avait passé la [CI complète 40503417632](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40503417632) : 1986 applicatifs, 1611 intégration (1543 Firestore, 68 HTTP/Auth/Storage) et six Chromium, en 7 min 48 s d’exécution. Aucun audit historique relancé. Main demeure `03eaace155b052d1b7d1960347746e9ee60ed514`.
+
+### Suspension et réouverture des accès joueurs
+
+Références : V3.5 §9.2, SEC-SO-01 et LOCAL-05 partiels. Parcours **régie MJ → suspension → confirmation ancienne refusée → invitation personnelle → reconnexion → même personnage**.
+
+- Les fiches des joueurs approuvés présentent les commandes natives de révocation et, après suspension, de création d’une invitation. La révocation invalide aussi les liens existants. La confirmation nomme le joueur et explique la conservation des biens et obligations. Aucune commande affichée sans incarnation ou dans un épisode archivé.
+- La réouverture conserve `issueInvitation` / `redeem`, leur usage unique, leur destinataire, l’échéance et l’authentification récente. L’adresse de l’espace joueur reste liée au compte connecté ; le MJ ne devient pas le joueur. L’accès à cette régie demeure réservé aux lectures propriétaire/MJ existantes ; les capacités serveur, y compris celles de l’accueil, ne changent pas.
+- Le nouveau parcours Chromium prépare un achat avec Ari, fait révoquer son accès par le MJ, constate le refus de confirmation et la disparition du dossier privé à la nouvelle lecture. La régie garde 100 Cr réservés et signale le changement d’accès. Un autre compte et une authentification antérieure sont refusés sur l’invitation ; après reconnexion, le même personnage, les mêmes PA disponibles, comptes, lots et commandes sont retrouvés. La seconde consommation du lien est refusée.
+- Sept parcours automatiques au total. Les captures sont désormais explicites, sur des écrans sans invitation : aucune capture automatique d’échec, trace ou vidéo contenant le lien privé. Le test ne joint ni lien d’invitation ni jeton d’authentification au relevé. Les captures et le JSON restent distincts du relevé humain.
+
+Validation locale : **35/35 ciblés, inclus dans les 1987/1987 applicatifs**, et build réussis ; zéro échec/annulé/ignoré/todo. Node 24.22.1 / npm 11.9.0. Sept parcours Playwright découverts ; exécution Chromium et résultat du commit exact à consigner dans la PR après CI. Profil attendu **HTTP** depuis la base validée : interface, test navigateur connu et documentation ; aucune modification du moteur ou des fondations CI.
+
+Limites : aucune suppression rétroactive d’une information déjà affichée hors ligne, aucun effacement à distance du DOM avant la prochaine lecture, aucune dotation/réaffectation/succession par réouverture. La reconnexion de recette utilise Auth Emulator ; les fenêtres Google et les appareils physiques restent à tester. Aucun verdict humain ou SEC-SO-01 intégral certifié.
 
 ### Réessais d’achat et confirmations après STOP
 
@@ -16,7 +29,7 @@ Références : V3.5 §3.9 (commandes de jeu idempotentes) et §9.2 (résultats s
 - **STOP courant** : une confirmation préparée avant STOP est refusée. Après reprise, le même devis est périmé ; le solde, la caisse, le stock et les commandes restent inchangés. Aucune modification d’horloge ou écriture directe en base.
 - **CI ciblée** : seul le fichier navigateur connu rejoint le profil HTTP. Configuration Playwright, scripts de préparation et nouveaux fichiers inconnus restent au complet. Cette modification du sélecteur impose elle-même le repli complet ; les changements futurs limités à ce fichier de tests, à l’interface et à la documentation pourront éviter les six lots Firestore.
 
-Deux parcours ajoutés, **six au total**. Validation locale : **20/20 ciblés et 1986/1986 applicatifs**, compilation réussie, zéro échec/annulé/ignoré/todo ; Node 24.22.1 / npm 11.9.0. Les 20 ciblés sont inclus dans les 1986. Six cas Playwright découverts, exécution réelle et résultats du candidat exact à consigner dans la PR après CI. Java 21 et Chromium restent exécutés sur le runner ; tests applicatifs et build réalisés localement. Les assertions portent sur une confirmation conservée dans la page : aucune garantie de reprise après fermeture/rechargement complet, de réseau hors ligne durable, de concurrence entre appareils, de récompense de mission après échéance ou de remise physique réelle. Aucun verdict humain ou SEC-SO-02 intégral modifié.
+Deux parcours ajoutés, **six au total**. Validation locale : **20/20 ciblés et 1986/1986 applicatifs**, compilation réussie, zéro échec/annulé/ignoré/todo ; Node 24.22.1 / npm 11.9.0. Les 20 ciblés sont inclus dans les 1986. Ces six cas ont ensuite réussi sur `cb72d9d` dans la CI complète citée ci-dessus ; preuves dans la PR. Java 21 et Chromium restent exécutés sur le runner ; tests applicatifs et build réalisés localement. Les assertions portent sur une confirmation conservée dans la page : aucune garantie de reprise après fermeture/rechargement complet, de réseau hors ligne durable, de concurrence entre appareils, de récompense de mission après échéance ou de remise physique réelle. Aucun verdict humain ou SEC-SO-02 intégral modifié.
 
 ### Socle Chromium validé sur db0d4d6
 
