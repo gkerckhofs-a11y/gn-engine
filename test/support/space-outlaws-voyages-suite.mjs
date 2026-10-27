@@ -5,7 +5,7 @@ import {shopsFixture} from './space-outlaws-shops-suite.mjs';
 import {centralTestItem} from './central-master-suite.mjs';
 import {accountId} from '../../src/core/economy-state.mjs';
 
-export async function soVoyagesFixture(makeStore,{profileId='CARGO',riskId='SECURED',distanceId='SHORT',release=true,prepareExtra=null}={}){
+export async function soVoyagesFixture(makeStore,{profileId='CARGO',riskId='SECURED',distanceId='SHORT',release=true,prepareExtra=null,departureCode='AWAY-CODE'}={}){
  const f=await shopsFixture(makeStore,{classId:'PIL',release:false}),read=f.actionRead,cmd=f.actionCmd;let revision=(await f.view()).draft.revision;
  // The shop fixture references a medical supply: prepare it explicitly for this pilot fixture.
  await f.cc('saveCentralItem',{itemId:'kit_medical-supplies',itemRevision:0,draftRevision:revision++,item:{...centralTestItem,name:'Fourniture de soins',kind:'STACKABLE',consumable:true,pillable:true},reason:'Offre de soins'});
@@ -21,7 +21,7 @@ export async function soVoyagesFixture(makeStore,{profileId='CARGO',riskId='SECU
  const navigation=(shipId='ship',actor=f.player)=>read('shipNavigation',{shipId},actor);
  const command=async(action,patch={},actor=f.player)=>{const shipId=patch.shipId??'ship',p=actor===f.owner?(await read('spaceportAdmin',{},actor)).ships.find(x=>x.shipId===shipId):await navigation(shipId,actor);return cmd(action,{shipId,present:true,confirmation:p.confirmation,...patch},actor);};
  const refuel=async(quantity,shipId='ship')=>{const lot=(await read('myInventory')).lots.find(l=>l.item.id==='propellant');const input={shipId,lotId:lot.id,quantity},p=await read('prepareRefuel',input);await cmd('refuelShip',{...input,present:true,confirmation:p.confirmation});f.advance(120000);return command('finishSoRefuel',{shipId});};
- const startFlight=async(patch={},actor=f.player)=>{const input={shipId:'ship',navigationCode:'AWAY-CODE',passengerCodes:[],...patch},p=await read('prepareVoyage',input,actor);return cmd('departShip',{...input,confirmation:p.confirmation,present:true},actor);};
+ const startFlight=async(patch={},actor=f.player)=>{const input={shipId:'ship',navigationCode:departureCode,passengerCodes:[],...patch},p=await read('prepareVoyage',input,actor);return cmd('departShip',{...input,confirmation:p.confirmation,present:true},actor);};
  const fly=async(patch={})=>{await startFlight(patch);f.advance(180000);return command('finishSoPreparation');};
  if(release){assert.deepEqual((await f.releasePreview()).blockers,[]);await f.release(await f.releasePreview());await f.birth(await f.birthPreview());await f.birth(await f.birthPreview(f.owner,{uid:f.other.uid}),{uid:f.other.uid});cid=(await read('mySession')).character.id;otherId=(await read('mySession',{},f.other)).character.id;
   await provision();await f.provision({offerId:'fuel',quantity:40,restricted:true});await f.stage('EN_JEU');
@@ -68,7 +68,7 @@ export function spaceOutlawsVoyagesSuite(makeStore,prefix='Vols SPACE OUTLAWS'){
  });
  test(`${prefix} : manifeste historique jamais enrichi en navigation`,async()=>{
   const f=await soVoyagesFixture(makeStore,{release:false}),r=await f.release(await f.releasePreview()),path=`campaigns/${f.campaignId}/versions/${r.versionId}`,canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
-  await f.store.runTransaction(async tx=>{const {escortManeuverVersion,escortAmendmentVersion,escortVersion,convoyVersion,transportVersion,navigationVersion,manifestDigest,...old}=await tx.get(path);tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});await f.birth(await f.birthPreview());assert.deepEqual(await f.store.list(`sessions/${f.sid}/ships`),[]);assert.deepEqual(await f.store.list(`sessions/${f.sid}/routes`),[]);await assert.rejects(f.read('mySpaceport'),{code:'SO_GAMEPLAY_NOT_OPEN'});
+  await f.store.runTransaction(async tx=>{const {detourVersion,escortManeuverVersion,escortAmendmentVersion,escortVersion,convoyVersion,transportVersion,navigationVersion,manifestDigest,...old}=await tx.get(path);tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});await f.birth(await f.birthPreview());assert.deepEqual(await f.store.list(`sessions/${f.sid}/ships`),[]);assert.deepEqual(await f.store.list(`sessions/${f.sid}/routes`),[]);await assert.rejects(f.read('mySpaceport'),{code:'SO_GAMEPLAY_NOT_OPEN'});
  });
  test(`${prefix} : événements mécaniques, panne sèche sans perte et absence de combat automatique`,async()=>{
   for(const [riskId,table,fuel,delay,debt,suspended] of [['SECURED',4,4,180,0,false],['SECURED',5,2,0,1,true],['SECURED',6,2,0,0,false],['DANGEROUS',5,2,300,0,false],['HOSTILE',6,2,0,0,true]]){

@@ -55,7 +55,10 @@ export async function transportView(tx,s,c){
  const t=c.terms.transport,lots=await transportLots(tx,s,c),transfers=(await tx.list(`${base(s)}/cargoTransfers`)).filter(x=>x.transportContractId===c.id&&x.status==='LOADING');
  const delivered=lots.filter(l=>l.transportDelivered&&l.location.kind==='PORT'&&l.location.id===t.toPort),quantity=delivered.reduce((n,l)=>n+l.quantity,0),deliveredGameMs=quantity===t.quantity?Math.max(...delivered.map(l=>l.transportDeliveredGameMs)):null;
  const progress=transportProgress(c,lots),next=c.transportPlan?.routes[progress.index],port=await tx.get(`${base(s)}/ports/${next?.toPort??t.toPort}`),route=next?await tx.get(`${base(s)}/routes/${next.id}`):null;
- return {lots:lots.map(publicLot),transfers:transfers.map(x=>({id:x.id,name:x.name,quantity:x.quantity})),delivered:quantity,complete:quantity===t.quantity&&transfers.length===0,deliveredGameMs,navigationCode:route?.navigationCode??port?.navigationCode??null,...(c.transportPlan?{itinerary:{routes:c.transportPlan.routes,index:progress.index}}:{})};
+ const detour=s.spaceOutlaws.detourVersion===1?lots[0]?.transportDetour:null,voyage=detour?await tx.get(`${base(s)}/voyages/${detour.voyageId}`):null;
+ const recovery=voyage?.status==='ARRIVED'&&voyage.toPort!==detour.toPort?{fromPort:voyage.toPort,toPort:detour.toPort}:null;
+ const recoveryRoutes=recovery?(await tx.list(`${base(s)}/routes`)).filter(r=>r.versionId===s.versionId&&r.fromPort===recovery.fromPort&&r.toPort===recovery.toPort):[];
+ return {lots:lots.map(publicLot),transfers:transfers.map(x=>({id:x.id,name:x.name,quantity:x.quantity})),delivered:quantity,complete:quantity===t.quantity&&transfers.length===0,deliveredGameMs,navigationCode:recovery?(recoveryRoutes.length===1?recoveryRoutes[0].navigationCode:null):route?.navigationCode??port?.navigationCode??null,...(recovery?{recovery}:{}),...(c.transportPlan?{itinerary:{routes:c.transportPlan.routes,index:progress.index}}:{})};
 }
 export async function transportProof(tx,s,c){
  const d=await transportView(tx,s,c);if(!d)return {};
@@ -87,7 +90,8 @@ export async function transportCargoAccess(tx,s,lot,cid,admin=false){
  requireThat(lot.ownerType==='SHOP'&&lot.ownerId===t.shopId&&lot.item.id===t.item.id,'SO_TRANSPORT_INVALID');
  const ship=await tx.get(`${base(s)}/ships/${t.shipId}`),voyage=lot.transportVoyageId?await tx.get(`${base(s)}/voyages/${lot.transportLastVoyageId??lot.transportVoyageId}`):null;
  const active=c.status==='ACTIVE',returnOnly=['SUBMITTED','REVIEWED','DISPUTED'].includes(c.status),local=idle(ship)&&(admin||ship.ownerId===cid&&ship.pilotId===cid);
- const routeDelivered=c.transportPlan?lot.transportLegIndex===c.transportPlan.routes.length&&voyage?.routeId===c.transportPlan.routes.at(-1).id: voyage?.routeId===t.routeId;
+ const routeId=s.spaceOutlaws.detourVersion===1&&lot.transportDetour&&lot.transportDetour.voyageId===voyage?.id&&voyage?.toPort===lot.transportDetour.toPort?lot.transportDetour.routeId:voyage?.routeId;
+ const routeDelivered=c.transportPlan?lot.transportLegIndex===c.transportPlan.routes.length&&routeId===c.transportPlan.routes.at(-1).id:routeId===t.routeId;
  return {c,t,ship,active,returnOnly,local,deliveryAllowed:!!(active&&local&&ship.portId===t.toPort&&voyage?.status==='ARRIVED'&&voyage.shipId===t.shipId&&routeDelivered&&voyage.departedAt>=c.acceptedAt),owner:{type:'SHOP',id:t.shopId}};
 }
 export function transportPlaceAllowed(grant,loc){return !!grant&&(loc.kind==='SHOP'&&loc.id===grant.t.shopId||loc.kind==='PORT'&&loc.id===grant.t.toPort||loc.kind==='HOLD'&&loc.id===grant.t.shipId);}
@@ -98,13 +102,26 @@ export async function transportDeparture(tx,s,ship,route,journeyId,at){
   const c=await tx.get(`${base(s)}/contracts/${cid}`),t=c?.terms.transport,rows=lots.filter(l=>l.transportContractId===cid);
   const returning=rows.every(l=>l.transportVoyageId);
   requireThat((c?.status==='ACTIVE'||returning&&['SUBMITTED','REVIEWED','DISPUTED'].includes(c?.status))&&t?.shipId===ship.id&&c.characterId===ship.pilotId&&rows.every(l=>l.status==='AVAILABLE'&&l.ownerType==='SHOP'&&l.ownerId===t.shopId)&&(returning||(c.transportPlan?.routes[0]?.id??t.routeId)===route.id&&rows.every(l=>!l.transportVoyageId)&&rows.reduce((n,l)=>n+l.quantity,0)===t.quantity),'SO_TRANSPORT_LOAD');
-  const progress=transportProgress(c,rows);
-  if(c.transportPlan&&c.status==='ACTIVE')requireThat(s.spaceOutlaws.escortAmendmentVersion===1&&progress.unanimous&&c.transportPlan.routes[progress.index]?.id===route.id&&rows.reduce((n,l)=>n+l.quantity,0)===t.quantity,'SO_AMENDMENT_ROUTE');
+  const progress=transportProgress(c,rows),last=rows[0].transportDetour,previous=last?await tx.get(`${base(s)}/voyages/${last.voyageId}`):null;
+  const recovery=s.spaceOutlaws.detourVersion===1&&last&&previous?.status==='ARRIVED'&&previous.toPort!==last.toPort&&c.status==='ACTIVE';
+  if(recovery)requireThat(previous.shipId===ship.id&&ship.portId===previous.toPort&&rows.every(l=>l.transportDetour?.voyageId===last.voyageId&&l.transportDetour?.routeId===last.routeId)&&route.toPort===last.toPort,'SO_TRANSPORT_RECOVERY');
+  if(c.transportPlan&&c.status==='ACTIVE')requireThat(s.spaceOutlaws.escortAmendmentVersion===1&&progress.unanimous&&(recovery?c.transportPlan.routes[progress.index-1]?.id===last.routeId:c.transportPlan.routes[progress.index]?.id===route.id)&&rows.reduce((n,l)=>n+l.quantity,0)===t.quantity,'SO_AMENDMENT_ROUTE');
   manifest.push({contractId:cid,quantity:t.quantity,lotIds:rows.map(l=>l.id)});
-  for(const lot of rows)updates.push({lot,index:c.transportPlan&&c.status==='ACTIVE'?progress.index+1:progress.index||1});
+  for(const lot of rows)updates.push({lot,index:c.transportPlan&&c.status==='ACTIVE'&&!recovery?progress.index+1:progress.index||1,recovery});
  }
- if(journeyId){authorizeSpaceOutlaws(tx,s,'TRANSPORT');for(const {lot,index} of updates.filter(({lot})=>!lot.transportVoyageId||s.spaceOutlaws.escortAmendmentVersion===1)){const next={...lot,transportVoyageId:lot.transportVoyageId??journeyId,...(s.spaceOutlaws.escortAmendmentVersion===1?{transportLastVoyageId:journeyId,transportLegIndex:index}:{}),revision:lot.revision+1};tx.set(`${base(s)}/inventory/${lot.id}`,next);tx.set(`${base(s)}/inventory/${lot.id}/history/${journeyId}`,{id:journeyId,kind:'TRANSPORT_DEPARTURE',at,contractId:lot.transportContractId,before:lot,after:next});}}
+ if(journeyId){authorizeSpaceOutlaws(tx,s,'TRANSPORT');for(const {lot,index,recovery} of updates.filter(({lot})=>!lot.transportVoyageId||s.spaceOutlaws.escortAmendmentVersion===1||s.spaceOutlaws.detourVersion===1)){const next={...lot,transportVoyageId:lot.transportVoyageId??journeyId,...(s.spaceOutlaws.escortAmendmentVersion===1||s.spaceOutlaws.detourVersion===1?{transportLastVoyageId:journeyId,transportLegIndex:index}:{}),...(lot.transportDetour?{transportDetour:recovery?{...lot.transportDetour,voyageId:journeyId}:null}:{}),revision:lot.revision+1};tx.set(`${base(s)}/inventory/${lot.id}`,next);tx.set(`${base(s)}/inventory/${lot.id}/history/${journeyId}`,{id:journeyId,kind:'TRANSPORT_DEPARTURE',at,contractId:lot.transportContractId,before:lot,after:next});}}
  return manifest;
+}
+
+// The physical journey can change; the entrusted leg and delivery port cannot.
+export async function transportDetour(tx,s,ship,id,at){
+ const lots=(await warehouseStock(tx,s.id,ship.id,'HOLD')).filter(l=>l.transportContractId);
+ if(!lots.length)return;requireThat(hasSoTransport(s),'SO_GAMEPLAY_NOT_OPEN');authorizeSpaceOutlaws(tx,s,'TRANSPORT');
+ for(const lot of lots){
+  requireThat((lot.transportLastVoyageId??lot.transportVoyageId)===ship.journey.id,'SO_TRANSPORT_LOAD');
+  const transportDetour=lot.transportDetour?.voyageId===ship.journey.id?lot.transportDetour:{voyageId:ship.journey.id,routeId:ship.journey.routeId,toPort:ship.journey.toPort};
+  const next={...lot,transportDetour,revision:lot.revision+1};tx.set(`${base(s)}/inventory/${lot.id}`,next);tx.set(`${base(s)}/inventory/${lot.id}/history/${id}`,{id,kind:'TRANSPORT_DETOUR',at,contractId:lot.transportContractId,before:lot,after:next});
+ }
 }
 
 export async function transportSettlementPlan(tx,s,c){

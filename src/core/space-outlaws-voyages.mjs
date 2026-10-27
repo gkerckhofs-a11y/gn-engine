@@ -1,3 +1,4 @@
+import {detourFields,detourView,detourCommand} from './space-detours.mjs';
 import {finishEscortRefuel} from './space-escort.mjs';
 import {hasSoConvoy,convoyFields,convoyInvitations,convoyCommand,convoyFleet,finishConvoy} from './space-convoy.mjs';
 import {transportDeparture} from './space-transport.mjs';
@@ -17,10 +18,10 @@ import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {hasSoNavigation,navigationSkill,soRoute,soShipProfile,soVoyageEvent} from './space-outlaws-navigation-state.mjs';
 
 const admins=new Set(['leaveSoConvoyAdmin','spaceportAdmin','prepareSoShip','provisionSoShip','cancelSoNavigationAdmin','continueSoVoyage','arriveSoShipAdmin']);
-const reads=new Set(['prepareSoConvoy','spaceportAdmin','mySpaceport','prepareSoShip','shipNavigation','prepareRefuel','prepareVoyage']);
+const reads=new Set(['prepareSoDetour','prepareSoConvoy','spaceportAdmin','mySpaceport','prepareSoShip','shipNavigation','prepareRefuel','prepareVoyage']);
 const provisionFields=['shipId','modelId','name','ownerId','pilotId','homePort','fuelItemId','source','reason'];
 const flightFields=['shipId','navigationCode','passengerCodes'];
-const fields={...convoyFields,spaceportAdmin:[],mySpaceport:[],prepareSoShip:provisionFields,provisionSoShip:[...provisionFields,'confirmation'],shipNavigation:['shipId'],prepareRefuel:['shipId','lotId','quantity'],refuelShip:['shipId','lotId','quantity','confirmation','present'],finishSoRefuel:['shipId','confirmation','present'],prepareVoyage:flightFields,departShip:[...flightFields,'confirmation','present'],finishSoPreparation:['shipId','confirmation','present'],cancelSoNavigation:['shipId','confirmation','reason'],cancelSoNavigationAdmin:['shipId','confirmation','reason'],arriveShip:['shipId','confirmation'],arriveSoShipAdmin:['shipId','confirmation','reason'],continueSoVoyage:['shipId','confirmation','reason']};
+const fields={...detourFields,...convoyFields,spaceportAdmin:[],mySpaceport:[],prepareSoShip:provisionFields,provisionSoShip:[...provisionFields,'confirmation'],shipNavigation:['shipId'],prepareRefuel:['shipId','lotId','quantity'],refuelShip:['shipId','lotId','quantity','confirmation','present'],finishSoRefuel:['shipId','confirmation','present'],prepareVoyage:flightFields,departShip:[...flightFields,'confirmation','present'],finishSoPreparation:['shipId','confirmation','present'],cancelSoNavigation:['shipId','confirmation','reason'],cancelSoNavigationAdmin:['shipId','confirmation','reason'],arriveShip:['shipId','confirmation'],arriveSoShipAdmin:['shipId','confirmation','reason'],continueSoVoyage:['shipId','confirmation','reason']};
 export const soVoyageCommands=Object.keys(fields);
 const active=s=>{requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');};
 const available=(s,c,time)=>c.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeMaintenanceId&&!c.activeCargoId&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&!(c.convalescentUntilGameMs>time);
@@ -33,7 +34,7 @@ export const safeSoShip=(s,ship,time)=>({...mediaFields(ship,['illustration']),.
 export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6=()=>randomInt(1,7)}){
  return async(action,actor,input)=>{
   signed(actor);requireThat(fields[action],'SO_GAMEPLAY_NOT_OPEN');admissionKeys(input,['sessionId',...fields[action],...(reads.has(action)?[]:['requestId'])]);
-  const at=now(),id=uuid(),dice=action==='finishSoPreparation'?[rollD6(),rollD6(),rollD6()]:null;
+  const at=now(),id=uuid(),dice=action==='finishSoPreparation'?[rollD6(),rollD6(),rollD6()]:action==='attemptSoDetour'?[rollD6()]:null;
   return store.runTransaction(async tx=>{
    const admin=admins.has(action),ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId))}:await inventoryPlayer(tx,actor,input),{s,c,version}=ctx,base=`sessions/${s.id}`,time=gameTime(s.clock,at);
    requireThat(hasSoNavigation(s),'SO_GAMEPLAY_NOT_OPEN');requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
@@ -65,12 +66,13 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
    }
    const confirmation=receipt(s,ship,version),isPilot=!admin&&ship.pilotId===c.id;
    const fuelAllowed=l=>personalLot(l,c?.id)&&l.status==='AVAILABLE'&&l.quantity>0&&l.item.id===ship.navigation.fuelItemId&&(l.transferable!==false||ship.ownerId===c.id);
-   if(action==='shipNavigation')return {convoyReady:hasSoConvoy(s),convoyCode:isPilot?ship.convoy?.navigationCode??null:null,invitations:(await convoyInvitations(tx,s,c)).filter(o=>o.escortShipId===ship.id),session:{id:s.id,stage:s.stage},spaceOutlaws:true,logisticsReady:s.spaceOutlaws.logisticsVersion===1,combatReady:s.spaceOutlaws.combatVersion===1,ship:safeSoShip(s,ship,time),canPilot:isPilot,canAct:isPilot&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&available(s,c,time),confirmation,lots:isPilot?(await tx.list(`${base}/inventory`)).filter(fuelAllowed).map(publicLot):[]};
+   if(action==='shipNavigation')return {detour:detourView(s,ship,c,time),convoyReady:hasSoConvoy(s),convoyCode:isPilot?ship.convoy?.navigationCode??null:null,invitations:(await convoyInvitations(tx,s,c)).filter(o=>o.escortShipId===ship.id),session:{id:s.id,stage:s.stage},spaceOutlaws:true,logisticsReady:s.spaceOutlaws.logisticsVersion===1,combatReady:s.spaceOutlaws.combatVersion===1,ship:safeSoShip(s,ship,time),canPilot:isPilot,canAct:isPilot&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&available(s,c,time),confirmation,lots:isPilot?(await tx.list(`${base}/inventory`)).filter(fuelAllowed).map(publicLot):[]};
    if(!admin)requireThat(isPilot,'FORBIDDEN');
    requireThat(!ship.combatId&&!ship.rescueId&&!ship.maintenanceId,'SPACE_SHIP_BUSY');
    const cancelling=['cancelSoNavigation','cancelSoNavigationAdmin','leaveSoConvoy','leaveSoConvoyAdmin'].includes(action);
    if(cancelling){requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage),'SESSION_NOT_RUNNING');}else active(s);
    if(!admin&&!cancelling)requireThat(available(s,c,time),'OUT_OF_COMBAT');
+   if(detourFields[action]){const result=await detourCommand(tx,s,ship,c,version,input,action,id,at,dice?.[0],available);if(reads.has(action))return result;return audit(result,ship,null);}
    if(convoyFields[action]){if(action.startsWith('leaveSoConvoy')){requireThat(input.confirmation===confirmation,'STALE_REVISION');moneyText(input.reason);}const result=await convoyCommand(tx,s,ship,c,version,input,action,id,at);if(reads.has(action))return result;return audit(result,ship,null,{reason:input.reason??null});}
    if(['finishSoRefuel','finishSoPreparation',...['cancelSoNavigation','cancelSoNavigationAdmin']].includes(action)){
     requireThat(input.confirmation===confirmation,'STALE_REVISION');const a=ship.operation;requireThat(a,'NAVIGATION_OPERATION_CLOSED');

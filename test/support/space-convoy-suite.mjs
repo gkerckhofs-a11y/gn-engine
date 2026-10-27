@@ -8,13 +8,13 @@ import {accountId} from '../../src/core/economy-state.mjs';
 import {episodeHarness} from './space-episodes-suite.mjs';
 import {order} from './space-encounters-suite.mjs';
 
-export async function convoyFixture(makeStore,{fuel=6,form=true,combat=false,freight=false,separateBeforeInterception=false,...options}={}){
+export async function convoyFixture(makeStore,{fuel=6,form=true,combat=false,intercept=true,freight=false,separateBeforeInterception=false,...options}={}){
  const f=freight?await transportFixture(makeStore,{quantity:5}):await soVoyagesFixture(makeStore,options),base=`sessions/${f.sid}`,get=p=>f.store.get(`${base}/${p}`),edit=(p,fn)=>f.store.runTransaction(async tx=>{const x=await tx.get(`${base}/${p}`);tx.set(`${base}/${p}`,fn(x));});
  await f.provision({shipId:'escort',name:'Escorte',ownerId:f.otherId,pilotId:f.otherId});
  const stock=async q=>{const p={shopId:'counter',offerId:'fuel',provisionId:randomUUID(),quantity:q,restricted:true,source:'Stock synthétique explicite',reason:'Recette convoi'},r=await f.read('prepareShopProvision',p,f.owner);await f.cmd('provisionShop',{...p,confirmation:r.confirmation},f.owner);};
  const fill=async(shipId,actor,quantity)=>{await stock(quantity);const sale=await f.buy({offerId:'fuel',quantity},actor);await f.pickup(sale,actor);const lot=(await f.read('myInventory',{},actor)).lots.find(l=>l.id===sale.purchasedLotId),p={shipId,lotId:lot.id,quantity},q=await f.read('prepareRefuel',p,actor);await f.cmd('refuelShip',{...p,confirmation:q.confirmation,present:true},actor);f.advance(120000);await f.navCommand('finishSoRefuel',{shipId},actor);};
  if(freight){if(fuel>4)await f.refuel(fuel-4);await f.accept();await f.load();}else await f.refuel(fuel);await fill('escort',f.other,fuel);
- const propose=async()=>{const p={shipId:'ship',escortShipId:'escort',navigationCode:'AWAY-CODE'},q=await f.read('prepareSoConvoy',p);return f.cmd('proposeSoConvoy',{...p,confirmation:q.confirmation});};
+ const propose=async()=>{const p={shipId:'ship',escortShipId:'escort',navigationCode:options.departureCode??'AWAY-CODE'},q=await f.read('prepareSoConvoy',p);return f.cmd('proposeSoConvoy',{...p,confirmation:q.confirmation});};
  const accept=async()=>{const o=(await f.navigation('escort',f.other)).invitations[0];return f.cmd('acceptSoConvoy',{shipId:'escort',leaderShipId:'ship',confirmation:o.confirmation},f.other);};
  const launch=async(dice=[6,6,1])=>{await f.startFlight();await f.startFlight({shipId:'escort'},f.other);f.advance(180000);await f.navCommand('finishSoPreparation');f.setDice(dice);return f.navCommand('finishSoPreparation',{shipId:'escort'},f.other);};
  const leave=async(actor=f.player,shipId='ship')=>{const q=await f.navigation(shipId,actor);return f.cmd('leaveSoConvoy',{shipId,confirmation:q.confirmation,reason:'Séparation consentie'},actor);};
@@ -28,7 +28,7 @@ export async function convoyFixture(makeStore,{fuel=6,form=true,combat=false,fre
   await f.store.runTransaction(async tx=>{tx.set(`${base}/characters/${pirateId}`,{...ch,id:pirateId,assignedUid:pirate.uid,publicCode:randomUUID(),public:{...ch.public,displayName:'Pirate synthétique'}});tx.set(`${base}/registrations/${hash(pirate.uid)}`,{...reg,id:hash(pirate.uid),uid:pirate.uid,characterId:pirateId});tx.set(`${base}/accounts/${accountId(pirateId)}`,{...wallet,id:accountId(pirateId),characterId:pirateId,ownerId:pirateId,balance:200,protectedCredits:0});});
   await f.provision({shipId:'pirate',name:'Pirate',ownerId:pirateId,pilotId:pirateId});await fill('pirate',pirate,6);await launch();if(separateBeforeInterception)await leave();await f.startFlight({shipId:'pirate'},pirate);f.advance(180000);await f.navCommand('finishSoPreparation',{shipId:'pirate'},pirate);
   const arm={shipId:'pirate',navigationCode:'AWAY-CODE'},q=await f.read('prepareSpaceAmbush',arm,pirate);await f.cmd('armSpaceAmbush',{...arm,confirmation:q.confirmation,present:true},pirate);
-  const p=await f.read('prepareSpaceInterception',{shipId:'escort'},f.owner),e=await f.cmd('triggerSpaceInterception',{shipId:'escort',confirmation:p.confirmation,reason:'Interception de convoi synthétique'},f.owner);combatId=e.id;
+  if(intercept){const p=await f.read('prepareSpaceInterception',{shipId:'escort'},f.owner),e=await f.cmd('triggerSpaceInterception',{shipId:'escort',confirmation:p.confirmation,reason:'Interception de convoi synthétique'},f.owner);combatId=e.id;}
  }
  const detail=async(actor=f.player)=>(await f.read(actor===f.owner?'spaceCombatAdmin':'spaceCombat',actor===f.owner?{}:{combatId},actor))[actor===f.owner?'combats':'combat'];
  const combatCmd=async(action,patch={},actor=f.player)=>{const d=actor===f.owner?(await detail(actor)).find(e=>e.id===combatId):await detail(actor);return f.cmd(action,{combatId,confirmation:d.confirmation,...(actor===f.owner?{}:{shipId:d.ownShipId}),...patch},actor);};
