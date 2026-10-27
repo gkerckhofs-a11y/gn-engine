@@ -12,7 +12,7 @@ export function recetteApp({api,directory,metadata,scenario,port=4173}){
   });
   app.use(express.json({limit:'24mb'}));app.post(['/api','/api/command'],api);
   app.all(['/api','/api/command'],(_req,res)=>res.status(405).json({error:'METHOD_NOT_ALLOWED'}));
-  app.get('/recette.json',(_req,res)=>res.json({origin,...metadata,...scenario}));
+  app.get('/recette.json',(_req,res)=>scenario.sessionId?res.json({origin,...metadata,...scenario}):res.status(503).json({error:'RECETTE_STARTING'}));
   app.get('/recette.html',(_req,res)=>res.type('html').send(guideHtml(metadata,scenario)));
   app.use(express.static(directory,{dotfiles:'deny',index:'index.html',fallthrough:false}));
   app.use((error,_req,res,_next)=>res.status(error.status===404?404:400).json({error:'LOCAL_REQUEST_REJECTED'}));

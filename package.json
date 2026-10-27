@@ -16,7 +16,8 @@
     "test:emulator": "firebase emulators:exec --project demo-gn-engine --only firestore,auth,storage 'node --test test/integration/*.test.mjs'",
     "test:emulator:firestore": "firebase emulators:exec --project demo-gn-engine --only firestore,auth,storage 'node --test test/integration/firestore.test.mjs'",
     "test:emulator:http": "firebase emulators:exec --project demo-gn-engine --only firestore,auth,storage 'node --test test/integration/http.test.mjs'",
-    "deploy": "bash scripts/deploy.sh"
+    "deploy": "bash scripts/deploy.sh",
+    "test:recette:browser": "playwright test --config test/browser/recette.config.mjs"
   },
   "dependencies": {
     "@google-cloud/functions-framework": "5.0.5",
@@ -31,7 +32,8 @@
     "firebase": "13.0.0",
     "firebase-tools": "15.34.0",
     "qrcode": "1.5.4",
-    "fast-xml-parser": "5.11.2"
+    "fast-xml-parser": "5.11.2",
+    "playwright": "1.62.1"
   },
   "description": "GN Engine — scénario, inscription, attribution et accès privé sur Firebase"
 }

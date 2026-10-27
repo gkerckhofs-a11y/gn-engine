@@ -105,6 +105,17 @@ jobs:
           java-version: '21'
       - run: npm ci --no-audit --no-fund
       - run: npm run test:emulator:http
+      - name: Installer Chromium pour les parcours de recette
+        run: npx --no-install playwright install --with-deps chromium
+      - name: Parcours navigateur sur le kit local isolé
+        run: npm run test:recette:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: recette-browser
+          path: dist/recette-browser/
+          retention-days: 7
+          if-no-files-found: warn
 
   # Keep the existing check name. A selected job failing/cancelling is never green.
   core:

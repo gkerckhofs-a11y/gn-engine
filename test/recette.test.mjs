@@ -80,13 +80,14 @@ test('Recette : compilation isolée sans configuration ni connexion fictive dans
   assert.ok(normal.includes(config.apiKey));assert.doesNotMatch(normal,/so-recette-|recette-identity|owner@recette\.example\.invalid/);
 });
 test('Recette : serveur local refuse Host/Origin étrangers et ne sert pas de sources',async()=>{
-  const dir=await mkdtemp(join(tmpdir(),'so-recette-'));await writeFile(join(dir,'index.html'),'interface fictive');let calls=0;
-  const app=recetteApp({api:(_req,res)=>{calls++;res.json({result:true});},directory:dir,metadata:{commit:'a'.repeat(40)},scenario:{sessionId:'s'}}),server=await new Promise(resolve=>{const s=app.listen(0,'127.0.0.1',()=>resolve(s));});
+  const dir=await mkdtemp(join(tmpdir(),'so-recette-'));await writeFile(join(dir,'index.html'),'interface fictive');let calls=0;const scenario={};
+  const app=recetteApp({api:(_req,res)=>{calls++;res.json({result:true});},directory:dir,metadata:{commit:'a'.repeat(40)},scenario}),server=await new Promise(resolve=>{const s=app.listen(0,'127.0.0.1',()=>resolve(s));});
   const url=`http://127.0.0.1:${server.address().port}`,req=(path,headers={},method='GET')=>new Promise((resolve,reject)=>{const request=httpRequest(url+path,{method,headers:{Host:'127.0.0.1:4173',...headers}},res=>{let body='';res.on('data',chunk=>body+=chunk);res.on('end',()=>resolve({status:res.statusCode,headers:new Headers(res.headers),json:async()=>JSON.parse(body)}));});request.on('error',reject);request.end();});
   try{
     assert.equal((await req('/')).status,200);assert.equal((await req('/api/command',{},'POST')).status,200);
     for(const headers of [{Host:'example.org:4173'},{Origin:'https://evil.example'},{Origin:'null'},{Origin:'http://localhost:9999'},{'Sec-Fetch-Site':'cross-site'}])assert.equal((await req('/api/command',headers,'POST')).status,403);
     assert.equal(calls,1);assert.equal((await req('/api/command')).status,405);assert.equal((await req('/src/server/index.mjs')).status,404);
-    const response=await req('/recette.json');assert.equal((await response.json()).sessionId,'s');assert.equal(response.headers.get('Cache-Control'),'no-store');assert.doesNotMatch(response.headers.get('Content-Security-Policy'),/googleapis|firebaseapp/);
+    const starting=await req('/recette.json');assert.equal(starting.status,503);assert.deepEqual(await starting.json(),{error:'RECETTE_STARTING'});
+    scenario.sessionId='s';const response=await req('/recette.json');assert.equal(response.status,200);assert.equal((await response.json()).sessionId,'s');assert.equal(response.headers.get('Cache-Control'),'no-store');assert.doesNotMatch(response.headers.get('Content-Security-Policy'),/googleapis|firebaseapp/);
   }finally{server.closeAllConnections();await new Promise(resolve=>server.close(resolve));await rm(dir,{recursive:true,force:true});}
 });

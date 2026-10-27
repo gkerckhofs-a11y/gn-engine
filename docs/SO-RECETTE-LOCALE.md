@@ -68,8 +68,25 @@ Chaque cas commence **NOT_EXECUTED**. L’opérateur peut déclarer PASS, FAIL o
 
 Ces sept cas ne couvrent pas intégralement les 55 recettes ni les dix SEC-SO. Ils ne certifient pas non plus l’ergonomie sur Android/iOS, le scan physique, les 60 utilisateurs simultanés, les sauvegardes/restaurations, ni les fonctions SO encore absentes. Les valeurs PASS du relevé ne constituent pas une autorisation de déployer.
 
+## Contrôles navigateur automatisés
+
+Après `npm ci`, sur un poste Node 22/Java 21 équipé pour Chromium :
+
+```sh
+npx --no-install playwright install chromium
+npm run test:recette:browser
+```
+
+Le test démarre et arrête lui-même le kit et ses émulateurs. Fermer une autre instance du kit avant lancement. La CI installe également les dépendances système Chromium dans le job HTTP existant ; elle ne déploie aucun service.
+
+Quatre parcours couvrent l’export initial non exécuté et ses champs obligatoires, les six identités/droits et filtres, STOP/reprise, puis une préparation de preuve interrompue avant envoi et reprise en ligne, la validation MJ sans paiement et le gel du délai en pause. Le scénario est modifié seulement par l’interface native. Aucun saut d’horloge ; les paiements après échéance, litiges et remises physiques restent à jouer. Le contrôle à 390 pixels mesure le débordement horizontal dans Chromium, pas le comportement d’un téléphone réel.
+
+Les rapports JSON/HTML, captures et `context.json` sont dans `dist/recette-browser/` (artefact CI `recette-browser`, sept jours). Le contexte relève version Chromium, viewport, commit/arbre et état modifié du build. Les captures contiennent uniquement les données fictives. Pas de traces réseau ou de vidéo ; aucun jeton de connexion exporté. Les connexions de l’application sont limitées aux trois origines locales attendues ; tout appel distant ou erreur JavaScript fait échouer le parcours concerné.
+
+Ces résultats portent le périmètre **AUTOMATED_CHROMIUM**. Ils ne remplissent pas de PASS humain ; l’export manuel conserve **NOT_CERTIFIED** et n’autorise pas de publication.
+
 ## Validation et prochaine étape
 
-Neuf tests applicatifs couvrent les gardes d’environnement, les versions d’outils, les identités/origines, les fonds et stocks natifs, les droits, la création de sessions distinctes, le relevé, l’échappement HTML, la séparation des compilations et le serveur local. Un scénario HTTP/Auth utilise le même créateur d’identités et le même préparateur métier avec l’API réelle et les émulateurs. Résultats du candidat exact dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1).
+Neuf tests applicatifs couvrent les gardes d’environnement, les versions d’outils, les identités/origines, les fonds et stocks natifs, les droits, la création de sessions distinctes, le relevé, l’échappement HTML, la séparation des compilations et le serveur local. Le contrôle de disponibilité vérifie aussi le refus temporaire avant la fin de préparation. Un scénario HTTP/Auth utilise le même créateur d’identités et le même préparateur métier avec l’API réelle et les émulateurs. Résultats du candidat exact dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1).
 
 Prochaine étape : lancer le kit sur un poste équipé de Java 21, jouer et documenter ces parcours, corriger les écarts constatés, puis préparer les essais sur appareils et le reste du registre. L’accès depuis des téléphones nécessitera un environnement adapté : la boucle locale actuelle ne prétend pas fournir une URL de recette terrain. Aucun projet externe, accès réel ou déploiement n’est créé par cette préparation.

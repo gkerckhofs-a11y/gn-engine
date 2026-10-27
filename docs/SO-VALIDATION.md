@@ -1,10 +1,23 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
-## État actif — kit de recette locale des missions, 27 octobre 2026
+## État actif — parcours Chromium du kit local, 27 octobre 2026
 
 Priorité : SPACE OUTLAWS jouable, services existants, un seul suivi évolutif. Les sections C2 ci-dessous restent historiques. Extension prioritaire : [SO_CDC_V36_Fouilles_Medias](source/SO_CDC_V36_Fouilles_Medias.md), texte intégral fourni. Références générales : [SO_CDC_V35](source/SO_CDC_V35.md), §7.2, §8 et annexes A.8/A.9 ; [SO_Regles_V07](source/SO_Regles_V07.txt), chapitres 3, 6, 25 et continuité entre épisodes.
 
-**Base confirmée** : branche `work/l1-modular-workshop`, PR #1, HEAD `22db64f2216d458ee59ef9a74a6854adca04361e`, arbre `e53e60baccf6353e1e95f87ae52039f57ecc3ad3`. CI unique [40488886358](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40488886358) réussie : 1977 tests applicatifs et 1610 intégration (1543 Firestore, 67 HTTP/Auth/Storage). Durée observée : 8 min 04 s d’exécution, 8 min 09 s de la création au statut final. Aucun audit historique relancé. Main demeure `03eaace155b052d1b7d1960347746e9ee60ed514`.
+**Base confirmée** : branche `work/l1-modular-workshop`, PR #1, HEAD `1de1eb8e722cfaa31e542e8e82a34bc592929183`, arbre `2d82ba6a029895681b8ff05a1194710435f77170`. CI unique [40492782627](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40492782627) réussie : 1986 tests applicatifs et 1611 intégration (1543 Firestore, 68 HTTP/Auth/Storage). Durée observée : 7 min 42 s d’exécution, 7 min 46 s de la création au statut final. Aucun audit historique relancé. Main demeure `03eaace155b052d1b7d1960347746e9ee60ed514`.
+
+### Parcours Chromium automatisés
+
+Quatre tests Playwright utilisent l’interface compilée de recette, six contextes d’authentification fictifs et les services natifs via Auth/Firestore/Storage Emulator. Aucun appel métier direct depuis le test pour fabriquer les états, aucune modification de l’horloge. Le serveur annonce sa disponibilité seulement après préparation complète du scénario.
+
+- Guide et export JSON : sept cas initialement non exécutés ; rejet d’un verdict sans constat et retour du formulaire à son état initial.
+- Permissions et affichage : régie propriétaire/MJ, refus accueil/joueurs/tiers, briefing réservé au titulaire, seconde session privée, filtres et viewport de 390 pixels.
+- STOP puis reprise par les contrôles natifs, avec réserves salariales et pause conservées.
+- Préparation de preuve interrompue hors ligne puis reprise, dépôt joueur, validation MJ sans paiement, crédits protégés conservés et délai de contestation figé en pause.
+
+Le job HTTP existant installe Chromium puis lance `npm run test:recette:browser`. Aucun nouveau lot Firestore ; sélection CI inchangée, repli complet pour cette modification du workflow/dépendances. Rapport, captures et contexte (SHA/arbre/état modifié, version Chromium, viewport) sont conservés sept jours dans l’artefact `recette-browser`. Ni trace réseau ni vidéo. Les résultats finaux du candidat exact sont consignés dans la PR, distinctement des 1986 applicatifs et 1611 intégration attendus. Contrôles locaux de cette tranche : **1986/1986 tests applicatifs**, dont les neuf du kit, et compilation réussis ; zéro échec/annulé/ignoré/todo. Node 24.22.1 / npm 11.9.0. Les quatre cas Playwright sont découverts ; leur exécution réelle attend la CI.
+
+Limites : Java 17 et téléchargement de Chromium indisponible sur le poste actuel ; les parcours réels sont exécutés en CI Java 21, pas localement. Automatisation distincte de la recette humaine : pas de paiement après dix minutes, de médiation après vingt minutes, de perte de réponse après validation serveur, de retrait physique, d’appareil Android/iOS, de charge ou de restauration certifiés par ces quatre tests. Le relevé humain reste **NOT_EXECUTED** et les 55 recettes/dix SEC-SO ne changent pas de verdict.
 
 ### Kit de recette locale des missions
 
