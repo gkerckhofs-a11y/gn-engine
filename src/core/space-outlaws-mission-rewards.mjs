@@ -4,6 +4,7 @@ import {inventoryParty} from './inventory-transfers.mjs';
 import {shopStockId} from './space-outlaws-shop-state.mjs';
 import {shopCustody,receivedShopLot} from './shop-custody.mjs';
 import {hasMissionExecution} from './space-outlaws-mission-evidence.mjs';
+import {participantAccess} from './mission-parties.mjs';
 
 const movement=l=>({...lotState(l),ownerType:l.ownerType,ownerId:l.ownerId,holderId:l.holderId,location:l.location});
 const stock=(l,shopId)=>l?.ownerType==='SHOP'&&l.ownerId===shopId&&l.holderId===shopId&&l.location?.kind==='SHOP'&&l.location.id===shopId&&l.status==='AVAILABLE';
@@ -92,13 +93,33 @@ export function applyRewardSettlement(tx,s,c,plans,id,at,actor,reason){
 }
 export async function rewardPickupState(tx,s,c,p,at){
  const buyer=await inventoryParty(tx,s.id,c.characterId),lot=await tx.get(`sessions/${s.id}/inventory/${p.purchasedLotId}`),x=shopCustody(s,p,buyer,lot,at);
- return {...x,buyer,lot,allowed:x.allowed&&buyer.version===c.applicantVersion,confirmation:hash(JSON.stringify([c.id,c.revision,p,lot?.revision??null,buyer.version]))};
+ const blockedReason=!buyer.active||buyer.version!==c.applicantVersion?'ACCESS_CHANGED':buyer.c.survival?.dead?'CHARACTER_DEAD':!x.custody||lot.item.id!==p.item.id||lot.item.revision!==p.item.revision?'CUSTODY_CHANGED':s.safetyStop?.active?'SAFETY_STOP':s.stage!=='EN_JEU'?'SESSION_NOT_RUNNING':!x.allowed?'CHARACTER_UNAVAILABLE':null;
+ return {...x,buyer,lot,blockedReason,allowed:!blockedReason,confirmation:hash(JSON.stringify([s.id,c.id,c.revision,p,lot?.revision??null,buyer.version]))};
+}
+async function rewardPickupView(tx,s,c,p,at,admin){
+ const x=await rewardPickupState(tx,s,c,p,at),received=p.pickupStatus==='RECEIVED';
+ return {...p,pickupStatus:p.pickupStatus==='READY'&&!x.ready?'STALE':p.pickupStatus,canOffer:admin&&x.allowed&&!x.ready&&!received,canReceive:!admin&&x.allowed&&x.ready&&!received,blockedReason:received?null:x.blockedReason,confirmation:x.confirmation};
 }
 export async function missionRewardsView(tx,s,c,at,admin){
  if(!c.rewardSources?.length)return {};
  const pickups=[];
- for(const p of c.rewardPickups??[]){const x=await rewardPickupState(tx,s,c,p,at);pickups.push({...p,canOffer:admin&&x.allowed&&!x.ready&&p.pickupStatus!=='RECEIVED',canReceive:!admin&&x.allowed&&x.ready,confirmation:x.confirmation});}
+ for(const p of c.rewardPickups??[])pickups.push(await rewardPickupView(tx,s,c,p,at,admin));
  return {rewards:rows(c).map(({item,quantity,remaining,disputed})=>({item,quantity,remaining,disputed})),rewardPickups:pickups};
+}
+// A public counter QR is only a route. Resolve private entitlements with the
+// same participant guard and pickup state as the contract; reads move nothing.
+export async function shopMissionRewards(tx,ctx,actor,at,admin,shopIds){
+ const {s}=ctx;if(!hasMissionExecution(s)||s.spaceOutlaws?.missionsVersion!==1)return {};
+ const rewards=[],shops=new Set(shopIds),contracts=await tx.list(`sessions/${s.id}/contracts`,admin?null:['characterId',ctx.c.id]);
+ for(const c of contracts){
+  if(c.terms?.spaceOutlaws!==true||!c.rewardSources?.length||!admin&&!await participantAccess(tx,s,ctx,actor,c))continue;
+  for(const p of c.rewardPickups??[]){
+   if(!shops.has(p.shopId))continue;
+   const v=await rewardPickupView(tx,s,c,p,at,admin);
+   rewards.push({contractId:c.id,contractTitle:c.terms.title,...(admin?{recipientName:c.terms.applicant.name}:{}),id:v.id,shopId:v.shopId,shopName:v.shopName,item:v.item,quantity:v.quantity,pickupStatus:v.pickupStatus,canOffer:v.canOffer,canReceive:v.canReceive,blockedReason:v.blockedReason,confirmation:v.confirmation});
+  }
+ }
+ return {missionRewards:rewards.sort((a,b)=>Number(a.pickupStatus==='RECEIVED')-Number(b.pickupStatus==='RECEIVED')||a.contractId.localeCompare(b.contractId)||a.id.localeCompare(b.id))};
 }
 export const rewardActions=['offerContractRewardPickup','confirmContractRewardPickup'];
 export async function takeMissionReward(tx,s,c,input,at,actor,id,receive){

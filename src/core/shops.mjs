@@ -9,6 +9,7 @@ import {settleLotSale,saleView} from './sales.mjs';
 import {hasSoShops,shopAccountId,shopStockId} from './space-outlaws-shop-state.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {admissionKeys} from './admission-state.mjs';
+import {shopMissionRewards} from './space-outlaws-mission-rewards.mjs';
 
 const admins=new Set(['shopAdmin','prepareShopProvision','provisionShop','offerShopPickup']);
 const reads=new Set(['shops','shop','shopAdmin','prepareShopProvision','prepareShopPurchase']);
@@ -70,7 +71,7 @@ export function createShopService({store,signed,checkSession,now,uuid}){
     }
     const sales=await tx.list(`${base}/lotSales`,admin?null:['buyerId',c.id]),orders=[];
     for(const p of sales.filter(p=>p.shopId&&(action!=='shop'||p.shopId===input.shopId)).sort((a,b)=>b.createdAt-a.createdAt))orders.push((await order(tx,s,p,at)).view);
-    return {session:{id:s.id,stage:s.stage},admin,shops:result,orders,...(admin?{canProvision:['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)&&!s.safetyStop?.active}:{})};
+    return {session:{id:s.id,stage:s.stage},admin,shops:result,orders,...await shopMissionRewards(tx,ctx,actor,at,admin,result.map(shop=>shop.id)),...(admin?{canProvision:['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)&&!s.safetyStop?.active}:{})};
    }
    const op=reads.has(action)?null:`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`,fingerprint=hash(JSON.stringify([action,input]));
    if(op){const prev=await tx.get(op);if(prev){requireThat(prev.fingerprint===fingerprint,'REQUEST_ID_REUSED');requireThat(admin||prev.guard===version,'FORBIDDEN');return prev.result;}}

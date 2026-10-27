@@ -14,6 +14,7 @@ import {announcementState,announcementView,announcementReadable} from './announc
 import {accountId,amountInput,currencyView,moneyState,writeLedger} from './economy-state.mjs';
 import {accountEntry} from './collective-accounts.mjs';
 import {gameTime} from './clock.mjs';
+import {admissionKeys} from './admission-state.mjs';
 import {canGameAction,requireGameAction} from './health-state.mjs';
 const adminActions=new Set([...appealFinanceAdminActions,...amendmentAdminActions,...escortAdminActions,'offerContractRewardPickup',...soResolutionAdminActions,'sessionContracts','sessionContract','prepareMissionContract','proposeMissionContract','prepareContractReview','reviewContract','prepareContractClosure','closeContract']);
 const actions=new Set([...appealFinanceActions,...amendmentActions,...escortActions,...rewardActions,...soResolutionActions,...adminActions,'myContracts','contractDetail','prepareContractAcceptance','acceptContract','declineContract','prepareContractProof','submitContractProof','markContractRead']);
@@ -123,7 +124,7 @@ export function createContractService({store,signed,checkSession,now,uuid}){
     writeLedger(tx,s.id,{id,kind,at,actorUid:actor.uid,memo:`${kind==='CONTRACT_RESERVE'?'Réservation':kind==='CONTRACT_RELEASE'?'Libération':'Règlement'} · ${c.terms.title}`,reason,contractId:c.id,announcementId:c.announcementId,source:{name:c.terms.sponsor.name},recipient:participantOf(c).kind==='GROUP'?{kind:'GROUP',id:participantAccount(participantOf(c)),name:to?.label??'Caisse de bande'}:c.terms.applicant,createdCurrency:kind==='GM_CONTRACT_PAY'?c.terms.amount:0,removedCurrency:0,entries});
   }
   return async(action,actor,input)=>{
-    signed(actor);const at=now(),id=uuid();return store.runTransaction(async tx=>{
+    signed(actor);if(rewardActions.includes(action))admissionKeys(input,['sessionId','contractId','pickupId','confirmation',action==='confirmContractRewardPickup'?'received':'present','requestId']);const at=now(),id=uuid();return store.runTransaction(async tx=>{
       const admin=adminActions.has(action),ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId)),version:actor.uid}:await inventoryPlayer(tx,actor,input),{s}=ctx,base=`sessions/${s.id}`;requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');soMissionAccess(tx,s);if(appealFinanceActions.includes(action))requireAppealFinance(s);
       if(s.spaceOutlaws&&!['sessionContracts','myContracts','sessionContract','contractDetail'].includes(action))requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
       if(action==='sessionContracts'||action==='myContracts'){
