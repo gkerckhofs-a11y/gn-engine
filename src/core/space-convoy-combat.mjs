@@ -1,5 +1,6 @@
 import {requireThat} from './validation.mjs';
 import {spaceSpecialLevel} from './space-combat-state.mjs';
+import {interposition} from './space-escort-maneuvers.mjs';
 
 // Native encounter extension: two allies and one intercepted opponent.
 // Escaped/immobilized ships stay in the encounter record, outside later rounds.
@@ -35,8 +36,20 @@ export function resolveConvoyRound(ships,orders,dice,quietRounds=0,activeIds=shi
  for(const i of active){if(!flee(kinds[i])||after[i].hull===0)continue;
   if(pursuer<0||orders[pursuer].targetId!==before[i].id||after[pursuer].hull===0){escaped.push(before[i].id);continue;}
   const special=kinds[i]==='PIL03_4';if(special&&before[i].fuel<1)continue;
-  const total=dice[6+i]+before[i].maneuverability+(special?2:0),opposed=dice[9+pursuer]+before[pursuer].maneuverability,success=total>opposed;hostile=true;
-  rolls.push({kind:'PURSUIT',shipId:before[pursuer].id,targetId:before[i].id,roll:dice[9+pursuer],total:opposed},{kind:'FLEE',shipId:before[i].id,roll:dice[6+i],total,opposed,success});
+  const opposed=dice[9+pursuer]+before[pursuer].maneuverability;hostile=true;
+  rolls.push({kind:'PURSUIT',shipId:before[pursuer].id,targetId:before[i].id,roll:dice[9+pursuer],total:opposed});
+  // The ally committed its own action before reveal. Damage and withdrawals can
+  // make it impossible: no test, no substitute attack and no special cost.
+  const protector=active.find(j=>available(j)&&j!==i&&ships[j].team===ships[i].team&&after[j].hull>0&&kinds[j]==='ESC01'&&orders[j].targetId===ships[i].id&&orders[j].escortLevel>=1);
+  let cover=0;
+  if(protector!==undefined){
+   const q=interposition(before[protector],orders[protector].escortLevel,dice[6+protector],opposed);used[protector]=true;
+   rolls.push({kind:'INTERPOSE',shipId:before[protector].id,targetId:before[i].id,pursuerId:before[pursuer].id,...q});
+   if(q.success){escaped.push(before[i].id);continue;}
+   cover=orders[protector].escortLevel>=3?1:0;
+  }
+  const bonus=Math.max(special?2:0,cover),total=dice[6+i]+before[i].maneuverability+bonus,success=total>opposed;
+  rolls.push({kind:'FLEE',shipId:before[i].id,roll:dice[6+i],total,opposed,success,...(cover?{coverBonus:cover,specialBonus:bonus}:{})});
   if(special){used[i]=true;fuelSpent[i]=1;after[i].fuel--;if(!success){after[i]=damage(after[i],1);after[i].revisionRequired=true;}}
   if(success)escaped.push(before[i].id);
  }

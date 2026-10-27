@@ -2,10 +2,11 @@ import {requireThat} from './validation.mjs';
 import {admissionKeys} from './admission-state.mjs';
 
 export const hasSoCombat=s=>s.spaceOutlaws?.combatVersion===1&&s.spaceOutlaws?.navigationVersion===1;
-export const spaceOrderKinds=['ATTACK','DEFEND','FLEE','PURSUE','PASSIVE','SURRENDER','PIL03_2','PIL03_3','PIL03_4','PIL03_5'];
+export const spaceOrderKinds=['ATTACK','DEFEND','FLEE','PURSUE','PASSIVE','SURRENDER','PIL03_2','PIL03_3','PIL03_4','PIL03_5','ESC01'];
 export function spaceOrderInput(v,targets=false){
  admissionKeys(v,['kind','fallback','acceptSurrender','ceasefire',...(targets?['targetId','defenseIds']:[])]);
  requireThat(spaceOrderKinds.includes(v.kind)&&typeof v.acceptSurrender==='boolean'&&typeof v.ceasefire==='boolean','INVALID_SPACE_ORDER');
+ requireThat(v.kind!=='ESC01'||targets&&Array.isArray(v.defenseIds)&&v.defenseIds.length===0,'INVALID_SPACE_ORDER');
  const fallback=v.fallback??'PASSIVE';requireThat(['ATTACK','DEFEND','FLEE','PURSUE','PASSIVE'].includes(fallback),'INVALID_SPACE_ORDER');
  if(targets)requireThat(typeof v.targetId==='string'&&Array.isArray(v.defenseIds)&&v.defenseIds.length<=(v.kind==='PIL03_2'?2:1)&&new Set(v.defenseIds).size===v.defenseIds.length&&v.defenseIds.every(x=>typeof x==='string'),'INVALID_SPACE_ORDER');
  return {...(targets?{targetId:v.targetId,defenseIds:v.defenseIds}:{}),kind:v.kind,fallback,acceptSurrender:v.acceptSurrender,ceasefire:v.ceasefire};

@@ -55,7 +55,7 @@ export function soClosure(s,data,input,at){
  block('SHIP_OPERATION',data.ships.filter(sh=>sh.operation||sh.rescueId||sh.maintenanceId));
  block('CHARACTER_OPERATION',data.characters.filter(c=>c.activeFieldActionId||c.activePersonActionId||c.activeAidId||c.activeNavigationId||c.activeMaintenanceId||c.activeCargoId));
  block('RESERVED_STOCK',data.inventory.filter(l=>['FIELD_RESERVED','CARGO_RESERVED','RESERVED'].includes(l.status)));
- // PIL-03 orders may reserve PA across the frozen round. Every other action
+ // PIL-03 / ESC-01 orders may reserve PA across the frozen round. Every other action
  // must be completed/cancelled through its own service before closure.
  for(const c of data.characters){
   const points=data.entries.find(e=>e.path===`characters/${c.id}/resources/actionPoints`)?.data;

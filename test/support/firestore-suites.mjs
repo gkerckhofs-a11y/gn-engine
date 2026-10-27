@@ -76,4 +76,5 @@ export const firestoreSuites = [
   {"id":"space-convoy","module":"../support/space-convoy-suite.mjs","exportName":"spaceConvoySuite","label":"Convois SO sur Firestore","seconds":120},
   {"id":"space-escort","module":"../support/space-escort-suite.mjs","exportName":"spaceEscortSuite","label":"Escortes SO sur Firestore","seconds":120},
   {"id":"space-escort-amendments","module":"../support/space-escort-amendments-suite.mjs","exportName":"spaceEscortAmendmentsSuite","label":"Avenants escorte SO sur Firestore","seconds":180},
+  {"id":"space-escort-maneuvers","module":"../support/space-escort-maneuvers-suite.mjs","exportName":"spaceEscortManeuversSuite","label":"Manœuvres ESC-01 SO sur Firestore","seconds":150},
 ];
