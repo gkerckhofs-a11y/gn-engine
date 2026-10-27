@@ -8,7 +8,7 @@ Priorité : SPACE OUTLAWS jouable, services existants, un seul suivi évolutif. 
 
 ### Réessais d’achat et confirmations après STOP
 
-Références : V3.5 §2.3 (commandes de jeu idempotentes), contrôle réseau SEC-SO-02 partiel, services natifs de boutique et STOP. Parcours **devis → paiement à réponse incertaine → réessai → remise MJ → réception personnelle**, et confirmation préparée avant STOP.
+Références : V3.5 §3.9 (commandes de jeu idempotentes) et §9.2 (résultats stables après coupure réseau et reprise), contrôle réseau SEC-SO-02 partiel, services natifs de boutique et STOP. Parcours **devis → paiement à réponse incertaine → réessai → remise MJ → réception personnelle**, et confirmation préparée avant STOP.
 
 - **Message utile au joueur** : une coupure réseau ou une réponse JSON illisible n’annonce pas un refus de l’opération. Le dialogue explique qu’elle peut déjà être enregistrée et propose de réessayer la même confirmation ou d’actualiser pour vérifier. Les erreurs métier apparaissent également dans le dialogue concerné, par texte échappé. Aucun réessai automatique ni nouvelle conservation locale des secrets ; la carte de requestId en mémoire reste native.
 - **Achat enregistré, réponse perdue** : le navigateur relaie la requête réelle, constate un succès serveur, puis coupe sa réponse. Un deuxième reçu est tronqué. Le troisième envoi, par double clic, conserve le même requestId et retrouve le même achat. Bela dépense une seule fois 30 Cr protégés (200 → 170), la caisse PNJ passe de 150 à 180 Cr, la réserve salariale reste 100 Cr et le stock de 2 à 1. Ces montants sont ceux de la fixture, pas un nouveau barème.
