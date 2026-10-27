@@ -75,6 +75,6 @@ export function spaceContractAppealsSuite(makeStore,prefix='Recours financiers S
  });
  test(`${prefix} : ancien manifeste conserve le recours narratif sans ouvrir les finances`,async()=>{
   const f=await spaceMissionsFixture(makeStore,{release:false}),r=await f.release(await f.releasePreview()),path=`campaigns/${f.campaignId}/versions/${r.versionId}`,canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
-  await f.store.runTransaction(async tx=>{const {appealFinanceVersion,manifestDigest,...old}=await tx.get(path);tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});await f.birth(await f.birthPreview());assert.equal((await f.get('')).spaceOutlaws.appealFinanceVersion,undefined);await assert.rejects(f.read('prepareContractAppealAdjustment',{contractId:'unknown',basis:'MATERIAL_ERROR',adjustedAmount:0,reason:'Tentative'},f.owner),{code:'SO_GAMEPLAY_NOT_OPEN'});
+  await f.store.runTransaction(async tx=>{const {appealFinanceVersion,bountyVersion,manifestDigest,...old}=await tx.get(path);tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});await f.birth(await f.birthPreview());assert.equal((await f.get('')).spaceOutlaws.appealFinanceVersion,undefined);await assert.rejects(f.read('prepareContractAppealAdjustment',{contractId:'unknown',basis:'MATERIAL_ERROR',adjustedAmount:0,reason:'Tentative'},f.owner),{code:'SO_GAMEPLAY_NOT_OPEN'});
  });
 }

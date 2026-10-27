@@ -12,7 +12,7 @@ const hash=v=>createHash('sha256').update(v).digest('hex');
 // Runtime collections of the connected SO services. Global request receipts and
 // invitations stay attached to their original session; histories retain IDs.
 const roots=['characters','registrations','groups','knowledge','skills','classes','items','accounts','inventory','masterRows','fieldTargets','fieldStates','personProfiles','warehouses','ships','routes','commodityPrices','priceEvents','cargoTariffs','recipes','shops','shopProvisions','shipModels','ports','missions','announcements','applications','contracts','lotSales','lotTransfers','marketListings','bounties','fieldActions','personActions','aidOffers','cargoTransfers','voyages','spaceAmbushes','spaceCombats','spaceRescues','shipMaintenance','ledger','logisticsHistory','audit'];
-const children={registrations:['successionHistory'],characters:['history','knowledge','healthHistory','mediaHistory'],items:['mediaHistory'],ships:['mediaHistory'],fieldTargets:['history'],inventory:['history','mediaHistory'],accounts:['history'],shops:['offers'],announcements:['history','mediaHistory'],applications:['messages'],contracts:['history'],spaceCombats:['rounds'],groups:['updates','history']};
+const children={registrations:['successionHistory'],characters:['history','knowledge','healthHistory','mediaHistory'],items:['mediaHistory'],ships:['mediaHistory'],fieldTargets:['history'],inventory:['history','mediaHistory'],accounts:['history'],shops:['offers'],announcements:['history','mediaHistory'],applications:['messages'],contracts:['history'],bounties:['history','claims'],spaceCombats:['rounds'],groups:['updates','history']};
 const limits={records:5000,bytes:6*1024*1024};
 export async function readSoEpisode(tx,s){
  const base=`sessions/${s.id}`,entries=[],data={};
@@ -29,6 +29,8 @@ export async function readSoEpisode(tx,s){
  await Promise.all(roots.map(async key=>{data[key]=await list(key);}));
  const paths=[];for(const [key,subcollections] of Object.entries(children))for(const row of data[key])for(const sub of subcollections)paths.push(`${key}/${row.id}/${sub}`);
  for(let i=0;i<paths.length;i+=30)await Promise.all(paths.slice(i,i+30).map(list));
+ const claimPaths=entries.filter(e=>/^bounties\/[^/]+\/claims\/[^/]+$/.test(e.path)).map(e=>`${e.path}/history`);
+ for(let i=0;i<claimPaths.length;i+=30)await Promise.all(claimPaths.slice(i,i+30).map(list));
  for(const c of data.characters){
   const path=`characters/${c.id}/resources/actionPoints`,v=await tx.get(`${base}/${path}`);if(v)put(path,v);
  }
@@ -73,7 +75,7 @@ export function soClosure(s,data,input,at){
  });
  if(changes.length>200)block('TOO_MANY_PARTICIPANTS',[{id:s.id}]);
  const time=gameTime(s.clock,at);
- const continuity={participants,contracts:data.contracts.filter(c=>!['CANCELLED','DECLINED'].includes(c.status)).map(c=>({id:c.id,title:c.terms.title,status:c.status,reserved:['ACTIVE','SUBMITTED','REVIEWED','DISPUTED'].includes(c.status)?Math.max(0,c.terms.amount-(c.paidAmount??0)):0,deadlineMs:c.deadlineGameMs==null?null:Math.max(0,c.deadlineGameMs-time),appeal:c.appeal?.status??null})),
+ const continuity={participants,bounties:data.bounties.filter(b=>b.terms.spaceOutlaws).map(b=>({id:b.id,title:b.terms.title,status:b.status,reserved:b.status==='OPEN'?(b.terms.quota-b.awardedCount)*b.terms.amount:0,awardedCount:b.awardedCount,pending:data.entries.filter(e=>e.path.startsWith(`bounties/${b.id}/claims/`)&&/^bounties\/[^/]+\/claims\/[^/]+$/.test(e.path)&&e.data.status==='SUBMITTED').length})),contracts:data.contracts.filter(c=>!['CANCELLED','DECLINED'].includes(c.status)).map(c=>({id:c.id,title:c.terms.title,status:c.status,reserved:['ACTIVE','SUBMITTED','REVIEWED','DISPUTED'].includes(c.status)?Math.max(0,c.terms.amount-(c.paidAmount??0)):0,deadlineMs:c.deadlineGameMs==null?null:Math.max(0,c.deadlineGameMs-time),appeal:c.appeal?.status??null})),
   voyages:data.ships.filter(sh=>sh.journey).map(sh=>({id:sh.id,name:sh.name,hull:sh.hull,shield:sh.shield,fuel:sh.fuel,remainingMs:sh.journey.suspended?sh.journey.remainingMs:Math.max(0,sh.journey.arrivesAtGameMs-time),combatId:sh.combatId??null})),
   pickups:data.lotSales.filter(x=>x.status==='SOLD'&&x.pickupStatus!=='RECEIVED').length+data.contracts.reduce((n,c)=>n+(c.rewardPickups??[]).filter(x=>x.pickupStatus!=='RECEIVED').length,0),gameTimeMs:time};
  return {changes,blocks,continuity,cancelled:{market:0,sales:0,transfers:0},canClose:blocks.length===0};

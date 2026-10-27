@@ -1,6 +1,7 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {"id":"space-bounties","module":"../support/space-bounties-suite.mjs","exportName":"spaceBountiesSuite","label":"Primes SO sur Firestore","seconds":120},
   {"id":"workflow","module":"../support/workflow-suite.mjs","exportName":"workflowSuite","label":"Firestore réel émulé","seconds":23},
   {"id":"preparations","module":"../support/preparations-suite.mjs","exportName":"preparationsSuite","label":"Préparation SO sur Firestore","seconds":8},
   {"id":"central-field-import","module":"../support/central-field-import-suite.mjs","exportName":"centralFieldImportSuite","label":"Excel lieux C2q sur Firestore","seconds":7},

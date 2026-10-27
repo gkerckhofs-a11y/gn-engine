@@ -5,7 +5,7 @@ const allIds = allSuites.map(s=>s.id);
 // Explicit boundary for the current spatial slice, including its native consumers.
 // Unknown files and shared foundations deliberately fall back to the full suite.
 const spatialModules = new Set([
-  'space-contract-appeals', 'space-route-analysis', 'space-detours', 'space-escort', 'space-escort-amendments', 'space-escort-maneuvers', 'space-convoy', 'space-convoy-combat', 'space-transport',
+  'space-bounties', 'space-contract-appeals', 'space-route-analysis', 'space-detours', 'space-escort', 'space-escort-amendments', 'space-escort-maneuvers', 'space-convoy', 'space-convoy-combat', 'space-transport',
   'space-outlaws-voyages', 'space-outlaws-navigation-state',
   'space-combat', 'space-combat-state', 'space-combat-round',
   'space-maintenance', 'space-rescue',
@@ -13,12 +13,12 @@ const spatialModules = new Set([
 ]);
 // These leaf fixtures are used only by the spatial consumers below (and HTTP).
 // Foundational fixtures such as entry/shops/inventory also feed unrelated suites.
-const spatialFixtures = new Set(['space-contract-appeals', 'space-route-analysis', 'space-detours','space-escort','space-escort-amendments','space-escort-maneuvers','space-convoy','space-transport']);
+const spatialFixtures = new Set(['space-bounties', 'space-contract-appeals', 'space-route-analysis', 'space-detours','space-escort','space-escort-amendments','space-escort-maneuvers','space-convoy','space-transport']);
 export const spatialSuites = [
   'workflow', 'space-outlaws-entry', 'space-outlaws-actions', 'space-outlaws-health',
   'space-outlaws-shops', 'space-outlaws-voyages', 'space-encounters', 'space-logistics',
   'space-missions', 'mission-execution', 'space-episodes', 'space-succession', 'space-learning',
-  'space-transport', 'space-convoy', 'space-contract-appeals', 'space-route-analysis', 'space-detours', 'space-escort', 'space-escort-amendments', 'space-escort-maneuvers',
+  'space-transport', 'space-convoy', 'space-bounties', 'space-contract-appeals', 'space-route-analysis', 'space-detours', 'space-escort', 'space-escort-amendments', 'space-escort-maneuvers',
   'voyages', 'cargo', 'logistics', 'customs', 'contracts', 'announcements', 'bounties',
   'mission-parties', 'economy', 'collective', 'inventory', 'transfers', 'action-points',
   'firestore-rules',

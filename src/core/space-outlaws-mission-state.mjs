@@ -21,10 +21,12 @@ export function seedSoMissions(tx,sid,changes,versionId){
 export async function soAnnouncement(tx,s,input,old){
  if(!s.spaceOutlaws)return {};
  requireThat(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)&&!s.safetyStop?.active,'SESSION_NOT_RUNNING');
- requireThat(input.mode==='ASSIGNMENT'&&(input.participation??'PERSONAL')==='PERSONAL'&&(['INFORMATION','MERCENARY','OTHER'].includes(input.category)||hasSoTransport(s)&&input.category==='TRANSPORT'||hasSoEscort(s)&&input.category==='ESCORT')&&['NPC','AUTHORITY'].includes(input.sponsorKind),'SO_MISSION_UNSUPPORTED');
+ const bounty=input.mode==='OPEN_BOUNTY'&&s.spaceOutlaws.bountyVersion===1;
+ requireThat((input.mode==='ASSIGNMENT'||bounty)&&(input.participation??'PERSONAL')==='PERSONAL'&&(['INFORMATION','MERCENARY','OTHER'].includes(input.category)||bounty&&input.category==='BOUNTY'||!bounty&&hasSoTransport(s)&&input.category==='TRANSPORT'||!bounty&&hasSoEscort(s)&&input.category==='ESCORT')&&['NPC','AUTHORITY'].includes(input.sponsorKind),'SO_MISSION_UNSUPPORTED');
  requireThat(input.audience?.groupIds?.length===0,'SO_MISSION_UNSUPPORTED');
  const mid=documentId(input.missionId),m=await tx.get(`sessions/${s.id}/missions/${mid}`);
  requireThat(m?.versionId===s.spaceOutlaws.versionId&&m.publicationState==='PUBLISHED'&&(!m.rewardItems.length||hasMissionExecution(s)),'SO_MISSION_UNSUPPORTED');
+ if(bounty)requireThat(input.rewardType==='FIXED'&&!m.rewardItems.length,'SO_BOUNTY_UNSUPPORTED');
  requireThat(!old||old.missionId===mid,'SO_MISSION_SOURCE_LOCKED');
  return {rewardItems:m.rewardItems,missionId:mid,missionVersionId:m.versionId,requiredKnowledgeIds:m.requiredKnowledgeIds,missionSteps:m.steps.map(({id,title,description})=>({id,title,description})),giverCharacterId:m.giverCharacterId};
 }
@@ -77,7 +79,7 @@ export async function prepareSoResolution(tx,s,c,ctx,input,at,kind,candidate){
   }else{pay=c.terms.amount-disputed-paid;requireThat(pay>0||rewardsFree(c)||c.status==='REVIEWED','CONTRACT_CLOSED');}
   source=await tx.get(`sessions/${s.id}/accounts/${c.sourceAccountId}`);moneyState(source);requireThat(source.reserved>=c.terms.amount-paid,'INVALID_ACCOUNT');await soMissionFunding(tx,s,c,source);
   rewardPlans=await rewardSettlement(tx,s,c,input,kind);
-  if(pay||rewardPlans.some(r=>r.pay>0)){requireThat((await candidate(tx,s,c)).current,'STALE_CONTRACT');to=await tx.get(`sessions/${s.id}/accounts/${accountId(c.characterId)}`);moneyState(to);whole(to.balance+pay,'BALANCE_OVERFLOW');}
+  if(pay||rewardPlans.some(r=>r.pay>0)){const party=await candidate(tx,s,c);requireThat(party.current&&!party.c?.survival?.dead,'STALE_CONTRACT');to=await tx.get(`sessions/${s.id}/accounts/${accountId(c.characterId)}`);moneyState(to);whole(to.balance+pay,'BALANCE_OVERFLOW');}
  }
  const transportRelease=!kind.startsWith('APPEAL')&&kind!=='DISPUTE'&&(kind==='ARBITRATE'||disputed===0)?await transportSettlementPlan(tx,s,c):null;
  const result={rewardChanges:rewardPlans.map(({r,pay,release})=>({item:r.item,pay,release,disputed:r.remaining-pay-release})),...(rewardReservations?{rewardDisputes:rewardReservations.map(r=>({item:r.item,quantity:r.disputed}))}:{}),contract:{id:c.id,title:c.terms.title},kind,newEvidence,outcome,reason:reason.trim(),amount,pay,release,remainingDisputed:kind==='ARBITRATE'?0:kind==='DISPUTE'?amount:disputed,currency:c.terms.currency};

@@ -1,11 +1,12 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
-## État courant — recours financiers, analyse PIL-01 et missions natives
+## État courant — primes ouvertes, recours financiers et missions natives
 
 L’état évolutif autoritaire et les preuves actuelles sont dans [SO-VALIDATION](SO-VALIDATION.md). Les sections C2 ci-dessous sont historiques. CI adaptée le 27 octobre à la demande utilisateur : tous les tests applicatifs, intégration ciblée sur PR brouillon avec repli complet, Firestore réparti en lots indépendants et HTTP/Auth complet lorsque requis. Avant fusion/publication, suite complète sur le candidat. Aucun acquis fonctionnel supplémentaire ni recette terrain revendiqués par cette optimisation.
 
 | Exigence | Couverture ajoutée | Limite |
 | --- | --- | --- |
+| V3.5 §7.1–7.2/A.8, V0.7 chapitre 25/A38, REC-SO-21 | Prime PNJ : cagnotte réelle, preuves privées et consenties, attribution unique vers contrat contestable, clôture sans libérer les réserves contractuelles et reprise complète ; 20 cas partagés, quatre UI, un HTTP/Auth | Monétaire/individuelle avec preuve narrative MJ ; groupes, objets et événements QR/voyage restent distincts |
 | V3.5 A.8, V0.7 chapitre 25, REC-SO-21 | Recours financier : décision motivée sans débit, créance, restitution consentie ou complément PNJ, paiements partiels sur fonds disponibles et continuité ; 19 cas partagés, quatre UI, un HTTP/Auth | Salaire du contrat PNJ individuel uniquement ; pas de dommages supplémentaires, récupération automatique de biens ou transmission au successeur |
 | PIL-01, chapitres 3/18, REC-SO-16 | Analyse graduée du dossier M6 préparé lié à M3, code connu au port, durées/PA/aide, informations garanties et supplément, tentative unique et continuité ; 18 cas partagés, trois UI, un HTTP/Auth | Port configuré par la navigation native ; renseignement ciblé et recette terrain ouverts |
 | PIL-01, chapitre 18, REC-SO-16 | Détour solo/convoi : un jet, PA et carburant réels, événement conservé, temps acquis, exposition à la nouvelle liaison, fret et retour au port contractuel ; 20 cas partagés, deux UI, un HTTP/Auth | Analyse PIL-01 raccordée ; renseignement ciblé, routes composites et recette terrain restent ouverts |
