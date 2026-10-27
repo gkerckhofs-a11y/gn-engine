@@ -1,3 +1,4 @@
+import {participantCurrent} from './mission-parties.mjs';
 import {requireThat,documentId,whole} from './validation.mjs';
 import {admissionKeys,admissionText} from './admission-state.mjs';
 import {shopStockId} from './space-outlaws-shop-state.mjs';
@@ -87,6 +88,7 @@ export async function transportCargoAccess(tx,s,lot,cid,admin=false){
  if(!lot?.transportContractId)return null;
  requireThat(hasSoTransport(s),'SO_GAMEPLAY_NOT_OPEN');const c=await tx.get(`${base(s)}/contracts/${lot.transportContractId}`),t=c?.terms.transport;
  requireThat(t&&(admin||c.characterId===cid)&&c.acceptedAt!=null,'FORBIDDEN');
+ if(!admin)requireThat((await participantCurrent(tx,s,c)).current,'FORBIDDEN');
  requireThat(lot.ownerType==='SHOP'&&lot.ownerId===t.shopId&&lot.item.id===t.item.id,'SO_TRANSPORT_INVALID');
  const ship=await tx.get(`${base(s)}/ships/${t.shipId}`),voyage=lot.transportVoyageId?await tx.get(`${base(s)}/voyages/${lot.transportLastVoyageId??lot.transportVoyageId}`):null;
  const active=c.status==='ACTIVE',returnOnly=['SUBMITTED','REVIEWED','DISPUTED'].includes(c.status),local=idle(ship)&&(admin||ship.ownerId===cid&&ship.pilotId===cid);

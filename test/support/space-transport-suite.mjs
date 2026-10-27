@@ -66,5 +66,72 @@ export function spaceTransportSuite(makeStore,prefix='Transport SO'){
   await assert.rejects(arbitrate(),{code:'SO_TRANSPORT_CUSTODY'});assert.equal((await f.till()).reserved,100);
   await f.fly({navigationCode:'HOME-CODE'});f.advance(300000);let n=await f.navigation();await f.cmd('arriveShip',{shipId:'ship',confirmation:n.confirmation});await f.receive(await f.start((await f.lots())[0],{kind:'SHOP',id:'counter'}));await arbitrate();assert.equal((await f.source()).quantity,10);const after=await f.wallet();assert.equal(after.balance+(after.protectedCredits??0),before.balance+(before.protectedCredits??0)+50);assert.equal((await f.till()).reserved,0);assert.deepEqual(await f.lots(),[]);
  });
+ test(`${prefix} : QR du port privé, lecture sans effet et régie sans secrets de navigation`,async()=>{
+  const f=await transportFixture(makeStore),port={portId:'away'};await assert.rejects(f.read('cargoPort',port),{code:'FORBIDDEN'});await f.accept();
+  const before=[await f.lots(),await f.wallet(),await f.till(),await f.get(`contracts/${f.c.id}`)],d=await f.read('cargoPort',port);
+  assert.equal(d.contracts.length,1);assert.equal(d.contracts[0].id,f.c.id);assert.equal(d.contracts[0].delivered,0);assert.deepEqual(d.contracts[0].lots,[]);assert.doesNotMatch(JSON.stringify(d),/SECRET_|AWAY-CODE|OUT-SECRET|navigationCode|applicantUid|applicantVersion|carrierName/);
+  assert.deepEqual([await f.lots(),await f.wallet(),await f.till(),await f.get(`contracts/${f.c.id}`)],before);
+  for(const p of [port,{portId:'home'},{portId:'unknown'}])await assert.rejects(f.read('cargoPort',p,f.other),{code:'FORBIDDEN'});
+  await assert.rejects(f.read('cargoPortAdmin',port),{code:'FORBIDDEN'});const admin=await f.read('cargoPortAdmin',port,f.owner);assert.ok(admin.contracts[0].carrierName);assert.doesNotMatch(JSON.stringify(admin),/SECRET_|AWAY-CODE|navigationCode/);assert.equal((await f.read('cargoPortAdmin',{portId:'home'},f.owner)).contracts.length,0);
+  const regy=await f.read('cargoAdmin',{},f.owner);assert.ok(regy.deliveryPorts.some(p=>p.id==='away'));assert.ok(regy.deliveryPorts.every(p=>Object.keys(p).sort().join(',')==='id,name'));
+ });
+ test(`${prefix} : QR reçu à distance ne remplace ni voyage, présence ni limite de tranche`,async()=>{
+  const f=await transportFixture(makeStore);await f.accept();await f.load();let d=await f.read('cargoPort',{portId:'away'});assert.ok(d.contracts[0].lots.every(l=>!l.canMove));
+  const lot=d.contracts[0].lots[0].lot,p={portId:'away',lotId:lot.id,quantity:lot.quantity,destination:{kind:'PORT',id:'away'}};
+  await assert.rejects(f.read('prepareCargoTransfer',p),{code:'FORBIDDEN'});await f.arrive();d=await f.read('cargoPort',{portId:'away'});assert.ok(d.contracts[0].lots.every(l=>l.canMove));
+  const q=await f.read('prepareCargoTransfer',p);await assert.rejects(f.cmd('startCargoTransfer',{...p,confirmation:q.confirmation}),{code:'FIELD_PRESENCE_REQUIRED'});await f.cmd('startCargoTransfer',{...p,confirmation:q.confirmation,present:true});
+  const current=await f.read('cargoPort',{portId:'away'});assert.ok(current.contracts[0].lots.every(l=>!l.canMove));assert.equal(current.contracts[0].transfers[0].transfer.remainingSeconds,180);assert.equal(current.contracts[0].transfers[0].canReceive,false);
+ });
+ test(`${prefix} : réception QR par tranches, concurrence et réessai sans salaire ni doublon`,async()=>{
+  const f=await transportFixture(makeStore),wallet=await f.wallet();await f.accept();await f.load();await f.arrive();let delivered=0;
+  for(const lot of await f.lots()){
+   const p={portId:'away',lotId:lot.id,quantity:lot.quantity,destination:{kind:'PORT',id:'away'}},q=await f.read('prepareCargoTransfer',p),t=await f.cmd('startCargoTransfer',{...p,confirmation:q.confirmation,present:true});
+   await assert.rejects(f.read('prepareCargoReceipt',{transferId:t.id,portId:'away'}),{code:'SO_CARGO_NOT_READY'});f.advance(180000);
+   const view=(await f.read('cargoPort',{portId:'away'})).contracts[0].transfers[0];assert.equal(view.canReceive,true);
+   const input={portId:'away',transferId:t.id,confirmation:view.confirmation,received:true,requestId:randomUUID()};await assert.rejects(f.cmd('receiveCargoTransfer',{...input,received:false}),{code:'CARGO_RECEIPT_REQUIRED'});
+   const inputs=[input,{...input,requestId:randomUUID()}],results=await Promise.allSettled(inputs.map(p=>f.cmd('receiveCargoTransfer',p)));assert.equal(results.filter(r=>r.status==='fulfilled').length,1);const winner=results.findIndex(r=>r.status==='fulfilled');assert.deepEqual(await f.cmd('receiveCargoTransfer',inputs[winner]),results[winner].value);
+   delivered+=lot.quantity;const d=(await f.read('cargoPort',{portId:'away'})).contracts[0];assert.equal(d.delivered,delivered);assert.equal(d.complete,delivered===6);assert.equal(d.transfers.length,0);
+  }
+  assert.deepEqual(await f.wallet(),wallet);assert.equal((await f.till()).reserved,100);assert.equal((await f.get(`contracts/${f.c.id}`)).status,'ACTIVE');assert.equal((await f.lots()).reduce((n,l)=>n+l.quantity,0)+(await f.source()).quantity,10);
+ });
+ test(`${prefix} : QR d’un autre port, d’un chargement et champs injectés refusés`,async()=>{
+  const f=await transportFixture(makeStore,{quantity:5});await f.accept();const lot=(await f.lots())[0],t=await f.start(lot,{kind:'HOLD',id:'ship'});f.advance(180000);
+  await assert.rejects(f.read('prepareCargoReceipt',{transferId:t.id,portId:'away'}),{code:'FORBIDDEN'});await f.receive(t);await f.arrive();const p={lotId:lot.id,quantity:5,destination:{kind:'PORT',id:'away'}};
+  await assert.rejects(f.read('prepareCargoTransfer',{...p,portId:'home'}),{code:'FORBIDDEN'});await assert.rejects(f.read('cargoPort',{portId:'away',admin:true}),{code:'INVALID_ADMISSION'});
+  const q=await f.read('prepareCargoTransfer',{...p,portId:'away'}),u=await f.cmd('startCargoTransfer',{...p,portId:'away',confirmation:q.confirmation,present:true});f.advance(180000);const v=(await f.read('cargoPort',{portId:'away'})).contracts[0].transfers[0];
+  await assert.rejects(f.cmd('receiveCargoTransfer',{portId:'home',transferId:u.id,confirmation:v.confirmation,received:true}),{code:'FORBIDDEN'});assert.equal((await f.get(`inventory/${lot.id}`)).location.kind,'HOLD');
+ });
+ test(`${prefix} : annulation au port conserve les tranches reçues et recommence le délai`,async()=>{
+  const f=await transportFixture(makeStore);await f.accept();await f.load();await f.arrive();const lots=await f.lots();await f.receive(await f.start(lots[0],{kind:'PORT',id:'away'}));const t=await f.start(lots[1],{kind:'PORT',id:'away'});f.advance(120000);
+  const v=await f.read('cargoTransfer',{transferId:t.id,portId:'away'});await f.cmd('cancelCargoTransfer',{transferId:t.id,confirmation:v.confirmation});const d=(await f.read('cargoPort',{portId:'away'})).contracts[0];assert.equal(d.delivered,lots[0].quantity);assert.equal(d.transfers.length,0);assert.equal(d.lots[0].canMove,true);
+  const next=await f.start(d.lots[0].lot,{kind:'PORT',id:'away'});assert.equal((await f.read('cargoTransfer',{transferId:next.id,portId:'away'})).transfer.remainingSeconds,180);assert.equal((await f.lots()).reduce((n,l)=>n+l.quantity,0),6);
+ });
+ test(`${prefix} : QR suspendu en pause, STOP et décès, sans réception anticipée`,async()=>{
+  const f=await transportFixture(makeStore,{quantity:5});await f.accept();await f.load();await f.arrive();const t=await f.start((await f.lots())[0],{kind:'PORT',id:'away'}),port={portId:'away'};await f.stage('PAUSE');f.advance(600000);
+  let v=(await f.read('cargoPort',port)).contracts[0].transfers[0];assert.equal(v.transfer.remainingSeconds,180);assert.equal(v.canReceive,false);await f.stage('EN_JEU');f.advance(180000);await f.cmd('stopSafety',{reason:'Pause physique'});
+  v=(await f.read('cargoPort',port)).contracts[0].transfers[0];assert.equal(v.canReceive,false);await assert.rejects(f.cmd('receiveCargoTransfer',{...port,transferId:t.id,confirmation:v.confirmation,received:true}),{code:'SO_SAFETY_STOP'});
+  await f.cmd('resumeSafety',{revision:(await f.store.get(`sessions/${f.sid}`)).revision,reason:'Danger écarté'},f.owner);await freightEdit(f,`characters/${f.cid}`,c=>({...c,survival:{...c.survival,dead:true}}));v=(await f.read('cargoPort',port)).contracts[0].transfers[0];assert.equal(v.canReceive,false);await assert.rejects(f.cmd('receiveCargoTransfer',{...port,transferId:t.id,confirmation:v.confirmation,received:true}),{code:'OUT_OF_COMBAT'});assert.equal((await f.get(`inventory/${t.lotId}`)).status,'CARGO_RESERVED');
+ });
+ test(`${prefix} : affectation modifiée et accès révoqué bloquent le QR et son reçu`,async()=>{
+  const f=await transportFixture(makeStore,{quantity:5});await f.accept();await f.load();await f.arrive();const t=await f.start((await f.lots())[0],{kind:'PORT',id:'away'});f.advance(180000);const v=(await f.read('cargoPort',{portId:'away'})).contracts[0].transfers[0],input={portId:'away',transferId:t.id,confirmation:v.confirmation,received:true,requestId:randomUUID()};await f.cmd('receiveCargoTransfer',input);
+  await freightEdit(f,`characters/${f.cid}`,c=>({...c,public:{...c.public,displayName:'Nouvelle identité'}}));await assert.rejects(f.read('cargoPort',{portId:'away'}),{code:'FORBIDDEN'});await assert.rejects(f.read('cargoLot',{lotId:t.lotId}),{code:'FORBIDDEN'});await assert.rejects(f.cmd('receiveCargoTransfer',input),{code:'FORBIDDEN'});
+  await f.cmd('revokeAccess',{uid:f.player.uid},f.owner);await assert.rejects(f.read('cargoPort',{portId:'away'}),{code:'FORBIDDEN'});await assert.rejects(f.cmd('receiveCargoTransfer',input),{code:'FORBIDDEN'});
+ });
+ test(`${prefix} : port non publié, ancien manifeste et garde du lot refusés`,async()=>{
+  const f=await transportFixture(makeStore,{quantity:5});await f.accept();await f.load();await f.arrive();const t=await f.start((await f.lots())[0],{kind:'PORT',id:'away'});f.advance(180000);const v=(await f.read('cargoPort',{portId:'away'})).contracts[0].transfers[0];
+  await freightEdit(f,`inventory/${t.lotId}`,l=>({...l,quantity:l.quantity-1}));assert.equal((await f.read('cargoPort',{portId:'away'})).contracts[0].transfers[0].canReceive,false);await assert.rejects(f.cmd('receiveCargoTransfer',{portId:'away',transferId:t.id,confirmation:v.confirmation,received:true}),{code:'CARGO_TRANSFER_CLOSED'});
+  await freightEdit(f,'ports/away',p=>({...p,versionId:'different'}));await assert.rejects(f.read('cargoPort',{portId:'away'}),{code:'FORBIDDEN'});await freightEdit(f,'',s=>{const {transportVersion,...spaceOutlaws}=s.spaceOutlaws;return {...s,spaceOutlaws};});await assert.rejects(f.read('cargoPort',{portId:'away'}),{code:'SO_GAMEPLAY_NOT_OPEN'});
+ });
+ test(`${prefix} : réception QR atomique après interruption transactionnelle`,async()=>{
+  const raw=makeStore();let fail=false;const store={get:raw.get.bind(raw),list:raw.list.bind(raw),runTransaction:cb=>raw.runTransaction(async tx=>{const r=await cb(tx);if(fail)throw Error('INTERRUPTION');return r;})},f=await transportFixture(()=>store,{quantity:5});await f.accept();await f.load();await f.arrive();const t=await f.start((await f.lots())[0],{kind:'PORT',id:'away'});f.advance(180000);
+  const v=(await f.read('cargoPort',{portId:'away'})).contracts[0].transfers[0],input={portId:'away',transferId:t.id,confirmation:v.confirmation,received:true,requestId:randomUUID()},before=[await f.lots(),await f.ship(),await f.get(`characters/${f.cid}`),await f.wallet(),await f.till()];fail=true;await assert.rejects(f.cmd('receiveCargoTransfer',input),/INTERRUPTION/);fail=false;assert.deepEqual([await f.lots(),await f.ship(),await f.get(`characters/${f.cid}`),await f.wallet(),await f.till()],before);await f.cmd('receiveCargoTransfer',input);assert.equal((await f.read('cargoPort',{portId:'away'})).contracts[0].complete,true);
+ });
+ test(`${prefix} : QR d’épisode repris conserve livraison partielle et réserve salariale`,async()=>{
+  const f=await transportFixture(makeStore);await f.accept();await f.load();await f.arrive();const lots=await f.lots();await f.receive(await f.start(lots[0],{kind:'PORT',id:'away'}));const e=await episodeHarness(f);await e.close();await e.resume(await e.begin());await e.stage('EN_JEU');
+  const d=await e.read('cargoPort',{portId:'away'},f.player);assert.equal(d.session.id,e.sid);assert.equal(d.contracts[0].delivered,lots[0].quantity);assert.equal(d.contracts[0].complete,false);assert.equal(d.contracts[0].lots[0].canMove,true);assert.equal((await e.get(`accounts/${shopAccountId('counter')}`)).reserved,100);
+  const lot=d.contracts[0].lots[0].lot,p={portId:'away',lotId:lot.id,quantity:lot.quantity,destination:{kind:'PORT',id:'away'}},q=await e.read('prepareCargoTransfer',p,f.player),t=await e.cmd('startCargoTransfer',{...p,confirmation:q.confirmation,present:true},f.player);f.advance(180000);const v=(await e.read('cargoPort',{portId:'away'},f.player)).contracts[0].transfers[0];await e.cmd('receiveCargoTransfer',{portId:'away',transferId:t.id,confirmation:v.confirmation,received:true},f.player);assert.equal((await e.read('cargoPort',{portId:'away'},f.player)).contracts[0].complete,true);assert.equal((await e.get(`contracts/${f.c.id}`)).status,'ACTIVE');await assert.rejects(f.cmd('receiveCargoTransfer',{portId:'away',transferId:t.id,confirmation:v.confirmation,received:true}),{code:'FORBIDDEN'});
+ });
 
 }
+
+async function freightEdit(f,path,change){await f.store.runTransaction(async tx=>{const key=`sessions/${f.sid}${path?'/'+path:''}`,old=await tx.get(key);tx.set(key,change(old));});}
