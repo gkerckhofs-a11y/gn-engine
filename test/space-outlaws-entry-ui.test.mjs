@@ -21,7 +21,7 @@ test('Entrée SO UI : parcours câblé depuis la session, confirmation et candid
 test('Entrée SO UI : suspension, invitation après suspension et archive sans commande',()=>{
  const d={session:{id:'sid'},stage:'PAUSE'},r={uid:'joueur"<test>',characterId:'personnage',accessActive:true};
  const active=ui.access(d,r);assert.match(active,/Suspendre l’accès privé/);assert.match(active,/data-action="revoke"/);assert.doesNotMatch(active,/data-action="invite"/);assert.match(active,/joueur&quot;&lt;test&gt;/);
- const suspended=ui.access(d,{...r,accessActive:false});assert.match(suspended,/Créer une invitation de réouverture/);assert.match(suspended,/Révoquer les liens existants/);assert.match(suspended,/conserve le personnage, les biens et les obligations/);
+ const suspended=ui.access(d,{...r,accessActive:false});assert.match(suspended,/Créer une invitation de réouverture/);assert.match(suspended,/Révoquer les liens existants/);assert.match(suspended,/conserve le personnage, les biens et les obligations/);assert.match(suspended,/une nouvelle invitation ne rétablit pas leurs anciens droits/);
  assert.equal(ui.access(d,{...r,characterId:null}),'');
  const archived=ui.access({...d,stage:'ARCHIVED'},r);assert.doesNotMatch(archived,/data-action="(?:revoke|invite)"/);assert.match(archived,/Épisode archivé/);
 });

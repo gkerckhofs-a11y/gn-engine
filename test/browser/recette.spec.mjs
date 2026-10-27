@@ -133,51 +133,6 @@ test('Navigateur : achat préparé avant STOP refusé, puis devis périmé sans 
   await setStage(owner,'PAUSE');
 });
 
-test.describe('Accès privé depuis la régie',()=>{
-  test('Navigateur : suspension MJ, confirmation refusée et réouverture sans nouvelle dotation',async({browser},info)=>{
-    const {page:manager}=await login(browser,'mj'),{page:player}=await login(browser,'player'),{page:other}=await login(browser,'other');
-    await setStage(manager,'EN_JEU');
-    const before=await readPage(player,`play/${scenario.sessionId}`,'mySession');
-    const wallet=await readPage(player,`wallet/${scenario.sessionId}`,'myWallet'),bag=await readPage(player,`bag/${scenario.sessionId}`,'myInventory');
-    const inventory=d=>d.lots.map(l=>({id:l.id,quantity:l.quantity,status:l.status})).sort((a,b)=>a.id.localeCompare(b.id));
-    const admin=await readPage(manager,`shops-admin/${scenario.sessionId}`,'shopAdmin');
-    await navigate(player,`shops/${scenario.sessionId}`,'shops');await clickCommand(player,'[data-form="shopPurchase"][data-offer="supply"] button','prepareShopPurchase');
-    const entry=await readPage(manager,`session/${scenario.sessionId}`,'spaceOutlawsEntry'),participant=entry.registrations.find(r=>r.characterId===before.character.id);
-    const access=manager.locator(`[data-player-access="${participant.uid}"]`);
-    await expect(access.locator('[data-action="invite"]')).toHaveCount(0);
-    manager.once('dialog',dialog=>dialog.accept());await clickCommand(manager,`[data-player-access="${participant.uid}"] [data-action="revoke"]`,'revokeAccess');
-    await expect(access.locator('[data-action="invite"]')).toBeVisible();
-    const denied=apiResponse(player,'buyShopOffer');await player.locator('[data-command="buyShopOffer"] button').click();
-    const refusal=await denied;expect(refusal.status()).toBe(403);expect((await refusal.json()).error).toBe('FORBIDDEN');await expect(player.locator('#dialog [role="alert"]')).toBeVisible();
-    await capture(player,info,'confirmation-apres-revocation');
-    const blocked=await readPage(player,`contract/${scenario.sessionId}/${scenario.contractId}`,'mySession');expect(blocked.character).toBeNull();expect(blocked.reason).toBe('ACCESS_INACTIVE');
-    await expect(player.locator('#app')).not.toContainText('SECRET_RECETTE_BRIEFING');await expect(player.locator('#app')).toContainText('Votre accès privé doit être activé');
-    const registry=await readPage(manager,`contracts-admin/${scenario.sessionId}`,'sessionContracts'),contract=registry.contracts.find(c=>c.id===scenario.contractId);
-    expect(contract.obligations.alerts).toContain('ACCESS_CHANGED');expect(contract.obligations.salaryReserved).toBe(100);await capture(manager,info,'obligations-acces-suspendu');
-    await navigate(manager,`session/${scenario.sessionId}`,'spaceOutlawsEntry');
-    await clickCommand(manager,`[data-player-access="${participant.uid}"] [data-action="invite"]`,'issueInvitation');
-    const invitation=await manager.locator('#dialog [data-action="copy"]').getAttribute('data-value');
-    await manager.locator('#dialog [data-action="close"]').click();
-    // Use the generated link without putting its secret in a named navigation step.
-    const openInvitation=async page=>{await page.evaluate(href=>{location.hash=new URL(href).hash;},invitation);await expect(page.locator('[data-action="redeem"]')).toBeVisible();};
-    await openInvitation(other);const foreign=apiResponse(other,'redeem');await other.locator('[data-action="redeem"]').click();expect((await foreign).status()).toBe(400);
-    await openInvitation(player);const staleAuth=apiResponse(player,'redeem');await player.locator('[data-action="redeem"]').click();const oldAuth=await staleAuth;expect((await oldAuth.json()).error).toBe('REAUTH_REQUIRED');
-    await player.locator('[data-action="logout"]').click();await expect(player.locator('#recette-status')).toContainText('Aucune identité');
-    const signedIn=apiResponse(player,'identity');await player.locator('#recette-login').click();expect((await signedIn).status()).toBe(200);
-    await clickCommand(player,'[data-action="redeem"]','redeem');
-    const restored=await readPage(player,`play/${scenario.sessionId}`,'mySession');expect(restored.character.id).toBe(before.character.id);expect(restored.actionPoints.available).toBe(before.actionPoints.available);
-    expect((await readPage(player,`wallet/${scenario.sessionId}`,'myWallet')).account).toEqual(wallet.account);
-    expect(inventory(await readPage(player,`bag/${scenario.sessionId}`,'myInventory'))).toEqual(inventory(bag));
-    const after=await readPage(manager,`shops-admin/${scenario.sessionId}`,'shopAdmin');expect(after.orders.map(o=>o.id).sort()).toEqual(admin.orders.map(o=>o.id).sort());
-    const balances=d=>d.shops.map(s=>({id:s.id,account:s.account,stock:s.offers.map(o=>o.stock)}));expect(balances(after)).toEqual(balances(admin));
-    await openInvitation(player);const reused=apiResponse(player,'redeem');await player.locator('[data-action="redeem"]').click();expect((await (await reused).json()).error).toBe('INVITATION_EXPIRED_OR_USED');
-    await navigate(player,`contract/${scenario.sessionId}/${scenario.contractId}`,'contractDetail');await expect(player.locator('#app')).toContainText('SECRET_RECETTE_BRIEFING');
-    await capture(player,info,'dossier-apres-reouverture');
-    await info.attach('reouverture-acces',{body:Buffer.from(JSON.stringify({scope:'AUTOMATED_CHROMIUM_ACCESS',sameCharacter:true,sameInventory:true,sameWallet:true,salaryReserved:100,preparedPurchase:'FORBIDDEN',wrongAccount:'REFUSED',oldAuthentication:'REAUTH_REQUIRED',invitationReuse:'INVITATION_EXPIRED_OR_USED',humanAcceptance:'NOT_EXECUTED'},null,2)),contentType:'application/json'});
-    await setStage(manager,'PAUSE');
-  });
-});
-
 test('Navigateur : réponse perdue après achat, réessai et double clic sans second débit ni lot',async({browser},info)=>{
   const {page:owner}=await login(browser,'owner'),{page:buyer}=await login(browser,'other');
   await setStage(owner,'EN_JEU');
@@ -216,4 +171,52 @@ test('Navigateur : réponse perdue après achat, réessai et double clic sans se
   admin=await readPage(owner,`shops-admin/${scenario.sessionId}`,'shopAdmin');expect(admin.shops.find(s=>s.id==='counter').account.balance).toBe(180);
   await info.attach('reprise-achat',{body:Buffer.from(JSON.stringify({scope:'AUTOMATED_CHROMIUM_PURCHASE',faults:['RESPONSE_LOST_AFTER_COMMIT','TRUNCATED_JSON_RECEIPT'],requests:attempts,receiptId:receipt.id,pickupRequests:pickups.length,protectedBefore:200,protectedAfter:170,shopBalance:180,salaryReserved:100,stockRemaining:1,receivedQuantity:1,humanAcceptance:'NOT_EXECUTED'},null,2)),contentType:'application/json'});
   await setStage(owner,'PAUSE');
+});
+
+test.describe('Accès privé depuis la régie',()=>{
+  test('Navigateur : suspension MJ, confirmation refusée et réouverture sans nouvelle dotation',async({browser},info)=>{
+    const {page:manager}=await login(browser,'mj'),{page:player}=await login(browser,'player'),{page:other}=await login(browser,'other');
+    await setStage(manager,'EN_JEU');
+    const before=await readPage(player,`play/${scenario.sessionId}`,'mySession');
+    const wallet=await readPage(player,`wallet/${scenario.sessionId}`,'myWallet'),bag=await readPage(player,`bag/${scenario.sessionId}`,'myInventory');
+    const inventory=d=>d.lots.map(l=>({id:l.id,quantity:l.quantity,status:l.status})).sort((a,b)=>a.id.localeCompare(b.id));
+    const admin=await readPage(manager,`shops-admin/${scenario.sessionId}`,'shopAdmin');
+    await navigate(player,`shops/${scenario.sessionId}`,'shops');await clickCommand(player,'[data-form="shopPurchase"][data-offer="supply"] button','prepareShopPurchase');
+    const entry=await readPage(manager,`session/${scenario.sessionId}`,'spaceOutlawsEntry'),participant=entry.registrations.find(r=>r.characterId===before.character.id);
+    const access=manager.locator(`[data-player-access="${participant.uid}"]`);
+    await expect(access.locator('[data-action="invite"]')).toHaveCount(0);
+    manager.once('dialog',dialog=>dialog.accept());await clickCommand(manager,`[data-player-access="${participant.uid}"] [data-action="revoke"]`,'revokeAccess');
+    await expect(access.locator('[data-action="invite"]')).toBeVisible();
+    const denied=apiResponse(player,'buyShopOffer');await player.locator('[data-command="buyShopOffer"] button').click();
+    const refusal=await denied;expect(refusal.status()).toBe(403);expect((await refusal.json()).error).toBe('FORBIDDEN');await expect(player.locator('#dialog [role="alert"]')).toBeVisible();
+    await capture(player,info,'confirmation-apres-revocation');
+    const blocked=await readPage(player,`contract/${scenario.sessionId}/${scenario.contractId}`,'mySession');expect(blocked.character).toBeNull();expect(blocked.reason).toBe('ACCESS_INACTIVE');
+    await expect(player.locator('#app')).not.toContainText('SECRET_RECETTE_BRIEFING');await expect(player.locator('#app')).toContainText('Votre accès privé doit être activé');
+    const registry=await readPage(manager,`contracts-admin/${scenario.sessionId}`,'sessionContracts'),contract=registry.contracts.find(c=>c.id===scenario.contractId);
+    expect(contract.obligations.alerts).toContain('ACCESS_CHANGED');expect(contract.obligations.salaryReserved).toBe(100);await capture(manager,info,'obligations-acces-suspendu');
+    await navigate(manager,`session/${scenario.sessionId}`,'spaceOutlawsEntry');
+    await clickCommand(manager,`[data-player-access="${participant.uid}"] [data-action="invite"]`,'issueInvitation');
+    const invitation=await manager.locator('#dialog [data-action="copy"]').getAttribute('data-value');
+    await manager.locator('#dialog [data-action="close"]').click();
+    // Use the generated link without putting its secret in a named navigation step.
+    const openInvitation=async page=>{await page.evaluate(href=>{location.hash=new URL(href).hash;},invitation);await expect(page.locator('[data-action="redeem"]')).toBeVisible();};
+    await openInvitation(other);const foreign=apiResponse(other,'redeem');await other.locator('[data-action="redeem"]').click();expect((await foreign).status()).toBe(400);
+    await openInvitation(player);const staleAuth=apiResponse(player,'redeem');await player.locator('[data-action="redeem"]').click();const oldAuth=await staleAuth;expect((await oldAuth.json()).error).toBe('REAUTH_REQUIRED');
+    await player.locator('[data-action="logout"]').click();await expect(player.locator('#recette-status')).toContainText('Aucune identité');
+    const signedIn=apiResponse(player,'identity');await player.locator('#recette-login').click();expect((await signedIn).status()).toBe(200);
+    await clickCommand(player,'[data-action="redeem"]','redeem');
+    const restored=await readPage(player,`play/${scenario.sessionId}`,'mySession');expect(restored.character.id).toBe(before.character.id);expect(restored.actionPoints.available).toBe(before.actionPoints.available);
+    expect((await readPage(player,`wallet/${scenario.sessionId}`,'myWallet')).account).toEqual(wallet.account);
+    expect(inventory(await readPage(player,`bag/${scenario.sessionId}`,'myInventory'))).toEqual(inventory(bag));
+    const after=await readPage(manager,`shops-admin/${scenario.sessionId}`,'shopAdmin');expect(after.orders.map(o=>o.id).sort()).toEqual(admin.orders.map(o=>o.id).sort());
+    const balances=d=>d.shops.map(s=>({id:s.id,account:s.account,stock:s.offers.map(o=>o.stock)}));expect(balances(after)).toEqual(balances(admin));
+    await openInvitation(player);const reused=apiResponse(player,'redeem');await player.locator('[data-action="redeem"]').click();expect((await (await reused).json()).error).toBe('INVITATION_EXPIRED_OR_USED');
+    const oldContract=await navigate(player,`contract/${scenario.sessionId}/${scenario.contractId}`,'contractDetail');expect(oldContract.status()).toBe(403);expect((await oldContract.json()).error).toBe('FORBIDDEN');
+    await expect(player.locator('#app')).not.toContainText('SECRET_RECETTE_BRIEFING');
+    const retained=await readPage(manager,`contracts-admin/${scenario.sessionId}`,'sessionContracts'),obligations=retained.contracts.find(c=>c.id===scenario.contractId).obligations;
+    expect(obligations.alerts).toContain('ACCESS_CHANGED');expect(obligations.salaryReserved).toBe(100);
+    await navigate(player,`bag/${scenario.sessionId}`,'myInventory');await expect(player.locator('#app')).toContainText('50 Cr de création protégés');await capture(player,info,'sac-apres-reouverture');
+    await info.attach('reouverture-acces',{body:Buffer.from(JSON.stringify({scope:'AUTOMATED_CHROMIUM_ACCESS',sameCharacter:true,sameInventory:true,sameWallet:true,salaryReserved:100,preparedPurchase:'FORBIDDEN',wrongAccount:'REFUSED',oldAuthentication:'REAUTH_REQUIRED',invitationReuse:'INVITATION_EXPIRED_OR_USED',oldContract:'FORBIDDEN',humanAcceptance:'NOT_EXECUTED'},null,2)),contentType:'application/json'});
+    await setStage(manager,'PAUSE');
+  });
 });
