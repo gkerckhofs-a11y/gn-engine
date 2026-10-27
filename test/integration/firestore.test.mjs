@@ -1,3 +1,4 @@
+import {spaceEscortSuite} from '../support/space-escort-suite.mjs';
 import {spaceConvoySuite} from '../support/space-convoy-suite.mjs';
 import {spaceTransportSuite} from '../support/space-transport-suite.mjs';
 import {spaceLearningSuite} from '../support/space-learning-suite.mjs';
@@ -180,3 +181,5 @@ spaceTransportSuite(()=>firestoreStore(firestore),'Transport SO sur Firestore');
 spaceLearningSuite(()=>firestoreStore(firestore),'Apprentissage SO sur Firestore');
 
 spaceConvoySuite(()=>firestoreStore(firestore),'Convois SO sur Firestore');
+
+spaceEscortSuite(()=>firestoreStore(firestore),'Escortes SO sur Firestore');

@@ -1,3 +1,4 @@
+import {finishEscortRefuel} from './space-escort.mjs';
 import {hasSoConvoy,convoyFields,convoyInvitations,convoyCommand,convoyFleet,finishConvoy} from './space-convoy.mjs';
 import {transportDeparture} from './space-transport.mjs';
 import {mediaFields} from './media-state.mjs';
@@ -82,7 +83,7 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
      requireThat(cancelling||action==='finishSoRefuel','NAVIGATION_OPERATION_CLOSED');const lot=await tx.get(`${base}/inventory/${a.lotId}`);requireThat(lot?.status==='FIELD_RESERVED'&&lot.fieldActionId===a.id,'INVALID_FUEL');
      const quantity=lot.quantity-(cancelling?0:a.quantity);requireThat(quantity>=0,'INSUFFICIENT_STOCK');const nextLot={...lot,quantity,status:quantity?'AVAILABLE':'CONSUMED',fieldActionId:null,revision:lot.revision+1};
      if(!cancelling){requireThat(ship.docked&&!ship.journey&&characterPort(s,pilotCharacter)===ship.portId,'SHIP_NOT_LOCAL');next.fuel=whole(ship.fuel+a.quantity,'INVALID_FUEL');requireThat(next.fuel<=ship.navigation.tankCapacity,'TANK_FULL');}
-     tx.set(`${base}/inventory/${lot.id}`,nextLot);tx.set(`${base}/inventory/${lot.id}/history/${id}`,{id,at,kind:action,before:lotState(lot),after:lotState(nextLot)});tx.set(`${base}/characters/${pilotCharacter.id}`,clear);
+     if(a.escortContractId)await finishEscortRefuel(tx,s,ship,lot,cancelling,at,id,actor.uid);else{tx.set(`${base}/inventory/${lot.id}`,nextLot);tx.set(`${base}/inventory/${lot.id}/history/${id}`,{id,at,kind:action,before:lotState(lot),after:lotState(nextLot)});}tx.set(`${base}/characters/${pilotCharacter.id}`,clear);
     }else{
      requireThat(a.kind==='PREPARE'&&(cancelling||action==='finishSoPreparation'),'NAVIGATION_OPERATION_CLOSED');
      const points=actionPointState(s,pilotCharacter,await tx.get(actionPointPath(s.id,pilotCharacter.id)),at);

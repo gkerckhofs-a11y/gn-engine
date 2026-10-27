@@ -52,8 +52,8 @@ export function spaceMissionsSuite(makeStore,prefix='Missions SO'){
  test(`${prefix} : délais suspendus en pause, STOP bloque et clôture refuse les réserves`,async()=>{
   const f=await spaceMissionsFixture(makeStore),{c}=await f.validated();f.advance(120000);await f.stage('PAUSE');const before=(await f.contract(c)).settlement.contestRemainingMs;f.advance(3600000);assert.equal((await f.contract(c)).settlement.contestRemainingMs,before);await assert.rejects(f.settle(c),{code:'SESSION_NOT_RUNNING'});await assert.rejects(f.stage('FINISHED'),{code:'CONTRACTS_OPEN'});await f.stage('EN_JEU');await f.edit('',s=>({...s,safetyStop:{active:true}}));await assert.rejects(f.dispute(c),{code:'SO_SAFETY_STOP'});
  });
- test(`${prefix} : fonds protégés, création à la demande, escorte et groupes refusés`,async()=>{
-  const f=await spaceMissionsFixture(makeStore);for(const patch of [{category:'ESCORT'},{mode:'OPEN_BOUNTY'},{participation:'GROUP'}])await assert.rejects(f.announce(patch),{code:'SO_MISSION_UNSUPPORTED'});const a=await f.announce(),t=await f.apply(a);
+ test(`${prefix} : fonds protégés, création à la demande, escorte sans marqueur et groupes refusés`,async()=>{
+  const f=await spaceMissionsFixture(makeStore);await f.edit('',s=>{const {escortVersion,...spaceOutlaws}=s.spaceOutlaws;return {...s,spaceOutlaws};});for(const patch of [{category:'ESCORT'},{mode:'OPEN_BOUNTY'},{participation:'GROUP'}])await assert.rejects(f.announce(patch),{code:'SO_MISSION_UNSUPPORTED'});const a=await f.announce(),t=await f.apply(a);
   await assert.rejects(f.offer(t,{funding:'GM_EXTERNAL'}),{code:'SO_MISSION_FUNDING_REQUIRED'});await assert.rejects(f.offer(t,{sourceAccountId:accountId(f.cid)}),{code:'INVALID_RECIPIENT'});await assert.rejects(f.offer(t,{amount:151}),{code:'INSUFFICIENT_FUNDS'});assert.equal((await f.till()).reserved,0);
  });
  test(`${prefix} : annulation sans exécution libère, preuve incomplète et clôture abusive refusées`,async()=>{

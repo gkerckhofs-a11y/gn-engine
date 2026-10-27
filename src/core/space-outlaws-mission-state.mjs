@@ -1,3 +1,4 @@
+import {hasSoEscort} from './space-escort.mjs';
 import {hasSoTransport,transportSettlementPlan,releaseTransport} from './space-transport.mjs';
 import {hasMissionExecution} from './space-outlaws-mission-evidence.mjs';
 import {rewardDispute,rewardSettlement,applyRewardSettlement,rewardsDisputed,rewardsFree} from './space-outlaws-mission-rewards.mjs';
@@ -20,7 +21,7 @@ export function seedSoMissions(tx,sid,changes,versionId){
 export async function soAnnouncement(tx,s,input,old){
  if(!s.spaceOutlaws)return {};
  requireThat(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)&&!s.safetyStop?.active,'SESSION_NOT_RUNNING');
- requireThat(input.mode==='ASSIGNMENT'&&(input.participation??'PERSONAL')==='PERSONAL'&&(['INFORMATION','MERCENARY','OTHER'].includes(input.category)||hasSoTransport(s)&&input.category==='TRANSPORT')&&['NPC','AUTHORITY'].includes(input.sponsorKind),'SO_MISSION_UNSUPPORTED');
+ requireThat(input.mode==='ASSIGNMENT'&&(input.participation??'PERSONAL')==='PERSONAL'&&(['INFORMATION','MERCENARY','OTHER'].includes(input.category)||hasSoTransport(s)&&input.category==='TRANSPORT'||hasSoEscort(s)&&input.category==='ESCORT')&&['NPC','AUTHORITY'].includes(input.sponsorKind),'SO_MISSION_UNSUPPORTED');
  requireThat(input.audience?.groupIds?.length===0,'SO_MISSION_UNSUPPORTED');
  const mid=documentId(input.missionId),m=await tx.get(`sessions/${s.id}/missions/${mid}`);
  requireThat(m?.versionId===s.spaceOutlaws.versionId&&m.publicationState==='PUBLISHED'&&(!m.rewardItems.length||hasMissionExecution(s)),'SO_MISSION_UNSUPPORTED');
