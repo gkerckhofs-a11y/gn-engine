@@ -57,7 +57,7 @@ const appealOpen=(s,c)=>s.spaceOutlaws?.episodesVersion!==1||c.settledEpisode==n
 export function soResolutionView(s,c,at,admin){
  if(!s.spaceOutlaws)return {};
  const g=gameTime(s.clock,at),running=s.stage==='EN_JEU'&&!s.safetyStop?.active,open=['REVIEWED','DISPUTED'].includes(c.status),window=c.contestUntilGameMs??null;
- return {canAppeal:appealStage(s)&&appealOpen(s,c)&&['PAID','SETTLED'].includes(c.status)&&c.appeal?.status!=='PENDING',canDecideAppeal:admin&&appealStage(s)&&c.appeal?.status==='PENDING',settlement:{paid:c.paidAmount??0,disputed:c.disputedAmount??0,contestRemainingMs:window==null?null:Math.max(0,window-g),mediationRemainingMs:c.mediationUntilGameMs==null?null:Math.max(0,c.mediationUntilGameMs-g)},
+ return {canAppeal:!(c.appealBalance?.remaining>0)&&appealStage(s)&&appealOpen(s,c)&&['PAID','SETTLED'].includes(c.status)&&c.appeal?.status!=='PENDING',canDecideAppeal:admin&&appealStage(s)&&c.appeal?.status==='PENDING',settlement:{paid:c.paidAmount??0,disputed:c.disputedAmount??0,contestRemainingMs:window==null?null:Math.max(0,window-g),mediationRemainingMs:c.mediationUntilGameMs==null?null:Math.max(0,c.mediationUntilGameMs-g)},
  canDispute:running&&open&&g<window,canSettle:admin&&running&&open&&g>=window&&(c.status==='REVIEWED'||c.terms.amount-(c.disputedAmount??0)-(c.paidAmount??0)>0||rewardsFree(c)),canArbitrate:admin&&running&&open&&((c.disputedAmount??0)>0||rewardsDisputed(c))&&g>=Math.max(window,c.mediationUntilGameMs)};
 }
 export async function prepareSoResolution(tx,s,c,ctx,input,at,kind,candidate){
@@ -66,7 +66,7 @@ export async function prepareSoResolution(tx,s,c,ctx,input,at,kind,candidate){
  const reason=input.reason;requireThat(typeof reason==='string'&&reason.trim()&&reason.length<=2000,'INVALID_CONTRACT');
  const disputed=c.disputedAmount??0,paid=c.paidAmount??0;
  let amount=0,pay=0,release=0,source=null,to=null,newEvidence=null,outcome=null,rewardPlans=[],rewardReservations=null;
- if(kind==='APPEAL'){requireThat(appealOpen(s,c),'SO_APPEAL_CLOSED');requireThat(c.appeal?.status!=='PENDING','SO_APPEAL_PENDING');newEvidence=input.newEvidence;requireThat(typeof newEvidence==='string'&&newEvidence.trim()&&newEvidence.length<=4000,'INVALID_CONTRACT');}
+ if(kind==='APPEAL'){requireThat(!(c.appealBalance?.remaining>0),'SO_APPEAL_DEBT_OPEN');requireThat(appealOpen(s,c),'SO_APPEAL_CLOSED');requireThat(c.appeal?.status!=='PENDING','SO_APPEAL_PENDING');newEvidence=input.newEvidence;requireThat(typeof newEvidence==='string'&&newEvidence.trim()&&newEvidence.length<=4000,'INVALID_CONTRACT');}
  else if(kind==='APPEAL_DECISION'){requireThat(c.appeal?.status==='PENDING','CONTRACT_CLOSED');outcome=input.outcome;requireThat(['CLOSED','FOLLOW_UP'].includes(outcome),'INVALID_CONTRACT');}
  else if(kind==='DISPUTE'){
   requireThat(g<c.contestUntilGameMs,'SO_CONTEST_CLOSED');amount=whole(input.amount,'INVALID_AMOUNT');rewardReservations=rewardDispute(c,input);requireThat((amount>0||rewardReservations.some(r=>r.disputed>0))&&amount>=disputed&&amount<=c.terms.amount-paid,'INVALID_AMOUNT');

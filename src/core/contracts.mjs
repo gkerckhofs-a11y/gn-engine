@@ -1,3 +1,4 @@
+import {appealFinanceActions,appealFinanceAdminActions,requireAppealFinance,appealFinanceView,appealFinanceCommand} from './space-contract-appeals.mjs';
 import {amendmentActions,amendmentAdminActions,amendmentView,amendmentCommand} from './space-escort-amendments.mjs';
 import {prepareEscort,escortAcceptance,escortEvidence,escortReview,escortClosure,escortView,escortActions,escortAdminActions,escortCommand,contractReserve,escortFuelRemaining} from './space-escort.mjs';
 import {prepareTransport,transportAcceptance,reserveTransport,transportView,transportProof,transportReview,transportReleasePlan,releaseTransport} from './space-transport.mjs';
@@ -14,8 +15,8 @@ import {accountId,amountInput,currencyView,moneyState,writeLedger} from './econo
 import {accountEntry} from './collective-accounts.mjs';
 import {gameTime} from './clock.mjs';
 import {canGameAction,requireGameAction} from './health-state.mjs';
-const adminActions=new Set([...amendmentAdminActions,...escortAdminActions,'offerContractRewardPickup',...soResolutionAdminActions,'sessionContracts','sessionContract','prepareMissionContract','proposeMissionContract','prepareContractReview','reviewContract','prepareContractClosure','closeContract']);
-const actions=new Set([...amendmentActions,...escortActions,...rewardActions,...soResolutionActions,...adminActions,'myContracts','contractDetail','prepareContractAcceptance','acceptContract','declineContract','prepareContractProof','submitContractProof','markContractRead']);
+const adminActions=new Set([...appealFinanceAdminActions,...amendmentAdminActions,...escortAdminActions,'offerContractRewardPickup',...soResolutionAdminActions,'sessionContracts','sessionContract','prepareMissionContract','proposeMissionContract','prepareContractReview','reviewContract','prepareContractClosure','closeContract']);
+const actions=new Set([...appealFinanceActions,...amendmentActions,...escortActions,...rewardActions,...soResolutionActions,...adminActions,'myContracts','contractDetail','prepareContractAcceptance','acceptContract','declineContract','prepareContractProof','submitContractProof','markContractRead']);
 export const contractAction=a=>actions.has(a);
 const digest=x=>hash(JSON.stringify(x));
 const text=(v,max=5000)=>{requireThat(typeof v==='string'&&v.trim()&&v.length<=max,'INVALID_CONTRACT');return v.trim();};
@@ -111,7 +112,7 @@ export function createContractService({store,signed,checkSession,now,uuid}){
     if(!admin&&c.status==='PROPOSED')try{await acceptance(tx,s,c,ctx,at);canAccept=true;}catch(e){if(!e.code)throw e;unavailable=e.code;}
     const history=await tx.list(`sessions/${s.id}/contracts/${c.id}/history`,null,{orderBy:'at',direction:'desc',limit:30});
     return {session:{id:s.id},admin,amendment:await amendmentView(tx,s,c,admin),escort:await escortView(tx,s,c,admin),transport:await transportView(tx,s,c),contract:{...mediaFields(c,c.acceptedAt!=null||admin?['illustration','briefing']:['illustration']),...summary(c,s,at,ctx),terms:c.terms,acceptedAt:c.acceptedAt??null,deadlineGameMs:c.deadlineGameMs??null,remainingGameMs:c.deadlineGameMs==null?null:Math.max(0,c.deadlineGameMs-gameTime(s.clock,at)),proof:c.proof??null,...(c.appeal?{appeal:c.appeal}:{}),steps:c.acceptedAt!=null||admin?c.missionSteps??[]:[],briefing:c.acceptedAt!=null||admin?c.briefing:null},
-      ...soResolutionView(s,c,at,admin),...await missionRewardsView(tx,s,c,at,admin),...(!admin&&c.acceptedAt!=null?{evidence:await missionEvidence(tx,s,c,ctx)}:{}),history:admin?history:history.map(e=>({id:e.id,at:e.at,action:e.action,body:e.body??'',reason:e.publicReason??'',decision:e.decision??'',amount:e.amount??0})),candidateCurrent:p.current,canAccept,unavailable,
+      ...soResolutionView(s,c,at,admin),...await appealFinanceView(tx,s,c,admin),...await missionRewardsView(tx,s,c,at,admin),...(!admin&&c.acceptedAt!=null?{evidence:await missionEvidence(tx,s,c,ctx)}:{}),history:admin?history:history.map(e=>({id:e.id,at:e.at,action:e.action,body:e.body??'',reason:e.publicReason??'',decision:e.decision??'',amount:e.amount??0})),candidateCurrent:p.current,canAccept,unavailable,
       canDecline:!admin&&c.status==='PROPOSED',canSubmit:!admin&&c.status==='ACTIVE'&&(s.spaceOutlaws||gameTime(s.clock,at)<c.deadlineGameMs)&&s.stage==='EN_JEU'&&canGameAction(s,ctx.c,'publish'),
       canReview:admin&&p.current&&c.status==='SUBMITTED',canClose:admin&&!terminal(c)&&(!s.spaceOutlaws||c.status==='PROPOSED'||(c.status==='ACTIVE'&&!c.proof)),canExpire:admin&&((c.status==='ACTIVE'&&gameTime(s.clock,at)>=c.deadlineGameMs)||(c.status==='PROPOSED'&&at>=c.offerDeadline)),
       ...(admin?{finance:{funding:c.terms.funding,sourceName:c.sourceName,sourceAccountId:c.sourceAccountId,approvedBy:c.approvedBy.email,reason:c.reason}}:{})};
@@ -123,7 +124,7 @@ export function createContractService({store,signed,checkSession,now,uuid}){
   }
   return async(action,actor,input)=>{
     signed(actor);const at=now(),id=uuid();return store.runTransaction(async tx=>{
-      const admin=adminActions.has(action),ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId)),version:actor.uid}:await inventoryPlayer(tx,actor,input),{s}=ctx,base=`sessions/${s.id}`;requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');soMissionAccess(tx,s);
+      const admin=adminActions.has(action),ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId)),version:actor.uid}:await inventoryPlayer(tx,actor,input),{s}=ctx,base=`sessions/${s.id}`;requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');soMissionAccess(tx,s);if(appealFinanceActions.includes(action))requireAppealFinance(s);
       if(s.spaceOutlaws&&!['sessionContracts','myContracts','sessionContract','contractDetail'].includes(action))requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
       if(action==='sessionContracts'||action==='myContracts'){
         const contracts=[];for(const c of await tx.list(`${base}/contracts`)){
@@ -136,6 +137,7 @@ export function createContractService({store,signed,checkSession,now,uuid}){
       if(action!=='proposeMissionContract'){
         c=await tx.get(`${base}/contracts/${documentId(input.contractId)}`);requireThat(c,admin?'NOT_FOUND':'FORBIDDEN');if(!admin)await readable(tx,s,c,ctx,actor,at);
         if(action==='sessionContract'||action==='contractDetail')return detail(tx,s,c,ctx,at,admin);
+        if(appealFinanceActions.includes(action)&&action.startsWith('prepare'))return (await appealFinanceCommand(tx,s,c,ctx,input,at,actor,id,action)).result;
         if(amendmentActions.includes(action)&&action.startsWith('prepare'))return (await amendmentCommand(tx,s,c,ctx,input,at,id,actor,action)).result;
         if(escortActions.includes(action)&&action.startsWith('prepare'))return (await escortCommand(tx,s,c,ctx,input,at,id,actor,action)).result;
         if(soResolutionKind(action)&&action.startsWith('prepare'))return (await prepareSoResolution(tx,s,c,ctx,input,at,soResolutionKind(action),candidate)).result;
@@ -147,7 +149,9 @@ export function createContractService({store,signed,checkSession,now,uuid}){
       const op=`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`,fingerprint=digest([action,input]),previous=await tx.get(op);
       if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');requireThat(previous.guard===(ctx.partyGuard??ctx.version),'FORBIDDEN');return previous.result;}
       let next,event={id,action,at,actorUid:actor.uid};
-      if(amendmentActions.includes(action)){
+      if(appealFinanceActions.includes(action)){
+        const x=await appealFinanceCommand(tx,s,c,ctx,input,at,actor,id,action);next=x.next;event={...event,...x.event};
+      }else if(amendmentActions.includes(action)){
         const x=await amendmentCommand(tx,s,c,ctx,input,at,id,actor,action);next=x.next;event={...event,...x.event};
       }else if(escortActions.includes(action)){
         const x=await escortCommand(tx,s,c,ctx,input,at,id,actor,action);next=x.next;event.publicReason=x.result.reason??'Réservation du plein de l’escorte';event.amount=x.result.released??x.result.cost;

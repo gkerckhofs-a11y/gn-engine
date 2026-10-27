@@ -1,12 +1,14 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
-## État courant — détour d’urgence PIL-01, escorte et convoi natifs
+## État courant — recours financiers, analyse PIL-01 et missions natives
 
 L’état évolutif autoritaire et les preuves actuelles sont dans [SO-VALIDATION](SO-VALIDATION.md). Les sections C2 ci-dessous sont historiques. CI adaptée le 27 octobre à la demande utilisateur : tous les tests applicatifs, intégration ciblée sur PR brouillon avec repli complet, Firestore réparti en lots indépendants et HTTP/Auth complet lorsque requis. Avant fusion/publication, suite complète sur le candidat. Aucun acquis fonctionnel supplémentaire ni recette terrain revendiqués par cette optimisation.
 
 | Exigence | Couverture ajoutée | Limite |
 | --- | --- | --- |
-| PIL-01, chapitre 18, REC-SO-16 | Détour solo/convoi : un jet, PA et carburant réels, événement conservé, temps acquis, exposition à la nouvelle liaison, fret et retour au port contractuel ; 20 cas partagés, deux UI, un HTTP/Auth | Analyse PIL-01 graduée, renseignement ciblé, routes composites et recette terrain restent ouverts |
+| V3.5 A.8, V0.7 chapitre 25, REC-SO-21 | Recours financier : décision motivée sans débit, créance, restitution consentie ou complément PNJ, paiements partiels sur fonds disponibles et continuité ; 19 cas partagés, quatre UI, un HTTP/Auth | Salaire du contrat PNJ individuel uniquement ; pas de dommages supplémentaires, récupération automatique de biens ou transmission au successeur |
+| PIL-01, chapitres 3/18, REC-SO-16 | Analyse graduée du dossier M6 préparé lié à M3, code connu au port, durées/PA/aide, informations garanties et supplément, tentative unique et continuité ; 18 cas partagés, trois UI, un HTTP/Auth | Port configuré par la navigation native ; renseignement ciblé et recette terrain ouverts |
+| PIL-01, chapitre 18, REC-SO-16 | Détour solo/convoi : un jet, PA et carburant réels, événement conservé, temps acquis, exposition à la nouvelle liaison, fret et retour au port contractuel ; 20 cas partagés, deux UI, un HTTP/Auth | Analyse PIL-01 raccordée ; renseignement ciblé, routes composites et recette terrain restent ouverts |
 | A35–A36, REC-SO-21 | Contrat d’escorte PNJ distinct du fret, salaire et provision aller-retour, plein natif au réel, issue MJ 100/50/0 %, délais/recours et reliquat financier ; 18 cas partagés, deux UI, un HTTP/Auth | Avenants à quai, ESC-01 et détour PIL-01 raccordés ; clients joueurs/groupes et escales approvisionnées ouverts |
 | A20–A23, REC-SO-14/16/17 | Convoi cargo/escorte consenti, deux préparations, départ/événement communs, panne/reprise, interception unique, combat natif à trois et fuite individuelle ; 16 cas partagés, six de résolution et deux UI | ESC-01 et détour PIL-01 raccordés ; alliances pirates et plusieurs cargos ouverts |
 | A35–A36, REC-SO-21 | Contrat M7 de fret PNJ, salaire/stock réservés, chargement/voyage/livraison, réception MJ, retour physique et médiation ; dix cas partagés et deux UI | Assurance, clients joueurs/groupes, livraison partielle, QR autonome et barèmes exceptionnels complets restent ouverts |
