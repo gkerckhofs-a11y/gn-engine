@@ -41,6 +41,8 @@ test('CI : fondations, dépendances, règles, fichiers inconnus et orchestration
   }
   assert.equal(scopeForChanges([],{reliableBase:false}).profile,'full');
   assert.equal(scopeForChanges(['docs/only.md'],{forceFull:true}).profile,'full');
+  for(const path of ['test/support/space-outlaws-entry-suite.mjs','test/support/space-outlaws-shops-suite.mjs','test/support/inventory-suite.mjs'])assert.equal(scopeForChanges([path]).profile,'full',path);
+  assert.equal(scopeForChanges(['test/support/space-escort-suite.mjs']).profile,'spatial');
 });
 test('CI : interface et HTTP gardent tous les parcours Auth ; documentation garde les tests applicatifs',()=>{
   for(const paths of [['web/app.mjs'],['test/integration/http.test.mjs']]){

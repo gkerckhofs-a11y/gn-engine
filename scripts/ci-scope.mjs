@@ -11,6 +11,9 @@ const spatialModules = new Set([
   'space-maintenance', 'space-rescue',
   'space-outlaws-mission-state', 'space-outlaws-mission-evidence', 'space-outlaws-mission-rewards',
 ]);
+// These leaf fixtures are used only by the spatial consumers below (and HTTP).
+// Foundational fixtures such as entry/shops/inventory also feed unrelated suites.
+const spatialFixtures = new Set(['space-escort','space-convoy','space-transport']);
 export const spatialSuites = [
   'workflow', 'space-outlaws-entry', 'space-outlaws-actions', 'space-outlaws-health',
   'space-outlaws-shops', 'space-outlaws-voyages', 'space-encounters', 'space-logistics',
@@ -33,7 +36,7 @@ export function scopeForChanges(paths, {forceFull=false, reliableBase=true}={}) 
     if(path==='test/integration/http.test.mjs'){http=true;continue;}
     const core=path.match(/^src\/core\/([^/]+)\.mjs$/);
     const support=path.match(/^test\/support\/([^/]+)-suite\.mjs$/);
-    if(core&&spatialModules.has(core[1])||support&&spatialSuites.includes(support[1])){
+    if(core&&spatialModules.has(core[1])||support&&spatialFixtures.has(support[1])){
       spatial=true;http=true;continue;
     }
     return full(`Fichier transversal ou non classé : ${path}`);
