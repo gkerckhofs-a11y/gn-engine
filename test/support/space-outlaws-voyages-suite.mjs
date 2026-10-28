@@ -99,20 +99,20 @@ export function spaceOutlawsVoyagesSuite(makeStore,prefix='Vols SPACE OUTLAWS'){
  test(`${prefix} : relève refuse indisponibilité, mauvais port, compétence et accès retiré`,async()=>{
   const f=await soVoyagesFixture(makeStore),path=`sessions/${f.sid}/characters/${f.otherId}`,original=await f.store.get(path),input={shipId:'ship',pilotId:f.otherId,reason:'Relève vérifiée'},q=await f.read('prepareSoPilot',input,f.owner);
   for(const [patch,code] of [[{hp:0},'OUT_OF_COMBAT'],[{activeNavigationId:'busy'},'OUT_OF_COMBAT'],[{activeVoyageId:'busy'},'OUT_OF_COMBAT'],[{activeCargoId:'busy'},'OUT_OF_COMBAT'],[{spacePortId:'away'},'SHIP_NOT_LOCAL'],[{abilityProfile:{...original.abilityProfile,skills:[]}},'FIELD_SKILL_REQUIRED']]){
-   await f.store.runTransaction(tx=>tx.set(path,{...original,...patch}));await assert.rejects(f.cmd('changeSoPilot',{...input,confirmation:q.confirmation,present:true},f.owner),{code});
+   await f.store.runTransaction(async tx=>tx.set(path,{...original,...patch}));await assert.rejects(f.cmd('changeSoPilot',{...input,confirmation:q.confirmation,present:true},f.owner),{code});
   }
-  await f.store.runTransaction(tx=>tx.set(path,original));await f.cmd('revokeAccess',{uid:f.other.uid},f.owner);await assert.rejects(f.cmd('changeSoPilot',{...input,confirmation:q.confirmation,present:true},f.owner),{code:'INVALID_RECIPIENT'});assert.equal((await f.ship()).pilotId,f.cid);
+  await f.store.runTransaction(async tx=>tx.set(path,original));await f.cmd('revokeAccess',{uid:f.other.uid},f.owner);await assert.rejects(f.cmd('changeSoPilot',{...input,confirmation:q.confirmation,present:true},f.owner),{code:'INVALID_RECIPIENT'});assert.equal((await f.ship()).pilotId,f.cid);
  });
  test(`${prefix} : relève exclut opérations, convoi, fret et provisions même après paiement`,async()=>{
   const f=await soVoyagesFixture(makeStore),path=`sessions/${f.sid}/ships/ship`,original=await f.ship(),input={shipId:'ship',pilotId:f.otherId,reason:'Mandat vérifié'};
   for(const patch of [{docked:false},{operation:{id:'busy'}},{journey:{id:'busy'}},{convoy:{id:'busy'}},{convoyOffer:{id:'busy'}},{combatId:'busy'},{maintenanceId:'busy'},{rescueId:'busy'},{ambushId:'busy'}]){
-   await f.store.runTransaction(tx=>tx.set(path,{...original,...patch}));await assert.rejects(f.read('prepareSoPilot',input,f.owner),{code:'SPACE_SHIP_BUSY'});
+   await f.store.runTransaction(async tx=>tx.set(path,{...original,...patch}));await assert.rejects(f.read('prepareSoPilot',input,f.owner),{code:'SPACE_SHIP_BUSY'});
   }
-  await f.store.runTransaction(tx=>tx.set(path,original));
+  await f.store.runTransaction(async tx=>tx.set(path,original));
   const cp=`sessions/${f.sid}/contracts/guard`,contract={id:'guard',acceptedAt:1,status:'ACTIVE',terms:{escort:{shipId:'ship'}}};
-  for(const patch of [{},{status:'PAID',escortFuel:{remaining:25}}]){await f.store.runTransaction(tx=>tx.set(cp,{...contract,...patch}));await assert.rejects(f.read('prepareSoPilot',input,f.owner),{code:'SO_PILOT_CONTRACT_OPEN'});}
-  await f.store.runTransaction(tx=>tx.set(cp,{...contract,status:'PAID'}));assert.ok((await f.read('prepareSoPilot',input,f.owner)).confirmation);
-  const tp=`sessions/${f.sid}/cargoTransfers/guard`;await f.store.runTransaction(tx=>tx.set(tp,{id:'guard',status:'LOADING',source:{kind:'HOLD',id:'ship'},destination:{kind:'PORT',id:'home'}}));await assert.rejects(f.read('prepareSoPilot',input,f.owner),{code:'CARGO_TRANSFERS_OPEN'});
+  for(const patch of [{},{status:'PAID',escortFuel:{remaining:25}}]){await f.store.runTransaction(async tx=>tx.set(cp,{...contract,...patch}));await assert.rejects(f.read('prepareSoPilot',input,f.owner),{code:'SO_PILOT_CONTRACT_OPEN'});}
+  await f.store.runTransaction(async tx=>tx.set(cp,{...contract,status:'PAID'}));assert.ok((await f.read('prepareSoPilot',input,f.owner)).confirmation);
+  const tp=`sessions/${f.sid}/cargoTransfers/guard`;await f.store.runTransaction(async tx=>tx.set(tp,{id:'guard',status:'LOADING',source:{kind:'HOLD',id:'ship'},destination:{kind:'PORT',id:'home'}}));await assert.rejects(f.read('prepareSoPilot',input,f.owner),{code:'CARGO_TRANSFERS_OPEN'});
  });
  test(`${prefix} : relève concurrente unique, aperçu périmé et STOP`,async()=>{
   const f=await soVoyagesFixture(makeStore),input={shipId:'ship',pilotId:f.otherId,reason:'Mandat vérifié'},q=await f.read('prepareSoPilot',input,f.owner),p={...input,confirmation:q.confirmation,present:true};
