@@ -1,10 +1,18 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
-## État actif — préparation Firebase de recette, 28 octobre 2026
+## État actif — publication de recette autorisée sur gn-engine, 28 octobre 2026
 
 Priorité : SPACE OUTLAWS jouable, services existants, un seul suivi évolutif. Les sections C2 ci-dessous restent historiques. Extension prioritaire : [SO_CDC_V36_Fouilles_Medias](source/SO_CDC_V36_Fouilles_Medias.md), texte intégral fourni. Références générales : [SO_CDC_V35](source/SO_CDC_V35.md), §7.2, §8 et annexes A.8/A.9 ; [SO_Regles_V07](source/SO_Regles_V07.txt), chapitres 3, 6, 25 et continuité entre épisodes.
 
 **Base confirmée** : branche `work/l1-modular-workshop`, PR #1, HEAD `660aaa605ef44f7b35b66e364d31bed8a91b0097`, arbre `7549e389604ecc668b56ed34b8911a3c4ef31f2b`. [CI 40507683059](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40507683059) réussie le 27 octobre : build, 1987 applicatifs, 68 HTTP/Auth/Storage et sept Chromium ; profil HTTP, Firestore non réexécuté. Aucun audit historique relancé. Main demeure `03eaace155b052d1b7d1960347746e9ee60ed514`.
+
+### Autorisation et publication du candidat
+
+Le 28 octobre, l’utilisateur choisit `gn-engine`, puis autorise explicitement la publication. Le site existant répond encore en version **0.36.0** avant opération. La nouvelle publication vise **0.37.0** via le circuit GitHub/WIF existant, avec conservation des données et du bucket privé `gn-engine-media-936415509528`. Aucun environnement neuf, seed, migration, effacement ou attribution IAM demandé. Le générateur pour un projet distinct conserve ses refus : ce déploiement utilise le chemin natif déjà configuré pour `gn-engine`, pas son paquet à bucket par défaut.
+
+Base fonctionnelle `52b0954efbebc8654147b8d244c1333ba394460e`, [CI complète 40644862173](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40644862173) réussie : 1994 applicatifs, 1543 Firestore, 68 HTTP/Auth/Storage, sept Chromium. La préparation de publication ajoute une garde de CI au workflow existant : attend le succès des dix jobs complets du SHA main exact (six Firestore, application, HTTP, plan, core), refuse anciens SHA, autre workflow/événement/dépôt, jobs manquants, ignorés, annulés ou échoués. Elle remplace la relance séquentielle des mêmes intégrations ; aucun test du workflow de vérification n’est supprimé. La construction distante et les contrôles HTTP publiés restent obligatoires.
+
+Trois nouveaux tests locaux de la garde. Résultats du candidat final, promotion main, exécution de publication et contrôle de version à consigner dans la PR après terminaison. Autorisation acquise ; publication non déclarée réussie tant que le workflow et les contrôles distants ne sont pas terminés. La recette Google/appareils/charge/restauration et les fonctionnalités restantes du CDC ne sont pas certifiées.
 
 ### Préparation Firebase de recette
 

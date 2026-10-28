@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: gn-engine-production
@@ -26,14 +27,10 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4
-        with:
-          distribution: temurin
-          java-version: '21'
-      - run: npm ci --no-audit --no-fund
-      - run: npm run build
-      - run: npm test
-      - run: npm run test:emulator
+      - name: Attendre la CI complète du commit publié
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/await-release-ci.mjs
 
   deploy:
     needs: verify

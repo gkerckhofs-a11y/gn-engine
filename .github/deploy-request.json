@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "9db9043f84eed016fe6777308de8afde9cd1da9d",
-  "version": "0.36.0",
-  "requestedAt": "2026-10-22T06:05:08.993Z",
-  "reason": "Tarifs de douane et corruption dans les masters ; validation Firebase obligatoire avant publication."
+  "sourceCommit": "52b0954efbebc8654147b8d244c1333ba394460e",
+  "version": "0.37.0",
+  "requestedAt": "2026-10-28T07:07:36.645717+00:00",
+  "reason": "Autorisation explicite de Guillaume le 28 octobre 2026 : utiliser gn-engine pour la recette et publier le candidat SPACE OUTLAWS ; conserver les données existantes, aucune migration ni réinitialisation."
 }

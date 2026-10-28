@@ -1,6 +1,8 @@
 # SPACE OUTLAWS — préparation Firebase de recette
 
-État au 28 octobre 2026 : outillage local livré, cible réelle non désignée ni vérifiée, aucun projet provisionné, accès créé ou déploiement effectué. Ce document prépare le bloc 5 demandé après le point du 27 octobre ; il ne certifie ni le cahier des charges complet ni la recette humaine.
+**Décision ultérieure du 28 octobre :** l’utilisateur autorise la recette sur le projet existant `gn-engine`, sans projet distinct. La publication emploie donc le circuit natif GitHub/WIF, sa configuration Auth et son bucket privé existant ; aucun seed, changement IAM ou migration. Le générateur ci-dessous reste destiné à un projet distinct et conserve ses refus. L’autorisation est acquise ; les résultats réels de publication seront consignés dans la PR et le suivi courant.
+
+État de la préparation initiale au 28 octobre 2026 : outillage local livré, cible réelle non désignée ni vérifiée, aucun projet provisionné, accès créé ou déploiement effectué. Ce document prépare le bloc 5 demandé après le point du 27 octobre ; il ne certifie ni le cahier des charges complet ni la recette humaine.
 
 ## Paquet local
 
