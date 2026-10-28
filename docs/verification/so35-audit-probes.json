@@ -1,0 +1,41 @@
+{
+  "environment": "MemoryStore; synthetic data; no network",
+  "observations": [
+    {
+      "id": "AUD-INS-01",
+      "observed": "Two identical public display names accepted in scenario",
+      "gap": "No distinct first/last name collision reservation"
+    },
+    {
+      "id": "AUD-INS-02",
+      "observed": "200 ordinary credits seeded when session is created, before assignment",
+      "gap": "Birth-only protected funds not implemented"
+    },
+    {
+      "id": "AUD-INS-03",
+      "observed": "Published public badge readable before assignment; private background and MJ notes excluded",
+      "gap": "V3.5 public badge activation gate needed"
+    },
+    {
+      "id": "AUD-INS-04",
+      "observed": "Two authenticated registrations accepted without invitation, limited only by total capacity",
+      "gap": "Admission invitation and per-class atomic quota absent"
+    },
+    {
+      "id": "AUD-INS-05",
+      "observed": "Force-related free text stored as a legacy answer; extra selection fields ignored; no ability granted",
+      "gap": "No canonical character proposal validator; this is not a Force privilege escalation"
+    },
+    {
+      "id": "AUD-INS-06",
+      "observed": "Private invitation issuance before assignment refused: INVALID_ASSIGNMENT",
+      "gap": "Existing private invitation is not an admission invitation"
+    },
+    {
+      "id": "AUD-INS-07",
+      "observed": "Character already privately activated can be reassigned with replace=true; former private access revoked; balance preserved",
+      "gap": "Assignment is not virgin reserve eligibility or A09 succession"
+    }
+  ],
+  "limits": "Observed legacy contracts, not seven V3.5 test successes. No death/succession, M2 publication, protected money, emulator, smartphone or complete backup test."
+}

@@ -1,0 +1,2987 @@
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+SPACE OUTLAWS — Livre des règles V0.6, consolidation finale
+
+SPACE OUTLAWS	LIVRE DES RÈGLES  /  V0.6
+WESTERN CITY  /  PORT-BRÈCHE
+SPACE
+OUTLAWS
+Livre des règles
+Personnages • Compétences • Combat
+Économie • Navigation • Piraterie
+V0.6 — RÈGLES CONSOLIDÉES  ·  23 OCTOBRE 2026
+À Port-Brèche, votre métier vous fait vivre.
+Vos alliances vous gardent en vie.
+8 classes  •  34 compétences et traits
+26 chapitres  •  4 annexes
+Édition V0.6 : arbitrages A01 à A38 clôturés et intégrés dans les chapitres.
+Validité du matériel de terrain, contenus de Master et état réel de GN Engine : vérifications séparées.
+SOMMAIRE
+I — Personnages et jeu de terrain
+01 — Entrer dans SPACE OUTLAWS	4
+02 — Sécurité et conventions de jeu	5
+03 — Créer et faire progresser son personnage	6
+04 — PA, QR et résolution des actions	9
+05 — Combat au sol et protections	11
+06 — Secours, capture, mort et relève	13
+07 — Classe : Combattant	16
+08 — Classe : Rogue	17
+09 — Classe : Traqueur	20
+10 — Classe : Médecin	22
+11 — Classe : Mécano	24
+12 — Classe : Pilote	27
+13 — Classe : Courtier	29
+14 — Classe : Infiltrateur	31
+15 — Compétences supplémentaires	33
+16 — Objets, échanges et vie du port	38
+Les huit classes possèdent chacune une fiche. Les techniques et métiers complémentaires sont regroupés au chapitre 15.
+SOMMAIRE
+II — Vaisseaux, économie et annexes
+17 — Vaisseaux, équipements et modules	40
+18 — Navigation, carburant et événements de voyage	44
+19 — Renseignements, fausses routes et interceptions	47
+20 — Combat spatial : procédure et manœuvres	48
+21 — Abordage, piraterie et vol de vaisseau	52
+22 — Remorquage, épaves et récupération	54
+23 — Marchandises et marchés de Port-Brèche	57
+24 — Manifestes, douanes et licences	60
+25 — Contrats, escortes, assurances et recours	62
+26 — Aides-mémoire du joueur	66
+Annexe A — Registre des arbitrages A01–A38 clôturés	69
+Annexe B — Remplacements et repères éditoriaux	73
+Annexe C — Vérification de conception et calculs	75
+Annexe D — Sources et traçabilité de la consolidation	78
+Le chapitre 26 contient les repères rapides ; l’annexe A trace les 38 arbitrages clôturés et l’annexe C présente le contrôle de cohérence. Les réglages de session et homologations réelles restent sous la responsabilité de l’organisation.
+01 — Entrer dans SPACE OUTLAWS
+À Port-Brèche, les crédits changent de main aussi vite que les rumeurs. Un médecin attend du bacta, un mécano cherche une pièce et un capitaine essaie de trouver un équipage qui ne vendra pas sa destination au premier pirate venu. Votre personnage possède un savoir, des ambitions et quelque chose à perdre.
+Un GN de western galactique
+SPACE OUTLAWS est le nom permanent du GN joué à Western City. Port-Brèche constitue le cadre de jeu utilisé dans ce livre. Des titres tels que Once Upon a Time in the Outer Rim, A Fistful of Credits et For a Few Credits More sont des titres possibles de sessions, pas de nouveaux noms du jeu.
+Une classe décrit un métier, pas une faction ni une loyauté. Vous pouvez être médecin et contrebandier, mécano et informateur, combattant et marchand. Les relations, objectifs, appartenances et secrets de votre fiche déterminent votre rôle dans l’histoire. Aucune classe ne révèle automatiquement votre allégeance.
+Le jeu repose sur les rencontres physiques, les négociations, les choix de personnage, les combats encadrés et une application de suivi. Les crédits, permis, substances, pannes et voyages décrits ici sont fictifs. Les règles chiffrées sont celles de ce GN : elles ne prétendent pas reproduire un système officiel Star Wars.
+Ce livre et ses limites
+Cette édition intègre les trente-huit arbitrages A01 à A38 ratifiés après le livre V0.5. Elle remplace les dispositions incompatibles des versions Port-Brèche V0.3, SPACE OUTLAWS V0.4 et V0.5, tout en conservant leurs règles de base compatibles.
+Statut de la présente version : les règles A01–A38 sont arrêtées. Restent distincts des arbitrages de jeu : l’homologation effective des armes et protections, les données de chaque Master (QR, ports, prix de session, stocks, indices) et la vérification technique de GN Engine. Aucun de ces éléments ne doit être supposé opérationnel du seul fait de sa présence dans le livre.
+Les descriptions de GN Engine exposent le comportement fonctionnel attendu, non un constat de déploiement. Avant une session, l’organisation confirme les fonctions effectivement disponibles et prépare les procédures de remplacement nécessaires. Le cahier des charges technique détaillé fera l’objet d’un document distinct.
+Les repères essentiels
+Trois PV de base, un point de protection maximum, une réserve personnelle de PA et des compétences évolutives structurent le jeu. À 0 PV, cinq minutes réelles permettent d’achever les secours. Les tableaux complets de combat, progression et tarifs sont réunis au chapitre 26.
+Lire ce dont vous avez besoin
+Commencez par les chapitres 2 à 6, puis votre fiche de classe. Les compétences supplémentaires sont au chapitre 15. Pour un équipage, lisez les chapitres 17 à 22. Les marchands et prestataires trouveront les marchés, douanes et contrats aux chapitres 23 à 25. Le chapitre 26 réunit les aides-mémoire.
+02 — Sécurité et conventions de jeu
+La sécurité précède la fiction
+Le combat mixte est retenu : blasters, armes blanches souples de GN et sabres approuvés pour le contact peuvent intervenir simultanément. Chaque joueur peut proposer son propre matériel ; chaque exemplaire doit être homologué individuellement par l’organisation, y compris pour le maniement à deux armes et les compatibilités de parade. Aucun modèle n’est admis par principe.
+Les puissances, distances minimales, équipements oculaires, zones autorisées, règles d’estoc et compatibilités sont fixés par une fiche de sécurité après essais sur place. Cette édition ne fixe aucune valeur universelle non testée. Une arme non homologuée ne participe pas aux combats.
+Toute personne exposée aux tirs conserve les protections oculaires validées, y compris les PNJ, organisateurs, témoins et personnages hors combat. Le retrait s’effectue seulement dans une zone sûre désignée. Aucun projectile durci, équipement modifié ou réglage de puissance improvisé n’est autorisé.
+STOP SÉCURITÉ
+Tout participant peut annoncer « STOP SÉCURITÉ ». Les tirs et les gestes de combat cessent immédiatement ; les participants attendent la consigne de reprise. Une protection déplacée, un tiers non équipé, un obstacle dangereux ou un problème réel justifie cet arrêt.
+Une interruption nécessaire à la sécurité suspend les mécaniques qui pourraient pénaliser le joueur, notamment le délai de survie. Le MJ ajuste ensuite les états de jeu. Respecter une consigne de sécurité ne doit pas provoquer la mort d’un personnage.
+Gestes interdits et matériel
+Il n’y a ni lutte, ni saisie du corps ou d’une arme, ni poussée, ni charge avec collision. On ne porte, ne traîne et n’attache réellement personne. Les portes, serrures, moteurs, appareils électriques et systèmes informatiques réels ne sont jamais forcés ou sabotés.
+Les armes de contact sont des accessoires souples de GN approuvés. On ne frappe ni ne pare avec un blaster rigide. Un sabre lumineux de décoration non approuvé pour le contact ne sert pas à porter des coups : une autre représentation ou une scène sans frappe doit être définie par l’organisation.
+Aucun coup volontaire à la tête, au cou, aux parties intimes ou aux mains. Les impacts accidentels dans une zone interdite ne donnent aucun avantage de jeu ; vérifier la sécurité et arrêter si nécessaire. Les zones finales, le statut des extrémités et toute éventuelle autorisation d’estoc doivent être précisés au briefing. Tant qu’un estoc n’a pas été explicitement autorisé pour le modèle utilisé, il ne fait pas partie des gestes de jeu admis.
+À une distance inférieure au minimum de tir retenu, ne pas tirer. Aucun « tir verbal » ne donne automatiquement une touche. Aucun tir aveugle, vers le public, un animal ou une personne non participante. Ne pas tirer dans une mêlée si la trajectoire ou la distance ne respecte pas les consignes du terrain.
+Simulation et liberté hors jeu
+Les soins, substances, exécutions et sabotages sont simulés. Rien n’est ajouté aux aliments, boissons, à la peau ou à un véritable dispositif médical. La neutralisation furtive ne comporte aucun geste au contact du cou. Une exécution validée par le MJ ne comporte ni tir réel de gel blaster ni frappe sur sa victime.
+Un personnage peut être captif ; son joueur reste libre de quitter une situation dangereuse ou inconfortable. Aucun téléphone, clé réelle, protection oculaire ou effet personnel n’est retenu. Une fouille ne se pratique jamais dans les poches ou sur le corps du joueur.
+Les menaces de fiction, le bluff et les interrogatoires ne permettent pas d’exiger une confession, un sentiment, une adhésion ou un secret hors jeu. Une scène sensible s’arrête à la demande d’un participant. Les besoins d’accessibilité et les rôles sans exposition aux tirs sont préparés avec l’organisation.
+03 — Créer et faire progresser son personnage
+Choisir une nature et une classe
+Vous incarnez une espèce humanoïde biologique ou un droïde. Toutes les huit classes restent accessibles aux deux natures. Ce choix modifie les soins et les effets biologiques, pas les règles de loyauté, de propriété ou d’expérience.
+	Humanoïde
+	Droïde
+
+	PV restaurés par la médecine.
+	PV restaurés par la mécanique.
+
+	Substances biologiques de jeu applicables selon leur fiche.
+	Pas d’ingestion biologique ; soins, poisons, bacta et antidotes biologiques sans effet.
+
+	Stabilisation d’urgence possible par tout personnage actif.
+	Sécurisation d’urgence possible par tout personnage actif.
+
+	Mort si les secours ne sont pas terminés à 5 minutes.
+	Destruction définitive dans les mêmes conditions.
+
+	Équipements personnels autorisés.
+	Modules permanents : deux emplacements, catalogue DR-01 à DR-06, réparation séparée des PV.
+
+
+
+Le socle de création
+Chaque personnage reçoit les trois compétences principales de sa classe au niveau 2, ou acquises une fois pour les traits fixes, ainsi qu’une initiation secondaire autorisée au niveau 1.
+	Classe
+	Les trois compétences principales
+
+	Combattant
+	Vétéran ; Désarmement ; Lecture tactique.
+
+	Rogue
+	Neutralisation furtive ; Vol à la tire ; Évasion.
+
+	Traqueur
+	Lecture des traces ; Fouille méthodique ; Vérification documentaire.
+
+	Médecin
+	Diagnostic ; Soins de terrain ; Traitement clinique.
+
+	Mécano
+	Diagnostic technique ; Réparation ; Amélioration.
+
+	Pilote
+	Navigation ; Préparation de vol ; Manœuvres de pilotage.
+
+	Courtier
+	Expertise marchande ; Négociation ; Réseau de contacts.
+
+	Infiltrateur
+	Intrusion ; Déchiffrement ; Falsification.
+
+
+
+Exemples : le Combattant commence avec Vétéran et Désarmement acquis, Lecture tactique N2 et son initiation N1. Le Rogue commence avec Neutralisation furtive acquise, Vol à la tire N2, Évasion N2 et son initiation N1.
+Initiation secondaire validée : la liste exhaustive est COM-03, ROG-03, TRA-01, MED-02, MEC-02, PIL-01, COU-01, INF-02, à choisir dans une autre classe que la principale. L’initiation N1 est gratuite mais occupe une place secondaire ; les règles de prérequis et d’apprentissage rare restent applicables selon la fiche.
+Les huit initiations au N1 (à choisir hors de sa classe) sont : COM-03 Lecture tactique ; ROG-03 Évasion ; TRA-01 Lecture des traces ; MED-02 Soins de terrain ; MEC-02 Réparation ; PIL-01 Navigation ; COU-01 Expertise marchande ; INF-02 Déchiffrement. Cette initiation GRATUITE occupe l’une des cinq places secondaires. Aucun autre pouvoir de classe ne s’y ajoute ; les prérequis propres à l’utilisation au niveau reçu continuent de s’appliquer.
+Dotation par classe
+Les huit dotations de classe sont définitives : chacune comprend 200 Cr de création temporairement protégés, QR personnel, communicateur et arme ordinaire appropriée homologuée, puis les objets spécialisés du tableau. Médecin : deux trousses consommables ; Mécano : deux kits de réparation consommables et un lot de pièces. Aucun kit ne constitue une réserve de biens librement transférables. Les crédits et dotations sont renouvelés pour chaque personnage créé, y compris après décès, sous les restrictions ci-dessous.
+	Classe
+	Dotation spécialisée de départ (en plus du socle commun : 200 Cr, QR individuel, communicateur et arme ordinaire homologuée si applicable)
+
+	Combattant
+	Armure légère (1 protection) + fournitures de terrain.
+
+	Rogue
+	Pochette de discrétion ; aucune cache Dissimulation active gratuite.
+
+	Traqueur
+	Scanner d’enquête sans bonus automatique au dé.
+
+	Médecin
+	Outil médical + 2 trousses médicales consommables.
+
+	Mécano
+	Outils de mécanique + 2 kits de réparation consommables + 1 lot de pièces (50 Cr d’usage).
+
+	Pilote
+	Terminal de navigation + codes commerciaux publics.
+
+	Courtier
+	Terminal commercial et accès aux contacts initiaux.
+
+	Infiltrateur
+	Interface fictive de piratage + 2 formulaires vierges.
+
+
+
+Une dotation ne donne pas automatiquement un vaisseau, un sabre laser, un module rare ou un bonus de dé. Les accessoires et crédits effectivement remis figurent sur la fiche validée par le MJ. Les remplacements ne doivent pas servir à multiplier gratuitement des dotations revendables.
+Le kit initial, consommables compris, est NON PILLABLE et NON REVENDABLE. Ses consommables fonctionnent normalement et disparaissent à usage ; les objets acquis ensuite suivent leurs propres attributs pillable/volable/revendable. En cas de mort, la dotation initiale numérique disparaît avec la fiche ; les accessoires physiques personnels restent au joueur. Le MJ valide chaque création pour éviter tout circuit de transfert entre personnages successifs.
+À CHAQUE naissance de personnage, y compris après décès : 200 Cr et un kit propre à sa classe. Les 200 Cr de création sont TEMPORAIREMENT PROTÉGÉS durant la première session de ce personnage : uniquement utilisables pour des prestations et consommables PNJ non revendables/non transférables ; ni don, ni conversion par achat-revente, ni achat de module revendable. Leur solde non dépensé devient normal à la session suivante. En cas de décès avant cette date, ce solde protégé ne passe pas au successeur. Les crédits gagnés en jeu suivent les règles ordinaires.
+Niveau global : il appartient au joueur
+	Participation du joueur
+	Niveau global
+	Réserve maximale
+
+	Moins de quatre sessions terminées
+	1
+	5 PA
+
+	Quatre sessions terminées, dès la cinquième
+	2
+	8 PA
+
+
+
+Le passage est automatique, sans dépense d’XP. Ce niveau est conservé après la mort et la création d’un nouveau personnage. Il n’ajoute ni PV, ni dégâts, ni bonus aux jets. Aucun niveau global supérieur à 2 n’est défini.
+Gagner et dépenser des XP
+Le gain est de 3 XP fixes par session jouée, sans bonus lié au nombre de combats, de scans, de victimes ou d’achats. Les XP non dépensés sont conservés. Une seule acquisition ou augmentation est autorisée entre deux sessions ; les niveaux ne sont pas sautés.
+	Achat
+	Coût
+
+	Nouvelle compétence évolutive N1
+	2 XP
+
+	N1 vers N2
+	4 XP
+
+	N2 vers N3
+	6 XP
+
+	N3 vers N4
+	8 XP
+
+	N4 vers N5
+	10 XP
+
+	Nouvelle technique fixe
+	4 XP
+
+
+
+Le coût d’un palier évolutif est égal à deux fois le niveau obtenu. Une compétence reçue à N2 demande encore 24 XP pour atteindre N5 : 6 + 8 + 10. Une compétence apprise à partir de zéro coûte 30 XP au total jusqu’à N5.
+Multiclassage et formations
+La classe principale demeure l’origine du personnage. Chaque compétence extérieure s’apprend individuellement, avec ses propres prérequis, sans recevoir les autres capacités, objets ou mandats du métier.
+Un personnage possède cinq compétences secondaires au maximum, initiation comprise. Une technique fixe acquise hors classe occupe elle aussi une place. Les compétences évolutives apprises hors classe peuvent progresser jusqu’au niveau 5. Vétéran reste réservé au Combattant ; la Neutralisation furtive est la capacité propre au Rogue dans le catalogue retenu.
+Les compétences ordinaires s’apprennent librement avec les XP et les prérequis. Une capacité rare exige en plus une formation, un manuel, une découverte ou une mission reconnue par le MJ. Une formation donne le droit d’apprendre : elle ne remplace jamais les XP. Un mentor joueur ou un recours PNJ peut être prévu ; personne ne doit être l’unique détenteur obligatoire de toute une voie.
+Les formations, les changements de compétence et les XP des personnages successifs sont définis définitivement ici et au chapitre 6 : apprentissage ordinaire libre avec XP et prérequis, déblocage MJ obligatoire pour les compétences rares, reconversion secondaire sous validation MJ entre sessions, et trois XP au plus par joueur et par session. Aucun décès ne crée une attribution supplémentaire.
+Formation et reconversion : les compétences ordinaires s’acquièrent directement avec XP et prérequis ; un mentor joueur de niveau N3+ ou un PNJ expert peut proposer un entraînement RP de cinq minutes, sans PA, mais celui-ci n’est pas obligatoire. Les compétences rares demandent d’abord un déblocage MJ par mission, plan, découverte ou mentor habilité ; il n’est pas nécessaire de refaire une formation à chaque montée de niveau. Entre deux sessions, avec accord MJ, une compétence secondaire peut être abandonnée puis remplacée au N1 au coût normal de 2 XP (évolutive) ou 4 XP (fixe) : aucun XP ancien remboursé, une seule acquisition/changement dans l’intersession, pas de remplacement d’un prérequis d’une autre compétence, jamais une seconde initiation gratuite.
+04 — PA, QR et résolution des actions
+Réserve et récupération
+Les PA sont une réserve personnelle commune à vos compétences actives. Ils ne s’achètent pas et ne se donnent pas. La réserve revient à son maximum au début de la session puis toutes les cinq heures de jeu, selon une échéance commune. Les pauses générales suspendent cette horloge ; reconnexion et changement de téléphone ne déclenchent aucun renouvellement.
+Exception de relève A09 : lorsqu’un nouveau personnage entre en jeu après un décès, il reçoit immédiatement 5 ou 8 PA COMPLETS selon le niveau global déjà acquis par le joueur. Il ne bénéficie pas d’un renouvellement additionnel déclenché par reconnexion ; le prochain cycle global de cinq heures est inchangé. En début de toute nouvelle session, les PA sont de nouveau au maximum.
+Par défaut, une compétence active ou une fouille coûte 1 PA et déclenche 10 minutes de récupération de cette compétence à sa résolution, réussie ou non. Une règle spécifique peut remplacer ce principe. Le délai est attaché au personnage et à la compétence, pas à la cible : changer d’interlocuteur ne le supprime pas.
+La fouille ordinaire, TRA-02 et la fouille de lieu partagent le délai FOUILLE. Leurs quotas de prise restent distincts du délai : attendre dix minutes ne recrée pas un droit de pillage ou une tentative d’enquête épuisée.
+	Action
+	Coût et exception
+
+	Scan, lecture connue, conversation, négociation libre
+	0 PA.
+
+	Commerce volontaire, paiement, remise autorisée
+	0 PA, sauf compétence spéciale explicitement engagée.
+
+	Combat au sol et techniques physiques
+	0 PA ; limites propres aux techniques.
+
+	Secours communs de 60 secondes
+	0 PA.
+
+	Soins et réparations de PV
+	1 PA ; pas de récupération personnelle du soignant ; délai de cible selon le protocole.
+
+	Actions ordinaires de combat spatial
+	0 PA.
+
+	PIL-03, ESC-01 ou détour d’urgence
+	Coût et quota propres décrits dans les chapitres spatiaux.
+
+	Ravitaillement de secours
+	0 PA ; 2 minutes.
+
+
+
+Se repérer dans le terminal
+Les quatre espaces de navigation de référence sont Mon personnage, Mon groupe, Action et Terminal. Ils réunissent fiche, compétences, sac et notes personnelles ; informations et mandats collectifs ; actions QR ; annonces, missions et commerces. L’accès visible dépend du personnage, de ses droits et des fonctions activées pour la session. Le QR d’interaction public n’est jamais le lien privé de connexion.
+Une action locale se joue réellement sur place
+Le QR ouvre une cible et ses actions autorisées ; il ne prouve pas à lui seul une présence. Le personnage doit rejoindre le patient, le terminal, la cache ou l’atelier concerné et jouer la durée demandée. Une photographie du QR ne permet pas d’agir à distance lorsque la fiche exige la présence.
+Exception A12 : le Vol à la tire ROG-02 s’exécute UNIQUEMENT au local organisation, sur le QR correspondant au personnage identifié par son nom et prénom. La présence physique près de la victime n’est pas requise. Cette dérogation explicite ne s’applique ni aux soins, ni aux analyses de lieu, ni aux ateliers, ni aux actions de combat.
+Le parcours commun est : scanner ou saisir le code, lire les prérequis et l’aperçu, choisir le matériel, confirmer l’action, jouer la scène puis résoudre. Une seule action active à la fois par personnage ; les interventions incompatibles sur une même cible ne se superposent pas.
+Les ressources sont réservées au lancement puis consommées à la résolution. Une interruption avant résolution libère les réservations sans effet ni récupération ; un redémarrage exige la durée complète. Si une première étape a déjà consommé des fournitures, comme une clinique accélérée échouée, l’interruption ne les rembourse pas.
+Actions spatiales exceptionnelles : ordres et consommables sont réservés à la déclaration puis débités UNIQUEMENT si le test ou l’effet de cette action s’exécute ; si elle devient impossible avant sa phase, remboursement des ressources et du quota spécial, mais aucune action principale de remplacement. Les tirs simultanés déjà engagés s’exécutent malgré une Coque passée à zéro dans le même round. Un acte matériel déjà accompli n’est pas remboursé par la suite.
+Un résultat enregistré n’est jamais relancé par un rafraîchissement. Une panne réseau n’est ni une réussite ni un échec de jeu : on retrouve le résultat ou on fait arbitrer, sans double coût.
+Tests ordinaires au D6
+Résultat = 1D6 + niveau de la compétence + un bonus matériel compatible + une aide autorisée. Le résultat doit atteindre le seuil annoncé. Le seuil ordinaire de la base V0.3 est 6 ; une fiche spécifique peut en imposer un autre. Aucun succès ou échec critique automatique sur un 1 ou un 6 naturel.
+Un seul bonus matériel est retenu, au maximum +2. Deux équipements à +1 ne s’additionnent pas. Une seule aide compétente peut apporter +1 ; elle reste présente, n’effectue aucune autre action et ne dépense pas un second PA. Elle subit la récupération correspondante, sauf exception médicale. Le matériel est choisi avant le jet et doit être réellement disponible.
+Un outil n’accorde pas la compétence qu’il améliore. Un bonus au dé ne raccourcit pas une action automatique sans indication explicite de sa fiche. Le niveau global ne s’ajoute jamais au test de compétence.
+Exception spatiale : les formules de tir, défense, fuite et interposition utilisent leurs paramètres propres. On ne leur ajoute pas automatiquement le niveau de Pilote, un outil de terrain ou un assistant.
+Informations, objets et confidentialité
+Une information peut être publique, conditionnelle, partageable ou mensongère. Une copie de texte n’est pas la duplication d’un objet unique. Le QR public d’un personnage n’expose pas son inventaire privé, ses secrets, ses notes ni ses loyautés.
+Les enquêtes mixtes accordent les informations ordinaires prévues pour le niveau, puis un D6 permet un supplément non indispensable à l’intrigue. L’échec ne retire pas l’information déjà obtenue. Une tentative approfondie reste limitée par personnage et version de cible ; seul un véritable changement de situation peut ouvrir une nouvelle version.
+Les horloges ne se confondent pas : durées d’action et récupérations utilisent le temps de jeu ; délai mortel de cinq minutes et limites de captivité sont des durées réelles, avec priorité absolue aux interruptions de sécurité.
+Horloges explicites : une action ordinaire et son délai de récupération se jouent en temps de jeu pendant la session ; les quinze minutes de neutralisation et les trente minutes de Dissimulation suivent ce temps. La survie à 0 PV, les soins urgents et la captivité (20 min) suivent le temps réel ; STOP SÉCURITÉ reste prioritaire. Une fin de session n’est jamais un moyen de réinitialiser un délai mortel non résolu.
+05 — Combat au sol et protections
+Armes et touches
+Les blasters et armes blanches ordinaires approuvés sont accessibles à toutes les classes. Les techniques spécialisées se jouent par des gestes et annonces définis, sans dés ni téléphone. Les armes longues et le maniement à deux armes ne donnent aucun bonus de dégâts. Le maniement simultané blaster–arme blanche est autorisé dans les limites de sécurité.
+	Attaque valide
+	Effet
+
+	Blaster, vibrodague, vibrolame, bâton de combat
+	1 dégât : protection d’abord, sinon 1 PV.
+
+	Sabre laser, avec LAS-01
+	Mise à 0 PV, protection ignorée.
+
+	Neutralisation furtive réussie du Rogue
+	Mise à 0 PV, protection ignorée ; humanoïdes seulement.
+
+
+
+Les tirs alliés comptent comme les tirs ennemis. Les ricochets et éclaboussures ne comptent pas. Un projectile qui touche uniquement une arme tenue, une sacoche pendante, un accessoire dépassant ou une cape flottante ne constitue pas une touche corporelle. Corps, vêtements qui le couvrent et armure portée comptent. Il reste interdit d’utiliser volontairement une arme rigide comme écran ou de viser un équipement fragile.
+La fenêtre de deux secondes
+La première touche ordinaire ouvre une fenêtre de deux secondes. Les autres touches ordinaires reçues dans cet intervalle n’ajoutent pas de dégât et ne prolongent pas la fenêtre, tous attaquants et types d’armes ordinaires confondus. La première touche après cet intervalle ouvre une nouvelle fenêtre.
+Le sabre laser ignore cette fenêtre. Une touche corporelle valide de sabre met à 0 PV même si un impact ordinaire vient d’être compté. Il ne devient jamais permis de continuer à frapper ou tirer sur un personnage déjà hors combat.
+Deux touches véritablement simultanées s’appliquent chacune : tomber à 0 PV n’annule pas une attaque déjà engagée dans le même échange. Il n’existe aucune priorité au premier clic.
+Une seule réserve de protection personnelle
+Armure corporelle, blindage de droïde et bouclier énergétique personnel partagent un maximum de 1 point de protection, sans cumul. Une protection épuisée reste vide jusqu’à intervention ; elle ne se recharge pas à la fin d’une confrontation. Les soins de PV ne la restaurent pas.
+	Protection
+	Intervenant
+	Ressource de travail
+
+	Armure corporelle
+	Entretien de protection
+	Plaque de remplacement.
+
+	Bouclier énergétique
+	MEC-02
+	Cellule énergétique compatible.
+
+	Blindage de droïde
+	MEC-02
+	Pièce de blindage compatible.
+
+
+
+Une réparation restaure au maximum le point de protection, pas les PV. Aucun bouclier physique de mêlée n’est retenu. Le bouclier énergétique est un effet numérique, pas un objet permettant de bloquer physiquement les projectiles.
+Désarmement — COM-02
+Désarmement COM-02 : deux contacts offensifs distincts, consécutifs et contrôlés sur la partie sûre de la même arme blanche adverse, puis « Désarmé ! ». La touche corporelle reçue pendant la séquence l’interrompt. Aucun contact sur blaster rigide, aucune saisie ni arrachage.
+Après l’annonce, le porteur doit se retirer de l’échange pendant 10 secondes sans attaquer, avec aucune de ses armes. L’arme désarmée ne peut même pas servir à parer pendant ce délai ; une seconde arme blanche approuvée peut seulement servir à parer. Les deux armes restent entre les mains de leur propriétaire ; rien n’est jeté ni arraché.
+Le statut de désarmement d’un prisonnier est distinct de cette technique de dix secondes : il suit les conditions de la capture et de la restitution fictive.
+Riposte et Garde du corps
+Riposte : après deux parades délibérées et successives contre un même adversaire au cours d’une même confrontation, annoncer « Riposte ! » dans les 3 secondes et tenter une touche contrôlée. Une touche valide applique les dégâts ordinaires de l’arme et interdit à la victime d’attaquer pendant 3 secondes (défense, recul et parade autorisés). Une seule riposte réussie par adversaire et confrontation ; si elle manque, la séquence de deux parades doit être recommencée. Aucune parade n’est mise en réserve.
+Garde du corps : le protégé est désigné avant la rencontre, avec un titulaire et, si nécessaire, des remplaçants désignés. Le garde actif doit être à 2 mètres au maximum, en vue directe, et annoncer immédiatement « Protection ! » au moment de la touche. Une touche valable par garde et par confrontation peut être transférée ; jamais rétroactivement, ni deux fois pour une même touche. Le garde reçoit les dégâts selon sa propre fenêtre de deux secondes ou l’effet du sabre à 0 PV. Aucun saut ou contact physique n’est autorisé.
+Fin d’une confrontation de terrain : soixante secondes sans acte hostile et séparation physique réelle des adversaires, ou fin déclarée par le MJ ou reddition acceptée. Déplacements fictifs et attentes près de la même cible ne permettent pas de recréer artificiellement les quotas Riposte/Garde du corps.
+Le garde ne transfère pas une Neutralisation furtive déjà réussie. Il peut l’empêcher en repérant et signalant l’approche menaçante avant son déclenchement.
+Neutralisation furtive et sabre laser
+ROG-01 : le Rogue se place derrière une cible humanoïde inconsciente de la menace, hors affrontement actif, à 1,5 m au maximum et annonce « Égorgement ! » sans contact ni geste avec la lame près du cou. Si la cible ou un garde a repéré et annoncé l’approche avant cet instant, la surprise échoue. L’annonce réussie met la cible à 0 PV, en ignorant la protection, puis déclenche la survie normale de cinq minutes. Droïdes immunisés. Dix minutes de récupération après CHAQUE tentative annoncée, réussie ou manquée.
+LAS-01 — Maîtrise du sabre laser est une technique fixe rare à 4 XP, avec formation spéciale. Posséder ou piller un sabre ne suffit pas pour le manier. Aucun pouvoir de la Force n’est accordé. Son statut pillable dépend de sa fiche d’objet.
+Toutes les armes blanches approuvées et compatibles peuvent parer le sabre. Celui-ci ne dévie pas automatiquement les tirs. Son porteur subit normalement les blasters, Désarmement, Riposte et la neutralisation furtive s’il est humanoïde et surpris.
+À 0 PV, annoncer « Hors combat », cesser les actions offensives et se mettre en sécurité. Enregistrer les pertes à l’abri. Les procédures de survie du chapitre suivant s’appliquent alors, y compris après un sabre laser ou une neutralisation furtive.
+06 — Secours, capture, mort et relève
+Les cinq minutes de survie
+À 0 PV, un humanoïde est hors combat et un droïde hors service. Le délai mortel de 5 minutes réelles court dès cette mise hors combat : stabilisation ou soins directs doivent avoir atteint l’étape de sécurisation de 60 secondes AVANT l’échéance. À défaut, décès ou destruction définitive. STOP SÉCURITÉ suspend le décompte.
+Tout personnage actif peut stabiliser ou sécuriser une victime en 60 secondes continues, sans PA ni consommable. L’intervention ne rend aucun PV. Si elle est interrompue avant 60 secondes, elle recommence entièrement et n’efface ni ne remet à zéro le délai de cinq minutes. Après 60 secondes, l’état stabilisé persiste même si le soin ultérieur est interrompu. Plusieurs sauveteurs ne raccourcissent pas les 60 secondes.
+Exemple. Mise hors combat à 14 h 00. Secours commencés à 14 h 02 et terminés à 14 h 03 : la victime survit à 0 PV. Commencer à 14 h 04 min 30 s ne suffit pas si l’intervention n’est pas terminée à 14 h 05. Un arrêt réel de sécurité suspend la mécanique et relève du MJ.
+Le compte à rebours n’est pas réinitialisé par une évacuation, une capture, un scan ou une reconnexion. Une demande d’exécution ne le suspend pas. L’ancienne sortie gratuite vers le dispensaire après cinq minutes sans secours est supprimée.
+Évacuer sans porter
+Un compagnon peut accompagner au pas un personnage hors combat avant ou après les secours, sans portage ni traction. Les deux ne combattent pas pendant l’évacuation. Le blessé représente fictivement son transport. Le délai mortel continue tant que les secours ne sont pas terminés.
+Se déplacer pour quitter un danger réel demeure toujours possible et ne constitue pas une fuite de personnage. Aucun joueur n’est obligé de rester couché dans une zone dangereuse.
+Revenir à des PV positifs
+MED-02 N2+ (humanoïde) ou MEC-02 N2+ (droïde) permet le soin direct depuis 0 PV sans secours commun préalable. Les 60 premières secondes continues de cette intervention sécurisent déjà la victime ; le traitement aboutit ensuite selon la durée propre au niveau (105/90/75/60 s). Si le soin est interrompu avant 60 s, rien n’est stabilisé ; après 60 s, l’état stabilisé est conservé, et le soin doit être recommencé. Une réussite rend 1 PV, puis impose 10 minutes de convalescence ou recalibrage. Le délai de cible de MED-02/MEC-02 reste de dix minutes entre réussites de terrain.
+MED-03 N2+ restaure tous les PV d’un humanoïde et termine sa convalescence selon son protocole clinique. Pour un droïde, la révision intégrale requiert MEC-02 N2 + MEC-01 N2, atelier équipé, 1 PA, un composant compatible et un lot de pièces détachées de 50 Cr. Le protocole sûr prend 5 min (N2), 4 min 30 (N3), 4 min (N4), 3 min 30 (N5). L’accéléré prend 3 min, 2 min 45, 2 min 30 ou 2 min 15 avant le test 1D6 + MEC-02 + bonus d’équipement compatible ≥ 6 ; un échec impose 2 min supplémentaires, sans nouveaux frais ni jet. Cette révision remet les PV au maximum, termine le recalibrage mais ne répare ni les modules ni la protection.
+Soin ou réparation PNJ de secours : pour un patient déjà stabilisé, prestation de 5 minutes à 100 Cr, sous contrôle MJ, restaurant 1 PV et imposant 10 minutes de convalescence ou recalibrage. Le tarif ne ressuscite pas un mort et ne remplace pas les conditions de stabilisation ; aucun service PNJ n’inflige une reprise fictive de l’horloge mortelle.
+Clinique mécanique N2–N5 : test accéléré seulement après la durée rapide ; 1D6 + niveau MEC-02 + bonus matériel compatible ≥ 6, avec succès automatique par défaut à N5 ; en échec, +2 min. Les ressources sont consommées au jet. En protocole sûr, elles ne le sont qu’à la fin ; avant 60 secondes d’une intervention directe depuis 0 PV, aucun état stabilisé n’est acquis.
+La limite de 20 minutes réelles d’immobilisation subie reste une règle de confort : le MJ organise une issue jouable. Elle ne donne pas automatiquement de PV et ne remplace pas la mortalité à cinq minutes d’une victime non secourue.
+Capture, fouille et dépouille
+Une capture suit une reddition explicite ou une mise hors combat, sans contact, lien ni enfermement réel. Elle ne suspend pas l’urgence des secours. La détention ne dépasse pas vingt minutes réelles, immobilisation subie préalable comprise. Un changement de statut ou une recapture immédiate ne remet pas ce compteur à zéro.
+Une libération imposée pour confort ou limite de captivité ne donne pas droit à une recapture artificielle immédiate dans la même affaire. Les situations réellement nouvelles peuvent produire une autre rencontre, sous arbitrage du MJ ; le délai de trente minutes évoqué dans la V0.3 est un repère de protection contre les boucles de pillage, non une permission de contournement des vingt minutes de captivité.
+La fouille ordinaire dure 60 secondes, coûte 1 PA et laisse la victime choisir une unité pillable. TRA-02 permet au fouilleur de choisir dans la liste autorisée. Une seule unité par victime et rencontre, tous adversaires confondus. Crédits, notes privées et biens personnels réels ne deviennent pas du butin. Le statut dissimulé peut protéger un objet selon le chapitre 15.
+La mort ne rend pas les biens automatiquement pillables. Seuls les objets explicitement autorisés le deviennent, dans les limites de prise. Le MJ clôt l’ancienne fiche et traite les biens non récupérés ; ni téléphone ni matériel personnel ne sont confisqués. L’outil ou QR de dépouille est une donnée de scénario, et l’absence d’un tel QR ne transforme pas les biens privés en prises libres. La mort du capitaine ne transfère ni son vaisseau ni son fret.
+Exécution scénarisée
+Aucun coup de grâce ordinaire n’est autorisé sur un personnage hors combat. Une exécution ou destruction définitive peut concerner un personnage à 0 PV, stabilisé ou non, ou un prisonnier conscient, avec autorisation explicite et préalable du MJ.
+Elle relève d’une situation narrative exceptionnelle, respecte les limites hors jeu et se résout sans tir réel ni frappe. Une annonce unilatérale « je l’achève » n’a aucun effet. Le MJ peut refuser la scène, la modifier ou l’arrêter. L’exécution autorisée entraîne une mort définitive sans secours ordinaire possible.
+Créer le successeur
+Le MJ clôt l’ancienne identité et crée un personnage distinct. Le joueur peut rejoindre immédiatement la session après validation, dans un point d’entrée différent de la scène de sa mort. Il n’hérite ni des biens, ni des relations privées, ni des secrets ou connaissances confidentielles de son prédécesseur.
+Le niveau global du joueur est conservé. Le nouveau personnage reçoit le socle de sa nouvelle classe, son initiation et le kit adapté. Son capital de relève est 25 % des XP gagnés en jeu par le prédécesseur, arrondis à l’entier inférieur, maximum 9 XP. Les XP hérités d’une génération antérieure ne sont pas recomptés ; les XP déjà dépensés durant la carrière font partie des XP gagnés, pas seulement le solde restant.
+	XP gagnés par le défunt
+	Capital de relève
+
+	6 XP
+	1 XP
+
+	24 XP
+	6 XP
+
+	36 XP ou davantage
+	9 XP maximum
+
+
+
+XP de relève : le nouveau personnage reçoit 25 % des XP de carrière GAGNÉS par le prédécesseur, arrondis à l’inférieur et plafonnés à 9, sans compter les XP eux-mêmes hérités ni les 3 XP de la session en cours non encore attribués. À la clôture, les 3 XP de session sont attribués au dernier personnage actif du joueur ; sans personnage actif, ils restent en attente sur le profil du joueur. Un seul gain de 3 XP par joueur et par session. Chaque remplaçant reçoit immédiatement sa réserve complète de 5 ou 8 PA selon le niveau global ; le renouvellement régulier à cinq heures reste applicable. Le successeur reçoit également 200 Cr de création temporairement protégés et un kit neuf non pillable/non revendable.
+07 — Classe : Combattant
+Vous vendez votre présence à une porte, votre calme dans une fusillade et votre expérience à ceux qui ont encore besoin de survivre pour payer. Vous n’êtes pas nécessairement un soldat : garde, mercenaire, vétéran ou protecteur, vous savez lire un affrontement avant qu’il commence.
+Le Combattant retenu est tactique : deux capacités fixes de combat et une compétence utile à la préparation des opérations. Entretien de protection n’est plus une compétence initiale de classe ; il rejoint le catalogue commun.
+COM-01 — Vétéran
+Trait fixe de classe. Le maximum est de 4 PV au lieu de 3, pour un humanoïde comme pour un droïde. Aucun PA, jet ou récupération. Le trait ne progresse pas vers 5 ou 6 PV et ne s’achète pas hors classe.
+Une protection personnelle peut absorber une touche ordinaire supplémentaire, dans la limite commune d’un point. Vétéran ne change ni la mortalité à 0 PV, ni l’effet du sabre laser, ni celui de la Neutralisation furtive.
+COM-02 — Désarmement
+Technique fixe. Deux contacts offensifs consécutifs et contrôlés sur l’arme blanche adverse, puis « Désarmé ! », interdisent l’usage de l’arme concernée pendant dix secondes de retrait. Aucun PA ni dé. Le détail des contacts, des interruptions et des armes compatibles figure au chapitre 5.
+COM-02 est une technique fixe pouvant être apprise par les autres classes pour 4 XP, sous réserve des prérequis généraux, des cinq places secondaires et de l’apprentissage ordinaire approprié. Elle ne fournit aucune arme ou équipement.
+En pratique. Face à un porteur de sabre, votre intérêt n’est pas de frapper plus fort. Vous pouvez chercher deux contacts d’arme valides, annoncer le désarmement, puis profiter du retrait pour protéger un allié ou gagner un accès. Vous ne saisissez jamais le sabre.
+COM-03 — Lecture tactique
+Compétence évolutive. Sur un point défensif balisé, examinez les lieux et lancez l’analyse QR. Les renseignements préparés sont accordés selon votre niveau, sans D6 dans la version retenue pour cette compétence. Ils ne donnent aucun bonus de dégâts, contrôle automatique du lieu ni accès aux secrets des occupants.
+	Niveau
+	Profondeur du renseignement par niveau
+
+	1
+	Accès, sorties et défenses élémentaires.
+
+	2
+	Couvertures, passages exposés et replis.
+
+	3
+	Points faibles et failles tactiques scénarisées.
+
+	4
+	Organisation des défenses et possibilités préparées d’infiltration.
+
+	5
+	Analyse la plus approfondie disponible pour le lieu.
+
+
+
+COM-03 : 1 PA, récupération de 10 minutes ; durées validées N1 à N5 = 120 / 105 / 90 / 75 / 60 secondes. Les informations préparées par niveau sont accordées sans D6 ; pas de bonus de combat automatique.
+Un renseignement utile ne joue pas la scène à votre place. Découvrir une sortie secondaire ne l’ouvre pas, n’élimine pas un garde et ne permet pas de franchir un accès hors jeu.
+08 — Classe : Rogue
+Vous préférez l’occasion au duel, la distraction à la menace et une porte entrouverte à une grande déclaration. On vous engage pour faire disparaître un objet, sortir d’une cellule ou intervenir avant que votre cible comprenne le danger.
+Le Rogue est la huitième classe, distincte de l’Infiltrateur. Il possède une technique fixe et deux compétences évolutives.
+ROG-01 — Neutralisation furtive
+ROG-01 : depuis l’arrière à 1,5 m au plus d’un humanoïde surpris et hors combat actif, le Rogue annonce « Égorgement ! » sans toucher la cible ni faire un geste au cou. Résultat : 0 PV, protection ignorée, puis délai mortel ordinaire. Aucun dé ou PA ; 10 minutes de récupération à compter de TOUTE tentative annoncée, réussie ou échouée. Une alerte préalable de la cible ou d’un garde annule la surprise. Droïdes immunisés.
+L’attaque furtive reste une scène physique jouée en sécurité, pas une action à distance ou une prise de QR. Elle n’accorde aucune exécution automatique, et le résultat peut encore être traité par les secours ordinaires.
+ROG-02 — Vol à la tire
+Exception explicite aux actions QR locales : ROG-02 se pratique UNIQUEMENT au LOCAL ORGANISATION. Le Rogue utilise le QR d’interaction correspondant à sa cible, puis saisit obligatoirement le NOM et le PRÉNOM du PERSONNAGE, non l’identité civile du joueur. Le QR de poste ne doit pas afficher le nom à saisir. GN Engine vérifie la concordance sans autocomplétion ni révélation d’inventaire ; aucun contact ni aucune proximité physique avec la victime n’est requis.
+	Niveau
+	Butin accessible après l’action
+
+	1
+	Une unité éligible aléatoire ; durée 60 s.
+
+	2
+	Une unité aléatoire ; durée 45 s.
+
+	3
+	Choix parmi deux types éligibles tirés au hasard ; durée 45 s.
+
+	4
+	Choix parmi deux types éligibles ; durée 30 s.
+
+	5
+	Choix libre parmi les types éligibles ; durée 30 s.
+
+
+
+ROG-02 ne présente jamais l’inventaire privé avant la résolution. Les niveaux N1–2 volent au hasard ; N3–4 choisissent parmi deux types d’objets éligibles distincts tirés au hasard ; N5 choisit parmi tous les types éligibles. S’il ne reste qu’un seul type, il est volé ; s’il n’en reste aucun, la tentative est infructueuse. Le transfert porte toujours sur une unité. Les crédits, objets cachés et effets personnels réels sont exclus. Le drapeau « volable à la tire » est distinct de « pillable ».
+Coût ROG-02 : 1 PA uniquement si une unité est effectivement transférée ; durée N1 à N5 : 60 / 45 / 45 / 30 / 30 secondes ; récupération de 10 minutes après toute tentative résolue, y compris sans butin. Par victime et par session, TOUS Rogues confondus : deux tentatives maximum, dont un seul vol réussi ; le premier vol réussi bloque immédiatement tout autre ROG-02. Une tentative sur un inventaire vide compte dans le quota sans coûter de PA.
+A12.4–A12.5 : un NOM/PRÉNOM incorrect bloque le démarrage, ne coûte aucun PA et déclenche 10 minutes de récupération PERSONNELLE pour le Rogue ; comme aucune cible n’a été authentifiée, aucun quota de victime n’est consommé. Aucune information privée n’est révélée. Une annulation technique ou volontaire avant résolution sans tentative effectuée libère les réservations. Un vol réussi transfère immédiatement une seule unité numérique ; le joueur volé reçoit une notification après 10 minutes (ou découvre l’absence plus tôt par son inventaire), jamais le nom du voleur ni son emplacement. Un accessoire physique de jeu indispensable est remis discrètement par le MJ et reste inutilisable physiquement tant que la remise nécessaire n’est pas faite ; s’il ne peut pas être remis en sécurité, l’objet n’est pas éligible au vol. Les opérations simultanées sont verrouillées contre la duplication.
+ROG-03 — Évasion
+ROG-03 permet une évasion fictive d’une cellule, d’une escorte ou d’une autre captivité selon le niveau, sans jamais forcer de vraie serrure ni bousculer un gardien. À Western City, le QR d’évasion peut être placé sur la SERRURE de la prison réelle : il déclenche une sortie fictive sûre, pas le déverrouillage physique.
+	Niveau
+	Possibilité
+
+	1
+	Issue QR préparée sur serrure ou décor ; 60 s.
+
+	2
+	Même issue QR, plus rapide ; 45 s.
+
+	3
+	Occasion prévue lors d’une escorte ; 45 s.
+
+	4
+	Même occasion d’escorte, plus rapide ; 30 s.
+
+	5
+	Toute occasion plausible non directement surveillée, MJ si sans QR ; 30 s.
+
+
+
+ROG-03 : 1 PA seulement pour une évasion accomplie, aucune réussite au D6, récupération de 10 minutes après réussite ou tentative découverte ; durées N1 à N5 : 60 / 45 / 45 / 30 / 30 secondes continues. Une surveillance directe et effective par un gardien actif bloque l’action. Si le gardien découvre la tentative en cours, celle-ci échoue, sans coût PA, mais avec récupération. Un abandon ordinaire ou une occasion qui disparaît annule l’action sans coût ni récupération. Une interruption remet le temps à zéro. Un effet de STOP SÉCURITÉ suspend sans pénalité.
+N1–N2 : QR d’issue prévu ; N3–N4 : occasions d’évasion lors d’une escorte scénarisée ; N5 : toute occasion plausible hors surveillance directe, validée par le MJ si aucun QR n’est prévu. La limite absolue de 20 minutes de captivité s’applique à tous, et ne dépend jamais d’une récupération de ROG-03. Un personnage à 0 PV ne peut pas lancer une évasion ; toute sortie doit emprunter un passage réel sûr autorisé.
+09 — Classe : Traqueur
+Une signature trop régulière, une caisse déplacée, un passage que personne ne veut expliquer : vous vivez des détails. Votre métier consiste à transformer un soupçon en piste, pas à confondre un indice avec une condamnation.
+Les enquêtes du Traqueur utilisent le système mixte validé : renseignements ordinaires automatiques après analyse, D6 pour des informations supplémentaires préparées, jamais indispensables à la poursuite de l’intrigue.
+TRA-01 — Lecture des traces
+Examinez une scène balisée, scannez son QR et engagez l’analyse. Votre niveau ouvre les renseignements professionnels prévus. Le test bonus utilise la règle ordinaire de compétence ; un échec ne retire pas les renseignements garantis.
+	Niveau
+	Analyse accessible
+
+	1
+	Nature d’une trace : passage, lutte, déplacement.
+
+	2
+	Direction et reconstitution d’un déplacement.
+
+	3
+	Ordre probable de plusieurs événements.
+
+	4
+	Traces volontairement dissimulées ou falsifiées.
+
+	5
+	Conclusions croisées les plus approfondies du scénario.
+
+
+
+Base conservée : 1 PA, 2 minutes d’analyse, récupération de 10 minutes, une tentative approfondie par personnage et version. Aucun suivi GPS ni révélation spontanée des mouvements réels des joueurs. L’analyse d’un lieu ne permet pas de prendre son stock.
+TRA-02 — Fouille méthodique
+Sur une cible capturée ou hors combat, à l’abri, lancez la fouille. À son terme, choisissez une unité parmi les biens pillables présentés. La réussite est automatique ; la compétence ne donne accès ni aux notes privées ni aux objets personnels réels.
+	Niveau
+	Durée validée
+
+	1
+	120 secondes
+
+	2
+	105 secondes
+
+	3
+	90 secondes
+
+	4
+	75 secondes
+
+	5
+	60 secondes
+
+
+
+Coût : 1 PA. Récupération commune FOUILLE : dix minutes. Le plafond d’une prise par victime et rencontre, tous adversaires confondus, reste applicable. Le passage à un autre fouilleur ne renouvelle pas le quota.
+Contre Dissimulation : un niveau de TRA-02 égal ou supérieur au niveau utilisé pour cacher l’objet permet de le découvrir, sans dé supplémentaire. La découverte n’autorise pas une deuxième prise. Un niveau inférieur ne révèle pas l’objet protégé.
+TRA-03 — Vérification documentaire
+Examinez un document de jeu auquel vous avez effectivement accès. L’analyse peut révéler une incohérence ou rester non concluante ; elle n’identifie pas automatiquement le faussaire, les complices ou l’allégeance du porteur.
+	Niveau
+	Analyse accessible
+
+	1
+	Éléments formels du document.
+
+	2
+	Incohérences simples de dates, noms ou références.
+
+	3
+	Indices de falsification préparés.
+
+	4
+	Nature probable d’une altération ou manipulation.
+
+	5
+	Analyse croisée de documents et incohérences complexes.
+
+
+
+TRA-03 : 1 PA, 2 minutes, récupération de 10 minutes ; une tentative approfondie par personnage et version. Le contrôle documentaire mixte ne confère PAS l’habilitation douanière N1–N5, qui est une fonction distincte accordée par l’organisation.
+En pratique. Un faux manifeste peut présenter une anomalie. Vous obtenez une piste à exposer ou recouper, pas un écran affirmant que toute la cargaison est illégale et appartenant au faussaire.
+10 — Classe : Médecin
+Les uniformes se ressemblent sous la poussière. Vos patients viennent avec des crédits, des promesses et parfois un compagnon qui insiste pour passer avant les autres. Vous savez sauver un corps ; il vous reste à choisir comment exercer ce pouvoir.
+Les compétences médicales s’appliquent aux humanoïdes biologiques, pas aux droïdes. Un droïde peut être médecin : c’est la nature du patient, non celle du praticien, qui détermine le protocole.
+MED-01 — Diagnostic
+Scannez le QR d’un patient consentant ou hors combat, à l’abri, et jouez une minute d’examen. Coût : 1 PA ; récupération personnelle de dix minutes ; aucun consommable obligatoire. Les renseignements ordinaires de votre niveau sont automatiques. Un détail médical scénarisé peut demander un D6, limité à une tentative par patient et version d’état.
+	Niveau
+	Renseignement
+
+	1
+	Blessures de jeu, PV et état général.
+
+	2
+	Gravité, complications prévues et traitements nécessaires.
+
+	3
+	Produits ingérés enregistrés dans le jeu, automatiquement.
+
+	4
+	Affections rares et effets biologiques complexes préparés.
+
+	5
+	Analyses les plus approfondies et interactions entre substances prévues.
+
+
+
+Le niveau 3 n’exige pas de D6 pour identifier les substances fictives ingérées. Le QR public ne donne pas ces informations à un passant. Le diagnostic ne lit aucune donnée médicale réelle et ne révèle aucun secret sans lien avec les états de jeu.
+MED-02 — Soins de terrain
+À couvert, choisissez un patient, réservez 1 PA et une trousse médicale, puis jouez l’intervention. La réussite est automatique : +1 PV, sans dépasser le maximum.
+	Niveau
+	Durée
+	Patient admissible
+
+	1
+	120 s
+	Patient déjà à au moins 1 PV.
+
+	2
+	105 s
+	Peut relever un patient à 0 PV.
+
+	3
+	90 s
+	Même effet.
+
+	4
+	75 s
+	Même effet.
+
+	5
+	60 s
+	Même effet.
+
+
+
+Une cible ne reçoit qu’un soin de terrain réussi toutes les dix minutes, tous médecins confondus. Le praticien n’a pas de récupération personnelle et peut traiter un autre patient. Un réveil depuis 0 PV impose dix minutes de convalescence. L’auto-soin est possible au-dessus de 0 PV avec la compétence, hors convalescence ; jamais à 0 PV.
+MED-02 peut stabiliser directement une victime à 0 PV si le praticien est N2 ou plus : après 60 secondes continues, l’état stabilisé est acquis sans remise à zéro du compte mortel ; puis le soin se poursuit jusqu’à 105 / 90 / 75 / 60 secondes selon N2–N5 pour rendre 1 PV. L’échec d’un soin interrompu après la première minute ne retire pas la stabilisation acquise. Ce soin ne restaure ni protection ni munitions ni antidote.
+MED-03 — Traitement clinique
+Prérequis : MED-03 N2 et MED-02 N2. Traitement d’autrui dans une clinique équipée. Coût : 1 PA, une trousse et une dose de bacta. Effet complet : PV au maximum et fin de convalescence, sans réparer la protection ni neutraliser automatiquement un poison.
+	Niveau MED-03
+	Sûr, sans dé
+	Accéléré : premier résultat
+	Total si échec
+
+	1
+	Non accessible
+	—
+	—
+
+	2
+	5 min
+	3 min
+	5 min
+
+	3
+	4 min 30 s
+	2 min 45 s
+	4 min 45 s
+
+	4
+	4 min
+	2 min 30 s
+	4 min 30 s
+
+	5
+	3 min 30 s
+	2 min 15 s
+	4 min 15 s
+
+
+
+Le protocole accéléré utilise 1D6 + niveau MED-03 + bonus autorisés ≥ 6. À N5, le test ordinaire réussit automatiquement sans bonus. Un échec impose deux minutes supplémentaires, sans second jet, PA ou consommable. Les fournitures sont consommées au premier jet, même en cas d’échec ; interrompre le complément ne les rend pas et ne soigne pas.
+Le protocole sûr consomme ses ressources à la résolution. Le délai patient de MED-02 n’empêche pas la clinique et n’est pas effacé par elle. Aucun délai personnel ne bloque le médecin après le traitement.
+11 — Classe : Mécano
+Vous savez distinguer un tas de ferraille d’une machine qui attend simplement la bonne pièce. Droïdes, générateurs et vaisseaux ont tous besoin de vous ; certains clients préfèrent ne pas vous expliquer d’où vient le matériel qu’ils apportent.
+La classe remplace le Technicien initial. Elle conserve trois compétences : Diagnostic technique, Réparation et Amélioration. Sabotage est une compétence supplémentaire, pas un acquis de départ.
+MEC-01 — Diagnostic technique
+Scannez une cible technique accessible : droïde, installation ou vaisseau. L’état ordinaire est lu automatiquement selon votre niveau ; un défaut caché peut demander un test sur un renseignement préparé.
+	Niveau
+	Analyse technique
+
+	1
+	État général, dommages et avaries visibles.
+
+	2
+	Panne, pièces et intervention nécessaires.
+
+	3
+	Défauts cachés et anomalies mécaniques.
+
+	4
+	Systèmes complexes et modifications clandestines.
+
+	5
+	Défaillances approfondies et interactions entre systèmes.
+
+
+
+Profil : 60 secondes, 1 PA, récupération de dix minutes ; une tentative approfondie par personnage et version de panne. Aucune manipulation réelle de câblage, moteur ou dispositif électrique.
+MEC-02 — Réparation
+La réparation des PV d’un droïde est équivalente aux soins de terrain biologiques. Un composant de réparation compatible remplace la trousse. Coût : 1 PA ; +1 PV ; mêmes limites de cible et de recalibrage, sans D6.
+	Niveau
+	Réparation de PV
+	Autres interventions et révision intégrale
+
+	1
+	120 s ; cible encore active
+	Maintenance simple.
+
+	2
+	105 s ; réactivation depuis 0 possible
+	Révision complète MEC-01 N2 + MEC-02 N2, atelier ; modules réparés séparément.
+
+	3
+	90 s
+	Modules et avaries intermédiaires.
+
+	4
+	75 s
+	Systèmes avancés, avaries majeures.
+
+	5
+	60 s
+	Équipements expérimentaux et avaries critiques.
+
+
+
+MEC-02 soigne les PV de droïdes sans réparer leurs modules. Les blindages DR-01 épuisés et boucliers personnels se rechargent séparément, avec la fourniture compatible et la compétence MEC-02 ; les armures ordinaires relèvent d’Entretien de protection. La révision intégrale d’un droïde (MEC-01 N2 + MEC-02 N2, atelier équipé) restaure les PV au maximum, termine le recalibrage, sans restaurer automatiquement un point de protection ni une panne de module. Les modalités complètes figurent au chapitre 6 et dans la fiche ci-dessous.
+États possibles d’un module de droïde : opérationnel, épuisé (DR-01 seul), neutralisé temporairement, endommagé durablement. Perdre des PV ou passer à 0 PV ne détériore pas automatiquement un module. Une neutralisation expire à la fin de son effet ; seul un module endommagé exige une réparation spécifique. Les opérations conservent toujours le même identifiant d’objet.
+Sur une installation ordinaire, le profil conservé de la V0.3 prévoit cinq minutes, deux pièces et un test au seuil de la cible ; consommables au jet, succès ou échec. Les cibles avancées doivent annoncer leurs propres conditions.
+Réparation de module de droïde : module N1, MEC-02 N2 + MEC-03 N1, 5 minutes, 1 PA ; module N2, MEC-02 N2 + MEC-03 N2, 10 minutes, 1 PA. Atelier et pièces nécessaires ; prix des pièces = 25 % du prix neuf arrondi aux 25 Cr supérieurs. Sans jet supplémentaire. Un PNJ ajoute 50 Cr (N1) ou 100 Cr (N2) de main-d’œuvre. Une interruption avant fin restitue les éléments seulement réservés ; aucune remise en état partielle. Réparer DR-01 ne recrée pas une protection déjà épuisée.
+	Module à réparer
+	Pièces (25 % arrondis par 25 Cr)
+	Durée / compétence
+
+	DR-01
+	75 Cr
+	5 min, MEC-02 N2 + MEC-03 N1
+
+	DR-02
+	50 Cr
+	5 min, MEC-02 N2 + MEC-03 N1
+
+	DR-03
+	100 Cr
+	10 min, MEC-02 N2 + MEC-03 N2
+
+	DR-04
+	100 Cr
+	10 min, MEC-02 N2 + MEC-03 N2
+
+	DR-05
+	75 Cr
+	10 min, MEC-02 N2 + MEC-03 N2
+
+	DR-06
+	100 Cr
+	10 min, MEC-02 N2 + MEC-03 N2
+
+
+MEC-03 — Amélioration
+MEC-03 installe, retire et améliore des modules permanents, limités par les emplacements du support et le niveau du Mécano. Les droïdes joueurs ont DEUX emplacements chacun, sans troisième possible, et aucun module de départ gratuit. Les modules ne confèrent jamais la compétence qu’ils équipent. Installations et retraits s’effectuent en atelier, avec la permission du propriétaire, sans contact physique non consenti.
+	Niveau
+	Technologie
+
+	1
+	Modules de droïdes DR-01/DR-02 et entretien élémentaire.
+
+	2
+	Modules droïdes DR-03 à DR-06 ; modules vaisseau standards de base.
+
+	3
+	Propulseurs ou armement renforcés selon leur fiche.
+
+	4
+	Modules rares, plan et composants rares requis.
+
+	5
+	Prototypes, plan et composants rares requis.
+
+
+
+Catalogue droïde DR-01 à DR-06 ci-dessous : achat, récupération et persistance individuels. Installation/retrait N1 : MEC-03 N1, 5 minutes, 1 PA ; installation N2 : MEC-03 N2, 10 minutes, 1 PA ; retrait N2 : MEC-03 N2, 5 minutes, 1 PA. Prestation PNJ possible : installation 50 Cr (N1) ou 100 Cr (N2), retrait 50 Cr, en plus du prix du module. Les effets cessent après retrait ; modules retirés revendables, modules installés non pillables directement. Toute installation interrompue avant sa fin restitue les ressources seulement réservées.
+	Module
+	MEC-03
+	Prix
+	Effet exact
+
+	DR-01 Blindage intégré
+	N1
+	300 Cr
+	1 point de protection personnelle ; aucune addition avec armure/bouclier ; épuisé ≠ panne.
+
+	DR-02 Outillage intégré
+	N1
+	200 Cr
+	Outils métiers réutilisables intégrés ; ni consommables, ni atelier, ni compétence offerte.
+
+	DR-03 Scanner multispectral
+	N2
+	350 Cr
+	+1 aux tests compatibles MEC-01 ou TRA-01 ; pas d’indice créé ni de bonus doublé.
+
+	DR-04 Interface de données
+	N2
+	350 Cr
+	+1 aux tests INF-01 sur terminal fictif compatible ; INF-01 reste exigée.
+
+	DR-05 Mémoire chiffrée
+	N2
+	300 Cr
+	Contient un document numérique ; INF-02 N2+ pour ouvrir sans autorisation ; pas de copie.
+
+	DR-06 Compartiment dissimulé
+	N2
+	400 Cr
+	Cache une unité d’objet compatible contre ROG-02 ; TRA-02 peut découvrir selon ses règles.
+
+
+Réparer les PV, recharger le blindage, lever un sabotage, réparer un module endommagé et installer une amélioration sont des opérations DISTINCTES. Un module conservé entre sessions occupe son emplacement même en panne. Les modules de droïdes ne donnent pas de nouvelle capacité sans niveau de compétence correspondant.
+12 — Classe : Pilote
+Posséder un vaisseau ne vous apprend pas à éviter un blocus. Vous connaissez les départs qui se préparent en silence, les routes que l’on ne vend pas au premier venu et la différence entre une retraite et un retour possible.
+Un voyage exige un pilote compétent ; un service PNJ payant existe au spatioport. Aucun personnage ne reçoit de vaisseau du seul fait de choisir cette classe. Posséder une compétence ne donne pas le mandat de dépenser la caisse d’une bande ou de piloter son appareil.
+PIL-01 — Navigation
+Saisissez le code de destination, consultez la liaison possible et analysez le dossier de route. Les codes commerciaux sont accessibles ; les destinations secrètes et routes spéciales doivent être découvertes. Les renseignements ordinaires sont automatiques selon le niveau, avec D6 pour un supplément préparé.
+	Niveau
+	Navigation et renseignements
+
+	1
+	Routes connues et conditions générales.
+
+	2
+	Itinéraires alternatifs préparés.
+
+	3
+	Risques de contrôle et zones dangereuses connues.
+
+	4
+	Passages discrets et données spécialisées.
+
+	5
+	Routes et analyses exceptionnelles disponibles dans le scénario.
+
+
+
+PIL-01 : navigation par codes publics ou acquis, 1 PA, récupération de 10 minutes et durées N1 à N5 de 120 / 105 / 90 / 75 / 60 secondes. L’analyse n’invente pas de route et ne divulgue pas les plans privés des autres équipages. Le détour d’urgence garde son test et ses surcoûts propres.
+Détour d’urgence validé : avant interception, une tentative par trajet, 1 PA, 1D6 + PIL-01 ≥ 7, sans ajout automatique de Manœuvrabilité. Surcharge de 1/2/3 unités de carburant selon le vaisseau, consommée même en cas d’échec ; un allongement réussi du trajet coûte aussi la différence prévue. Détails au chapitre 18.
+PIL-02 — Préparation de vol
+Avec un mandat sur le vaisseau, choisissez la destination, vérifiez le fret, les places, le carburant, les documents et l’état technique. La préparation est automatique si les conditions sont réunies, coûte 1 PA et ne remplace jamais la révision obligatoire après combat.
+	Niveau
+	Durée validée
+
+	1
+	180 s
+
+	2
+	150 s
+
+	3
+	120 s
+
+	4
+	90 s
+
+	5
+	60 s
+
+
+
+PIL-02 : préparation automatique du voyage si pilote, manifeste, révision, carburant et capacité sont en règle. 1 PA ; durées N1 à N5 : 180 / 150 / 120 / 90 / 60 secondes. Une préparation validée ne confère ni propriété du vaisseau ni droit de vendre un stock privé.
+PIL-03 — Manœuvres de pilotage
+Prérequis conservé : PIL-02 N1. Une seule manœuvre spéciale par voyage, quel que soit le niveau ; 1 PA. Apprendre un niveau ouvre une nouvelle option, pas une utilisation supplémentaire.
+	Niveau
+	Manœuvre retenue
+
+	1
+	Décrochage initial : 1D6 + Manœuvrabilité ≥ 6 ; évite l’interception.
+
+	2
+	Esquive multiple : défense au seuil 6 contre deux attaques désignées.
+
+	3
+	Feinte offensive : +1 au tir ; défense ordinaire de la cible au seuil 6 contre ce tir.
+
+	4
+	Passage dangereux : +2 à la fuite, +1 carburant ; 1 dégât si échec.
+
+	5
+	Manœuvre combinée : tir normal et défense contre une attaque au seuil 6.
+
+
+
+PIL-03 N1 — Décrochage initial : AVANT les rounds de combat, 1D6 + Manœuvrabilité effective ≥ 6 ; coût 1 PA et l’unique utilisation PIL-03 par voyage, consommés si l’action est effectivement exécutée. Une réussite évite totalement cette interception. Les N2 à N5 sont détaillés au chapitre 20 ; ils ouvrent des actions alternatives, pas des utilisations supplémentaires.
+Une fuite réussie avant combat évite entièrement celui-ci. Une fuite pendant un combat se résout après les tirs et conserve l’obligation de révision technique.
+13 — Classe : Courtier
+Vous connaissez la valeur d’un chargement, mais surtout la personne qui en a besoin aujourd’hui. Vos clients achètent des marchandises ; ils paient votre capacité à rapprocher des intérêts qui n’osaient pas encore se rencontrer.
+Tout personnage peut commercer et négocier librement. Le Courtier apporte de l’expertise, des avantages sur certaines offres PNJ et un réseau. Il ne peut jamais imposer un prix ou une décision à un joueur.
+COU-01 — Expertise marchande
+Sur une marchandise ou offre accessible, jouez une minute d’analyse et dépensez 1 PA. Les renseignements ordinaires prévus sont automatiques ; un D6 peut fournir une note approfondie. Récupération : dix minutes ; une tentative approfondie par personnage et version d’offre.
+	Niveau
+	Expertise accessible
+
+	1
+	Cours officiels et valeur de référence.
+
+	2
+	Écarts de prix et variations connues.
+
+	3
+	Pénuries et débouchés préparés.
+
+	4
+	Tendances inhabituelles et opportunités clandestines prévues.
+
+	5
+	Analyses commerciales les plus approfondies du scénario.
+
+
+
+Consulter un cours public déjà disponible reste gratuit. L’expertise n’invente pas une pénurie, ne prédit pas un prix non configuré et n’ouvre pas les comptes ou soutes privés.
+COU-02 — Négociation commerciale
+Sur une offre PNJ expressément négociable, une réussite au D6 donne une remise fixe de 10 %, à tous les niveaux. L’expérience améliore le test et élargit l’accès, pas le pourcentage.
+	Niveau
+	Offres auxquelles accéder selon le scénario
+
+	1
+	Marchandises ordinaires.
+
+	2
+	Fournitures spécialisées.
+
+	3
+	Offres de gros.
+
+	4
+	Marchandises rares et services négociables.
+
+	5
+	Marchés et contrats exclusifs préparés.
+
+
+
+Base conservée : 1 PA, deux minutes, récupération de dix minutes ; une tentative par Courtier et version d’offre. Le prix négocié correspond à 90 % du total initial, arrondi au crédit supérieur, minimum 1 ; la remise ne se cumule pas. La V0.3 prévoyait cinq minutes réelles pour utiliser cette offre sur le lot concerné.
+Le prix des transactions entre joueurs reste libre. Taxes, amendes, salaires et services ne deviennent négociables par la compétence que si leur offre le prévoit explicitement. Une bonne négociation n’efface pas les obligations de licence.
+COU-03 — Réseau de contacts
+Cette compétence est polyvalente : demander une information, rechercher un fournisseur, identifier un acheteur ou découvrir un contrat. Le Courtage logistique a été fusionné ici ; il n’existe pas de compétence supplémentaire distincte pour cette fonction.
+	Niveau
+	Réseau accessible selon niveau
+	Usages par session
+
+	1
+	Commerçants locaux.
+	2
+
+	2
+	Grossistes et transporteurs.
+	2
+
+	3
+	Réseaux commerciaux influents.
+	3
+
+	4
+	Intermédiaires clandestins et marché noir.
+	3
+
+	5
+	Contacts exclusifs et opérations importantes.
+	4
+
+
+
+Au point de contact désigné, sélectionnez un domaine de recherche, engagez 1 PA et jouez cinq minutes. La réponse provient des contenus disponibles ; aucun crédit, renfort ou stock infini n’est créé. Dix minutes de récupération. L’usage est consommé à la remise de la réponse ; si aucune réponse n’est préparée, l’action doit rester indisponible.
+Un contact peut transmettre un renseignement incertain. Le paiement d’une information n’achète pas la vérité. Trouver un transporteur ou un acheteur ne conclut pas automatiquement le contrat à sa place.
+14 — Classe : Infiltrateur
+Vous reconnaissez les portes que personne ne surveille parce que tout le monde les croit fermées. Un code, un sceau et une référence administrative peuvent vous ouvrir davantage de passages qu’une menace.
+L’Infiltrateur contourne les systèmes et les documents ; le Rogue maîtrise la furtivité physique, le vol et l’évasion. Le piratage est exclusivement ludique : aucune attaque sur le vrai site, aucun accès au compte d’un participant ni aucun droit MJ n’en découle.
+INF-01 — Intrusion
+Scannez une serrure, un coffre ou un terminal préparé. Le niveau conditionne l’accès. Une intrusion ordinaire utilise le D6 ; une intrusion spéciale utilise un mini-jeu à la place du D6, sans second test aléatoire après réussite de l’énigme.
+	Niveau
+	Systèmes accessibles et aides de scénario
+
+	1
+	Serrures et terminaux simples.
+
+	2
+	Contrôles d’accès et verrouillages électroniques ordinaires.
+
+	3
+	Systèmes avancés ; indice de mini-jeu possible si prévu.
+
+	4
+	Réseaux et dispositifs complexes ; aides préparées supplémentaires.
+
+	5
+	Systèmes exceptionnels et aides adaptées, sans réussite automatique.
+
+
+
+Une nouvelle tentative de mini-jeu après échec exige dix minutes et un nouveau PA. Les indices et limites internes d’un défi sont décrits sur sa fiche. Les actions ordinaires conservent leurs consommables et verrous de cible éventuels ; la règle de relance des mini-jeux ne permet pas de relire indéfiniment un indice à tentative unique.
+INF-02 — Déchiffrement
+Sur un document ou une transmission obtenus en jeu, le personnage révèle le texte préparé correspondant à son niveau. La possession ou l’accès de jeu peut provenir d’un vol : il ne s’agit pas d’exiger un accès légal dans la fiction. Aucun accès privé réel n’est contourné.
+	Niveau
+	Messages
+
+	1
+	Codes simples.
+
+	2
+	Transmissions commerciales protégées.
+
+	3
+	Communications complexes et données dissimulées.
+
+	4
+	Communications militaires fictives et codes avancés.
+
+	5
+	Cryptages exceptionnels préparés.
+
+
+
+Une opération ordinaire demande 1 PA, un test D6 et aucune fourniture obligatoire. Une tentative par personnage et version ; échec sans destruction du document. Une mission particulière peut proposer un cryptogramme au lieu du test. Lire ne multiplie pas l’original et n’assure pas la véracité du message.
+INF-03 — Falsification
+À un atelier de fiction, choisissez un modèle accessible, engagez 1 PA et un formulaire vierge, puis produisez le document selon le test prévu. Une réussite crée un exemplaire suivi ; un échec consomme le formulaire sans créer de faux. Le modèle et les anomalies vérifiables doivent être préparés.
+	Niveau
+	Documents accessibles
+
+	1
+	Reçus et attestations ordinaires.
+
+	2
+	Manifestes et autorisations commerciales courantes.
+
+	3
+	Licences et documents spécialisés.
+
+	4
+	Ordres et autorisations complexes.
+
+	5
+	Faux exceptionnels préparés par le scénario.
+
+
+
+INF-03 produit un faux document suivi, jamais une vraie habilitation technique. Une fausse identité de vaisseau exige le protocole distinct de modification du transpondeur et sa qualité de documents déterminée lors de la fabrication ; les contrôles utilisent ensuite 1D6 + qualité ≥ 7.
+Référentiel validé des durées d’opérations ordinaires
+	Niveau
+	Intrusion
+	Déchiffrement
+	Falsification
+
+	1
+	180 s
+	180 s
+	300 s
+
+	2
+	165 s
+	165 s
+	270 s
+
+	3
+	150 s
+	150 s
+	240 s
+
+	4
+	135 s
+	135 s
+	210 s
+
+	5
+	120 s
+	120 s
+	180 s
+
+
+
+Durées VALIDÉES N1 à N5 : INF-01 = 180 / 165 / 150 / 135 / 120 secondes ; INF-02 = même série ; INF-03 = 300 / 270 / 240 / 210 / 180 secondes. Coût et récupération ordinaires : 1 PA et 10 minutes. Les mini-jeux conservent exclusivement leurs durées annoncées, sans second jet arbitraire après réussite.
+15 — Compétences supplémentaires
+Le catalogue comprend dix compétences supplémentaires, Maîtrise du sabre laser incluse. Avec les 24 compétences ou traits des huit classes, il représente 34 entrées. Les huit initiations secondaires autorisées et l’apprentissage rare sont explicités au chapitre 3 ; une initiation n’autorise jamais toutes les compétences de la classe dont elle provient.
+Toute compétence hors classe occupe une des cinq places secondaires, initiation comprise. Coûts XP : compétence évolutive 2 XP au N1 puis 4 / 6 / 8 / 10 XP pour N2 / N3 / N4 / N5 ; technique fixe 4 XP. Ordinaire : achat direct avec prérequis ; rare : déblocage scénarisé ou formation autorisée par le MJ AVANT paiement des XP. Les classifications du catalogue ci-dessous sont arrêtées.
+	Capacité
+	Type
+	Apprentissage
+
+	Entretien de protection
+	Évolutive
+	Ordinaire.
+
+	Riposte
+	Fixe
+	Formation spéciale.
+
+	Garde du corps
+	Fixe
+	Ordinaire.
+
+	Sabotage
+	Évolutive
+	Rare.
+
+	Dissimulation
+	Évolutive
+	Ordinaire.
+
+	FIL-01 — Pistage
+	Évolutive
+	Ordinaire.
+
+	Toxicologie
+	Évolutive
+	Rare.
+
+	ESC-01 — Escorte spatiale
+	Évolutive
+	Rare.
+
+	EFF-01 — Effacement de traces
+	Évolutive
+	Rare.
+
+	LAS-01 — Maîtrise du sabre laser
+	Fixe
+	Rare.
+
+
+
+Entretien de protection
+Vous savez remettre en état une armure que son propriétaire n’a pas ménagée.
+À l’abri, sur soi ou sur autrui, choisissez une armure accessible, engagez 1 PA et une plaque et jouez le remplacement. À la résolution automatique, sa réserve revient à 1 point ; aucun PV n’est rendu. Récupération : dix minutes.
+Entretien de protection : 1 PA, une plaque, récupération 10 minutes ; durées N1 à N5 validées : 120 / 105 / 90 / 75 / 60 secondes. Restaure seulement le point d’une armure ordinaire, jamais les PV. Les blindages de droïdes et boucliers personnels exigent MEC-02 et leurs ressources compatibles.
+Exemple. Votre armure est vide et vous avez perdu 1 PV. L’entretien rend son point de protection mais vous restez blessé ; un médecin ou un mécano doit traiter séparément vos PV.
+Riposte
+Technique fixe, sans PA ni D6. Après deux parades successives contre le même adversaire, annoncez « Riposte ! » et tentez une touche valide. Si elle compte, elle inflige le dégât ordinaire et impose trois secondes sans attaque, sans empêcher parade, recul ou protection. Ni chute ni déplacement forcé.
+La touche suit la fenêtre ordinaire de deux secondes. Avec une vibrolame, elle ne devient pas un coup à 2 dégâts. Avec un sabre autorisé, elle conserve l’effet de mise à 0 PV du sabre, sans créer une nouvelle attaque.
+Riposte : annoncer au plus 3 secondes après deux parades délibérées et successives contre le même adversaire ; une seule touche spéciale réussie par adversaire et confrontation. Une riposte manquée oblige à refaire les deux parades, qui ne peuvent pas être mises en réserve. Une confrontation finit après 60 secondes sans actes hostiles et avec séparation réelle, ou sur décision du MJ/reddition acceptée.
+Garde du corps
+Technique fixe, sans PA ni D6. Le garde et son protégé reconnaissent la protection avant la confrontation. Le garde actif et proche peut annoncer immédiatement « Protection ! » pour recevoir fictivement une touche à la place du protégé, une fois par confrontation.
+Il reçoit l’effet complet. Une touche ordinaire consomme sa protection ou 1 PV ; un sabre laser le met à 0 PV. Aucune interposition corporelle réelle n’est nécessaire ou autorisée par la compétence.
+Garde du corps : à 2 m maximum du protégé, avec visibilité directe, désignation préalable des titulaires et éventuels remplaçants. « Protection ! » doit être annoncé au moment de la touche, jamais après. Une touche transférée par garde et par confrontation ; plusieurs gardes ne peuvent capter deux fois la même touche. La propre fenêtre de dégâts du garde est respectée pour l’effet ordinaire ; un sabre le met à 0 PV. Aucune prise corporelle autorisée.
+Sabotage
+Vous ne détruisez pas les machines : vous provoquez au bon moment la panne qui empêchera quelqu’un de s’en servir.
+Sabotage est RARE. Son accès est limité aux installations, modules de droïdes et systèmes de vaisseaux explicitement préparés par le Master selon le niveau. Ni un QR quelconque, ni un accès de maintenance ne confère tous les droits de sabotage.
+	Niveau
+	Périmètre
+
+	1
+	Installations techniques simples.
+
+	2
+	Installations protégées et infrastructures ordinaires.
+
+	3
+	Un module installé sur un droïde admissible.
+
+	4
+	Un système identifié de vaisseau à quai.
+
+	5
+	Équipements exceptionnels préparés.
+
+
+
+Sabotage ordinaire : 1 PA, un kit consommable, cinq minutes d’intervention, puis test 1D6 + niveau de Sabotage + bonus matériel/aide admissible ≥ 6 (ou seuil de scénario annoncé). Le kit et le PA sont consommés lors du jet, même sur échec ; dix minutes de récupération. L’opération ne vise jamais des appareils réels.
+Échec : aucun effet, verrou de cinq minutes sur cette cible et ce type de sabotage. Réussite : neutralisation temporaire, sans dommage durable, pour 15 minutes au maximum. Une seule panne active par cible. Après remise en service, 15 minutes de protection contre un nouveau sabotage ordinaire. Une interruption avant le jet restitue les ressources réservées.
+La remise en service anticipée est possible pour 1 PA : installation simple ou protégée (A15 N1–N2), MEC-02 N2, 3 min ; module de droïde (N3), MEC-02 N2, 3 min ; système de vaisseau à quai (N4), MEC-02 N3 + MEC-03 N2, 5 min ; cible exceptionnelle N5, profil du Master. Lever une neutralisation ne consomme pas de pièces, sauf dommage durable distinct. Les effets économiques sont ceux annoncés dans la fiche de cible.
+Accès autorisés A15 : N1 installation simple ; N2 infrastructure protégée ; N3 module de droïde en situation hors combat/capture/maintenance autorisée ; N4 système précis de vaisseau À QUAI ; N5 cible exceptionnelle préparée. La fiction peut décrire une panne durable seulement si une opération distincte, configurée et validée MJ, existe. Une neutralisation ordinaire ne consomme pas les pièces de réparation durable.
+Droïde joueur : seulement hors combat, capturé ou dans une scène de maintenance. Le sabotage d’un module ne retire pas de PV, ne tue pas le personnage et ne lui retire pas son téléphone ou ses moyens hors jeu. Vaisseau : à quai, sur un point technique accessible ; pas d’altération rétroactive d’un voyage déjà engagé.
+Un sabotage ordinaire neutralise provisoirement une fonction ; il n’endommage pas durablement le module et ne détruit ni droïde ni vaisseau. Un dommage durable exige un incident, une avarie ou une action scénarisée distincte explicitement autorisée. Une maintenance consentie ne donne pas le droit universel de saboter.
+Dissimulation
+Dans votre inventaire, choisissez une unité admissible et jouez la préparation de la cache, hors combat. L’état dissimulé protège cet objet contre le vol à la tire et la fouille ordinaire. Il ne modifie pas sa propriété ni son existence réelle dans le stock.
+La comparaison est sans dé : TRA-02 au moins égal au niveau de Dissimulation révèle l’objet. Un niveau inférieur ne le révèle pas. La prise demeure limitée à une unité par rencontre. Le Rogue, même N5, n’obtient pas automatiquement l’accès aux biens dissimulés.
+Dissimulation : une unité admissible à la fois, 1 PA, durées N1 à N5 de 120 / 105 / 90 / 75 / 60 secondes, récupération 10 minutes ; cache valable 30 minutes de jeu. TRA-02 de niveau égal ou supérieur révèle sans dé ; dès la découverte, la cache cesse immédiatement. Utilisation, vente, don, consommation ou expiration l’annule. Ni crédits ni effets personnels réels.
+Exemple. Un document est caché avec Dissimulation N3. Une fouille méthodique N2 ne le présente pas ; une N3 ou supérieure le présente dans les biens pillables, sans accorder une prise supplémentaire.
+FIL-01 — Pistage
+Filature a été remplacée par Pistage, pour éviter des pistes manuelles à préparer dans chaque lieu. La compétence exploite des traces de jeu autorisées et, aux niveaux avancés, des mouvements de vaisseaux. Suivre physiquement un personnage dans les zones autorisées reste du jeu libre, pas un suivi numérique automatique.
+	Niveau
+	Capacité retenue
+
+	1
+	Dernier personnage ayant réalisé une interaction traçable sur un QR autorisé.
+
+	2
+	Heure de cette interaction et accès à davantage de terminaux.
+
+	3
+	Dernier départ enregistré d’un vaisseau connu.
+
+	4
+	Engagement d’une poursuite spatiale clandestine avec pilote et vaisseau disponibles.
+
+	5
+	Renseignements plus précis sur la trajectoire, selon les données accessibles.
+
+
+
+Scannez le terminal concerné et demandez les traces accessibles. Un simple scan d’ouverture ne prouve pas une présence et n’est pas nécessairement un événement traçable. La recherche ne dévoile pas les journaux de sécurité réels, les comptes des joueurs ou leur géolocalisation.
+FIL-01 — Pistage est une compétence ORDINAIRE : 1 PA par recherche, 10 minutes de récupération et durées N1 à N5 de 120 / 105 / 90 / 75 / 60 secondes. Seules les interactions de jeu explicitement marquées traçables comptent ; un simple scan ne suffit pas. N4 : filature spatiale discrète avec pilote, vaisseau, carburant et cible encore en voyage, test opposé 1D6 + FIL-01 contre 1D6 + PIL-01 du pilote suivi ; égalité favorable à la cible. Si la cible gagne d’au moins 2 points, alerte de signature suspecte sans identité du poursuivant. N5 : tronçon suivant et fenêtre d’arrivée si enregistrés. Tout changement de route nécessite un nouveau test pour maintenir la piste ; pas de combat ni géolocalisation automatique.
+Le niveau 5 ne crée pas de surveillance universelle : seules les données effectivement enregistrées et explicitement exposées par le Master peuvent produire une fenêtre d’arrivée ou le prochain tronçon. Le changement de route d’une cible invalide la continuité précédente et impose un nouveau test de filature ; l’accès à la route n’est pas un droit d’interception automatique.
+Toxicologie — préparation et traitement
+TOXI-01 — Toxicologie : compétence RARE. Son état biologique « Malaise » porte l’identifiant distinct STAT-MALAISE-01 ; aucun doublon de code TOX-01 ne doit être utilisé. Fabrication et antidotes fictifs seulement, jamais de substance réelle ni effet imposé par scan distant.
+Fabrication d’une dose : laboratoire QR, recette effectivement connue, ressources compatibles, 1 PA, cinq minutes, 10 minutes de récupération ; réussite automatique. Le consommable est suivi par un identifiant avec statuts fabriquée, placée, consommée, retirée. La consommation fictive est déclenchée seulement par l’activation volontaire du QR de l’objet ou de la scène par la cible.
+	Niveau TOXI-01
+	Fabrication et traitement
+
+	1
+	Antidotes ordinaires.
+
+	2
+	Substances courantes, dont le malaise biologique.
+
+	3
+	Produits et antidotes spécialisés.
+
+	4
+	Intoxications et préparations rares.
+
+	5
+	Recettes expérimentales autorisées par le scénario.
+
+
+
+Administration : une dose est attachée à un objet ou QR préparé ; la cible active volontairement sa consommation fictive, éventuellement sans information préalable sur la nature de l’effet. Pas de produit réel, de contact forcé ni de déclenchement par le seul scan d’un tiers. Droïdes immunisés aux substances biologiques.
+STAT-MALAISE-01 : sur un humanoïde à au moins 1 PV, 15 minutes sans combat ni compétence active ; 0 perte de PV ; doses multiples sans cumul ni prolongation. Un antidote compatible ou la fin du délai clôt l’état. Les statuts sont actif, traité ou expiré. Sont exclus par défaut : sommeil forcé, paralysie, sérum de vérité et stimulants de combat.
+Traitement : identifier la substance notamment par MED-01 N3, puis utiliser TOXI-01 et un antidote compatible ; 1 PA, durée selon niveau 120 / 105 / 90 / 75 / 60 secondes, sans récupération imposée entre patients. Supprime le seul état concerné, ne rend aucun PV et ne fournit pas automatiquement le diagnostic de MED-01.
+Les recettes rares ou expérimentales n’existent que si elles sont préparées dans le Master et débloquées dans le jeu. Aucune compétence ne crée un poison ou un antidote universel en dehors du catalogue autorisé.
+ESC-01 — Escorte spatiale
+Compétence rare évolutive, distincte du simple métier d’escorteur. Tout vaisseau armé autorisé peut accompagner un convoi ; seule ESC-01 donne les interpositions spéciales.
+	Niveau validé
+	Capacité
+
+	1
+	Interposition pendant le combat, sur une poursuite visant le cargo protégé.
+
+	2
+	Surveillance tactique : catégorie et Manœuvrabilité effective d’un adversaire identifié, sans ses ordres secrets.
+
+	3
+	Si l’interposition échoue, +1 au test de fuite du cargo.
+
+	4
+	Interposition avant combat après échec du décrochage PIL-03 du cargo.
+
+	5
+	+1 au propre test d’interposition de l’escorteur.
+
+
+
+Une tentative coûte 1 PA et l’utilisation unique de la rencontre lorsqu’un test a effectivement lieu, succès ou échec. Elle remplace l’action principale. La procédure complète, le jet adverse réutilisé et les restrictions figurent au chapitre 20. Un même vaisseau ne cumule pas cette action avec PIL-03 dans le round.
+EFF-01 — Effacement de traces
+Au QR autorisé, sélectionnez une trace de jeu admissible et jouez son brouillage. La trace reste complète pour l’organisation ; seule sa visibilité fictive aux enquêteurs change. La compétence ne réécrit ni transaction, propriété, stock, identité technique ou journal d’audit réel.
+	Niveau
+	Portée
+
+	1
+	Sa dernière interaction sur un QR ordinaire.
+
+	2
+	Ses traces sur des terminaux davantage protégés.
+
+	3
+	Dernière interaction d’un complice présent et consentant.
+
+	4
+	Signature fictive de départ d’un vaisseau autorisé.
+
+	5
+	Une fausse piste active (point, horaire, signal) préparée ; fin de session ou découverte.
+
+
+
+EFF-01 — Effacement de traces : compétence RARE, 1 PA, durées N1 à N5 de 120 / 105 / 90 / 75 / 60 secondes, dix minutes de récupération, sans D6 ordinaire. Seules les traces de jeu âgées de 15 minutes ou moins sont admissibles. Le masquage dure jusqu’à la fin de session ou sa découverte. FIL-01 de niveau égal ou supérieur à EFF-01 reconstitue directement la trace, sans dé supplémentaire ; aucun effet sur le journal technique réel.
+À EFF-01 N5, une seule fausse piste active à la fois peut être créée à partir d’options prévues par le Master : faux point de passage, faux horaire ou signal fictif de départ. Elle cesse à sa découverte ou à la fin de session. Il est interdit d’attribuer à un personnage réel une action compromettante sans autorisation scénarisée explicite ; les preuves techniques restent intactes.
+LAS-01 — Maîtrise du sabre laser
+Technique fixe rare, 4 XP, avec formation spéciale et validation du MJ. Elle occupe une place secondaire lorsqu’elle est apprise hors classe. Un accès scénaristique exceptionnel peut être préparé, sans devenir une option libre de dotation.
+La compétence et l’arme sont deux acquisitions séparées. Une touche valide met à 0 PV, ignore protection et fenêtre de deux secondes. L’arme peut être parée, désarmée et opposée aux techniques ordinaires avec matériel compatible ; aucun pouvoir de la Force ni déviation de tir n’est accordé. Le statut pillable est propre à chaque sabre. Voir le chapitre 5 pour la sécurité et les interactions.
+16 — Objets, échanges et vie du port
+Un bien de jeu n’est pas un accessoire personnel
+Un objet unique ou lot possède une quantité, un propriétaire, un détenteur et un emplacement. Acheter, prêter ou transporter ne signifie pas toujours la même chose. Un transfert conserve la quantité totale et la provenance. Un objet réservé, en transit, payé mais non retiré ou saisi n’est pas librement réutilisable.
+Les crédits sont fictifs. Les transactions volontaires demandent un accord sur le bénéficiaire, le montant et le compte autorisé. Être membre d’une bande ne donne pas tous les droits sur sa caisse, ses stocks ou ses vaisseaux. Un mandat de mission, un droit de pilotage et un droit de retrait sont distincts.
+Le comptoir et la boutique numérique représentent un même stock. Un bien physique acheté peut rester « à retirer » jusqu’à sa remise ; une information livrable numériquement suit son propre mode de partage. Les prix déjà acceptés ne sont pas réécrits par un événement économique ultérieur.
+Consommables et équipements de terrain
+	Objet de base
+	Fonction
+
+	Trousse médicale / bacta
+	Soins biologiques selon MED-02 et MED-03.
+
+	Plaque
+	Entretien d’une armure, pas de PV.
+
+	Pièces / cellule compatible
+	Réparation technique ou recharge selon le profil.
+
+	Kit de sabotage
+	Consommé au jet de sabotage.
+
+	Micro-outils
+	Consommable d’intrusion ordinaire si la fiche le demande.
+
+	Formulaire vierge
+	Fabrication d’un faux document.
+
+	Outils de métier
+	Réutilisables ; pas d’acquisition automatique de la compétence.
+
+	Document
+	Lecture, copie, transfert et pillage selon sa fiche.
+
+	Antidote ou substance
+	Objet fictif, consommation et effet configurés.
+
+	Recharge laser fermée
+	Portion de billes autorisées ; consommée à l’ouverture.
+
+
+
+Les outils de métier et protections de jeu sont non pillables par défaut dans le socle. Les consommables et documents suivent leurs fiches. Aucune possession réelle ne devient automatiquement confisquable.
+Équipements améliorés conservés de la V0.3
+	Équipement
+	Effet de base conservé
+
+	Scanner médical
+	+1 à MED-01 approfondi ou MED-03 accéléré.
+
+	Instruments de précision
+	+2 à MED-03 accéléré, en clinique.
+
+	Outillage spécialisé
+	+1 à un test de réparation compatible ; aucun effet sur une réparation automatique.
+
+	Sonde de sécurité
+	+1 à INF-01 sur une serrure électronique de jeu compatible.
+
+	Décrypteur portable
+	+1 à INF-02 compatible.
+
+	Analyseur de traces
+	+1 au bonus d’enquête TRA-01 compatible.
+
+	Charge perfectionnée
+	Remplace un kit de sabotage et apporte +2 ; consommée au jet.
+
+	Cartouche commerciale
+	Une note préparée, pas un bonus de dé ; consommée à la remise du texte.
+
+	Banc de protection
+	Entretien réduit de trente secondes, minimum soixante ; plaque toujours requise.
+
+
+
+Un seul bonus matériel compatible, plafonné à +2, et une aide compétente éventuelle à +1. Les tarifs et stocks de certains équipements spécialisés sont des données de la session et non des arbitrages A01–A38 encore ouverts. Les anciens identifiants TIR/TEC doivent être remappés sans duplication ni création automatique d’objets.
+Recharges de blaster
+Une recharge laser représente une portion physique de billes autorisées, pas une augmentation des dégâts. L’organisation fixe la quantité Q, le conditionnement, le prix et la dotation avant la partie. Ces valeurs n’ont pas été arrêtées dans le chat.
+Le joueur achète ou reçoit une recharge fermée, la retire réellement, puis confirme son ouverture à couvert. Une unité commerciale est consommée. Le moteur suit les portions ouvertes, pas chaque tir ni le contenu exact du chargeur. Une recharge ouverte ne se revend pas comme neuve et les munitions déjà chargées ne sont pas retirées physiquement à un captif.
+Fouilles de lieux et informations
+Un QR de lieu peut proposer présentation publique, analyse spécialisée ou fouille. La fouille commune conservée dure soixante secondes, coûte 1 PA et partage le délai FOUILLE. Les découvertes proviennent d’une réserve configurée : objets, crédits ou informations. Une même pièce unique n’apparaît pas une seconde fois parce qu’un autre joueur scanne.
+Une lecture n’est pas une prise d’objet. Un renseignement peut être faux, incomplet ou périmé ; un journal technique du MJ n’est pas une preuve librement accessible dans la fiction. Les missions doivent définir leurs bénéficiaires, preuves et quantités de récompense.
+Réseau indisponible
+Ne pas multiplier les confirmations ou inventer un résultat. Se mettre à l’abri, conserver les éléments de scène et contacter l’organisation. Si une procédure de reçus numérotés est annoncée, elle doit être utilisée avec une seule saisie ultérieure ; sinon le MJ arbitre. Le même bien ne doit pas être vendu une fois hors ligne et une seconde fois dans l’application.
+Les téléphones ne déterminent pas les touches physiques. Un incident technique peut exiger une suspension ou correction du MJ, notamment pour la survie, les paiements ou les rounds spatiaux ; ce livre n’installe pas un mode hors connexion par simple déclaration.
+17 — Vaisseaux, équipements et modules
+Les trois familles validées
+Les valeurs de combat, de fret, de places, d’emplacements et de réservoir sont fixes pour les trois familles retenues. Les places comprennent le pilote. Un seul pilote compétent est obligatoire, joueur ou PNJ engagé.
+	Caractéristique
+	Chasseur léger
+	Cargo léger
+	Transport renforcé
+
+	Coque
+	3
+	4
+	6
+
+	Bouclier
+	1
+	2
+	3
+
+	Manœuvrabilité
+	+2
+	+1
+	+0
+
+	Fret
+	0
+	20
+	50
+
+	Places à bord
+	1
+	6
+	15
+
+	Emplacements de modules
+	1
+	2
+	3
+
+	Réservoir
+	8
+	16
+	24
+
+	Gabarit
+	1
+	2
+	3
+
+	Prix de référence DÉFINITIF
+	5 000 Cr
+	10 000 Cr
+	20 000 Cr
+
+
+
+Prix de référence DÉFINITIFS : chasseur léger 5 000 Cr, cargo léger 10 000 Cr, transport renforcé 20 000 Cr. Ces valeurs servent aux prix des modules, révisions, réparations, assurances, primes, casse et changements d’identité. Le gabarit est 1 / 2 / 3 ; places et fret restent indépendants.
+Places et fret sont indépendants. Un cargo peut transporter six personnes et vingt unités de fret ; les places vides ne se convertissent pas en soute. Pour voler une cargaison commerciale, il faut un cargo receveur présent avec de la place disponible. Le chasseur ne contourne pas cette restriction avec son réservoir ou son équipement personnel.
+Un vaisseau de base dispose de ses systèmes standards. Les emplacements concernent les améliorations permanentes. Une augmentation de maximum n’efface pas les dégâts déjà reçus. Le vaisseau reste le même exemplaire après changement de nom, vente, capture ou réparation.
+Le catalogue standard
+Les prix proportionnels ci-dessous ont été validés. Les effets correspondent au catalogue de travail associé ; les mécanismes de soute clandestine et de remorquage ont ensuite reçu leurs règles propres.
+	Code / module
+	Effet
+	Prix sur valeur de référence
+	Compatibilité
+
+	MOD-01 — Bouclier renforcé
+	+1 Bouclier maximum.
+	15 %
+	Tous.
+
+	MOD-02 — Blindage supplémentaire
+	+1 Coque maximum.
+	15 %
+	Tous.
+
+	MOD-03 — Propulseurs améliorés
+	+1 Manœuvrabilité.
+	25 %
+	Tous.
+
+	MOD-04 — Soute clandestine
+	Cache 5 unités de cargo ou 10 de transport ; aucun volume supplémentaire.
+	10 %
+	Cargo et transport.
+
+	MOD-05 — Remorquage
+	Permet de tracter une épave compatible.
+	10 %
+	Cargo et transport.
+
+	MOD-06 — Canon lourd
+	Remplace le canon standard ; 2 dégâts sur 5+.
+	20 %
+	Tous.
+
+
+
+Chaque module occupe un emplacement, sans doublon ni création d’emplacement supplémentaire ; Manœuvrabilité permanente plafonnée à +3. Un module standard est calibré pour son gabarit de vaisseau : il peut passer sur un autre exemplaire de même gabarit compatible, jamais être monté à prix réduit sur un gabarit supérieur. Les bonus ponctuels ne deviennent pas des augmentations permanentes.
+Une seule attaque principale demeure. Les modules ne sont endommagés que par un événement explicite, pas automatiquement à 0 Coque.
+Prix standard par gabarit et calibration figurent dans le tableau suivant. La valeur d’un module est celle du gabarit pour lequel il a été fabriqué. Un démontage ne le convertit pas en exemplaire compatible d’un autre gabarit.
+	Module
+	Chasseur (5 000 Cr)
+	Cargo (10 000 Cr)
+	Transport (20 000 Cr)
+
+	MOD-01 +1 Bouclier
+	750 Cr
+	1 500 Cr
+	3 000 Cr
+
+	MOD-02 +1 Coque
+	750 Cr
+	1 500 Cr
+	3 000 Cr
+
+	MOD-03 +1 Manœuvrabilité
+	1 250 Cr
+	2 500 Cr
+	5 000 Cr
+
+	MOD-04 Soute clandestine
+	Incompatible
+	1 000 Cr
+	2 000 Cr
+
+	MOD-05 Remorquage
+	Incompatible
+	1 000 Cr
+	2 000 Cr
+
+	MOD-06 Canon lourd
+	1 000 Cr
+	2 000 Cr
+	4 000 Cr
+
+
+Installer et retirer
+Installation standard en atelier sur mandat valide ; prix d’achat non refacturé. Profils pratiques conservés de V0.5 : bouclier, blindage, soute ou remorquage MEC-03 N2, 10 minutes, 1 PA ; propulseurs ou canon lourd MEC-03 N3, 15 minutes, 1 PA ; retrait standard MEC-03 N2, 5 minutes, 1 PA. À vérifier contre la fiche exacte du Master pour un équipement particulier ; ces durées ne sont pas les durées N4/N5 des prototypes.
+	Opération
+	Profil pratique conservé de la V0.5
+
+	Installer bouclier, blindage, soute ou remorquage
+	MEC-03 N2 ; 10 min ; 1 PA.
+
+	Installer propulseurs ou canon lourd
+	MEC-03 N3 ; 15 min ; 1 PA.
+
+	Retirer un module standard
+	MEC-03 N2 ; 5 min ; 1 PA.
+
+
+
+Retirer un module rare exige son niveau MEC-03 propre, 10 min pour N4 et 15 min pour N5, 1 PA. Le module conserve son identité, son état et sa calibration. Une soute ou un coffre ne se démonte pas avant transfert ou consignation explicite de son contenu ; réduction du maximum de Coque/Bouclier ne rend aucun point.
+Technologies rares et prototypes
+Les modules R04-01, R04-02, R05-01 et R05-02 exigent leur plan, composants effectivement disponibles et MEC-03 au niveau requis. Ils ne sont pas librement vendus en boutique PNJ. Chaque module occupe un emplacement et peut être échangé uniquement selon les règles d’objets et de propriété.
+	Module rare validé
+	Niveau
+	Effet de travail
+
+	R04-01 — Brouilleur de capteurs
+	MEC-03 N4
+	+1 à un test de fuite ou de décrochage, une fois par voyage.
+
+	R04-02 — Coffre de fret sécurisé
+	MEC-03 N4
+	Verrouille jusqu’à 5 unités contre le transbordement ordinaire ; clé, autorisation ou intrusion adaptée pour ouvrir.
+
+	R05-01 — Bouclier régénératif
+	MEC-03 N5
+	Restaure 1 Bouclier une fois par combat, à la fin d’un round choisi, sans dépasser le maximum et si Coque > 0.
+
+	R05-02 — Transpondeur fantôme
+	MEC-03 N5
+	Seconde identité de couverture préparée, soumise aux vérifications documentaires.
+
+
+
+R04-01 Brouilleur : +1 sur un jet de fuite ordinaire ou décrochage initial PIL-03 N1 une fois par voyage ; bonus déclaré avant le jet, non cumulable avec un autre bonus spécial sur ce test. R04-02 Coffre : cargo/transport seulement, 5 unités dans le fret existant, hors transfert ordinaire jusqu’à autorisation valide ou intrusion INF-01 N3+ ; ne crée pas de volume. R05-01 : +1 Bouclier en fin de round choisi une fois par combat, si Coque > 0, sans dépasser le maximum. R05-02 : identité de couverture secondaire préparée et contrôlable, sans modifier le registre permanent.
+	Fabrication validée
+	Rare N4
+	Prototype N5
+
+	Valeur totale
+	30 % du vaisseau
+	50 % du vaisseau
+
+	Ressources courantes incluses
+	20 %
+	30 %
+
+	Composants rares inclus
+	10 %
+	20 %
+
+	Durée, installation comprise
+	20 min
+	30 min
+
+	PA
+	1
+	1
+
+	Emplacements
+	1
+	1
+
+
+
+N4 : module valorisé à 30 % du vaisseau, ressources courantes 20 % et rares 10 % incluses, 20 min fabrication+installation, 1 PA ; N5 : 50 %, ressources courantes 30 % et rares 20 % incluses, 30 min et 1 PA. Aucun supplément d’installation. Démontage MEC-03 N4 en 10 min / N5 en 15 min, 1 PA ; valeur de référence de revente éventuelle = valeur neuve de fabrication, reprise PNJ uniquement si disponible, 50 % en état bon ou 20 % endommagé. Aucun plan consommé par une fabrication.
+Compatibilités : R04-02 coffre interdit sur chasseur, 5 unités dissimulées mais comprises dans la capacité ; R04-01, R05-01 et R05-02 compatibles avec les trois familles. La valeur neuve n’est pas un prix d’achat libre ; aucun réapprovisionnement de composants rares sans découverte/stock réel.
+Entretien et état technique
+	Intervention validée
+	Coût sur valeur de référence
+
+	Révision après combat
+	1 % du vaisseau.
+
+	Recharge de Bouclier
+	0,5 % du vaisseau par point.
+
+	Réparation de Coque
+	5 % du vaisseau par point.
+
+	Module endommagé réparable
+	25 % de sa valeur neuve.
+
+	Voyage sans incident
+	Aucun entretien périodique automatique.
+
+
+
+Révision, recharge, réparation de Coque et réparation de module sont des opérations distinctes. La révision ne rend aucun point ; une réparation de Coque ne recharge pas le Bouclier. Les ressources couvrent le coût technique sans être comptées une deuxième fois en crédits, sauf prestation distincte annoncée.
+Révision après véritable échange de tirs ou dégât matériel spécial : MEC-02 N2, 5 min, 1 PA, 1 % de la valeur du vaisseau ; une seule révision due par rencontre et par vaisseau concerné. Recharge de Bouclier : MEC-02 N2, 2 min par point, 1 PA par intervention, 0,5 % par point. Coque : MEC-02 N2, 5 min par point, 1 PA par intervention, 5 % par point. Modules : MEC-02 N2 et MEC-03 du niveau du module, 5 min standard / 10 min rare N4 / 15 min prototype N5, 1 PA, pièces = 25 % de la valeur neuve. Chaque point achevé reste acquis après interruption ; le PA est débité dès le premier point réparé. Prestation PNJ : supplément de 0,5 % de valeur du vaisseau par intervention. À 0 Coque, le vaisseau peut repartir dès 1 Coque avec pilote, carburant et révision à jour, sans Bouclier intégral requis.
+18 — Navigation, carburant et événements de voyage
+Destinations codées
+Chaque destination accessible possède un code de navigation de campagne, saisi par le pilote. Les grandes destinations commerciales sont connues ; les coordonnées secrètes et routes spéciales s’obtiennent par découverte, mission ou échange. Les codes ne sont pas des coordonnées officielles Star Wars.
+Une destination n’est pas une route universelle : la liaison dépend du départ, de l’arrivée, de sa distance, de ses conditions et des événements. Connaître le code d’une planète ne permet pas de surveiller tous les départs vers celle-ci. Les affectations de codes et le réseau précis des ports restent des données à préparer.
+Exemples de codes de navigation NON ACTIVÉS par défaut : Tatooine K7-M42 ; Corellia C4-N18 ; Nar Shaddaa H8-V31 ; Ryloth R2-F09. Ils n’existent dans une session que si son Master les publie. Un code de destination n’a pas de difficulté universelle indépendante de sa fiche de route.
+Le plan de vol réel est partagé seulement avec les membres et mandataires autorisés. Les renseignements accessibles par PIL-01 ne révèlent pas automatiquement les plans privés des autres équipages.
+Consommation et réservoirs
+Une unité de carburant vaut 25 crédits. La consommation validée est le facteur de distance 1/2/3, multiplié par 1 pour un chasseur, 2 pour un cargo et 3 pour un transport.
+	Vaisseau
+	Court
+	Moyen
+	Long
+	Réservoir
+
+	Chasseur
+	1
+	2
+	3
+	8
+
+	Cargo léger
+	2
+	4
+	6
+	16
+
+	Transport renforcé
+	3
+	6
+	9
+	24
+
+
+
+Les unités de carburant du réservoir ne sont pas des unités de fret. Les cellules énergétiques du commerce ne remplacent pas automatiquement le carburant propulsif.
+Durées définitives : liaison courte = 5 min, moyenne = 10 min, longue = 15 min, quel que soit le gabarit. Le coût normal du carburant (25 Cr/unité) est débité UNE seule fois au départ : court/moyen/long = 1/2/3 pour chasseur, 2/4/6 pour cargo, 3/6/9 pour transport. Arriver à zéro en réservoir est permis ; cela n’est pas rétroactivement une panne sèche. Aucune place ne se convertit en fret.
+Sécurité des routes
+Un trajet comporte un seul jet d’événement au D6. La distance et le danger sont deux paramètres indépendants.
+	Route
+	Un événement survient sur
+	Probabilité
+
+	Sécurisée
+	1
+	1/6, soit 16,7 %
+
+	Dangereuse
+	1–2
+	2/6, soit 33,3 %
+
+	Hostile
+	1–3
+	3/6, soit 50 %
+
+
+
+Chaque trajet ou convoi n’a qu’un seul tirage d’événement (route sécurisée 1/6, dangereuse 2/6, hostile 3/6). Si déclenché, un deuxième D6 lit la table contextualisée ci-dessous. Une embuscade de joueurs est un mécanisme distinct. Aucune perte de PV au sol, aucun combat ni butin automatique en conséquence d’un simple résultat événement.
+Dans un convoi, le résultat d’événement est COMMUN, pas un tirage par vaisseau. Retard, contrôle et rencontre affectent le convoi ; surcharge de carburant ou neutralisation de module désigne aléatoirement un seul appareil. Un module neutralisé l’est pour 15 min, sans avarie durable ; à défaut de module admissible, remplacer par un retard de 5 min.
+Un événement de menace pirate PNJ doit disposer d’un contenu de rencontre réellement préparé et activé ; sans celui-ci, aucun combat fictif n’est créé par le tirage. Le tirage d’événement et son résultat demeurent attachés au voyage, y compris après détour ou reprise intersession. Une rencontre spatiale suspend le chronomètre du voyage, ensuite repris au temps restant.
+	D6
+	Route sécurisée
+	Route dangereuse
+	Route hostile
+
+	1
+	Rencontre commerciale
+	Renseignement commercial
+	Balise abandonnée
+
+	2
+	Patrouille officielle
+	Contrôle documentaire
+	Patrouille suspecte
+
+	3
+	Appel de détresse
+	Appel de détresse
+	Détresse potentiellement piégée
+
+	4
+	Retard 3 min
+	Retard 5 min
+	Retard 5 min
+
+	5
+	+1 carburant, un appareil
+	Module neutralisé 15 min
+	Module neutralisé 15 min
+
+	6
+	Alerte pirate sans interception
+	Menace pirate PNJ préparée
+	Menace pirate PNJ préparée
+
+
+Détour d’urgence — PIL-01
+Avant le déclenchement d’une interception, le pilote peut tenter une liaison alternative disponible ou saisir une autre destination connue. Une tentative par trajet, 1 PA, D6 + PIL-01 ≥ 7. Pas d’ajout de Manœuvrabilité par défaut.
+	Type de vaisseau
+	Surcharge de tentative
+
+	Chasseur
+	1 unité, soit 25 Cr
+
+	Cargo
+	2 unités, soit 50 Cr
+
+	Transport
+	3 unités, soit 75 Cr
+
+
+
+La surcharge du détour est consommée même en cas d’échec. Une route plus longue exige le supplément normal correspondant ; aucun carburant initial n’est remboursé si la route choisie est plus courte. La tentative exige les ressources nécessaires en réserve avant engagement.
+Une réussite modifie le plan réel et invalide l’embuscade de l’ancienne liaison sauf tronçon commun ; un échec laisse la route initiale. L’événement déjà tiré N’EST JAMAIS retiré. En cas de détour avant sa résolution, le degré de danger du nouveau trajet peut modifier l’interprétation du tirage conservé, sans donner de nouveau dé. Le temps déjà parcouru reste acquis ; après succès, recalcul du temps restant avec un minimum de 2 minutes.
+Pour un convoi, le pilote meneur effectue un seul jet de détour, chaque appareil consomme sa propre surcharge et la différence éventuelle ; un vaisseau incapable de payer ne bénéficie pas du détour. Le convoi peut renoncer collectivement ou se séparer. Changer de destination n’exécute pas un contrat de livraison qui exige le port initial.
+Panne sèche : ne pas confondre zéro en réservoir et voyage impayé
+Une panne sèche n’inflige pas de dommage automatique, ne tue pas l’équipage et ne transforme pas le vaisseau en bien sans propriétaire. L’appareil peut appeler des secours ou être remorqué et demeure exposé aux interceptions applicables.
+Le carburant normal du trajet est payé au départ, une seule fois. Zéro unité à l’arrivée est permis. Si un événement ou détour exige un supplément indisponible pendant la route, le voyage est SUSPENDU au point fictif concerné, sans dommage ni changement de propriété. Le dépannage ou transfert autorisé lui permet de reprendre avec le TEMPS RESTANT, sans payer une deuxième fois le trajet initial.
+Ravitaillement de secours
+Deux vaisseaux présents dans la même zone fictive et hors combat peuvent transférer du carburant en deux minutes, sans PA ni compétence spécifique. Les unités quittent le réservoir donneur et entrent dans celui du receveur, sans création et sans dépassement de capacité. Même un chasseur peut céder sa réserve ; cela ne lui donne pas de soute commerciale.
+Le dépannage PNJ coûte 100 Cr d’intervention plus 25 Cr par unité livrée, si le service existe réellement. En escale, ravitaillement ordinaire : 2 min, 0 PA, 25 Cr/unité, dans la limite du stock PNJ déclaré et de la capacité du réservoir. Aucun carburant ne se crée par un simple transfert ou un changement de session.
+19 — Renseignements, fausses routes et interceptions
+Le renseignement n’est pas un traceur
+Une information ciblée est liée à un voyage précis, jusqu’à son arrivée ou son annulation. Elle ne se met pas à jour lorsque le capitaine change de route. Aucun avertissement automatique ne révèle qu’un renseignement est devenu faux ou périmé. Le document peut rester dans le carnet comme connaissance ancienne, mais il n’autorise pas indéfiniment des interceptions ciblées de voyages futurs.
+	Offre d’informateur PNJ
+	Tarif validé
+	Portée
+
+	Rumeur commerciale
+	50 Cr
+	Piste imprécise, éventuellement fausse ou ancienne.
+
+	Plan de vol identifié
+	150 Cr
+	Vaisseau, départ et destination supposée du voyage.
+
+	Dossier confidentiel
+	300 Cr
+	Renseignements supplémentaires préparés : fret, escorte ou route.
+
+
+
+Le renseignement existe en jeu, éventuellement comme fausse piste préparée. Entre joueurs, son prix est libre. Contacts, examen documentaire, déchiffrement et navigation permettent un recoupement, jamais une révélation automatique du vrai plan de vol.
+Espionner et désinformer
+Vol d’ordre de transport, intrusion, pistage et informateurs sont des sources possibles. Une indiscrétion ou un mensonge oral ne demande aucune compétence.
+Un faux document officiel de navigation relève d’INF-03. Il ne modifie pas le plan réel. Un renseignement ancien peut avoir été authentique au moment de son obtention. Effacement de traces et transpondeur de couverture ne suppriment pas les informations déjà acquises par d’autres personnages.
+Deux types d’embuscades validés
+Ciblée : un vaisseau pirate surveille une liaison pour un vaisseau identifié et son voyage. Opportuniste : il surveille une liaison et intercepte un trafic éligible sans identité préalable. Une embuscade ne déclenche qu’une seule interception ; une embuscade opportuniste expire à la fin de la session.
+Les pirates doivent se positionner sur une liaison précise avec un vaisseau opérationnel, un pilote et le carburant nécessaire. Connaître un code commercial ne les téléporte pas sur tous les itinéraires. Aucune interception rétroactive d’une cargaison déjà arrivée.
+Une seule embuscade active par vaisseau pirate, et une seule INTERCEPTION par convoi et tronçon. Priorité aux embuscades ciblées fondées sur un renseignement valide ; à priorité égale, tirage aléatoire journalisé, jamais le premier clic. Une alliance pirate ne peut participer à une même rencontre que si elle a été déclarée avant déclenchement. Une menace PNJ aléatoire ne provoque aucune deuxième interception sur la même liaison. Après interception, protection pour le reste du tronçon, non reconduite au voyage suivant.
+Une embuscade valide ouvre une rencontre ; elle ne garantit ni touche, ni capture, ni cargaison. Le marchand peut négocier, tenter le décrochage PIL-03, bénéficier d’ESC-01 N4, puis combattre ou se rendre. Les pirates sans cargo ne peuvent emporter du fret commercial.
+Protéger le convoi
+Garder le plan secret, transmettre une fausse information, choisir une autre route avant départ, réussir un détour d’urgence ou engager une escorte sont des stratégies distinctes. Aucune n’accorde une immunité générale.
+20 — Combat spatial : procédure et manœuvres
+Le combat spatial est entièrement virtuel. Les appareils ont trois caractéristiques : Coque, Bouclier et Manœuvrabilité. Les membres d’équipage restent des personnages ; l’immobilisation du bâtiment ne leur retire pas automatiquement de PV.
+De l’interception au combat
+Une interception ouvre une situation de rencontre, pas une victoire automatique. Négociation, décrochage initial et éventuelle intervention d’escorte peuvent empêcher le combat. Une fuite réussie avant combat laisse l’équipage et la cargaison hors de portée de cette interception, sans révision technique liée à un échange qui n’a pas eu lieu.
+Lorsqu’un combat commence, chaque vaisseau dispose d’une action principale par round. Les choix et cibles sont fixés avant la résolution. Le système ne récompense pas le premier qui clique.
+	Action ordinaire
+	Effet
+
+	Attaquer
+	Un tir sur un adversaire désigné.
+
+	Défendre
+	Renoncer au tir et tenter d’annuler l’attaque d’un adversaire désigné.
+
+	Fuir
+	Renoncer au tir et tenter de sortir après les attaques.
+
+	Poursuivre
+	Renoncer au tir pour retenir un fuyard désigné ; un seul poursuivant principal par round.
+
+	Proposer une reddition
+	Demander l’arrêt négocié des hostilités ; aucun transfert automatique.
+
+	Passif
+	Aucun tir ni défense automatique.
+
+
+
+Les actions ordinaires ne coûtent pas de PA. Les capacités spéciales suivent leur coût propre. Une manœuvre combinée est une action spéciale unique, pas deux ordres indépendants.
+Les 90 secondes et la simultanéité
+Les équipages ont 90 secondes maximum pour transmettre leur ordre. Sans ordre, le vaisseau reste passif et peut subir les attaques. Le MJ peut suspendre le chronomètre pour un incident technique ou une interruption nécessaire.
+Ordre du round : négociation/reddition et vérification des réponses ; verrouillage des ordres de repli ; attaques/défenses valides ; dégâts SIMULTANÉS ; immobilisations ; interpositions et fuites encore exécutables ; effets de fin de round ; compteur d’hostilité. Aucun clic précoce ne modifie les priorités.
+Chaque capitaine peut programmer un ordre de repli AVANT le verrouillage, utilisé si une reddition échoue ou demeure sans réponse à 90 secondes. L’absence de réponse n’est jamais une acceptation. Sans ordre de repli, l’appareil est passif. Un cessez-le-feu total exige l’accord unanime des parties concernées ou d’un commandant dûment habilité ; un refus ne crée aucun tir gratuit.
+Deux rounds consécutifs sans acte hostile EFFECTIVEMENT EXÉCUTÉ terminent la rencontre sans vainqueur : tir tenté même manqué ou esquivé, manœuvre offensive exécutée, poursuite valide d’un fuyard = hostiles ; défense passive, fuite, négociation, ordre sans cible valide = non hostiles. Une action hostile réinitialise le compteur à zéro. Le seul dépôt d’un ordre invalide ne maintient pas artificiellement le combat.
+Tir et défense
+	Arme ou défense
+	Test
+	Résultat
+
+	Canon standard
+	1D6 ≥ 4
+	1 dégât.
+
+	Canon lourd
+	1D6 ≥ 5
+	2 dégâts.
+
+	Défense ordinaire
+	1D6 + Manœuvrabilité ≥ 5
+	Annule entièrement l’attaque d’un adversaire désigné.
+
+
+
+La défense renonce au tir. Elle annule tous les dégâts du tir désigné, y compris un canon lourd, mais pas les autres attaques du round. Les attaques dirigées contre la même cible s’additionnent après défenses, d’abord sur le Bouclier puis la Coque.
+Tous les tirs engagés valides sont simultanés. Un vaisseau qui tombe à 0 Coque pendant le round conserve son propre tir déjà engagé. Deux adversaires peuvent être immobilisés ensemble. La Coque ne descend pas sous zéro ; les dégâts excédentaires ne détruisent pas définitivement le bâtiment.
+Exemple. Un cargo à 1 Bouclier reçoit un tir lourd de 2 dégâts qu’il n’a pas esquivé : son Bouclier passe à 0 et sa Coque diminue de 1. Une défense réussie contre ce tireur aurait annulé les deux dégâts.
+Fuite individuelle et poursuivant unique
+Chaque vaisseau choisit individuellement de fuir ou de rester. Une escorte peut donc combattre pendant que le cargo tente sa sortie. Un seul vaisseau poursuit activement par round, contre un fuyard désigné. Les autres peuvent tirer.
+Si plusieurs ordres « Poursuivre » concurrents sont reçus, les capitaines d’une coalition désignent un seul poursuivant principal avant verrouillage. Entre factions indépendantes, le poursuivant admissible de meilleure Manœuvrabilité est retenu ; égalité départagée aléatoirement et journalisée. Les autres ordres de poursuite deviennent PASSIFS, non des attaques ; aucun nouveau poursuivant rétroactif après immobilisation.
+Les tirs simultanés se résolvent même si leur auteur tombe à 0 Coque durant le round. En revanche, une fuite ou interposition qui devient inexécutable à cause de la Coque à 0 AVANT sa phase n’effectue aucun jet et restitue PA/usage spéciaux réservés. Un poursuivant immobilisé ne retient plus sa cible ; un autre ne prend pas son rôle rétroactivement.
+Le test est 1D6 + Manœuvrabilité pour le fuyard et pour le poursuivant. Le fuyard doit obtenir un résultat strictement supérieur ; égalité favorable au poursuivant. Aucun poursuivant valide sur cette cible : elle sort à la fin du round si elle reste opérationnelle.
+Une fuite réussie pendant le combat n’efface ni dégâts ni carburant dépensé ; le voyage doit être achevé et la révision est due seulement si le vaisseau a participé à un échange de tirs ou subi une avarie spéciale déclenchante. Plusieurs fuyards ne reçoivent pas de jet collectif : le poursuivant principal n’en retient qu’un seul.
+Exemple. Le cargo fuit, son escorte tire sur le pirate poursuivant et l’immobilise. Un second pirate avait choisi de tirer sur le cargo. Si ce dernier reste opérationnel, il s’échappe : le second pirate ne peut remplacer le poursuivant après avoir vu les résultats.
+PIL-03 : les cinq manœuvres
+Chaque manœuvre coûte 1 PA et l’unique utilisation spéciale PIL-03 du voyage. Les techniques restent cumulativement accessibles avec le niveau. Une utilisation avant combat n’est pas rendue lorsque les rounds commencent.
+N1 — Décrochage avant combat
+Permet de tenter d’éviter complètement une interception. Réussite : pas de combat, pas de perte de cargaison au titre de cette interception et pas de révision de combat. Échec : la rencontre continue, sans défaite automatique.
+TEST DÉFINITIF DU DÉCROCHAGE PIL-03 N1 : 1D6 + Manœuvrabilité effective ≥ 6, avant combat. Réussite : évite l’interception entière. Coût 1 PA et une utilisation spéciale PIL-03 par voyage, consommés si l’action est effectivement exécutée. Un échec poursuit la rencontre sans défaite automatique.
+N2 — Esquive multiple
+Désignez jusqu’à deux adversaires avant révélation. Renoncez au tir. 1D6 + Manœuvrabilité ≥ 6 : une réussite annule les deux attaques désignées qui vous visent ; un échec les laisse se résoudre normalement. Une seule action, un seul PA et un seul test, pas deux défenses ordinaires.
+N3 — Feinte offensive
+Effectuez un tir avec +1 au dé d’attaque. Aucun dégât supplémentaire. Contre cette attaque, une défense ordinaire de la cible doit atteindre 6 au lieu de 5. Le canon standard touche donc sur un résultat naturel de 3 ou plus ; le lourd sur 4 ou plus.
+La Feinte impose au tir visé un SEUIL MINIMAL de défense de 6 : défense ordinaire 5→6, mais esquive spéciale PIL-03 N2 ou N5 déjà au seuil 6 reste au seuil 6 (jamais 7). Le +1 de tir reste applicable ; aucun bonus de dégât.
+N4 — Passage dangereux
+Choisissez Fuir avec +2 au test opposé. Coût : 1 PA, l’utilisation spéciale et une unité de carburant supplémentaire, disponible avant engagement, consommée en cas de réussite comme d’échec. Cette unité est le coût spécial validé, quel que soit le gabarit ; elle ne remplace pas le coût normal du voyage.
+Réussite : la poursuite est rompue. Échec ou égalité : restez engagé et subissez 1 dégât, Bouclier d’abord, puis Coque. À 0 Coque, vous êtes immobilisé, pas détruit. Un appareil immobilisé par les tirs avant cette phase ne réalise pas la fuite.
+Le +2 ne s’additionne pas au +1 de couverture ESC-01 N3 sur le même jet : retenir le meilleur bonus spécial autorisé. Pas de nouveau jet du poursuivant si son résultat a déjà été utilisé pour l’interposition.
+N5 — Manœuvre combinée
+Désignez une cible à attaquer et un adversaire dont vous tentez d’éviter le tir ; il peut s’agir du même. Effectuez un tir normal et, indépendamment, 1D6 + Manœuvrabilité ≥ 6 pour annuler l’attaque désignée.
+La manœuvre N5 tire normalement et tente, séparément, une défense 1D6 + Manœuvrabilité ≥ 6 contre un adversaire désigné. Si le tir est effectivement exécuté, PA et utilisation PIL-03 sont consommés même si la défense est inutile faute d’attaque adverse. Si aucune sous-action n’a pu être exécutée avant résolution, les ressources réservées sont rendues et l’action principale choisie ne se transforme pas en nouvelle action. Le tir reste simultané même si l’auteur est immobilisé ce round.
+ESC-01 : détourner une poursuite
+L’escorteur désigne le cargo protégé avant révélation et choisit l’interposition à la place de son attaque, défense ou poursuite. Il doit être présent dans le même affrontement et encore opérationnel lors de la phase de fuite. Le cargo doit avoir choisi de fuir et être lui aussi opérationnel.
+Interposition ESC-01 : 1D6 + Manœuvrabilité EFFECTIVE de l’escorteur contre 1D6 + Manœuvrabilité du poursuivant, réutilisant le résultat existant de celui-ci ; égalité = échec. À N5, +1 s’ajoute au résultat de l’escorteur et peut porter son bonus effectif à +4 même si la Manœuvrabilité permanente plafonne à +3. Le niveau ESC-01 n’est pas ajouté une deuxième fois.
+Réussite : la poursuite est détournée sur l’escorteur ; le cargo sort s’il n’est pas immobilisé. L’escorteur reste engagé, sans dégât automatique. Le poursuivant ne transforme pas rétroactivement son ordre en tir. Échec : le cargo effectue sa fuite ordinaire contre le même résultat du poursuivant ; dès ESC-01 N3, il reçoit +1 à ce test, sans cumul avec un meilleur bonus spécial.
+	Niveau
+	Précision opérationnelle
+
+	N1
+	Interposition en combat.
+
+	N2
+	Lecture automatique de catégorie et Manœuvrabilité effective d’un adversaire identifié ; aucun ordre secret.
+
+	N3
+	+1 à la fuite du cargo après interposition réellement tentée et échouée.
+
+	N4
+	Dernière chance avant le combat après échec du décrochage du cargo.
+
+	N5
+	+1 au propre test d’interposition de l’escorteur.
+
+
+
+ESC-01 : un PA et une seule utilisation spéciale par rencontre/vaisseau escorteur lorsque le test ou l’effet s’exécute réellement, réussite ou échec ; réservation au choix et remboursement si impossible. Aucun tir automatique de remplacement. Une seule interposition par cargo/round. N4 : après un décrochage initial PIL-03 raté du cargo, ESC-01 peut détourner l’interception avant le combat ; en cas de réussite, le cargo échappe à l’interception et l’escorteur hérite de la rencontre, mais IL NE PEUT PAS TENTER un nouveau décrochage initial PIL-03 N1. Il peut négocier, combattre ou fuir dans les rounds ordinaires. N4 et usage en combat partagent le même quota.
+Un même vaisseau ne cumule pas ESC-01 et PIL-03 dans le même round. Les bonus +1 ESC-01 N3 et +2 PIL-03 N4 ne s’additionnent pas sur le jet du cargo ; seul le meilleur est retenu. Les ressources d’une action spéciale sont réservées à l’ordre, consommées seulement si le jet ou l’effet prévu s’exécute. Les tirs valides sont simultanés, mais les fuites impossibles après immobilisation sont remboursées. L’action principale perdue n’est pas remplacée rétroactivement.
+Reddition et fin de combat
+La reddition est négociée. Elle met entièrement fin au combat seulement si tous les adversaires concernés l’acceptent, ou si un commandant habilité décide pour eux. Un accord partiel n’impose pas un cessez-le-feu général. Les ordres normaux restent possibles avant verrouillage si l’accord échoue.
+La reddition acceptée ouvre négociation, rançon et éventuel arrimage. Elle ne transfère automatiquement ni titre de propriété, ni cargaison, ni tous les droits sur l’équipage. Aucune destruction définitive n’en découle.
+À 0 Coque, propulsion, manœuvres et armes deviennent inutilisables pour les phases suivantes. L’équipage survit, la cargaison demeure à bord et le bâtiment est récupérable. Il n’existe pas de délai mortel de cinq minutes pour une Coque à zéro. La destruction définitive exige un événement validé par le MJ.
+Révision : un vaisseau ayant effectivement participé à un ÉCHANGE DE TIRS, même sans touche ou après esquive, doit être révisé avant son prochain voyage. Un dégât matériel causé par une manœuvre spéciale impose également une révision à la cible endommagée. Simple poursuite, interception, négociation, décrochage avant tirs ou reddition sans tirs : pas de révision due. Une seule révision par rencontre jusqu’à entretien. Le protocole détaillé A20–A23 est désormais arrêté ; aucun frais ou PA n’est consommé pour une manœuvre empêchée avant son exécution effective.
+21 — Abordage, piraterie et vol de vaisseau
+L’abordage hybride validé
+Un vaisseau à 0 Coque ou ayant accepté sa reddition peut être abordé ; son équipage ne devient pas inconscient pour autant. Le manifeste d’équipage est confirmé avant chaque départ (pilote + passagers, dans les limites de 1 / 6 / 15 places). Une personne ne peut pas apparaître dans deux voyages/scènes incompatibles ; changements de manifeste à une escale autorisée ou sur décision du MJ.
+L’arrimage dure deux minutes. Si une résistance est jouée, les équipages rejoignent une zone d’abordage approuvée et utilisent les règles du combat au sol sous supervision adaptée. Aucun combat réel n’est improvisé dans un local non autorisé. Les personnages à 0 PV suivent leurs propres règles de secours et de mortalité.
+Seuls les personnages effectivement embarqués défendent ou participent à l’abordage en cette qualité. Si des joueurs sont indisponibles, le MJ applique des ordres ou une résolution annoncée, sans capture automatique, ni attente indéfinie. Le contrôle temporaire d’une passerelle ne transfère ni la propriété du vaisseau ni automatiquement celle de son fret.
+Transborder le fret
+Cinq unités de fret par tranche de trois minutes, y compris la tranche finale incomplète. Le cargo receveur doit être présent, admissible et disposer d’un volume libre suffisant. Le temps se calcule sur des unités de capacité de fret, pas nécessairement sur le nombre d’objets si certains ont un volume différent.
+	Volume transféré
+	Temps total
+
+	1 à 5 unités
+	3 min
+
+	6 à 10
+	6 min
+
+	11 à 15
+	9 min
+
+	16 à 20
+	12 min
+
+
+
+Le transfert se fait par tranches de cinq unités de capacité de fret au maximum ; réservation puis transfert atomique UNIQUEMENT après trois minutes par tranche. Une interruption annule la tranche en cours, sans annuler les précédentes. Une seule opération active par soute source. Le receveur doit être un cargo/transport compatible, dans la même zone, avec volume libre et droits appropriés ; le chasseur ne reçoit pas de fret commercial.
+Capturer le vaisseau ne donne pas accès automatique à MOD-04 Soute clandestine ni au coffre R04-02. Il faut code valide, intrusion INF-01 N3+ sur une cible préparée ou inspection approfondie par une personne habilitée. Découvrir une soute ne déverrouille pas le coffre qui lui-même contient des biens. La capture n’est pas un droit de prendre tout le stock.
+Rançon et contrôle de fait
+Une rançon est librement négociée en crédits de jeu. Refuser ne crée aucun débit automatique. La durée de captivité des joueurs reste limitée, indépendamment de la valeur des marchandises ou de la durée du dossier de vaisseau.
+Contrôler une passerelle, détenir le titre du bâtiment et posséder son fret sont trois situations différentes. Une capture permet les opérations expressément autorisées ; elle ne donne pas tous les droits sur les caisses, stocks et historiques.
+Vol définitif d’un vaisseau
+Le processus validé comporte : capture effective ; récupération ; remise en état ; modification technique de l’identification ; falsification documentaire ; validation finale du MJ. Le rapatriement peut passer par une réparation suffisante et un pilote, ou par le remorquage.
+La modification technique est réalisée par un Mécano, la falsification par un Infiltrateur ; chacune peut être remplacée par un spécialiste PNJ payant. Le MJ enregistre ensuite la nouvelle propriété. L’identifiant permanent, les anciens noms et la chaîne de propriété ne disparaissent pas.
+	Coût validé
+	Barème
+
+	Modification du transpondeur
+	10 % de la valeur du vaisseau.
+
+	Falsification documentaire
+	10 %.
+
+	Total du changement d’identité
+	20 %, hors réparations et transport.
+
+	Chaque spécialiste PNJ remplaçant une étape
+	+5 %.
+
+	Réparer une Coque
+	5 % par point.
+
+	Validation MJ
+	Aucun tarif supplémentaire n’a été adopté.
+
+
+
+Transpondeur : MEC-02 N3, 5 min, 1 PA, 10 % de la valeur du vaisseau. Faux papiers : INF-03 N3, 5 min, 1 PA, 10 % supplémentaires. Chaque étape sous-traitée au PNJ coûte 5 % de la valeur en plus. Réparer la Coque, remorquer et assurer la révision restent des coûts séparés. Le MJ vérifie les mandats et valide le transfert de propriété ; identifiant d’origine et historique conservés.
+Exemple : cargo de 10 000 Cr, 2 000 Cr pour les deux opérations d’identité ; deux spécialistes PNJ ajoutent 1 000 Cr ; deux points de Coque réparés coûtent 1 000 Cr. Total = 4 000 Cr, AVANT remorquage, carburant et éventuelle révision. Les documents peuvent exiger des formulaires/ressources prévus, sans second débit des 10 %.
+Découverte d’une identité volée
+Un contrôle d’identité intervient seulement à l’occasion d’une inspection, d’un mandat ou d’un indice de jeu. Qualité du faux = niveau INF-03 de sa fabrication (N3, N4 ou N5), ou 3 pour un spécialiste PNJ ordinaire. Test 1D6 + qualité ≥ 7 : N3 passe sur 4–6, N4 sur 3–6, N5 sur 2–6. Le succès masque l’anomalie pour ce contrôle, sans valider juridiquement l’appropriation.
+Un échec signale une incohérence, sans livrer automatiquement le propriétaire original ni le faussaire. Une vérification TRA-03, une enquête et une contestation restent possibles ; saisie seulement par procédure officielle et décision autorisée, avec délai provisoire A33. Un nouveau contrôle sur les mêmes pièces dans le même passage exige un élément nouveau ou le MJ. Le transpondeur fantôme R05-02 exige aussi ses papiers de couverture et conserve un historique permanent.
+22 — Remorquage, épaves et récupération
+Remorquer
+Le remorquage est possible pour un cargo ou transport équipé de MOD-05, ou auprès d’un PNJ disponible. Gabarit du remorqueur au moins égal à celui de l’épave, une seule épave à la fois. Un chasseur ne tracte jamais une épave. L’attelage n’en change ni la propriété ni la Coque.
+Attelage : MEC-02 N2, 5 minutes, 1 PA, avant départ. Durant le trajet, consommation de carburant ×2 ; Manœuvrabilité –1, minimum 0. Un remorqueur PNJ facture 5 % de la valeur du vaisseau remorqué, carburant inclus dans la prestation standard (chasseur 250 Cr, cargo 500 Cr, transport 1 000 Cr). Ce tarif est distinct de toute prime de sauvetage.
+Si le remorqueur ne possède pas le carburant suffisant, le départ est refusé. En combat, l’épave peut être larguée gratuitement avant la résolution d’un round, le bonus de Manœuvrabilité normal est aussitôt rétabli ; impossible de la raccrocher pendant la même rencontre. Le contrat PNJ ne constitue ni déclaration de propriété ni compensation de sauvetage.
+Interception et largage
+Un remorqueur peut être intercepté. Ses armes, Coque et Bouclier restent ceux de sa fiche. Il peut conserver son attelage avec les pénalités applicables ou larguer immédiatement et gratuitement l’épave, sans PA ni dé, avant résolution du round.
+Le largage validé rend immédiatement la Manœuvrabilité normale. L’épave reste récupérable dans la zone fictive ; elle ne peut pas être raccrochée pendant ce même affrontement. Si le remorqueur tombe à 0 Coque, le remorquage est interrompu. Gagner le combat ne donne pas automatiquement la propriété de l’épave, et un chasseur ne devient pas capable de la tracter.
+Trois statuts de récupération
+	Situation
+	Droit principal
+
+	Sauvetage demandé par le propriétaire
+	Prestation contractuelle ; propriété inchangée.
+
+	Épave délaissée dont le propriétaire est connu
+	Récupération possible, mais pas appropriation automatique.
+
+	Épave sans propriétaire établi
+	Revendication possible après recherche et validation MJ.
+
+
+
+Un joueur absent ne perd pas son vaisseau parce qu’il manque une session. Un vaisseau volé puis abandonné conserve son historique ; l’absence de transpondeur lisible n’efface pas son propriétaire enregistré.
+Primes validées
+Le tarif de référence est de 5 % de la valeur du vaisseau pour un sauvetage commandé et 10 % pour une récupération spontanée reconnue. Les réparations ne sont pas comprises implicitement.
+La prime spontanée exige reconnaissance et financement par un fonds, une autorité fictive ou un dispositif de mission validé par le MJ. Elle n’est pas créée à chaque clic et n’est pas prélevée de force sur un propriétaire. Contrat, bénéficiaire, événement et budget doivent être identifiés ; aucune répétition de prime pour la même opération.
+Une panne ou un abandon organisé avec des complices pour toucher une récompense n’est pas une découverte légitime. Les équipages peuvent convenir d’une récupération commune et partager la rémunération.
+Revendication et contestation
+Épave sans propriétaire établi : déclaration gratuite, rapatriement et avis au registre. Une session complète de publicité est obligatoire APRÈS la session de déclaration : épave déclarée en S, revendication définitive possible au plus tôt en fin de S+1, sur décision MJ. La simple absence d’un joueur ne fait jamais perdre sa propriété. Toute contestation recevable suspend l’attribution.
+Le récupérateur qui revendique l’appropriation d’une épave sans propriétaire établi consigne une CAUTION REMBOURSABLE de 5 % de sa valeur, immobilisée jusqu’à la décision MJ. La découverte ne confère ni titre ni droit de mettre le vaisseau à la casse. Le propriétaire connu peut revendiquer à tout moment pendant la publicité ; les litiges restent sous contrôle MJ.
+Restitution au propriétaire reconnu : remboursement des dépenses nécessaires prouvées, ordinairement plafonné à 10 % de la valeur du vaisseau, sans débit forcé. Déclaration gratuite ; caution de revendication remboursée après décision, sauf compensation explicite ou fraude motivée. Une éventuelle prime de sauvetage reste distincte et financée ; une dépense ne peut être payée deux fois.
+Après attribution définitive, une contestation tardive ne révoque pas automatiquement la propriété : éléments nouveaux, fraude ou erreur de registre donnent lieu à enquête et décision MJ. Une absence à une session seule n’est pas suffisante. Le fret et les biens de tiers sont toujours séparés juridiquement de l’épave.
+La cargaison est une propriété distincte. Attribuer l’épave concerne le bâtiment et ses équipements installés, pas les marchandises, documents ou objets personnels appartenant à d’autres. Les transferts respectent les capacités et le transbordement ; le droit sur le fret doit être établi séparément.
+La caution de revendication A31 ne rémunère aucun sauveteur et est tenue dans une réserve distincte. Une attribution ne transforme pas les documents ou marchandises de tiers en propriété du nouveau propriétaire du vaisseau. Le délai de publicité ne peut pas être raccourci par une déclaration en fin de session.
+Démontage ciblé et mise à la casse
+Démontage de module : retrait ciblé MEC-03 dans les conditions du niveau, sans création d’un second module. Casse totale : production à usage unique de lots de pièces représentant 10 % de la valeur de référence du bâtiment, et destruction définitive de celui-ci, validée par le MJ et uniquement avec droits de propriété établis. Un module conservable doit être retiré AVANT la casse ; sinon il disparaît sans rendement additionnel.
+Casse partielle : MEC-02 N2, 5 minutes, 1 PA, extraction jusqu’à 25 % du rendement total (2 lots chasseur ; 5 cargo ; 10 transport). DÈS le premier prélèvement, l’épave passe à « démantèlement engagé » et ne peut plus naviguer. Les lots partiels sont retranchés du rendement total ; on ne répète pas le rendement. Casse totale : MEC-02 N2 en chantier autorisé, validation MJ, une seule fois. Un lot de pièces vaut 50 Cr d’usage, occupe une unité de fret et est racheté 25 Cr par le ferrailleur PNJ, non 85 % du marché général.
+	Gabarit
+	Rendement casse totale
+	Rachat PNJ
+	Durée casse
+
+	Chasseur
+	10 lots × 50 Cr
+	250 Cr
+	10 min / 1 PA
+
+	Cargo
+	20 lots × 50 Cr
+	500 Cr
+	15 min / 1 PA
+
+	Transport
+	40 lots × 50 Cr
+	1 000 Cr
+	20 min / 1 PA
+
+
+	Valeur de récupération validée
+	Règle
+
+	Casse totale
+	Pièces représentant 10 % de la valeur de référence du vaisseau.
+
+	Module fonctionnel revendu au PNJ
+	50 % du prix neuf.
+
+	Module endommagé réparable revendu au PNJ
+	20 % du prix neuf.
+
+	Réparer ce module
+	Ressources équivalentes à 25 % du prix neuf.
+
+
+
+Un module démonté n’est pas simultanément vendu et installé : transfert d’un identifiant unique. Avant casse, les modules conservables sont retirés selon leur niveau MEC-03 ; ceux laissés sur le bâtiment sont détruits sans rendement supplémentaire. Aucun même module n’est valorisé une seconde fois sous forme de lots.
+Retrait standard : MEC-03 N2, 5 minutes et 1 PA ; rares N4 : MEC-03 N4, 10 minutes et 1 PA ; prototypes N5 : MEC-03 N5, 15 minutes et 1 PA. Casse totale en chantier autorisé, MEC-02 N2, 1 PA : chasseur 10 minutes, cargo 15 minutes, transport 20 minutes. L’éventuelle prestation de chantier PNJ relève d’un tarif annoncé préalablement : aucune recette illimitée ou coût caché.
+Le lot de pièces détachées vaut 50 Cr en utilisation et occupe une unité de fret ; le ferrailleur PNJ l’achète à 25 Cr. Casse totale : 10 % de la valeur de référence du vaisseau, convertis en lots de 50 Cr ; si une autre valeur est ajoutée au catalogue, le nombre de lots se calcule avec un arrondi à l’entier inférieur. Un cargo à 10 000 Cr fournit 20 lots (1 000 Cr d’usage), rachetés 500 Cr au barème spécial.
+Vendre un vaisseau
+Le marché validé distingue neuf à 100 %, occasion PNJ à 70 % et rachat PNJ à 50 % de la valeur de référence, avec déduction des réparations nécessaires. Les transactions entre joueurs sont négociées librement.
+Modules et cargaison sont évalués séparément, sans double comptage. Un appareil à 0 Coque se vend comme épave. Capture non régularisée et litige empêchent une vente officielle normale. L’inclusion exacte des recharges de Bouclier, de la révision et des modules dans la déduction doit être détaillée dans le devis.
+Avec la référence définitive de 10 000 Cr, un cargo repris à 50 % vaut 5 000 Cr avant déduction. Deux points de Coque à réparer représentent 1 000 Cr ; valeur de reprise nette indicative : 4 000 Cr, hors révision, boucliers ou modules identifiés dans le devis.
+23 — Marchandises et marchés de Port-Brèche
+Le catalogue commercial de travail
+Prix de référence DÉFINITIFS des douze catégories par lot dans le tableau suivant. À Port-Brèche, la légalité indiquée est celle du port, pas une loi universelle ; d’autres destinations peuvent présenter une autre réglementation.
+	Marchandise
+	Prix de référence définitif par lot
+	Statut à Port-Brèche
+
+	Eau purifiée
+	40 Cr
+	Libre.
+
+	Rations alimentaires
+	60 Cr
+	Libre.
+
+	Minerai brut
+	100 Cr
+	Libre.
+
+	Alliages industriels
+	160 Cr
+	Libre.
+
+	Pièces détachées
+	50 Cr
+	Libre ; reprise spéciale à distinguer.
+
+	Composants électroniques
+	200 Cr
+	Libre.
+
+	Cellules énergétiques
+	140 Cr
+	Libre.
+
+	Pièces de droïdes
+	200 Cr
+	Libre.
+
+	Fournitures médicales au bacta
+	320 Cr
+	Réglementée.
+
+	Armement militaire conditionné
+	450 Cr
+	Réglementée.
+
+	Épices prohibées fictives
+	500 Cr
+	Interdite.
+
+	Technologies interdites / artefacts sensibles
+	700 Cr
+	Interdite.
+
+
+
+Chaque lot commercial occupe normalement une unité de fret dans le catalogue de base. Une caisse commerciale de bacta ne devient pas gratuitement une trousse de soins : seule une conversion explicitement prévue dans le Master et débitée dans les stocks peut produire un consommable. Les marchandises de contrebande restent fictives.
+Les quatre états de marché validés
+	État local
+	Coefficient
+
+	Surabondance
+	0,85
+
+	Normal
+	1,00
+
+	Tension
+	1,15
+
+	Pénurie
+	1,30
+
+
+
+Prix local = valeur de référence × coefficient. Un joueur achète au PNJ à ce prix local ; le PNJ rachète les marchandises ordinaires à 85 % du prix local. Le Courtier obtient 10 % de remise seulement sur les offres négociables réussies. Le commerce entre joueurs reste libre.
+Les prix, stocks vendus et quantités demandées évoluent de façon encadrée selon les ports, les besoins et les événements de chaque session, pas automatiquement après chaque transaction. Les offres et budgets sont finis ; un marché ne rachète pas indéfiniment au prix de pénurie. Le prix annoncé est conservé pour la transaction confirmée.
+Priorité des barèmes : rachat ordinaire des marchandises à 85 % du prix local ; pièces récupérées à 25 Cr/lot ; modules standards/rares à 50 % en bon état ou 20 % endommagé selon offre PNJ ; vaisseaux selon leur barème spécifique. Jamais d’application simultanée de deux coefficients de reprise sur un même bien.
+Négoce et transport ne sont pas la même activité
+Le négociant achète le fret et supporte son prix d’acquisition. Le transporteur reçoit la garde d’un fret appartenant au client ; il n’a pas à l’acheter et ne peut pas le revendre comme son propre stock.
+Le contrat de transport est rémunéré à 10 % de la valeur du fret pour l’ordinaire, 15 % pour un transport à risque, avec minimum 100 Cr. Les offres doivent être disponibles et financées. Le carburant et les frais de voyage restent à la charge du transporteur sauf clause ; droits et assurance relèvent du propriétaire ou client désigné au contrat.
+Le fret retour n’est jamais garanti. Il dépend du marché et des offres réelles. Un Courtier peut aider à le trouver ; il ne crée pas automatiquement une mission de retour rentable.
+Exemple économique vérifié
+Exemple corrigé avec A35 : vingt lots de composants à 200 Cr, achetés à 85 % puis vendus à 130 % × 85 %, cargo moyen aller-retour ; droits libres 5 % de la valeur de référence, escorte pour l’aller dangereux et provision de son carburant de retour (chasseur sur trajet moyen aller-retour). Pas de remise Courtier ni de perte.
+	Poste (escorte chasseur, trajet moyen aller-retour)
+	Calcul
+	Montant
+
+	Achat
+	20 × 200 × 0,85
+	–3 400 Cr
+
+	Revente PNJ
+	20 × 200 × 1,30 × 0,85
+	+4 420 Cr
+
+	Douane
+	5 % × 4 000
+	–200 Cr
+
+	Carburant aller-retour
+	8 unités × 25
+	–200 Cr
+
+	Résultat avant protection et incidents
+	4 420 – 3 400 – 200 – 200
+	620 Cr
+
+	Escorte + carburant aller-retour
+	200 Cr salaire + 4 unités × 25 Cr
+	–300 Cr
+
+	Assurance aller dangereux
+	4 % × 4 000
+	–160 Cr
+
+	Résultat protégé CORRIGÉ
+	620 – 300 – 160
+	160 Cr
+
+
+
+Avec une vraie mission de fret retour rémunérée 400 Cr, le résultat corrigé de l’expédition protégée serait 560 Cr avant autres frais. Le carburant cargo retour est déjà dans le calcul ; celui du chasseur escorteur est provisionné séparément. Aucun contrat de retour n’est garanti.
+Sur ce cargo de référence définitive 10 000 Cr : révision 100 Cr, recharge de deux Boucliers 100 Cr, réparation d’un point de Coque 500 Cr, total pièces/intervention de 700 Cr hors main-d’œuvre PNJ. L’expédition protégée passerait de +160 à –540 Cr en cas de ces frais ; elle n’est pas intrinsèquement rentable.
+Contrôle du calcul A24/A35 : achat 3 400 Cr ; revente 4 420 Cr ; droits 200 Cr ; carburant cargo aller-retour 200 Cr ; marge brute 620 Cr. Avec escorte 200 Cr, carburant escorteur aller-retour 100 Cr et prime d’assurance 160 Cr, résultat = 160 Cr. Le résultat de l’ancienne V0.5 (260 Cr) oubliait le carburant provisionné de l’escorteur : il est corrigé ici.
+Vigilances d’équilibrage
+Ces tarifs n’assurent pas une rentabilité automatique : offres et budgets sont limités, disponibilités de fret retour réelles, contrats financés, 5/10/15 minutes de voyage, risques et dommages persistants. Les 200 Cr de création temporairement protégés d’un nouveau personnage ne constituent pas un capital librement investissable dans des biens revendables.
+La probabilité d’au moins un événement sur un aller-retour indépendant est 1 – (1 – p)² : 30,6 % sur route sécurisée, 55,6 % dangereuse et 75 % hostile. Ce sont tous les événements, pas les probabilités de pertes assurées ou d’attaques pirates.
+Les crédits d’achat, primes et indemnités doivent provenir de caisses ou budgets prévus. Aucun scan, simple réimport de catalogue ou changement de session ne recrée gratuitement les biens déjà distribués.
+24 — Manifestes, douanes et licences
+Inventaire réel et manifeste présenté
+Le manifeste décrit le vaisseau, le responsable, le voyage, les marchandises déclarées, leur valeur et les autorisations. Il est distinct de la cargaison réelle. Un faux document ne modifie ni la quantité serveur ni le propriétaire des lots.
+Une soute clandestine dissimule une partie du volume existant : 5 unités sur un cargo, 10 sur un transport, dans les capacités totales 20 et 50. Aucun fret supplémentaire. Les biens cachés restent présents, propriétaires identifiés et transferts possibles selon les droits.
+Protection validée : le compartiment clandestin masque son contenu aux contrôles ordinaires ; une inspection approfondie au D6 peut le découvrir. Une marchandise déjà découverte ne redevient pas inconnue simplement parce qu’elle est replacée dans le compartiment.
+Fiscalité validée
+	Situation
+	Taux de référence
+
+	Transit sans importation locale
+	0 %
+
+	Marchandises libres importées
+	5 %
+
+	Marchandises réglementées avec licence
+	10 %
+
+	Marchandises interdites
+	Pas de dédouanement ordinaire.
+
+
+
+Fiscalité appliquée à la valeur de référence des lots, jamais au manifeste éventuellement sous-déclaré. Chaque opération d’importation et chaque lot possèdent une quittance : un même fait générateur ne peut être taxé deux fois parce que plusieurs douaniers inspectent le même passage. Le transit reste à 0 %, mais vendre localement nécessite une importation régulière.
+Les licences validées
+	Autorisation
+	Tarif
+	Portée
+
+	LIC-01 — Licence commerciale
+	100 Cr
+	Permanente, sauf révocation ; activité marchande régulière.
+
+	LIC-02 — Permis réglementé
+	2 % de la valeur concernée, minimum 50 Cr
+	Cargaison et voyage autorisés.
+
+	LIC-03 — Autorisation exceptionnelle
+	Selon le MJ
+	Mission, biens et durée spécifiés.
+
+
+
+La vente occasionnelle de ses propres biens n’exige pas automatiquement la licence commerciale. Le permis ne remplace pas la taxe. Pour 2 000 Cr de fret réglementé, le minimum de permis est 50 Cr, puis la taxe standard d’importation est 200 Cr.
+Les licences ont un titulaire, un émetteur, une validité et un périmètre. INF-03 peut fabriquer une présentation falsifiée, jamais une vraie habilitation technique. Une licence permanente n’est pas transmise automatiquement à un personnage successeur sans décision.
+Contrôler une cargaison
+Le contrôle ordinaire porte sur les données déclarées et les documents accessibles, sans dévoiler la soute clandestine. L’inspection approfondie recherche les compartiments cachés, avec le seuil retenu : 1D6 + niveau de contrôle ≥ 7. Une seule tentative par passage et vaisseau, sauf nouvel indice ou autorisation MJ.
+	Niveau de contrôle
+	Résultats du D6 réussis
+	Probabilité sans bonus
+
+	1
+	6
+	16,7 %
+
+	2
+	5–6
+	33,3 %
+
+	3
+	4–6
+	50 %
+
+	4
+	3–6
+	66,7 %
+
+	5
+	2–6
+	83,3 %
+
+
+
+Habilitation douanière N1 à N5 accordée par l’organisation au poste joueur ou PNJ, indépendamment des classes et des XP ; le niveau autorisé détermine le test d’inspection physique 1D6 + niveau ≥ 7. Contrôle documentaire ordinaire : 2 minutes, 0 PA, sans révélation d’une soute cachée ; inspection approfondie : 2 minutes, 1 PA pour agent joueur, une tentative par vaisseau et escale tous agents confondus, sauf indice nouveau ou décision MJ. TRA-03 demeure une compétence documentaire distincte.
+Découvrir la soute ne révèle pas automatiquement les autres secrets ni l’authenticité de toute l’immatriculation. Le coffre sécurisé rare est un verrou d’accès distinct de la dissimulation : trouver un compartiment ne donne pas nécessairement son code d’ouverture.
+Sanctions progressives et recours
+Sanctions graduées : erreur mineure = correction/avertissement ; fret libre non déclaré = droits dus + amende 10 % de sa valeur de référence ; fret réglementé sans permis = retenue et régularisation possible ; interdit = saisie/poursuite scénarisée ; faux document = enquête. Les retenues, saisies et amendes suivent une procédure d’autorité, jamais un débit immédiat arbitraire.
+	Situation
+	Réponse validée
+
+	Erreur documentaire mineure
+	Correction et avertissement.
+
+	Marchandise libre non déclarée
+	Droits d’importation dus + amende 10 % de la valeur de référence non déclarée.
+
+	Bien réglementé sans permis
+	Retenue du lot et examen d’une régularisation.
+
+	Bien interdit
+	Procédure de saisie ou poursuite scénarisée.
+
+	Faux manifeste ou identité suspecte
+	Enquête et contrôles autorisés.
+
+
+
+Retenue administrative provisoire : maximum 15 minutes réelles. Avant expiration, l’autorité/MJ libère ou prononce une saisie formelle des lots vers un inventaire officiel ; sans décision, la retenue cesse. Le joueur conserve sa liberté hors jeu et peut poursuivre l’aventure après consignation des biens. La même infraction ne permet pas d’enchaîner des retenues artificiellement. Paiement d’amende, contestation ou créance suivent les procédures autorisées.
+La corruption reste une action de fiction ou une offre préparée, pas un droit universel d’effacer une sanction. Aucun tarif général de pot-de-vin n’a été adopté ; une remise Courtier ne réduit une taxe ou une amende que si une règle explicite l’autorise.
+25 — Contrats, escortes, assurances et recours
+Ce que l’on signe
+Un contrat nomme parties, mandats, vaisseaux, cargaison identifiée, ports/codes, salaire, budget payeur, échéance, livraison et frais (douanes, carburant, assurance), force majeure, recours et clauses éventuelles de détours. Un contrat de transport n’emporte pas propriété du fret ; une escorte est distincte de son transport.
+À signature, la rémunération est PROVISIONNÉE en crédits existants dans GN Engine (ou budget PNJ identifié). La livraison est constatée par QR de réception du destinataire ou validation MJ en cas d’indisponibilité. À l’achèvement, 10 minutes de délai de contestation ; la somme non litigieuse est ensuite payée et seule la part contestée reste réservée.
+Une livraison partielle n’est rémunérée proportionnellement que si le contrat le prévoit. Un détournement volontaire est une fraude, pas une vente normale du bien confié. Les contrats de transport, d’escorte et d’assurance sont distincts, même sur le même voyage.
+Prix des services et escorte
+	Prestation validée
+	Tarif de référence
+
+	Fret ordinaire
+	10 % de la valeur ; minimum 100 Cr.
+
+	Fret à risque
+	15 % ; minimum 100 Cr.
+
+	Escorte, route sécurisée ou dangereuse
+	5 % du fret par vaisseau escorteur ; minimum 100 Cr.
+
+	Escorte, route hostile
+	7,5 % par vaisseau ; minimum 150 Cr.
+
+
+
+Les joueurs peuvent négocier d’autres montants. Tout équipage autorisé avec un appareil opérationnel peut vendre une escorte ; ESC-01 est nécessaire seulement pour les manœuvres spéciales. Les informations de route nécessaires sont partagées, pas tout le contenu privé de la soute.
+L’escorte doit accompagner le trajet convenu, disposer d’un pilote et du carburant, entreprendre une protection raisonnable et respecter la confidentialité. Protection peut signifier tir, interposition, diversion ou négociation ; l’obligation n’est pas de gagner ni de se sacrifier.
+	Issue de l’escorte
+	Règlement validé
+
+	Mission accomplie
+	100 % du salaire.
+
+	Défense effective mais convoi perdu
+	50 %.
+
+	Escorte neutralisée en protégeant le convoi
+	100 % SI le cargo accomplit sa mission grâce à l’escorte, même neutralisée ; sinon 50 % pour défense effective.
+
+	Abandon injustifié ou trahison
+	0 %.
+
+
+
+La responsabilité financière ordinaire de l’escorteur est limitée à sa rémunération, sans caution obligatoire. Toute garantie supplémentaire exige accord préalable et validation du MJ. Une défaite n’est pas une faute ; une divulgation volontaire aux pirates ou participation à l’attaque peut en être une.
+A35 : si le cargo est livré grâce à une protection réelle, le salaire d’escorte est dû à 100 %, y compris lorsque le vaisseau escorteur a été neutralisé. Défense réelle et mission non livrée : 50 %. Abandon fautif/trahison avérée : 0 %. Détour demandé par le client et accepté : avenant +25 % du salaire initial par tronçon supplémentaire, plafond +50 % sans accord MJ ; refus après départ : séparation sûre et 50 % du salaire initial. Le client provisionne séparément le carburant normal aller-retour de chaque escorteur, à 25 Cr/unité, avec restitution de la provision financière non consommée ; les unités effectivement transférées dans un réservoir suivent leurs droits de propriété. Retour, réparations et remorquage suivent leur attribution contractuelle.
+Si l’acheteur impose une déviation additionnelle, la rémunération supplémentaire est calculée sur le SALAIRE INITIAL de l’escorteur, pas sur la valeur du fret. Le budget carburant aller-retour est distinct du prix d’escorte ; la provision financière non consommée est remboursée au payeur, sans disparition de carburant déjà transféré. Si le client refuse le retour, l’escorteur reste libre de demander un accord avant départ. La défaite ne constitue pas une faute, et la responsabilité ordinaire reste limitée au salaire hors garantie spéciale validée.
+Assurance de cargaison
+Le produit validé couvre 80 % des pertes reconnues, avec un plafond cumulé de 5 000 Cr par contrat standard, sous contrôle du MJ.
+	Danger de la route
+	Prime sur la valeur assurée
+
+	Sécurisée
+	2 %
+
+	Dangereuse
+	4 %
+
+	Hostile
+	6 %
+
+
+
+Assurance à souscrire avant le départ, au bénéfice du propriétaire du fret ou de la personne expressément désignée. Prime 2 % route sûre, 4 % dangereuse, 6 % hostile ; couverture 80 % des pertes admissibles, au maximum 5 000 Cr cumulés par police. La valeur assurée de chaque lot ne dépasse pas la valeur de marché reconnue lors de la souscription.
+Une seule police active PAR LOT ET PAR VOYAGE : GN Engine refuse la double couverture des mêmes unités. Indemnité = minimum(80 % des pertes admissibles, plafond restant de 5 000 Cr), calculée uniquement sur les lots réellement perdus ; propriété et existence des lots volés demeurent traçables. Le plafond ne se renouvelle pas après un premier sinistre.
+Couverts : piraterie reconnue, perte matérielle définitive lors d’un événement spatial validé et fraude d’un transporteur/escorteur lorsque le propriétaire assuré est innocent et le MJ la reconnaît. Exclus : retard seul, vaisseau, marchandises interdites non déclarées, saisie régulière pour fraude, abandon intentionnel par l’assuré et fraude concertée. La trahison d’un escorteur ne supprime pas automatiquement les droits du propriétaire innocent.
+La caisse d’assurance est dotée d’un BUDGET explicite et alimentée par les primes. Chaque souscription réserve l’indemnisation maximale théorique (80 % des lots couverts, plafond 5 000 Cr), refusée si les fonds disponibles sont insuffisants. Le MJ valide tout sinistre depuis cette caisse ; les lots volés ne sont ni supprimés ni dupliqués par l’indemnisation.
+Si une marchandise indemnisée est récupérée, son propriétaire peut la conserver mais doit restituer la part de l’indemnité correspondant aux unités retrouvées, proportionnellement. Jusqu’à régularisation, ces unités restent indisponibles à la revente/transfert. L’assureur conserve son droit de recours contre un auteur de fraude reconnu, sans effacer des stocks ni fabriquer de crédits.
+Une assurance standard ne couvre pas les réparations de l’escorteur ni le délai de livraison. Aucune compensation automatique ne naît d’un départ non effectué ou d’un stock disparu pour une cause exclue ; le dossier doit mentionner précisément les identifiants des lots, la cause et le paiement effectivement autorisé.
+Retards : barème validé
+Les pénalités portent sur le salaire du transporteur, pas sur la valeur intégrale du fret.
+	Situation
+	Salaire versé si contrat maintenu
+
+	À temps ou retard reconnu justifié
+	100 %
+
+	Une session de retard fautif
+	90 %
+
+	Deux sessions ou davantage de retard fautif
+	75 %
+
+
+
+Le barème des retards porte UNIQUEMENT sur le salaire du transporteur : échéance en sessions : 0 % dans les temps, –10 % pour une session de retard fautif, –25 % pour deux sessions ou davantage. Échéance intra-session : 0 % jusqu’à 10 minutes, –10 % après 10 jusqu’à 30, –25 % au-delà de 30 minutes. Une seule grille s’applique, jamais cumulée, plafond –25 %. Retard dû à force majeure reconnue : possibilité d’exonération/renégociation, pas de pénalité automatique.
+Une échéance doit être désignée dès la signature : session de campagne ou heure précise pendant la session. Une requalification après le retard est interdite. Le même événement ne justifie pas des réductions répétées ; le fret perdu relève d’un sinistre et non d’une multiplication infinie de pénalités.
+Résiliation équilibrée validée
+	Situation
+	Règlement
+
+	Annulation avant départ
+	Aucun salaire ; frais nécessaires et justifiés éventuellement compensés, maximum 10 % du salaire.
+
+	Client annule après départ
+	50 % du salaire.
+
+	Abandon fautif du prestataire
+	Aucun salaire.
+
+	Force majeure
+	Suspension, recherche d’une solution et arbitrage MJ ; pas de pénalité de retard automatique.
+
+	Accord amiable
+	Conditions acceptées et enregistrées, dans les garanties autorisées.
+
+
+
+La compensation avant départ n’est pas une pénalité automatique de 10 %. Les frais doivent être réels dans le jeu, justifiés et reconnus. La compensation à 50 % après départ ne signifie pas un transfert de la cargaison au transporteur.
+En force majeure, le contrat suspendu peut être réorganisé jusqu’à la fin de la session COMPLETE suivant l’incident : réparation, remorquage, reprise ou accord. Sans solution et sans faute après le départ, règlement de 50 % du salaire si le service engagé et les obligations de garde/restitution ont été assurés ; avant départ, 0 % de salaire, mais frais nécessaires justifiés éventuels. L’annulation ne téléporte pas le fret.
+L’annulation ne téléporte ni ne détruit le fret. Retour au point de départ, destination convenue ou nouvelle garde nécessitent un transfert effectif et une répartition annoncée des frais. Une mission d’escorte reste un contrat distinct ; résilier le transport ne la clôt pas gratuitement en effaçant le service déjà rendu.
+Contester sans bloquer tout le jeu
+Après livraison ou fin de mission, délai de contestation de 10 minutes ; paiement de la partie non contestée, blocage de la part litigieuse seulement. Médiation initiale de 20 minutes pendant la session ; sur dossier complexe, gel de la part contestée jusqu’à la fin de la session complète suivante par décision MJ. Une contestation ne bloque pas indéfiniment le personnage ni un salaire non contesté.
+Recours APRES paiement : jusqu’à fin de la session complète suivant la clôture, et seulement pour erreur matérielle, pièce nouvelle ou fraude découverte. Les crédits déjà payés ne sont pas fictivement « toujours bloqués » : restitution sur fonds disponibles ou inscription d’une créance, sans solde négatif inventé. Montants limités aux obligations réellement concernées, hors clause spécifique acceptée.
+Règle de force majeure A36 : après un départ engagé, le paiement sans faute en cas de mission définitivement impossible est limité à 50 % lorsque la garde ou la restitution du fret est respectée. Avant départ, aucun salaire ; frais réels reconnus éventuellement. La séparation d’une escorte et du transport requiert le règlement de leurs deux contrats séparés.
+La médiation préserve les preuves confidentielles et les droits d’accès MJ. Les recours, créances et remboursements persistent entre sessions jusqu’à décision. Un cas d’absence justifiée ou d’enquête grave peut faire l’objet d’une décision explicite du MJ, sans annuler automatiquement tous les contrats de la campagne.
+A38 — PERSISTANCE ENTRE SESSIONS
+Conservés : personnage, classe, compétences, XP, niveau global ; crédits ordinaires, dettes, réputation, propriétaires et objets ; PV manquants et protection épuisée ; modules endommagés, Coque/Boucliers/carburant ; marchandises, contrats, comptes réservés, litiges, assurances, voyages et événements déjà tirés. AUCUNE guérison, restauration de Bouclier, recharge de carburant ou création de stock n’est automatique à la fermeture.
+Renouvelés/expirés : PA complets au début de session puis cycle normal de cinq heures ; délais de récupération de dix minutes, convalescences/recalibrages temporaires, Malaise, neutralisations provisoires et caches Dissimulation expirent entre sessions. Un personnage stabilisé à 0 PV reste à 0 PV jusqu’à un soin réel, sans mort rétroactive, mais le délai mortel de cinq minutes doit impérativement avoir été résolu AVANT de fermer la session. Aucun captif n’est maintenu fictivement en détention physique d’une session à l’autre.
+Un voyage non achevé est suspendu : route, durée restante, équipage, fret, carburant déjà payé, résultat d’événement, protection d’interception sur le tronçon et usages spéciaux sont conservés. Reprise sans second paiement ni second tirage. Une rencontre en cours est de préférence résolue avant clôture ; à défaut le MJ sauvegarde explicitement ordres, dégâts, états et compteurs.
+Succession et comptes : le successeur reçoit ses seules dotations initiales et XP de relève définis au chapitre 6. Ni biens ni dettes personnelles de l’ancien personnage ne sont attribués automatiquement au nouveau ; succession, dettes d’organisations, cautions et créances suivent leurs titulaires légitimes et l’arbitrage MJ. Un décès volontaire ne peut pas servir à transférer artificiellement les biens avant relève.
+Clôture officielle : le MJ valide un état des personnages, stocks, propriétaires, vaisseaux, réserves, primes, assurances, créances, ordres et dossiers en cours. La session suivante redémarre à cet état, en conservant les tarifs contractuels acceptés même si les prix de marché de nouveaux contrats évoluent. Une correction post-clôture exige une trace MJ datée, jamais une création d’actifs invisible.
+26 — Aides-mémoire du joueur
+Santé, combat et secours
+	Question
+	Réponse courte
+
+	Combien de PV ?
+	3 ; 4 avec Vétéran.
+
+	Combien de protection personnelle ?
+	1 point maximum, sans cumul.
+
+	Une touche ordinaire ?
+	Protection d’abord ; sinon –1 PV.
+
+	Plusieurs impacts en deux secondes ?
+	Une touche ordinaire, tous attaquants confondus.
+
+	Sabre laser ?
+	0 PV, protection et fenêtre de deux secondes ignorées.
+
+	Tir allié ?
+	Il compte.
+
+	Impact uniquement sur arme tenue ou accessoire dépassant ?
+	Ne compte pas comme touche corporelle.
+
+	À 0 PV ?
+	Hors combat ; cinq minutes réelles pour achever les secours.
+
+	Secours ?
+	Tout personnage actif ; soixante secondes ; sans PA ni consommable ; reste à 0 PV.
+
+	Relever un humanoïde / droïde ?
+	MED-02 / MEC-02 N2 minimum, puis dix minutes de convalescence/recalibrage.
+
+	Sans secours à temps ?
+	Mort ou destruction définitive ; nouveau personnage auprès du MJ.
+
+	Exécuter ?
+	Seulement scène préalablement autorisée par le MJ, jamais frappe réelle.
+
+	Captivité ?
+	Vingt minutes réelles maximum d’immobilisation subie ; sécurité et liberté hors jeu préservées.
+
+
+
+Progression
+	Élément
+	Règle
+
+	Création
+	Trois compétences de classe N2, traits fixes acquis, une initiation secondaire N1.
+
+	Gain
+	Trois XP fixes par session.
+
+	Coûts évolutifs
+	2 / 4 / 6 / 8 / 10 XP pour acquérir les niveaux 1 / 2 / 3 / 4 / 5.
+
+	Technique fixe
+	4 XP ; formation si rare.
+
+	Multiclasse
+	Cinq compétences secondaires maximum, initiation comprise.
+
+	Achat entre sessions
+	Une acquisition ou augmentation, sans saut de palier.
+
+	Niveau global
+	Joueur : 5 PA, puis 8 PA après quatre sessions terminées ; conservé après décès.
+
+	Relève
+	25 % des XP gagnés par le défunt, arrondi inférieur, maximum 9 ; pas de recomptage des XP hérités.
+
+
+
+Combat spatial
+	Action
+	Résolution
+
+	Round
+	90 secondes maximum ; sans ordre : passif.
+
+	Canon standard / lourd
+	4+ pour 1 dégât / 5+ pour 2 dégâts.
+
+	Défense
+	D6 + Manœuvrabilité ≥ 5 ; une attaque désignée annulée.
+
+	Tirs
+	Simultanés, avant les fuites.
+
+	Fuite
+	D6 + Manœuvrabilité opposé ; fuyard strictement supérieur.
+
+	Poursuite
+	Un seul poursuivant principal par round, contre un fuyard.
+
+	PIL-03
+	Une utilisation par voyage ; 1 PA si exécutée. N1 : 1D6 + Manœuvrabilité ≥ 6.
+
+	ESC-01
+	Une interposition par rencontre ; 1 PA si test effectivement réalisé.
+
+	0 Coque
+	Immobilisé, récupérable ; équipage vivant.
+
+	Reddition
+	Accord de tous les adversaires concernés ou commandement habilité ; aucun transfert automatique.
+
+	Inactivité hostile
+	Deux rounds consécutifs sans hostilité : fin sans vainqueur.
+
+	Après combat
+	Révision à 1 % de la valeur avant le voyage suivant.
+
+
+
+Repères économiques
+Voyages : court/moyen/long = 5/10/15 min ; carburant chasseur 1/2/3, cargo 2/4/6, transport 3/6/9, 25 Cr l’unité. Un paiement par départ ; convoi = un événement tiré. Escorte neutralisée ayant permis livraison : 100 % salaire ; assurance 80 % perte, plafond 5 000 Cr avec caisse provisionnée.
+ROG-02 Vol à la tire : local organisation, QR de la victime + nom/prénom de personnage ; 60/45/45/30/30 s ; 1 PA si butin ; 2 tentatives et 1 réussite max par cible/session tous voleurs confondus ; récupération 10 min ; victime alertée 10 min après réussite. ROG-03 Évasion : QR serrure, pas de vraie ouverture ; 60/45/45/30/30 s ; 1 PA si sortie ; surveillance directe bloque ; découverte = récupération 10 min sans PA ; captivité max 20 min réelles.
+	Opération
+	Barème validé
+
+	Carburant
+	25 Cr/unité.
+
+	Ravitaillement de secours
+	Deux minutes, 0 PA ; PNJ 100 Cr + carburant.
+
+	Transbordement
+	Trois minutes par tranche de cinq unités ; cargo receveur requis.
+
+	Bouclier / Coque
+	0,5 % / 5 % de la valeur du vaisseau par point restauré.
+
+	Blanchiment d’un vaisseau
+	20 % ; +5 % par spécialiste PNJ.
+
+	Sauvetage / récupération reconnue
+	5 % / 10 % de référence, avec financement.
+
+	Compensation de récupération
+	Frais nécessaires, plafond ordinaire 10 %, sans prélèvement forcé.
+
+	Casse
+	10 % de la valeur du vaisseau en pièces.
+
+	Module repris / réparé
+	50 % fonctionnel, 20 % endommagé ; réparation 25 % du prix neuf.
+
+	Vaisseau d’occasion / reprise PNJ
+	70 % / 50 %, réparations déduites.
+
+	Marché local
+	0,85 / 1 / 1,15 / 1,30 ; rachat ordinaire à 85 % du local.
+
+	Taxes
+	Transit 0 % ; libre 5 % ; réglementé autorisé 10 %.
+
+	Licences
+	Commerce 100 Cr ; permis 2 %, minimum 50 Cr ; exception MJ.
+
+	Fret
+	10 % ou 15 %, minimum 100 Cr.
+
+	Escorte
+	5 %, minimum 100 Cr ; hostile 7,5 %, minimum 150 Cr, par appareil.
+
+	Assurance
+	Prime 2/4/6 % ; indemnité 80 % de la perte admissible, plafond 5 000 Cr.
+
+	Retard fautif
+	Réduction du salaire de 10 % après une session, 25 % après deux ou davantage.
+
+	Annulation client
+	Avant départ : frais reconnus maximum 10 % ; après départ : 50 % du salaire.
+
+
+
+Les pourcentages de ce récapitulatif utilisent les prix de référence DÉFINITIFS d’A24 : chasseur 5 000 Cr, cargo 10 000 Cr et transport 20 000 Cr ; la liste des douze marchandises figure au chapitre 23. Les offres réellement disponibles, les stocks et les coefficients des ports doivent être publiés dans le Master de chaque session.
+Annexe A — Registre des arbitrages A01 à A38 clôturés
+Les trente-huit arbitrages ont été ratifiés. Cette annexe donne leur trace condensée ; les règles opposables complètes figurent dans les chapitres correspondants. Les vérifications matérielles réelles, les contenus particuliers du Master et les essais de GN Engine ne sont PAS des arbitrages de règle laissés ouverts.
+A01 à A07 — Sécurité, combat et secours
+	Repère
+	Arbitrage validé
+	Effet principal
+
+	A01
+	Matériel GN individuel homologué
+	Armes personnelles possibles ; paramètres de sécurité déterminés après essai réel ; aucun seuil universel inventé.
+
+	A02
+	ROG-01 distance et récupération
+	1,5 m derrière cible humanoïde surprise, « Égorgement ! » sans contact ; 10 min après toute tentative annoncée.
+
+	A03
+	Riposte et fin de confrontation
+	Deux parades délibérées, annonce sous 3 s, une réussite par adversaire ; fin à 60 s sans hostilité et séparation.
+
+	A04
+	Garde du corps
+	2 m, vue directe, bénéficiaire pré-désigné, annonce immédiate, une touche par garde et confrontation.
+
+	A05
+	Désarmement à deux armes
+	10 s sans attaquer avec aucune arme ; seconde arme de mêlée utilisable seulement pour parer.
+
+	A06
+	Secours et soins directs
+	Stabilisation 60 s continue dans les cinq minutes ; spécialiste N2+ peut traiter directement depuis 0 PV.
+
+	A07
+	PNJ et clinique mécanique
+	PNJ stabilisé 100 Cr / 5 min / 1 PV ; révision mécanique complète MEC-01 N2+MEC-02 N2, protocoles sûr/rapide.
+
+
+
+A08 à A19 — Personnages et compétences
+	Repère
+	Arbitrage validé
+	Effet principal
+
+	A08
+	Initiation et formations
+	8 initiations, 5 places, rare débloquée par scénario, mentor non obligatoire pour ordinaire, reconversion entre sessions.
+
+	A09
+	XP de relève et PA
+	3 XP au dernier personnage actif, 25 % des XP gagnés cap 9, réserve PA entière par nouveau personnage.
+
+	A10
+	Kits et crédits initiaux
+	8 kits non pillables/non revendables, 200 Cr protégés jusqu’à session suivante, restrictions anti-transfert.
+
+	A11
+	Durées et progressions
+	COM/PIL/INF/Entretien validés, ROG-02 et ROG-03 à 60/45/45/30/30 s.
+
+	A12
+	ROG-02 au local organisation
+	QR cible + nom/prénom, quotas 2 tentatives / 1 réussite par victime/session, notification différée 10 min.
+
+	A13
+	ROG-03 prison et évasion
+	QR sur serrure, surveillance directe bloque, tentative découverte = 10 min récupération sans PA ; captivité max 20 min.
+
+	A14
+	Modules de droïdes
+	2 emplacements, six modules DR-01–DR-06, coûts, retrait, neutralisation et réparation distincte des PV.
+
+	A15
+	Sabotage
+	Accès par niveau N1–N5, 15 min neutralisation, réparation anticipée, dommages durables séparés.
+
+	A16
+	Dissimulation
+	1 unité, 30 min, comparaison TRA-02 ≥ niveau de cache, fin à découverte ou transfert.
+
+	A17
+	Pistage
+	FIL-01 ordinaire, 120/105/90/75/60 s, filature opposée dès N4 et indices de route N5.
+
+	A18
+	Effacement
+	EFF-01 rare, trace ≤15 min, FIL-01 ≥ EFF-01 découvre, fausse piste N5 limitée.
+
+	A19
+	Toxicologie
+	TOXI-01 rare, STAT-MALAISE-01, 15 min biologiques, administration volontaire QR, suivi de dose.
+
+
+
+A20 à A38 — Spatial, commerce et persistance
+	Repère
+	Arbitrage validé
+	Effet principal
+
+	A20
+	PIL-03 décrochage initial
+	1D6 + Manœuvrabilité ≥ 6, une utilisation par voyage.
+
+	A21
+	Poursuivant unique
+	Désigné avant verrouillage, un seul actif par round ; multi-factions par meilleure Manœuvrabilité puis tirage.
+
+	A22
+	Reddition, hostilité, coût, révision
+	Repli préalable, silence ≠ consentement, hostilité réellement exécutée, révision après tirs/dégâts spéciaux, PA sur exécution.
+
+	A23
+	PIL-03 / ESC-01
+	Feinte : seuil MINIMUM 6, N5 ESC +1 effectif possible, bonus non cumulés, N4 escort sans second décrochage.
+
+	A24
+	Tarifs et arrondis
+	5k/10k/20k Cr, 12 catégories marchandes, arrondis au total, modules calibrés par gabarit.
+
+	A25
+	Rares et prototypes
+	Quatre modules R04/R05, N4 30 %, N5 50 %, fabrication, compatibilités, démontage.
+
+	A26
+	Réparation spatiale et identité
+	Durées PA par intervention, PNJ +0,5 %, retour en service à 1 Coque, transpondeur et faux docs N3.
+
+	A27
+	Remorquage
+	Gabarit compatible, carburant ×2, –1 Manœuvrabilité, 5 min/1 PA, PNJ 5 %.
+
+	A28
+	Voyages et carburant
+	Routes 5/10/15 min, débit unique au départ, escale 2 min, panne sèche suspend, détour collectif.
+
+	A29
+	Événements et embuscades
+	Un tirage par convoi, table D6, priorité embuscades ciblées, une interception par tronçon.
+
+	A30
+	Abordage et fret
+	Manifeste équipage au départ, 2 min arrimage, transfert 5 unités/3 min, soutes cachées non révélées.
+
+	A31
+	Statut des épaves
+	Publicité session S+1, caution 5 % remboursable, frais max10 %, contestation tardive MJ.
+
+	A32
+	Pièces et démantèlement
+	Lot 50 Cr utilisation, 25 Cr reprise, casse10 % valeur, extraction partielle irréversible.
+
+	A33
+	Douanes
+	Habilitation N1–N5, contrôle profond 2 min/1 PA, retenue ≤15 min, amende 10 %.
+
+	A34
+	Fausse identité spatiale
+	Qualité INF-03 N3–N5 ou PNJ N3, 1D6+qualité≥7, enquête sans confiscation automatique.
+
+	A35
+	Escorte, détours et carburant
+	Cargo livré malgré escorte neutralisée = 100 %, détour accepté +25 %/tronçon, carburant retour provisionné.
+
+	A36
+	Contrats et litiges
+	10 min contestation, médiation 20 min, recours session suivante, pénalité de retard max25 %, force majeure.
+
+	A37
+	Assurance
+	Prime 2/4/6 %, couverture 80 % max5k, une police/lot/voyage, caisse provisionnée, restitution si récupération.
+
+	A38
+	Persistance campagne
+	Blessures, stocks, dettes, contrats, routes, dommages conservés ; effets temporaires expirent ; PA début session complets.
+
+
+
+État du registre : 38/38 arbitrages clôturés. Une future modification doit porter un numéro de version, indiquer la règle remplacée, son effet sur les Masters et les sessions existants et être acceptée explicitement. Voir l’annexe C pour les conditions pratiques de recette.
+Annexe B — Remplacements et repères éditoriaux
+Ce qui ne doit plus être repris de l’ancien livre
+Les choix écartés ne doivent pas réapparaître dans les fiches de jeu ou Masters : vol à la tire à proximité, une seule tentative par victime, PIL-03 N1 sans seuil, crédits initiaux libres au premier jour, matériels de combat non homologués, ou indemnisation d’assurance sans caisse. Les exceptions de la V0.6 priment sur les anciennes rédactions.
+	Ancienne règle ou proposition
+	Version retenue dans ce livre
+
+	Port-Brèche ou Outcasts comme nom permanent
+	SPACE OUTLAWS ; Port-Brèche reste le cadre.
+
+	Sept classes
+	Huit, avec Rogue distinct de l’Infiltrateur.
+
+	Technicien : diagnostic, réparation, sabotage
+	Mécano : diagnostic, réparation, amélioration ; Sabotage en supplémentaire.
+
+	Combattant : Vétéran, Entretien, Lecture tactique
+	Vétéran, Désarmement, Lecture tactique ; Entretien en supplémentaire.
+
+	Deux XP par session
+	Trois XP fixes.
+
+	Niveau global lié à l’identité, attribué sans barème
+	Lié au joueur ; N2 après quatre sessions terminées ; conservé après décès.
+
+	Absence de mort automatique et recours gratuit après cinq minutes
+	Mort/destruction sans secours terminés en cinq minutes ; recours PNJ payant pour stabilisés.
+
+	Mêlée interdite dans le socle V0.3
+	Mêlée et combat mixte validés, sous homologation réelle.
+
+	Tous les équipements tenus/portés touchés comptent
+	Armes tenues et accessoires dépassants exclus ; corps équipé compte.
+
+	Fenêtre de deux secondes universelle
+	Exception du sabre laser.
+
+	Armure et bouclier cumulables ou bouclier de mêlée
+	Maximum personnel 1, sans cumul ; pas de bouclier physique.
+
+	Filature à pistes QR préparées de lieu en lieu
+	Pistage d’interactions autorisées et suivi spatial progressif.
+
+	Courtage logistique supplémentaire
+	Intégré à COU-03.
+
+	PIL-03 N3 : cacher sa destination
+	Feinte offensive +1 au tir, défense ordinaire adverse au seuil 6.
+
+	ESC-01 N5 : protéger deux cargos
+	+1 au propre jet d’interposition.
+
+	Soute optimisée augmentant la capacité
+	Soute clandestine sans volume supplémentaire.
+
+	0 Coque = destruction
+	Immobilisation récupérable, équipage vivant ; destruction événement MJ.
+
+	Capture = propriété et cargaison acquises
+	Contrôle, propriété du vaisseau et propriété du fret séparés.
+
+	Réinitialisation du personnage après mort
+	Nouvelle identité, kit, capital de relève plafonné ; niveau global du joueur conservé.
+
+
+
+Identifiants : ne pas migrer à l’aveugle
+	Référence antérieure
+	Référence de rédaction
+	Observation
+
+	TIR-01
+	COM-01
+	Vétéran, effet fixe.
+
+	TIR-02
+	Entretien de protection
+	Déplacé ; identifiant supplémentaire stable à choisir.
+
+	TIR-03
+	COM-03
+	Lecture tactique, système revu.
+
+	Nouveau
+	COM-02
+	Désarmement, ne pas écraser l’ancien Entretien par proximité de numéro.
+
+	TEC-01 / TEC-02
+	MEC-01 / MEC-02
+	Diagnostic / réparation élargis.
+
+	TEC-03
+	Sabotage supplémentaire
+	Ne correspond pas à MEC-03.
+
+	Nouveau
+	MEC-03
+	Amélioration de droïdes et vaisseaux.
+
+	FIL-01 — Filature
+	FIL-01 — Pistage
+	Changement de fonction, pas simple changement de libellé.
+
+	TOX-01
+	Compétence Toxicologie et effet Malaise biologique
+	Compétence TOXI-01 et état STAT-MALAISE-01 validés ; migration technique distincte.
+
+	MOD-R04 / MOD-R05 génériques
+	R04-01, R04-02, R05-01, R05-02
+	Références distinctes utilisées dans les dernières propositions, à formaliser.
+
+
+
+Les identifiants des compétences, des objets et des états sont des identifiants de JEU. TOXI-01 désigne la compétence Toxicologie, STAT-MALAISE-01 l’état ; les anciens codes TIR/TEC, etc., exigent une table de migration explicite avant tout changement technique. Une correction éditoriale dans ce livre ne migre aucun Master de GN Engine.
+Ce qui a volontairement été laissé hors de l’édition joueur
+Les secrets de casting, loyautés cachées, effectifs de cellules, intrigues privées et notes techniques détaillées de l’ancienne annexe organisateur ne sont pas reproduits. Les comparaisons d’implémentation, les schémas de données, les exigences de sécurité applicative, les tests automatisés et le plan de développement GN Engine appartiennent au second document demandé, pas à ce livre.
+Aucune fonction ne devient opérationnelle par le seul fait d’être décrite ici. Aucun déploiement, aucune modification de dépôt et aucune mise à jour d’une session réelle n’ont été réalisés pour produire ce document.
+Annexe C — Vérification de conception et calculs
+Portée de l’audit
+Contrôle documentaire V0.6 : lecture comparée des 26 chapitres, des 38 décisions A01–A38 et des calculs déterministes. Ce contrôle confirme l’intégration ÉCRITE des arbitrages, non l’existence des fonctions applicatives ni la sécurité réelle d’un accessoire. La recette du jeu physique, des QR, des stocks et des paiements reste à exécuter avant une session.
+Les calculs de combat supposent : dés indépendants et équitables, tous les vaisseaux tirant chaque round, aucune fuite, défense active, manœuvre, reddition, régénération ou renfort. Le canon standard touche avec probabilité 1/2 et inflige 1 dégât ; le lourd touche avec probabilité 1/3 et inflige 2 dégâts. Bouclier et Coque forment, pour ce modèle de tir seulement, une réserve totale de 4 points pour le chasseur et 6 pour le cargo.
+Affrontements de référence
+	Scénario
+	Victoire du premier camp
+	Victoire de l’autre
+	Immobilisation mutuelle
+
+	Chasseur standard contre identique
+	44,4 %
+	44,4 %
+	11,2 %
+
+	Cargo standard contre un chasseur standard
+	79,7 %
+	14,3 %
+	6,0 %
+
+	Cargo standard contre deux chasseurs standards
+	2,7 %
+	96,1 %
+	1,2 %
+
+	Chasseur canon lourd contre chasseur standard
+	67,2 %
+	25,0 %
+	7,8 %
+
+
+
+Dans le combat à deux chasseurs, le cargo concentre son feu sur le premier jusqu’à immobilisation, puis sur le second ; seuls les chasseurs opérationnels au début d’un round tirent. La probabilité totale d’immobilisation du cargo est 97,3 %, en incluant les 1,2 % d’immobilisation mutuelle. Elle n’est pas une probabilité de destruction ou de mort des personnages.
+Méthode : énumération récursive des issues de chaque round à partir des états restants, avec attaques simultanées et traitement de la répétition « tous les tirs manquent ». Les pourcentages sont arrondis à un dixième. Les chiffres ne prédisent pas un combat où les joueurs négocient, fuient ou utilisent leurs capacités.
+Jets opposés et compétences
+	Situation sans autre bonus
+	Calcul
+	Réussite
+
+	Manœuvrabilité égale, résultat strictement supérieur
+	15 couples de dés sur 36
+	41,7 %
+
+	Avantage de +1 au jet opposé
+	21/36
+	58,3 %
+
+	Cargo +1 fuyant chasseur +2
+	10/36
+	27,8 %
+
+	Cargo +1 avec Passage dangereux +2 contre chasseur +2
+	21/36
+	58,3 %
+
+	Défense ordinaire chasseur +2, seuil 5
+	D6 ≥ 3
+	66,7 %
+
+	Défense ordinaire cargo +1, seuil 5
+	D6 ≥ 4
+	50 %
+
+	Défense ordinaire transport +0, seuil 5
+	D6 ≥ 5
+	33,3 %
+
+
+
+Le canon lourd a un dégât moyen brut par tir de 2 × 1/3 = 2/3, contre 1/2 pour le standard. Sa moindre précision n’en fait donc pas une arme équivalente : c’est une amélioration réelle, compensée par le prix, l’emplacement et les choix tactiques. L’équilibre final doit être observé avec les manœuvres et les coûts de réparation.
+Scénarios de recette à préparer
+Scénarios de recette prioritaires : tirs simultanés et double immobilisation ; tirs multiples sur Bouclier ; absence de cible et remboursement de PA spécial ; pilote PIL-03 N1 seuil 6 et Feinte N3 seuil plancher 6 ; escorte ESC-01 N4/N5 et interdiction du second décrochage ; reddition sans réponse à 90 secondes avec ordres de repli ; deux rounds réellement non hostiles ; révision après échange de tirs manqués ; remboursement des actions inexécutables.
+Logistique à contrôler : ROG-02 au local organisation avec identité erronée, cible sans butin, quotas partagés, notification 10 min et remise physique MJ ; prison QR sans action sur la vraie serrure ; six modules droïdes et pannes distinctes ; lot de fret interrompu ; marchés arrondis et carburant escorteur ; assurance provisionnée et restituée à récupération ; épave contestée S+1 ; droits douaniers non doublés ; persistance après fermeture.
+L’ancien registre A01–A38 a été clôturé dans la V0.6. Avant déploiement, des essais d’intégration doivent confirmer notamment la sérialisation des ordres/PA, les transferts atomiques, les permissions, les quotas interpersonnages et la reprise intersession. Aucune exécution effective de GN Engine n’a été effectuée pour cette édition documentaire.
+Résultat : arbitrages A01–A38 intégrés au texte. Les contrôles documentaires exposés ci-dessus restent distincts d’une validation terrain, d’une homologation de gel blasters, d’une recette du Master de Port-Brèche et d’une validation logicielle sur GitHub/Firebase. Aucune modification du dépôt ou de la production n’est impliquée.
+Points de contrôle transversaux avant session
+	Interface entre règles
+	Vérification de cohérence écrite
+	Recette préalable nécessaire
+
+	A12 ↔ actions QR
+	ROG-02 au local org, exception expresse à la présence locale.
+	QR non auto-identifiant ; vérification prénom/nom, verrou de 10 min et quotas tous voleurs.
+
+	A13 ↔ sécurité terrain
+	QR serrure = déclencheur fictif, jamais déverrouillage réel.
+	Parcours d’évasion sûrs, supervision, STOP SÉCURITÉ, cellule conforme.
+
+	A06 ↔ MED-02/MEC-02
+	Sécurisation acquise après 60 s, mais PV après durée totale.
+	Tests chrono 5 min de survie et interruptions 59/60/90 s.
+
+	A14 ↔ A15
+	Panne de module, blindage épuisé et PV distincts.
+	Révision intégrale ne restaure ni protection ni module.
+
+	A22 ↔ PIL-03/ESC-01
+	Ressources consommées à l’exécution, tirs simultanés, fuite en phase ultérieure.
+	Actions empêchées : pas de PA ; tir N5 exécuté = PA consommé.
+
+	A24 ↔ A35
+	Provision carburant aller-retour de l’escorteur distincte du prix d’escorte.
+	Exemple économique : 160 Cr au lieu de 260 Cr.
+
+	A31/A32 ↔ propriété
+	Publicité S+1 ; destruction définitive MJ ; 10 % de casse unique.
+	Double démantèlement, caution, lots et inventaires tiers interdits.
+
+	A33/A34 ↔ faux papiers
+	Inspection physique et identité falsifiée sont deux tests séparés.
+	Faux papier rejeté ≠ saisie automatique ; délai retenue 15 min.
+
+	A37 ↔ A38
+	Assurance provisionnée, restitution des indemnités sur lots retrouvés.
+	Reprise intersession sans primes créées ni doubles sinistres.
+
+
+Données de Master toujours à fournir AVANT l’ouverture : liste des QR et leurs droits, lieux et issues d’évasion, plans et modules disponibles, cartes de ports et codes de destinations, stocks, budgets de marchés et d’assureur, contrats, profils PNJ, événements, tables de butin, représentations physiques. Paramètres de terrain : validation individuelle des armes, protections oculaires, distances et zones après essais ; quantité/prix des recharges blaster. Ces données ne rouvrent pas A01–A38.
+Annexe D — Sources et traçabilité de la consolidation
+Sources réellement utilisées
+S1 — Livre des règles de Port-Brèche, V0.3, 20 octobre 2026. Fichier fourni : « Port_Breche_Livre_des_regles_V0_3(1).docx ». Base pour les actions, QR, PA, outils, recharges, soins, captures, confidentialité et règles non remplacées. Les anciennes dispositions contraires aux décisions ultérieures ne sont pas conservées.
+S2 — SPACE OUTLAWS, Livre du joueur V0.4 — Projet à valider, 22 octobre 2026. Fichier disponible : « Space_Outlaws_Livre_du_joueur_V0_4_Projet.docx ». Version intermédiaire incluant notamment les droïdes et la mêlée. Elle n’intègre pas à elle seule l’ensemble de la présente conversation et n’a pas été traitée comme dernière règle approuvée sur les sujets ensuite modifiés.
+S3 — Décisions d’arbitrage A01 à A38 de la conversation SPACE OUTLAWS, clôturées le 23 octobre 2026. Source normative pour les modifications apportées aux systèmes de personnages, combat, missions, économie, modules, vaisseaux et assurance ; les règles les plus récentes priment sur les anciens profils indicatifs.
+S4 — GN Engine, Cahier des charges de reprise et de développement Work Astra, V2.0, 22 octobre 2026. Fichier fourni : « GN_Engine_Cahier_des_charges_Work_Astra_V2_0(2).md ». Utilisé pour distinguer règles de jeu et fonctions techniques attendues. Ce livre ne reprend pas la description de son état historique comme une vérification actuelle du dépôt ou de la production. Les adaptations détaillées demandées seront compilées séparément.
+Aucune source extérieure n’a été utilisée pour inventer des règles. Les exemples économiques ont été rectifiés pour intégrer le carburant aller-retour provisionné de l’escorteur (A35). L’audit documentaire vérifie la cohérence de calculs et de formulations ; il ne constitue pas une homologation du matériel ni un test logiciel.
+Carte des décisions de cette conversation
+	Bloc de décisions
+	Chapitres de référence
+
+	Nom permanent, titres de sessions, livre joueur
+	1, annexe B.
+
+	Humanoïdes/droïdes, huit classes, XP, multiclassage, niveau global
+	3, 7 à 15.
+
+	Blasters, mêlée, sabres, protection, techniques et touches
+	2, 5, 15.
+
+	Cinq minutes, secours, évacuation, exécution, dépouille et relève
+	6.
+
+	Enquêtes, diagnostic, soins, réparation, infiltration et mini-jeux
+	4, 7 à 14.
+
+	Sabotage, dissimulation, pistage, toxicologie et traces
+	15.
+
+	Équipement, échanges, objets uniques et ressources
+	4, 16.
+
+	Caractéristiques, carburant, modules et entretien
+	17, 18.
+
+	Renseignements, codes, détours et embuscades
+	18, 19.
+
+	Rounds, armes spatiales, fuite, reddition, PIL-03 et ESC-01
+	20, annexe C.
+
+	Abordage, rançons, changement d’identité et propriété
+	21.
+
+	Remorquage, primes, contestations, casse et revente
+	22.
+
+	Marchandises, marges, rentabilité et fret retour
+	23.
+
+	Manifestes, licences, contrôles et sanctions
+	24.
+
+	Transport, escorte, assurance, retards, fautes et résiliation
+	25.
+
+	Valeurs rapides et paramètres restant ouverts
+	26, annexe A.
+
+
+
+Version et diffusion
+SPACE OUTLAWS — Livre des règles V0.6 consolidées, 23 octobre 2026. Arbitrages A01 à A38 clôturés et intégrés. Cette édition est une référence de règles pour préparation, sous réserve de l’homologation sur site du matériel et de la recette technique et scénaristique avant jeu.
+Le cahier des charges GN Engine détaillé et sa matrice de recette seront préparés SÉPARÉMENT. Aucune migration, modification de dépôt, automatisation de compte ou mise en production n’a été réalisée par la production de ce document. Les versions précédentes restent archivées pour traçabilité.
+23 OCTOBRE 2026  ·  RÈGLES VALIDÉES	1 / 1

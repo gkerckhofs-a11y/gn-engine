@@ -1,3 +1,4 @@
+import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {requireThat,documentId,DomainError} from './validation.mjs';
 import {mediaHash as hash,mediaLimits,mediaRef,imageReferences} from './media-state.mjs';
 import {recordPublication} from './narrative.mjs';
@@ -7,8 +8,8 @@ const digest=v=>hash(JSON.stringify(v));
 const str=(v,max,required=false)=>{requireThat(typeof v==='string'&&v.length<=max&&(!required||v.trim()),'INVALID_MEDIA');return v.trim();};
 const metadata=i=>({name:str(i.name,150,true),category:str(i.category??'',80),universe:str(i.universe??'',100),credit:str(i.credit??'',500),tags:str(i.tags??'',500).split(',').map(t=>t.trim()).filter(Boolean).slice(0,20)});
 const view=a=>({id:a.id,version:1,name:a.name,category:a.category,universe:a.universe,credit:a.credit,tags:a.tags,status:a.status,bytes:a.bytes,width:a.width,height:a.height,revision:a.revision,usageCount:a.usageCount??0,createdAt:a.createdAt,trashedAt:a.trashedAt??null,purgeAfter:a.purgeAfter??null,scope:a.scope,scopeId:a.scopeId});
-const slots={character:['portrait','private'],item:['illustration'],announcement:['illustration','briefing'],inventory:['illustration'],contract:['illustration','briefing']};
-const collections={character:'characters',item:'items',announcement:'announcements',inventory:'inventory',contract:'contracts'};
+const slots={ship:['illustration'],character:['portrait','private'],item:['illustration'],announcement:['illustration','briefing'],inventory:['illustration'],contract:['illustration','briefing']};
+const collections={ship:'ships',character:'characters',item:'items',announcement:'announcements',inventory:'inventory',contract:'contracts'};
 const names={portrait:'Portrait public',private:'Fiche privée',illustration:'Illustration',briefing:'Briefing privé'};
 const recordImages=(r,kind)=>kind==='inventory'?r.item:r;
 export function createMediaService({store,signed,admin,isAdmin,checkSession,checkScenario,now,uuid,images,processImage,authorizeRead}){
@@ -70,6 +71,7 @@ export function createMediaService({store,signed,admin,isAdmin,checkSession,chec
     requireThat(t.scope==='session'||['character','item'].includes(t.kind),'INVALID_MEDIA_TARGET');
     const scopeId=documentId(t.scopeId),id=documentId(t.id),parent=t.scope==='session'?await checkSession(tx,actor,scopeId):await checkScenario(tx,actor,scopeId);
     requireThat(parent.stage!=='ARCHIVED','SESSION_CLOSED');
+    if(parent.spaceOutlaws){requireThat(parent.spaceOutlaws.mediaVersion===1&&['character','item','inventory','announcement','ship'].includes(t.kind)&&t.slot===(t.kind==='character'?'portrait':'illustration'),'SO_GAMEPLAY_NOT_OPEN');authorizeSpaceOutlaws(tx,parent,'MEDIA');}
     const base=`${t.scope==='session'?'sessions':'scenarios'}/${scopeId}`,path=`${base}/${collections[t.kind]}/${id}`,r=await tx.get(path);requireThat(r,'NOT_FOUND');
     // A funded bounty retains its advertised images just like its other terms.
     requireThat(t.kind!=='announcement'||!r.bountyId,'BOUNTY_LOCKED');
@@ -138,7 +140,7 @@ export function createMediaService({store,signed,admin,isAdmin,checkSession,chec
         const t={scope:input.sessionId?'session':'scenario',scopeId:documentId(input.sessionId??input.scenarioId)},p=t.scope==='session'?await checkSession(tx,actor,t.scopeId):await checkScenario(tx,actor,t.scopeId),base=`${t.scope==='session'?'sessions':'scenarios'}/${t.scopeId}`,targets=[];
         for(const kind of t.scope==='session'?Object.keys(slots):['character','item'])for(const r of await tx.list(`${base}/${collections[kind]}`)){
           if(kind==='announcement'&&r.bountyId)continue;
-          for(const slot of slots[kind])targets.push({...t,kind,id:r.id,slot,label:`${r.public?.displayName??r.name??r.title??r.item?.name??r.terms?.title??r.id} · ${names[slot]}${kind==='inventory'?' · lot attribué':kind==='contract'?' · contrat':''}`,mediaId:recordImages(r,kind).mediaImages?.[slot]?.id??null});
+          for(const slot of slots[kind].filter(slot=>!p.spaceOutlaws||p.spaceOutlaws.mediaVersion===1&&['character','item','inventory','announcement','ship'].includes(kind)&&slot===(kind==='character'?'portrait':'illustration')))targets.push({...t,kind,id:r.id,slot,label:`${r.public?.displayName??r.name??r.title??r.item?.name??r.terms?.title??r.id} · ${names[slot]}${kind==='inventory'?' · lot attribué':kind==='contract'?' · contrat':''}`,mediaId:recordImages(r,kind).mediaImages?.[slot]?.id??null});
         }return {title:p.title,targets,stage:p.stage??null};
       }
       if(action==='prepareMediaAssignments')return (({preview,confirmation})=>({preview,confirmation}))(await assignments(tx,actor,input));

@@ -1,3 +1,4 @@
+import {naturePatch} from './character-nature.mjs';
 import {fieldProfile} from './field-state.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {gameTime} from './clock.mjs';
@@ -17,7 +18,9 @@ export function personProfileInput(v,id,old={}){
  const supplies=[p.consumable,...(v.extraConsumables??[]).map(x=>{requireThat(x&&typeof x==='object','INVALID_PERSON_PROFILE');return {itemId:documentId(x.itemId),quantity:num(x.quantity,1000)};})].filter(Boolean);
  requireThat(supplies.length<=3&&new Set(supplies.map(x=>x.itemId)).size===supplies.length&&supplies.every(x=>x.quantity>0),'INVALID_PERSON_PROFILE');
  requireThat(!isLoot(p)||supplies.length===0,'INVALID_PERSON_PROFILE');
- return {...p,id,name:v.name.trim(),publicationState:v.publicationState,prerequisites,extraConsumables:supplies.slice(p.consumable?1:0),
+ const nature=naturePatch(v,old,'patientNature');
+ requireThat(!isLoot(p)||nature.patientNature==null,'INVALID_PERSON_PROFILE');
+ return {...p,...nature,id,name:v.name.trim(),publicationState:v.publicationState,prerequisites,extraConsumables:supplies.slice(p.consumable?1:0),
   continuationSeconds:num(v.continuationSeconds??120),healAmount:num(v.healAmount??1,1000),reviveLevel:num(v.reviveLevel??2,100),
   convalescenceSeconds:num(v.convalescenceSeconds??600),patientCooldownSeconds:num(v.patientCooldownSeconds??600),revision:(old.revision??0)+1};
 }

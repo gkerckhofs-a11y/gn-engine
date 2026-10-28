@@ -1,6 +1,71 @@
 # GN Engine
 
-Moteur de jeu de rôle grandeur nature, indépendant de Murder Engine.
+État courant SPACE OUTLAWS : [suivi de validation](docs/SO-VALIDATION.md). [Kit de recette locale](docs/SO-RECETTE-LOCALE.md) : `npm run recette:check`, puis `npm run recette` sur un poste avec Java 21. Émulateurs, identités fictives et relevé manuel ; aucune publication ni recette terrain certifiée. Les jalons ci-dessous sont historiques.
+
+**C2q — Excel des lieux et informations M6.** [Guide du contrat versionné](docs/SO-06-C2Q-EXCEL-LIEUX.md). Aperçu et lot commun, profils/récompenses natifs, anciens fichiers M6 conservés. Compilation et 1477 tests applicatifs locaux réussis le 25 octobre 2026 ; preuves finales des deux CI dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Aucune activation ni publication.
+
+**C2p — lieux, fouilles et installations M6.** [Guide, tests et limites](docs/SO-02-C2P-LIEUX-CENTRAUX.md). Définitions natives privées, profils/récompenses proposés, références M3/M4/M5 sous droits M6, import M6 homonyme préservé et captures compatibles. Compilation et 1456 tests applicatifs locaux réussis le 25 octobre 2026 ; preuves finales des deux CI dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Aucun stock, QR, action ou droit de laboratoire activé ; publication et conformité complète restent à livrer.
+
+**SO-02 C2o — groupes et factions préparés dans M2.** [Parcours, droits et limites](docs/SO-02-C2O-GROUPES-CENTRAUX.md) : définitions privées, appartenances et permissions proposées, références vers les fiches, archives et conservation par les imports/instantanés. **1426 tests applicatifs locaux et build réussis** ; preuves CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Aucun groupe ni mandat de session activé ; publication et naissance restent à développer.
+
+**SO-02 C2n — instantanés privés du brouillon central.** [Parcours, droits et limites](docs/SO-02-C2N-INSTANTANES-CENTRAUX.md) : capture propriétaire des sept ateliers et de leur rapport, relecture historique et téléchargement privé vérifié après modification du brouillon. **1399 tests applicatifs locaux et build réussis** ; preuves Firebase/CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Publication, activation et restauration globale restent indisponibles.
+
+**SO-01 I3c — contrôle des dossiers M2.** [Parcours, droits et limites](docs/SO-01-I3C-CONTROLE-DOSSIERS-M2.md) : vérification privée de l’ensemble des dossiers, fiches liées, choix, places et identités ; écarts localisés, biographies MJ conservées et exceptions explicites reconnues. **1374 tests applicatifs locaux et build réussis** ; preuves CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Lecture seule, publication et naissance encore indisponibles. Les entrées suivantes conservent les jalons antérieurs.
+
+**SO-01 I3b — rapprochement du dossier et de M2.** [Parcours, tests et limites](docs/SO-01-I3B-RAPPROCHEMENT-M2.md) : comparaison privée puis confirmation motivée de l’identité et du plan approuvés ; biographie conservée par défaut, remplacement explicite, autres textes MJ conservés. **1347 tests applicatifs locaux et build réussis** ; preuves CI exactes dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Publication et naissance restent à développer ; aucune ressource ni production activée.
+
+**SO-01 I3a — candidature approuvée vers M2 privé.** [Parcours, droits, tests et limites](docs/SO-01-I3A-ADMISSION-VERS-M2.md) : aperçu, confirmation explicite et copie unique de la fiction dans le brouillon central ; lien conservé dans le dossier privé, réessais sans écraser les éditions M2. **1319 tests applicatifs locaux et build réussis** ; preuves CI du candidat exact dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Publication, rapprochement courant et naissance restent à développer ; aucune dotation ni production. Les entrées suivantes conservent les jalons antérieurs.
+
+**SO-01 / SO-06 C1b — brouillon central et droits de campagne.** [Guide, matrice, tests et limites](docs/SO-01-C1B-BROUILLON.md) : sept ateliers dans six domaines, modèles M1 éditables, catalogue narratif M2 partagé, délégations par atelier, concurrence/réessais et archive/restauration auditée. **890 tests locaux et build réussis** ; CI exacte dans la PR après terminaison. Pas de publication globale ni import central dans cette tranche, aucune ressource de jeu créée. Suite C1/C2 puis I3/I4/I5 ; aucune migration ou production.
+
+**SO-01 I2b — régie des groupes sur branche.** [Guide, matrice, preuves et reprise](docs/SO-01-I2B-GROUPES.md) : configuration/capacité/responsable, affectation/retrait/transfert atomiques, permissions explicites, archive et contre-opération auditée. **869 tests locaux et build réussis** ; CI exacte dans la PR après terminaison. Caisses, biens et contrats conservés. Naissance/succession et raccordement M2 restent à développer ; aucune production.
+
+**SO-01 I2 — décisions MJ et quotas confirmés sur branche.** [Guide, matrice et preuves](docs/SO-01-I2-DECISIONS.md) : file filtrable, identité fictive, dernière place atomique, attente/correction/refus/retrait, changement de classe et exception motivée. 846 tests locaux et build réussis ; CI exacte dans la PR. Aucune définition M2, dotation ou publication centrale dans cette tranche. Suite : I2b groupes.
+
+
+**SO-01 I1 — invitations et propositions privées.** [Guide et limites](docs/SO-01-I1-ADMISSIONS.md) : choix canoniques, espèces narratives, liens limités/révocables, dossiers privés avec réessais et concurrence ; 825 tests locaux et build réussis. Confirmation des quotas et approbation MJ : prochaine tranche I2. CI exacte dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1), aucune production.
+
+**SO-01 C1a — préparation privée sans dotation.** [Guide, architecture, tests et limites](docs/SO-01-C1A-PREPARATION.md). Création de campagne/session, délégation MJ et correction des informations ; 808 tests locaux et build réussis. État historique C1a ; I1 ajoute le parcours de candidature, publication centrale et naissance restent à développer. CI exacte sur la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1), aucune production.
+
+**Historique V3.5 — diagnostic et tests du socle, sans migration.** [Matrice, architecture et ordre minimal inscriptions → M2 → naissance / groupes / relève](docs/SO-00-V35-INSCRIPTIONS.md), [registre des 55 recettes](docs/SO-RECETTES-V35.md). Deux tests supplémentaires de révocation/paiement concurrents ; 795 tests locaux et build réussis. Résultats exacts Firebase/CI consignés sur la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Le parcours V3.5 n’est pas encore développé ; aucune recette mobile ou production revendiquée. Les tranches L1/SO existantes et le plan central V3.4 sont conservés.
+
+Socle de jeu grandeur nature conservé pour l’application prioritaire **SPACE OUTLAWS**, indépendant de Murder Engine. Le développement d’un créateur universel est hors périmètre.
+
+**Reprise V3.4 — SO-00 documentaire, plan en attente de validation.** [Audit, matrice, graphe et publication centrale](docs/SO-00-V34-PLAN-CENTRAL.md) · [Rapprochement des sept gabarits vierges](docs/SO-00-V34-GABARITS.md). Un Master central / sept ateliers / une publication globale contrôlée : architecture à développer après validation du plan. Les travaux ci-dessous sont conservés ; aucun importeur V3.4, aucune migration ni activation de recette livrés par cet audit.
+
+**Reprise SPACE OUTLAWS V3.2 / règles V0.7 — candidat 0.37.0 sur branche, non déployé.** [Audit SO-00](docs/SO-00-REPRISE.md), [matrice et 24 + 6 + 5 recettes](docs/MATRICE-SPACE-OUTLAWS-V3.md), [rapport de conformité courant](docs/SO-VALIDATION.md), [sauvegarde et procédure à faire valider](docs/SO-SAUVEGARDE-DEPLOIEMENT.md). L1a–L1m sont conservés. La tranche SO-06a réunit les catalogues exportables des six vues dans un XLSX cohérent, avec réimport contrôlé ; elle ne constitue pas encore le Master canonique complet.
+
+**SO-06b — Recettes & Potions en brouillon.** Création, duplication, composants issus du catalogue commun, exemple adapté à partir du tableur fourni, sous-Master XLSX autonome et conservation dans les versions/campagnes. Publication serveur bloquée jusqu’à la livraison des déblocages, de la fabrication et des effets. [Audit V3.2, guide, tests et limites](docs/SO-06B-RECETTES-BROUILLONS.md). Aucun prix proposé du tableur ne devient un tarif canonique.
+
+**SO-01a — Natures et soins.** Nature humanoïde/droïde des fiches, conservation dans Masters/versions/campagnes et filtre serveur des patients admissibles. [Guide, sources V3.1/V0.7, tests et limites](docs/SO-01A-NATURES-SOINS.md). Profil canonique complet, XP, crédits protégés et pouvoirs PNJ restent à développer.
+
+Les notes V2 et livraisons ci-dessous sont historiques. Le livre V0.7, A01–A38 et FOR-01 priment sur leurs anciens périmètres, barèmes et listes de travaux restants. Aucune nouvelle publication n’est autorisée.
+
+**Reprise V2 — candidat 0.37.0 sur branche/PR, non déployé.** [Audit L0](docs/AUDIT-V2-L0.md), [matrice des 119 exigences et 27 recettes](docs/MATRICE-V2.md), [périmètre L1 et tranche L1a](docs/L1-ATELIER-MODULAIRE.md), [preuves et recette](docs/VALIDATION-0.37.md). Les sections historiques ci-dessous décrivent les livraisons antérieures ; leurs anciennes listes « restant » doivent être lues avec la matrice de reprise.
+
+**L1b — éditeurs dans les six modules, sur la même branche.** Fiches personnages, objectifs, catalogue objets, routes, entrepôts et connaissances : recherche, édition, duplication en brouillon, aperçu commun et export des fiches filtrées. [Périmètre, contrôles et limites](docs/L1B-EDITEURS-MODULAIRES.md). L1 reste ouvert.
+
+**L1c — catalogues du module Personnages.** Masters Compétences, Classes et Groupes, choix guidé des compétences d’une classe, paramètres de soin conditionnels et exports ciblés. Profils attribués, membres et caisses conservés. [Guide, validation et recette restante](docs/L1C-CATALOGUES-PERSONNAGES.md). Toujours sur branche, sans publication.
+
+**L1d — vaisseaux et économie.** Masters Vaisseaux, Cours et Événements économiques, références guidées et effets conditionnels. Identité des cours et acquis de session conservés. [Guide, validation et recette restante](docs/L1D-VAISSEAUX-ECONOMIE.md). Treize éditeurs sur branche ; L1 reste ouvert.
+
+**L1g — interactions entre personnages.** Éditeur des cinq profils de soin et de fouille existants, avec prérequis, consommables et contrôles communs aux imports. [Guide et validation](docs/L1G-INTERACTIONS.md). Dix-sept parcours couvrent dix-neuf feuilles sur branche ; aucune publication.
+
+**L1h — création groupée de personnage.** Classe, compétences et dotations initiales explicites dans un seul aperçu et une confirmation. Acquis conservés, duplication sans redistribution. [Guide et validation](docs/L1H-CREATION-PERSONNAGE.md). Export de la liste toujours limité aux fiches ; L1 reste ouvert.
+
+**L1i — attributions du scénario.** Édition et export des choix de classe/compétences avec identité historique, aperçus et protection des sessions existantes. [Guide et validation](docs/L1I-ATTRIBUTIONS-SCENARIO.md). Dix-huit parcours, vingt feuilles ciblées ; aucune publication.
+
+**L1j — paramètres modulaires.** PA, santé de scénario, groupes de session, monnaie de scénario et port local : édition avec aperçu/confirmation et export ciblé selon la destination. [Guide et validation](docs/L1J-PARAMETRES-MODULAIRES.md). Aucun barème ajouté ; L1 reste ouvert.
+
+**L1k — relevé des dotations de départ.** Consultation et export XLSX en lecture seule des réglages enregistrés, distincts des acquis et des lignes d’import historiques. Rapport non réimportable ; aucune redistribution. [Guide et validation](docs/L1K-RELEVE-DOTATIONS.md). Exports Master complets toujours à développer.
+
+**L1l — exports groupés.** Un classeur par module réunit ses feuilles exportables dans une lecture cohérente, avec périmètre et exclusions annoncés. [Guide et validation](docs/L1L-EXPORTS-GROUPES.md). Dotations séparées, dépendances externes préexistantes ; L1 reste ouvert.
+
+**L1m — références des exports.** Le panneau de préparation détaille les références de catalogue internes/externes, leur présence dans la destination et leur inclusion dans le classeur. [Guide et validation](docs/L1M-DEPENDANCES-MASTERS.md). Constat informatif ; l’aperçu d’import reste obligatoire.
+
+**L1f — lieux, actions et récompenses groupés.** Création et modification atomiques des trois feuilles dans Informations / Fouilles, identités historiques et états de session conservés. [Guide, validation et limites](docs/L1F-TERRAIN-GROUPE.md). Seize parcours couvrent dix-huit feuilles sur branche ; aucune publication.
+
+**L1e — relations et membres des groupes.** Deux Masters supplémentaires dans Personnages, droits de jeu sélectionnés par cases et identités historiques conservées. [Guide, validation et limites](docs/L1E-RELATIONS-MEMBRES.md). Quinze éditeurs sur branche ; aucune publication.
 
 **Version 0.36.0 publiée : tarifs de douane et de corruption dans les masters.**
 

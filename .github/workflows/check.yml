@@ -1,13 +1,76 @@
 name: Vérification GN Engine
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
 permissions:
   contents: read
+  actions: read
+
+concurrency:
+  group: gn-check-${{ github.event.pull_request.number || github.ref }}-${{ github.event_name == 'workflow_dispatch' && github.run_id || 'auto' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  core:
+  plan:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 5
+    outputs:
+      profile: ${{ steps.scope.outputs.profile }}
+      suites: ${{ steps.scope.outputs.suites }}
+      matrix: ${{ steps.scope.outputs.matrix }}
+      http: ${{ steps.scope.outputs.http }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - id: scope
+        name: Déterminer le périmètre depuis le dernier succès
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/ci-plan.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ci-plan
+          path: ci-plan.json
+
+  application:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci --no-audit --no-fund
+      - run: npm run build
+      - run: npm test
+
+  firestore:
+    needs: plan
+    if: needs.plan.outputs.matrix != '[]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        include: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -17,7 +80,62 @@ jobs:
           distribution: temurin
           java-version: '21'
       - run: npm ci --no-audit --no-fund
-      - run: npm run build
-      - run: npm test
-      - run: npm run test:emulator
-# Aucun accès Firebase et aucun déploiement dans ce workflow.
+      - name: Suites Firestore sélectionnées
+        env:
+          GN_FIRESTORE_SUITES: ${{ needs.plan.outputs.suites }}
+          GN_FIRESTORE_SHARD: ${{ matrix.shard }}
+        run: npm run test:emulator:firestore
+
+  http:
+    needs: plan
+    if: needs.plan.outputs.http == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - run: npm ci --no-audit --no-fund
+      - run: npm run test:emulator:http
+      - name: Installer Chromium pour les parcours de recette
+        timeout-minutes: 5
+        run: npx --no-install playwright install --only-shell chromium
+      - name: Parcours navigateur sur le kit local isolé
+        run: npm run test:recette:browser
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: recette-browser
+          path: dist/recette-browser/
+          retention-days: 7
+          if-no-files-found: warn
+
+  # Keep the existing check name. A selected job failing/cancelling is never green.
+  core:
+    if: always()
+    needs: [plan, application, firestore, http]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Vérifier tous les résultats requis
+        env:
+          PLAN_RESULT: ${{ needs.plan.result }}
+          APP_RESULT: ${{ needs.application.result }}
+          FIRESTORE_RESULT: ${{ needs.firestore.result }}
+          HTTP_RESULT: ${{ needs.http.result }}
+          MATRIX: ${{ needs.plan.outputs.matrix }}
+          HTTP_REQUIRED: ${{ needs.plan.outputs.http }}
+        run: |
+          test "$PLAN_RESULT" = success
+          test "$APP_RESULT" = success
+          if [ "$MATRIX" = '[]' ]; then test "$FIRESTORE_RESULT" = skipped; else test "$FIRESTORE_RESULT" = success; fi
+          if [ "$HTTP_REQUIRED" = true ]; then test "$HTTP_RESULT" = success; else test "$HTTP_RESULT" = skipped; fi
+# Aucun accès Firebase de production et aucun déploiement dans ce workflow.

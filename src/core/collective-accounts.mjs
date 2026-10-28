@@ -8,7 +8,7 @@ export const collectiveAction=a=>actions.has(a);
 const published=c=>c?.publicationState==='PUBLISHED'&&c.public?.publicationState==='PUBLISHED';
 const identity=(c,r)=>hash(JSON.stringify([c.id,c.assignedUid,r?.accessVersion??null,c.public.displayName]));
 const metadata=x=>({id:x.a.id,kind:x.a.ownerType,name:x.name,canRead:x.read,canSpend:x.spend});
-export const accountParty=x=>({id:x.a.ownerType==='GROUP'?x.a.id:x.a.characterId,kind:x.a.ownerType,name:x.name});
+export const accountParty=x=>({id:x.a.ownerType==='SHOP'?x.a.shopId:x.a.ownerType==='GROUP'?x.a.id:x.a.characterId,kind:x.a.ownerType,name:x.name});
 export const accountEntry=(a,delta,next)=>({accountId:a.id,characterId:a.characterId??null,groupId:a.groupId??null,delta,before:moneyState(a),after:moneyState(next)});
 export async function accessAccount(tx,ctx,id){
     const {s,c,guard}=ctx,a=await tx.get(`sessions/${s.id}/accounts/${documentId(id)}`);

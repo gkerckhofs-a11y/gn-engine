@@ -1,3 +1,5 @@
+import {missionExecutionOptions} from './space-outlaws-mission-evidence.mjs';
+import {soMissionAccess,soAnnouncement,soMissionReadable} from './space-outlaws-mission-state.mjs';
 import {mediaFields} from './media-state.mjs';
 import {participationOf,participationInput,participantOf,participantAllowed,selectParticipant,participantOptions,participantAccess,participantCurrent,missionReadState,withMissionRead} from './mission-parties.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
@@ -16,6 +18,7 @@ const digest=v=>hash(JSON.stringify(v));
 const closed=t=>['DECLINED','WITHDRAWN','ASSIGNED'].includes(t.status);
 const threadId=(a,ctx,actor,p)=>p?.kind==='GROUP'?digest([a.id,'GROUP',p.id]):digest([a.id,actor.uid,ctx.version]);
 async function audienceAllowed(tx,s,a,cid){
+  if(!await soMissionReadable(tx,s,a,cid))return false;
   if(a.audience.kind==='ALL'||a.audience.characterIds.includes(cid))return true;
   if(s.modules?.groups!==true)return false;
   for(const id of a.audience.groupIds)if(groupVisible(await tx.get(`sessions/${s.id}/groups/${id}`),cid))return true;
@@ -38,6 +41,7 @@ export function createAnnouncementService({store,signed,checkSession,now,uuid}){
     const audienceNames=[];
     for(const id of characterIds){const c=await tx.get(`sessions/${s.id}/characters/${id}`);requireThat(c,'INVALID_AUDIENCE');audienceNames.push(c.public.displayName);}
     for(const id of groupIds){const g=await tx.get(`sessions/${s.id}/groups/${id}`);requireThat(g,'INVALID_AUDIENCE');audienceNames.push(`Groupe : ${g.name}`);}
+    Object.assign(draft,await soAnnouncement(tx,s,input,old));
     draft.audience={kind:a.kind,characterIds,groupIds};const reason=text(input.reason,500,true);
     return {old,draft,reason,result:{preview:view(draft,at),audience:draft.audience,audienceNames,briefing:draft.briefing,gmNotes:draft.gmNotes,confirmation:digest([s.id,draft,reason])}};
   }
@@ -52,7 +56,7 @@ export function createAnnouncementService({store,signed,checkSession,now,uuid}){
   async function detail(tx,s,ctx,t,a,at,admin){
     const messages=await tx.list(`sessions/${s.id}/applications/${t.id}/messages`,null,{orderBy:'sequence',direction:'desc',limit:50});
     const current=admin?await candidateCurrent(tx,s,t,a,at):true;
-    return {admin,session:{id:s.id},application:summary(t,a,at,admin,ctx),terms:t.terms,reviewedTerms:t.reviewedTerms,announcement:view(a,at),messages:messages.reverse().map(messageView),messageCount:t.messageCount,
+    return {...(admin?await missionExecutionOptions(tx,s,a):{}),admin,session:{id:s.id,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{})},application:summary(t,a,at,admin,ctx),terms:t.terms,reviewedTerms:t.reviewedTerms,announcement:view(a,at),messages:messages.reverse().map(messageView),messageCount:t.messageCount,
       canRespond:!admin&&!closed(t)&&participantAllowed(a,participantOf(t))&&responseAllowed(s,ctx.c,a,at),canWithdraw:!admin&&!closed(t),participantOptions:!admin?[{...participantOf(t),groupId:participantOf(t).kind==='GROUP'?participantOf(t).id:null,ready:true}]:[],canReply:admin&&current&&!closed(t),candidateCurrent:current,
       ...(!admin?{confirmation:digest([t.id,t.revision,ctx.partyGuard??ctx.version])}:{})};
   }
@@ -74,26 +78,27 @@ export function createAnnouncementService({store,signed,checkSession,now,uuid}){
   return async(action,actor,input)=>{
     signed(actor);const at=now(),id=uuid();return store.runTransaction(async tx=>{
       const admin=adminActions.has(action),ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId)),version:actor.uid}:await inventoryPlayer(tx,actor,input),{s}=ctx,base=`sessions/${s.id}`;
-      requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
-      if(action==='sessionAnnouncements')return {session:{id:s.id},announcements:(await tx.list(`${base}/announcements`)).sort((a,b)=>b.updatedAt-a.updatedAt||a.id.localeCompare(b.id)).map(a=>({...a,status:state(a,at)}))};
+      requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');soMissionAccess(tx,s);
+      if(s.spaceOutlaws&& !['sessionAnnouncements','announcements','myApplications','announcementDetail','announcementHistory','sessionApplications','applicationDetail','sessionApplication'].includes(action))requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
+      if(action==='sessionAnnouncements')return {session:{id:s.id,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{})},...(s.spaceOutlaws?{missions:await tx.list(`${base}/missions`)}:{}),announcements:(await tx.list(`${base}/announcements`)).sort((a,b)=>b.updatedAt-a.updatedAt||a.id.localeCompare(b.id)).map(a=>({...a,status:state(a,at)}))};
       if(action==='announcements'){
         const announcements=[];for(const a of await tx.list(`${base}/announcements`))if(state(a,at)==='OPEN'&&await audienceAllowed(tx,s,a,ctx.c.id))announcements.push(view(a,at));
-        announcements.sort((a,b)=>a.deadline-b.deadline||a.id.localeCompare(b.id));return {session:{id:s.id},announcements};
+        announcements.sort((a,b)=>a.deadline-b.deadline||a.id.localeCompare(b.id));return {session:{id:s.id,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{})},announcements};
       }
       if(action==='myApplications'){
         const applications=[];for(const t of await tx.list(`${base}/applications`)){if(!await participantAccess(tx,s,ctx,actor,t))continue;const a=await tx.get(`${base}/announcements/${t.announcementId}`);if(await readable(tx,s,a,ctx.c.id,at))applications.push(summary(t,a,at,false,ctx));}
-        applications.sort((a,b)=>b.updatedAt-a.updatedAt||a.id.localeCompare(b.id));return {session:{id:s.id},applications};
+        applications.sort((a,b)=>b.updatedAt-a.updatedAt||a.id.localeCompare(b.id));return {session:{id:s.id,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{})},applications};
       }
       if(action==='announcementDetail'){
         const a=await tx.get(`${base}/announcements/${documentId(input.announcementId)}`);requireThat(await readable(tx,s,a,ctx.c.id,at),'FORBIDDEN');
         const choices=await participantOptions(tx,s,ctx,a),applications=[],available=[];
         for(const p of choices){const t=await tx.get(`${base}/applications/${threadId(a,ctx,actor,p)}`);if(t&&await participantAccess(tx,s,ctx,actor,t))applications.push(summary(t,a,at,false,ctx));else if(p.ready)available.push(p);}
-        return {session:{id:s.id},announcement:view(a,at),application:applications[0]??null,applications,participantOptions:available,canRespond:available.length>0&&responseAllowed(s,ctx.c,a,at)};
+        return {session:{id:s.id,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{})},announcement:view(a,at),application:applications[0]??null,applications,participantOptions:available,canRespond:available.length>0&&responseAllowed(s,ctx.c,a,at)};
       }
       if(action==='announcementHistory'||action==='sessionApplications'){
         const a=await tx.get(`${base}/announcements/${documentId(input.announcementId)}`);requireThat(a,'NOT_FOUND');
         if(action==='announcementHistory')return {events:await tx.list(`${base}/announcements/${a.id}/history`,null,{orderBy:'at',direction:'desc',limit:30})};
-        const applications=[];for(const t of await tx.list(`${base}/applications`,['announcementId',a.id]))applications.push({...summary(t,a,at,true),candidateCurrent:await candidateCurrent(tx,s,t,a,at)});return {session:{id:s.id},announcement:view(a,at),applications:applications.sort((a,b)=>b.updatedAt-a.updatedAt||a.id.localeCompare(b.id))};
+        const applications=[];for(const t of await tx.list(`${base}/applications`,['announcementId',a.id]))applications.push({...summary(t,a,at,true),candidateCurrent:await candidateCurrent(tx,s,t,a,at)});return {session:{id:s.id,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{})},announcement:view(a,at),applications:applications.sort((a,b)=>b.updatedAt-a.updatedAt||a.id.localeCompare(b.id))};
       }
       if(action==='prepareAnnouncement')return (await prepare(tx,s,input,at)).result;
       if(action==='prepareAnnouncementResponse')return (await response(tx,s,ctx,actor,input,at)).result;

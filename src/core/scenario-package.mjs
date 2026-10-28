@@ -1,3 +1,5 @@
+import {recipeInput,validateRecipeReferences} from './recipe-state.mjs';
+import {naturePatch} from './character-nature.mjs';
 import {cargoTariffInput,validateCargoTariffReferences} from './customs-state.mjs';
 import {shipInput,routeInput,transportRulesInput,validateNavigationReferences} from './navigation-state.mjs';
 import {priceInput,priceEventInput,validateEconomicReferences} from './price-state.mjs';
@@ -7,6 +9,7 @@ import {actionPointRulesInput,actionPointMaximum,globalLevel} from './action-poi
 import {requireThat,documentId,whole} from './validation.mjs';
 import {narrativeInput} from './narrative.mjs';
 import {groupInput} from './groups.mjs';
+import {rosterInput,validateRosters} from './group-roster.mjs';
 import {knowledgeInput} from './knowledge.mjs';
 import {skillInput,classInput} from './abilities.mjs';
 import {itemInput,publicItem,itemQuantity} from './inventory-state.mjs';
@@ -17,7 +20,7 @@ import {warehouseInput} from './storage-state.mjs';
 import {imageReferences,mediaHash,mediaLimits} from './media-state.mjs';
 
 export const packageLimits=Object.freeze({manifestBytes:2*1024*1024,archiveBytes:128*1024*1024,records:500,images:250});
-export const scenarioCollections=['characters','groups','knowledge','skills','classes','items','fieldTargets','personProfiles','warehouses','ships','routes','commodityPrices','priceEvents','cargoTariffs'];
+export const scenarioCollections=['characters','groups','knowledge','skills','classes','items','fieldTargets','personProfiles','warehouses','ships','routes','commodityPrices','priceEvents','cargoTariffs','recipes'];
 const fail=c=>requireThat(c,'INVALID_SCENARIO_PACKAGE');
 const object=v=>{fail(v&&typeof v==='object'&&!Array.isArray(v));return v;};
 const text=(v,max,required=false)=>{fail(typeof v==='string'&&v.length<=max&&(!required||v.trim()));return v.trim();};
@@ -50,6 +53,7 @@ function profile(v){
 function character(v){
   object(v);const p=object(v.public),state=publication(v.publicationState);
   const c={id:documentId(v.id),public:{displayName:text(p.displayName,150,true),profession:text(p.profession??'',150),description:text(p.description??'',4000),publicationState:publication(p.publicationState)},publicationState:state,biography:text(v.biography??'',20000),roleplay:text(v.roleplay??'',10000),playerSecrets:text(v.playerSecrets??'',20000),gmNotes:text(v.gmNotes??'',20000),objectives:narrativeInput(v.objectives??[],'objectives'),relations:narrativeInput(v.relations??[],'relations'),hp:null,maxHp:null,historyStarted:true,contentRevision:revision(v.contentRevision??1),...imageFields(v,['portrait','private'])};
+  Object.assign(c,naturePatch(v));
   if(v.globalLevel!==undefined)c.globalLevel=globalLevel(v.globalLevel);
   if(v.initialMaxHp!==undefined)c.initialMaxHp=revision(v.initialMaxHp);
   if(v.abilityProfile)c.abilityProfile=profile(v.abilityProfile);
@@ -57,7 +61,7 @@ function character(v){
   if(v.startingInventory){const entries=array(v.startingInventory.items,60).map(x=>{const i=item(x.item,true);return {item:i,quantity:itemQuantity(i,x.quantity)};});fail(new Set(entries.map(x=>x.item.id)).size===entries.length);c.startingInventory={revision:revision(v.startingInventory.revision),items:entries};}
   return c;
 }
-function group(v){const g=groupInput(object(v),documentId(v.id));g.revision=revision(v.revision);if(v.walletConfig)g.walletConfig={label:text(v.walletConfig.label,100,true),amount:whole(v.walletConfig.amount,'INVALID_SCENARIO_PACKAGE'),revision:revision(v.walletConfig.revision)};return g;}
+function group(v){const g=groupInput(object(v),documentId(v.id));g.revision=revision(v.revision);if(v.walletConfig)g.walletConfig={label:text(v.walletConfig.label,100,true),amount:whole(v.walletConfig.amount,'INVALID_SCENARIO_PACKAGE'),revision:revision(v.walletConfig.revision)};if(v.roster)g.roster=rosterInput(v.roster);return g;}
 // Explicit projections discard runtime identities, grants, account balances and tokens.
 export function cleanScenarioSnapshot(input){
   object(input);const root=object(input.scenario),records=object(input.records);
@@ -65,13 +69,14 @@ export function cleanScenarioSnapshot(input){
   if(root.transportRules)scenario.transportRules=transportRulesInput(root.transportRules);
   if(root.actionPointRules)scenario.actionPointRules=actionPointRulesInput(root.actionPointRules);
   const cleaners={characters:character,groups:group,knowledge:v=>({...knowledgeInput(object(v),documentId(v.id)),revision:revision(v.revision)}),skills:v=>({...skillInput(object(v),documentId(v.id)),healing:healing(v),revision:revision(v.revision)}),classes:v=>({...classInput(object(v),documentId(v.id)),revision:revision(v.revision)}),items:item,personProfiles:v=>({...personProfileInput(v,documentId(v.id)),revision:revision(v.revision)}),fieldTargets:v=>({...fieldTargetInput(v,documentId(v.id)),revision:revision(v.revision)})};
+  cleaners.recipes=v=>({...recipeInput(object(v),documentId(v.id)),revision:revision(v.revision)});
   cleaners.ships=v=>({...shipInput(object(v),documentId(v.id)),revision:revision(v.revision)});
   cleaners.routes=v=>({...routeInput(object(v),documentId(v.id)),revision:revision(v.revision)});
   cleaners.commodityPrices=v=>{object(v);const i=item(v.item,true);fail(i.id===documentId(v.id));return {...priceInput(v,{...i,publicationState:'PUBLISHED'}),revision:revision(v.revision)};};
   cleaners.priceEvents=v=>({...priceEventInput(object(v),documentId(v.id)),revision:revision(v.revision)});
   cleaners.cargoTariffs=v=>({...cargoTariffInput(object(v),documentId(v.id)),revision:revision(v.revision)});
   cleaners.warehouses=v=>({...warehouseInput(object(v),documentId(v.id)),revision:revision(v.revision)});
-  const clean={};let count=0;for(const kind of scenarioCollections){clean[kind]=unique(array(records[kind]??(['fieldTargets','personProfiles','warehouses','ships','routes','commodityPrices','priceEvents','cargoTariffs'].includes(kind)?[]:undefined)).map(v=>cleaners[kind](v))).sort((a,b)=>a.id.localeCompare(b.id));count+=clean[kind].length;for(const record of clean[kind])requireThat(Buffer.byteLength(JSON.stringify(record))<750000,'SCENARIO_PACKAGE_TOO_LARGE');}
+  const clean={};let count=0;for(const kind of scenarioCollections){clean[kind]=unique(array(records[kind]??(['fieldTargets','personProfiles','warehouses','ships','routes','commodityPrices','priceEvents','cargoTariffs','recipes'].includes(kind)?[]:undefined)).map(v=>cleaners[kind](v))).sort((a,b)=>a.id.localeCompare(b.id));count+=clean[kind].length;for(const record of clean[kind])requireThat(Buffer.byteLength(JSON.stringify(record))<750000,'SCENARIO_PACKAGE_TOO_LARGE');}
   requireThat(count<=packageLimits.records,'SCENARIO_PACKAGE_TOO_LARGE');
   const sets=Object.fromEntries(scenarioCollections.map(k=>[k,new Set(clean[k].map(x=>x.id))]));
   const checkCost=s=>{if(s.healing?.consumable){const x=s.healing.consumable;ref(x.itemId,sets.items);const model=clean.items.find(i=>i.id===x.itemId);if(model.revision===x.itemRevision){fail(model.consumable);itemQuantity(model,x.quantity);}}};
@@ -85,12 +90,14 @@ export function cleanScenarioSnapshot(input){
   validateEconomicReferences(clean);
   validateCargoTariffReferences({...clean,economyRules:scenario.economyRules});
   for(const g of clean.groups)for(const m of g.members)ref(m.characterId,sets.characters);
+  validateRosters(clean.groups);
   for(const w of clean.warehouses)if(w.rentAccountId)fail(clean.groups.some(g=>g.walletConfig&&groupAccountId(g.id)===w.rentAccountId));
   for(const k of clean.knowledge){for(const id of [...k.initialCharacterIds,...k.qrCharacterIds])ref(id,sets.characters);if(k.qrSkillId)ref(k.qrSkillId,sets.skills);}
   for(const k of clean.classes)for(const s of k.skills)ref(s.skillId,sets.skills);
   for(const s of clean.skills)checkCost(s);
   for(const p of clean.personProfiles)validatePersonReferences(p,clean);
   for(const t of clean.fieldTargets)validateFieldReferences(t,clean);
+  for(const r of clean.recipes)validateRecipeReferences(r,clean);
   return {scenario,records:clean};
 }
 export function packageImage(a,source){

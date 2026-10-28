@@ -1,3 +1,18 @@
+import {masterDependenciesSuite} from './master-dependencies-suite.mjs';
+import {masterRecipesSuite} from './master-recipes-suite.mjs';
+import {masterModuleExportSuite} from './master-module-export-suite.mjs';
+import {masterGlobalExportSuite} from './master-global-export-suite.mjs';
+import {masterDotationsReportSuite} from './master-dotations-report-suite.mjs';
+import {masterParametersEditorsSuite} from './master-parameters-editors-suite.mjs';
+import {masterAttributionEditorsSuite} from './master-attribution-editors-suite.mjs';
+import {masterCharacterCreationSuite} from './master-character-creation-suite.mjs';
+import {masterInteractionEditorsSuite} from './master-interaction-editors-suite.mjs';
+import {masterTerrainEditorsSuite} from './master-terrain-editors-suite.mjs';
+import {masterSocialEditorsSuite} from './master-social-editors-suite.mjs';
+import {masterTransportEconomicsEditorsSuite} from './master-transport-economics-editors-suite.mjs';
+import {masterWorkspaceSuite} from './master-workspace-suite.mjs';
+import {masterEditorsSuite} from './master-editors-suite.mjs';
+import {masterCatalogEditorsSuite} from './master-catalog-editors-suite.mjs';
 import {masterCustomsSuite} from './master-customs-suite.mjs';
 import {masterNavigationSuite} from './master-navigation-suite.mjs';
 import {masterEconomicsSuite} from './master-economics-suite.mjs';
@@ -20,6 +35,21 @@ export async function masterFixture(makeStore){
  return {store,owner,player,read,cmd,scenarioId,prepare,apply,session};
 }
 export function mastersSuite(makeStore,prefix='Masters'){
+ masterRecipesSuite(()=>masterFixture(makeStore),prefix);
+ masterDependenciesSuite(()=>masterFixture(makeStore),prefix);
+ masterModuleExportSuite(()=>masterFixture(makeStore),prefix);
+ masterGlobalExportSuite(()=>masterFixture(makeStore),prefix);
+ masterDotationsReportSuite(()=>masterFixture(makeStore),prefix);
+ masterParametersEditorsSuite(()=>masterFixture(makeStore),prefix);
+ masterAttributionEditorsSuite(()=>masterFixture(makeStore),prefix);
+ masterCharacterCreationSuite(()=>masterFixture(makeStore),prefix);
+ masterInteractionEditorsSuite(()=>masterFixture(makeStore),prefix);
+ masterTerrainEditorsSuite(()=>masterFixture(makeStore),prefix);
+ masterSocialEditorsSuite(()=>masterFixture(makeStore),prefix);
+ masterTransportEconomicsEditorsSuite(()=>masterFixture(makeStore),prefix);
+ masterCatalogEditorsSuite(()=>masterFixture(makeStore),prefix);
+ masterEditorsSuite(()=>masterFixture(makeStore),prefix);
+ masterWorkspaceSuite(()=>masterFixture(makeStore),prefix);
  masterCustomsSuite(()=>masterFixture(makeStore),prefix);
  masterEconomicsSuite(()=>masterFixture(makeStore),prefix);
  masterNavigationSuite(()=>masterFixture(makeStore),prefix);

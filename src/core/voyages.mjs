@@ -1,3 +1,4 @@
+import {createSoVoyageService,soVoyageCommands} from './space-outlaws-voyages.mjs';
 import {readPriceBook,routeQuote} from './price-state.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {inventoryPlayer} from './inventory-transfers.mjs';
@@ -10,11 +11,13 @@ import {moneyText} from './economy-state.mjs';
 
 const writes=['saveTransportRules','saveRoute','refuelShip','departShip','arriveShip','resolveVoyageAdmin'];
 const admins=['saveTransportRules','saveRoute','resolveVoyageAdmin'];
-export const voyageCommands=[...writes,'shipNavigation','prepareRefuel','prepareVoyage'];
+export const voyageCommands=[...new Set([...writes,'shipNavigation','prepareRefuel','prepareVoyage',...soVoyageCommands])];
 export const voyageAction=a=>voyageCommands.includes(a);
-export function createVoyageService({store,signed,checkSession,now,uuid}){
+export function createVoyageService({store,signed,checkSession,now,uuid,rollD6}){
+ const so=createSoVoyageService({store,signed,checkSession,now,uuid,rollD6});
  return async(action,actor,input)=>{
   signed(actor);const sid=documentId(input.sessionId),base=`sessions/${sid}`,at=now(),eventId=uuid();
+  const session=await store.get(base);if(session?.spaceOutlaws||soVoyageCommands.includes(action)&&!['shipNavigation','prepareRefuel','refuelShip','prepareVoyage','departShip','arriveShip'].includes(action))return so(action,actor,input);
   return store.runTransaction(async tx=>{
    const admin=admins.includes(action),ctx=admin?{s:await checkSession(tx,actor,sid)}:await inventoryPlayer(tx,actor,{sessionId:sid}),{s,c}=ctx;
    requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');

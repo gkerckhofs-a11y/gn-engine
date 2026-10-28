@@ -18,7 +18,7 @@ const levels=(value,allowZero=false)=>{
 export function skillInput(input,id,old={}){
   // Unsupported effects never become an executable action.
   requireThat(['PASSIVE','ACTIVE_SELF','ACTIVE_TARGET'].includes(input.kind),'UNSUPPORTED_ABILITY');
-  const healing=input.kind==='PASSIVE'?null:healingInput(input.healing);
+  const healing=input.kind==='PASSIVE'?null:healingInput(input.healing,old.healing);
   return {id,kind:input.kind,healing,name:text(input.name,150,true),description:text(input.description??'',6000),
     instructions:text(input.instructions??'',6000),category:text(input.category??'',150),
     gmNotes:text(input.gmNotes??'',10000),publicationState:publication(input.publicationState),revision:(old.revision??0)+1};
