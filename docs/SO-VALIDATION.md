@@ -1,10 +1,23 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
-## État actif — suspension et réouverture des accès joueurs, 27 octobre 2026
+## État actif — préparation Firebase de recette, 28 octobre 2026
 
 Priorité : SPACE OUTLAWS jouable, services existants, un seul suivi évolutif. Les sections C2 ci-dessous restent historiques. Extension prioritaire : [SO_CDC_V36_Fouilles_Medias](source/SO_CDC_V36_Fouilles_Medias.md), texte intégral fourni. Références générales : [SO_CDC_V35](source/SO_CDC_V35.md), §7.2, §8 et annexes A.8/A.9 ; [SO_Regles_V07](source/SO_Regles_V07.txt), chapitres 3, 6, 25 et continuité entre épisodes.
 
-**Base confirmée** : branche `work/l1-modular-workshop`, PR #1, HEAD `e33e635dfe367c437970f3fcf00e4118643c1960`, arbre `61544820db107ec23db6f581dcc8792cd4efa253`. CI unique [40504563898](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40504563898) réussie : build et 1986 applicatifs, profil documentaire depuis `cb72d9d`. Ce commit fonctionnel avait passé la [CI complète 40503417632](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40503417632) : 1986 applicatifs, 1611 intégration (1543 Firestore, 68 HTTP/Auth/Storage) et six Chromium, en 7 min 48 s d’exécution. Aucun audit historique relancé. Main demeure `03eaace155b052d1b7d1960347746e9ee60ed514`.
+**Base confirmée** : branche `work/l1-modular-workshop`, PR #1, HEAD `660aaa605ef44f7b35b66e364d31bed8a91b0097`, arbre `7549e389604ecc668b56ed34b8911a3c4ef31f2b`. [CI 40507683059](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40507683059) réussie le 27 octobre : build, 1987 applicatifs, 68 HTTP/Auth/Storage et sept Chromium ; profil HTTP, Firestore non réexécuté. Aucun audit historique relancé. Main demeure `03eaace155b052d1b7d1960347746e9ee60ed514`.
+
+### Préparation Firebase de recette
+
+Suite demandée après le point du 27 octobre : préparer le bloc 5, sans provisionnement ni publication implicite. [Guide et procédure à examiner](SO-RECETTE-FIREBASE.md).
+
+- Générateur local `scripts/prepare-firebase-recette.mjs` : cible explicite hors production/émulateurs, configuration Web propre à la recette, sources serveur natives, règles/index/Storage, quatre Masters et empreintes SHA-256. Sortie séparée dans `dist/so-firebase-recette`, ancien paquet non écrasé, propriétaire et plan hors Hosting.
+- Authentification Google native, sans sélecteur d’identités fictives. Bandeau de recette ; métadonnées SHA/arbre/état modifié et verdict humain NON EXÉCUTÉ. La configuration publique de production et la compilation `public/` restent inchangées.
+- Serveur : mode explicite de recette, projet Admin et bucket dédiés, propriétaire requis, compte de service du même projet. Configuration contradictoire et hôtes d’émulateur refusés avant initialisation. Entrées historiques et kit local conservés ; aucune commande métier, règle ou donnée modifiée.
+- Plan de commandes non exécuté : règles/index/Storage, API puis Hosting, projet explicite partout. Le workflow de production n’est pas réutilisé pour la recette. La cible réelle, OAuth, les identités, IAM, le bucket et la facturation doivent être vérifiés puis les opérations externes autorisées.
+- **Validation locale** : sept nouveaux tests inclus dans **1994/1994 applicatifs**, zéro échec/annulé/ignoré/todo, et build réussis ; Node 24.22.1 / npm 11.9.0. Les tests compilent un paquet fictif, vérifient absence de configuration Auth de production dans le bundle, empreintes, règles natives, refus de configuration/écrasement et initialisation du véritable point d’entrée serveur sur la cible fictive. Aucune requête Firebase réelle.
+- Le serveur et un fichier transversal sont modifiés : CI complète requise par le sélecteur existant, sans réduction des suites. Résultats définitifs du commit exact à consigner dans la PR après terminaison ; les sept tests locaux ne remplacent pas cette CI.
+- **Limites** : outillage préparatoire, pas un environnement disponible. Aucun projet réel désigné/vérifié, aucun compte créé, aucune donnée de production copiée, aucun verdict humain rempli. La vérification des ressources, la recette Google/appareils, charge et restauration restent à réaliser. Les formats vérifiés ne prouvent pas la propriété d’une clé ni les permissions réelles.
+
 
 ### Suspension et réouverture des accès joueurs
 

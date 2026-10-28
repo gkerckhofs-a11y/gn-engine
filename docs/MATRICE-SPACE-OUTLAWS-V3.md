@@ -1,11 +1,12 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
-## État courant — préparation locale de la recette des missions
+## État courant — préparation Firebase de recette
 
 L’état évolutif autoritaire et les preuves actuelles sont dans [SO-VALIDATION](SO-VALIDATION.md). Les sections C2 ci-dessous sont historiques. CI adaptée le 27 octobre à la demande utilisateur : tous les tests applicatifs, intégration ciblée sur PR brouillon avec repli complet, Firestore réparti en lots indépendants et HTTP/Auth complet lorsque requis. Avant fusion/publication, suite complète sur le candidat. Aucun acquis fonctionnel supplémentaire ni recette terrain revendiqués par cette optimisation.
 
 | Exigence | Couverture ajoutée | Limite |
 | --- | --- | --- |
+| Consignes de recette finale, V3.5 §7.2/§8, SEC-SO partiels | Paquet local Firebase de recette : Auth réelle ciblée, serveur et médias dédiés, règles/index/Storage et plan sans exécution ; sept tests préparatoires | Cible réelle, IAM/OAuth, provisionnement, publication et recette humaine non exécutés ; aucune couverture métier nouvelle. [Guide](SO-RECETTE-FIREBASE.md) |
 | V3.5 §9.2, SEC-SO-01 et LOCAL-05 partiels | Régie MJ : suspension, liens invalidés, invitation de réouverture native ; confirmation ancienne refusée, autre compte/authentification ancienne refusés, reprise du même personnage et des mêmes biens | Sept parcours Chromium au total ; anciens contrats toujours bloqués après réouverture, réserves conservées ; pas d’effacement distant des données déjà vues, pas de nouvelle dotation, Google réel et recette humaine non exécutés |
 | V3.5 §3.9 et §9.2, SEC-SO-02 partiel, boutique native et STOP | Dialogue de confirmation incertaine ; deux parcours Chromium ajoutés : STOP/devis périmé sans débit, réponse perdue après achat puis reçu tronqué/réessai avec un paiement et une réception uniques | Six parcours au jalon cb72d9d ; page conservée ouverte, remise déclarée fictive. Ni concurrence entre appareils, ni rechargement complet, ni récompense de mission après délai, ni verdict humain certifiés |
 | Préparation de recette, V3.5 §7.2/§8, chapitre 25/A38 | Lanceur local isolé, six identités Auth Emulator, scénario natif financé et sept cas manuels avec relevé ; neuf tests applicatifs et un HTTP/Auth dédié | Aucun verdict humain : 55 recettes + dix SEC-SO, appareils, charge et restauration restent à exécuter. Java 21 requis, boucle locale seulement |
