@@ -17,11 +17,11 @@ import {actionPointPath,actionPointState,reserveActionPoints,resolveActionPoints
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {hasSoNavigation,navigationSkill,soRoute,soShipProfile,soVoyageEvent} from './space-outlaws-navigation-state.mjs';
 
-const admins=new Set(['leaveSoConvoyAdmin','spaceportAdmin','prepareSoShip','provisionSoShip','cancelSoNavigationAdmin','continueSoVoyage','arriveSoShipAdmin']);
-const reads=new Set(['prepareSoDetour','prepareSoConvoy','spaceportAdmin','mySpaceport','prepareSoShip','shipNavigation','prepareRefuel','prepareVoyage']);
+const admins=new Set(['prepareSoPilot','changeSoPilot','leaveSoConvoyAdmin','spaceportAdmin','prepareSoShip','provisionSoShip','cancelSoNavigationAdmin','continueSoVoyage','arriveSoShipAdmin']);
+const reads=new Set(['prepareSoPilot','prepareSoDetour','prepareSoConvoy','spaceportAdmin','mySpaceport','prepareSoShip','shipNavigation','prepareRefuel','prepareVoyage']);
 const provisionFields=['shipId','modelId','name','ownerId','pilotId','homePort','fuelItemId','source','reason'];
 const flightFields=['shipId','navigationCode','passengerCodes'];
-const fields={...detourFields,...convoyFields,spaceportAdmin:[],mySpaceport:[],prepareSoShip:provisionFields,provisionSoShip:[...provisionFields,'confirmation'],shipNavigation:['shipId'],prepareRefuel:['shipId','lotId','quantity'],refuelShip:['shipId','lotId','quantity','confirmation','present'],finishSoRefuel:['shipId','confirmation','present'],prepareVoyage:flightFields,departShip:[...flightFields,'confirmation','present'],finishSoPreparation:['shipId','confirmation','present'],cancelSoNavigation:['shipId','confirmation','reason'],cancelSoNavigationAdmin:['shipId','confirmation','reason'],arriveShip:['shipId','confirmation'],arriveSoShipAdmin:['shipId','confirmation','reason'],continueSoVoyage:['shipId','confirmation','reason']};
+const fields={prepareSoPilot:['shipId','pilotId','reason'],changeSoPilot:['shipId','pilotId','reason','confirmation','present'],...detourFields,...convoyFields,spaceportAdmin:[],mySpaceport:[],prepareSoShip:provisionFields,provisionSoShip:[...provisionFields,'confirmation'],shipNavigation:['shipId'],prepareRefuel:['shipId','lotId','quantity'],refuelShip:['shipId','lotId','quantity','confirmation','present'],finishSoRefuel:['shipId','confirmation','present'],prepareVoyage:flightFields,departShip:[...flightFields,'confirmation','present'],finishSoPreparation:['shipId','confirmation','present'],cancelSoNavigation:['shipId','confirmation','reason'],cancelSoNavigationAdmin:['shipId','confirmation','reason'],arriveShip:['shipId','confirmation'],arriveSoShipAdmin:['shipId','confirmation','reason'],continueSoVoyage:['shipId','confirmation','reason']};
 export const soVoyageCommands=Object.keys(fields);
 const active=s=>{requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');};
 const available=(s,c,time)=>c.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeMaintenanceId&&!c.activeCargoId&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&!(c.convalescentUntilGameMs>time);
@@ -63,6 +63,26 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
     if(action==='prepareSoShip')return {ship:safeSoShip(s,next,time),ownerName:owner.c.public.displayName,pilotName:pilot.c.public.displayName,fuelName:fuel.name,source,reason,confirmation};
     requireThat(input.confirmation===confirmation,'STALE_REVISION');if(!s.transportRules){authorizeSpaceOutlaws(tx,s,'NAVIGATION_CONFIG');tx.set(base,{...s,transportRules:{homePort:port.id},revision:s.revision+1});}
     tx.set(`${base}/ships/${next.id}`,next);return audit({id:next.id},null,next,{source,reason});
+   }
+   if(['prepareSoPilot','changeSoPilot'].includes(action)){
+    requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage),'SESSION_NOT_RUNNING');
+    requireThat(ship.enabled&&ship.docked&&!ship.journey&&!ship.operation&&!ship.combatId&&!ship.rescueId&&!ship.maintenanceId&&!ship.ambushId&&!ship.convoy&&!ship.convoyOffer,'SPACE_SHIP_BUSY');
+    const pilot=await inventoryParty(tx,s.id,documentId(input.pilotId)),reason=moneyText(input.reason);
+    requireThat(pilot.active&&pilot.c.birth&&pilot.c.id!==ship.pilotId,'INVALID_RECIPIENT');
+    requireThat(navigationSkill(pilot.c,'PIL-02')>=1,'FIELD_SKILL_REQUIRED');
+    requireThat(available(s,pilot.c,time)&&!pilot.c.activeNavigationId&&!pilot.c.activeVoyageId,'OUT_OF_COMBAT');
+    requireThat(characterPort(s,pilot.c)===ship.portId,'SHIP_NOT_LOCAL');
+    requireThat(!(await tx.list(`${base}/cargoTransfers`)).some(t=>t.status==='LOADING'&&[t.source,t.destination].some(l=>l.kind==='HOLD'&&l.id===ship.id)),'CARGO_TRANSFERS_OPEN');
+    // A mandate change must not strand an accepted freight/escort obligation.
+    const contracts=await tx.list(`${base}/contracts`);
+    requireThat(!contracts.some(x=>[x.terms?.transport?.shipId,x.terms?.escort?.shipId,x.terms?.escort?.cargoShipId].includes(ship.id)&&x.acceptedAt!=null&&(['ACTIVE','SUBMITTED','REVIEWED','DISPUTED'].includes(x.status)||(x.escortFuel?.remaining??0)>0)),'SO_PILOT_CONTRACT_OPEN');
+    requireThat(!(await warehouseStock(tx,s.id,ship.id,'HOLD')).some(l=>l.transportContractId&&l.quantity>0),'SO_PILOT_CONTRACT_OPEN');
+    const previous=await tx.get(`${base}/characters/${ship.pilotId}`),result={shipName:ship.name,portId:ship.portId,previousPilotName:previous?.public?.displayName??ship.pilotId,pilotName:pilot.c.public.displayName,reason};
+    const confirmation=hash(JSON.stringify([receipt(s,ship),pilot.version,pilot.c,result]));
+    if(action==='prepareSoPilot')return {...result,confirmation};
+    requireThat(input.confirmation===confirmation,'STALE_REVISION');requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');
+    const next={...ship,pilotId:pilot.c.id,revision:ship.revision+1};tx.set(`${base}/ships/${ship.id}`,next);
+    return audit({id:ship.id,pilotId:pilot.c.id},ship,next,{reason});
    }
    const confirmation=receipt(s,ship,version),isPilot=!admin&&ship.pilotId===c.id;
    const fuelAllowed=l=>personalLot(l,c?.id)&&l.status==='AVAILABLE'&&l.quantity>0&&l.item.id===ship.navigation.fuelItemId&&(l.transferable!==false||ship.ownerId===c.id);

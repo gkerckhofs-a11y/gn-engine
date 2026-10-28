@@ -1103,6 +1103,14 @@ test('HTTP + Auth : vaisseau privé, plein, préparation PIL-02 et révocation d
  const clock=(await db.doc(base).get()).data().clock;await db.doc(base).update({clock:{...clock,elapsedMs:clock.elapsedMs+120000}});n=await call('shipNavigation',{shipId:'ship'});await cmd('finishSoRefuel',{shipId:'ship',confirmation:n.confirmation,present:true});assert.equal((await call('shipNavigation',{shipId:'ship'})).ship.fuel,4);
  const flight={shipId:'ship',navigationCode:'AWAY-CODE',passengerCodes:[]},q=await call('prepareVoyage',flight),depart={...flight,confirmation:q.confirmation,present:true,requestId:randomUUID()};await cmd('departShip',depart);assert.equal((await call('mySession')).actionPoints.reserved,1);
  await cmd('revokeAccess',{uid:playerUid},owner);assert.equal((await request('departShip',{sessionId,...depart},player)).status,403);n=(await call('spaceportAdmin',{},owner)).ships[0];await cmd('cancelSoNavigationAdmin',{shipId:'ship',confirmation:n.confirmation,reason:'Pilote révoqué'},owner);assert.equal((await db.doc(`${base}/ships/ship`).get()).data().fuel,4);assert.equal((await db.doc(`${base}/characters/${f.cid}/resources/actionPoints`).get()).data().reserved,0);
+ const replacement=await googleTestAccount(`replacement-${randomUUID()}@example.invalid`),replacementUid=uid(replacement),replacementRegistration=(await db.doc(`${base}/registrations/${hash(f.other.uid)}`).get()).data();
+ await db.doc(`${base}/registrations/${hash(replacementUid)}`).set({...replacementRegistration,uid:replacementUid,minAuthTime:0});await db.doc(`${base}/characters/${f.otherId}`).update({assignedUid:replacementUid});
+ const handover={shipId:'ship',pilotId:f.otherId,reason:'Relève MJ après révocation, mandat vérifié'};
+ assert.equal((await request('prepareSoPilot',{sessionId,...handover})).status,401);assert.equal((await request('prepareSoPilot',{sessionId,...handover},replacement)).status,403);
+ const h=await call('prepareSoPilot',handover,owner),change={...handover,confirmation:h.confirmation,present:true,requestId:randomUUID()};
+ assert.equal((await request('changeSoPilot',{sessionId,...change},replacement)).status,403);
+ const changed=await cmd('changeSoPilot',change,owner);assert.deepEqual(await cmd('changeSoPilot',change,owner),changed);const newView=await call('shipNavigation',{shipId:'ship'},replacement);assert.equal(newView.canPilot,true);assert.equal(newView.ship.ownerId,f.cid);assert.equal(newView.ship.fuel,4);assert.doesNotMatch(JSON.stringify(newView),/mandat vérifié|actorUid/);
+
 });
 
 test('HTTP + Auth : duel privé, réservation PIL-03, révocation et résolution MJ',async()=>{
