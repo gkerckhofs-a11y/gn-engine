@@ -241,3 +241,8 @@ Un ancien binaire ignorant `preparationKind` ne protège pas ces contextes. Dès
 ## Complément I1 — aucune opération de production exécutée
 
 Conserver avec C1a le brouillon initial et ses changements/historiques, les paramètres d’admission, registrations/historiques, invitations/usages, grants, audit et reçus operations. Ne jamais restaurer isolément les compteurs de liens ou supprimer les reçus pour rejouer une création. Le test d’exception avant commit démontre l’atomicité, pas une restauration complète. Retour à un ancien binaire ignorant C1a/I1 interdit comme procédure implicite ; geler les écritures puis conserver une garde compatible ou faire valider une restauration cohérente. [Détails et limites I1](SO-01-I1-ADMISSIONS.md).
+
+
+## Dossiers d’abordage après duel
+
+Les nouveaux manifestes boardingVersion=1 (combatVersion/navigationVersion requis) et rencontres marquées figent les trajets et équipages d’origine. Sauvegarder/restaurer ensemble `spaceCombats` et ses enfants `rounds`/`boardings`, le pointeur activeBoardingId, ships/combatId, voyages et manifestes, personnages/droits, opérations/reçus, logisticsHistory/audit et horloges. Ne jamais restaurer seulement le parent : cela pourrait perdre une scène ou laisser un verrou sans dossier. La reprise native d’épisode copie aussi les enfants boardings et garde le temps de jeu ; aucun enrichissement d’un ancien manifeste ou combat. Un binaire antérieur ignorant cette phase ne constitue pas un retour fonctionnel. Le contrôle enregistré ne transfère ni titre ni fret ; les services de survie et limites de captivité restent indépendants. Cette procédure est documentaire : aucune sauvegarde distante, migration ou publication exécutée par cette tranche.

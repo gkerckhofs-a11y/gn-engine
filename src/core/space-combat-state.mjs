@@ -28,7 +28,8 @@ export function resolveSpaceDuel(ships,orders,dice,quietRounds=0){
  const before=ships.map(s=>({...s})),after=ships.map(s=>({...s})),used=[false,false],fuelSpent=[0,0],rolls=[],shots=[],escaped=[];
  const close=(reason,hostile=false)=>({after,used,fuelSpent,rolls,shots,escaped,hostile,quietRounds:hostile?0:quietRounds+1,closed:true,reason});
  if(orders.every(o=>o.ceasefire))return close('CEASEFIRE');
- if(orders.some((o,i)=>o.kind==='SURRENDER'&&orders[1-i].acceptSurrender))return close('SURRENDER');
+ const acceptedSurrenderIds=orders.flatMap((o,i)=>o.kind==='SURRENDER'&&orders[1-i].acceptSurrender?[before[i].id]:[]);
+ if(acceptedSurrenderIds.length)return {...close('SURRENDER'),acceptedSurrenderIds};
  const kinds=orders.map((o,i)=>before[i].hull>0?(o.kind==='SURRENDER'?o.fallback:o.kind):'PASSIVE');
  const shooting=k=>['ATTACK','PIL03_3','PIL03_5'].includes(k),defending=k=>['DEFEND','PIL03_2','PIL03_5'].includes(k),fleeing=k=>['FLEE','PIL03_4'].includes(k);
  let hostile=false;const incoming=[0,0];

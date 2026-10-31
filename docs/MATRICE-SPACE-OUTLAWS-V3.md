@@ -1,11 +1,12 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
-## État courant — indépendant contre alliance déclarée, 31 octobre 2026
+## État courant — abordage supervisé après duel, 31 octobre 2026
 
 L’état évolutif autoritaire et les preuves actuelles sont dans [SO-VALIDATION](SO-VALIDATION.md). Les sections C2 ci-dessous sont historiques. CI adaptée le 27 octobre à la demande utilisateur : tous les tests applicatifs, intégration ciblée sur PR brouillon avec repli complet, Firestore réparti en lots indépendants et HTTP/Auth complet lorsque requis. Avant fusion/publication, suite complète sur le candidat. Aucun acquis fonctionnel supplémentaire ni recette terrain revendiqués par cette optimisation.
 
 | Exigence | Couverture ajoutée | Limite |
 | --- | --- | --- |
+| V0.7 chapitre 21, V3.5 §6.5/A.7 | Duel fermé → Coque zéro ou reddition acceptée précise → arrimage deux minutes → scène jouée/ordres MJ annoncés → résultat sans contrôle ou contrôle temporaire puis libération ; équipages/trajets d’origine, verrous et continuité. 19 cas partagés, trois UI, un HTTP/Auth | Nouveau boardingVersion, anciennes publications/rencontres non enrichies. Deux vaisseaux seulement ; fret/propriété/rançon/remorquage distincts. CI exacte dans PR #2 ; aucune publication |
 | V0.7 chapitres 19/20, déclaration préalable et sorties individuelles | Un indépendant contre deux alliés consentants, même camp normalisé, rencontre native à trois, poursuite/défenses désignées, remboursements et continuité ; 15 cas partagés, trois UI et un HTTP/Auth | Nouveau allianceDefenseVersion et portée defenseVersion explicite ; anciens accords non élargis. Groupes plus grands et abordage distincts. CI exacte dans PR #2, aucune publication |
 | V0.7 chapitres 19/20, déclarations préalables et choix individuels | Deux accords de camp, même aperçu quel que soit le membre visé, quatre positions traitées atomiquement sans faux convoi, décrochage/sorties individuels, concurrence croisée et continuité ; 15 cas partagés, trois UI et un HTTP/Auth | Nouveau allianceDuelVersion et portée défensive explicite. Ancien parcours cargo/escorte conservé ; pirate indépendant contre alliance et groupes plus grands distincts. CI exacte dans PR #2, aucune publication |
 | V0.7 chapitres 19/20, PIL-03 et ESC-01 | Deux pirates déclarés contre cargo/escorte : équipes correctes, jets stables à quatre, tirs simultanés et défense désignée, poursuite sans remplacement, N4 et sorties/paix individuelles, continuité ; 15 cas partagés, trois UI et un HTTP/Auth | Nouveau allianceConvoyVersion ; rôle initial du meneur explicite à l’accord. Anciennes rencontres à trois conservées ; entre alliances, groupes plus grands et abordage distincts. CI exacte dans PR #2, aucune publication |

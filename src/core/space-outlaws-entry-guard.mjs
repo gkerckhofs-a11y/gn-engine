@@ -45,6 +45,7 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(scopes.has('INTELLIGENCE')&&session.spaceOutlaws.intelligenceVersion===1&&/^(knowledgeDeals\/[^/]+|characters\/[^/]+\/knowledge\/[^/]+|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+|logisticsHistory\/[^/]+)$/.test(relative))continue;
   if(scopes.has('MAINTENANCE')&&/^(ships\/[^/]+|voyages\/[^/]+|shipMaintenance\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+|characters\/[^/]+(?:\/resources\/actionPoints)?|logisticsHistory\/[^/]+)$/.test(relative))continue;
   if(scopes.has('SO_CARGO')&&/^(ships\/[^/]+|cargoTransfers\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+|logisticsHistory\/[^/]+)$/.test(relative))continue;
+  if(scopes.has('SPACE_COMBAT')&&session.spaceOutlaws.boardingVersion===1&&/^spaceCombats\/[^/]+\/boardings\/[^/]+$/.test(relative))continue;
   if(scopes.has('SPACE_COMBAT')&&/^(ships\/[^/]+|voyages\/[^/]+|spaceAmbushes\/[^/]+|spaceCombats\/[^/]+(?:\/rounds\/[^/]+)?|characters\/[^/]+\/resources\/actionPoints|logisticsHistory\/[^/]+)$/.test(relative))continue;
   if(scopes.has('SPACE_RESCUE')&&/^(ships\/[^/]+|voyages\/[^/]+|spaceRescues\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+|logisticsHistory\/[^/]+)$/.test(relative))continue;
   if(scopes.has('NAVIGATION')&&/^(ships\/[^/]+|voyages\/[^/]+|logisticsHistory\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/resources\/actionPoints)?)$/.test(relative))continue;

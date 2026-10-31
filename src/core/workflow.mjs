@@ -3,6 +3,7 @@ import {createSpaceOutlawsSuccessionService,spaceOutlawsSuccessionActions} from 
 import {rewardsOpen} from './space-outlaws-mission-rewards.mjs';
 import {createSpaceMaintenanceService,spaceMaintenanceActions} from './space-maintenance.mjs';
 import {createSpaceCombatService,spaceCombatActions} from './space-combat.mjs';
+import {createSpaceBoardingService,spaceBoardingActions} from './space-boarding.mjs';
 import {createSpaceRescueService,spaceRescueActions} from './space-rescue.mjs';
 import {createShopService,shopActions} from './shops.mjs';
 import {hasSoHealth,survival} from './space-outlaws-health-state.mjs';
@@ -156,6 +157,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const priceService=createPriceService({store,signed,checkSession,now,uuid});
   const spaceMaintenanceService=createSpaceMaintenanceService({store,signed,checkSession,now,uuid});
   const spaceCombatService=createSpaceCombatService({store,signed,checkSession,now,uuid,rollD6});
+  const spaceBoardingService=createSpaceBoardingService({store,signed,checkSession,now,uuid});
   const spaceRescueService=createSpaceRescueService({store,signed,checkSession,now,uuid});
   const voyageService=createVoyageService({store,signed,checkSession,now,uuid,rollD6});
   const cargoService=createCargoService({store,signed,checkSession,now,uuid});
@@ -200,6 +202,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(priceAction(action))return priceService(action,actor,input);
     if(spaceMaintenanceActions.includes(action))return spaceMaintenanceService(action,actor,input);
     if(spaceCombatActions.includes(action))return spaceCombatService(action,actor,input);
+    if(spaceBoardingActions.includes(action))return spaceBoardingService(action,actor,input);
     if(spaceRescueActions.includes(action))return spaceRescueService(action,actor,input);
     if(voyageAction(action))return voyageService(action,actor,input);
     if(cargoAction(action))return cargoService(action,actor,input);
