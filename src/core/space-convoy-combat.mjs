@@ -2,10 +2,11 @@ import {requireThat} from './validation.mjs';
 import {spaceSpecialLevel} from './space-combat-state.mjs';
 import {interposition} from './space-escort-maneuvers.mjs';
 
-// Native encounter extension: two allies and one intercepted opponent.
+// Native team encounter: three ships, or a convoy and two declared pirates.
 // Escaped/immobilized ships stay in the encounter record, outside later rounds.
 export function resolveConvoyRound(ships,orders,dice,quietRounds=0,activeIds=ships.map(s=>s.id)){
- requireThat(ships.length===3&&orders.length===3&&dice.length>=13&&dice.every(n=>Number.isInteger(n)&&n>=1&&n<=6),'INVALID_SPACE_ROUND');
+ const count=ships.length;
+ requireThat([3,4].includes(count)&&orders.length===count&&dice.length>=4*count+1&&dice.every(n=>Number.isInteger(n)&&n>=1&&n<=6),'INVALID_SPACE_ROUND');
  const before=ships.map(s=>({...s})),after=ships.map(s=>({...s})),used=ships.map(()=>false),fuelSpent=ships.map(()=>0),shots=[],rolls=[],escaped=[];
  const withdrawn=[];
  const available=(i)=>!withdrawn.includes(ships[i].id)&&activeIds.includes(ships[i].id)&&before[i].hull>0;
@@ -25,31 +26,31 @@ export function resolveConvoyRound(ships,orders,dice,quietRounds=0,activeIds=shi
  for(const i of active){const j=target(i,orders[i].targetId);if(!shoot(kinds[i])||j<0)continue;
   const heavy=before[i].weapon==='HEAVY',threshold=heavy?5:4,bonus=kinds[i]==='PIL03_3'?1:0,hit=dice[i]+bonus>=threshold;hostile=true;used[i]=spaceSpecialLevel(orders[i])>0;after[i].revisionRequired=true;after[j].revisionRequired=true;
   let defended=false;
-  if(defend(kinds[j])&&(orders[j].defenseIds??[]).includes(before[i].id)){const threshold=Math.max(kinds[j]==='DEFEND'?5:6,bonus?6:5),total=dice[3+j]+before[j].maneuverability;defended=total>=threshold;rolls.push({kind:'DEFENSE',shipId:before[j].id,targetId:before[i].id,roll:dice[3+j],total,threshold,success:defended});if(spaceSpecialLevel(orders[j]))used[j]=true;}
+  if(defend(kinds[j])&&(orders[j].defenseIds??[]).includes(before[i].id)){const threshold=Math.max(kinds[j]==='DEFEND'?5:6,bonus?6:5),total=dice[count+j]+before[j].maneuverability;defended=total>=threshold;rolls.push({kind:'DEFENSE',shipId:before[j].id,targetId:before[i].id,roll:dice[count+j],total,threshold,success:defended});if(spaceSpecialLevel(orders[j]))used[j]=true;}
   const amount=hit&&!defended?(heavy?2:1):0;incoming[j]+=amount;shots.push({shipId:before[i].id,targetId:before[j].id,roll:dice[i],bonus,threshold,hit,defended,damage:amount});
  }
  const damage=(s,n)=>({...s,shield:Math.max(0,s.shield-n),hull:Math.max(0,s.hull-Math.max(0,n-s.shield))});
- for(let i=0;i<3;i++)after[i]=damage(after[i],incoming[i]);
+ for(let i=0;i<count;i++)after[i]=damage(after[i],incoming[i]);
  const eligible=active.filter(i=>kinds[i]==='PURSUE'&&target(i,orders[i].targetId)>=0&&flee(kinds[target(i,orders[i].targetId)]));
- const best=Math.max(...eligible.map(i=>before[i].maneuverability)),tied=eligible.filter(i=>before[i].maneuverability===best),pursuer=tied.length?tied[(dice[12]-1)%tied.length]:-1;
- if(tied.length>1)rolls.push({kind:'PURSUER_SELECTION',shipId:before[pursuer].id,roll:dice[12],total:best,candidates:tied.map(i=>before[i].id)});
+ const best=Math.max(...eligible.map(i=>before[i].maneuverability)),tied=eligible.filter(i=>before[i].maneuverability===best),pursuer=tied.length?tied[(dice[4*count]-1)%tied.length]:-1;
+ if(tied.length>1)rolls.push({kind:'PURSUER_SELECTION',shipId:before[pursuer].id,roll:dice[4*count],total:best,candidates:tied.map(i=>before[i].id)});
  for(const i of active){if(!flee(kinds[i])||after[i].hull===0)continue;
   if(pursuer<0||orders[pursuer].targetId!==before[i].id||after[pursuer].hull===0){escaped.push(before[i].id);continue;}
   const special=kinds[i]==='PIL03_4';if(special&&before[i].fuel<1)continue;
-  const opposed=dice[9+pursuer]+before[pursuer].maneuverability;hostile=true;
-  rolls.push({kind:'PURSUIT',shipId:before[pursuer].id,targetId:before[i].id,roll:dice[9+pursuer],total:opposed});
+  const opposed=dice[3*count+pursuer]+before[pursuer].maneuverability;hostile=true;
+  rolls.push({kind:'PURSUIT',shipId:before[pursuer].id,targetId:before[i].id,roll:dice[3*count+pursuer],total:opposed});
   // The ally committed its own action before reveal. Damage and withdrawals can
   // make it impossible: no test, no substitute attack and no special cost.
   const protector=active.find(j=>available(j)&&j!==i&&ships[j].team===ships[i].team&&after[j].hull>0&&kinds[j]==='ESC01'&&orders[j].targetId===ships[i].id&&orders[j].escortLevel>=1);
   let cover=0;
   if(protector!==undefined){
-   const q=interposition(before[protector],orders[protector].escortLevel,dice[6+protector],opposed);used[protector]=true;
+   const q=interposition(before[protector],orders[protector].escortLevel,dice[2*count+protector],opposed);used[protector]=true;
    rolls.push({kind:'INTERPOSE',shipId:before[protector].id,targetId:before[i].id,pursuerId:before[pursuer].id,...q});
    if(q.success){escaped.push(before[i].id);continue;}
    cover=orders[protector].escortLevel>=3?1:0;
   }
-  const bonus=Math.max(special?2:0,cover),total=dice[6+i]+before[i].maneuverability+bonus,success=total>opposed;
-  rolls.push({kind:'FLEE',shipId:before[i].id,roll:dice[6+i],total,opposed,success,...(cover?{coverBonus:cover,specialBonus:bonus}:{})});
+  const bonus=Math.max(special?2:0,cover),total=dice[2*count+i]+before[i].maneuverability+bonus,success=total>opposed;
+  rolls.push({kind:'FLEE',shipId:before[i].id,roll:dice[2*count+i],total,opposed,success,...(cover?{coverBonus:cover,specialBonus:bonus}:{})});
   if(special){used[i]=true;fuelSpent[i]=1;after[i].fuel--;if(!success){after[i]=damage(after[i],1);after[i].revisionRequired=true;}}
   if(success)escaped.push(before[i].id);
  }

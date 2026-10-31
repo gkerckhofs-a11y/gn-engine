@@ -1,6 +1,11 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {"id":"space-alliance-duels","module":"../support/space-alliance-duels-suite.mjs","exportName":"allianceDuelSuite","label":"Rencontres entre alliances SO sur Firestore","seconds":140},
+  {"id":"space-alliance-convoy","module":"../support/space-alliance-convoy-suite.mjs","exportName":"allianceConvoySuite","label":"Alliance contre convoi SO sur Firestore","seconds":130},
+  {"id":"space-pirate-alliances","module":"../support/space-pirate-alliances-suite.mjs","exportName":"pirateAllianceSuite","label":"Alliances pirates SO sur Firestore","seconds":100},
+  {"id":"space-targeted-ambushes","module":"../support/space-targeted-ambushes-suite.mjs","exportName":"targetedAmbushSuite","label":"Embuscades ciblées SO sur Firestore","seconds":85},
+  {"id":"intelligence","module":"../support/intelligence-suite.mjs","exportName":"intelligenceSuite","label":"Renseignements PNJ sur Firestore","seconds":50},
   {"id":"space-bounties","module":"../support/space-bounties-suite.mjs","exportName":"spaceBountiesSuite","label":"Primes SO sur Firestore","seconds":120},
   {"id":"workflow","module":"../support/workflow-suite.mjs","exportName":"workflowSuite","label":"Firestore réel émulé","seconds":23},
   {"id":"preparations","module":"../support/preparations-suite.mjs","exportName":"preparationsSuite","label":"Préparation SO sur Firestore","seconds":8},
