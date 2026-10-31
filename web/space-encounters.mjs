@@ -29,6 +29,7 @@ export function spaceFormInput(form,v){
  for(const name of ['shipId','navigationCode','source','reason','payerId','supplyLotId'])if(v[name]!==undefined)p[name]=v[name];
  if(v.technicianId!==undefined)p.technicianId=v.technicianId==='PNJ'?null:v.technicianId;if(v.points!==undefined)p.points=Number(v.points);if(form.dataset.form!=='spaceOrder'&&v.kind!==undefined)p.kind=v.kind;
  if(v.quantity!==undefined)p.quantity=Number(v.quantity);if(v.offer!==undefined)Object.assign(p,JSON.parse(v.offer));
+ const supplies=Object.keys(v).filter(k=>k.startsWith('supplyLot_')).map(k=>v[k]);if(supplies.length){delete p.supplyLotId;if(supplies.length===1)p.supplyLotId=supplies[0];else p.supplyLotIds=supplies;}
  for(const name of ['present','received','briefed','performed'])if(form.elements.namedItem(name))p[name]=form.elements.namedItem(name).checked;
  if(form.dataset.form==='spaceOrder')p.order={...(form.dataset.convoy?{targetId:v.kind==='ESC01'?v.escortTargetId:v.targetId,defenseIds:v.kind==='ESC01'?[]:Object.keys(v).filter(k=>k.startsWith('defense_')).map(k=>k.slice(8))}:{}),kind:v.kind,fallback:v.fallback,acceptSurrender:form.elements.namedItem('acceptSurrender').checked,ceasefire:form.elements.namedItem('ceasefire').checked};
  return p;

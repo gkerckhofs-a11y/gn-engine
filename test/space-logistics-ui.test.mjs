@@ -32,3 +32,11 @@ test('Entretien UI : PNJ facture uniquement la prestation avec pièces personnel
  const d={...job,personalSupplies:true,pnj:true,amount:50,fee:50,before:{available:5000},after:{available:4950},units:20};const h=maintenanceConfirmHtml('prepareSpaceMaintenance',d,{sessionId:'s',maintenanceId:'r'});assert.match(h,/5000 → 4950/);assert.match(h,/Prestation PNJ : 50 Cr, au premier point uniquement/);assert.match(h,/Pièces non refacturées/);assert.match(h,/Réserver mes pièces et la prestation PNJ/);assert.doesNotMatch(h,/Aucun débit|encore accepter personnellement/);
  const card=maintenanceHtml({session:{id:'s'},jobs:[d]});assert.match(card,/payée une fois au premier point/);assert.doesNotMatch(card,/Aucun débit/);
 });
+
+test('Entretien UI : sélection explicite de plusieurs lots et conversion sans ambiguïté',()=>{
+ const form={dataset:{form:'spacePrepare',payload:'{"sessionId":"s"}'},elements:{namedItem:()=>null}},offer=JSON.stringify({shopId:'p',offerId:'o',supplyLotId:'old'}),v={offer,supplyLot_a:'a',supplyLot_b:'b'};const input=spaceFormInput(form,v);assert.deepEqual(input.supplyLotIds,['a','b']);assert.equal(input.supplyLotId,undefined);assert.equal(spaceFormInput(form,{offer,supplyLot_a:'a'}).supplyLotId,'a');
+ const d={session:{id:'s'},admin:true,jobs:[],ships:[],characters:[{id:'c',name:'Payeur <script>',mecLevel:2}],supplies:[],personalSupplies:[{shopId:'p',offerId:'o',lotId:'a',ownerId:'c',name:'Pièces',quantity:6}],multipleSuppliesReady:true};const html=maintenanceHtml(d);assert.match(html,/name="supplyLot_a"/);assert.match(html,/Maximum technique : 20 lots/);assert.doesNotMatch(html,/<script>/);assert.doesNotMatch(maintenanceHtml({...d,multipleSuppliesReady:false}),/name="supplyLot_a"/);
+});
+test('Entretien UI : confirmation détaille les sources ordonnées et leur réserve',()=>{
+ const d={...job,personalSupplies:true,amount:50,fee:50,before:{available:5000},after:{available:4950},units:20,sourceLots:[{id:'a',name:'Pièces <script>',quantity:6},{id:'b',name:'Pièces',quantity:14}]};const h=maintenanceConfirmHtml('prepareSpaceMaintenance',d,{sessionId:'s',maintenanceId:'r'});assert.match(h,/immobilisés ensemble/);assert.match(h,/6 unités/);assert.match(h,/14 unités/);assert.match(h,/Prestation PNJ : 50/);assert.doesNotMatch(h,/<script>/);
+});
