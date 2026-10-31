@@ -27,3 +27,8 @@ test('Entretien UI : pièces personnelles distinctes des fonds et accord Mécano
  const form={dataset:{form:'spacePrepare',payload:'{"sessionId":"s"}'},elements:{namedItem:()=>null}},v={offer:JSON.stringify({shopId:'p',offerId:'o',supplyLotId:'lot'})};assert.equal(spaceFormInput(form,v).supplyLotId,'lot');
  const admin=maintenanceHtml({session:{id:'s'},admin:true,jobs:[],ships:[],characters:[{id:'c',name:'Joueur <script>',mecLevel:2}],supplies:[],personalSupplies:[{shopId:'p',offerId:'o',lotId:'lot',ownerId:'c',name:'Pièces',quantity:20}]});assert.match(admin,/Pièces personnelles/);assert.match(admin,/supplyLotId/);assert.doesNotMatch(admin,/<script>/);
 });
+
+test('Entretien UI : PNJ facture uniquement la prestation avec pièces personnelles',()=>{
+ const d={...job,personalSupplies:true,pnj:true,amount:50,fee:50,before:{available:5000},after:{available:4950},units:20};const h=maintenanceConfirmHtml('prepareSpaceMaintenance',d,{sessionId:'s',maintenanceId:'r'});assert.match(h,/5000 → 4950/);assert.match(h,/Prestation PNJ : 50 Cr, au premier point uniquement/);assert.match(h,/Pièces non refacturées/);assert.match(h,/Réserver mes pièces et la prestation PNJ/);assert.doesNotMatch(h,/Aucun débit|encore accepter personnellement/);
+ const card=maintenanceHtml({session:{id:'s'},jobs:[d]});assert.match(card,/payée une fois au premier point/);assert.doesNotMatch(card,/Aucun débit/);
+});
