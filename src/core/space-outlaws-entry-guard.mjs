@@ -42,6 +42,7 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(scopes.has('MISSION_REWARDS')&&session.spaceOutlaws.missionExecutionVersion===1&&/^inventory\/[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
   if(scopes.has('BOUNTIES')&&session.spaceOutlaws.bountyVersion===1&&/^bounties\/[^/]+(?:\/history\/[^/]+|\/claims\/[^/]+(?:\/history\/[^/]+)?)?$/.test(relative))continue;
   if(scopes.has('MISSIONS')&&/^(announcements\/[^/]+(?:\/history\/[^/]+)?|applications\/[^/]+(?:\/messages\/[^/]+)?|contracts\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
+  if(scopes.has('INTELLIGENCE')&&session.spaceOutlaws.intelligenceVersion===1&&/^(knowledgeDeals\/[^/]+|characters\/[^/]+\/knowledge\/[^/]+|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+|logisticsHistory\/[^/]+)$/.test(relative))continue;
   if(scopes.has('MAINTENANCE')&&/^(ships\/[^/]+|voyages\/[^/]+|shipMaintenance\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+|characters\/[^/]+(?:\/resources\/actionPoints)?|logisticsHistory\/[^/]+)$/.test(relative))continue;
   if(scopes.has('SO_CARGO')&&/^(ships\/[^/]+|cargoTransfers\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+|logisticsHistory\/[^/]+)$/.test(relative))continue;
   if(scopes.has('SPACE_COMBAT')&&/^(ships\/[^/]+|voyages\/[^/]+|spaceAmbushes\/[^/]+|spaceCombats\/[^/]+(?:\/rounds\/[^/]+)?|characters\/[^/]+\/resources\/actionPoints|logisticsHistory\/[^/]+)$/.test(relative))continue;

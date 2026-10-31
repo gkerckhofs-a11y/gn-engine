@@ -1,3 +1,4 @@
+import {intelligenceFixture} from '../support/intelligence-suite.mjs';
 import {analysisProfile} from '../../src/shared/space-outlaws-analysis.mjs';
 import {spaceMissionsFixture} from '../support/space-missions-suite.mjs';
 import {soVoyagesFixture} from '../support/space-outlaws-voyages-suite.mjs';
@@ -1373,4 +1374,15 @@ test('HTTP + Auth : scénario de recette local par commandes natives, rôles et 
  assert.match(JSON.stringify(await call('contractDetail',{...input,contractId:s.contractId},'player')),/SECRET_RECETTE_BRIEFING/);assert.equal((await request('contractDetail',{...input,contractId:s.contractId},tokens.other)).status,403);assert.equal((await request('session',{sessionId:s.otherSessionId},tokens.mj)).status,403);
  const session=await call('session',input),till=session.accounts.find(a=>a.ownerType==='SHOP');assert.equal(till.balance,150);assert.equal(till.reserved,100);assert.doesNotMatch(JSON.stringify(s),/idToken|SECRET_|email/);assert.equal(s.humanAcceptance,'NOT_EXECUTED');
  }finally{process.env.OWNER_EMAIL=previousOwner;}
+});
+
+
+test('HTTP + Auth : renseignement PNJ privé, achat natif unique et révocation avant reçu',async()=>{
+ const db=getFirestore(),f=await intelligenceFixture(()=>firestoreStore(db)),owner=await googleTestAccount(process.env.OWNER_EMAIL),buyer=await googleTestAccount(`intel-${randomUUID()}@example.invalid`),outsider=await googleTestAccount(`intel-other-${randomUUID()}@example.invalid`),uid=t=>JSON.parse(Buffer.from(t.split('.')[1],'base64url').toString()).sub,sessionId=f.sid,base=`sessions/${sessionId}`;
+ const reg=(await db.doc(`${base}/registrations/${hash(f.buyer.uid)}`).get()).data();await db.doc(`${base}/registrations/${hash(f.buyer.uid)}`).delete();await db.doc(`${base}/registrations/${hash(uid(buyer))}`).set({...reg,id:hash(uid(buyer)),uid:uid(buyer),minAuthTime:0});await db.doc(`${base}/characters/${f.buyerId}`).update({assignedUid:uid(buyer)});await db.doc(base).update({ownerUid:uid(owner),clock:{elapsedMs:0,runningSince:Date.now()}});await db.doc(`campaigns/${f.campaignId}`).update({ownerUid:uid(owner)});
+ const call=async(action,input={},token=buyer)=>{const r=await request(action,{sessionId,...input},token);assert.equal(r.status,200,JSON.stringify(r));return r.result;},cmd=(action,input={},token=buyer)=>call(action,{requestId:randomUUID(),...input},token);
+ assert.equal((await request('myIntelligence',{sessionId})).status,401);assert.equal((await request('myIntelligence',{sessionId},outsider)).status,403);assert.equal((await request('intelligenceAdmin',{sessionId},buyer)).status,403);
+ const p=f.offerInput(),q=await call('prepareIntelligenceOffer',p,owner),r=await cmd('offerIntelligence',{...p,confirmation:q.confirmation},owner),offers=await call('myIntelligence'),purchase=await call('prepareIntelligencePurchase',{offerId:r.id});assert.equal(offers.offers[0].price,50);assert.doesNotMatch(JSON.stringify([offers,purchase]),/TEXTE_PRIVE|VERITE_MJ|knowledgeId|knowledgeTitle|voyageId|recipientVersion/);assert.equal((await request('knowledgeDetail',{sessionId,knowledgeId:'ordinary'},buyer)).status,403);assert.ok(!(await call('myKnowledge')).items.some(k=>k.id==='ordinary'));
+ const input={offerId:r.id,confirmation:purchase.confirmation,present:true,requestId:randomUUID()},before=await f.wallet(),till=await f.till(),paid=await cmd('buyIntelligence',input);assert.deepEqual(await cmd('buyIntelligence',input),paid);assert.equal((await f.wallet()).balance,before.balance-50);assert.equal((await f.wallet()).protectedCredits,before.protectedCredits);assert.equal((await f.till()).balance,till.balance+50);assert.equal((await call('knowledgeDetail',{knowledgeId:paid.knowledgeId})).knowledge.body,'TEXTE_PRIVE_ordinary');
+ await cmd('revokeAccess',{uid:uid(buyer)},owner);assert.equal((await request('buyIntelligence',{sessionId,...input},buyer)).status,403);assert.equal((await request('knowledgeDetail',{sessionId,knowledgeId:paid.knowledgeId},buyer)).status,403);
 });

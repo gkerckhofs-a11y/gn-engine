@@ -20,7 +20,7 @@ export const projectEntry=e=>({id:e.id,at:e.at,kind:e.kind,memo:e.memo,delta:e.d
 export function writeLedger(tx,sid,event){
   tx.set(`sessions/${sid}/ledger/${event.id}`,event);
   for(const entry of event.entries){
-    const counterparty=event.kind==='CARGO_FEES'?entry.counterparty:['SPACE_RESCUE','SHIP_MAINTENANCE','TRANSFER','SALE','CONTRACT_PAY','GM_CONTRACT_PAY','BOUNTY_PAY','GM_BOUNTY_PAY','WAREHOUSE_RENT'].includes(event.kind)?(entry.delta+(entry.protectedDelta??0)<0?event.recipient:event.source):null;
+    const counterparty=event.kind==='CARGO_FEES'?entry.counterparty:['INTELLIGENCE_PURCHASE','SPACE_RESCUE','SHIP_MAINTENANCE','TRANSFER','SALE','CONTRACT_PAY','GM_CONTRACT_PAY','BOUNTY_PAY','GM_BOUNTY_PAY','WAREHOUSE_RENT'].includes(event.kind)?(entry.delta+(entry.protectedDelta??0)<0?event.recipient:event.source):null;
     tx.set(`sessions/${sid}/accounts/${entry.accountId}/history/${event.id}`,{id:event.id,at:event.at,kind:event.kind,memo:event.memo,
       delta:entry.delta,...(entry.protectedDelta!==undefined?{protectedDelta:entry.protectedDelta}:{}),before:entry.before,after:entry.after,counterparty,actorUid:event.actorUid,reason:event.reason??'',...(event.saleId?{saleId:event.saleId,lotId:event.lotId}:{}),...(event.cargoTransferId?{cargoTransferId:event.cargoTransferId}:{}),...(event.bountyId?{bountyId:event.bountyId,claimId:event.claimId}:{}),...(event.contractId?{contractId:event.contractId}:{})});
   }
