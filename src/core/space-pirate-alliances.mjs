@@ -3,6 +3,7 @@ import {inventoryHash as hash} from './inventory-state.mjs';
 import {inventoryParty} from './inventory-transfers.mjs';
 
 export const hasPirateAlliances=s=>s.spaceOutlaws?.pirateAllianceVersion===1;
+export const hasAllianceDuels=s=>hasPirateAlliances(s)&&s.spaceOutlaws?.allianceConvoyVersion===1&&s.spaceOutlaws?.allianceDuelVersion===1;
 export const pirateAllianceFields={preparePirateAlliance:['shipId','supportShipId'],proposePirateAlliance:['shipId','supportShipId','confirmation'],acceptPirateAlliance:['shipId','leaderShipId','confirmation'],leavePirateAlliance:['shipId','confirmation','reason'],leavePirateAllianceAdmin:['shipId','confirmation','reason']};
 const proof=(s,a,b)=>hash(JSON.stringify([s.revision,a,b??null]));
 const publicOffer=(o,confirmation)=>({leaderShipId:o.leaderShipId,supportShipId:o.supportShipId,leaderName:o.leaderName,supportName:o.supportName,confirmation});
@@ -19,7 +20,7 @@ export function pirateAllianceView(s,fleet,c,admin){
   const partner=g?fleet.find(p=>p.id===g.shipIds.find(id=>id!==x.id)):null;
   ships.push({id:x.id,name:x.name,canPropose:!admin&&!!x.ambushId&&!g&&!x.pirateOffer,incoming:admin?[]:incoming,offer:x.pirateOffer?publicOffer(x.pirateOffer,null):null,alliance:g?{leaderName:g.leaderName,supportName:g.supportName}:null,confirmation:proof(s,x,partner)});
  }
- return {ready:true,convoyReady:s.spaceOutlaws?.allianceConvoyVersion===1,ships};
+ return {ready:true,duelReady:hasAllianceDuels(s),convoyReady:s.spaceOutlaws?.allianceConvoyVersion===1,ships};
 }
 export async function pirateAllianceCommand(tx,s,ship,c,input,action,id,at,time,inTransit,fit){
  requireThat(hasPirateAlliances(s),'SO_GAMEPLAY_NOT_OPEN');const base=`sessions/${s.id}`;
@@ -36,11 +37,11 @@ export async function pirateAllianceCommand(tx,s,ship,c,input,action,id,at,time,
   requireThat(o&&o.supportShipId===ship.id&&o.leaderPilotVersion===a.p.version&&o.supportPilotVersion===b.p.version&&o.leaderAmbushId===a.a.id&&o.supportAmbushId===b.a.id,'SPACE_ALLIANCE_CLOSED');requireThat(input.confirmation===proof(s,leader,support),'STALE_REVISION');
   const g={...o,shipIds:[leader.id,support.id],declaredAt:at};for(const x of [leader,support])tx.set(`${base}/ships/${x.id}`,{...x,pirateAlliance:g,pirateOffer:null,revision:x.revision+1});return {result:{id:g.id,status:'DECLARED'},before:o,after:g};
  }
- requireThat(!o,'SPACE_ALLIANCE_UNAVAILABLE');const confirmation=hash(JSON.stringify([s.revision,leader,support,a.a,b.a,a.p.version,b.p.version])),offer={id,leaderShipId:leader.id,supportShipId:support.id,leaderName:leader.name,supportName:support.name,leaderPilotVersion:a.p.version,supportPilotVersion:b.p.version,leaderAmbushId:a.a.id,supportAmbushId:b.a.id,createdAt:at};
- if(action==='preparePirateAlliance')return publicOffer(offer,confirmation);requireThat(input.confirmation===confirmation,'STALE_REVISION');tx.set(`${base}/ships/${leader.id}`,{...leader,pirateOffer:offer,revision:leader.revision+1});return {result:{id,status:'INVITED'},before:null,after:offer};
+ requireThat(!o,'SPACE_ALLIANCE_UNAVAILABLE');const confirmation=hash(JSON.stringify([s.revision,leader,support,a.a,b.a,a.p.version,b.p.version])),offer={id,...(hasAllianceDuels(s)?{duelVersion:1}:{}),leaderShipId:leader.id,supportShipId:support.id,leaderName:leader.name,supportName:support.name,leaderPilotVersion:a.p.version,supportPilotVersion:b.p.version,leaderAmbushId:a.a.id,supportAmbushId:b.a.id,createdAt:at};
+ if(action==='preparePirateAlliance')return {...publicOffer(offer,confirmation),duelReady:hasAllianceDuels(s)};requireThat(input.confirmation===confirmation,'STALE_REVISION');tx.set(`${base}/ships/${leader.id}`,{...leader,pirateOffer:offer,revision:leader.revision+1});return {result:{id,status:'INVITED'},before:null,after:offer};
 }
 export async function pirateAllianceCandidate(tx,s,ship,time,inTransit,fit,fleet){
- const g=ship.pirateAlliance;if(!g)return {members:[{ship,a:null}],declaration:null};
+ if(!ship)return null;const g=ship.pirateAlliance;if(!g)return {members:[{ship,a:null}],declaration:null};
  if(!hasPirateAlliances(s)||g.leaderShipId!==ship.id)return null;
  const support=fleet.find(x=>x.id===g.supportShipId);if(support?.pirateAlliance?.id!==g.id)return null;
  const a=await position(tx,s,ship,time,inTransit,fit),b=await position(tx,s,support,time,inTransit,fit);
