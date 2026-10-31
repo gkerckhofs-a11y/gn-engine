@@ -1,3 +1,4 @@
+import {hasTargetedAmbushes,ambushKnowledgeOptions} from './space-targeted-ambushes.mjs';
 import {detourFields,detourView,detourCommand} from './space-detours.mjs';
 import {finishEscortRefuel} from './space-escort.mjs';
 import {hasSoConvoy,convoyFields,convoyInvitations,convoyCommand,convoyFleet,finishConvoy} from './space-convoy.mjs';
@@ -86,7 +87,7 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
    }
    const confirmation=receipt(s,ship,version),isPilot=!admin&&ship.pilotId===c.id;
    const fuelAllowed=l=>personalLot(l,c?.id)&&l.status==='AVAILABLE'&&l.quantity>0&&l.item.id===ship.navigation.fuelItemId&&(l.transferable!==false||ship.ownerId===c.id);
-   if(action==='shipNavigation')return {detour:detourView(s,ship,c,time),convoyReady:hasSoConvoy(s),convoyCode:isPilot?ship.convoy?.navigationCode??null:null,invitations:(await convoyInvitations(tx,s,c)).filter(o=>o.escortShipId===ship.id),session:{id:s.id,stage:s.stage},spaceOutlaws:true,logisticsReady:s.spaceOutlaws.logisticsVersion===1,combatReady:s.spaceOutlaws.combatVersion===1,ship:safeSoShip(s,ship,time),canPilot:isPilot,canAct:isPilot&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&available(s,c,time),confirmation,lots:isPilot?(await tx.list(`${base}/inventory`)).filter(fuelAllowed).map(publicLot):[]};
+   if(action==='shipNavigation')return {targetingReady:hasTargetedAmbushes(s),targetKnowledge:isPilot?await ambushKnowledgeOptions(tx,s,c):[],detour:detourView(s,ship,c,time),convoyReady:hasSoConvoy(s),convoyCode:isPilot?ship.convoy?.navigationCode??null:null,invitations:(await convoyInvitations(tx,s,c)).filter(o=>o.escortShipId===ship.id),session:{id:s.id,stage:s.stage},spaceOutlaws:true,logisticsReady:s.spaceOutlaws.logisticsVersion===1,combatReady:s.spaceOutlaws.combatVersion===1,ship:safeSoShip(s,ship,time),canPilot:isPilot,canAct:isPilot&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&available(s,c,time),confirmation,lots:isPilot?(await tx.list(`${base}/inventory`)).filter(fuelAllowed).map(publicLot):[]};
    if(!admin)requireThat(isPilot,'FORBIDDEN');
    requireThat(!ship.combatId&&!ship.rescueId&&!ship.maintenanceId,'SPACE_SHIP_BUSY');
    const cancelling=['cancelSoNavigation','cancelSoNavigationAdmin','leaveSoConvoy','leaveSoConvoyAdmin'].includes(action);
