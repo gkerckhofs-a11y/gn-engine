@@ -19,7 +19,7 @@ export function pirateAllianceView(s,fleet,c,admin){
   const partner=g?fleet.find(p=>p.id===g.shipIds.find(id=>id!==x.id)):null;
   ships.push({id:x.id,name:x.name,canPropose:!admin&&!!x.ambushId&&!g&&!x.pirateOffer,incoming:admin?[]:incoming,offer:x.pirateOffer?publicOffer(x.pirateOffer,null):null,alliance:g?{leaderName:g.leaderName,supportName:g.supportName}:null,confirmation:proof(s,x,partner)});
  }
- return {ready:true,ships};
+ return {ready:true,convoyReady:s.spaceOutlaws?.allianceConvoyVersion===1,ships};
 }
 export async function pirateAllianceCommand(tx,s,ship,c,input,action,id,at,time,inTransit,fit){
  requireThat(hasPirateAlliances(s),'SO_GAMEPLAY_NOT_OPEN');const base=`sessions/${s.id}`;
