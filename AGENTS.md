@@ -1,6 +1,10 @@
 # GN Engine — consignes de développement
 
-## Priorité de reprise — 28 octobre 2026
+## Priorité de reprise — 31 octobre 2026
+
+Tranche suivante sur la même branche/PR #2 : entretien sur pièces personnelles par Mécano joueur, avec `maintenanceSuppliesVersion=1` seulement dans les nouveaux manifestes. Réutiliser shipMaintenance/inventory et le consentement distinct du payeur et du Mécano. Lots personnels présents dans le sac du payeur, correspondant à une référence M5 publiée à 50 Cr d’usage, compatibilité explicitement attestée par MJ ; quantités entières exactes, aucun carburant/fret confié ni arrondi inventé. Le lot est réservé, consommé par point ; aucun débit, réserve monétaire ou crédit PNJ pour ce mode. 1 PA au premier point, points achevés conservés après interruption. Pièces protégées limitées au vaisseau du propriétaire ; retrait d’accès/décès bloque les effets et MJ peut libérer les réserves. Clôture exige interruption préalable, puis conserve pièces restantes/état technique/historique. Ancien manifeste fermé à ce mode, PNJ historique inchangé ; aucun enrichissement/migration implicite. Le mode PNJ avec pièces personnelles et les fractions de lots restent distincts. Ne pas revenir à un binaire ignorant ce marqueur sur des interventions personnelles ouvertes.
+
+### Base validée au 28 octobre 2026
 
 Reprise après publication : nouvelle branche `work/space-pilot-handover`, depuis main `d83226f7afeb429fcb73c6e4d251cde769398c19` (0.37.0 publiée, PR #1 fusionnée). PR #2 brouillon, aucune autorisation de fusion/publication de cette tranche. Le changement de pilote MJ à quai réutilise navigationVersion et le mandat natif pilotId : aperçu courant, motif privé, attestation du mandat/accord/présence, PIL-02 et disponibilité/localisation contrôlés. Aucun changement de propriétaire ou de biens. Refuser opérations, convoi/invitation, fret en transfert/sous garde, contrats fret/escorte acceptés encore ouverts et provisions résiduelles. Le nouveau pilote prépare lui-même son vol. Pas de nouveau marqueur ni migration : opération explicite sur un mandat natif existant, anciennes sessions sans navigationVersion fermées. Réessais et historique natifs, droits MJ courants avant reçus.
 

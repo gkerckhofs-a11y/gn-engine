@@ -21,3 +21,9 @@ test('Logistique UI : Terminal, sac et formulaires ne proposent aucun ancien éd
  assert.equal(playerRoute('space-maintenance','s').space,'terminal');assert.match(terminalHtml({session:{id:'s',spaceOutlaws:{logisticsVersion:1}}}),/space-maintenance\/s/);const d={session:{id:'s'},lots:[{id:'l',quantity:2,status:'AVAILABLE',item:{name:'Pièces',unit:'lot',unitVolume:1}}]};assert.match(soInventoryHtml(d,null,null,true),/cargo\/s\/l/);assert.doesNotMatch(soInventoryHtml(d,null),/cargo\/s\/l/);
  const form={dataset:{form:'spacePrepare',payload:'{"sessionId":"s"}'},elements:{namedItem:n=>n==='present'?{checked:true}:null}};assert.deepEqual(spaceFormInput(form,{kind:'HULL',points:'2',technicianId:'PNJ',payerId:'c'}),{sessionId:'s',kind:'HULL',points:2,technicianId:null,payerId:'c',present:true});
 });
+
+test('Entretien UI : pièces personnelles distinctes des fonds et accord Mécano',()=>{
+ const d={...job,personalSupplies:true,pnj:false,amount:0,fee:0,before:null,after:null,units:20};const h=maintenanceConfirmHtml('prepareSpaceMaintenance',d,{sessionId:'s',maintenanceId:'r'});assert.match(h,/Aucun débit de crédits/);assert.match(h,/Réserver mes pièces personnelles/);assert.match(h,/accepter personnellement/);assert.doesNotMatch(h,/Disponible :|prestation PNJ est payée/);
+ const form={dataset:{form:'spacePrepare',payload:'{"sessionId":"s"}'},elements:{namedItem:()=>null}},v={offer:JSON.stringify({shopId:'p',offerId:'o',supplyLotId:'lot'})};assert.equal(spaceFormInput(form,v).supplyLotId,'lot');
+ const admin=maintenanceHtml({session:{id:'s'},admin:true,jobs:[],ships:[],characters:[{id:'c',name:'Joueur <script>',mecLevel:2}],supplies:[],personalSupplies:[{shopId:'p',offerId:'o',lotId:'lot',ownerId:'c',name:'Pièces',quantity:20}]});assert.match(admin,/Pièces personnelles/);assert.match(admin,/supplyLotId/);assert.doesNotMatch(admin,/<script>/);
+});
