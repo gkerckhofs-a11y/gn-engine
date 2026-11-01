@@ -68,7 +68,7 @@ export function createSpaceBoardingService({store,signed,checkSession,now,uuid})
     const crew=parties.map(p=>({id:p.id,name:p.name,shipId:p.shipId,version:p.originalVersion}));
     if(action==='prepareSpaceDocking')return {attackerName:attacker.name,targetName:target.name,zone,durationSeconds:120,crew:crew.map(({version,...p})=>p),confirmation};
     requireThat(input.confirmation===confirmation,'STALE_REVISION');
-    const r={id,attackerShipId:attacker.id,targetShipId:target.id,attackerName:attacker.name,targetName:target.name,zone,crew,...(s.spaceOutlaws.boardingCargoVersion===1?{cargoVersion:1}:{}),...(s.spaceOutlaws.boardingRansomVersion===1?{ransomVersion:1}:{}),status:'DOCKING',readyAtGameMs:time+120000,revision:1,createdAt:at};
+    const r={id,attackerShipId:attacker.id,targetShipId:target.id,attackerName:attacker.name,targetName:target.name,zone,crew,...(s.spaceOutlaws.boardingFreightVersion===1?{freightVersion:1}:{}),...(s.spaceOutlaws.boardingCargoVersion===1?{cargoVersion:1}:{}),...(s.spaceOutlaws.boardingRansomVersion===1?{ransomVersion:1}:{}),status:'DOCKING',readyAtGameMs:time+120000,revision:1,createdAt:at};
     for(const ship of ships)saveShip({...pauseSpaceJourney(ship,time),combatId:e.id,revision:ship.revision+1});tx.set(ep,{...e,activeBoardingId:id,revision:e.revision+1});tx.set(`${ep}/boardings/${id}`,r);return audit(r,null,reason);
    }
    requireThat(r&&e.activeBoardingId===r.id&&ships.length===2&&ships.every(x=>native(e,x,time,true)),'BOARDING_CLOSED');

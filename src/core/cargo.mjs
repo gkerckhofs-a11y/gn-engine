@@ -109,7 +109,7 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
      if(!terms||terms.toPort!==port.id||contract.acceptedAt==null||!admin&&!await participantAccess(tx,s,ctx,actor,contract))continue;
      const evidence=await transportView(tx,s,contract),lots=[],transfers=[];
      for(const l of evidence.lots){
-      if(l.location.kind!=='HOLD'||l.quantity<=0)continue;
+      if(l.location.kind!=='HOLD'||l.quantity<=0||l.boardingCustody)continue;
       const lot=await readLot(tx,sid,l.id,at),source=await visibleLot(lot),dest=await place({kind:'PORT',id:port.id});
       lots.push({lot:publicLot(lot),canMove:canMove&&source.withdraw&&dest.deposit&&lot.status==='AVAILABLE'});
      }
