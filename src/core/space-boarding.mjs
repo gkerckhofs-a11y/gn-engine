@@ -1,3 +1,4 @@
+import {boardingCargoProjection} from './space-boarding-cargo.mjs';
 import {preparePersonalPayment,settlePersonalPayment} from './economy.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {admissionKeys} from './admission-state.mjs';
@@ -44,7 +45,7 @@ export function createSpaceBoardingService({store,signed,checkSession,now,uuid})
     const choices=[];if(admin&&!e.activeBoardingId)for(const target of fleet)if(target&&eligibleTarget(e,target))for(const attacker of fleet)if(opponents(e,attacker,target)){
      select(attacker.id,target.id);const pilot=parties.find(p=>p.id===attacker.pilotId);if(ships.length===2&&ships.every(x=>native(e,x,time))&&originalCrew()&&attacker.journey.routeId===target.journey.routeId&&attacker.hull>0&&pilot?.active&&pilot.version===pilot.originalVersion&&fit(pilot.c,time))choices.push({attackerShipId:attacker.id,targetShipId:target.id,name:`${attacker.name} → ${target.name}`});
     }
-    const boardings=rows.filter(r=>admin||r.crew.some(p=>p.id===c.id)).map(r=>{select(r.attackerShipId,r.targetShipId);const row=publicRow(r,time,admin?proof(r):null,c?.id),p=ransomParties(r),canPayRansom=!admin&&ransomEnabled(r)&&r.status==='CONTROLLED'&&!r.ransom&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&originalCrew()&&p.source&&p.recipient&&fit(p.source.c,time)&&!p.recipient.c.survival?.dead;return {...row,...(canPayRansom?{canPayRansom:true,ransomPayee:{name:p.recipient.c.public.displayName}}:{})};});
+    const boardings=await Promise.all(rows.filter(r=>admin||r.crew.some(p=>p.id===c.id)).map(async r=>{select(r.attackerShipId,r.targetShipId);const row=publicRow(r,time,admin?proof(r):null,c?.id),p=ransomParties(r),canPayRansom=!admin&&ransomEnabled(r)&&r.status==='CONTROLLED'&&!r.ransom&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&originalCrew()&&p.source&&p.recipient&&fit(p.source.c,time)&&!p.recipient.c.survival?.dead;return {...row,...await boardingCargoProjection(tx,s,r,time,admin),...(canPayRansom?{canPayRansom:true,ransomPayee:{name:p.recipient.c.public.displayName}}:{})};}));
     const current=rows.find(r=>r.id===e.activeBoardingId);if(current)select(current.attackerShipId,current.targetShipId);
     return {session:{id:s.id,stage:s.stage},admin,combatId:e.id,fleetEncounter:e.shipIds.length>2,boardings,...(admin?{choices,crewReady:current?crewReady():false}: {})};
    }
@@ -67,7 +68,7 @@ export function createSpaceBoardingService({store,signed,checkSession,now,uuid})
     const crew=parties.map(p=>({id:p.id,name:p.name,shipId:p.shipId,version:p.originalVersion}));
     if(action==='prepareSpaceDocking')return {attackerName:attacker.name,targetName:target.name,zone,durationSeconds:120,crew:crew.map(({version,...p})=>p),confirmation};
     requireThat(input.confirmation===confirmation,'STALE_REVISION');
-    const r={id,attackerShipId:attacker.id,targetShipId:target.id,attackerName:attacker.name,targetName:target.name,zone,crew,...(s.spaceOutlaws.boardingRansomVersion===1?{ransomVersion:1}:{}),status:'DOCKING',readyAtGameMs:time+120000,revision:1,createdAt:at};
+    const r={id,attackerShipId:attacker.id,targetShipId:target.id,attackerName:attacker.name,targetName:target.name,zone,crew,...(s.spaceOutlaws.boardingCargoVersion===1?{cargoVersion:1}:{}),...(s.spaceOutlaws.boardingRansomVersion===1?{ransomVersion:1}:{}),status:'DOCKING',readyAtGameMs:time+120000,revision:1,createdAt:at};
     for(const ship of ships)saveShip({...pauseSpaceJourney(ship,time),combatId:e.id,revision:ship.revision+1});tx.set(ep,{...e,activeBoardingId:id,revision:e.revision+1});tx.set(`${ep}/boardings/${id}`,r);return audit(r,null,reason);
    }
    requireThat(r&&e.activeBoardingId===r.id&&ships.length===2&&ships.every(x=>native(e,x,time,true)),'BOARDING_CLOSED');
@@ -92,7 +93,7 @@ export function createSpaceBoardingService({store,signed,checkSession,now,uuid})
    requireThat(input.confirmation===proof(r),'STALE_REVISION');let status;
    if(action==='finishSpaceDocking'){attest(input);requireThat(r.status==='DOCKING','BOARDING_PHASE');requireThat(time>=r.readyAtGameMs,'BOARDING_NOT_READY');requireThat(originalCrew(),'BOARDING_CREW_CHANGED');status='SCENE';}
    else if(action==='cancelSpaceBoarding'){requireThat(['DOCKING','SCENE'].includes(r.status),'BOARDING_PHASE');status='CANCELLED';}
-   else {requireThat(action==='releaseSpaceBoarding'&&r.status==='CONTROLLED','BOARDING_PHASE');requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');status='RELEASED';}
+   else {requireThat(action==='releaseSpaceBoarding'&&r.status==='CONTROLLED','BOARDING_PHASE');requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');requireThat(!(await tx.list(`${base}/cargoTransfers`,['boardingId',r.id])).some(t=>t.status==='LOADING'),'CARGO_TRANSFERS_OPEN');status='RELEASED';}
    const reason=action==='finishSpaceDocking'?null:moneyText(input.reason),next={...r,status,revision:r.revision+1,...(status==='SCENE'?{sceneAt:at}:{closedAt:at})};
    if(status!=='SCENE')unlock();tx.set(rp,next);return audit(next,r,reason);
   });

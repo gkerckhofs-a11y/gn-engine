@@ -1,3 +1,4 @@
+import {createBoardingCargoService,boardingCargoActions} from './space-boarding-cargo.mjs';
 import {createSoLearningService,soLearningActions} from './space-outlaws-learning.mjs';
 import {createSpaceOutlawsSuccessionService,spaceOutlawsSuccessionActions} from './space-outlaws-succession.mjs';
 import {rewardsOpen} from './space-outlaws-mission-rewards.mjs';
@@ -157,6 +158,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const priceService=createPriceService({store,signed,checkSession,now,uuid});
   const spaceMaintenanceService=createSpaceMaintenanceService({store,signed,checkSession,now,uuid});
   const spaceCombatService=createSpaceCombatService({store,signed,checkSession,now,uuid,rollD6});
+  const boardingCargoService=createBoardingCargoService({store,signed,checkSession,now,uuid});
   const spaceBoardingService=createSpaceBoardingService({store,signed,checkSession,now,uuid});
   const spaceRescueService=createSpaceRescueService({store,signed,checkSession,now,uuid});
   const voyageService=createVoyageService({store,signed,checkSession,now,uuid,rollD6});
@@ -202,6 +204,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(priceAction(action))return priceService(action,actor,input);
     if(spaceMaintenanceActions.includes(action))return spaceMaintenanceService(action,actor,input);
     if(spaceCombatActions.includes(action))return spaceCombatService(action,actor,input);
+    if(boardingCargoActions.includes(action))return boardingCargoService(action,actor,input);
     if(spaceBoardingActions.includes(action))return spaceBoardingService(action,actor,input);
     if(spaceRescueActions.includes(action))return spaceRescueService(action,actor,input);
     if(voyageAction(action))return voyageService(action,actor,input);

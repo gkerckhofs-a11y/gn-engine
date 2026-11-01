@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {boardingHtml,boardingConfirmHtml,boardingFormInput} from '../web/space-boarding.mjs';
+import {boardingHtml,boardingConfirmHtml,boardingFormInput,boardingCargoConfirmHtml} from '../web/space-boarding.mjs';
 import {spaceCombatsHtml} from '../web/space-encounters.mjs';
 import {playerRoute} from '../web/player-spaces.mjs';
 import {boardingFixture} from './support/space-boarding-suite.mjs';
@@ -24,4 +24,11 @@ test('UI rançon : payeur personnel, accord libre, confirmation séparée et re�
 });
 test('UI rançon : noms et libellé échappés, aucun solde adverse dans le dossier partagé',()=>{
  const h=boardingConfirmHtml('prepareBoardingRansom',{source:{name:'<img onerror=alert(1)>'},recipient:{name:'<script>capture</script>'},amount:12,currency:{unit:'Cr'},memo:'<script>faux accord</script>',before:{balance:20,available:15},after:{balance:8,available:3},confirmation:'proof'},{sessionId:'s',combatId:'c',boardingId:'b',amount:12,memo:'Accord'});assert.doesNotMatch(h,/<script>|<img/);assert.match(h,/&lt;script&gt;/);assert.match(h,/Confirmer mon paiement/);
+});
+
+test('UI transbordement : seul le MJ identifie les lots, joueurs en lecture et propriété conservée',async()=>{
+ const {boardingCargoFixture}=await import('./support/space-boarding-cargo-suite.mjs'),f=await boardingCargoFixture(()=>new MemoryStore()),admin=boardingHtml(await f.board()),player=boardingHtml(await f.board(f.player));assert.match(admin,/boardingCargoPrepare/);assert.match(admin,/name="lotId"/);assert.match(admin,/name="ordinary"/);assert.match(admin,/trois minutes de jeu pour chaque tranche/);assert.doesNotMatch(player,/boardingCargoPrepare|name="lotId"|name="ordinary"/);const t=await f.start();assert.match(boardingHtml(await f.board(f.player)),/Tranche réservée/);const q=await f.prepare({lotId:f.ids[0],quantity:1}).catch(()=>null);assert.equal(q,null);assert.match(boardingHtml(await f.board()),/Une tranche ouverte empêche/);const receipt=await f.receipt(t),h=boardingCargoConfirmHtml('prepareBoardingCargoReceipt',receipt,{sessionId:f.sid});assert.doesNotMatch(h,/receiveBoardingCargo/);assert.match(h,/cancelBoardingCargoTransfer/);f.advance(180000);const ready=boardingCargoConfirmHtml('prepareBoardingCargoReceipt',await f.receipt(t),{sessionId:f.sid});assert.match(ready,/receiveBoardingCargo/);assert.match(ready,/name="received"/);
+});
+test('UI transbordement : confirmation séparée et noms échappés sans droit de propriété nouveau',()=>{
+ const h=boardingCargoConfirmHtml('prepareBoardingCargoTransfer',{name:'<script>lot</script>',quantity:2,volume:4,sourceName:'<img src=x>',destinationName:'Receveur',confirmation:'proof'},{sessionId:'s',combatId:'c',boardingId:'b'});assert.doesNotMatch(h,/<script>|<img/);assert.match(h,/&lt;script&gt;/);assert.match(h,/startBoardingCargoTransfer/);assert.match(h,/propriétaire conservé/);assert.doesNotMatch(h,/receiveBoardingCargo|ownerId|sellLot/);
 });

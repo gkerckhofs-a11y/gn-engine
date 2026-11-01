@@ -11,7 +11,7 @@ import {placeFindRow} from './place-search.mjs';
 import {missionExecutionPayload} from './mission-execution.mjs';
 import {soResolutionPayload,soResolutionConfirmation,soMissionErrors} from './space-missions.mjs';
 import {maintenanceHtml,maintenanceConfirmHtml,maintenanceErrors} from './space-maintenance.mjs';
-import {boardingHtml,boardingConfirmHtml,boardingFormInput,boardingErrors} from './space-boarding.mjs';
+import {boardingHtml,boardingConfirmHtml,boardingCargoConfirmHtml,boardingFormInput,boardingErrors} from './space-boarding.mjs';
 import {spaceCombatsHtml,spaceRescuesHtml,spaceConfirmHtml,spaceFormInput,spaceEncounterErrors} from './space-encounters.mjs';
 import {convoyConfirmHtml,soPilotConfirmHtml,soSpaceportHtml,soShipConfirmHtml,soNavigationHtml,soFlightConfirmHtml,passengerCodesInput,soNavigationErrors} from './space-outlaws-voyages.mjs';
 import {shopsHtml,shopPurchaseHtml,shopProvisionHtml,shopProvisionConfirmHtml,soInventoryHtml,shopErrors} from './shops.mjs';
@@ -684,6 +684,8 @@ document.addEventListener('submit',async event=>{
     else if(kind==='soDetourPrepare'){const p={...JSON.parse(form.dataset.payload),navigationCode:v.navigationCode},d=await api('prepareSoDetour',p);if(submitVersion!==routeVersion)return;modal(detourConfirmHtml(d,p));return;}
     else if(kind==='soRouteAnalysis'){const navigationCode=v.navigationCode.trim(),d=await api('fieldTarget',{...JSON.parse(form.dataset.payload),navigationCode});if(submitVersion!==routeVersion)return;pageRenderer()(`<div class="narrow">${fieldTargetHtml(d)}</div>`);fieldUi.mount('target',d,{navigationCode});return;}
     else if(kind==='soNavigationPrepare'){const p={...JSON.parse(form.dataset.payload),...(form.dataset.kind==='refuel'?{lotId:v.lotId,quantity:Number(v.quantity)}:{navigationCode:v.navigationCode,passengerCodes:passengerCodesInput(v.passengerCodes)})},d=await api(form.dataset.kind==='refuel'?'prepareRefuel':'prepareVoyage',p);if(submitVersion!==routeVersion)return;modal(soFlightConfirmHtml(form.dataset.kind,d,p));return;}
+    else if(kind==='boardingCargoPrepare'){const p={...JSON.parse(form.dataset.payload),...(v.lotId!==undefined?{lotId:v.lotId,quantity:Number(v.quantity),direction:v.direction,reason:v.reason,present:v.present==='on',ordinary:v.ordinary==='on'}:{})},d=await api(form.dataset.command,p);if(submitVersion!==routeVersion)return;modal(boardingCargoConfirmHtml(form.dataset.command,d,p));return;}
+    else if(kind==='boardingCargoCommand'){const p={...JSON.parse(form.dataset.payload),...(v.reason!==undefined?{reason:v.reason}:{}),...(form.elements.namedItem('received')?{received:v.received==='on'}:{})};await mutate(form.dataset.command,p);successMessage='Tranche de fret mise à jour, propriétaire conservé.';}
     else if(kind==='boardingRansomPrepare'){const p={...JSON.parse(form.dataset.payload),amount:Number(v.amount),memo:v.memo},d=await api('prepareBoardingRansom',p);if(submitVersion!==routeVersion)return;modal(boardingConfirmHtml('prepareBoardingRansom',d,p));return;}
     else if(kind==='boardingRansomCommand'){await mutate('payBoardingRansom',JSON.parse(form.dataset.payload));successMessage='Rançon payée. Le reçu est disponible ; la libération reste distincte avec le MJ.';}
     else if(kind==='boardingPrepare'){const p=boardingFormInput(form,v),d=await api(form.dataset.command,p);if(submitVersion!==routeVersion)return;modal(boardingConfirmHtml(form.dataset.command,d,p));return;}

@@ -6,7 +6,7 @@ import {inventoryHash} from '../../src/core/inventory-state.mjs';
 import {accountId} from '../../src/core/economy-state.mjs';
 import {shopStockId,shopAccountId} from '../../src/core/space-outlaws-shop-state.mjs';
 export const order=(kind,patch={})=>({kind,fallback:'PASSIVE',acceptSurrender:false,ceasefire:false,...patch});
-export async function encountersFixture(makeStore,{combat=true,encounter=true,...options}={}){
+export async function encountersFixture(makeStore,{combat=true,encounter=true,beforeDeparture=null,...options}={}){
  const f=await soVoyagesFixture(makeStore,options),base=`sessions/${f.sid}`;
  const edit=async(path,fn)=>f.store.runTransaction(async tx=>tx.set(`${base}/${path}`,fn(await tx.get(`${base}/${path}`))));
  const stock=async(quantity=10)=>{const p={shopId:'counter',offerId:'fuel',provisionId:randomUUID(),quantity,restricted:true,source:'Réserve physique PNJ',reason:'Assistance autorisée'},q=await f.read('prepareShopProvision',p,f.owner);return f.cmd('provisionShop',{...p,confirmation:q.confirmation},f.owner);};
@@ -26,6 +26,7 @@ export async function encountersFixture(makeStore,{combat=true,encounter=true,..
   const sale=await f.buy({offerId:'fuel',quantity:6},f.other);await f.pickup(sale,f.other);await f.refuel(6);
   const lot=(await f.read('myInventory',{},f.other)).lots.find(x=>x.item.id==='propellant'),p={shipId:'second',lotId:lot.id,quantity:6},q=await f.read('prepareRefuel',p,f.other);
   await f.cmd('refuelShip',{...p,confirmation:q.confirmation,present:true},f.other);f.advance(120000);await f.navCommand('finishSoRefuel',{shipId:'second'},f.other);
+  if(beforeDeparture)await beforeDeparture(f);
   await f.startFlight();await f.startFlight({shipId:'second'},f.other);f.advance(180000);await f.navCommand('finishSoPreparation');await f.navCommand('finishSoPreparation',{shipId:'second'},f.other);
   await arm();if(encounter)await intercept();
  }
@@ -92,7 +93,7 @@ export function spaceEncountersSuite(makeStore,prefix='Rencontres spatiales SO')
   // A real old manifest digest, not an implicit runtime migration.
   const campaign=await f.store.get(`campaigns/${s.campaignId}`),vp=`campaigns/${s.campaignId}/versions/${campaign.master.activeVersionId}`;
   const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
-  await f.store.runTransaction(async tx=>{const {boardingRansomVersion,fleetBoardingVersion,boardingVersion,allianceDefenseVersion,allianceDuelVersion,allianceConvoyVersion,pirateAllianceVersion,targetedAmbushVersion,escortManeuverVersion,escortAmendmentVersion,escortVersion,convoyVersion,combatVersion,manifestDigest,...h}=await tx.get(vp);tx.set(vp,{...h,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(h))).digest('hex')});});await f.birth(await f.birthPreview());await assert.rejects(f.read('spaceCombats'),{code:'SO_GAMEPLAY_NOT_OPEN'});await assert.rejects(f.read('spaceRescues'),{code:'SO_GAMEPLAY_NOT_OPEN'});
+  await f.store.runTransaction(async tx=>{const {boardingCargoVersion,boardingRansomVersion,fleetBoardingVersion,boardingVersion,allianceDefenseVersion,allianceDuelVersion,allianceConvoyVersion,pirateAllianceVersion,targetedAmbushVersion,escortManeuverVersion,escortAmendmentVersion,escortVersion,convoyVersion,combatVersion,manifestDigest,...h}=await tx.get(vp);tx.set(vp,{...h,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(h))).digest('hex')});});await f.birth(await f.birthPreview());await assert.rejects(f.read('spaceCombats'),{code:'SO_GAMEPLAY_NOT_OPEN'});await assert.rejects(f.read('spaceRescues'),{code:'SO_GAMEPLAY_NOT_OPEN'});
  });
  test(`${prefix} : deux soumissions concurrentes et double résolution ne doublent aucun coût`,async()=>{
   const f=await encountersFixture(makeStore);await f.begin();const d=await f.detail(),input={combatId:f.combatId(),shipId:'ship',confirmation:d.confirmation,order:order('PIL03_2')};const submitted=await Promise.allSettled([f.cmd('submitSpaceOrder',input),f.cmd('submitSpaceOrder',input)]);assert.equal(submitted.filter(x=>x.status==='fulfilled').length,1);assert.equal((await f.points()).reserved,1);await f.submit('ATTACK',f.other);f.advance(90000);const q=await f.detail(),resolve={combatId:f.combatId(),shipId:'ship',confirmation:q.confirmation};const results=await Promise.allSettled([f.cmd('resolveSpaceRound',resolve),f.cmd('resolveSpaceRound',resolve)]);assert.equal(results.filter(x=>x.status==='fulfilled').length,1);assert.equal((await f.points()).available,3);assert.equal((await f.store.list(`sessions/${f.sid}/spaceCombats/${f.combatId()}/rounds`)).length,1);
