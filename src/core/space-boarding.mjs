@@ -13,7 +13,7 @@ const docking=['combatId','attackerShipId','targetShipId','zone','reason','prese
 const outcome=['combatId','boardingId','outcome','mode','orders','reason','present','safe'];
 const ransom=['combatId','boardingId','amount','memo'];
 const sponsor=['combatId','boardingId','payerId','reason'];
-const fields={prepareBoardingRansomSponsor:sponsor,assignBoardingRansomSponsor:[...sponsor,'confirmation'],clearBoardingRansomSponsor:['combatId','boardingId','confirmation','reason'],prepareBoardingRansom:ransom,payBoardingRansom:[...ransom,'confirmation'],spaceBoarding:['combatId'],spaceBoardingAdmin:['combatId'],prepareSpaceDocking:docking,startSpaceDocking:[...docking,'confirmation'],finishSpaceDocking:['combatId','boardingId','confirmation','present','safe'],prepareSpaceBoardingOutcome:outcome,resolveSpaceBoarding:[...outcome,'confirmation'],cancelSpaceBoarding:['combatId','boardingId','confirmation','reason'],releaseSpaceBoarding:['combatId','boardingId','confirmation','reason','present']};
+const fields={declineBoardingRansomSponsor:['combatId','boardingId','confirmation'],prepareBoardingRansomSponsor:sponsor,assignBoardingRansomSponsor:[...sponsor,'confirmation'],clearBoardingRansomSponsor:['combatId','boardingId','confirmation','reason'],prepareBoardingRansom:ransom,payBoardingRansom:[...ransom,'confirmation'],spaceBoarding:['combatId'],spaceBoardingAdmin:['combatId'],prepareSpaceDocking:docking,startSpaceDocking:[...docking,'confirmation'],finishSpaceDocking:['combatId','boardingId','confirmation','present','safe'],prepareSpaceBoardingOutcome:outcome,resolveSpaceBoarding:[...outcome,'confirmation'],cancelSpaceBoarding:['combatId','boardingId','confirmation','reason'],releaseSpaceBoarding:['combatId','boardingId','confirmation','reason','present']};
 export const spaceBoardingActions=Object.keys(fields);
 const reads=new Set(['prepareBoardingRansomSponsor','prepareBoardingRansom','spaceBoarding','spaceBoardingAdmin','prepareSpaceDocking','prepareSpaceBoardingOutcome']);
 const fit=(c,time)=>c?.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&!c.activeNavigationId&&!c.activeMaintenanceId&&!c.activeCargoId&&!(c.convalescentUntilGameMs>time);
@@ -27,7 +27,7 @@ export function createSpaceBoardingService({store,signed,checkSession,now,uuid})
  return async(action,actor,input)=>{
   signed(actor);admissionKeys(input,['sessionId',...fields[action],...(reads.has(action)?[]:['requestId'])]);const at=now(),id=uuid();
   return store.runTransaction(async tx=>{
-   const admin=!['spaceBoarding','prepareBoardingRansom','payBoardingRansom'].includes(action),ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId))}:await inventoryPlayer(tx,actor,input),{s,c,version}=ctx,base=`sessions/${s.id}`,time=gameTime(s.clock,at);
+   const admin=!['spaceBoarding','prepareBoardingRansom','payBoardingRansom','declineBoardingRansomSponsor'].includes(action),ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId))}:await inventoryPlayer(tx,actor,input),{s,c,version}=ctx,base=`sessions/${s.id}`,time=gameTime(s.clock,at);
    requireThat(hasSoCombat(s)&&s.spaceOutlaws.boardingVersion===1,'SO_GAMEPLAY_NOT_OPEN');
    const ep=`${base}/spaceCombats/${documentId(input.combatId)}`,e=await tx.get(ep);
    requireThat(boardingEncounterEnabled(s,e),'BOARDING_UNAVAILABLE');
@@ -41,6 +41,7 @@ export function createSpaceBoardingService({store,signed,checkSession,now,uuid})
    const sponsorEnabled=r=>s.spaceOutlaws.boardingRansomSponsorVersion===1&&r.sponsorVersion===1&&s.spaceOutlaws.boardingRansomVersion===1&&r.ransomVersion===1;
    const sponsorChoices=r=>members.filter(p=>!r.crew.some(x=>x.id===p.id)&&p.active&&p.version===p.originalVersion&&!p.c.survival?.dead&&p.c.hp>0);
    const sponsored=r=>sponsorEnabled(r)&&!!c&&r.sponsor?.id===c.id&&r.sponsor.version===version;
+   const declined=r=>sponsorEnabled(r)&&!!c&&!r.sponsor&&r.sponsorDecision?.id===c.id&&r.sponsorDecision.version===version&&r.sponsorDecision.status==='DECLINED';
    const ransomParties=r=>({source:parties.find(p=>p.id===c?.id&&p.shipId===r.targetShipId&&p.originalVersion===version&&p.active)??(sponsored(r)?members.find(p=>p.id===c.id&&p.originalVersion===version&&p.version===version&&p.active&&!r.crew.some(x=>x.id===p.id)):null),recipient:parties.find(p=>p.shipId===r.attackerShipId&&p.id===ships.find(x=>x.id===r.attackerShipId)?.pilotId&&p.active&&p.version===p.originalVersion)});
    const ransomEnabled=r=>s.spaceOutlaws.boardingRansomVersion===1&&r.ransomVersion===1;
    if(!admin)requireThat(parties.some(p=>p.id===c.id&&p.originalVersion===version),'FORBIDDEN');
@@ -51,11 +52,12 @@ export function createSpaceBoardingService({store,signed,checkSession,now,uuid})
     }
     const boardings=[];
     for(const r of rows){
-     const crew=admin||r.crew.some(p=>p.id===c.id);if(!crew&&!sponsored(r))continue;
+     const crew=admin||r.crew.some(p=>p.id===c.id);if(!crew&&!sponsored(r)&&!declined(r))continue;
+     if(!crew&&declined(r)){boardings.push({id:r.id,sponsorDeclined:true});continue;}
      select(r.attackerShipId,r.targetShipId);const p=ransomParties(r),canPayRansom=!admin&&ransomEnabled(r)&&r.status==='CONTROLLED'&&!r.ransom&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&originalCrew()&&p.source&&p.recipient&&fit(p.source.c,time)&&!p.recipient.c.survival?.dead;
      const payment=canPayRansom?{canPayRansom:true,ransomPayee:{name:p.recipient.c.public.displayName}}:{};
-     if(!crew){boardings.push({id:r.id,status:r.status,sponsorRequest:true,...payment,...(r.ransom?{ransomPaid:true,...(r.ransom.source.id===c.id?{ransom:r.ransom}:{})}:{})});continue;}
-     boardings.push({...publicRow(r,time,admin?proof(r):null,c?.id),...await boardingCargoProjection(tx,s,r,time,admin),...payment,...(admin&&sponsorEnabled(r)&&r.status==='CONTROLLED'&&!r.ransom?{ransomSponsor:r.sponsor?{id:r.sponsor.id,name:r.sponsor.name}:null,ransomSponsorChoices:sponsorChoices(r).map(p=>({id:p.id,name:p.c.public.displayName}))}:{})});
+     if(!crew){const canDecline=r.status==='CONTROLLED'&&!r.ransom&&['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)&&!s.safetyStop?.active;boardings.push({id:r.id,status:r.status,sponsorRequest:true,...(canDecline?{canDeclineSponsor:true,declineConfirmation:hash(JSON.stringify([proof(r),version]))}:{}),...payment,...(r.ransom?{ransomPaid:true,...(r.ransom.source.id===c.id?{ransom:r.ransom}:{})}:{})});continue;}
+     boardings.push({...publicRow(r,time,admin?proof(r):null,c?.id),...await boardingCargoProjection(tx,s,r,time,admin),...payment,...(admin&&sponsorEnabled(r)&&r.status==='CONTROLLED'&&!r.ransom?{ransomSponsor:r.sponsor?{id:r.sponsor.id,name:r.sponsor.name}:null,...(r.sponsorDecision?{ransomSponsorDecision:{name:r.sponsorDecision.name,status:r.sponsorDecision.status}}:{}),ransomSponsorChoices:sponsorChoices(r).map(p=>({id:p.id,name:p.c.public.displayName}))}:{})});
     }
     const current=rows.find(r=>r.id===e.activeBoardingId);if(current)select(current.attackerShipId,current.targetShipId);
     return {session:{id:s.id,stage:s.stage},admin,combatId:e.id,fleetEncounter:e.shipIds.length>2,boardings,...(admin?{choices,crewReady:current?crewReady():false}: {})};
@@ -64,9 +66,10 @@ export function createSpaceBoardingService({store,signed,checkSession,now,uuid})
    select(r?.attackerShipId??input.attackerShipId,r?.targetShipId??input.targetShipId);
    const isRansom=['prepareBoardingRansom','payBoardingRansom'].includes(action);
    if(isRansom){requireThat(r&&ransomEnabled(r),'SO_GAMEPLAY_NOT_OPEN');const p=ransomParties(r);requireThat(p.source&&p.recipient&&!p.source.c.survival?.dead&&!p.recipient.c.survival?.dead,'FORBIDDEN');}
+   if(action==='declineBoardingRansomSponsor')requireThat(r&&(sponsored(r)||declined(r)),'FORBIDDEN');
    const op=`operations/${hash(`${actor.uid}:${documentId(input.requestId??'preview')}`)}`,fingerprint=hash(JSON.stringify([action,input]));
    if(!reads.has(action)){const old=await tx.get(op);if(old){requireThat(old.fingerprint===fingerprint,'REQUEST_ID_REUSED');requireThat(admin||old.guard===version,'FORBIDDEN');return old.result;}}
-   requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat((['cancelSpaceBoarding','releaseSpaceBoarding','clearBoardingRansomSponsor'].includes(action)?['BRIEFING','EN_JEU','PAUSE']:['EN_JEU']).includes(s.stage),'SESSION_NOT_RUNNING');
+   requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat((['cancelSpaceBoarding','releaseSpaceBoarding','clearBoardingRansomSponsor','declineBoardingRansomSponsor'].includes(action)?['BRIEFING','EN_JEU','PAUSE']:['EN_JEU']).includes(s.stage),'SESSION_NOT_RUNNING');
    const audit=(r,before,reason,paymentResult)=>{authorizeSpaceOutlaws(tx,s,'SPACE_COMBAT');tx.set(`${base}/logisticsHistory/${id}`,{id,kind:action,at,actorUid:actor.uid,before,after:r,...(reason?{reason}:{})});tx.set(`${base}/audit/${id}`,{id,action,at,actorUid:actor.uid});const result=paymentResult??{id:r.id,status:r.status};tx.set(op,{fingerprint,result,guard:version??null,at});return result;};
    const saveShip=x=>{tx.set(`${base}/ships/${x.id}`,x);tx.set(`${base}/voyages/${x.journey.id}`,{...x.journey,shipId:x.id,status:x.journey.suspended?'SUSPENDED':'IN_TRANSIT'});};
    const unlock=()=>{for(const ship of ships)saveShip(resumeSpaceJourney({...ship,combatId:null,revision:ship.revision+1},time));tx.set(ep,{...e,activeBoardingId:null,revision:e.revision+1});};
@@ -83,6 +86,10 @@ export function createSpaceBoardingService({store,signed,checkSession,now,uuid})
     for(const ship of ships)saveShip({...pauseSpaceJourney(ship,time),combatId:e.id,revision:ship.revision+1});tx.set(ep,{...e,activeBoardingId:id,revision:e.revision+1});tx.set(`${ep}/boardings/${id}`,r);return audit(r,null,reason);
    }
    requireThat(r&&e.activeBoardingId===r.id&&ships.length===2&&ships.every(x=>native(e,x,time,true)),'BOARDING_CLOSED');
+   if(action==='declineBoardingRansomSponsor'){
+    requireThat(r.status==='CONTROLLED'&&!r.ransom,'BOARDING_RANSOM_PAID');requireThat(sponsored(r),'BOARDING_SPONSOR_UNAVAILABLE');requireThat(input.confirmation===hash(JSON.stringify([proof(r),version])),'STALE_REVISION');
+    const {sponsor,...rest}=r,next={...rest,revision:r.revision+1,sponsorDecision:{id:c.id,version,name:c.public.displayName,status:'DECLINED',at}};tx.set(rp,next);return audit(next,r,'Soutien refusé personnellement, sans débit',{id:r.id,status:r.status,sponsorStatus:'DECLINED'});
+   }
    if(isRansom){
     requireThat(r.status==='CONTROLLED','BOARDING_PHASE');requireThat(!r.ransom,'BOARDING_RANSOM_PAID');requireThat(originalCrew(),'BOARDING_CREW_CHANGED');
     const p=ransomParties(r);requireThat(fit(c,time),'OUT_OF_COMBAT');
@@ -96,7 +103,7 @@ export function createSpaceBoardingService({store,signed,checkSession,now,uuid})
     if(action==='clearBoardingRansomSponsor'){requireThat(input.confirmation===proof(r),'STALE_REVISION');requireThat(r.sponsor,'BOARDING_SPONSOR_UNAVAILABLE');const {sponsor,...rest}=r,next={...rest,revision:r.revision+1};tx.set(rp,next);return audit(next,r,reason);}
     const candidate=sponsorChoices(r).find(p=>p.id===documentId(input.payerId));requireThat(candidate,'BOARDING_SPONSOR_UNAVAILABLE');const recipient=ransomParties(r).recipient;requireThat(recipient&&!recipient.c.survival?.dead,'INVALID_RECIPIENT');const confirmation=hash(JSON.stringify([proof(r),candidate.id,candidate.version,reason]));
     if(action==='prepareBoardingRansomSponsor')return {payerName:candidate.c.public.displayName,recipientName:recipient.c.public.displayName,confirmation};
-    requireThat(input.confirmation===confirmation,'STALE_REVISION');const next={...r,revision:r.revision+1,sponsor:{id:candidate.id,version:candidate.version,name:candidate.c.public.displayName}};tx.set(rp,next);return audit(next,r,reason);
+    requireThat(input.confirmation===confirmation,'STALE_REVISION');const {sponsorDecision,...rest}=r,next={...rest,revision:r.revision+1,sponsor:{id:candidate.id,version:candidate.version,name:candidate.c.public.displayName}};tx.set(rp,next);return audit(next,r,reason);
    }
    if(['prepareSpaceBoardingOutcome','resolveSpaceBoarding'].includes(action)){
     attest(input);requireThat(r.status==='SCENE','BOARDING_PHASE');requireThat(originalCrew(),'BOARDING_CREW_CHANGED');

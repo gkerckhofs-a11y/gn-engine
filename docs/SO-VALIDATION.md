@@ -1,12 +1,26 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
-## État actif — soutien volontaire à une rançon, 1er novembre 2026
+## État actif — refus personnel du soutien à une rançon, 1er novembre 2026
 
 Priorité : SPACE OUTLAWS jouable, services existants, un seul suivi évolutif. Les sections C2 ci-dessous restent historiques. Extension prioritaire : [SO_CDC_V36_Fouilles_Medias](source/SO_CDC_V36_Fouilles_Medias.md), texte intégral fourni. Références générales : [SO_CDC_V35](source/SO_CDC_V35.md), §7.2, §8 et annexes A.8/A.9 ; [SO_Regles_V07](source/SO_Regles_V07.txt), chapitres 3, 6, 25 et continuité entre épisodes.
 
 **Base publiée confirmée** : main `d83226f7afeb429fcb73c6e4d251cde769398c19`, version 0.37.0 ; [PR #1 fusionnée](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). [CI complète 40649361336](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40649361336) réussie : 1997 applicatifs, 1543 Firestore, 68 HTTP/Auth/Storage et sept Chromium. [Publication 40649361423, tentative 2](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40649361423/attempts/2) réussie le 28 octobre à 08:40:29 UTC ; version 0.37.0, bundle et quatre Masters vérifiés, accès anonyme privé refusé (401). Aucun seed, migration, suppression ni IAM modifié. La première tentative s’est arrêtée en attendant la CI, sans publication. Ces preuves concernent la base publiée, pas la nouvelle tranche.
 
-### Soutien volontaire à une rançon par un autre équipier — tranche courante
+### Refus personnel du soutien — tranche courante
+
+Base vérifiée : `044767fca57a36e820afae09b7df7c9f0fc03623`, [CI complète 41346293407](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41346293407) réussie : 2264 applicatifs, 1770 Firestore, 80 HTTP/Auth/Storage et sept Chromium.
+
+Source : [V0.7 chapitre 21](source/SO_Regles_V07.txt), rançon libre, refus sans débit et libération distincte.
+
+Le soutien sollicité peut désormais **refuser personnellement** depuis sa demande minimale. La commande retire réellement `sponsor` du dossier natif et enregistre `sponsorDecision` privé (identité/version, DECLINED, date) ; ce champ ne donne aucun droit. Une ancienne confirmation de paiement devient interdite, y compris avec le binaire précédent qui ne trouve plus le grant. Aucun compte, réserve, crédit, PA, lot, voyage, contrôle ou délai de captivité modifié. Le joueur ne relit ensuite que son accusé de refus, sans état de scène ni détail d’un paiement ultérieur ; le MJ voit la décision. Un équipier visé peut encore payer et le MJ peut libérer sans paiement.
+
+Nouvelle proposition MJ explicite : effacer l’accusé précédent, nouvelle révision et nouvelles confirmations personnelles ; aucune relance ou succession automatique. Titulaire et version d’origine courants avant effet et ancien reçu ; champs stricts, confirmation périmée, refus/paiement concurrents et interruption atomique. Refus possible sans fonds, à zéro PV ou hors combat, en BRIEFING/EN_JEU/PAUSE ; STOP bloquant. Libération ferme la première décision ; ancien accusé et reçu personnel restent consultables sous droits courants. Continuité native entre épisodes, conversion ordinaire des crédits protégés conservée et vérifiée sur le total, aucune nouvelle dotation.
+
+Pas de nouveau marqueur : restriction explicite d’un droit existant sous boardingRansomSponsorVersion/sponsorVersion, aucune migration ni enrichissement automatique des manifestes/dossiers. Sauvegarder aussi sponsorDecision avec dossier, équipages/versions, droits, historiques/reçus, comptes/ledger, voyages/verrous et horloges. Le binaire précédent perd la projection de l’accusé mais ne peut pas payer depuis la demande refusée puisque sponsor a été supprimé.
+
+Huit nouveaux cas partagés mémoire/Firestore, deux UI ; parcours HTTP/Auth à quatre enrichi avec refus puis nouvelle demande explicite avant contribution personnelle. Local : **2274/2274 applicatifs et build réussis**, Node 24.22.1 / npm 11.9.0, le 1er novembre 2026. Émulateurs non exécutés localement (Java 17, CI Java 21). Résultats locaux et CI du candidat exact dans PR #2 ; aucune recette humaine, migration, fusion ni publication.
+
+### Soutien volontaire à une rançon par un autre équipier — jalon précédent
 
 Base vérifiée : `3c1daa64383f86ab732b5c19a30547d5848b3ae5`, [CI complète 41331265222](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41331265222) réussie : 2250 applicatifs, 1758 Firestore, 80 HTTP/Auth/Storage et sept Chromium.
 
