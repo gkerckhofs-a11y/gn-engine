@@ -1,12 +1,25 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
-## État actif — transbordement supervisé après abordage, 1er novembre 2026
+## État actif — suivi du fret sous garde en régie et au bilan, 1er novembre 2026
 
 Priorité : SPACE OUTLAWS jouable, services existants, un seul suivi évolutif. Les sections C2 ci-dessous restent historiques. Extension prioritaire : [SO_CDC_V36_Fouilles_Medias](source/SO_CDC_V36_Fouilles_Medias.md), texte intégral fourni. Références générales : [SO_CDC_V35](source/SO_CDC_V35.md), §7.2, §8 et annexes A.8/A.9 ; [SO_Regles_V07](source/SO_Regles_V07.txt), chapitres 3, 6, 25 et continuité entre épisodes.
 
 **Base publiée confirmée** : main `d83226f7afeb429fcb73c6e4d251cde769398c19`, version 0.37.0 ; [PR #1 fusionnée](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). [CI complète 40649361336](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40649361336) réussie : 1997 applicatifs, 1543 Firestore, 68 HTTP/Auth/Storage et sept Chromium. [Publication 40649361423, tentative 2](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40649361423/attempts/2) réussie le 28 octobre à 08:40:29 UTC ; version 0.37.0, bundle et quatre Masters vérifiés, accès anonyme privé refusé (401). Aucun seed, migration, suppression ni IAM modifié. La première tentative s’est arrêtée en attendant la CI, sans publication. Ces preuves concernent la base publiée, pas la nouvelle tranche.
 
-### Transbordement supervisé sous garde — tranche courante
+### Suivi du fret sous garde en régie et au bilan — tranche courante
+
+Base vérifiée : `07b450a3164001d3b74fc96cabb0ddf14c4b0dcc`, [CI finale 41302683431](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41302683431) réussie (profil HTTP : build, 2214 applicatifs, 78 HTTP/Auth/Storage et sept Chromium). Moteur inchangé depuis `a675e3c4ff13a97921386f1a2532f1d4c2d1441b`, [CI complète 41301728017](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41301728017) réussie : 2214 applicatifs, 1728 Firestore, 78 HTTP et sept Chromium.
+
+Source : [V0.7 chapitre 21](source/SO_Regles_V07.txt), distinction entre contrôle de passerelle, titre du bâtiment et propriété du fret ; continuité native entre épisodes, V3.5 §6.5/A.7. Ce raccord opérationnel rend visibles les lots déjà reçus sous garde après la libération du contrôle ou le passage d’épisode. Il n’élargit pas les droits de capture ou de restitution.
+
+- Projection en lecture seule partagée par cargoAdmin et le bilan natif de clôture : références des lots actuels, nom, quantité, volume réel, propriétaire, gardien, soute et port enregistré, lien vers le dossier d’abordage. Ni registre parallèle ni nouvelle tâche persistée. Les lots ordinaires non reçus et les tranches TAKE en cours ne sont pas présentés comme déjà pris ; réservations toujours suivies par les écrans natifs.
+- Les scissions d’une restitution partielle restent des lots distincts sans double comptage du volume. Une restitution reçue sort du suivi ; une annulation conserve la garde. Le temps restant d’une restitution réservée suit l’horloge de jeu, pause/STOP compris. Les lots reçus restent signalés après libération et reprise, sans nouvelle attribution.
+- Alertes factuelles : propriétaire absent, accès modifié, décès/zéro PV, receveur non local, port/dossier/emplacement ou réservation incohérents. Elles demandent une vérification dans le dossier et ne constituent ni permis de transférer, ni nouvelle dette, réserve financière ou succession. Aucun formulaire de transfert dans le suivi. Les règles de clôture restent identiques : tranches ouvertes à finir/annuler, biens reçus conservables entre épisodes.
+- Vue globale réservée au propriétaire/MJ courant, révocation immédiate ; aucune projection globale dans myCargo/mySession. Données d’identité privées, codes de navigation, motifs, reçus et historique interne exclus de cette projection. Rendu et liens échappés. Le marqueur boardingCargoVersion existant borne la vue ; aucun nouveau marqueur ou enrichissement d’ancien manifeste. Dossier incohérent signalé sans reconstruire un droit.
+- **Local : 2226/2226 tests applicatifs et build réussis**, Node 24.22.1 / npm 11.9.0. Dix nouveaux cas partagés mémoire/Firestore, deux UI ; parcours HTTP/Auth de transbordement enrichi pour accès et égalité régie/bilan (nombre HTTP inchangé). La CI exacte et ses décomptes seront consignés dans PR #2 ; pas de succès CI attribué au nouveau candidat avant résultat. Émulateurs non exécutés localement (Java 17 ; CI Java 21).
+- Compatibilité : aucune nouvelle donnée persistée ou collection ; les sauvegardes natives des lots/custody, cargoTransfers, dossiers, identités/droits, vaisseaux/voyages et horloges restent nécessaires. Un retour au binaire parent perd ce récapitulatif, sans convertir les stocks. Vente/usage/acquisition de prise, fret confié/accès cachés, remorquage/épaves et recette humaine restent distincts. Aucune migration, fusion ni publication ; PR #2 brouillon conservée.
+
+### Transbordement supervisé sous garde — jalon précédent
 
 Base validée avant cette tranche : `857878cfc69d4632450cd60af6155a68a9daa2a2`, [CI complète 41299164970](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41299164970) réussie : 2197 applicatifs, 1713 Firestore, 78 HTTP/Auth/Storage et sept Chromium.
 

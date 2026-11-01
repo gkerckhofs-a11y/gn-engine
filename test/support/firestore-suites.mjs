@@ -1,6 +1,7 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {"id":"space-boarding-custody","module":"../support/space-boarding-custody-suite.mjs","exportName":"boardingCustodySuite","label":"Suivi des gardes SO sur Firestore","seconds":140},
   {"id":"space-boarding-cargo","module":"../support/space-boarding-cargo-suite.mjs","exportName":"boardingCargoSuite","label":"Transbordement supervisé SO sur Firestore","seconds":230},
   {"id":"space-boarding-ransom","module":"../support/space-boarding-ransom-suite.mjs","exportName":"boardingRansomSuite","label":"Rançon volontaire SO sur Firestore","seconds":150},
   {"id":"space-fleet-boarding","module":"../support/space-fleet-boarding-suite.mjs","exportName":"fleetBoardingSuite","label":"Abordages de flotte SO sur Firestore","seconds":200},

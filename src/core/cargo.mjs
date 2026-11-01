@@ -1,3 +1,4 @@
+import {readBoardingCustody} from './space-boarding-custody.mjs';
 import {reserveCargoBatch,finishCargoBatch} from './cargo-batches.mjs';
 import {hasSoTransport,transportView,transportCargoAccess,transportPlaceAllowed} from './space-transport.mjs';
 import {participantAccess} from './mission-parties.mjs';
@@ -119,9 +120,10 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
     return {session:{id:sid,stage:s.stage,spaceOutlaws:true},admin,port:{id:port.id,name:port.name},contracts};
    }
    if(action==='cargoAdmin'){
-    const characters=await tx.list(`${base}/characters`),ships=await tx.list(`${base}/ships`),rows=[];
+    const characters=await tx.list(`${base}/characters`),ships=await tx.list(`${base}/ships`),cargoTransfers=await tx.list(`${base}/cargoTransfers`),rows=[];
     for(const ship of ships){const p=await place({kind:'HOLD',id:ship.id});rows.push({...ship,used:p.used,incoming:p.incoming});}
-    return {session:{id:sid,revision:s.revision,stage:s.stage,...(so?{spaceOutlaws:true}:{})},ships:rows,...(hasSoTransport(s)?{deliveryPorts:(await tx.list(`${base}/ports`)).filter(p=>p.versionId===s.spaceOutlaws.versionId).map(p=>({id:p.id,name:p.name}))}:{}),transportRules:s.transportRules??null,items:await tx.list(`${base}/items`),routes:await tx.list(`${base}/routes`),owners:[...characters.map(c=>({type:'CHARACTER',id:c.id,name:c.public.displayName})),...allGroups.map(g=>({type:'GROUP',id:g.id,name:g.name}))],transfers:(await tx.list(`${base}/cargoTransfers`)).filter(t=>t.status==='LOADING').map(publicTransfer)};
+    const boardingCustody=await readBoardingCustody(tx,s,time,{characters,ships,cargoTransfers});
+    return {session:{id:sid,revision:s.revision,stage:s.stage,...(so?{spaceOutlaws:true}:{})},ships:rows,...(boardingCustody?{boardingCustody}:{}),...(hasSoTransport(s)?{deliveryPorts:(await tx.list(`${base}/ports`)).filter(p=>p.versionId===s.spaceOutlaws.versionId).map(p=>({id:p.id,name:p.name}))}:{}),transportRules:s.transportRules??null,items:await tx.list(`${base}/items`),routes:await tx.list(`${base}/routes`),owners:[...characters.map(c=>({type:'CHARACTER',id:c.id,name:c.public.displayName})),...allGroups.map(g=>({type:'GROUP',id:g.id,name:g.name}))],transfers:cargoTransfers.filter(t=>t.status==='LOADING').map(publicTransfer)};
    }
    if(action==='saveShip'){
     requireThat(input.revision===s.revision,'STALE_REVISION');const id=input.shipId?documentId(input.shipId):eventId,old=await tx.get(`${base}/ships/${id}`);
