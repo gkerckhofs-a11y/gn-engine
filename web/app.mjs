@@ -13,7 +13,7 @@ import {soResolutionPayload,soResolutionConfirmation,soMissionErrors} from './sp
 import {maintenanceHtml,maintenanceConfirmHtml,maintenanceErrors} from './space-maintenance.mjs';
 import {boardingHtml,boardingConfirmHtml,boardingCargoConfirmHtml,boardingFormInput,boardingErrors} from './space-boarding.mjs';
 import {spaceCombatsHtml,spaceRescuesHtml,spaceConfirmHtml,spaceFormInput,spaceEncounterErrors} from './space-encounters.mjs';
-import {convoyConfirmHtml,soPilotConfirmHtml,soSpaceportHtml,soShipConfirmHtml,soNavigationHtml,soFlightConfirmHtml,passengerCodesInput,soNavigationErrors} from './space-outlaws-voyages.mjs';
+import {convoyConfirmHtml,soShipNameConfirmHtml,soPilotConfirmHtml,soSpaceportHtml,soShipConfirmHtml,soNavigationHtml,soFlightConfirmHtml,passengerCodesInput,soNavigationErrors} from './space-outlaws-voyages.mjs';
 import {shopsHtml,shopPurchaseHtml,shopProvisionHtml,shopProvisionConfirmHtml,soInventoryHtml,shopErrors} from './shops.mjs';
 import {soHealthErrors,survivalAdminHtml} from './health.mjs';
 import {createEntryUi,entryErrors,entrySkills} from './space-outlaws-entry.mjs';
@@ -678,6 +678,7 @@ document.addEventListener('submit',async event=>{
     else if(kind==='shipEditor'){const [ownerType,ownerId]=v.owner.split(':');await mutate('saveShip',{sessionId:form.dataset.sid,shipId:form.dataset.id||undefined,revision:Number(form.dataset.revision),shipRevision:Number(form.dataset.shipRevision),name:v.name,description:v.description,capacity:Number(v.capacity),ownerType,ownerId,docked:v.docked==='on',enabled:v.enabled==='on',navigation:v.fuelItemId?{fuelItemId:v.fuelItemId,tankCapacity:Number(v.tankCapacity||NaN),initialFuel:Number(v.initialFuel||NaN),initialPort:v.initialPort}:null,reason:v.reason});}
     else if(kind==='transportRules')await mutate('saveTransportRules',{...JSON.parse(form.dataset.payload),homePort:v.homePort,reason:v.reason});
     else if(kind==='routeEditor')await mutate('saveRoute',{...JSON.parse(form.dataset.payload),...v,durationSeconds:Number(v.durationSeconds),fuelCost:Number(v.fuelCost),enabled:v.enabled==='on'});
+    else if(kind==='soShipNamePrepare'){const p={...JSON.parse(form.dataset.payload),name:v.name},d=await api('prepareSoShipName',p);if(submitVersion!==routeVersion)return;modal(soShipNameConfirmHtml(d,p));return;}
     else if(kind==='soPilotPrepare'){const p={...JSON.parse(form.dataset.payload),...v},d=await api('prepareSoPilot',p);if(submitVersion!==routeVersion)return;modal(soPilotConfirmHtml(d,p));return;}
     else if(kind==='soShipPrepare'){const p={...JSON.parse(form.dataset.payload),...v},d=await api('prepareSoShip',p);if(submitVersion!==routeVersion)return;modal(soShipConfirmHtml(d,p));return;}
     else if(kind==='soConvoyPrepare'){const p={...JSON.parse(form.dataset.payload),escortShipId:v.escortShipId,navigationCode:v.navigationCode},d=await api('prepareSoConvoy',p);if(submitVersion!==routeVersion)return;modal(convoyConfirmHtml(d,p));return;}

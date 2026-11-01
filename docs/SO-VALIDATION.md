@@ -1,12 +1,24 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
-## État actif — refus personnel du soutien à une rançon, 1er novembre 2026
+## État actif — nom d’usage et identité permanente des vaisseaux, 1er novembre 2026
 
 Priorité : SPACE OUTLAWS jouable, services existants, un seul suivi évolutif. Les sections C2 ci-dessous restent historiques. Extension prioritaire : [SO_CDC_V36_Fouilles_Medias](source/SO_CDC_V36_Fouilles_Medias.md), texte intégral fourni. Références générales : [SO_CDC_V35](source/SO_CDC_V35.md), §7.2, §8 et annexes A.8/A.9 ; [SO_Regles_V07](source/SO_Regles_V07.txt), chapitres 3, 6, 25 et continuité entre épisodes.
 
 **Base publiée confirmée** : main `d83226f7afeb429fcb73c6e4d251cde769398c19`, version 0.37.0 ; [PR #1 fusionnée](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). [CI complète 40649361336](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40649361336) réussie : 1997 applicatifs, 1543 Firestore, 68 HTTP/Auth/Storage et sept Chromium. [Publication 40649361423, tentative 2](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40649361423/attempts/2) réussie le 28 octobre à 08:40:29 UTC ; version 0.37.0, bundle et quatre Masters vérifiés, accès anonyme privé refusé (401). Aucun seed, migration, suppression ni IAM modifié. La première tentative s’est arrêtée en attendant la CI, sans publication. Ces preuves concernent la base publiée, pas la nouvelle tranche.
 
-### Refus personnel du soutien — tranche courante
+### Nom d’usage des vaisseaux — tranche courante
+
+Base vérifiée : `d2a7b70f85d048a2edc4586dc4efe11bbfe2c57e`, [CI complète 41348544712](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41348544712) réussie : 2274 applicatifs, 1778 Firestore, 80 HTTP/Auth/Storage et sept Chromium.
+
+Le propriétaire courant vivant peut préparer puis confirmer personnellement un nouveau nom d’usage, présent au port réel du vaisseau libre à quai, en jeu et hors STOP. Le pilote seul et le MJ sans incarnation propriétaire ne disposent pas de ce droit. Renommer conserve identifiant/transpondeur permanent, propriétaire, pilote, profil, modules, dommages, stock, comptes, PA et contrats. Aucun changement technique d’identification, falsification documentaire, titre ou appropriation validé par ce nom. Source : V0.7 chapitre 17 (« même exemplaire après changement de nom ») ; chapitre 21 distingue le processus complet de changement d’identité/vol définitif.
+
+Aperçu sans effet, confirmation liée au vaisseau/révision/identité courants, présence explicite ; nom normalisé de 1 à 150 caractères sans caractères de contrôle, champs stricts. Nom précédent ajouté à previousNames sur le même ships, audit/logisticsHistory/operations natifs atomiques. Aucun effacement de l’historique ; cent changements maximum par exemplaire, borne technique de stockage, pas règle canonique. Transpondeur et anciens noms lisibles dans navigation et spatioport privé/régie déjà habilités. Réessai, concurrence, interruption, révocation/décès/changement de propriétaire, état périmé, pause/STOP, trajet/opération/convoi/intervention/manutention ouverts et indisponibilité/absence du propriétaire couverts.
+
+shipNamingVersion=1 dépend de navigationVersion=1, nouveaux manifestes seulement ; anciens manifestes réels sans navigation ou sans ce marqueur non enrichis. Pas de migration ni nouvelle collection. La reprise d’épisode conserve nom, anciens noms et transpondeur avec le vaisseau, droits et historiques, sans dotation ni attribution. Binaire précédent conserve le nom et le champ par les mises à jour natives mais ne propose ni changement ni projection des anciens noms. Sauvegarder ces données ensemble ; ne pas reconstruire une identité ni effacer un ancien nom lors d’un retour de version.
+
+Dix nouveaux cas partagés mémoire/Firestore, deux UI ; HTTP/Auth spatial enrichi avec nom confirmé/reçu unique, refus du MJ/tiers/pilote sans propriété et révocation avant ancien reçu. Local : 2286/2286 applicatifs et build réussis, Node 24.22.1 / npm 11.9.0, 1er novembre 2026 ; CI du candidat exact à consigner dans PR #2. Émulateurs non exécutés localement (Java 17, CI Java 21). Aucune recette humaine, migration, fusion main ou publication ; même branche work/space-pilot-handover et PR #2 brouillon. Vente, titre de propriété, changement technique de transpondeur, faux papiers, modules et remorquage/épaves restent distincts.
+
+### Refus personnel du soutien — jalon précédent
 
 Base vérifiée : `044767fca57a36e820afae09b7df7c9f0fc03623`, [CI complète 41346293407](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41346293407) réussie : 2264 applicatifs, 1770 Firestore, 80 HTTP/Auth/Storage et sept Chromium.
 
