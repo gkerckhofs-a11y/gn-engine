@@ -90,11 +90,11 @@ export function releaseTransport(tx,s,c,p,at,actorUid,id){
 // Narrow custody grant. It never grants access to the rest of the client's stock.
 export async function transportCargoAccess(tx,s,lot,cid,admin=false){
  if(!lot?.transportContractId)return null;
- requireThat(!lot.boardingCustody,'BOARDING_CARGO_REGIE');
  requireThat(hasSoTransport(s),'SO_GAMEPLAY_NOT_OPEN');const c=await tx.get(`${base(s)}/contracts/${lot.transportContractId}`),t=c?.terms.transport;
  requireThat(t&&(admin||c.characterId===cid)&&c.acceptedAt!=null,'FORBIDDEN');
  if(!admin)requireThat((await participantCurrent(tx,s,c)).current,'FORBIDDEN');
  requireThat(lot.ownerType==='SHOP'&&lot.ownerId===t.shopId&&lot.item.id===t.item.id,'SO_TRANSPORT_INVALID');
+ requireThat(!lot.boardingCustody,'BOARDING_CARGO_REGIE');
  const ship=await tx.get(`${base(s)}/ships/${t.shipId}`),voyage=lot.transportVoyageId?await tx.get(`${base(s)}/voyages/${lot.transportLastVoyageId??lot.transportVoyageId}`):null;
  const active=c.status==='ACTIVE',returnOnly=['SUBMITTED','REVIEWED','DISPUTED'].includes(c.status),local=idle(ship)&&(admin||ship.ownerId===cid&&ship.pilotId===cid);
  const routeId=s.spaceOutlaws.detourVersion===1&&lot.transportDetour&&lot.transportDetour.voyageId===voyage?.id&&voyage?.toPort===lot.transportDetour.toPort?lot.transportDetour.routeId:voyage?.routeId;
