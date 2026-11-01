@@ -1,6 +1,7 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {"id":"space-fleet-boarding","module":"../support/space-fleet-boarding-suite.mjs","exportName":"fleetBoardingSuite","label":"Abordages de flotte SO sur Firestore","seconds":200},
   {"id":"space-boarding","module":"../support/space-boarding-suite.mjs","exportName":"spaceBoardingSuite","label":"Abordages SO sur Firestore","seconds":140},
   {"id":"space-alliance-defense","module":"../support/space-alliance-defense-suite.mjs","exportName":"allianceDefenseSuite","label":"Indépendant contre alliance SO sur Firestore","seconds":140},
   {"id":"space-alliance-duels","module":"../support/space-alliance-duels-suite.mjs","exportName":"allianceDuelSuite","label":"Rencontres entre alliances SO sur Firestore","seconds":140},

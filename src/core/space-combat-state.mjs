@@ -2,6 +2,8 @@ import {requireThat} from './validation.mjs';
 import {admissionKeys} from './admission-state.mjs';
 
 export const hasSoCombat=s=>s.spaceOutlaws?.combatVersion===1&&s.spaceOutlaws?.navigationVersion===1;
+// Fleet boardings are additive: older duel manifests keep their original scope.
+export const boardingEncounterEnabled=(s,e)=>s.spaceOutlaws?.boardingVersion===1&&e?.boardingVersion===1&&e.status==='CLOSED'&&(e.shipIds?.length===2||s.spaceOutlaws.fleetBoardingVersion===1&&e.fleetBoardingVersion===1&&e.shipIds?.length>=3&&e.shipIds.length<=4&&new Set(e.shipIds).size===e.shipIds.length&&e.shipIds.every(id=>typeof e.teams?.[id]==='string')&&new Set(e.shipIds.map(id=>e.teams[id])).size===2);
 export const spaceOrderKinds=['ATTACK','DEFEND','FLEE','PURSUE','PASSIVE','SURRENDER','PIL03_2','PIL03_3','PIL03_4','PIL03_5','ESC01'];
 export function spaceOrderInput(v,targets=false){
  admissionKeys(v,['kind','fallback','acceptSurrender','ceasefire',...(targets?['targetId','defenseIds']:[])]);
