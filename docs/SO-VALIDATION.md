@@ -1,12 +1,25 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
-## État actif — fret PNJ confié après abordage, 1er novembre 2026
+## État actif — retour du fret abordé au comptoir propriétaire, 1er novembre 2026
 
 Priorité : SPACE OUTLAWS jouable, services existants, un seul suivi évolutif. Les sections C2 ci-dessous restent historiques. Extension prioritaire : [SO_CDC_V36_Fouilles_Medias](source/SO_CDC_V36_Fouilles_Medias.md), texte intégral fourni. Références générales : [SO_CDC_V35](source/SO_CDC_V35.md), §7.2, §8 et annexes A.8/A.9 ; [SO_Regles_V07](source/SO_Regles_V07.txt), chapitres 3, 6, 25 et continuité entre épisodes.
 
 **Base publiée confirmée** : main `d83226f7afeb429fcb73c6e4d251cde769398c19`, version 0.37.0 ; [PR #1 fusionnée](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). [CI complète 40649361336](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40649361336) réussie : 1997 applicatifs, 1543 Firestore, 68 HTTP/Auth/Storage et sept Chromium. [Publication 40649361423, tentative 2](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/40649361423/attempts/2) réussie le 28 octobre à 08:40:29 UTC ; version 0.37.0, bundle et quatre Masters vérifiés, accès anonyme privé refusé (401). Aucun seed, migration, suppression ni IAM modifié. La première tentative s’est arrêtée en attendant la CI, sans publication. Ces preuves concernent la base publiée, pas la nouvelle tranche.
 
-### Fret PNJ confié après abordage — tranche courante
+### Retour du fret abordé au comptoir propriétaire — tranche courante
+
+Base vérifiée : `7fe07e55214a2823a67500919e11dcf97f8e6370`, [CI complète 41316688841](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41316688841) réussie : 2238 applicatifs, 1748 Firestore, 79 HTTP/Auth/Storage et sept Chromium.
+
+Source : [V0.7 chapitre 21](source/SO_Regles_V07.txt), séparation entre garde du fret et propriété, retour au propriétaire ; retour physique au comptoir et traitement financier natifs du transport PNJ. Ce parcours technique permet au MJ de rendre les biens au comptoir propriétaire au port d’origine prévu par le contrat, sans exiger la présence ou les droits du transporteur décédé/révoqué. Aucun transfert au successeur ni changement de propriétaire.
+
+- Nouveau boardingShopReturnVersion=1 dépendant de boardingFreightVersion, nouveaux manifestes seulement ; shopReturnVersion=1 sur nouveaux dossiers compatibles. Direction RETURN_SHOP distincte du retour à la soute du titulaire. Le lot doit toujours relever de son contrat PNJ, comptoir propriétaire et article/version figés ; contrat accepté encore traitable. Receveur réellement à quai au port d’origine contractuel, port et comptoir publiés de cette version ; présence et manutention attestées par le MJ courant.
+- Même réserve/scission/réception native, cinq unités de volume maximum et trois minutes par tranche, y compris incomplète ; une opération par soute source. Les biens restent sous garde à bord avant réception. Une annulation conserve la garde et les tranches reçues ; réessai/concurrence et interruption ne dupliquent ni lot ni retour. Aucune destination, compte, propriétaire, port, contrat ou comptoir injectable.
+- À réception, emplacement SHOP du propriétaire et garde provisoire levée ; propriétaire PNJ, contrat et références de transport inchangés. Aucune livraison au destinataire, crédit, PA ou salaire validé, aucun stock commercial fusionné automatiquement. Les caisses retournées restent liées au contrat ; la décision et les délais natifs de mission règlent séparément les réserves et la remise en stock. Le cas d’arbitrage existant reste couvert jusqu’au règlement et à la réintégration unique des quantités.
+- Régie/bilan indiquent le parcours distinct de retour au comptoir et les tranches RETURN_SHOP en cours. Les confirmations de réception affichent source et destination échappées. Retour au transporteur et restitution personnelle conservent leurs conditions antérieures. Pause/STOP, ancien manifeste/dossier, révocation MJ, contrat fermé, port/destination incorrects, reprise d’épisode et propriété sans succession couverts.
+- **Local : 2250/2250 tests applicatifs et build réussis**, Node 24.22.1 / npm 11.9.0. Dix nouveaux cas partagés mémoire/Firestore, deux UI, un HTTP/Auth ajouté. CI exacte du candidat à consigner dans PR #2 ; aucun résultat nouveau attribué avant exécution. Émulateurs non exécutés localement (Java 17, CI Java 21).
+- Limites : retour sous supervision au comptoir propriétaire et au seul port d’origine de ce contrat PNJ ; autre comptoir, déchargement à destination comme preuve de livraison, fret personnel/groupe/tiers hors contrat, indemnisation automatique, succession, stock commercial anticipé, appropriation/vente/usage de prise et remorquage/épaves distincts. Réserves d’un titulaire indisponible conservées, aucun règlement forcé ajouté. Aucune recette humaine, migration, fusion ni publication ; même PR #2 brouillon.
+
+### Fret PNJ confié après abordage — jalon précédent
 
 Base vérifiée : `b7d2b25796f5c8d4e71b4048a33b5c913fbe51be`, [CI complète 41303688501](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41303688501) réussie : 2226 applicatifs, 1738 Firestore, 78 HTTP/Auth/Storage et sept Chromium.
 

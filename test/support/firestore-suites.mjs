@@ -1,6 +1,7 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {"id":"space-boarding-shop-return","module":"../support/space-boarding-shop-return-suite.mjs","exportName":"boardingShopReturnSuite","label":"Retour comptoir du fret abordé SO sur Firestore","seconds":180},
   {"id":"space-boarding-freight","module":"../support/space-boarding-freight-suite.mjs","exportName":"boardingFreightSuite","label":"Fret PNJ abordé SO sur Firestore","seconds":170},
   {"id":"space-boarding-custody","module":"../support/space-boarding-custody-suite.mjs","exportName":"boardingCustodySuite","label":"Suivi des gardes SO sur Firestore","seconds":140},
   {"id":"space-boarding-cargo","module":"../support/space-boarding-cargo-suite.mjs","exportName":"boardingCargoSuite","label":"Transbordement supervisé SO sur Firestore","seconds":230},
