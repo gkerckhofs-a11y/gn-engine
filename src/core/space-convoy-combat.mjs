@@ -19,7 +19,7 @@ export function resolveConvoyRound(ships,orders,dice,quietRounds=0,activeIds=shi
  // Partial surrender never ends another allied captain's fight.
  const surrendered=active.filter(i=>orders[i].kind==='SURRENDER'&&active.filter(j=>enemy(i,j)).every(j=>orders[j].acceptSurrender));
  const survivingTeams=new Set(active.filter(i=>!surrendered.includes(i)).map(i=>ships[i].team));
- if(surrendered.length&&survivingTeams.size<=1)return end('SURRENDER');
+ if(surrendered.length&&survivingTeams.size<=1)return {...end('SURRENDER'),acceptedSurrenderIds:surrendered.map(i=>ships[i].id)};
  for(const i of surrendered){withdrawn.push(ships[i].id);kinds[i]='PASSIVE';}
  const shoot=k=>['ATTACK','PIL03_3','PIL03_5'].includes(k),defend=k=>['DEFEND','PIL03_2','PIL03_5'].includes(k),flee=k=>['FLEE','PIL03_4'].includes(k);
  let hostile=false;const incoming=ships.map(()=>0);
