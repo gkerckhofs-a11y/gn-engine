@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {moduleWorkConfirmHtml} from '../web/space-module-work.mjs';
+import {moduleMandatesHtml} from '../web/space-module-mandates.mjs';
+const r={id:'m',status:'MODULE_APPROVED',shipName:'<script>Ship</script>',lotId:'lot',module:{code:'MOD-01',label:'Bouclier',size:2},ownerName:'Owner',technicianName:'Tech',portName:'Port',install:{seconds:600,level:2,actionPoints:1},before:{available:5},after:{available:4},confirmation:'proof',valid:true,technician:true,workEnabled:true};
+test('Travaux modules UI : aperçu de réserve, présence et atelier, finalisation distincte',()=>{
+ const h=moduleWorkConfirmHtml('prepareModuleWorkStart',r,{sessionId:'s',mandateId:'m'});assert.match(h,/5 → 4 disponibles/);assert.match(h,/name="present"/);assert.match(h,/name="workshopConfirmed"/);assert.match(h,/startModuleWork/);assert.match(h,/finalisation du montage reste à ouvrir/);assert.doesNotMatch(h,/<script>|name="(seconds|amount|actionPoints)"/);
+ const page=moduleMandatesHtml({session:{id:'s',stage:'EN_JEU'},jobs:[r]});assert.match(page,/prepareModuleWorkStart/);assert.doesNotMatch(moduleMandatesHtml({session:{id:'s',stage:'EN_JEU'},jobs:[{...r,technician:false}]}),/prepareModuleWorkStart/);
+});
+test('Travaux modules UI : interruption, minuteur et absence de finalisation automatique',()=>{
+ const active={...r,status:'MODULE_ACTIVE',working:true,remainingSeconds:0,canCancel:true},h=moduleWorkConfirmHtml('moduleWorkAdmin',active,{sessionId:'s',mandateId:'m'});assert.match(h,/cancelModuleWorkAdmin/);assert.match(h,/name="reason"/);assert.match(h,/ne consomme pas le PA automatiquement/);assert.doesNotMatch(moduleWorkConfirmHtml('moduleWork',{...active,canCancel:false},{}),/<form/);
+ const page=moduleMandatesHtml({session:{id:'s',stage:'EN_JEU'},jobs:[active]});assert.match(page,/Temps restant : 0 s/);assert.match(page,/moduleWork/);assert.doesNotMatch(page,/prepareModuleWorkStart|finishModule|<script>/);
+});
