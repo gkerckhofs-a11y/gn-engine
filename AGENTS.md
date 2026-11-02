@@ -2,7 +2,19 @@
 
 ## Priorité de reprise — 2 novembre 2026
 
-Tranche active : diagnostic technique préparé MEC-01.
+Tranche active : tests explicitement ciblés à la demande utilisateur.
+
+Base vérifiée : `70afa57a6314e418531b583caf9f19ca84285d4f`, [CI complète 41408735653](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41408735653) réussie : 2300 applicatifs, 1800 Firestore, 81 HTTP/Auth/Storage et sept Chromium.
+
+Instruction explicite de l’organisateur du 2 novembre 2026 : « tests ciblés uniquement ». Cette tranche raccorde le ciblage de bout en bout ; appliquer cette demande sans relancer npm test ou le profil complet pendant ce travail. Build conservé. Les contrôles complets avant fusion/publication restent distincts et ne sont pas exécutés ici.
+
+Marqueurs de commit [ci targeted:ci] et [ci targeted:diagnostic], réservés aux PR brouillon. Profil ci : deux fichiers de tests du sélecteur/exécuteur, sans Firebase/HTTP/navigateur. Profil diagnostic : quinze fichiers applicatifs, sept suites Firestore (diagnostic préparé, analyses SO, terrain, PA, carnet, épisodes, cibles M6), un filtre HTTP strict sur le diagnostic MEC-01 ; Chromium non requis. Limite explicite aux fichiers listés : field-actions.mjs, space-outlaws-entry.mjs, les autres services/fondations et fichiers inconnus restent hors de ces profils. L’extension d’un périmètre doit être explicite, avec ses dépendances. Une sélection incomplète, invalide, sans test HTTP correspondant, sans ancêtre fiable ou hors périmètre échoue ; aucun repli automatique vers le complet en mode explicitement ciblé.
+
+La sélection est transmise par JSON, exécution Node sans shell ni interpolation de commande. Résumé Actions : candidat/checkout, ancêtre et run, fichiers comparés, fichiers applicatifs, suites/lots, filtre HTTP et navigateur demandé. Les tests HTTP hors filtre peuvent être marqués ignorés par Node ; ne pas les compter comme exécutés. Le statut core exige tous les jobs requis par le plan. Les commits portant un marqueur ciblé sont exclus des références ancestrales, même si le succès ne porte pas de métadonnée de profil ; la prochaine CI ordinaire compare depuis un succès antérieur hors marqueur, sans masquer des changements non validés globalement. Main, PR prête, lancement manuel et [ci full] gardent priorité au complet, indépendamment d’un marqueur ciblé.
+
+Validation locale ciblée : 145/145 tests dans quinze fichiers et build réussis, Node 24.22.1 / npm 11.9.0 ; dont 22 cas du sélecteur/exécuteur. Aucun parcours applicatif complet lancé. Le profil diagnostic est utilisé pour vérifier le chemin ciblé de bout en bout en CI, preuves exactes dans PR #2. Émulateurs non exécutés localement (Java 17, CI Java 21). Résultat ciblé distinct d’une régression intégrale ou recette humaine. Changements limités à l’orchestration des tests et au suivi ; aucun schéma de jeu, migration, fusion ou publication.
+
+Jalon précédent : diagnostic technique préparé MEC-01.
 
 Base vérifiée : `a1286038618970f52146e950347cde7dd7375821`, [CI complète 41354338905](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41354338905) réussie : 2286 applicatifs, 1788 Firestore, 80 HTTP/Auth/Storage et sept Chromium.
 
@@ -360,8 +372,8 @@ Source : instructions explicites de l’organisateur du 22 octobre 2026, « Nouv
 1. Lire le cadrage V3.5, le livre SPACE OUTLAWS V0.7, les sept gabarits proposés SO_Masters_V01.zip et le vade-mecum ; conserver le rapport de cohérence V0.6 comme historique (sources référencées dans SO-01a et SO-00). Délimiter un parcours complet, ses critères, dépendances et recettes. A01–A38 et l’extension PNJ FOR-01 sont clos : ne pas réinventer leurs barèmes. Distinguer les propositions techniques et les paramètres de session à préparer. Les décisions V3.5/V0.7 prévalent sur les cadrages antérieurs ; les prix/compositions d’exemples V3.2 restent non canoniques.
 2. Réutiliser les services et collections existants. Protéger les acquis de campagne, les anciennes sessions, les identifiants et les quatre Masters Campagne/Session, modèles et exemples.
 3. Implémenter sur la branche, avec tests métier, tests d’interface pertinents et tests Firebase émulés pour transactions, permissions, réessais et concurrence.
-4. Exécuter les contrôles locaux applicables, au minimum `npm test` et `npm run build`. Corriger les échecs avant de constituer le commit fonctionnel.
-5. Faire un commit après chaque ensemble fonctionnel validé localement ; le pousser sur la branche dédiée avec sa PR ouverte. Le workflow exécute compilation, tous les tests applicatifs et l’intégration sélectionnée. Le plan publié indique commit candidat/checkout, ancêtre validé, fichiers comparés et suites retenues. Ne jamais limiter au seul dernier push après un échec : comparer depuis le dernier succès ancestral.
+4. Exécuter les contrôles locaux selon la portée demandée par l’utilisateur. En mode explicitement ciblé, exécuter les fichiers du périmètre et le build ; ne pas lancer npm test ni une régression complète. Corriger les échecs avant de constituer le commit fonctionnel. La validation complète avant fusion/publication reste distincte.
+5. Faire un commit après chaque ensemble fonctionnel validé localement ; le pousser sur la branche dédiée avec sa PR ouverte. Le workflow exécute compilation et contrôles du plan ; les profils explicitement ciblés sont bornés ci-dessus, les profils ordinaires conservent tous les tests applicatifs. Le plan publié indique commit candidat/checkout, ancêtre validé, fichiers comparés et suites retenues. Ne jamais limiter au seul dernier push après un échec : comparer depuis le dernier succès ancestral.
 6. Vérifier la CI sur le commit exact. Un contrôle en cours, annulé ou ignoré n’est pas un succès. Corriger toute régression sur cette branche, committer le correctif et vérifier sa CI **avant le lot suivant**.
 7. Documenter les changements, compatibilités, limites et résultats réellement exécutés. Conserver les liens commit/PR, exécution et job, versions des outils, décomptes et date. Séparer tests locaux, CI, recette humaine et publication.
 8. Mettre à jour la matrice SPACE OUTLAWS V3 et le suivi du lot, puis passer au lot suivant uniquement lorsque la validation automatisée requise est réussie.

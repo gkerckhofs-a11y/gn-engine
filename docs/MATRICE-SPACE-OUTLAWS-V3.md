@@ -1,11 +1,12 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
-## État courant — diagnostic technique préparé MEC-01, 2 novembre 2026
+## État courant — tests explicitement ciblés, 2 novembre 2026
 
 L’état évolutif autoritaire et les preuves actuelles sont dans [SO-VALIDATION](SO-VALIDATION.md). Les sections C2 ci-dessous sont historiques. CI adaptée le 27 octobre à la demande utilisateur : tous les tests applicatifs, intégration ciblée sur PR brouillon avec repli complet, Firestore réparti en lots indépendants et HTTP/Auth complet lorsque requis. Avant fusion/publication, suite complète sur le candidat. Aucun acquis fonctionnel supplémentaire ni recette terrain revendiqués par cette optimisation.
 
 | Exigence | Couverture ajoutée | Limite |
 | --- | --- | --- |
+| Demande organisateur du 2 novembre : tests ciblés uniquement | Profils explicites ci/diagnostic sur PR brouillon, fichiers applicatifs/suites Firestore/HTTP bornés ; sélection invalide/hors périmètre refusée. Succès ciblé exclu des références ancestrales, complet prioritaire avant fusion. Local 145/145 ciblés et build ; CI exacte dans PR #2 | Résultat partiel, aucune nouvelle couverture métier globale ou recette humaine. Profil diagnostic : quinze fichiers, sept suites Firestore et un parcours HTTP, pas de Chromium |
 | V0.7 chapitre 11, MEC-01 | Cible/panne préparée M6 → QR privé → aperçu → 60 s/1 PA → informations garanties selon niveau → carnet natif. Récupération dix minutes et une tentative par personnage/version, état conservé entre épisodes. Douze cas partagés, deux UI, un HTTP ; local 2300/2300 et build | technicalAnalysisVersion nouveau seulement ; pas de défaut à test, réparation, accès caché ou lecture technique native automatique. CI exacte dans PR #2, aucune publication |
 | V0.7 chapitres 17/21, même exemplaire et identité permanente distincte | Propriétaire vivant présent à quai → aperçu → confirmation du nom d’usage → anciens noms et transpondeur conservés dans ships et historique natif. Aucun effet sur biens/fonds/PA/contrats/pilote/propriété. Dix cas partagés, deux UI, HTTP enrichi ; local 2286/2286 et build | shipNamingVersion nouveau seulement, pas de migration ; cent changements maximum, borne technique. Aucun faux papier, transpondeur modifié ou titre. CI exacte dans PR #2, aucune publication |
 | V0.7 chapitre 21, refus sans débit | Demande minimale → refus personnel → sponsor supprimé, ancien paiement interdit, accusé privé et décision MJ. Autre paiement embarqué/libération indépendants ; nouvelle demande explicite avec confirmation neuve. Huit cas partagés, deux UI, HTTP à quatre enrichi | Marqueurs existants, aucune migration. STOP, révocation, état périmé, concurrence, rollback et continuité ; CI exacte dans PR #2, aucune publication |

@@ -1,0 +1,20 @@
+// Explicit, opt-in draft-PR scopes. These successes are never global baselines.
+const infrastructure=['.github/workflows/check.yml','scripts/ci-plan.mjs','scripts/ci-scope.mjs','scripts/ci-targeted.mjs','scripts/ci-run-tests.mjs','test/ci-selection.test.mjs','test/ci-targeted.test.mjs'];
+const diagnosticTests=['test/space-technical-analysis.test.mjs','test/space-technical-analysis-ui.test.mjs','test/space-outlaws-actions.test.mjs','test/space-outlaws-actions-ui.test.mjs','test/field-actions.test.mjs','test/field-ui.test.mjs','test/action-points.test.mjs','test/knowledge.test.mjs','test/knowledge-ui.test.mjs','test/space-episodes.test.mjs','test/space-episodes-ui.test.mjs','test/central-field-targets.test.mjs','test/central-field-targets-ui.test.mjs'];
+export const targetedProfiles={
+ ci:{tests:['test/ci-selection.test.mjs','test/ci-targeted.test.mjs'],suites:[],httpPattern:null,files:infrastructure},
+ diagnostic:{tests:[...diagnosticTests,'test/ci-selection.test.mjs','test/ci-targeted.test.mjs'],suites:['space-technical-analysis','space-outlaws-actions','field','action-points','knowledge','space-episodes','central-field-targets'],httpPattern:'^HTTP \\+ Auth : diagnostic MEC-01 préparé,',files:[...infrastructure,...diagnosticTests,'src/core/space-technical-analysis.mjs','web/field-actions.mjs','web/central-field-targets.mjs','test/support/space-technical-analysis-suite.mjs','test/integration/http.test.mjs']},
+};
+export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
+export function requestedTarget(message){
+ if(!isTargetedCommit(message))return null;
+ const matches=[...message.matchAll(/\[ci targeted:([a-z-]+)\]/g)];
+ if(matches.length!==1||message.split('[ci targeted:').length!==2||!Object.hasOwn(targetedProfiles,matches[0][1]))throw Error('Unknown or ambiguous targeted CI profile');
+ return matches[0][1];
+}
+export function targetedScope(name,paths,{reliableBase=false}={}){
+ const p=Object.hasOwn(targetedProfiles,name)?targetedProfiles[name]:null;
+ if(!p||!reliableBase)throw Error('Targeted CI requires a verified global ancestor');
+ for(const path of paths)if(!(path==='AGENTS.md'||path==='README.md'||path.startsWith('docs/')||p.files.includes(path)))throw Error(`File outside targeted CI profile ${name}: ${path}`);
+ return {profile:`targeted-${name}`,reason:`Ciblage explicite ${name} ; résultat non global`,applicationTests:[...p.tests],suites:[...p.suites],http:!!p.httpPattern,httpPattern:p.httpPattern,browser:false};
+}
