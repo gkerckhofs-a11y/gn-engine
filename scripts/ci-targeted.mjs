@@ -14,6 +14,13 @@ targetedProfiles['module-purchases']={
  httpPattern:'^HTTP \\+ Auth : (achat de module calibré,|modules M1 calibrés,|Master central,|XLSX central,)',
  files:[...targetedProfiles['module-catalog'].files,'src/core/shops.mjs','src/core/space-outlaws-shop-state.mjs','web/shops.mjs','web/central-shops.mjs','test/space-module-purchases.test.mjs','test/support/space-module-purchases-suite.mjs','test/support/space-outlaws-shops-suite.mjs','test/economy.test.mjs','test/sales.test.mjs','test/space-episodes.test.mjs','test/space-episodes-ui.test.mjs','test/central-shops-ui.test.mjs','test/space-outlaws-voyages.test.mjs'],
 };
+// Preparatory consent only; the new service has no capability to write resources.
+targetedProfiles['module-mandates']={
+ tests:[...targetedProfiles['module-purchases'].tests,'test/space-module-mandates.test.mjs','test/space-module-mandates-ui.test.mjs','test/workflow.test.mjs','test/space-logistics.test.mjs','test/space-logistics-ui.test.mjs','test/space-ship-names.test.mjs','test/player-spaces.test.mjs'],
+ suites:[...targetedProfiles['module-purchases'].suites,'space-module-mandates','workflow','space-logistics','space-ship-names'],
+ httpPattern:'^HTTP \\+ Auth : (mandat de module,|achat de module calibré,|modules M1 calibrés,|Master central,|XLSX central,)',
+ files:[...targetedProfiles['module-purchases'].files,'src/core/space-module-mandates.mjs','src/core/workflow.mjs','src/core/space-maintenance.mjs','src/core/space-outlaws-entry-guard.mjs','web/space-module-mandates.mjs','web/app.mjs','web/space-maintenance.mjs','web/player-spaces.mjs','test/space-module-mandates.test.mjs','test/space-module-mandates-ui.test.mjs','test/support/space-module-mandates-suite.mjs','test/support/space-outlaws-voyages-suite.mjs','test/support/space-logistics-suite.mjs','test/workflow.test.mjs','test/space-logistics.test.mjs','test/space-logistics-ui.test.mjs','test/space-ship-names.test.mjs','test/player-spaces.test.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

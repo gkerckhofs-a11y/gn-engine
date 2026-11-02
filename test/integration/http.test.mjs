@@ -1,5 +1,6 @@
 import {accountId} from '../../src/core/economy-state.mjs';
 import {modulePurchaseFixture} from '../support/space-module-purchases-suite.mjs';
+import {moduleMandateFixture} from '../support/space-module-mandates-suite.mjs';
 import {shopAccountId} from '../../src/core/space-outlaws-shop-state.mjs';
 import {encountersFixture,order} from '../support/space-encounters-suite.mjs';
 import {allianceDefenseFixture} from '../support/space-alliance-defense-suite.mjs';
@@ -370,6 +371,18 @@ test('HTTP + Auth : recettes centrales, liens différés et droits M4 indépenda
  d=await call('centralMaster',{campaignId,workshop:'M4'},editor);assert.equal(d.references.items.length,1);assert.equal(d.diagnostics.some(x=>x.reference==='ingredient'),false);assert.deepEqual(d.references.knowledge,[]);assert.deepEqual(d.diagnostics.filter(x=>x.code==='REFERENCE_NOT_CHECKED').map(x=>x.field),['unlockKnowledgeId','laboratoryTargetId']);assert.equal(d.publicationAvailable,false);
  await cmd('setCentralStaff',{...grant,active:false,revision:2});assert.equal((await request('saveCentralRecipe',input,editor)).status,403);
  const s=await call('session',{sessionId});for(const kind of ['characters','inventory','accounts'])assert.deepEqual(s[kind],[]);assert.equal(s.versionId,null);
+});
+
+test('HTTP + Auth : mandat de module, accord propriétaire privé et révocation avant reçu',async()=>{
+ const db=getFirestore(),f=await moduleMandateFixture(()=>firestoreStore(db)),owner=await googleTestAccount(process.env.OWNER_EMAIL),player=await googleTestAccount(`module-owner-${randomUUID()}@example.invalid`),tech=await googleTestAccount(`module-tech-${randomUUID()}@example.invalid`),outsider=await googleTestAccount(`module-third-${randomUUID()}@example.invalid`),uid=t=>JSON.parse(Buffer.from(t.split('.')[1],'base64url').toString()).sub,sessionId=f.sid,base=`sessions/${sessionId}`;
+ for(const [old,token,cid]of [[f.player,player,f.cid],[f.other,tech,f.otherId]]){const reg=(await db.doc(`${base}/registrations/${hash(old.uid)}`).get()).data();await db.doc(`${base}/registrations/${hash(old.uid)}`).delete();await db.doc(`${base}/registrations/${hash(uid(token))}`).set({...reg,id:hash(uid(token)),uid:uid(token),minAuthTime:0});await db.doc(`${base}/characters/${cid}`).update({assignedUid:uid(token)});}await db.doc(base).update({ownerUid:uid(owner),clock:{elapsedMs:0,runningSince:Date.now()}});await db.doc(`campaigns/${f.campaignId}`).update({ownerUid:uid(owner)});
+ const call=async(action,input={},token=player)=>{const r=await request(action,{sessionId,...input},token);assert.equal(r.status,200,JSON.stringify(r));return r.result;},cmd=(action,input={},token=player)=>call(action,{requestId:randomUUID(),...input},token);
+ assert.equal((await request('moduleMandates',{sessionId})).status,401);assert.equal((await request('moduleMandates',{sessionId},outsider)).status,403);assert.equal((await request('prepareModuleMandateOffer',{sessionId,...f.input},player)).status,403);
+ const q=await call('prepareModuleMandateOffer',f.input,owner),offered=await cmd('offerModuleMandate',{...f.input,confirmation:q.confirmation},owner),p={mandateId:offered.id};
+ assert.equal((await request('prepareModuleMandateApproval',{sessionId,...p},owner)).status,403);assert.equal((await request('prepareModuleMandateApproval',{sessionId,...p},tech)).status,403);assert.doesNotMatch(JSON.stringify(await call('moduleMandates',{},tech)),/SECRET_ATELIER|ownerVersion|technicianVersion/);
+ const before=(await db.doc(`${base}/ships/ship`).get()).data(),lot=(await db.doc(`${base}/inventory/${f.sale.purchasedLotId}`).get()).data(),wallet=await call('myWallet'),a=await call('prepareModuleMandateApproval',p),approval={...p,confirmation:a.confirmation,present:true,requestId:randomUUID()},result=await cmd('approveModuleMandate',approval);assert.equal(result.status,'MODULE_APPROVED');assert.deepEqual(await cmd('approveModuleMandate',approval),result);
+ assert.deepEqual((await db.doc(`${base}/ships/ship`).get()).data(),before);assert.deepEqual((await db.doc(`${base}/inventory/${f.sale.purchasedLotId}`).get()).data(),lot);assert.deepEqual(await call('myWallet'),wallet);assert.equal((await call('mySession')).actionPoints.available,5);assert.deepEqual((await call('spaceMaintenance')).jobs,[]);
+ await cmd('revokeAccess',{uid:uid(player)},owner);assert.equal((await request('approveModuleMandate',{sessionId,...approval},player)).status,403);const j=(await call('moduleMandatesAdmin',{},owner)).jobs.find(j=>j.id===offered.id);await cmd('cancelModuleMandateAdmin',{mandateId:j.id,confirmation:j.confirmation,reason:'Titulaire révoqué'},owner);
 });
 
 test('HTTP + Auth : achat de module calibré, crédits ordinaires, remise et révocation avant reçu',async()=>{

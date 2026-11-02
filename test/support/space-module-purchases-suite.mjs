@@ -100,7 +100,7 @@ export function modulePurchasesSuite(makeStore,prefix='Achats modules SO'){
  });
  test(`${prefix} : ancien manifeste sans extension conserve sa naissance et ses consommables`,async()=>{
   const f=await shopsFixture(makeStore,{release:false}),out=await f.release(await f.releasePreview()),path=`campaigns/${f.campaignId}/versions/${out.versionId}`,canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
-  await f.store.runTransaction(async tx=>{const {modulePurchasesVersion,manifestDigest,...old}=await tx.get(path);tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});
+  await f.store.runTransaction(async tx=>{const {moduleMandatesVersion,modulePurchasesVersion,manifestDigest,...old}=await tx.get(path);tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});
   await f.birth(await f.birthPreview());assert.equal((await f.store.get(`sessions/${f.sid}`)).spaceOutlaws.modulePurchasesVersion,undefined);assert.equal((await f.actionRead('shops')).shops.length,1);
  });
 }

@@ -1,6 +1,20 @@
 # GN Engine — consignes de développement
 
-## Achat des modules standards au comptoir — 2 novembre 2026
+## Accords préparatoires de montage — 2 novembre 2026
+
+Tranche courante : proposition MJ → aperçu privé du propriétaire → accord ou refus personnel → annulation explicite. Base vérifiée : `86a46c6495d18fdef43cd38f99247fd54c0e4b3a`, [CI ciblée 41496836753](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41496836753) réussie : 299 applicatifs, 242 Firestore, quatre HTTP et build. Source : V0.7 chapitre 17, montage standard en atelier sur mandat valide, profils MEC-03 du catalogue commun.
+
+Le MJ atteste présence et atelier réellement disponible. Proposition liée au vaisseau, propriétaire, exemplaire effectivement reçu dans son sac, Mécano MEC-03 qualifié et port publié ; gabarit, emplacement disponible et absence de doublon vérifiés. Propriétaire distinct du pilote : ni le pilote seul, ni le Mécano, ni le MJ ne peuvent approuver à sa place. Versions d’identité, révisions du vaisseau/lot et qualification revérifiées ; évolution incompatible ferme l’approbation et demande une nouvelle proposition après annulation. Refus et annulation ne nécessitent aucune ressource. MJ peut annuler une demande devenue périmée après décès/révocation. Pause permet le refus/l’annulation, STOP bloque tout nouvel effet.
+
+Accord PRÉPARATOIRE : aucun montage ou retrait commencé, aucune réservation de vaisseau/lot, aucun PA ou crédit consommé. Le futur démarrage devra revalider le mandat et réserver les ressources. Une seule demande ouverte par vaisseau ou module, borne de concurrence du parcours ; aucun statut d’équipement inventé. Même collection shipMaintenance, discriminant moduleMandateVersion=1 et statuts MODULE_OFFERED/APPROVED/DECLINED/CANCELLED. Les commandes et listes d’entretien ordinaire les excluent. Capacité serveur MODULE_MANDATES limitée à shipMaintenance et logisticsHistory, plus audit/reçus natifs ; écriture de vaisseaux, inventaire, personnages/PA, comptes et ledger interdite et testée.
+
+Nouveaux manifestes seulement : moduleMandatesVersion=1 dépend de modulePurchasesVersion/navigationVersion/logisticsVersion. Transmission à la naissance, conservation native entre épisodes, aucune activation implicite d’un ancien manifeste ou d’une ancienne session. Données et marqueur conservés ensemble ; aucun travail automatique à la reprise. Sauvegarder demandes/versions/états/décisions, manifestes/pages, identités/droits, vaisseaux/ports, inventaires et historique/logisticsHistory/operations ensemble. Ancien binaire non équivalent pour l’affichage, les décisions et la conservation du marqueur à une naissance suivante ; aucun retour avec réécriture partielle ou suppression implicite des demandes.
+
+Interface privée accessible depuis l’entretien : proposition MJ avec aperçu, approbation du propriétaire avec présence, refus et annulation, gabarit/Mécano/port et exigences futures affichés, limites sans réservation explicites. Secrets de préparation, empreintes de droits et données de tiers non exposés. Douze nouveaux cas partagés mémoire/Firestore, un test de capacité, deux UI, un HTTP/Auth et un cas du sélecteur. Local : 413/413 tests ciblés dans trente fichiers et build réussis, Node 24.22.1 / npm 11.9.0. Profil [ci targeted:module-mandates] : dix-huit suites Firestore et cinq HTTP filtrés ; aucun Chromium ni parcours complet. Émulateurs non exécutés localement (Java 17, CI Java 21). CI exacte dans PR #2 avant le lot suivant ; résultats ciblés distincts d’une régression intégrale et de la recette humaine.
+
+Suite : démarrage personnel par le Mécano, réservation native, délais et PA, montage/retrait atomiques et effets/neutralisation en voyage. Cette tranche livre uniquement l’accord préparatoire, pas l’atelier complet. Même branche work/space-pilot-handover/PR #2 brouillon ; aucune nouvelle collection, migration, fusion main ou publication.
+
+## Jalon précédent — achat des modules standards au comptoir — 2 novembre 2026
 
 Tranche courante : MOD-01/02/03/06 achetables comme exemplaires non montés. Base de reprise vérifiée : `da3ab002662fe3ab9dfe2e0b2a95066ad340cf47`, [CI ciblée 41416610494](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41416610494) réussie : 205 applicatifs, 158 Firestore et trois HTTP, build. Aucun nouvel audit historique. Source des tarifs : V0.7 chapitre 17.
 
