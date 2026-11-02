@@ -1,4 +1,5 @@
 import {accountId} from '../../src/core/economy-state.mjs';
+import {modulePurchaseFixture} from '../support/space-module-purchases-suite.mjs';
 import {shopAccountId} from '../../src/core/space-outlaws-shop-state.mjs';
 import {encountersFixture,order} from '../support/space-encounters-suite.mjs';
 import {allianceDefenseFixture} from '../support/space-alliance-defense-suite.mjs';
@@ -369,6 +370,19 @@ test('HTTP + Auth : recettes centrales, liens différés et droits M4 indépenda
  d=await call('centralMaster',{campaignId,workshop:'M4'},editor);assert.equal(d.references.items.length,1);assert.equal(d.diagnostics.some(x=>x.reference==='ingredient'),false);assert.deepEqual(d.references.knowledge,[]);assert.deepEqual(d.diagnostics.filter(x=>x.code==='REFERENCE_NOT_CHECKED').map(x=>x.field),['unlockKnowledgeId','laboratoryTargetId']);assert.equal(d.publicationAvailable,false);
  await cmd('setCentralStaff',{...grant,active:false,revision:2});assert.equal((await request('saveCentralRecipe',input,editor)).status,403);
  const s=await call('session',{sessionId});for(const kind of ['characters','inventory','accounts'])assert.deepEqual(s[kind],[]);assert.equal(s.versionId,null);
+});
+
+test('HTTP + Auth : achat de module calibré, crédits ordinaires, remise et révocation avant reçu',async()=>{
+ const db=getFirestore(),f=await modulePurchaseFixture(()=>firestoreStore(db)),owner=await googleTestAccount(process.env.OWNER_EMAIL),player=await googleTestAccount(`module-buyer-${randomUUID()}@example.invalid`),outsider=await googleTestAccount(`module-outsider-${randomUUID()}@example.invalid`),uid=t=>JSON.parse(Buffer.from(t.split('.')[1],'base64url').toString()).sub,sessionId=f.sid,base=`sessions/${sessionId}`;
+ const reg=(await db.doc(`${base}/registrations/${hash(f.player.uid)}`).get()).data();await db.doc(`${base}/registrations/${hash(f.player.uid)}`).delete();await db.doc(`${base}/registrations/${hash(uid(player))}`).set({...reg,id:hash(uid(player)),uid:uid(player),minAuthTime:0});await db.doc(`${base}/characters/${f.cid}`).update({assignedUid:uid(player)});await db.doc(base).update({ownerUid:uid(owner),clock:{elapsedMs:0,runningSince:Date.now()}});await db.doc(`campaigns/${f.campaignId}`).update({ownerUid:uid(owner)});
+ const call=async(action,input={},token=player)=>{const r=await request(action,{sessionId,...input},token);assert.equal(r.status,200,JSON.stringify(r));return r.result;},cmd=(action,input={},token=player)=>call(action,{requestId:randomUUID(),...input},token),input=f.purchaseInput();
+ assert.equal((await request('prepareShopPurchase',{sessionId,...input})).status,401);assert.equal((await request('prepareShopPurchase',{sessionId,...input},outsider)).status,403);
+ assert.equal((await request('prepareShopPurchase',{sessionId,...input,useProtected:true},player)).error,'SO_PROTECTED_PURCHASE');
+ const q=await call('prepareShopPurchase',input);assert.equal(q.amount,1500);assert.equal(q.protectedAmount,0);const buy={...input,quoteAt:q.quoteAt,confirmation:q.confirmation,requestId:randomUUID()},sale=await cmd('buyShopOffer',buy);assert.deepEqual(await cmd('buyShopOffer',buy),sale);
+ assert.equal((await call('myWallet')).account.available,8500);assert.equal((await call('myWallet')).account.protectedCredits,200);assert.ok(!(await call('myInventory')).lots.some(l=>l.id===sale.purchasedLotId));
+ const a=(await call('shopAdmin',{},owner)).orders.find(o=>o.id===sale.id);await cmd('offerShopPickup',{saleId:sale.id,confirmation:a.confirmation},owner);const b=(await call('shops')).orders.find(o=>o.id===sale.id),pickup={saleId:sale.id,confirmation:b.confirmation,received:true,requestId:randomUUID()};
+ assert.equal((await request('confirmShopPickup',{sessionId,...pickup},outsider)).status,403);await cmd('confirmShopPickup',pickup);const lot=(await call('myInventory')).lots.find(l=>l.id===sale.purchasedLotId);assert.deepEqual(lot.item.shipModule,{code:'MOD-01',size:2});assert.equal(lot.quantity,1);assert.equal(lot.transferable,true);assert.equal((await call('mySession')).actionPoints.available,5);
+ await cmd('revokeAccess',{uid:uid(player)},owner);assert.equal((await request('buyShopOffer',{sessionId,...buy},player)).status,403);assert.equal((await request('confirmShopPickup',{sessionId,...pickup},player)).status,403);
 });
 
 test('HTTP + Auth : modules M1 calibrés, brouillon privé et révocation avant reçu',async()=>{

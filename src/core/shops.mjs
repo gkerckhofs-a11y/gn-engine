@@ -6,7 +6,7 @@ import {inventoryPlayer,inventoryParty} from './inventory-transfers.mjs';
 import {accountId,moneyState,moneyText,currencyView,writeLedger} from './economy-state.mjs';
 import {canGameAction,requireGameAction} from './health-state.mjs';
 import {settleLotSale,saleView} from './sales.mjs';
-import {hasSoShops,shopAccountId,shopStockId} from './space-outlaws-shop-state.mjs';
+import {hasSoShops,hasSoModulePurchases,moduleOfferValid,shopOfferAvailable,shopAccountId,shopStockId} from './space-outlaws-shop-state.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {admissionKeys} from './admission-state.mjs';
 import {shopMissionRewards} from './space-outlaws-mission-rewards.mjs';
@@ -16,15 +16,17 @@ const reads=new Set(['shops','shop','shopAdmin','prepareShopProvision','prepareS
 export const shopActions=[...reads,'provisionShop','buyShopOffer','offerShopPickup','confirmShopPickup'];
 const fields={shops:[],shop:['shopId'],shopAdmin:[],prepareShopProvision:['shopId','offerId','provisionId','quantity','restricted','source','reason'],provisionShop:['shopId','offerId','provisionId','quantity','restricted','source','reason','confirmation'],prepareShopPurchase:['shopId','offerId','quantity','useProtected'],buyShopOffer:['shopId','offerId','quantity','useProtected','quoteAt','confirmation'],offerShopPickup:['saleId','confirmation'],confirmShopPickup:['saleId','confirmation','received']};
 const active=s=>{requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');};
-const stockValid=(l,s,o)=>l?.ownerType==='SHOP'&&l.ownerId===s.id&&l.holderId===s.id&&l.location.kind==='SHOP'&&l.location.id===s.id&&l.item.id===o.item.id&&l.item.revision===o.item.revision&&l.status==='AVAILABLE';
+const stockValid=(l,s,o)=>l?.ownerType==='SHOP'&&l.ownerId===s.id&&l.holderId===s.id&&l.location.kind==='SHOP'&&l.location.id===s.id&&l.item.id===o.item.id&&l.item.revision===o.item.revision&&l.status==='AVAILABLE'&&(!o.item.shipModule||l.item.shipModule?.code===o.item.shipModule.code&&l.item.shipModule?.size===o.item.shipModule.size&&l.item.kind==='INDIVIDUAL'&&l.item.consumable===false&&l.quantity<=1);
 const movement=l=>({...lotState(l),ownerType:l.ownerType,ownerId:l.ownerId,holderId:l.holderId,location:l.location});
+const moduleAccess=(s,o)=>{if(o?.item?.shipModule){requireThat(hasSoModulePurchases(s),'SO_GAMEPLAY_NOT_OPEN');requireThat(moduleOfferValid(o),'INVALID_SHIP_MODULE_OFFER');}};
 
 export function createShopService({store,signed,checkSession,now,uuid}){
  async function definition(tx,s,input){
   const base=`sessions/${s.id}/shops`,shop=await tx.get(`${base}/${documentId(input.shopId)}`);
   requireThat(shop?.versionId===s.versionId,'NOT_FOUND');
   const offer=await tx.get(`${base}/${shop.id}/offers/${documentId(input.offerId)}`);
-  requireThat(offer?.versionId===s.versionId&&offer.shopId===shop.id&&offer.item.consumable,'NOT_FOUND');
+  requireThat(offer?.versionId===s.versionId&&offer.shopId===shop.id,'NOT_FOUND');moduleAccess(s,offer);
+  requireThat(shopOfferAvailable(s,offer),'NOT_FOUND');
   const lot=await tx.get(`sessions/${s.id}/inventory/${shopStockId(offer.id)}`);
   return {shop,offer,lot};
  }
@@ -33,6 +35,7 @@ export function createShopService({store,signed,checkSession,now,uuid}){
   requireThat(typeof input.useProtected==='boolean','INVALID_ECONOMY');
   const x=await definition(tx,s,input),{shop,offer,lot}=x,quantity=itemQuantity(offer.item,input.quantity);
   requireThat(stockValid(lot,shop,offer)&&lot.quantity>=quantity,'INSUFFICIENT_STOCK');
+  if(offer.item.shipModule)requireThat(lot.transferable===true&&lot.resellable===true,'SO_MODULE_STOCK_RESTRICTED');
   const a=await tx.get(`sessions/${s.id}/accounts/${accountId(c.id)}`),b=await tx.get(`sessions/${s.id}/accounts/${shopAccountId(shop.id)}`);
   requireThat(a?.ownerType==='CHARACTER'&&a.characterId===c.id&&a.sessionId===s.id&&b?.ownerType==='SHOP'&&b.shopId===shop.id&&b.sessionId===s.id,'ACCOUNT_UNAVAILABLE');
   const before=moneyState(a);moneyState(b);
@@ -62,6 +65,7 @@ export function createShopService({store,signed,checkSession,now,uuid}){
     for(const shop of shops){
      requireThat(shop?.versionId===s.versionId,'NOT_FOUND');const offers=[];
      for(const o of await tx.list(`${base}/shops/${shop.id}/offers`)){
+      if(!shopOfferAvailable(s,o))continue;
       const lot=await tx.get(`${base}/inventory/${shopStockId(o.id)}`),valid=stockValid(lot,shop,o),quantity=valid?lot.quantity:0;
       const item=await tx.get(`${base}/items/${o.item.id}`);
       offers.push({...o,item:{...o.item,...mediaFields(item,['illustration'])},stock:quantity,restricted:valid&&lot.transferable===false,canBuy:!admin&&quantity>0&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&canGameAction(s,c,'pay',at)});
@@ -70,15 +74,22 @@ export function createShopService({store,signed,checkSession,now,uuid}){
      result.push({id:shop.id,name:shop.name,description:shop.description,location:shop.location,offers,...(admin?{account:a?moneyState(a):null}:{})});
     }
     const sales=await tx.list(`${base}/lotSales`,admin?null:['buyerId',c.id]),orders=[];
-    for(const p of sales.filter(p=>p.shopId&&(action!=='shop'||p.shopId===input.shopId)).sort((a,b)=>b.createdAt-a.createdAt))orders.push((await order(tx,s,p,at)).view);
+    for(const p of sales.filter(p=>p.shopId&&(!p.item?.shipModule||hasSoModulePurchases(s))&&(action!=='shop'||p.shopId===input.shopId)).sort((a,b)=>b.createdAt-a.createdAt))orders.push((await order(tx,s,p,at)).view);
     return {session:{id:s.id,stage:s.stage},admin,shops:result,orders,...await shopMissionRewards(tx,ctx,actor,at,admin,result.map(shop=>shop.id)),...(admin?{canProvision:['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)&&!s.safetyStop?.active}:{})};
    }
    const op=reads.has(action)?null:`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`,fingerprint=hash(JSON.stringify([action,input]));
+   // Recheck the extension before old receipts as well as before new effects.
+   if(['prepareShopProvision','provisionShop','prepareShopPurchase','buyShopOffer'].includes(action))await definition(tx,s,input);
+   else if(['offerShopPickup','confirmShopPickup'].includes(action)){
+    const sale=await tx.get(`${base}/lotSales/${documentId(input.saleId)}`);
+    if(sale?.shopId&&sale.item?.shipModule)requireThat(hasSoModulePurchases(s),'SO_GAMEPLAY_NOT_OPEN');
+   }
    if(op){const prev=await tx.get(op);if(prev){requireThat(prev.fingerprint===fingerprint,'REQUEST_ID_REUSED');requireThat(admin||prev.guard===version,'FORBIDDEN');return prev.result;}}
    let result;
    if(action==='prepareShopProvision'||action==='provisionShop'){
     const provisionId=documentId(input.provisionId),source=moneyText(input.source),reason=moneyText(input.reason),x=await definition(tx,s,input),{shop,offer,lot}=x;
     const quantity=itemQuantity(offer.item,input.quantity);requireThat(quantity<=10000&&typeof input.restricted==='boolean','INVALID_QUANTITY');
+    if(offer.item.shipModule)requireThat(!input.restricted,'SO_MODULE_STOCK_RESTRICTED');
     const provisionPath=`${base}/shopProvisions/${hash(provisionId)}`,intent=hash(JSON.stringify([shop.id,offer.id,provisionId,quantity,input.restricted,source,reason])),prior=await tx.get(provisionPath);
     if(prior){requireThat(prior.intent===intent,'SHOP_PROVISION_REUSED');return action==='prepareShopProvision'?{alreadyProvisioned:true,...prior.result}:prior.result;}
     requireThat(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage),'SESSION_CLOSED');requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');

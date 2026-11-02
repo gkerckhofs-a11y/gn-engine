@@ -7,6 +7,13 @@ export const targetedProfiles={
  'module-catalog':{tests:[...moduleCatalogTests,'test/ci-selection.test.mjs','test/ci-targeted.test.mjs'],suites:['space-ship-module-catalog','central-master','central-import','central-snapshots','central-class-kits','central-shops','inventory','space-outlaws-entry','space-outlaws-shops'],httpPattern:'^HTTP \\+ Auth : (modules M1 calibrés,|Master central,|XLSX central,)',files:[...infrastructure,...moduleCatalogTests,'src/shared/space-ship-modules.mjs','src/core/inventory-state.mjs','src/core/central-master.mjs','src/core/space-outlaws-entry.mjs','web/central-master.mjs','test/support/space-ship-module-catalog-suite.mjs','test/support/firestore-suites.mjs','test/integration/http.test.mjs']},
  diagnostic:{tests:[...diagnosticTests,'test/ci-selection.test.mjs','test/ci-targeted.test.mjs'],suites:['space-technical-analysis','space-outlaws-actions','field','action-points','knowledge','space-episodes','central-field-targets'],httpPattern:'^HTTP \\+ Auth : diagnostic MEC-01 préparé,',files:[...infrastructure,...diagnosticTests,'src/core/space-technical-analysis.mjs','web/field-actions.mjs','web/central-field-targets.mjs','test/support/space-technical-analysis-suite.mjs','test/integration/http.test.mjs']},
 };
+// Purchase scope includes the earlier catalogue changes since the global baseline.
+targetedProfiles['module-purchases']={
+ tests:[...targetedProfiles['module-catalog'].tests,'test/space-module-purchases.test.mjs','test/economy.test.mjs','test/sales.test.mjs','test/space-episodes.test.mjs','test/space-episodes-ui.test.mjs','test/central-shops-ui.test.mjs','test/space-outlaws-voyages.test.mjs'],
+ suites:[...targetedProfiles['module-catalog'].suites,'space-module-purchases','economy','sales','space-episodes','space-outlaws-voyages'],
+ httpPattern:'^HTTP \\+ Auth : (achat de module calibré,|modules M1 calibrés,|Master central,|XLSX central,)',
+ files:[...targetedProfiles['module-catalog'].files,'src/core/shops.mjs','src/core/space-outlaws-shop-state.mjs','web/shops.mjs','web/central-shops.mjs','test/space-module-purchases.test.mjs','test/support/space-module-purchases-suite.mjs','test/support/space-outlaws-shops-suite.mjs','test/economy.test.mjs','test/sales.test.mjs','test/space-episodes.test.mjs','test/space-episodes-ui.test.mjs','test/central-shops-ui.test.mjs','test/space-outlaws-voyages.test.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

@@ -7,6 +7,13 @@ const item={id:'i',name:'Trousse <script>',description:'Soin <script>',unit:'uni
 const offer={id:'o',name:'Trousse',unitPrice:30,stock:2,restricted:true,canBuy:true,conditions:'Retrait',item};
 const shop={id:'counter',name:'Comptoir <script>',location:'Port',description:'Public',offers:[offer],account:{balance:30}};
 const order={id:'sale',shopId:'counter',item,quantity:1,amount:30,protectedAmount:30,seller:{name:'PNJ'},buyer:{name:'Ari'},pickupStatus:'READY',pickupPlace:'Port',conditions:'',purchasedLotId:'lot',confirmation:'proof',canPickup:true,canOfferPickup:true};
+test('Boutiques SO UI : module calibré non monté, paiement ordinaire et stock individuel',()=>{
+ const module={...item,kind:'INDIVIDUAL',consumable:false,shipModule:{code:'MOD-06',size:3}},o={...offer,item:module,unitPrice:4000,stock:1,restricted:false},d={session:{id:'s'},shops:[{...shop,offers:[o]}],orders:[]};
+ const html=shopsHtml(d);assert.match(html,/MOD-06/);assert.match(html,/Transport renforcé/);assert.match(html,/4000 Cr/);assert.match(html,/Module non monté/);assert.doesNotMatch(html,/name="useProtected"|<script>/);
+ const form=shopProvisionHtml('s',shop,o,'module-stock');assert.match(form,/max="1"/);assert.doesNotMatch(form,/name="restricted"/);assert.match(form,/crédits de création sont refusés/);
+ const q=shopPurchaseHtml({shop,offer:o,quantity:1,amount:4000,ordinaryAmount:4000,protectedAmount:0,after:{available:0,protectedCredits:200},restricted:false},{});assert.match(q,/Module non monté/);assert.doesNotMatch(q,/<script>/);
+ const bag=soInventoryHtml({session:d.session,lots:[{id:'module',item:module,quantity:1,status:'AVAILABLE'}]},null);assert.match(bag,/MOD-06/);assert.match(bag,/montage en atelier reste à ouvrir/);assert.doesNotMatch(bag,/Consommé uniquement/);
+});
 test('Boutiques SO UI : devis visible, fonds séparés et retrait annoncé avant paiement',()=>{
  const d={shop,offer,quantity:1,amount:30,protectedAmount:20,ordinaryAmount:10,after:{protectedCredits:0,available:15},restricted:true,quoteAt:1,confirmation:'proof'},html=shopPurchaseHtml(d,{sessionId:'s',shopId:'counter',offerId:'o',quantity:1,useProtected:true});assert.match(html,/20 Cr protégés \+ 10 Cr ordinaires/);assert.match(html,/inutilisables jusqu’à la remise/);assert.match(html,/quoteAt/);assert.match(html,/buyShopOffer/);assert.doesNotMatch(html,/<script>/);
 });

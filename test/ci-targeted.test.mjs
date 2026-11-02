@@ -42,6 +42,16 @@ test('CI ciblée : catalogue modules couvre M1, snapshots, inventaire, publicati
  assert.deepEqual(testCommand('http',{GN_CI_PROFILE:'targeted-module-catalog',GN_HTTP_PATTERN:JSON.stringify(profile.httpPattern)}).args,['--test',`--test-name-pattern=${profile.httpPattern}`,'test/integration/http.test.mjs']);
  assert.deepEqual(testCommand('application',{GN_CI_PROFILE:'targeted-module-catalog',GN_APPLICATION_TESTS:JSON.stringify(profile.tests)}).args,['--test',...profile.tests]);
 });
+test('CI ciblée : achat modules garde les dépendances financières, vente, voyages et reprise sans ouvrir le montage',()=>{
+ const name='module-purchases',profile=targetedProfiles[name],p=targetedScope(name,['src/core/shops.mjs','src/core/space-outlaws-entry.mjs','web/shops.mjs'],{reliableBase:true});
+ assert.equal(requestedTarget('[ci targeted:module-purchases]'),name);assert.throws(()=>targetedScope(name,[],{}));
+ for(const path of ['src/core/space-maintenance.mjs','src/core/space-combat.mjs','src/core/workflow.mjs','src/core/economy-state.mjs','package.json'])assert.throws(()=>targetedScope(name,[path],{reliableBase:true}));
+ for(const id of ['space-module-purchases','space-ship-module-catalog','space-outlaws-shops','inventory','economy','sales','space-episodes','space-outlaws-voyages'])assert.ok(p.suites.includes(id));
+ for(const file of p.applicationTests)assert.ok(existsSync(file),file);
+ assert.equal(new Set(p.applicationTests).size,p.applicationTests.length);assert.equal(new Set(p.suites).size,p.suites.length);assert.equal(p.browser,false);
+ assert.ok(new RegExp(p.httpPattern).test('HTTP + Auth : achat de module calibré, crédits ordinaires'));assert.ok(!new RegExp(p.httpPattern).test('HTTP + Auth : duel spatial'));
+ assert.deepEqual(testCommand('application',{GN_CI_PROFILE:`targeted-${name}`,GN_APPLICATION_TESTS:JSON.stringify(profile.tests)}).args,['--test',...profile.tests]);assert.deepEqual(testCommand('http',{GN_CI_PROFILE:`targeted-${name}`,GN_HTTP_PATTERN:JSON.stringify(profile.httpPattern)}).args,['--test',`--test-name-pattern=${profile.httpPattern}`,'test/integration/http.test.mjs']);
+});
 test('CI ciblée : un succès partiel est ignoré comme référence même sans métadonnée de profil API',async()=>{
  const {args,calls}=options({runs:[run(partial,20),run(base,10)],messages:{[partial]:'feature [ci targeted:diagnostic]'}}),p=await makePlan(args);assert.equal(p.baseline,base);assert.equal(p.baselineRun,10);assert.deepEqual(calls.find(c=>c[0]==='diff'),['diff','--no-renames','--name-only','-z',base,checkout]);
  const normal=await makePlan(options({message:'normal',runs:[run(partial,20),run(base,10)],messages:{[partial]:'feature [ci targeted:ci]'},paths:['src/core/workflow.mjs']}).args);assert.equal(normal.baseline,base);assert.equal(normal.profile,'full');

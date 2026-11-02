@@ -1,6 +1,7 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {"id":"space-module-purchases","module":"../support/space-module-purchases-suite.mjs","exportName":"modulePurchasesSuite","label":"Achats de modules SO sur Firestore","seconds":90},
   {"id":"space-ship-module-catalog","module":"../support/space-ship-module-catalog-suite.mjs","exportName":"shipModuleCatalogSuite","label":"Catalogue modules M1 sur Firestore","seconds":45},
   {"id":"space-technical-analysis","module":"../support/space-technical-analysis-suite.mjs","exportName":"technicalAnalysisSuite","label":"Diagnostic technique préparé SO sur Firestore","seconds":90},
   {"id":"space-ship-names","module":"../support/space-ship-names-suite.mjs","exportName":"shipNamesSuite","label":"Noms de vaisseaux SO sur Firestore","seconds":80},

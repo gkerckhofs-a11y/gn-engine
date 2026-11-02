@@ -23,7 +23,7 @@ test('Central UI : archive et restauration restent des modifications de brouillo
 });
 test('Central UI : module calibré, prix fixe et limites de préparation visibles',()=>{
  const c={entityId:'module',type:'item',operation:'UPSERT',data:{name:'<b>Bouclier</b>',shipModule:{code:'MOD-01',size:2},kind:'INDIVIDUAL',consumable:false,revision:1}},h=ui.itemForm(model,'module',c);
- assert.match(h,/name="shipModuleCode"/);assert.match(h,/value="MOD-01" selected/);assert.match(h,/value="2" selected/);assert.match(h,/1500 Cr/);assert.match(h,/MEC-03 N2, 10 min/);assert.match(h,/restent en brouillon/);assert.match(h,/colonnes Excel/);assert.doesNotMatch(h,/name="(modulePrice|moduleBonus|moduleSlots|installed)"/);
+ assert.match(h,/name="shipModuleCode"/);assert.match(h,/value="MOD-01" selected/);assert.match(h,/value="2" selected/);assert.match(h,/1500 Cr/);assert.match(h,/MEC-03 N2, 10 min/);assert.match(h,/L’achat ne monte pas le module/);assert.match(h,/colonnes Excel/);assert.doesNotMatch(h,/name="(modulePrice|moduleBonus|moduleSlots|installed)"/);
  assert.doesNotMatch(h,/<b>Bouclier/);assert.match(ui.page({...model,changes:[c]}),/1500 Cr/);
  const values={name:'Module',kind:'INDIVIDUAL',unitVolume:'',pelletsPerUnit:'',shipModuleCode:'MOD-06',shipModuleSize:'3'};
  assert.deepEqual(centralItemPayload(values).shipModule,{code:'MOD-06',size:3});assert.equal(centralItemPayload({...values,shipModuleCode:''}).shipModule,null);
