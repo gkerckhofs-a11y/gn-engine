@@ -31,3 +31,7 @@ test('catalogue et correction UI : coût facultatif, motif MJ et aucune réouver
   const correction=ui.correction(context,lot);assert.match(correction,/name="reason"[^>]*required/);assert.match(correction,/créez un nouveau lot/);
   const admin=ui.admin({...context,inventory:[{...lot,status:'CONSUMED',quantity:0}]},'session');assert.doesNotMatch(admin,/data-action="correctLotForm"/);
 });
+
+test('sac UI : modules montés séparés des biens à récupérer, lien privé et aucun lien dans l’aperçu MJ',()=>{
+ const d={session:{id:'s'},character:{id:'owner',name:'Owner'},lots:[],installed:[{id:'module',item:{...item,shipModule:{code:'MOD-01',size:2}},location:{kind:'SHIP_MODULE',id:'ship'}}]},h=ui.page(d);assert.match(h,/Mes modules montés/);assert.match(h,/#\/flight\/s\/ship/);assert.match(h,/retrait en atelier à venir/);assert.doesNotMatch(h,/<img|Objets à récupérer/);assert.doesNotMatch(ui.page({...d,preview:true}),/<a |<button/);
+});

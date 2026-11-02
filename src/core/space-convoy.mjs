@@ -28,8 +28,10 @@ export async function convoyCommand(tx,s,ship,c,version,input,action,id,at){
   for(const x of rows){const released=x.journey?.suspended?resumeSpaceJourney({...x,convoy:null},time):x;const j=released.journey?{...released.journey,convoySeparated:true}:null;tx.set(`${base}/ships/${x.id}`,{...released,convoy:null,...(j?{journey:j}:{}),revision:x.revision+1});if(j)tx.set(`${base}/voyages/${j.id}`,{...j,shipId:x.id,status:j.suspended?'SUSPENDED':'IN_TRANSIT'});}
   return {id:g.id,status:'SEPARATED'};
  }
+ requireThat(!ship.modules?.length,'MODULE_FLIGHT_NOT_OPEN');
  if(action==='acceptSoConvoy'){
   const leader=await tx.get(`${base}/ships/${documentId(input.leaderShipId)}`),o=leader?.convoyOffer,p=o?await inventoryParty(tx,s.id,o.leaderPilotId):null;
+  requireThat(!leader?.modules?.length,'MODULE_FLIGHT_NOT_OPEN');
   requireThat(o&&o.escortShipId===ship.id&&o.escortPilotId===c.id&&p?.active&&p.version===o.leaderPilotVersion&&leader.pilotId===o.leaderPilotId,'SO_CONVOY_CLOSED');
   requireThat(idle(leader)&&idle(ship)&&!leader.convoy&&!ship.convoy&&!ship.convoyOffer&&leader.portId===ship.portId,'SPACE_SHIP_BUSY');
   requireThat(input.confirmation===hash(JSON.stringify([s.revision,leader,ship])),'STALE_REVISION');
@@ -39,6 +41,7 @@ export async function convoyCommand(tx,s,ship,c,version,input,action,id,at){
  }
  requireThat(idle(ship)&&ship.capacity>0&&!ship.convoy&&!ship.convoyOffer,'SPACE_SHIP_BUSY');
  const escort=await tx.get(`${base}/ships/${documentId(input.escortShipId)}`);requireThat(idle(escort)&&escort.id!==ship.id&&escort.pilotId!==c.id&&!escort.convoy&&!escort.convoyOffer&&escort.portId===ship.portId,'SO_CONVOY_UNAVAILABLE');
+ requireThat(!escort.modules?.length,'MODULE_FLIGHT_NOT_OPEN');
  const p=await inventoryParty(tx,s.id,escort.pilotId);requireThat(p.active&&navigationSkill(p.c,'PIL-02')>=1,'SO_CONVOY_UNAVAILABLE');
  const code=input.navigationCode;requireThat(typeof code==='string'&&code.length>0&&code.length<=80,'ROUTE_UNAVAILABLE');
  const ports=await tx.list(`${base}/ports`),routes=(await tx.list(`${base}/routes`)).filter(r=>r.fromPort===ship.portId&&(r.navigationCode===code||ports.find(p=>p.id===r.toPort)?.navigationCode===code));requireThat(routes.length===1,'ROUTE_UNAVAILABLE');const route=routes[0];soRoute(route,ship);soRoute(route,escort);
@@ -53,12 +56,13 @@ export async function convoyFleet(tx,s,ship){
 export async function finishConvoy(tx,s,ship,at,id,dice,available){
  const base=`sessions/${s.id}`,time=gameTime(s.clock,at),rows=await convoyFleet(tx,s,ship),g=ship.convoy;
  requireThat(rows.length===2&&ship.operation?.kind==='PREPARE'&&ship.operation.convoyId===g.id,'SO_CONVOY_CLOSED');
+ requireThat(rows.every(x=>!x.modules?.length),'MODULE_FLIGHT_NOT_OPEN');
  const own=ship.operation;requireThat(time>=own.readyAtGameMs,'VOYAGE_NOT_READY');
  if(!rows.every(x=>x.id===ship.id||x.operation?.convoyReady===true)){
   tx.set(`${base}/ships/${ship.id}`,{...ship,operation:{...own,convoyReady:true},revision:ship.revision+1});return {id:ship.id,status:'WAITING_CONVOY'};
  }
  const passengers=new Set(),all=[];
- for(const x of rows){const a=x.operation;requireThat(a?.kind==='PREPARE'&&a.convoyId===g.id&&a.route.id===g.routeId&&time>=a.readyAtGameMs&&x.hull>0&&!x.revisionRequired&&x.fuel>=a.route.fuelCost&&!x.combatId&&!x.rescueId&&!x.maintenanceId,'SO_CONVOY_NOT_READY');
+ for(const x of rows){requireThat(!x.modules?.length,'MODULE_FLIGHT_NOT_OPEN');const a=x.operation;requireThat(a?.kind==='PREPARE'&&a.convoyId===g.id&&a.route.id===g.routeId&&time>=a.readyAtGameMs&&x.hull>0&&!x.revisionRequired&&x.fuel>=a.route.fuelCost&&!x.combatId&&!x.rescueId&&!x.maintenanceId,'SO_CONVOY_NOT_READY');
   const manifest=[];for(const m of a.manifest){const p=await inventoryParty(tx,s.id,m.id);requireThat(p.active&&p.version===m.version&&p.c.activeNavigationId===a.id&&!p.c.activeVoyageId&&available(s,p.c,time)&&!passengers.has(m.id),'INVALID_MANIFEST');passengers.add(m.id);manifest.push(p.c);}
   const pilot=manifest.find(c=>c.id===a.pilotId);requireThat(x.pilotId===a.pilotId&&pilot&&navigationSkill(pilot,'PIL-02')>=a.level&&g.pilots.some(p=>p.id===a.pilotId&&p.version===a.pilotVersion),'INVALID_MANIFEST');
   const points=actionPointState(s,pilot,await tx.get(actionPointPath(s.id,pilot.id)),at),transportManifest=await transportDeparture(tx,s,x,a.route,`${id}_${all.length}`,at);all.push({x,a,manifest,pilot,points,transportManifest});

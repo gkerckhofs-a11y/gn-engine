@@ -28,6 +28,13 @@ targetedProfiles['module-work']={
  httpPattern:'^HTTP \\+ Auth : (travail de module,|mandat de module,|achat de module calibré,|modules M1 calibrés,|Master central,|XLSX central,)',
  files:[...targetedProfiles['module-mandates'].files,'src/core/space-module-work.mjs','web/space-module-work.mjs','test/space-module-work.test.mjs','test/space-module-work-ui.test.mjs','test/support/space-module-work-suite.mjs','test/action-points.test.mjs','test/field-actions.test.mjs'],
 };
+// Finalisation à quai; equipped departures remain explicitly closed pending voyage effects.
+targetedProfiles['module-installation']={
+ tests:[...targetedProfiles['module-work'].tests,'test/space-module-installation.test.mjs','test/space-outlaws-voyages-ui.test.mjs','test/space-convoy.test.mjs','test/space-convoy-ui.test.mjs'],
+ suites:[...targetedProfiles['module-work'].suites,'space-module-installation','space-convoy'],
+ httpPattern:'^HTTP \\+ Auth : (montage de module,|travail de module,|mandat de module,|achat de module calibré,|modules M1 calibrés,|Master central,|XLSX central,)',
+ files:[...targetedProfiles['module-work'].files,'src/core/space-outlaws-voyages.mjs','src/core/space-convoy.mjs','src/core/inventory.mjs','web/inventory.mjs','web/space-outlaws-voyages.mjs','test/space-module-installation.test.mjs','test/support/space-module-installation-suite.mjs','test/support/space-module-purchases-suite.mjs','test/support/space-outlaws-shops-suite.mjs','test/support/space-logistics-suite.mjs','test/space-outlaws-voyages-ui.test.mjs','test/space-convoy.test.mjs','test/space-convoy-ui.test.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

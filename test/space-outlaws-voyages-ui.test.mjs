@@ -30,3 +30,7 @@ test('Vols SO UI : nom d’usage réservé au propriétaire et identité permane
 test('Vols SO UI : confirmation de nom sans changement de propriété ou de papiers',()=>{
  const h=soShipNameConfirmHtml({previousName:'Ancien <script>',name:'Nouveau <img>',transponder:'permanent',portId:'home',confirmation:'proof'},{sessionId:'s',shipId:'ship',name:'Nouveau <img>'});assert.match(h,/renameSoShip/);assert.match(h,/name="present" type="checkbox" required/);assert.match(h,/anciens noms sont conservés/);assert.match(h,/ne falsifie aucun document/);assert.doesNotMatch(h,/<script>|<img>|name="ownerId"|name="transponder"/);
 });
+
+test('Vols SO UI : modules montés affichés, plein disponible et départ équipé fermé',()=>{
+ const h=soNavigationHtml({session:{id:'s'},ship:{...ship,moduleFlightBlocked:true,modules:[{code:'<script>MOD-01',size:2,status:'OPERATIONAL'}]},canAct:true,canPilot:true,lots:[]});assert.match(h,/Modules montés à quai/);assert.match(h,/Ce vaisseau doit rester à quai/);assert.match(h,/Faire le plein/);assert.doesNotMatch(h,/data-kind="depart"|<script>/);
+});
