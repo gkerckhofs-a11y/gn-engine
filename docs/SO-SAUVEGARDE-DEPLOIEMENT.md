@@ -1,5 +1,17 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## Catalogue M1 des modules standards — 2 novembre 2026
+
+Suite à l’accord « OK avec ciblage des tests », premier lot de la tranche atelier Mécano : définitions M1 des MOD-01/02/03/06 uniquement. Source : V0.7 chapitre 17, tarifs par gabarit 1/2/3, profils MEC-03 fixes. Métadonnée optionnelle `shipModule:{code,size}` fermée, objet individuel non consommable ; aucun prix, bonus ou niveau injectable. Le catalogue commun calcule les douze prix canoniques et les exigences d’installation/retrait ; il ne modifie aucun vaisseau.
+
+Formulaire et liste M1 : type, gabarit et tarif de référence, exigences MEC-03, limite de préparation affichée. `itemInput` conserve la calibration omise par un ancien client ; `null` la retire explicitement de la nouvelle définition. `publicItem` copie code/gabarit dans les instantanés de lots, sans référence mutable au modèle. L’Excel schéma 1 conserve ces données lors d’une modification dans le même brouillon mais ne les transporte pas vers un autre Master ; aucune nouvelle colonne ni conversion silencieuse. Les instantanés centraux natifs conservent le contenu complet.
+
+Publication d’un module actif refusée (`SO_SHIP_MODULE_NOT_CONNECTED`), y compris sans offre M5 ni kit. L’archiver permet de publier les autres définitions. Lecture d’une version jouable contenant une définition de module active refusée : aucun marqueur de session ajouté, ancienne version ordinaire inchangée. Achat, mandat personnel du propriétaire, montage/retrait chronométrés, réserve de 1 PA, effets et neutralisation temporaire de quinze minutes en voyage restent à développer avant ouverture du parcours jouable. MOD-04/05, modules rares et prototypes hors de ce catalogue.
+
+Validation locale ciblée : 205/205 tests dans seize fichiers et build réussis, Node 24.22.1 / npm 11.9.0. Neuf nouveaux cas métier (deux purs, sept partagés mémoire/Firestore), un UI et un HTTP/Auth ; test supplémentaire du sélecteur. Profil explicite `[ci targeted:module-catalog]` : M1, import historique, captures, kits, boutiques, inventaire et publication ; neuf suites Firestore, trois parcours HTTP filtrés, aucun Chromium. Émulateurs non exécutés localement (Java 17, CI Java 21). Résultats CI à vérifier sur le commit exact et à consigner dans PR #2 ; ces résultats ne constituent pas une régression intégrale ni une recette humaine. Aucun déploiement, migration ou fusion.
+
+Sauvegarder le brouillon et ses changements, révisions, droits, historiques, reçus et captures ensemble. Ancien binaire non équivalent : il peut perdre la calibration à l’édition ou dans une projection d’objet ; restaurer un ensemble cohérent sans réécriture implicite. Dépôt et branche conservés, PR #2 brouillon. Prochain lot : achat M5 et atelier après prise en charge cohérente de la neutralisation en voyage ; pas de paiement/ressource débloqué par ce catalogue.
+
 ## C2q — Excel des lieux et informations M6
 
 [C2q — contrat, tests et limites](SO-06-C2Q-EXCEL-LIEUX.md). Préserver les provenances XLSX M6 schéma 1 et 2 avec définitions, références, droits, révisions, historiques, lots, reçus et captures/pages. Les anciens fichiers restent lus ; C2p refuse le schéma et les provenances 2 et ne constitue pas un retour équivalent. Aucun effacement/conversion implicite. Export ciblé et capture JSON ne sont pas une restauration complète. Masters, règles/index/IAM et production inchangés.

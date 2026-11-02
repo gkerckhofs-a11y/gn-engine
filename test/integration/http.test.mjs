@@ -371,6 +371,22 @@ test('HTTP + Auth : recettes centrales, liens différés et droits M4 indépenda
  const s=await call('session',{sessionId});for(const kind of ['characters','inventory','accounts'])assert.deepEqual(s[kind],[]);assert.equal(s.versionId,null);
 });
 
+test('HTTP + Auth : modules M1 calibrés, brouillon privé et révocation avant reçu',async()=>{
+ const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`module-editor-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email),player=await googleTestAccount(`module-player-${randomUUID()}@example.invalid`);
+ const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};
+ const cmd=(action,input={},token=owner)=>call(action,{requestId:randomUUID(),...input},token);
+ const {id:sessionId,campaignId}=await cmd('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'Catalogue modules HTTP',title:'Préparation synthétique',capacity:4,privacy:'Notice synthétique'});
+ const grant={campaignId,email,active:true,readWorkshops:['M1'],editWorkshops:['M1'],revision:0,reason:'Catalogue modules'};await cmd('setCentralStaff',grant);
+ const item={...centralTestItem,name:'Canon lourd transport',kind:'INDIVIDUAL',consumable:false,shipModule:{code:'MOD-06',size:3}},input={campaignId,itemId:'module-http',item,draftRevision:0,itemRevision:0,reason:'Préparer un module',requestId:randomUUID()};
+ assert.equal((await request('saveCentralItem',input)).status,401);assert.equal((await request('saveCentralItem',input,player)).status,403);
+ assert.equal((await request('saveCentralItem',{...input,item:{...item,shipModule:{code:'MOD-06',size:3,price:1}}},editor)).status,400);
+ const saved=await cmd('saveCentralItem',input,editor);assert.deepEqual(await cmd('saveCentralItem',input,editor),saved);
+ const d=await call('centralMaster',{campaignId,workshop:'M1'},editor);assert.deepEqual(d.changes[0].data.shipModule,{code:'MOD-06',size:3});assert.equal(d.history.length,1);
+ const preview=await call('previewSpaceOutlawsRelease',{sessionId});assert.equal(preview.canRelease,false);assert.ok(preview.blockers.some(b=>b.code==='SO_SHIP_MODULE_NOT_CONNECTED'));
+ await cmd('setCentralStaff',{...grant,active:false,revision:1});assert.equal((await request('saveCentralItem',input,editor)).status,403);assert.equal((await request('centralMaster',{campaignId,workshop:'M1'},editor)).status,403);
+ const s=await call('session',{sessionId});for(const kind of ['characters','inventory','accounts'])assert.deepEqual(s[kind],[]);assert.equal(s.versionId,null);
+});
+
 test('HTTP + Auth : Master central, délégation M1, révocation et aucun accès aux inscriptions',async()=>{
  const owner=await googleTestAccount('gkerckhofs@gmail.com'),email=`central-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email),player=await googleTestAccount(`central-player-${randomUUID()}@example.invalid`);
  const call=async(action,input={},token=owner)=>{const r=await request(action,input,token);assert.equal(r.status,200,JSON.stringify(r));return r.result;};

@@ -85,6 +85,8 @@ export async function readSoEntryVersion(tx,c){
  requireThat(h.shipNamingVersion===undefined||h.shipNamingVersion===1&&h.navigationVersion===1,'SO_VERSION_INVALID');
  requireThat(h.navigationVersion===undefined||h.navigationVersion===1,'SO_VERSION_INVALID');
  requireThat(h.shopsVersion===undefined||h.shopsVersion===1,'SO_VERSION_INVALID');
+ // Module definitions remain draft-only until the workshop and voyage effects are connected.
+ requireThat(!changes.some(c=>c.operation==='UPSERT'&&c.type==='item'&&c.data?.shipModule),'SO_VERSION_INVALID');
  requireThat(h.healthVersion===undefined||h.healthVersion===1,'SO_VERSION_INVALID');
  if(h.healthVersion===1)requireThat(digest(h.careProfiles)===digest(soCareProfiles(changes)),'SO_VERSION_INVALID');
  return {header:h,changes};
@@ -95,6 +97,7 @@ async function releasePlan(tx,actor,ctx,authority,at){
  const report=centralDraftCheck({campaign:ctx.c,session:ctx.s,draft:ctx.draft,changes,actorUid:actor.uid,authority:{kind:'OWNER',revision:null},at});
  const admissions=await checkAdmissionM2({tx,ctx,actor,authority,at});
  const blockers=[...shopBlockers(changes),...report.diagnostics.filter(d=>d.code!=='REWARD_SOURCE_PENDING').map(d=>({code:d.code,message:d.message,entityId:d.entityId})),...admissions.diagnostics.map(d=>({code:d.code,message:'Reprendre ce dossier dans les candidatures.',entityId:d.characterId??''}))];
+ for(const ch of changes)if(ch.operation==='UPSERT'&&ch.type==='item'&&ch.data?.shipModule)blockers.push({code:'SO_SHIP_MODULE_NOT_CONNECTED',entityId:ch.entityId,message:'Ce module de vaisseau reste en préparation : achat, mandat, montage, retrait et neutralisation en voyage doivent être raccordés avant publication.'});
  for(const ch of changes)if(ch.operation==='UPSERT'&&!supported.has(ch.type))blockers.push({code:'SO_DOMAIN_NOT_CONNECTED',entityId:ch.entityId,message:`${ch.workshop} : ${ch.type} doit être raccordé au jeu avant publication. Le brouillon reste intact.`});
  for(const ch of changes)if(ch.operation==='UPSERT'&&ch.type==='fieldTarget'&&ch.data?.kind!=='ANALYSIS'&&!isPlaceSearch(ch.data))blockers.push({code:'SO_DOMAIN_NOT_CONNECTED',entityId:ch.entityId,message:'Seules les analyses V0.7 et les fouilles de lieux V3.6 sont raccordées au jeu.'});
  const active=changes.filter(ch=>ch.operation==='UPSERT'),knowledge=active.filter(ch=>ch.type==='knowledge'),targets=active.filter(ch=>ch.type==='fieldTarget');
