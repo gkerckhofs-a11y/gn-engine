@@ -1,8 +1,20 @@
 # GN Engine — consignes de développement
 
-## Priorité de reprise — 1er novembre 2026
+## Priorité de reprise — 2 novembre 2026
 
-Tranche active : nom d’usage des vaisseaux et conservation des anciens noms.
+Tranche active : diagnostic technique préparé MEC-01.
+
+Base vérifiée : `a1286038618970f52146e950347cde7dd7375821`, [CI complète 41354338905](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41354338905) réussie : 2286 applicatifs, 1788 Firestore, 80 HTTP/Auth/Storage et sept Chromium.
+
+MEC-01 raccordé aux analyses préparées M6 : cible technique réellement accessible, QR natif, aperçu privé, présence pendant 60 secondes de jeu, 1 PA et récupération commune de dix minutes. Source : [V0.7 chapitre 11](docs/source/SO_Regles_V07.txt), diagnostic technique, informations selon les niveaux N1 à N5. Ce premier parcours distribue uniquement les informations garanties explicitement préparées dans M6 ; les défauts nécessitant un test restent distincts, aucun seuil de dé inventé. Un dossier/version M6 représente la panne préparée ; aucune déduction automatique depuis les dommages d’un appareil ni nouvelle panne inventée par une lecture.
+
+Même fieldTargets/fieldStates/fieldActions, réserves de PA, fieldCooldowns et reçus knowledge du personnage. Une tentative par personnage/version de cible, informations ordinaires garanties selon le niveau de départ encore détenu à la résolution. Textes figés acquis et relus gratuitement dans le carnet, secrets MJ et niveaux supérieurs non exposés. Profil canonique AUTO, 60 secondes à tous les niveaux, coût 1 et récupération 600 ; aucune aide, matériel bonus ou récompense monétaire/matérielle dans ce parcours. Aucun accès de flotte, système caché, soute/coffre, réparation ou manipulation électrique réelle accordé. Aucun compte, lot, module, vaisseau ou droit de propriété modifié.
+
+technicalAnalysisVersion=1 sur nouveaux manifestes seulement, garde actionsVersion=1 en session. Ancien manifeste sans ce marqueur conservé ; un manifeste contenant un dossier MEC-01 sans son marqueur est refusé, jamais enrichi à la lecture. Lecture/début et résolution technique gardés, droits avant anciens reçus, niveau courant et version à la résolution. Concurrence/réessai et interruption atomique, pause/STOP, récupération et tentative persistante couverts. Reprise : état de tentative, carnet et dossiers conservés ; expirations temporaires natives A38, aucune nouvelle tentative sur la même panne ni distribution gratuite. Pas de nouvelle collection, migration ou réinitialisation implicite. Binaire précédent ne reconnaît pas ce profil MEC-01 ; retour non équivalent. Sauvegarder marqueur/pages, dossiers/états/actions, identités/droits, ressources/cooldowns/horloges, connaissances et historiques/reçus ensemble.
+
+Douze nouveaux cas partagés mémoire/Firestore, deux UI, un HTTP/Auth ajouté. Local : 2300/2300 applicatifs et build réussis, Node 24.22.1 / npm 11.9.0, 2 novembre 2026 ; preuves CI du candidat exact dans PR #2. Émulateurs non exécutés localement (Java 17, CI Java 21). Défauts à test, lecture directe d’un état technique natif, mise à jour d’une panne en campagne et réparation/amélioration/sabotage restent distincts. Aucune recette humaine, migration, fusion main ni publication ; même branche work/space-pilot-handover et PR #2 brouillon.
+
+Jalon précédent : nom d’usage des vaisseaux et conservation des anciens noms.
 
 Base vérifiée : `d2a7b70f85d048a2edc4586dc4efe11bbfe2c57e`, [CI complète 41348544712](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41348544712) réussie : 2274 applicatifs, 1778 Firestore, 80 HTTP/Auth/Storage et sept Chromium.
 
