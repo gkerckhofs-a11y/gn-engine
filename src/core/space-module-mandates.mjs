@@ -53,7 +53,7 @@ export function createModuleMandateService({store,signed,checkSession,now,uuid})
     return {session:{id:s.id,stage:s.stage,safetyStopped:!!s.safetyStop?.active},admin:true,jobs,ships,lots,characters};
    }
    let r=null;
-   if(input.mandateId){r=await tx.get(`${base}/shipMaintenance/${documentId(input.mandateId)}`);requireThat(r?.moduleMandateVersion===1&&await rights(r),'FORBIDDEN');}
+   if(!['prepareModuleMandateOffer','offerModuleMandate'].includes(action)){r=await tx.get(`${base}/shipMaintenance/${documentId(input.mandateId)}`);requireThat(r?.moduleMandateVersion===1&&await rights(r),'FORBIDDEN');}
    if(action==='approveModuleMandate'){
     requireThat(c.id===r.ownerId,'FORBIDDEN');requireThat(open(r)&&await current(tx,s,r),'MODULE_MANDATE_STALE');
    }

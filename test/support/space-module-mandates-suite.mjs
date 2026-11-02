@@ -39,6 +39,7 @@ export function moduleMandatesSuite(makeStore,prefix='Mandats modules SO'){
  });
  test(`${prefix} : champs stricts, présence MJ et personnelle explicites`,async()=>{
   const f=await moduleMandateFixture(makeStore);for(const patch of [{ownerId:f.cid},{kind:'REMOVE'},{amount:0},{code:'MOD-06'},{install:{seconds:0}}])await assert.rejects(f.preview(patch),{code:'INVALID_ADMISSION'});
+  await assert.rejects(f.read('prepareModuleMandateApproval',{}),{code:'INVALID_ID'});await assert.rejects(f.cmd('declineModuleMandate',{confirmation:'none',reason:'Sans identifiant'}),{code:'INVALID_ID'});
   for(const patch of [{present:false},{workshopConfirmed:false}])await assert.rejects(f.preview(patch),{code:'FIELD_PRESENCE_REQUIRED'});
   const r=await f.offer();await assert.rejects(f.approve(r,{present:false}),{code:'FIELD_PRESENCE_REQUIRED'});assert.equal((await f.jobs())[0].status,'MODULE_OFFERED');
  });
