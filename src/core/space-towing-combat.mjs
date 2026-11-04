@@ -1,5 +1,5 @@
 import {requireThat} from './validation.mjs';
-import {flightShip,hasTowingCombat} from './space-module-flight.mjs';
+import {flightShip,hasTowingCombat,validateModuleFlight} from './space-module-flight.mjs';
 import {towingFlightContext} from './space-towing-flight.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 
@@ -8,8 +8,9 @@ export function towingInterceptable(s,ship,time){
 }
 export async function towingCombatContext(tx,s,ship,time,combat=null){
  if(!ship?.towingAttachment)return null;requireThat(hasTowingCombat(s),'TOWING_COMBAT_NOT_OPEN');
- const x=await towingFlightContext(tx,s,ship,'towingCombat',time);requireThat(x&&ship.journey?.towing,'TOWING_RESERVATION');
- if(combat){requireThat(combat.towingCombatVersion===1&&combat.shipIds.length===2&&!combat.teams,'TOWING_COMBAT_NOT_OPEN');const b=combat.towingBindings?.[ship.id];requireThat(b?.workId===x.r.id&&b.wreckId===x.wreck.id&&b.lotId===x.b.lotId&&(combat.status==='CLOSED'||b.journeyId===ship.journey.id),'TOWING_RESERVATION');}
+ const x=await towingFlightContext(tx,s,ship,'towingCombat',time);requireThat(x&&ship.journey?.towing&&x.r.towingJourneyId===ship.journey.id,'TOWING_RESERVATION');
+ await validateModuleFlight(tx,s,ship);requireThat(ship.modules?.some(m=>m.code==='MOD-05'&&m.lotId===x.b.lotId&&m.size===ship.soProfile.size&&m.status==='OPERATIONAL'),'TOWING_MODULE_UNAVAILABLE');
+ if(combat){requireThat(combat.towingCombatVersion===1&&combat.shipIds.length===2&&!combat.teams,'TOWING_COMBAT_NOT_OPEN');requireThat(x.r.towingCombatVersion===1&&x.r.towingCombatId===combat.id,'TOWING_RESERVATION');const b=combat.towingBindings?.[ship.id];requireThat(b?.workId===x.r.id&&b.wreckId===x.wreck.id&&b.lotId===x.b.lotId&&(combat.status==='CLOSED'||b.journeyId===ship.journey.id),'TOWING_RESERVATION');}
  return x;
 }
 export function registerTowingEncounter(tx,s,x,combatId,at){
