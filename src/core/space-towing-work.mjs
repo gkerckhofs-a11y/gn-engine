@@ -64,8 +64,8 @@ export function createTowingWorkService({store,signed,checkSession,now,uuid}){
    const stored=tech.c?await tx.get(actionPointPath(s.id,b.technicianId)):null,points=tech.c?actionPointState(s,tech.c,stored,at):null,confirmation=token(r,ship,wreck,points),view={id:r.id,status:r.status,...publicBinding(b),approvals:r.approvals,remainingSeconds:r.status==='TOWING_ACTIVE'?Math.max(0,Math.ceil((r.readyAtGameMs-time)/1000)):null,confirmation,canFinish:hasTowingAttachment(s)&&r.status==='TOWING_ACTIVE'&&c?.id===b.technicianId&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&time>=r.readyAtGameMs};
    if(['towingWork','towingWorkAdmin'].includes(action))return view;
    if(releasing){
-    requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');if(prior)return replay();requireThat(r.status==='TOWING_ATTACHED'&&r.towingAttachmentVersion===1,'TOWING_WORK_CLOSED');
-    requireThat([ship,wreck].every(sh=>sh?.maintenanceId===r.id&&sh.docked&&sh.portId===b.portId&&!sh.journey&&!sh.operation&&!sh.combatId&&!sh.rescueId&&!sh.ambushId&&!sh.convoy&&!sh.convoyOffer),'TOWING_RESERVATION');
+    requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');if(prior)return replay();requireThat(['TOWING_ATTACHED','TOWING_ARRIVED'].includes(r.status)&&r.towingAttachmentVersion===1,'TOWING_WORK_CLOSED');
+    requireThat([ship,wreck].every(sh=>sh?.maintenanceId===r.id&&sh.docked&&sh.portId===(r.currentPortId??b.portId)&&!sh.journey&&!sh.operation&&!sh.combatId&&!sh.rescueId&&!sh.ambushId&&!sh.convoy&&!sh.convoyOffer),'TOWING_RESERVATION');
     requireThat(isDeepStrictEqual(ship.towingAttachment,{version:1,workId:r.id,role:'TUG',otherShipId:wreck.id,lotId:b.lotId})&&isDeepStrictEqual(wreck.towingAttachment,{version:1,workId:r.id,role:'WRECK',otherShipId:ship.id,lotId:b.lotId}),'TOWING_RESERVATION');
     requireThat(input.confirmation===confirmation,'STALE_REVISION');requireThat(input.performed===true,'FIELD_PRESENCE_REQUIRED');const reason=admissionText(input.reason,500,true);
     for(const sh of [ship,wreck]){const {towingAttachment,...rest}=sh;tx.set(`${base}/ships/${sh.id}`,{...rest,maintenanceId:null,revision:sh.revision+1});}

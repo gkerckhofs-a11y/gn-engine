@@ -31,7 +31,7 @@ export function playableShipModuleQuote(calibration,{hiddenCargo=false}={}){
 // Recalculate from the canonical base; never compound an already upgraded profile.
 export function installedShipProfile(profile,modules,options={}){
  const base=spaceShipProfiles.find(p=>p.id===profile?.id);
- if(!base||!Array.isArray(modules)||modules.length>base.moduleSlots||modules.some(m=>!playableShipModuleQuote(m,options)||m.size!==base.size||m.status!=='OPERATIONAL')||new Set(modules.map(m=>m.code)).size!==modules.length)return null;
+ if(!base||!Array.isArray(modules)||modules.length>base.moduleSlots||modules.some(m=>!(playableShipModuleQuote(m,options)||options.towingProfile===true&&m.code==='MOD-05'&&standardShipModuleQuote(m))||m.size!==base.size||m.status!=='OPERATIONAL')||new Set(modules.map(m=>m.code)).size!==modules.length)return null;
  const has=code=>modules.some(m=>m.code===code);
  return {...base,hullMax:base.hullMax+Number(has('MOD-02')),shieldMax:base.shieldMax+Number(has('MOD-01')),maneuverability:Math.min(3,base.maneuverability+Number(has('MOD-03'))),...(has('MOD-06')?{weapon:'HEAVY'}:{})};
 }
