@@ -49,7 +49,7 @@ targetedProfiles['module-combat']={
  tests:[...targetedProfiles['module-removal'].tests,...moduleCombatTests],
  suites:[...targetedProfiles['module-removal'].suites,...moduleCombatSuites],
  httpPattern:targetedProfiles['module-removal'].httpPattern.replace('retrait de module,|','duel privé,|convoi consenti,|alliance contre convoi à quatre,|retrait de module,|'),
- files:[...targetedProfiles['module-removal'].files,'src/core/space-combat.mjs','test/support/space-encounters-suite.mjs',...moduleCombatTests],
+ files:[...targetedProfiles['module-removal'].files,'src/core/space-combat.mjs','test/support/space-encounters-suite.mjs','test/support/space-convoy-suite.mjs',...moduleCombatTests],
 };
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
