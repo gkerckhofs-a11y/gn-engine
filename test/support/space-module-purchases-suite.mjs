@@ -73,7 +73,7 @@ export function modulePurchasesSuite(makeStore,prefix='Achats modules SO'){
  });
  test(`${prefix} : ancien marqueur absent bloque les effets et les anciens reçus sans enrichissement`,async()=>{
   const f=await modulePurchaseFixture(makeStore),p=await f.quote(),input={...f.purchaseInput(),quoteAt:p.quoteAt,confirmation:p.confirmation,requestId:randomUUID()},sale=await f.cmd('buyShopOffer',input);
-  await f.edit('',s=>{const {moduleFlightVersion,modulePurchasesVersion,...old}=s.spaceOutlaws;return {...s,spaceOutlaws:old};});
+  await f.edit('',s=>{const {hiddenCargoVersion,moduleFlightVersion,modulePurchasesVersion,...old}=s.spaceOutlaws;return {...s,spaceOutlaws:old};});
   await assert.rejects(f.cmd('buyShopOffer',input),{code:'SO_GAMEPLAY_NOT_OPEN'});await assert.rejects(f.provision(),{code:'SO_GAMEPLAY_NOT_OPEN'});await assert.rejects(f.cmd('offerShopPickup',{saleId:sale.id,confirmation:'old'},f.owner),{code:'SO_GAMEPLAY_NOT_OPEN'});
   assert.ok((await f.read('shops')).shops[0].offers.every(o=>!o.item.shipModule));assert.equal((await f.store.get(`sessions/${f.sid}`)).spaceOutlaws.modulePurchasesVersion,undefined);
  });
@@ -100,7 +100,7 @@ export function modulePurchasesSuite(makeStore,prefix='Achats modules SO'){
  });
  test(`${prefix} : ancien manifeste sans extension conserve sa naissance et ses consommables`,async()=>{
   const f=await shopsFixture(makeStore,{release:false}),out=await f.release(await f.releasePreview()),path=`campaigns/${f.campaignId}/versions/${out.versionId}`,canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
-  await f.store.runTransaction(async tx=>{const {moduleFlightVersion,moduleRemovalVersion,moduleInstallationVersion,moduleWorkVersion,moduleMandatesVersion,modulePurchasesVersion,manifestDigest,...old}=await tx.get(path);tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});
+  await f.store.runTransaction(async tx=>{const {hiddenCargoVersion,moduleFlightVersion,moduleRemovalVersion,moduleInstallationVersion,moduleWorkVersion,moduleMandatesVersion,modulePurchasesVersion,manifestDigest,...old}=await tx.get(path);tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});
   await f.birth(await f.birthPreview());assert.equal((await f.store.get(`sessions/${f.sid}`)).spaceOutlaws.modulePurchasesVersion,undefined);assert.equal((await f.actionRead('shops')).shops.length,1);
  });
 }

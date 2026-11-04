@@ -1,3 +1,4 @@
+import {hasHiddenCargo} from './space-module-flight.mjs';
 import {mediaFields} from './media-state.mjs';
 import {shopCustody,receivedShopLot} from './shop-custody.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
@@ -18,7 +19,7 @@ const fields={shops:[],shop:['shopId'],shopAdmin:[],prepareShopProvision:['shopI
 const active=s=>{requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');};
 const stockValid=(l,s,o)=>l?.ownerType==='SHOP'&&l.ownerId===s.id&&l.holderId===s.id&&l.location.kind==='SHOP'&&l.location.id===s.id&&l.item.id===o.item.id&&l.item.revision===o.item.revision&&l.status==='AVAILABLE'&&(!o.item.shipModule||l.item.shipModule?.code===o.item.shipModule.code&&l.item.shipModule?.size===o.item.shipModule.size&&l.item.kind==='INDIVIDUAL'&&l.item.consumable===false&&l.quantity<=1);
 const movement=l=>({...lotState(l),ownerType:l.ownerType,ownerId:l.ownerId,holderId:l.holderId,location:l.location});
-const moduleAccess=(s,o)=>{if(o?.item?.shipModule){requireThat(hasSoModulePurchases(s),'SO_GAMEPLAY_NOT_OPEN');requireThat(moduleOfferValid(o),'INVALID_SHIP_MODULE_OFFER');}};
+const moduleAccess=(s,o)=>{if(o?.item?.shipModule){requireThat(hasSoModulePurchases(s),'SO_GAMEPLAY_NOT_OPEN');requireThat(moduleOfferValid(o,{hiddenCargo:hasHiddenCargo(s)}),'INVALID_SHIP_MODULE_OFFER');}};
 
 export function createShopService({store,signed,checkSession,now,uuid}){
  async function definition(tx,s,input){

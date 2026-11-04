@@ -3,12 +3,13 @@ import {installedShipProfile} from '../shared/space-ship-modules.mjs';
 
 // V0.7 chapters 17/19. Functional outage only; the installed lot stays intact.
 export const hasModuleFlights=s=>['moduleFlight','moduleRemoval','moduleInstallation','moduleWork','moduleMandates','modulePurchases','navigation','logistics','combat','convoy'].every(k=>s.spaceOutlaws?.[`${k}Version`]===1);
+export const hasHiddenCargo=s=>s.spaceOutlaws?.hiddenCargoVersion===1&&hasModuleFlights(s);
 export const activeModuleOutages=(ship,time)=>(ship.moduleNeutralizations??[]).filter(n=>n.untilGameMs>time&&ship.modules?.some(m=>m.lotId===n.lotId));
 export function flightShip(s,ship,time){
  if(ship?.moduleNeutralizations?.length)requireThat(hasModuleFlights(s),'MODULE_FLIGHT_NOT_OPEN');
  if(!ship?.modules?.length||!hasModuleFlights(s))return ship;
- requireThat(installedShipProfile(ship.soProfile,ship.modules),'INVALID_MODULE_CALIBRATION');
- const off=new Set(activeModuleOutages(ship,time).map(n=>n.lotId)),profile=installedShipProfile(ship.soProfile,ship.modules.filter(m=>!off.has(m.lotId)));
+ requireThat(installedShipProfile(ship.soProfile,ship.modules,{hiddenCargo:hasHiddenCargo(s)}),'INVALID_MODULE_CALIBRATION');
+ const off=new Set(activeModuleOutages(ship,time).map(n=>n.lotId)),profile=installedShipProfile(ship.soProfile,ship.modules.filter(m=>!off.has(m.lotId)),{hiddenCargo:hasHiddenCargo(s)});
  // Rebuild from the canonical base on every use, including after expiry. Never heal.
  return {...ship,soProfile:profile,hull:Math.min(ship.hull,profile.hullMax),shield:Math.min(ship.shield,profile.shieldMax)};
 }
@@ -16,7 +17,7 @@ export const eligibleFlightModules=(s,ship,time)=>hasModuleFlights(s)?(ship.modu
 export async function validateModuleFlight(tx,s,ship){
  if(!ship.modules?.length)return;
  requireThat(hasModuleFlights(s),'MODULE_FLIGHT_NOT_OPEN');
- requireThat(ship.moduleInstallationVersion===1&&installedShipProfile(ship.soProfile,ship.modules),'INVALID_MODULE_CALIBRATION');
+ requireThat(ship.moduleInstallationVersion===1&&installedShipProfile(ship.soProfile,ship.modules,{hiddenCargo:hasHiddenCargo(s)}),'INVALID_MODULE_CALIBRATION');
  requireThat(new Set(ship.modules.map(m=>m.lotId)).size===ship.modules.length,'INVALID_MODULE_CALIBRATION');
  for(const m of ship.modules){
   const lot=await tx.get(`sessions/${s.id}/inventory/${m.lotId}`);

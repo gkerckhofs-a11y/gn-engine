@@ -1,5 +1,15 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## MOD-04 — décision B, équipement et vols versionnés — 4 novembre 2026
+
+Base 6ebf2f2, [CI 41831727543](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41831727543) réussie : build, 829 applicatifs, 660 Firestore, treize HTTP. Décision explicite utilisateur B du 4 novembre, intégrée au chapitre 24 des règles : protection du fret déjà rangé conservée pendant la panne ; nouveaux rangements bloqués, inspections habituelles maintenues.
+
+Nouveau hiddenCargoVersion=1 dans confirmation/manifeste/digest et naissance, dépendances complètes vérifiées. Aucun enrichissement des anciens manifestes/sessions. MOD-04 publié avec offre canonique, provisionné/acheté/reçu puis monté à quai par mandat personnel ; devis/profil/commerce/vol restent fermés sans capacité courante. Cargo/transport seulement, 1 000/2 000 Cr, 5/20 ou 10/50 unités. Même exemplaire et propriété. Retrait après vidage explicite, mêmes verrous, PA et délais natifs.
+
+Profil/vol raccordés, panne native de quinze minutes sans soin ni avarie. Convoi : un événement commun et un seul appareil. Aucune découverte ou suppression automatique ; l’approfondie pendant panne peut découvrir normalement. Découverte durable après sortie/rangement/reprise, expiration ne rend que la capacité de nouveau rangement. Affichage volume installé distinct de disponibilité actuelle.
+
+Local : build et 840/840 ciblés dans 66 fichiers. Neuf cas métier partagés (45 fret/MOD-04), un UI, un sélecteur ; un HTTP/Auth réel ajouté, quatorze au total. Achat/montage/vols réels distincts des anciennes fixtures synthétiques. Vieux manifestes simulés sans nouveau marqueur, manifeste incohérent refusé avant naissance, reprise vérifiée dans l’épisode restauré. hidden-flight : 37 suites Firestore, quatorze HTTP bornés, aucun navigateur/suite complète. Verdict CI exact dans PR #2. Pas de recette visuelle/mobile, déploiement ou fusion main revendiqués.
+
 ## Interface fret/douane préparatoire — 4 novembre 2026
 
 Base 678dffc, [CI 41827691829](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41827691829) completed/success : build, 813 applicatifs, 657 Firestore, treize HTTP. Règles V0.7 chapitres 17/24 et services existants réutilisés.

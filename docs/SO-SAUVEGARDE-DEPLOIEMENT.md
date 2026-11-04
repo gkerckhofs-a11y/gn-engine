@@ -1,5 +1,13 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## MOD-04 versionné, décision B — 4 novembre 2026
+
+Base 6ebf2f2, [CI 41831727543](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41831727543) réussie. Nouveau hiddenCargoVersion=1 émis dans les prochains manifestes compatibles, confirmé dans digest/naissance. Anciens manifestes/sessions sans ce marqueur non enrichis. Aucune migration ou activation manuelle. Décision B : contenus déjà rangés protégés pendant panne, nouveaux rangements bloqués, inspections normales.
+
+Conserver ensemble code client/serveur compatible, manifeste/pages/digests/version/marqueurs, comptes/stock/achats/reçus, accords et dossiers avec leurs versions, mêmes lots/historiques/découvertes/calibrations/propriétaires, modules/profils/points/dommages, échéances de neutralisation/horloges, PA/verrous, habilitations/identités/droits et escales/tentatives/voyages/convois. Lecture/expiration ne redistribuent ni module ni fret. Reprise vérifiée sur les documents de l’épisode restauré.
+
+Ancien binaire refuse ou ignore MOD-04 : aucun retour seul ou effacement partiel de marqueur, échéance, réserve ou verrou. Code compatible pour annuler avant retour approuvé, ou restauration cohérente de l’ensemble. Aucun déploiement, retour arrière, sauvegarde/restauration externe, migration ou fusion main exécuté ici. Local : build et 840 ciblés ; CI exacte dans PR #2, recette visuelle/humaine mobile encore distincte.
+
 ## Interface fret/douane compatible avec le composant fermé — 4 novembre 2026
 
 Base 678dffc, [CI 41827691829](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41827691829) réussie. Aucun nouveau marqueur émis, activation manuelle, migration ou publication MOD-04. Les liens et formulaires dépendent des projections serveur, les droits restent revalidés lors de chaque commande.

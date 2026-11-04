@@ -45,3 +45,7 @@ test('Douanes UI : parcours Terminal, routage existant et protection des répons
  for(const page of ['hidden-cargo','customs','customs-inspection'])assert.equal(playerRoute(page,'s').space,'terminal');for(const page of ['customs-admin','customs-inspection-admin'])assert.equal(playerRoute(page,'s'),null);
  const app=readFileSync(new URL('../web/app.mjs',import.meta.url),'utf8');assert.match(app,/async function hiddenCargoPage/);assert.match(app,/hiddenCargoRequest\(action,JSON.parse\(form.dataset.payload\),v\)/);assert.match(app,/modal\(hiddenCargoConfirmHtml/);const handler=app.slice(app.indexOf("if(kind==='hiddenCargoCommand')"),app.indexOf("if(kind==='moduleMandateCommand')"));assert.match(handler,/submitVersion!==routeVersion/);assert.match(handler,/await mutate\(action,p\)/);
 });
+
+test('Décision B UI : volume déjà caché conservé pendant panne, nouveau rangement fermé sans affichage 5/0',()=>{
+ const h=hiddenCargoHtml({...owner,hiddenUsed:5,hiddenCapacity:0,hiddenInstalledCapacity:5,stock:[{...lot,concealed:true}]});assert.match(h,/5 \/ 5 unités dissimulées/);assert.match(h,/biens déjà rangés restent cachés/);assert.match(h,/inspections habituelles restent possibles/);assert.match(h,/Sortir du compartiment/);assert.doesNotMatch(h,/Ranger dans le compartiment|5 \/ 0 unités/);
+});

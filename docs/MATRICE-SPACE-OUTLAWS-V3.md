@@ -1,5 +1,22 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## MOD-04 — ouverture versionnée et décision B — 4 novembre 2026
+
+Base 6ebf2f2, [CI 41831727543](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41831727543) réussie : 829 applicatifs, 660 Firestore, treize HTTP et build. Décision utilisateur B du 4 novembre consignée dans les règles V0.7 chapitre 24.
+
+| Exigence | État du code proposé | Preuve |
+| --- | --- | --- |
+| Nouveaux manifestes uniquement | hiddenCargoVersion=1, dépendances/digests/naissance contrôlés | Ancien non enrichi, MOD-04 sans marqueur/inconnu/dépendance refusé |
+| Achat/montage MOD-04 | Offre canonique, provision réelle, paiement/réception puis mandat/atelier | Cargo/transport achetés, reçus et montés réellement |
+| Vol équipé et panne 15 min | Profil et lot natifs, aucune capacité totale ajoutée | Solo/convoi, un événement commun et appareil choisi |
+| B : protection conservée | Ancien contenu caché, nouveau rangement bloqué | Contrôle ordinaire sans révélation pendant panne |
+| Approfondie pendant panne | Règles usuelles, découverte durable | D6+N, PA/délai, sortie/rangement puis retrait réel vidé |
+| Expiration/PAUSE/STOP | Nouveau rangement à échéance, pas de déplacement automatique | Échéance exacte, pause/STOP, stock/module inchangés |
+| Persistance | Même module, fret caché, échéance et marqueur | Documents de l’épisode restauré contrôlés |
+| Production et recette humaine | Non effectuées | Aucune fusion/déploiement, rendu mobile à vérifier |
+
+Local : 840/840 ciblés dans 66 fichiers et build. hidden-flight : 37 suites Firestore, quatorze HTTP bornés, aucun navigateur ou suite complète. CI exacte dans PR #2. Les mentions historiques « MOD-04 préparatoire/fermé » ne s’appliquent plus aux nouveaux manifestes compatibles.
+
 ## Interface fret/douane sous garde — 4 novembre 2026
 
 Base 678dffc, [CI 41827691829](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41827691829) réussie : build, 813 applicatifs, 657 Firestore, treize HTTP.

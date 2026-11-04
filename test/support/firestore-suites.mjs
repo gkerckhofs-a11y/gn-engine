@@ -1,7 +1,7 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
-  {"id":"space-hidden-cargo","module":"../support/space-hidden-cargo-suite.mjs","exportName":"hiddenCargoSuite","label":"Fret caché préparatoire SO sur Firestore","seconds":300},
+  {"id":"space-hidden-cargo","module":"../support/space-hidden-cargo-suite.mjs","exportName":"hiddenCargoSuite","label":"Fret caché et MOD-04 SO sur Firestore","seconds":420},
   {"id":"space-module-flight","module":"../support/space-module-flight-suite.mjs","exportName":"moduleFlightSuite","label":"Vols équipés SO sur Firestore","seconds":200},
   {"id":"space-module-removal","module":"../support/space-module-removal-suite.mjs","exportName":"moduleRemovalSuite","label":"Retrait modules SO sur Firestore","seconds":160},
   {"id":"space-module-installation","module":"../support/space-module-installation-suite.mjs","exportName":"moduleInstallationSuite","label":"Montage à quai SO sur Firestore","seconds":150},

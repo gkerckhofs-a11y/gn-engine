@@ -1,8 +1,10 @@
 # Fret caché et inspections — composant préparatoire
 
-État du 4 novembre 2026. Source métier : règles SPACE OUTLAWS V0.7, chapitre 24, [texte du projet](source/SO_Regles_V07.txt). Base vérifiée b4b21f54c9bc21f8696e90be0c6081d352d0f675, [CI 41818695160](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41818695160) réussie.
+État du 4 novembre 2026. Sources : règles V0.7 chapitres 17/24 et décision explicite utilisateur **B** du 4 novembre 2026, consignée dans [les règles du projet](source/SO_Regles_V07.txt).
 
-Ce lot prépare le serveur. hiddenCargoVersion=1 n’est ajouté à aucun manifeste ni à aucune naissance. MOD-04 reste preparationOnly ; publication, commerce, mandat de montage et profil/vol le refusent. Interface préparatoire sous garde décrite ci-dessous ; aucun parcours activé dans les sessions actuelles. Les tests utilisent une session et du fret chargés par les commandes natives, puis un module/lot monté et un marqueur synthétiques. Ils ne démontrent pas un équipement MOD-04 jouable.
+MOD-04 est raccordé dans le code proposé pour les nouveaux manifestes hiddenCargoVersion=1 seulement : définition/offre canonique, provision MJ, achat/réception, mandat personnel, montage, fret caché/inspections, vol équipé/panne et retrait vidé. Ce marqueur et ses dépendances sont inclus dans confirmation/digests et transmis à la naissance. Anciens manifestes/sessions sans marqueur non enrichis ; valeur inconnue, dépendance manquante ou définition MOD-04 sans marqueur refusées. Aucun déploiement ou fusion main.
+
+Des tests de composants utilisent encore des modules synthétiques isolés. Neuf nouveaux cas et un HTTP/Auth couvrent les parcours natifs réellement publiés, achetés, reçus, montés et lancés : ils constituent la preuve du raccordement de l’équipement.
 
 ## Stock et droits
 
@@ -26,11 +28,17 @@ Une tentative approfondie par vaisseau et escale, agents confondus. Changer d’
 
 Présence et réalisation explicites, délai non automatique, réserve PA et verrous libérés atomiquement. Annulation rend le PA dans le plafond, même après renouvellement ; le MJ peut restituer après révocation, sans finaliser pour un joueur. PAUSE/STOP figent les délais. Droits/habilitation/marqueur sont vérifiés avant les anciens reçus. D6 calculé une fois pour la résolution, stable pendant les reprises transactionnelles ; réessai n’en produit pas un nouveau résultat.
 
-## Limites avant ouverture
+## Neutralisation — décision B
 
-Le retrait après vidage explicite est maintenant raccordé au composant décrit ci-dessous. Il reste à raccorder le profil et le vol équipés MOD-04, la visibilité pendant une neutralisation, puis une ouverture versionnée cohérente sur nouveaux manifestes seulement. En panne MOD-04 : nouveau rangement sans capacité ; contrôles refusés par HIDDEN_CARGO_OUTAGE_NOT_OPEN, données conservées. Aucun comportement de découverte en panne n’est supposé.
+Les biens déjà rangés restent cachés pendant les quinze minutes de panne ; seul le rangement de nouveaux lots est bloqué. Aucun transfert, découverte ou dommage automatique. Contrôle documentaire sans nouvelle révélation ; inspection approfondie habituelle maintenue avec son habilitation, D6, délai, PA et tentative par escale. Une découverte reste durable après expiration ou rangement ultérieur.
 
-Les tests ne constituent ni une recette humaine Android/iOS ni une régression globale. Profil ciblé hidden-ui : 66 fichiers applicatifs, 37 suites Firestore, treize HTTP, aucun Chromium. CI du commit exact consignée dans la PR #2 avant tout prochain lot. Aucun déploiement ou fusion main.
+Le profil de vol reste canonique, sans capacité totale ajoutée ni soin. Convoi : un événement commun, un seul appareil choisi. PAUSE/STOP figent le délai. Expiration rétablit uniquement le nouveau rangement. L’interface distingue capacité installée, volume déjà caché et disponibilité courante, avec une explication de la panne B.
+
+## Validation et limites
+
+Local : build et 840/840 ciblés dans 66 fichiers ; hidden-flight : 37 suites Firestore et quatorze HTTP, aucun navigateur ou suite complète. CI exacte dans PR #2. Les nouveaux cas natifs couvrent cargo/transport, panne/inspections/échéance/convoi, ancien manifeste et reprise dans le nouvel épisode. La recette visuelle/humaine Android/iOS reste à faire. Aucune publication en production ni migration implicite.
+
+Les sections suivantes décrivent l’historique du composant avant son ouverture versionnée ; les restrictions préparatoires y mentionnées sont remplacées pour les nouveaux manifestes compatibles.
 
 ## Retrait après vidage — 4 novembre 2026
 
