@@ -84,6 +84,8 @@ targetedProfiles['hidden-flight']={...targetedProfiles['hidden-ui'],httpPattern:
 targetedProfiles['hidden-visual']={...targetedProfiles['hidden-flight'],files:[...targetedProfiles['hidden-flight'].files,'web/galactic.css','test/browser/hidden-cargo.spec.mjs','test/browser/hidden-cargo.config.mjs']};
 // Preparation-only MOD-05; include all consumers of the shared catalogue.
 targetedProfiles['towing-catalog']={...targetedProfiles['hidden-visual']};
+// Closed towing consent/start/cancel; no attached departure or publication.
+targetedProfiles['towing-work']={tests:[...targetedProfiles['towing-catalog'].tests,'test/space-towing-work.test.mjs'],suites:[...targetedProfiles['towing-catalog'].suites,'space-towing-work'],httpPattern:targetedProfiles['towing-catalog'].httpPattern.replace('MOD-04 équipé,|','attelage préparatoire,|MOD-04 équipé,|'),files:[...targetedProfiles['towing-catalog'].files,'src/core/space-towing-work.mjs','test/space-towing-work.test.mjs','test/support/space-towing-work-suite.mjs']};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

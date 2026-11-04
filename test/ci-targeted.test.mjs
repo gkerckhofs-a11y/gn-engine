@@ -158,3 +158,7 @@ test('CI ciblée : ergonomie fret/douane et recette DOM bornée sans navigateur 
 test('Ciblage MOD-05 préparatoire : catalogue, publication, commerce et profils conservés',()=>{
  const p=targetedScope('towing-catalog',['src/shared/space-ship-modules.mjs','src/core/space-outlaws-entry.mjs','web/central-master.mjs'],{reliableBase:true});assert.equal(requestedTarget('[ci targeted:towing-catalog]'),'towing-catalog');assert.equal(p.applicationTests.length,66);assert.equal(p.suites.length,37);assert.equal(p.browser,false);for(const id of ['space-ship-module-catalog','space-outlaws-entry','space-module-purchases','space-module-mandates','space-module-flight'])assert.ok(p.suites.includes(id));assert.throws(()=>targetedScope('towing-catalog',['src/core/unknown-towing.mjs'],{reliableBase:true}));
 });
+
+test('Ciblage attelage préparatoire : dossiers, PA, entretien et épisodes avec HTTP borné',()=>{
+ const p=targetedScope('towing-work',['src/core/space-towing-work.mjs','src/core/space-maintenance.mjs','src/core/workflow.mjs','src/core/space-outlaws-entry-guard.mjs','test/support/space-towing-work-suite.mjs'],{reliableBase:true});assert.equal(requestedTarget('[ci targeted:towing-work]'),'towing-work');assert.equal(p.applicationTests.length,67);assert.equal(p.suites.length,38);assert.ok(new RegExp(p.httpPattern).test('HTTP + Auth : attelage préparatoire, droits courants'));assert.equal(p.browser,false);assert.throws(()=>targetedScope('towing-work',['src/core/unknown-towing.mjs'],{reliableBase:true}));
+});

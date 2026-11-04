@@ -1,3 +1,4 @@
+import {createTowingWorkService,towingWorkActions} from './space-towing-work.mjs';
 import {createHiddenCargoService,hiddenCargoActions} from './space-hidden-cargo.mjs';
 import {createModuleWorkService,moduleWorkActions} from './space-module-work.mjs';
 import {createModuleMandateService,moduleMandateActions} from './space-module-mandates.mjs';
@@ -159,6 +160,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     return record.mediaImages?.[slot]??null;
   }});
   const priceService=createPriceService({store,signed,checkSession,now,uuid});
+  const towingWorkService=createTowingWorkService({store,signed,checkSession,now,uuid});
   const moduleWorkService=createModuleWorkService({store,signed,checkSession,now,uuid});
   const moduleMandateService=createModuleMandateService({store,signed,checkSession,now,uuid});
   const spaceMaintenanceService=createSpaceMaintenanceService({store,signed,checkSession,now,uuid});
@@ -208,6 +210,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(centralMasterAction(action))return centralMasterService(action,actor,input);
     if(groupManagementAction(action))return groupManagementService(action,actor,input);
     if(priceAction(action))return priceService(action,actor,input);
+    if(towingWorkActions.includes(action))return towingWorkService(action,actor,input);
     if(moduleWorkActions.includes(action))return moduleWorkService(action,actor,input);
     if(moduleMandateActions.includes(action))return moduleMandateService(action,actor,input);
     if(spaceMaintenanceActions.includes(action))return spaceMaintenanceService(action,actor,input);

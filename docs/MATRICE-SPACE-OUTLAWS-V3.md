@@ -1,5 +1,24 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## MOD-05 — mandats et démarrage du travail d’attelage — 4 novembre 2026
+
+Base vérifiée : `ce3cc6f47b6e4b34c75bbf4d37845d4a6474b82f`, [CI 41848791517](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41848791517) completed/success : build, 850 applicatifs, 673 Firestore, quatorze HTTP, huit jobs requis. Aucun audit historique repris. Sources : règles V0.7 chapitres 17/22 et parcours natifs de mandats, PA, entretien et épisodes.
+
+Composant serveur fermé `towingWorkVersion=1`, dépendant de moduleFlight/removal/installation/work/mandates/purchases/navigation/logistics/combat/convoy. Ce marqueur n’est émis ni à la publication ni à la naissance ; ne pas l’activer manuellement en partie. MOD-05 reste preparationOnly : publication, commerce, montage et vol toujours fermés. Aucun écran ni lien public ajouté. Les fixtures publient/provisionnent les personnages et vaisseaux par les parcours natifs, mais injectent le marqueur, le MOD-05 monté et les dégâts : elles ne prouvent pas un achat/montage MOD-05 jouable.
+
+Périmètre initial : remorqueur cargo/transport opérationnel à quai et épave à 0 Coque, au même port, gabarit du remorqueur au moins égal. Propriétaires personnels connus et actifs seulement, pas de groupe, propriétaire inconnu, capture ni prestataire PNJ. Une épave par dossier ; une demande ouverte par vaisseau. Même lot MOD-05 ordinaire monté, identité/propriété/emplacement/calibration/état et neutralisation contrôlés ; cargaison ouverte et autres occupations refusées.
+
+MJ propose un mandat attesté, sans ressource. Chaque propriétaire donne personnellement son accord (un seul accord s’il possède les deux bâtiments) ; MJ ou technicien ne le remplace pas. Mécano personnel actif, local et MEC-02 N2. Le démarrage revalide accord, versions/droits courants, deux vaisseaux et lot, réserve 1 PA, pose maintenanceId sur les deux vaisseaux et activeMaintenanceId sur le Mécano, puis fixe cinq minutes de temps de jeu. Réponses périmées, double clic et courses ne doublent pas les réserves. Aucun changement de propriété, Coque, Bouclier, module, fret, carburant ou crédit.
+
+Fin de délai : aucune résolution automatique, aucun attelage final, aucun PA consommé. `canFinish=false` ; aucune commande de finalisation ajoutée. Pause/STOP figent le délai ; nouvelle action en pause et interruption sous STOP refusées. Annulation motivée par un participant autorisé ou MJ, y compris après révocation du Mécano, libère les deux verrous et le PA dans le plafond sans écraser un verrou étranger. Droits et marqueur vérifiés avant reçu ; propriété courante et niveau du Mécano avant ancien reçu de démarrage. Les dossiers sont exclus de l’entretien générique. Clôture bloquée par les verrous vaisseaux/personnage ; aucune nouvelle collection.
+
+Capacité TOWING_WORK limitée à shipMaintenance, ships, characters/PA, logisticsHistory et audit/reçus natifs ; aucun accès inventory, comptes, ledger, contrats ou voyages. Validation locale : build et **866/866 applicatifs ciblés** dans 67 fichiers. Quatorze nouveaux cas partagés mémoire/Firestore, un cas de capacité, un sélecteur et un HTTP/Auth borné. Profil targeted-towing-work : 38 suites Firestore, quinze HTTP, navigateur global et régression intégrale désactivés ; 87 chemins depuis l’ancêtre global 70afa57. Émulateurs uniquement en CI Java 21. Consigner le résultat du commit exact dans PR #2 avant la suite ; aucune recette humaine/navigateur revendiquée.
+
+Suite : finalisation personnelle attestée de l’attelage, réserves/détachement et intégration cohérente trajet/carburant ×2/Manœuvrabilité –1, largage/interception et neutralisation, puis ouverture versionnée MOD-05. Pas de propriété, prime, paiement PNJ, revendication ou casse implicite.
+
+Compatibilité : conserver ensemble manifeste/marqueurs, dossiers/bindings/accords/révisions, identités/droits, deux mêmes vaisseaux, même lot monté, horloge/échéance, PA/verrous et reçus/historiques. Ancien binaire ne gère pas ces dossiers : annulation compatible ou restauration cohérente approuvée, aucun retour logiciel seul ni effacement de verrou/réserve. Aucune sauvegarde/restauration externe exécutée. Même branche work/space-pilot-handover et PR #2 brouillon, aucune fusion main ni publication/déploiement Firebase.
+
+
 ## MOD-05 — catalogue préparatoire — 4 novembre 2026
 
 Base vérifiée : `e6b67d1e072668892f2167c9c56a71457871b883`, [CI 41842333259](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41842333259) completed/success : build, 843 applicatifs, 669 Firestore, quatorze HTTP et huit jobs requis. Aucun audit historique repris. Sources métier : règles V0.7 chapitres 17 et 22, `docs/source/SO_Regles_V07.txt`.
