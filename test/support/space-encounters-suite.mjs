@@ -112,4 +112,30 @@ export function spaceEncountersSuite(makeStore,prefix='Rencontres spatiales SO')
   const f=await encountersFixture(makeStore,{encounter:false});await assert.rejects(f.arm(),{code:'SPACE_SHIP_BUSY'});await assert.rejects(f.read('prepareSpaceAmbush',{shipId:'ship',navigationCode:'FAUX'}),{code:'ROUTE_UNAVAILABLE'});const a=(await f.read('spaceCombats',{},f.other)).ambushes[0];f.advance(300000);const d=await f.navigation('second',f.other);await f.cmd('arriveShip',{shipId:'second',confirmation:d.confirmation},f.other);assert.equal((await f.get(`spaceAmbushes/${a.id}`)).status,'EXPIRED');assert.equal((await f.get('ships/second')).ambushId,null);assert.deepEqual((await f.read('spaceCombats',{},f.other)).ambushes,[]);assert.equal((await f.get('ships/second')).revisionRequired,false);
  });
 
+ // Synthetic in-flight equipment isolates the combat adapter. Gameplay equipped
+ // departures stay closed until voyage neutralisation is implemented.
+ test(`${prefix} : canon du profil monté, 4 rate et 5 inflige deux dégâts sans seconde attaque`,async()=>{
+  for(const roll of [4,5]){
+   const f=await encountersFixture(makeStore),module={lotId:'synthetic-heavy',code:'MOD-06',size:2,status:'OPERATIONAL'};
+   await f.edit('ships/ship',s=>({...s,modules:[module],soProfile:{...s.soProfile,weapon:'HEAVY'}}));
+   await f.edit('ships/second',s=>({...s,hull:3,shield:1}));await f.begin();await f.submit('ATTACK');f.setDie(roll);const r=await f.resolve();
+   assert.equal(r.result.shots.length,1);assert.equal(r.result.shots[0].threshold,5);assert.equal(r.result.shots[0].damage,roll===5?2:0);
+   const target=await f.get('ships/second');assert.equal(target.shield,roll===5?0:1);assert.equal(target.hull,roll===5?2:3);
+   assert.deepEqual((await f.ship()).modules,[module]);assert.equal((await f.ship()).revisionRequired,true);assert.equal(target.revisionRequired,true);
+  }
+ });
+ test(`${prefix} : défense annule tout le canon lourd et conserve modules et maximums sans réparation`,async()=>{
+  const f=await encountersFixture(makeStore);
+  await f.edit('ships/ship',s=>({...s,soProfile:{...s.soProfile,weapon:'HEAVY'}}));
+  await f.edit('ships/second',s=>({...s,hull:2,shield:1,soProfile:{...s.soProfile,hullMax:5,shieldMax:3,maneuverability:2}}));
+  await f.begin();await f.submit('ATTACK');await f.submit('DEFEND',f.other);f.setDice([5,1,1,3,1,1,1,1]);const r=await f.resolve();
+  assert.equal(r.result.shots[0].damage,0);assert.equal(r.result.shots[0].defended,true);const ship=await f.get('ships/second');assert.equal(ship.hull,2);assert.equal(ship.shield,1);assert.equal(ship.soProfile.hullMax,5);assert.equal(ship.soProfile.shieldMax,3);
+ });
+ test(`${prefix} : résolution lourde concurrente et réessai appliquent les dégâts une fois`,async()=>{
+  const f=await encountersFixture(makeStore);await f.edit('ships/ship',s=>({...s,soProfile:{...s.soProfile,weapon:'HEAVY'}}));await f.begin();await f.submit('ATTACK');f.advance(90000);f.setDie(5);
+  const d=await f.detail(),input={combatId:f.combatId(),shipId:'ship',confirmation:d.confirmation,requestId:randomUUID()},inputs=[input,{...input,requestId:randomUUID()}],results=await Promise.allSettled(inputs.map(p=>f.cmd('resolveSpaceRound',p)));
+  assert.equal(results.filter(x=>x.status==='fulfilled').length,1);const winner=results.findIndex(x=>x.status==='fulfilled');assert.deepEqual(await f.cmd('resolveSpaceRound',inputs[winner]),results[winner].value);
+  const ship=await f.get('ships/second');assert.equal(ship.shield,0);assert.equal(ship.hull,4);
+ });
+
 }

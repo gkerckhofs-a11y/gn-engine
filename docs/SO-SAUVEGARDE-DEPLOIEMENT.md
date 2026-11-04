@@ -1,5 +1,12 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## Adaptateur canon lourd préparatoire — 4 novembre 2026
+
+Le serveur lit HEAVY dans le profil natif déjà produit par le montage et le transmet au résolveur duel/flotte ; les profils sans HEAVY conservent STANDARD. Aucun nouveau champ, marqueur de session, nouvelle collection ou migration. Conserver les profils, modules/lots, combats/rounds, droits et reçus ensemble selon la procédure existante. Un ancien binaire imposerait de nouveau STANDARD au combat : non équivalent pour un combat équipé synthétique ou futur ; aucun retour exécuté.
+
+Les départs équipés restent fermés. Tests de combat avec équipement synthétique après départ uniquement ; neutralisation temporaire et reprise du profil encore à raccorder avant ouverture. Local 675/675 ciblés et build ; résultat CI exact dans PR #2. Aucune publication ou restauration effectuée.
+
+
 ## Compatibilité du retrait des modules — 4 novembre 2026
 
 Nouveau marqueur moduleRemovalVersion=1, dépendant de moduleInstallationVersion=1 et de ses dépendances. Nouveaux manifestes seulement ; naissance et reprise natives le conservent. Aucun enrichissement d’une ancienne session, migration ou nouvelle collection.

@@ -1,5 +1,18 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Raccordement du canon lourd en combat — 4 novembre 2026
+
+Base vérifiée : `a80a80551c35446edb127375149757cbeb4bebaa`, [CI ciblée 41810124019](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41810124019) completed/success : build, 516 applicatifs, 417 Firestore (132 + 89 + 111 + 85), huit HTTP. Verdict exact consigné dans PR #2 avant cette tranche.
+
+Le serveur de résolution transmet désormais le type de canon du profil natif au résolveur commun, en duel comme en flotte, au lieu d’imposer STANDARD. HEAVY : un seul tir, touche à 5+, deux dégâts avant défense ; défaut STANDARD conservé. Les résolveurs existants appliquent défense désignée, tirs simultanés, cumul après défense et Bouclier avant Coque. Aucun calcul d’attaque parallèle, réparation implicite, changement de propriété ou dommage automatique aux modules.
+
+**Raccordement préparatoire uniquement : les départs équipés restent bloqués**, solo et convoi. Les tests de combat utilisent un équipement synthétique ajouté après le départ natif ; ils ne démontrent pas un vol équipé jouable ni un montage en vol. Aucun nouveau marqueur, migration ou parcours public n’est ouvert. La neutralisation temporaire de quinze minutes en temps de jeu, ses maximums sans restitution de points et son événement commun de convoi restent à développer avant de lever la garde.
+
+Validation locale : build et 675/675 tests ciblés dans 56 fichiers, Node 24.22.1/npm 11.9.0. Quatre nouveaux cas partagés mémoire/Firestore : seuils 4/5, dégâts/défense sans réparation, concurrence/réessai, flotte avec défense désignée et tirs additionnés ; un cas de sélection CI. Le HTTP duel existant est renforcé (canon lourd, révocation, réessai du résultat MJ). Profil module-combat : 31 suites Firestore, onze HTTP bornés, aucun Chromium. Émulateurs réservés à la CI Java 21 (local Java 17). CI du candidat à vérifier et consigner dans PR #2 ; tests ciblés distincts d’une régression complète et d’une recette humaine.
+
+Même branche work/space-pilot-handover et PR #2 brouillon, sans fusion main ni publication. Suite : neutralisation en voyage et maximums, événement commun en convoi, conservation/reprise et interface avant ouverture des vols équipés.
+
+
 ## Retrait standard en atelier — 4 novembre 2026
 
 Base : `e969f9a`, [CI 41521815633](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41521815633) réussie : 498 applicatifs, 402 Firestore, sept HTTP et build. Source : [V0.7 chapitre 17](source/SO_Regles_V07.txt).

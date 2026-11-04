@@ -1,5 +1,18 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## Raccordement préparatoire du canon lourd — 4 novembre 2026
+
+Base vérifiée : `a80a80551c35446edb127375149757cbeb4bebaa`, [CI ciblée 41810124019](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41810124019) completed/success : build, 516 applicatifs, 417 Firestore (132 + 89 + 111 + 85), huit HTTP. Verdict exact consigné dans PR #2 avant cette tranche.
+
+| Exigence V0.7 chapitre 17 / combat | État | Preuve |
+| --- | --- | --- |
+| MOD-06 : une attaque, 5+, deux dégâts | Profil natif transmis au résolveur duel et flotte | Cas partagés encounters/convoi ; HTTP duel renforcé |
+| Défense, cumul et dégâts persistants | Résolveurs natifs conservés ; aucune réparation ni casse de module ajoutée | Seuils, défense, dégâts, concurrence/réessai ; équipement synthétique après départ |
+| Vol équipé, neutralisation 15 min et événement commun de convoi | Toujours à développer ; départ équipé bloqué | Tests de garde précédents conservés |
+
+Local : 675/675 tests ciblés dans 56 fichiers et build. Profil module-combat : 31 suites Firestore, onze HTTP ; CI exacte dans PR #2. Aucun nouveau manifeste, migration, recette humaine ou déploiement.
+
+
 ## Complément atelier — 4 novembre 2026
 
 | Exigence V0.7 chapitre 17 | État courant | Preuve |

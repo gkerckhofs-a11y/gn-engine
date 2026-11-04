@@ -102,3 +102,13 @@ test('CI ciblée : montage à quai inclut inventaire, PA, entretiens, vols, conv
 test('CI ciblée : retrait modules inclut le parcours de montage et ses dépendances financières et spatiales',()=>{
  const p=targetedScope('module-removal',['src/core/space-module-mandates.mjs','src/core/space-module-work.mjs','test/support/space-module-removal-suite.mjs'],{reliableBase:true});assert.ok(p.applicationTests.length<=40);for(const id of ['space-module-removal','space-module-installation','space-module-work','space-module-mandates','space-episodes','inventory','space-logistics','space-outlaws-voyages','space-convoy'])assert.ok(p.suites.includes(id));assert.ok(new RegExp(p.httpPattern).test('HTTP + Auth : retrait de module, consentement'));assert.equal(p.browser,false);for(const file of p.applicationTests)assert.ok(existsSync(file));assert.throws(()=>targetedScope('module-removal',['src/core/space-combat.mjs'],{reliableBase:true}));
 });
+
+test('CI ciblée : canon lourd couvre adaptateur, duels, flottes et acquis modules sans ouvrir les vols',()=>{
+ const p=targetedScope('module-combat',['src/core/space-combat.mjs','test/support/space-encounters-suite.mjs'],{reliableBase:true});
+ assert.equal(requestedTarget('[ci targeted:module-combat]'),'module-combat');assert.equal(p.browser,false);
+ for(const id of ['space-module-removal','space-encounters','space-convoy','space-escort-maneuvers','space-alliance-convoy','space-alliance-duels','space-alliance-defense'])assert.ok(p.suites.includes(id));
+ for(const file of p.applicationTests)assert.ok(existsSync(file),file);assert.equal(new Set(p.applicationTests).size,p.applicationTests.length);
+ const selected=matrixFor(p.suites).flatMap(({shard})=>selectFirestoreSuites({GN_FIRESTORE_SUITES:JSON.stringify(p.suites),GN_FIRESTORE_SHARD:shard}));assert.deepEqual(selected.map(s=>s.id).sort(),[...p.suites].sort());
+ for(const title of ['duel privé,','convoi consenti,','alliance contre convoi à quatre,','retrait de module,'])assert.ok(new RegExp(p.httpPattern).test(`HTTP + Auth : ${title}`));
+ assert.throws(()=>targetedScope('module-removal',['src/core/space-combat.mjs'],{reliableBase:true}));assert.throws(()=>targetedScope('module-combat',['src/core/economy-state.mjs'],{reliableBase:true}));
+});

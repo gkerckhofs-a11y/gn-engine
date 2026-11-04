@@ -41,6 +41,16 @@ targetedProfiles['module-removal']={
  httpPattern:'^HTTP \\+ Auth : (retrait de module,|montage de module,|travail de module,|mandat de module,|achat de module calibré,|modules M1 calibrés,|Master central,|XLSX central,)',
  files:[...targetedProfiles['module-installation'].files,'test/space-module-removal.test.mjs','test/support/space-module-removal-suite.mjs'],
 };
+// Combat adapter only; equipped flight remains closed. Include native duel/fleet
+// consumers and all accumulated module changes since the global baseline.
+const moduleCombatSuites=['space-encounters','space-escort-maneuvers','space-alliance-convoy','space-alliance-duels','space-alliance-defense','space-pirate-alliances','space-targeted-ambushes'];
+const moduleCombatTests=[...moduleCombatSuites.flatMap(id=>[`test/${id}.test.mjs`,`test/${id}-ui.test.mjs`]),'test/space-combat-state.test.mjs','test/space-convoy-combat.test.mjs','test/space-escort-maneuvers-state.test.mjs'];
+targetedProfiles['module-combat']={
+ tests:[...targetedProfiles['module-removal'].tests,...moduleCombatTests],
+ suites:[...targetedProfiles['module-removal'].suites,...moduleCombatSuites],
+ httpPattern:targetedProfiles['module-removal'].httpPattern.replace('retrait de module,|','duel privé,|convoi consenti,|alliance contre convoi à quatre,|retrait de module,|'),
+ files:[...targetedProfiles['module-removal'].files,'src/core/space-combat.mjs','test/support/space-encounters-suite.mjs',...moduleCombatTests],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;
