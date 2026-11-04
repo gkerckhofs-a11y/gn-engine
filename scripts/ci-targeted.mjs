@@ -86,6 +86,7 @@ targetedProfiles['hidden-visual']={...targetedProfiles['hidden-flight'],files:[.
 targetedProfiles['towing-catalog']={...targetedProfiles['hidden-visual']};
 // Closed towing consent/start/cancel; no attached departure or publication.
 targetedProfiles['towing-work']={tests:[...targetedProfiles['towing-catalog'].tests,'test/space-towing-work.test.mjs'],suites:[...targetedProfiles['towing-catalog'].suites,'space-towing-work'],httpPattern:targetedProfiles['towing-catalog'].httpPattern.replace('MOD-04 équipé,|','attelage préparatoire,|MOD-04 équipé,|'),files:[...targetedProfiles['towing-catalog'].files,'src/core/space-towing-work.mjs','test/space-towing-work.test.mjs','test/support/space-towing-work-suite.mjs']};
+targetedProfiles['towing-attachment']={...targetedProfiles['towing-work'],httpPattern:targetedProfiles['towing-work'].httpPattern.replace('attelage préparatoire,|','attelage finalisé,|attelage préparatoire,|')};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

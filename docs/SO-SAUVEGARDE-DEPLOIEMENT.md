@@ -1,5 +1,24 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## MOD-05 — finalisation personnelle de l’attelage à quai — 4 novembre 2026
+
+Base vérifiée : `be9ce08ce262a1909980942d0d7f0f63b582ef0c`, [CI 41853950901](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41853950901) completed/success : build, 866 applicatifs, 687 Firestore, quinze HTTP et huit jobs requis. Aucun audit historique repris. Sources : règles V0.7 chapitre 22 et composant de mandats/travail existant.
+
+Finalisation sous `towingAttachmentVersion=1`, dépendant de towingWorkVersion et des capacités modules/vol/navigation déjà requises. Aucun de ces deux marqueurs n’est émis par publication ou naissance ; ne pas les activer manuellement en partie. MOD-05 reste preparationOnly : publication/achat/montage/vol toujours fermés. Aucun écran nouveau, aucun trajet ouvert. Personnages/vaisseaux natifs mais marqueurs, MOD-05 monté et dégâts synthétiques en tests ; pas de preuve d’achat/montage MOD-05 jouable.
+
+Après cinq minutes de jeu, seul le même Mécano actif/local MEC-02 N2 peut confirmer présence et travail réellement effectué. Revalidation des deux propriétaires et accords, versions/droits, verrous, révisions, état physique, gabarit, port et même lot MOD-05 installé non neutralisé. Le validateur initial est réutilisé en normalisant uniquement les réservations prouvées de ce travail. Aperçu sans écriture, confirmation liée à l’état courant ; concurrence et réessai ne consomment pas deux fois le PA.
+
+La confirmation consomme le PA réservé et libère l’activité du Mécano. Dossier TOWING_ATTACHED avec marqueur et date de jeu ; liens réciproques versionnés towingAttachment sur les deux vaisseaux (dossier, autre exemplaire, rôle, lot). Les deux maintenanceId sont conservés : aucun départ, modification concurrente ni clôture pendant cette préparation attachée. Propriété, Coque/Bouclier, module, fret, carburant, argent et position inchangés. Délai expiré ne finalise rien ; pause/STOP ferment la confirmation.
+
+Interruption administrative du composant uniquement à quai : MJ, motif et attestation performed requis, mêmes liens réciproques/verrous prouvés, même port, aucun trajet/combat/opération/convoi. Retire seulement les liens et verrous de ce dossier, sans rendre le PA déjà consommé ni modifier le personnage. Annulation de travail ordinaire ne peut pas rembourser un attelage confirmé. Possible après révocation du Mécano et en pause, jamais sous STOP. Cette opération technique de régie ne constitue pas le largage en combat ni une règle de détachement joueur ; ces parcours restent à raccorder avec le trajet.
+
+Capacité TOWING_ATTACHMENT distincte, bornée aux dossiers, vaisseaux, personnage/PA, historiques/audit/reçus ; pas de comptes/ledger, stock, contrats ou voyages. Lecture des dossiers attachés refusée sans marqueur compatible. Conserver les mêmes données, liens réciproques, identités/droits, horloges, réserves, consommations et reçus. Annulation compatible avant confirmation ou interruption administrative attestée après confirmation avant retour approuvé ; sinon restauration cohérente, aucun effacement de marqueur/lien/verrou/PA ni retour logiciel seul. Aucune sauvegarde/restauration externe exécutée.
+
+Validation locale : build et **876/876 applicatifs ciblés**, 67 fichiers. Neuf nouveaux cas partagés mémoire/Firestore, un sélecteur, capacité renforcée et un HTTP/Auth supplémentaire. Le test de rollback du démarrage a aussi été corrigé pour interrompre après les écritures plutôt que pendant l’aperçu. Sérialisation SDK Firestore validée sans commit : 213 documents après attelage, 216 après interruption administrative. Profil targeted-towing-attachment : 38 suites Firestore, seize HTTP, navigateur global/régression intégrale désactivés ; 87 chemins contrôlés depuis 70afa57. Émulateurs en CI Java 21 seulement. Consigner la CI du commit exact dans PR #2 avant la suite. Aucune recette humaine/navigateur revendiquée.
+
+Suite : trajet remorqué, carburant ×2, Manœuvrabilité –1 minimum 0, largage/interception, interruption à 0 Coque et neutralisation MOD-05, puis ouverture versionnée cohérente et interface. Aucune prime, propriété, prestation PNJ, revendication ou casse implicite. Même branche work/space-pilot-handover, PR #2 brouillon ; aucune fusion main ni publication/déploiement Firebase.
+
+
 ## MOD-05 — mandats et démarrage du travail d’attelage — 4 novembre 2026
 
 Base vérifiée : `ce3cc6f47b6e4b34c75bbf4d37845d4a6474b82f`, [CI 41848791517](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41848791517) completed/success : build, 850 applicatifs, 673 Firestore, quatorze HTTP, huit jobs requis. Aucun audit historique repris. Sources : règles V0.7 chapitres 17/22 et parcours natifs de mandats, PA, entretien et épisodes.
