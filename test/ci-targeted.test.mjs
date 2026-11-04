@@ -154,3 +154,7 @@ test('CI ciblée : ouverture MOD-04 versionnée, panne B et consommateurs des no
 test('CI ciblée : ergonomie fret/douane et recette DOM bornée sans navigateur global',()=>{
  const p=targetedScope('hidden-visual',['web/space-hidden-cargo.mjs','web/app.mjs','web/galactic.css','test/browser/hidden-cargo.spec.mjs','test/browser/hidden-cargo.config.mjs'],{reliableBase:true});assert.equal(requestedTarget('[ci targeted:hidden-visual]'),'hidden-visual');assert.equal(p.applicationTests.length,66);assert.equal(p.suites.length,37);assert.equal(p.browser,false);assert.deepEqual(testCommand('application',{GN_CI_PROFILE:p.profile,GN_APPLICATION_TESTS:JSON.stringify(p.applicationTests)}).args,['--test',...p.applicationTests]);assert.throws(()=>targetedScope('hidden-visual',['test/browser/recette.spec.mjs'],{reliableBase:true}));
 });
+
+test('Ciblage MOD-05 préparatoire : catalogue, publication, commerce et profils conservés',()=>{
+ const p=targetedScope('towing-catalog',['src/shared/space-ship-modules.mjs','src/core/space-outlaws-entry.mjs','web/central-master.mjs'],{reliableBase:true});assert.equal(requestedTarget('[ci targeted:towing-catalog]'),'towing-catalog');assert.equal(p.applicationTests.length,66);assert.equal(p.suites.length,37);assert.equal(p.browser,false);for(const id of ['space-ship-module-catalog','space-outlaws-entry','space-module-purchases','space-module-mandates','space-module-flight'])assert.ok(p.suites.includes(id));assert.throws(()=>targetedScope('towing-catalog',['src/core/unknown-towing.mjs'],{reliableBase:true}));
+});

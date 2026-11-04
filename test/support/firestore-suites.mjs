@@ -8,7 +8,7 @@ export const firestoreSuites = [
   {"id":"space-module-work","module":"../support/space-module-work-suite.mjs","exportName":"moduleWorkSuite","label":"Démarrage des travaux modules SO sur Firestore","seconds":150},
   {"id":"space-module-mandates","module":"../support/space-module-mandates-suite.mjs","exportName":"moduleMandatesSuite","label":"Mandats de modules SO sur Firestore","seconds":120},
   {"id":"space-module-purchases","module":"../support/space-module-purchases-suite.mjs","exportName":"modulePurchasesSuite","label":"Achats de modules SO sur Firestore","seconds":90},
-  {"id":"space-ship-module-catalog","module":"../support/space-ship-module-catalog-suite.mjs","exportName":"shipModuleCatalogSuite","label":"Catalogue modules M1 sur Firestore","seconds":45},
+  {"id":"space-ship-module-catalog","module":"../support/space-ship-module-catalog-suite.mjs","exportName":"shipModuleCatalogSuite","label":"Catalogue modules M1 sur Firestore","seconds":90},
   {"id":"space-technical-analysis","module":"../support/space-technical-analysis-suite.mjs","exportName":"technicalAnalysisSuite","label":"Diagnostic technique préparé SO sur Firestore","seconds":90},
   {"id":"space-ship-names","module":"../support/space-ship-names-suite.mjs","exportName":"shipNamesSuite","label":"Noms de vaisseaux SO sur Firestore","seconds":80},
   {"id":"space-boarding-ransom-sponsor","module":"../support/space-boarding-ransom-sponsor-suite.mjs","exportName":"ransomSponsorSuite","label":"Soutien volontaire à la rançon SO sur Firestore","seconds":210},

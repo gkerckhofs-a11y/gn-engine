@@ -6,6 +6,7 @@ export const standardShipModules=Object.freeze([
  Object.freeze({code:'MOD-02',label:'Blindage supplémentaire',pricePercent:15,installLevel:2,installSeconds:600}),
  Object.freeze({code:'MOD-03',label:'Propulseurs améliorés',pricePercent:25,installLevel:3,installSeconds:900}),
  Object.freeze({code:'MOD-04',label:'Soute clandestine',pricePercent:10,installLevel:2,installSeconds:600,minimumSize:2,requiresHiddenCargo:true}),
+ Object.freeze({code:'MOD-05',label:'Remorquage',pricePercent:10,installLevel:2,installSeconds:600,minimumSize:2,preparationOnly:true}),
  Object.freeze({code:'MOD-06',label:'Canon lourd',pricePercent:20,installLevel:3,installSeconds:900}),
 ]);
 
@@ -15,6 +16,7 @@ export function standardShipModuleQuote(calibration){
  const module=standardShipModules.find(m=>m.code===code),ship=spaceShipProfiles.find(p=>p.size===size);
  if(!module||!ship||ship.size<(module.minimumSize??1))return null;
  return {code,size,label:module.label,shipLabel:ship.label,price:ship.referencePrice*module.pricePercent/100,
+  ...(module.preparationOnly?{preparationOnly:true}:{}),
   ...(module.requiresHiddenCargo?{requiresHiddenCargo:true,hiddenCargoCapacity:size===2?5:10,cargoCapacity:ship.cargoCapacity}:{}),
   install:{skillId:'MEC-03',level:module.installLevel,seconds:module.installSeconds,actionPoints:1},
   remove:{skillId:'MEC-03',level:2,seconds:300,actionPoints:1}};
@@ -23,7 +25,7 @@ export function standardShipModuleQuote(calibration){
 // A definition alone never grants a session-specific equipment capability.
 export function playableShipModuleQuote(calibration,{hiddenCargo=false}={}){
  const q=standardShipModuleQuote(calibration);
- return q&&(!q.requiresHiddenCargo||hiddenCargo)?q:null;
+ return q&&!q.preparationOnly&&(!q.requiresHiddenCargo||hiddenCargo)?q:null;
 }
 
 // Recalculate from the canonical base; never compound an already upgraded profile.

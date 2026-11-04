@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {randomUUID} from 'node:crypto';
+import {randomUUID,createHash} from 'node:crypto';
 import {centralFixture,centralTestItem} from './central-master-suite.mjs';
 import {importFixture} from './central-import-suite.mjs';
 import {entryFixture} from './space-outlaws-entry-suite.mjs';
@@ -67,6 +67,33 @@ export function shipModuleCatalogSuite(makeStore,prefix='Catalogue modules M1'){
   const {moduleMandateFixture}=await import('./space-module-mandates-suite.mjs'),f=await moduleMandateFixture(makeStore);await f.edit('',s=>{const {hiddenCargoVersion,...old}=s.spaceOutlaws;return {...s,spaceOutlaws:old};});const ship=await f.ship(),pa=await f.points(f.other),lot=await f.get(`inventory/${f.sale.purchasedLotId}`);
   await f.edit(`inventory/${lot.id}`,l=>({...l,item:{...l.item,shipModule:{code:'MOD-04',size:2}}}));await assert.rejects(f.preview(),{code:'INVALID_MODULE_CALIBRATION'});assert.deepEqual(await f.ship(),ship);assert.deepEqual(await f.points(f.other),pa);
   await f.edit('shops/counter/offers/module-offer',o=>({...o,unitPrice:1000,item:{...o.item,shipModule:{code:'MOD-04',size:2}}}));await assert.rejects(f.read('prepareShopPurchase',{shopId:'counter',offerId:'module-offer',quantity:1,useProtected:false}),{code:'INVALID_SHIP_MODULE_OFFER'});assert.deepEqual(await f.ship(),ship);assert.equal((await f.get(`inventory/${lot.id}`)).status,'AVAILABLE');
+ });
+
+ test(`${prefix} : MOD-05 privé, deux gabarits stricts et aucune instance créée`,async()=>{
+  for(const size of [2,3]){const f=await centralFixture(makeStore),input={item:{...moduleItem,name:'Remorquage',shipModule:{code:'MOD-05',size}},requestId:randomUUID()};const r=await f.save(input);assert.deepEqual(await f.save(input),r);assert.deepEqual((await f.view()).changes[0].data.shipModule,input.item.shipModule);for(const kind of ['ships','inventory','accounts','shipMaintenance','voyages'])assert.deepEqual(await f.store.list(`sessions/${f.sid}/${kind}`),[]);}
+  const f=await centralFixture(makeStore);for(const patch of [{shipModule:{code:'MOD-05',size:1}},{shipModule:{code:'MOD-05',size:2,towing:true}},{kind:'STACKABLE'},{consumable:true}])await assert.rejects(f.save({item:{...moduleItem,shipModule:{code:'MOD-05',size:2},...patch}}),{code:'INVALID_SHIP_MODULE'});assert.equal((await f.view()).draft.revision,0);
+ });
+ test(`${prefix} : MOD-05 et offre canonique ne publient pas un effet non raccordé`,async()=>{
+  const {soVoyagesFixture}=await import('./space-outlaws-voyages-suite.mjs'),f=await soVoyagesFixture(makeStore,{release:false});let rev=(await f.view()).draft.revision;
+  await f.cc('saveCentralItem',{itemId:'tow-module',itemRevision:0,draftRevision:rev++,item:{...moduleItem,name:'Remorquage',shipModule:{code:'MOD-05',size:2}},reason:'Préparer MOD-05'});
+  await f.cc('saveCentralOffer',{offerId:'tow-offer',offerRevision:0,draftRevision:rev++,offer:{name:'Remorquage préparatoire',shopId:'counter',itemId:'tow-module',unitPrice:1000,buybackPrice:null,conditions:'À raccorder',gmNotes:''},reason:'Tarif canonique'});
+  const blocked=await f.releasePreview();assert.equal(blocked.canRelease,false);assert.ok(blocked.blockers.some(b=>b.code==='SO_SHIP_MODULE_EFFECT_NOT_OPEN'&&b.entityId==='tow-module'));assert.ok(blocked.blockers.some(b=>b.entityId==='tow-offer'&&b.message.includes('fermé')));assert.ok(!blocked.blockers.some(b=>b.code==='SO_SHIP_MODULE_NOT_CONNECTED'&&b.entityId==='tow-module'));await assert.rejects(f.release(blocked),{code:'SO_RELEASE_BLOCKED'});assert.deepEqual(await f.store.list(`campaigns/${f.campaignId}/versions`),[]);
+  await f.cc('archiveCentralOffer',{offerId:'tow-offer',offerRevision:1,draftRevision:rev++,reason:'Garder hors version'});await f.cc('archiveCentralItem',{itemId:'tow-module',itemRevision:1,draftRevision:rev++,reason:'Garder hors version'});
+  const ready=await f.releasePreview();assert.deepEqual(ready.blockers,[]);await f.release(ready);await f.birth(await f.birthPreview());const session=await f.store.get(`sessions/${f.sid}`);assert.equal(session.spaceOutlaws.towingVersion,undefined);assert.equal(session.spaceOutlaws.hiddenCargoVersion,1);assert.deepEqual(await f.store.list(`sessions/${f.sid}/ships`),[]);assert.ok(!(await f.store.list(`sessions/${f.sid}/inventory`)).some(l=>l.item.shipModule?.code==='MOD-05'));
+ });
+ test(`${prefix} : MOD-05 injecté reste fermé au commerce, mandat et vol sans mutation`,async()=>{
+  const {moduleMandateFixture}=await import('./space-module-mandates-suite.mjs'),f=await moduleMandateFixture(makeStore),ship=await f.ship(),pa=await f.points(f.other),lot=await f.get(`inventory/${f.sale.purchasedLotId}`);
+  await f.edit(`inventory/${lot.id}`,l=>({...l,item:{...l.item,shipModule:{code:'MOD-05',size:2}}}));await assert.rejects(f.preview(),{code:'INVALID_MODULE_CALIBRATION'});
+  await f.edit('shops/counter/offers/module-offer',o=>({...o,unitPrice:1000,item:{...o.item,shipModule:{code:'MOD-05',size:2}}}));await assert.rejects(f.read('prepareShopPurchase',{shopId:'counter',offerId:'module-offer',quantity:1,useProtected:false}),{code:'INVALID_SHIP_MODULE_OFFER'});assert.deepEqual(await f.ship(),ship);assert.deepEqual(await f.points(f.other),pa);assert.equal((await f.get(`inventory/${lot.id}`)).status,'AVAILABLE');
+  await f.edit('ships/ship',v=>({...v,moduleInstallationVersion:1,modules:[{lotId:lot.id,code:'MOD-05',size:2,status:'OPERATIONAL'}]}));const injected=await f.ship();await assert.rejects(f.startFlight(),{code:'INVALID_MODULE_CALIBRATION'});assert.deepEqual(await f.ship(),injected);assert.equal((await f.points()).reserved,0);
+ });
+ test(`${prefix} : manifeste contenant MOD-05 refusé même avec empreintes recalculées`,async()=>{
+  for(const size of [1,2,3]){
+  const {soVoyagesFixture}=await import('./space-outlaws-voyages-suite.mjs'),f=await soVoyagesFixture(makeStore,{release:false}),out=await f.release(await f.releasePreview()),path=`campaigns/${f.campaignId}/versions/${out.versionId}`;
+  const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v,hash=v=>createHash('sha256').update(JSON.stringify(canonical(v))).digest('hex');
+  await f.store.runTransaction(async tx=>{const {manifestDigest,...h}=await tx.get(path),pages=await Promise.all(h.pages.map(p=>tx.get(`${path}/pages/${p.id}`)));let replaced=false;const next=pages.map(p=>({...p,entries:p.entries.map(e=>{if(replaced||e.data.type!=='item')return e;replaced=true;return {...e,data:{...e.data,data:{...e.data.data,kind:'INDIVIDUAL',consumable:false,shipModule:{code:'MOD-05',size}}}};})}));assert.equal(replaced,true);h.pages=h.pages.map((p,i)=>({...p,digest:hash(next[i])}));h.contentDigest=hash(next.flatMap(p=>p.entries));for(const p of next)tx.set(`${path}/pages/${p.id}`,p);tx.set(path,{...h,manifestDigest:hash(h)});});
+  await assert.rejects(f.birthPreview(),{code:'SO_VERSION_INVALID'});assert.equal((await f.store.get(`sessions/${f.sid}`)).versionId,null);assert.deepEqual(await f.store.list(`sessions/${f.sid}/ships`),[]);
+  }
  });
 
 }

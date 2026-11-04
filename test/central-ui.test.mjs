@@ -33,3 +33,7 @@ test('Central UI : module calibré, prix fixe et limites de préparation visible
 test('Central UI : soute clandestine versionnée, capacité dans le volume existant',()=>{
  const c={type:'item',entityId:'hidden',operation:'UPSERT',data:{name:'Soute <script>',description:'',revision:1,shipModule:{code:'MOD-04',size:3}}},h=ui.page({...model,changes:[c]});assert.match(h,/2000 Cr/);assert.match(h,/Cache 10 unités dans les 50 existantes/);assert.match(h,/biens déjà rangés restent cachés/);assert.doesNotMatch(h,/<script>/);const form=ui.itemForm(model,'hidden',c);assert.match(form,/MOD-04.*nouvelle version compatible/);assert.match(form,/cargo ou transport seulement/);assert.doesNotMatch(form,/name="hiddenCargoCapacity"|name="price"/);
 });
+
+test('Central UI : MOD-05 préparatoire, prix non éditable et remorquage explicitement fermé',()=>{
+ const c={type:'item',entityId:'tow',operation:'UPSERT',data:{name:'Treuil <script>',description:'',revision:1,shipModule:{code:'MOD-05',size:2}}},h=ui.itemForm(model,'tow',c);assert.match(h,/1000 Cr/);assert.match(h,/MEC-03 N2, 10 min/);assert.match(h,/MOD-05 : préparation uniquement, publication et équipement fermés/);assert.match(h,/Attelage, trajet et largage restent à raccorder/);assert.match(h,/MOD-05 · Remorquage · préparation uniquement/);assert.doesNotMatch(h,/<script>|name="(towedShipId|towFuel|modulePrice)"/);assert.match(ui.page({...model,changes:[c]}),/ce modèle ne crée aucun remorquage/);
+});

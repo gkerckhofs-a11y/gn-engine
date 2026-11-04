@@ -1,6 +1,6 @@
 import {hasHiddenCargo} from './space-module-flight.mjs';
 import {inventoryHash as hash,publicItem} from './inventory-state.mjs';
-import {playableShipModuleQuote} from '../shared/space-ship-modules.mjs';
+import {playableShipModuleQuote,standardShipModuleQuote} from '../shared/space-ship-modules.mjs';
 
 export const hasSoShops=s=>s.spaceOutlaws?.shopsVersion===1;
 export const hasSoModulePurchases=s=>hasSoShops(s)&&s.spaceOutlaws?.modulePurchasesVersion===1;
@@ -28,6 +28,7 @@ export function shopBlockers(changes){
   if(c.type==='offer'){
    const item=active.find(x=>x.type==='item'&&x.entityId===c.data.itemId);
    if(item?.data.shipModule){
+    if(standardShipModuleQuote(item.data.shipModule)?.preparationOnly){add(c,'MOD-05 Remorquage reste préparatoire : achat et équipement fermés même au tarif canonique.');continue;}
     if(!moduleOfferValid({...c.data,item:item.data},{hiddenCargo:true})||c.data.buybackPrice!==null)add(c,'Un module standard exige le tarif canonique de son gabarit, sans rachat PNJ.');
    }else if(!item?.data.consumable||c.data.buybackPrice!==null)add(c,'Ce parcours ouvre la vente de consommables et de modules standards PNJ, sans rachat. Préparer les autres offres lors de leur raccordement.');
   }
