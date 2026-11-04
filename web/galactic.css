@@ -209,3 +209,8 @@ dialog .close { margin-bottom: 12px; }
 /* Cargo/customs attestations: explicit touch target and distinct interruption. */
 .cargo-customs .check{min-height:44px;align-items:center}
 .cargo-customs .customs-cancel{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+
+/* Free towing release: consequences and explicit presence remain readable on phones. */
+.space-towing{padding:1rem;border:1px solid var(--line,#667085);border-radius:.6rem;margin-block:1rem;overflow-wrap:anywhere}
+.space-towing .check{min-height:44px;display:flex;align-items:center;gap:.6rem}
+.space-towing button{min-height:44px;white-space:normal;max-width:100%}
