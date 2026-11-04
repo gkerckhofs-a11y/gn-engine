@@ -1,5 +1,15 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Interface fret/douane préparatoire — 4 novembre 2026
+
+Base 678dffc, [CI 41827691829](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41827691829) completed/success : build, 813 applicatifs, 657 Firestore, treize HTTP. Règles V0.7 chapitres 17/24 et services existants réutilisés.
+
+Vues propriétaire du compartiment, poste et suivi de l’agent, régie des habilitations/dossiers/PNJ. Liens depuis soute et fret conditionnés par marqueur et droits courants. Agent sans accès au stock d’autrui ; régie sans finalisation d’un contrôle joueur. Aperçus, confirmation de présence/manutention/réalisation, réserve PA/délai, interruption motivée et résultat public strict. Échec ≠ absence de fraude ; contrôle documentaire ≠ validation fiscale/licence/authenticité. Pause/STOP et panne font apparaître l’indisponibilité, sans résolution automatique.
+
+Même hiddenCargoVersion=1 fermé, jamais émis par publication/naissance. MOD-04 reste preparationOnly, montage/commerce/vol/publication fermés. Fixtures synthétiques distinctes d’une partie activée. Interface raccordée au composant ; visibilité en panne, profil/vol et ouverture versionnée encore à traiter.
+
+Local : build, 829/829 ciblés dans 66 fichiers. Huit UI, un lien cargo, trois cas métier partagés (36 cas dans le composant), un sélecteur ; HTTP existant renforcé sur droits et projections UI. hidden-ui : 37 suites Firestore, treize HTTP, aucun navigateur ou suite complète. Borne du lanceur 80 avec égalité exacte du profil ; tests d’injection/conversion conservés. Chromium local absent : aucune preuve de rendu visuel ni recette humaine Android/iOS. CI exacte dans PR #2 avant la suite. Aucun déploiement ou fusion main.
+
 ## MOD-04 — retrait du compartiment vidé, composant fermé — 4 novembre 2026
 
 Base ecd29a8, [CI 41823800629](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41823800629) completed/success : build, 799 applicatifs, 645 Firestore, treize HTTP. Source V0.7 chapitre 17 : MEC-03 N2, cinq minutes, 1 PA, contenu transféré/consigné avant démontage.

@@ -107,7 +107,7 @@ test('CI ciblée : canon lourd couvre adaptateur, duels, flottes et acquis modul
  const p=targetedScope('module-combat',['src/core/space-combat.mjs','test/support/space-encounters-suite.mjs','test/support/space-convoy-suite.mjs'],{reliableBase:true});
  assert.equal(requestedTarget('[ci targeted:module-combat]'),'module-combat');assert.equal(p.browser,false);
  assert.deepEqual(testCommand('application',{GN_CI_PROFILE:'targeted-module-combat',GN_APPLICATION_TESTS:JSON.stringify(p.applicationTests)}).args,['--test',...p.applicationTests]);
- assert.throws(()=>applicationCommand(JSON.stringify(Array.from({length:65},(_,i)=>`test/example-${i}.test.mjs`)),()=>true));
+ assert.throws(()=>applicationCommand(JSON.stringify(Array.from({length:81},(_,i)=>`test/example-${i}.test.mjs`)),()=>true));
  for(const id of ['space-module-removal','space-encounters','space-convoy','space-escort-maneuvers','space-alliance-convoy','space-alliance-duels','space-alliance-defense'])assert.ok(p.suites.includes(id));
  for(const file of p.applicationTests)assert.ok(existsSync(file),file);assert.equal(new Set(p.applicationTests).size,p.applicationTests.length);
  const selected=matrixFor(p.suites).flatMap(({shard})=>selectFirestoreSuites({GN_FIRESTORE_SUITES:JSON.stringify(p.suites),GN_FIRESTORE_SHARD:shard}));assert.deepEqual(selected.map(s=>s.id).sort(),[...p.suites].sort());
@@ -141,4 +141,8 @@ test('CI ciblée : fret caché préparatoire couvre cargo natif, abordage, droit
 
 test('CI ciblée : retrait MOD-04 garde le composant, mandats, travaux et profil natifs dans le même périmètre',()=>{
  const p=targetedScope('hidden-removal',['src/core/space-module-mandates.mjs','src/core/space-module-work.mjs','web/space-module-mandates.mjs','test/support/space-hidden-cargo-suite.mjs'],{reliableBase:true});assert.equal(requestedTarget('[ci targeted:hidden-removal]'),'hidden-removal');assert.equal(p.applicationTests.length,64);assert.equal(p.suites.length,37);assert.equal(p.browser,false);for(const id of ['space-hidden-cargo','space-module-mandates','space-module-work','space-module-removal','space-module-flight','cargo'])assert.ok(p.suites.includes(id));assert.deepEqual(testCommand('application',{GN_CI_PROFILE:p.profile,GN_APPLICATION_TESTS:JSON.stringify(p.applicationTests)}).args,['--test',...p.applicationTests]);assert.throws(()=>targetedScope('hidden-removal',['src/core/customs.mjs'],{reliableBase:true}));
+});
+
+test('CI ciblée : interface fret/douane avec liens cargo et protocole, sélection bornée sans navigateur',()=>{
+ const p=targetedScope('hidden-ui',['web/space-hidden-cargo.mjs','web/cargo.mjs','web/app.mjs','web/player-spaces.mjs','src/core/cargo.mjs','src/core/space-hidden-cargo.mjs'],{reliableBase:true});assert.equal(requestedTarget('[ci targeted:hidden-ui]'),'hidden-ui');assert.equal(p.applicationTests.length,66);assert.equal(p.suites.length,37);assert.equal(p.browser,false);for(const path of p.applicationTests)assert.ok(existsSync(path),path);assert.deepEqual(testCommand('application',{GN_CI_PROFILE:p.profile,GN_APPLICATION_TESTS:JSON.stringify(p.applicationTests)}).args,['--test',...p.applicationTests]);assert.throws(()=>targetedScope('hidden-ui',['src/core/customs.mjs'],{reliableBase:true}));assert.throws(()=>testCommand('application',{GN_CI_PROFILE:p.profile,GN_APPLICATION_TESTS:JSON.stringify(p.applicationTests.slice(1))}));
 });

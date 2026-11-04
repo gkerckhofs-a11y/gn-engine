@@ -2,7 +2,7 @@
 
 État du 4 novembre 2026. Source métier : règles SPACE OUTLAWS V0.7, chapitre 24, [texte du projet](source/SO_Regles_V07.txt). Base vérifiée b4b21f54c9bc21f8696e90be0c6081d352d0f675, [CI 41818695160](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41818695160) réussie.
 
-Ce lot prépare le serveur. hiddenCargoVersion=1 n’est ajouté à aucun manifeste ni à aucune naissance. MOD-04 reste preparationOnly ; publication, commerce, mandat de montage et profil/vol le refusent. Aucun nouvel écran public. Les tests utilisent une session et du fret chargés par les commandes natives, puis un module/lot monté et un marqueur synthétiques. Ils ne démontrent pas un équipement MOD-04 jouable.
+Ce lot prépare le serveur. hiddenCargoVersion=1 n’est ajouté à aucun manifeste ni à aucune naissance. MOD-04 reste preparationOnly ; publication, commerce, mandat de montage et profil/vol le refusent. Interface préparatoire sous garde décrite ci-dessous ; aucun parcours activé dans les sessions actuelles. Les tests utilisent une session et du fret chargés par les commandes natives, puis un module/lot monté et un marqueur synthétiques. Ils ne démontrent pas un équipement MOD-04 jouable.
 
 ## Stock et droits
 
@@ -28,9 +28,9 @@ Présence et réalisation explicites, délai non automatique, réserve PA et ver
 
 ## Limites avant ouverture
 
-Le retrait après vidage explicite est maintenant raccordé au composant décrit ci-dessous. Il reste à raccorder le profil et le vol équipés MOD-04, la visibilité pendant une neutralisation, l’interface propriétaire/douane/régie, puis une ouverture versionnée cohérente sur nouveaux manifestes seulement. En panne MOD-04 : nouveau rangement sans capacité ; contrôles refusés par HIDDEN_CARGO_OUTAGE_NOT_OPEN, données conservées. Aucun comportement de découverte en panne n’est supposé.
+Le retrait après vidage explicite est maintenant raccordé au composant décrit ci-dessous. Il reste à raccorder le profil et le vol équipés MOD-04, la visibilité pendant une neutralisation, puis une ouverture versionnée cohérente sur nouveaux manifestes seulement. En panne MOD-04 : nouveau rangement sans capacité ; contrôles refusés par HIDDEN_CARGO_OUTAGE_NOT_OPEN, données conservées. Aucun comportement de découverte en panne n’est supposé.
 
-Les tests ne constituent ni une recette humaine Android/iOS ni une régression globale. Profil ciblé hidden-removal : 64 fichiers applicatifs, 37 suites Firestore, treize HTTP, aucun Chromium. CI du commit exact consignée dans la PR #2 avant tout prochain lot. Aucun déploiement ou fusion main.
+Les tests ne constituent ni une recette humaine Android/iOS ni une régression globale. Profil ciblé hidden-ui : 66 fichiers applicatifs, 37 suites Firestore, treize HTTP, aucun Chromium. CI du commit exact consignée dans la PR #2 avant tout prochain lot. Aucun déploiement ou fusion main.
 
 ## Retrait après vidage — 4 novembre 2026
 
@@ -41,3 +41,15 @@ Vider par un transfert natif vers le sac, ou par la sortie explicite du comparti
 Nouveau consentement personnel propriétaire/Mécano, port et atelier, MEC-03 N2. Cinq minutes de jeu et 1 PA, module/PA réservés, verrous natifs. PAUSE/STOP figent le temps, aucune fin automatique. Le Mécano confirme l’opération réellement effectuée ; le propriétaire ou la régie ne le remplace pas. Même exemplaire rendu au propriétaire, profil restant recalculé sans rendre de points, fret/autres modules/découvertes conservés. Annulation garde le module monté et rend le PA dans son plafond ; régie possible après révocation. Réserves étrangères et panne active refusées. Modification du contenu pendant le travail ferme la finalisation, même sans révision du vaisseau modifiée.
 
 Douze cas partagés supplémentaires, un UI et un sélecteur ; HTTP/Auth étendu au refus compartiment plein puis vidage et retrait complet/reçu unique. Le module/lot monté est synthétique en tests. Le vol nu après retrait et la conservation d’un autre module passent par les consommateurs natifs. Local : build et 813/813 ciblés, aucune régression intégrale ou recette humaine.
+
+## Interface du composant fermé — 4 novembre 2026
+
+Propriétaire : depuis sa soute, gestion privée du compartiment, volume inclus dans la capacité totale, lots entiers, dissimulation et découverte persistante affichées séparément. Aperçu puis confirmation du déplacement réel. Liens vers manutention native et accords de retrait ; aucun réglage de quantité cachée arbitraire.
+
+Agent habilité : lien Poste de douane depuis Soutes et fret, vaisseaux locaux disponibles, choix documentaire/approfondi, aperçu avec coût/durée/niveau, présence puis démarrage. Dossier avec délai manuel, confirmation du contrôle réellement effectué et interruption motivée. Le résultat documentaire ne valide aucune licence/authenticité/taxe ; un échec approfondi ne prouve jamais l’absence de fraude. Aucun nouveau stock lisible hors résultats autorisés.
+
+Régie : lien depuis régie du fret, niveau N0–N5/poste/motif/révision, contrôle PNJ, liste des dossiers et nouvelle tentative motivée pour l’escale courante. Contrôle d’un joueur consultable et annulable après révocation, jamais finalisé à sa place. Interfaces respectant pause/STOP et neutralisation, coût/dé/résultat non éditables par agent. Les validations serveur et reçus existants restent autoritaires.
+
+Routes joueur dans le Terminal, routes régie distinctes. Protocole de formulaire borné et réponses obsolètes ignorées après navigation. Liens absents sans le marqueur de composant, toujours non émis par la publication/naissance. Aucune ouverture en partie, montage/commerce/vol/publication MOD-04 fermés ; panne/profil/vol et ouverture cohérente encore à traiter.
+
+Local : build et 829/829 ciblés dans 66 fichiers. Huit nouveaux UI, un lien cargo, trois cas partagés serveur, un sélecteur ; HTTP existant renforcé. 37 suites Firestore et treize HTTP en CI ciblée ; aucun navigateur ou suite complète. Chromium local absent : validation visuelle et recette humaine mobile non réalisées.

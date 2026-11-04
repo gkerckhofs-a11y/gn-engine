@@ -34,6 +34,7 @@ export function createHiddenCargoService({store,signed,checkSession,now,uuid,rol
   return store.runTransaction(async tx=>{
    const admin=admins.has(action),ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId))}:await inventoryPlayer(tx,actor,input),{s,c,version}=ctx,base=`sessions/${s.id}`,time=gameTime(s.clock,at);
    requireThat(hasHiddenCargo(s),'SO_GAMEPLAY_NOT_OPEN');requireThat(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage),'SESSION_CLOSED');
+   const session={id:s.id,stage:s.stage,safetyStopped:!!s.safetyStop?.active};
    const op=reads.has(action)?null:`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`,fingerprint=hash(JSON.stringify([action,input]));
    const prior=op?await tx.get(op):null;
    const token=(...data)=>hash(JSON.stringify([s.id,s.revision,version??null,...data]));
@@ -41,8 +42,8 @@ export function createHiddenCargoService({store,signed,checkSession,now,uuid,rol
    const running=()=>{requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');};
    const write=(result,before,after,reason='')=>{authorizeSpaceOutlaws(tx,s,'HIDDEN_CARGO');tx.set(`${base}/logisticsHistory/${id}`,{id,kind:action,at,actorUid:actor.uid,before,after,reason});tx.set(`${base}/audit/${id}`,{id,action,at,actorUid:actor.uid});tx.set(op,{fingerprint,guard:version??null,result,at});return result;};
    if(action==='customsAdmin'){
-    const ships=await tx.list(`${base}/ships`),characters=await tx.list(`${base}/characters`),ports=await tx.list(`${base}/ports`);
-    return {session:{id:s.id,stage:s.stage},ships:ships.filter(x=>x.soProfile).map(x=>({id:x.id,name:x.name,portId:x.portId,attempt:x.customsAttempt??null,confirmation:token(x)})),characters:characters.map(x=>({id:x.id,name:x.public.displayName,player:!!x.birth,authority:x.customsAuthorization??null})),ports:ports.map(x=>({id:x.id,name:x.name}))};
+    const ships=await tx.list(`${base}/ships`),characters=await tx.list(`${base}/characters`),ports=await tx.list(`${base}/ports`),records=await tx.list(`${base}/shipMaintenance`);
+    return {session,ships:ships.filter(x=>x.soProfile).map(x=>({id:x.id,name:x.name,portId:x.portId,canInspect:idle(x)&&inspectionAvailable(x,time),canRetry:idle(x)&&x.customsAttempt?.visitId===visit(x)&&!x.customsAttempt.retryAuthorized,attempt:x.customsAttempt??null,confirmation:token(x)})),characters:characters.map(x=>({id:x.id,name:x.public.displayName,player:!!x.birth||!!x.assignedUid,authority:x.customsAuthorization??null})),ports:ports.map(x=>({id:x.id,name:x.name})),inspections:records.filter(r=>r.customsInspectionVersion===1).map(r=>({id:r.id,shipName:r.shipName,kind:r.kind,status:r.status,pnj:r.pnj}))};
    }
    if(action==='setCustomsAuthority'){
     requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');const target=await tx.get(`${base}/characters/${documentId(input.characterId)}`),level=whole(input.level,'INVALID_CUSTOMS_AUTHORITY'),port=await tx.get(`${base}/ports/${documentId(input.portId)}`);
@@ -53,7 +54,7 @@ export function createHiddenCargoService({store,signed,checkSession,now,uuid,rol
    if(['hiddenCargo','prepareCargoConcealment','setCargoConcealment'].includes(action)){
     const ship=await tx.get(`${base}/ships/${documentId(input.shipId)}`);requireThat(ship?.ownerType==='CHARACTER'&&ship.ownerId===c.id,'FORBIDDEN');
     const stock=await warehouseStock(tx,s.id,ship.id,'HOLD'),capacity=hiddenCargoCapacity(ship,time),used=stockVolume(stock.filter(l=>concealedIn(l,ship.id)));
-    if(action==='hiddenCargo')return {session:{id:s.id,stage:s.stage},ship:{id:ship.id,name:ship.name,capacity:ship.capacity},hiddenCapacity:capacity,hiddenUsed:used,stock:stock.filter(l=>l.ownerId===c.id&&(l.ownerType??'CHARACTER')==='CHARACTER').map(l=>({...publicLot(l),concealed:concealedIn(l,ship.id),discovered:l.hiddenCargo?.discovered===true})),confirmation:token(ship,stock)};
+    if(action==='hiddenCargo')return {session,ship:{id:ship.id,name:ship.name,capacity:ship.capacity},hiddenCapacity:capacity,hiddenUsed:used,canMove:s.stage==='EN_JEU'&&!s.safetyStop?.active&&idle(ship)&&fit(c,time)&&(c.spacePortId??s.transportRules?.homePort)===ship.portId,stock:stock.filter(l=>l.ownerId===c.id&&(l.ownerType??'CHARACTER')==='CHARACTER').map(l=>({...publicLot(l),concealed:concealedIn(l,ship.id),discovered:l.hiddenCargo?.discovered===true})),confirmation:token(ship,stock)};
     const module=ship.modules?.find(m=>m.code==='MOD-04'),mounted=module?await tx.get(`${base}/inventory/${module.lotId}`):null;
     requireThat(!input.conceal||mounted?.status==='INSTALLED'&&!mounted.fieldActionId&&!mounted.cargoTransferId&&mounted.item?.kind==='INDIVIDUAL'&&!mounted.item.consumable&&mounted.transferable===true&&mounted.resellable===true&&(mounted.ownerType??'CHARACTER')==='CHARACTER'&&mounted.quantity===1&&mounted.ownerId===ship.ownerId&&mounted.holderId===ship.id&&mounted.location?.kind==='SHIP_MODULE'&&mounted.location.id===ship.id&&mounted.item?.shipModule?.code==='MOD-04'&&mounted.item.shipModule.size===module.size,'MODULE_LOT_UNAVAILABLE');
     running();requireThat(idle(ship)&&fit(c,time)&&(c.spacePortId??s.transportRules?.homePort)===ship.portId,'SHIP_NOT_LOCAL');requireThat(typeof input.conceal==='boolean','INVALID_ADMISSION');
@@ -66,7 +67,7 @@ export function createHiddenCargoService({store,signed,checkSession,now,uuid,rol
    }
    if(action==='customsDesk'){
     requireThat(c.customsAuthorization?.level>=1,'FORBIDDEN');const fleet=await tx.list(`${base}/ships`),records=await tx.list(`${base}/shipMaintenance`);
-    return {session:{id:s.id,stage:s.stage},level:c.customsAuthorization.level,ships:fleet.filter(x=>x.docked&&!x.journey&&x.portId===(c.spacePortId??s.transportRules?.homePort)).map(x=>({id:x.id,name:x.name})),inspections:records.filter(r=>r.customsInspectionVersion===1&&r.agentId===c.id).map(r=>({id:r.id,shipName:r.shipName,kind:r.kind,status:r.status}))};
+    return {session,level:c.customsAuthorization.level,ships:fleet.filter(x=>x.docked&&!x.journey&&x.portId===(c.spacePortId??s.transportRules?.homePort)).map(x=>({id:x.id,name:x.name,canInspect:idle(x)&&inspectionAvailable(x,time)})),inspections:records.filter(r=>r.customsInspectionVersion===1&&r.agentId===c.id).map(r=>({id:r.id,shipName:r.shipName,kind:r.kind,status:r.status}))};
    }
    if(action==='authorizeCustomsRetry'){
     requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');const ship=await tx.get(`${base}/ships/${documentId(input.shipId)}`);requireThat(idle(ship)&&ship.customsAttempt?.visitId===visit(ship),'CUSTOMS_ATTEMPT_UNAVAILABLE');if(prior)return replay();requireThat(input.confirmation===token(ship),'STALE_REVISION');const reason=admissionText(input.reason,500,true),next={...ship,customsAttempt:{...ship.customsAttempt,retryAuthorized:true,retryReason:reason},revision:ship.revision+1};tx.set(`${base}/ships/${ship.id}`,next);return write({id:ship.id,retryAuthorized:true},ship.customsAttempt,next.customsAttempt,reason);
@@ -79,7 +80,7 @@ export function createHiddenCargoService({store,signed,checkSession,now,uuid,rol
    if(r&&!oversight)requireThat(grant?.revision===r.authorityRevision&&(admin?r.pnj:r.actorVersion===version),'FORBIDDEN');
    const ship=await tx.get(`${base}/ships/${r?.shipId??documentId(input.shipId)}`);requireThat(ship?.soProfile,'CARGO_UNAVAILABLE');
    if(prior)return replay();
-   const confirmation=token(ship,r,grant),view=record=>({session:{id:s.id,stage:s.stage},inspection:{id:record.id,shipId:record.shipId,shipName:record.shipName,kind:record.kind,status:record.status,remainingSeconds:record.status==='ACTIVE'?Math.max(0,Math.ceil((record.readyAtGameMs-time)/1000)):0,...(record.result?{result:record.result}:{})},confirmation});
+   const confirmation=token(ship,r,grant),view=record=>({session,inspection:{id:record.id,shipId:record.shipId,shipName:record.shipName,kind:record.kind,status:record.status,pnj:record.pnj,canFinish:record.status==='ACTIVE'&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&time>=record.readyAtGameMs&&inspectionAvailable(ship,time)&&(!admin||record.pnj)&&grant?.level>=1&&grant.revision===record.authorityRevision,canCancel:record.status==='ACTIVE'&&['EN_JEU','PAUSE'].includes(s.stage)&&!s.safetyStop?.active,remainingSeconds:record.status==='ACTIVE'?Math.max(0,Math.ceil((record.readyAtGameMs-time)/1000)):0,...(record.result?{result:record.result}:{})},confirmation});
    if(jobs.includes(action)){
     running();requireThat(inspectionAvailable(ship,time),'HIDDEN_CARGO_OUTAGE_NOT_OPEN');requireThat(['ORDINARY','DEEP'].includes(input.kind),'INVALID_CUSTOMS_KIND');requireThat(idle(ship),'SPACE_SHIP_BUSY');requireThat((pnj?grant.portId:(agent.spacePortId??s.transportRules?.homePort))===ship.portId,'SHIP_NOT_LOCAL');requireThat(pnj?!agent.activeMaintenanceId:fit(agent,time),'OUT_OF_COMBAT');
     requireThat(!(await tx.list(`${base}/cargoTransfers`)).some(t=>t.status==='LOADING'&&[t.source,t.destination].some(p=>p.kind==='HOLD'&&p.id===ship.id)),'CARGO_TRANSFERS_OPEN');

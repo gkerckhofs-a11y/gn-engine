@@ -1,5 +1,13 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## Interface fret/douane compatible avec le composant fermé — 4 novembre 2026
+
+Base 678dffc, [CI 41827691829](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41827691829) réussie. Aucun nouveau marqueur émis, activation manuelle, migration ou publication MOD-04. Les liens et formulaires dépendent des projections serveur, les droits restent revalidés lors de chaque commande.
+
+Conserver client/serveur compatibles avec les mêmes données : version/manifeste/pages/marqueurs, habilitations et leurs révisions, identités/droits, lots/découvertes/propriétaires, modules/profils/dommages, dossiers/accords/horloges/PA/verrous, escales/voyages, jetons et reçus. Les nouvelles projections sont des lectures sans écriture, aucune nouvelle collection ni sauvegarde à créer. Un écran ancien ne remplace pas les contrôles actuels du serveur.
+
+Aucun retour logiciel seul ou effacement partiel de réserve/verrou/marqueur. Annulation compatible avant retour approuvé ou restauration cohérente. Aucun déploiement, retour arrière ou sauvegarde/restauration externe exécuté. Local : build et 829 ciblés ; CI exacte dans PR #2. Pas de recette visuelle ou humaine mobile revendiquée.
+
 ## MOD-04 — retrait vidé sous marqueur fermé — 4 novembre 2026
 
 Base ecd29a8, [CI 41823800629](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41823800629) réussie. Aucun nouveau marqueur de manifeste, migration ou activation en partie. hiddenCargoVersion=1 reste un composant fermé ; dossier et binding de retrait MOD-04 portent également ce marqueur avec moduleOperation=REMOVE. Montage/commerce/vol/publication restent fermés.

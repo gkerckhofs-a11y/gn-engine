@@ -70,6 +70,13 @@ targetedProfiles['hidden-inspection']={
 };
 // Removal-only extension of the closed hidden-cargo component.
 targetedProfiles['hidden-removal']={...targetedProfiles['hidden-inspection']};
+// Owner/agent/regie UI, native cargo entry links and page routing.
+targetedProfiles['hidden-ui']={
+ tests:[...targetedProfiles['hidden-removal'].tests,'test/space-hidden-cargo-ui.test.mjs','test/cargo-ui.test.mjs'],
+ suites:[...targetedProfiles['hidden-removal'].suites],
+ httpPattern:targetedProfiles['hidden-removal'].httpPattern,
+ files:[...targetedProfiles['hidden-removal'].files,'src/core/cargo.mjs','web/cargo.mjs','web/space-hidden-cargo.mjs','test/space-hidden-cargo-ui.test.mjs','test/cargo-ui.test.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

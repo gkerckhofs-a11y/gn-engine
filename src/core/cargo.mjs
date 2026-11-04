@@ -1,3 +1,4 @@
+import {hasHiddenCargo} from './space-hidden-cargo.mjs';
 import {readBoardingCustody} from './space-boarding-custody.mjs';
 import {reserveCargoBatch,finishCargoBatch} from './cargo-batches.mjs';
 import {hasSoTransport,transportView,transportCargoAccess,transportPlaceAllowed} from './space-transport.mjs';
@@ -123,7 +124,7 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
     const characters=await tx.list(`${base}/characters`),ships=await tx.list(`${base}/ships`),cargoTransfers=await tx.list(`${base}/cargoTransfers`),rows=[];
     for(const ship of ships){const p=await place({kind:'HOLD',id:ship.id});rows.push({...ship,used:p.used,incoming:p.incoming});}
     const boardingCustody=await readBoardingCustody(tx,s,time,{characters,ships,cargoTransfers});
-    return {session:{id:sid,revision:s.revision,stage:s.stage,...(so?{spaceOutlaws:true}:{})},ships:rows,...(boardingCustody?{boardingCustody}:{}),...(hasSoTransport(s)?{deliveryPorts:(await tx.list(`${base}/ports`)).filter(p=>p.versionId===s.spaceOutlaws.versionId).map(p=>({id:p.id,name:p.name}))}:{}),transportRules:s.transportRules??null,items:await tx.list(`${base}/items`),routes:await tx.list(`${base}/routes`),owners:[...characters.map(c=>({type:'CHARACTER',id:c.id,name:c.public.displayName})),...allGroups.map(g=>({type:'GROUP',id:g.id,name:g.name}))],transfers:cargoTransfers.filter(t=>t.status==='LOADING').map(publicTransfer)};
+    return {...(hasHiddenCargo(s)?{customsReady:true}:{}),session:{id:sid,revision:s.revision,stage:s.stage,...(so?{spaceOutlaws:true}:{})},ships:rows,...(boardingCustody?{boardingCustody}:{}),...(hasSoTransport(s)?{deliveryPorts:(await tx.list(`${base}/ports`)).filter(p=>p.versionId===s.spaceOutlaws.versionId).map(p=>({id:p.id,name:p.name}))}:{}),transportRules:s.transportRules??null,items:await tx.list(`${base}/items`),routes:await tx.list(`${base}/routes`),owners:[...characters.map(c=>({type:'CHARACTER',id:c.id,name:c.public.displayName})),...allGroups.map(g=>({type:'GROUP',id:g.id,name:g.name}))],transfers:cargoTransfers.filter(t=>t.status==='LOADING').map(publicTransfer)};
    }
    if(action==='saveShip'){
     requireThat(input.revision===s.revision,'STALE_REVISION');const id=input.shipId?documentId(input.shipId):eventId,old=await tx.get(`${base}/ships/${id}`);
@@ -144,11 +145,11 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
    if(action==='myCargo'){
     const holds=[];for(const ship of await tx.list(`${base}/ships`)){const p=await place({kind:'HOLD',id:ship.id});if(p.read||p.deposit||p.withdraw||p.pilot)holds.push({...viewPlace(p),docked:ship.docked,enabled:ship.enabled,portId:ship.portId??null,inTransit:!!ship.journey,local:local(ship)});}
     const transfers=[];for(const t of await tx.list(`${base}/cargoTransfers`)){if(t.status!=='LOADING'||t.destination.kind==='CHARACTER'&&t.destination.id!==c.id)continue;if(t.transportContractId&&t.characterId!==c.id)continue;transport=t.transportContractId?await transportCargoAccess(tx,s,await readLot(tx,sid,t.lotId,at),c.id):null;const p=await place(t.destination);if(p.read)transfers.push(publicTransfer(t));transport=null;}
-    return {session:{id:sid,stage:s.stage,...(so?{spaceOutlaws:true}:{})},holds,transfers};
+    return {...(hasHiddenCargo(s)&&c.customsAuthorization?.level>=1?{customsReady:true}:{}),session:{id:sid,stage:s.stage,...(so?{spaceOutlaws:true}:{})},holds,transfers};
    }
    if(action==='shipHold'){
     const p=await place({kind:'HOLD',id:documentId(input.shipId)});requireThat(p.read||p.deposit||p.withdraw||p.pilot,'FORBIDDEN');
-    return {session:{id:sid,stage:s.stage,...(so?{spaceOutlaws:true}:{})},hold:{...viewPlace(p),description:p.record.description,docked:p.record.docked,enabled:p.record.enabled,local:local(p.record),portId:p.record.portId??null,inTransit:!!p.record.journey},stock:p.read?p.stock.map(publicLot):[],canRead:p.read};
+    return {session:{id:sid,stage:s.stage,...(so?{spaceOutlaws:true}:{})},hold:{...viewPlace(p),...(hasHiddenCargo(s)&&p.record.ownerType==='CHARACTER'&&p.record.ownerId===c.id&&p.record.modules?.some(m=>m.code==='MOD-04')?{hiddenCargoReady:true}:{}),description:p.record.description,docked:p.record.docked,enabled:p.record.enabled,local:local(p.record),portId:p.record.portId??null,inTransit:!!p.record.journey},stock:p.read?p.stock.map(publicLot):[],canRead:p.read};
    }
    if(action==='cargoLot'){
     const lot=await readLot(tx,sid,documentId(input.lotId),at),p=await visibleLot(lot);

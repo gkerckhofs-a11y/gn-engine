@@ -1,5 +1,22 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## Interface fret/douane sous garde — 4 novembre 2026
+
+Base 678dffc, [CI 41827691829](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41827691829) réussie : build, 813 applicatifs, 657 Firestore, treize HTTP.
+
+| Exigence | État du composant | Preuve |
+| --- | --- | --- |
+| Propriétaire : volume inclus, lot entier, découverte | Rangement/sortie avec aperçu et présence, manutention existante | UI et protocole exécuté au serveur |
+| Agent habilité : deux contrôles distincts | Choix, coûts, seuil, délai, fin personnelle et annulation | Projections/protocole mémoire-Firestore et HTTP |
+| Régie : habilitation et PNJ | Niveau/poste/motif/révision, nouvelle tentative, suivi | UI et capacités de suivi serveur |
+| Pas de finalisation MJ pour joueur | Uniquement suivi/annulation côté régie | UI et HTTP, service strict inchangé |
+| Pas de fuite ou conclusion abusive | Lots du résultat seulement, échec distinct d’absence de fraude | Textes échappés, droits propriétaire/pilote/agent |
+| Pause, STOP, panne | Boutons indisponibles selon état serveur ; délai manuel | UI et cas partagés |
+| Compatibilité | Pas de lien ni activation sans marqueur | Gardes et anciens manifestes conservés |
+| Rendu mobile/visuel | Non validé dans ce lot, Chromium local absent | Recette humaine encore distincte |
+
+Local : 829/829 ciblés dans 66 fichiers et build ; hidden-ui : 37 suites Firestore, treize HTTP, aucun navigateur ou suite complète. MOD-04 montage/commerce/vol/publication toujours fermés, aucune migration ou publication. [Détail](SO-FRET-CACHE.md).
+
 ## MOD-04 — retrait vidé, composant fermé — 4 novembre 2026
 
 Base ecd29a8 : [CI 41823800629](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41823800629) réussie, 799 applicatifs, 645 Firestore, treize HTTP et build. Source : V0.7 chapitre 17.
