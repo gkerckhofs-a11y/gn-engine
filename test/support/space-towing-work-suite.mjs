@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 import {soVoyagesFixture} from './space-outlaws-voyages-suite.mjs';
-import {newLot} from '../../src/core/inventory-state.mjs';
+import {newLot,itemInput} from '../../src/core/inventory-state.mjs';
 import {moduleItem} from './space-ship-module-catalog-suite.mjs';
 import {episodeHarness} from './space-episodes-suite.mjs';
 
@@ -15,7 +15,7 @@ export async function towingWorkFixture(makeStore,options={}){
  await edit(`characters/${f.otherId}`,c=>({...c,abilityProfile:{...c.abilityProfile,published:true,skills:[...c.abilityProfile.skills.filter(k=>k.id!=='MEC-02'),{id:'MEC-02',level:2}]}}));
  await edit('ships/ship',s=>({...s,moduleInstallationVersion:1,modules:[{lotId:moduleId,code:'MOD-05',size:s.soProfile.size,status:'OPERATIONAL'}]}));
  await edit('ships/wreck',s=>({...s,hull:0,shield:0,revisionRequired:true}));
- const ship=await f.ship(),lot={...newLot(moduleId,{...moduleItem,id:'towing-definition',shipModule:{code:'MOD-05',size:ship.soProfile.size}},1,f.cid,1,{kind:'SYNTHETIC_TOWING_COMPONENT'}),status:'INSTALLED',transferable:true,resellable:true,holderId:'ship',location:{kind:'SHIP_MODULE',id:'ship'}};
+ const ship=await f.ship(),lot={...newLot(moduleId,itemInput({...moduleItem,publicationState:'PUBLISHED',shipModule:{code:'MOD-05',size:ship.soProfile.size}},'towing-definition'),1,f.cid,1,{kind:'SYNTHETIC_TOWING_COMPONENT'}),status:'INSTALLED',transferable:true,resellable:true,holderId:'ship',location:{kind:'SHIP_MODULE',id:'ship'}};
  await f.store.runTransaction(async tx=>tx.set(`sessions/${f.sid}/inventory/${moduleId}`,lot));
  const input={shipId:'ship',wreckId:'wreck',technicianId:f.otherId,present:true,source:'SECRET_PHYSICAL_TOWING_SETUP',reason:'Préparer le travail attesté'};
  const preview=(patch={})=>f.read('prepareTowingWork',{...input,...patch},f.owner),offer=async(patch={})=>f.cmd('offerTowingWork',{...input,...patch,confirmation:(await preview(patch)).confirmation},f.owner);
