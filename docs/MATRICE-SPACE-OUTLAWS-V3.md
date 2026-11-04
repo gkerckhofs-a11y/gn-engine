@@ -1,5 +1,22 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## MOD-04 — composant de fret caché fermé — 4 novembre 2026
+
+Base b4b21f5, [CI 41818695160](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41818695160) réussie : 748 applicatifs, 595 Firestore, douze HTTP et build. Source : V0.7 chapitre 24.
+
+| Exigence | État dans ce lot | Preuve |
+| --- | --- | --- |
+| 5/20 ou 10/50 unités, propriété réelle | Composant serveur, lots entiers, aucun volume créé | Cas partagés cargo/transport, droits et capacité |
+| Découverte durable | Métadonnée du même lot, fractionnement/transfert/reprise conservés | Cas partagés et abordage ordinaire refusé avant découverte |
+| Ordinaire 2 min / 0 PA | Attestation documentaire sans nouvelle révélation | Cas partagé ; aucune validation fiscale/licence/manifeste |
+| Approfondie 2 min / 1 PA joueur | Habilitation organisation N1–N5, D6+N≥7 | Seuils, PNJ 0 PA, délai, pause/STOP |
+| Une tentative par vaisseau/escale | Commune aux agents ; autorisation MJ motivée | Concurrence, réessai, nouvel agent, nouvelle escale |
+| Persistance et restitution | Verrous, PA, annulation après révocation, reprise | Rollback et instantané natif |
+| Achat/montage/vol MOD-04 | Toujours fermés, module et marqueur synthétiques en tests | Garde de publication/catalogue maintenue |
+| Retrait vidé/consigné, panne et interface | À raccorder avant ouverture | Contrôles en panne refusés, aucun nouvel écran |
+
+Local : build et 799/799 ciblés dans 64 fichiers. hidden-inspection : 37 suites Firestore, treize HTTP, aucun navigateur ni suite complète. CI exacte dans PR #2. [Détail](SO-FRET-CACHE.md).
+
 ## MOD-04 préparatoire — 4 novembre 2026
 
 Base : 880da94, [CI 41816277785](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41816277785) réussie : 742 applicatifs, 592 Firestore, douze HTTP et build.

@@ -1,5 +1,15 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## Fret caché préparatoire, aucune activation — 4 novembre 2026
+
+hiddenCargoVersion=1 est un garde de composant non émis par publication/naissance. Les tests injectent le marqueur et un module monté synthétique. MOD-04 demeure fermé à la publication, au commerce, au montage et au vol ; aucune migration d’ancienne session. Ne pas appliquer ces données synthétiques en partie.
+
+Conserver ensemble manifeste/pages/version/marqueurs, identité/droits/versions et customsAuthorization, mêmes lots et inventory/history (hiddenCargo.concealed/discovered/discoveredAt), modules/profils, shipMaintenance et ses résultats/échéances, maintenanceId/activeMaintenanceId, réservations PA/horloges, portVisitId/customsAttempt, voyages, logisticsHistory/audit et operations. Instantané/reprise natif déjà utilisé, aucune collection supplémentaire. Clôture refusée tant qu’une inspection est active. Retirer/replacer/transférer ne doit pas effacer la découverte ; réception retire uniquement la dissimulation active.
+
+Ancien binaire non équivalent : ignore les dossiers et métadonnées de dissimulation/habilitation/escale. Aucun retour logiciel seul ni suppression partielle de marqueur/réserve/verrou. Annulation avec le code compatible avant un retour approuvé, ou restauration cohérente de l’ensemble. La fermeture du marqueur ne libère pas un dossier actif. Contrôles en panne MOD-04 volontairement refusés avant intégration complète. Aucun déploiement, sauvegarde externe/restauration globale ou retour arrière exécuté ici.
+
+Build et 799 tests locaux ciblés ; CI exacte dans PR #2. Périmètre préparatoire détaillé dans [SO-FRET-CACHE.md](SO-FRET-CACHE.md).
+
 ## Définition préparatoire MOD-04 — 4 novembre 2026
 
 Calibration M1 code/size inchangée. MOD-04 accepté dans le brouillon pour cargo/transport seulement, mais explicitement exclu des versions jouables, du commerce, des mandats et profils montés. Aucun marqueur actif, migration, nouvel inventaire ou collection. Les instances jouées ne sont pas modifiées.

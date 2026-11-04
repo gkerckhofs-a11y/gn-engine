@@ -1,5 +1,15 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Fret caché et inspections préparatoires — 4 novembre 2026
+
+Base b4b21f5 : [CI 41818695160](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41818695160) réussie, build, 748 applicatifs, 595 Firestore, douze HTTP. Source : V0.7 chapitre 24. [Périmètre du composant](SO-FRET-CACHE.md).
+
+Service fermé sous hiddenCargoVersion=1, absent des manifestes publiés. Même cargaison réelle : 5/20 ou 10/50 unités, propriétaire personnel, même lot MOD-04 monté vérifié. Découverte durable conservée lors d’un rangement, fractionnement/transfert natif ou reprise. Ordinaire 2 min/0 PA sans révélation nouvelle ; approfondie 2 min/1 PA joueur, D6+habilitation organisation≥7 ; PNJ 0 PA sous régie. Une tentative partagée par escale/vaisseau, nouvelle autorisation MJ motivée. Verrous et réserve PA natifs, PAUSE/STOP, droits courants avant reçus, réessai/concurrence/rollback, restitution MJ après révocation. Aucun débit fiscal, saisie ou ouverture de coffre.
+
+Fixtures : session et cargaison natives, mais module/lot monté et marqueur synthétiques. Aucun achat, montage ou vol MOD-04 démontré. MOD-04 reste preparationOnly, publication bloquée ; pas d’interface nouvelle ni activation d’ancienne session. Panne MOD-04 : nouveaux rangements et contrôles refusés, intégration définitive encore à faire. Attestation ordinaire distincte d’une validation de manifeste/licence/authenticité.
+
+Local : build et 799/799 ciblés dans 64 fichiers ; 21 cas partagés du composant, un abordage, un sélecteur et un HTTP/Auth ajouté. Profil hidden-inspection : 37 suites Firestore et treize HTTP ; résultat exact de CI dans PR #2. Pas de suite complète, navigateur ou recette humaine. Suite : retrait vidé/consigné, visibilité en panne et profil/vol, interface, puis ouverture versionnée cohérente. Aucun déploiement ou fusion main.
+
 ## MOD-04 — catalogue préparatoire — 4 novembre 2026
 
 Base vérifiée : `880da943f3bcc6d24e6423d7a17317947219e93e`, [CI ciblée 41816277785](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41816277785) completed/success : build, 742 applicatifs, 592 Firestore, douze HTTP. Source : V0.7 chapitre 17 (MOD-04, 10 %, compatibilité, atelier) et fret clandestin (5/20 unités cargo, 10/50 transport). Aucun audit historique repris.

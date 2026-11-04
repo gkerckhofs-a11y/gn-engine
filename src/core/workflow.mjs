@@ -1,3 +1,4 @@
+import {createHiddenCargoService,hiddenCargoActions} from './space-hidden-cargo.mjs';
 import {createModuleWorkService,moduleWorkActions} from './space-module-work.mjs';
 import {createModuleMandateService,moduleMandateActions} from './space-module-mandates.mjs';
 import {createBoardingCargoService,boardingCargoActions} from './space-boarding-cargo.mjs';
@@ -166,6 +167,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const spaceBoardingService=createSpaceBoardingService({store,signed,checkSession,now,uuid});
   const spaceRescueService=createSpaceRescueService({store,signed,checkSession,now,uuid});
   const voyageService=createVoyageService({store,signed,checkSession,now,uuid,rollD6});
+  const hiddenCargoService=createHiddenCargoService({store,signed,checkSession,now,uuid,rollD6});
   const cargoService=createCargoService({store,signed,checkSession,now,uuid});
   const logisticsService=createLogisticsService({store,signed,checkSession,now,uuid});
   const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,now,uuid});
@@ -214,6 +216,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(spaceBoardingActions.includes(action))return spaceBoardingService(action,actor,input);
     if(spaceRescueActions.includes(action))return spaceRescueService(action,actor,input);
     if(voyageAction(action))return voyageService(action,actor,input);
+    if(hiddenCargoActions.includes(action))return hiddenCargoService(action,actor,input);
     if(cargoAction(action))return cargoService(action,actor,input);
     if(logisticsAction(action))return logisticsService(action,actor,input);
     if(personAction(action))return personService(action,actor,input);

@@ -129,3 +129,12 @@ test('CI ciblée : MOD-04 préparatoire inclut M1, publication, commerce, mandat
  assert.equal(requestedTarget('[ci targeted:hidden-catalog]'),'hidden-catalog');assert.equal(p.browser,false);for(const id of ['space-ship-module-catalog','central-master','central-import','space-outlaws-entry','space-module-purchases','space-module-mandates','space-module-flight'])assert.ok(p.suites.includes(id));
  assert.deepEqual(testCommand('application',{GN_CI_PROFILE:'targeted-hidden-catalog',GN_APPLICATION_TESTS:JSON.stringify(p.applicationTests)}).args,['--test',...p.applicationTests]);assert.throws(()=>targetedScope('hidden-catalog',['src/core/customs.mjs'],{reliableBase:true}));
 });
+
+test('CI ciblée : fret caché préparatoire couvre cargo natif, abordage, droits, PA et reprise sans navigateur',()=>{
+ const p=targetedScope('hidden-inspection',['src/core/space-hidden-cargo.mjs','src/core/cargo-batches.mjs','src/core/space-boarding-cargo.mjs'],{reliableBase:true});
+ assert.equal(requestedTarget('[ci targeted:hidden-inspection]'),'hidden-inspection');assert.equal(p.applicationTests.length,64);assert.equal(p.browser,false);
+ for(const id of ['space-hidden-cargo','cargo','space-boarding-cargo','space-module-flight','space-logistics','space-episodes'])assert.ok(p.suites.includes(id));
+ assert.deepEqual(testCommand('application',{GN_CI_PROFILE:p.profile,GN_APPLICATION_TESTS:JSON.stringify(p.applicationTests)}).args,['--test',...p.applicationTests]);
+ assert.ok(new RegExp(p.httpPattern).test('HTTP + Auth : fret caché préparatoire, droits et inspection'));assert.throws(()=>targetedScope('hidden-inspection',['src/core/customs.mjs'],{reliableBase:true}));
+ const selected=matrixFor(p.suites).flatMap(({shard})=>selectFirestoreSuites({GN_FIRESTORE_SUITES:JSON.stringify(p.suites),GN_FIRESTORE_SHARD:shard}));assert.deepEqual(selected.map(s=>s.id).sort(),[...p.suites].sort());
+});

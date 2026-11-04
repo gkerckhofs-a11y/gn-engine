@@ -13,6 +13,9 @@ export async function boardingCargoFixture(makeStore,{quantity=5,...options}={})
  return {...f,ids,input,prepare,start,receipt,finish,lot,total,release,arrive};
 }
 export function boardingCargoSuite(makeStore,prefix='Transbordement supervisé SO'){
+ test(`${prefix} : compartiment inconnu n’est pas du fret ordinaire, découverte persistante exigée`,async()=>{
+  const f=await boardingCargoFixture(makeStore),path=`inventory/${f.ids[0]}`;await f.edit(path,l=>({...l,hiddenCargo:{shipId:'ship',concealed:true,discovered:false}}));await assert.rejects(f.prepare(),{code:'BOARDING_CARGO_RESTRICTED'});await f.edit(path,l=>({...l,hiddenCargo:{...l.hiddenCargo,discovered:true}}));const q=await f.prepare();assert.equal(q.volume,2);
+ });
  test(`${prefix} : réservation puis trois minutes, transfert sous garde sans propriété, argent ou PA nouveaux`,async()=>{
   const f=await boardingCargoFixture(makeStore),before=await f.lot(f.ids[0]),total=await f.total(),wallet=await f.wallet(),points=await f.points(),q=await f.prepare();assert.equal(q.volume,2);assert.equal((await f.lot(before.id)).quantity,5);const r=await f.start();assert.equal((await f.lot(r.lotId)).location.id,'ship');assert.equal((await f.lot(r.lotId)).status,'CARGO_RESERVED');await assert.rejects(f.finish(r),{code:'SO_CARGO_NOT_READY'});f.advance(179999);await assert.rejects(f.finish(r),{code:'SO_CARGO_NOT_READY'});f.advance(1);await f.finish(r);const l=await f.lot(r.lotId);assert.equal(l.location.id,'second');assert.equal(l.ownerId,before.ownerId);assert.equal(l.holderId,f.otherId);assert.equal(l.boardingCustody.boardingId,f.input.boardingId);assert.equal(await f.total(),total);assert.deepEqual(await f.wallet(),wallet);const afterPoints=await f.points();assert.equal(afterPoints.available,points.available);assert.equal(afterPoints.reserved,points.reserved);assert.equal(afterPoints.revision,points.revision);assert.equal((await f.ship()).combatId,f.combatId());
  });

@@ -61,6 +61,13 @@ targetedProfiles['module-flight']={
 // Preparation-only MOD-04. Keep the live equipment/voyage consumers in scope
 // because the shared catalogue now distinguishes defined from playable modules.
 targetedProfiles['hidden-catalog']={...targetedProfiles['module-flight']};
+// Unpublished hidden-cargo component and native movement/boarding consumers.
+targetedProfiles['hidden-inspection']={
+ tests:[...targetedProfiles['hidden-catalog'].tests,'test/space-hidden-cargo.test.mjs','test/cargo.test.mjs','test/space-boarding-cargo.test.mjs'],
+ suites:[...targetedProfiles['hidden-catalog'].suites,'space-hidden-cargo','cargo','space-boarding-cargo'],
+ httpPattern:targetedProfiles['hidden-catalog'].httpPattern.replace('vol équipé,|','fret caché préparatoire,|vol équipé,|'),
+ files:[...targetedProfiles['hidden-catalog'].files,'src/core/space-hidden-cargo.mjs','src/core/cargo-batches.mjs','src/core/space-boarding-cargo.mjs','test/space-hidden-cargo.test.mjs','test/cargo.test.mjs','test/space-boarding-cargo.test.mjs','test/support/space-hidden-cargo-suite.mjs','test/support/cargo-suite.mjs','test/support/space-boarding-cargo-suite.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;
