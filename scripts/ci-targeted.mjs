@@ -35,6 +35,12 @@ targetedProfiles['module-installation']={
  httpPattern:'^HTTP \\+ Auth : (montage de module,|travail de module,|mandat de module,|achat de module calibré,|modules M1 calibrés,|Master central,|XLSX central,)',
  files:[...targetedProfiles['module-work'].files,'src/core/space-outlaws-voyages.mjs','src/core/space-convoy.mjs','src/core/inventory.mjs','web/inventory.mjs','web/space-outlaws-voyages.mjs','test/space-module-installation.test.mjs','test/support/space-module-installation-suite.mjs','test/support/space-module-purchases-suite.mjs','test/support/space-outlaws-shops-suite.mjs','test/support/space-logistics-suite.mjs','test/space-outlaws-voyages-ui.test.mjs','test/space-convoy.test.mjs','test/space-convoy-ui.test.mjs'],
 };
+targetedProfiles['module-removal']={
+ tests:[...targetedProfiles['module-installation'].tests,'test/space-module-removal.test.mjs'],
+ suites:[...targetedProfiles['module-installation'].suites,'space-module-removal'],
+ httpPattern:'^HTTP \\+ Auth : (retrait de module,|montage de module,|travail de module,|mandat de module,|achat de module calibré,|modules M1 calibrés,|Master central,|XLSX central,)',
+ files:[...targetedProfiles['module-installation'].files,'test/space-module-removal.test.mjs','test/support/space-module-removal-suite.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

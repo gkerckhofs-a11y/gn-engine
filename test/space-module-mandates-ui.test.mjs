@@ -19,3 +19,7 @@ test('Mandats modules UI : propositions MJ, aperçu personnel et entrée depuis 
  const h=maintenanceHtml({session:d.session,admin:false,jobs:[],moduleMandatesReady:true});assert.match(h,/#\/module-mandates\/s/);assert.doesNotMatch(maintenanceHtml({session:d.session,admin:false,jobs:[]}),/module-mandates/);assert.equal(playerRoute('module-mandates','s').space,'terminal');
  const app=readFileSync(new URL('../web/app.mjs',import.meta.url),'utf8');assert.match(app,/page==='module-mandates'\|\|page==='module-mandates-admin'/);assert.match(app,/kind==='moduleMandateOffer'/);assert.match(app,/kind==='moduleMandateCommand'/);
 });
+
+test('Retrait modules UI : nouvel accord distinct et choix du module monté sur le vaisseau',()=>{
+ const r={...record,moduleOperation:'REMOVE',install:{level:2,seconds:300,actionPoints:1}},h=moduleMandateConfirmHtml('prepareModuleMandateApproval',r,{});assert.match(h,/Retrait prévu : MEC-03 N2, 5 min/);assert.match(h,/Approuver ce retrait prévu/);assert.doesNotMatch(h,/<script>|<img/);const admin={...d,admin:true,removalEnabled:true,ships:[],lots:[],characters:[]};assert.match(moduleMandatesHtml(admin),/name="moduleOperation"/);assert.doesNotMatch(moduleMandatesHtml({...admin,removalEnabled:false}),/name="moduleOperation"/);
+});

@@ -9,31 +9,34 @@ import {spaceShipProfiles} from '../shared/space-outlaws-navigation.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {gameTime} from './clock.mjs';
 
-const offerFields=['shipId','lotId','technicianId','present','workshopConfirmed','source','reason'];
+const offerFields=['moduleOperation','shipId','lotId','technicianId','present','workshopConfirmed','source','reason'];
 const fields={moduleMandates:[],moduleMandatesAdmin:[],prepareModuleMandateOffer:offerFields,offerModuleMandate:[...offerFields,'confirmation'],prepareModuleMandateApproval:['mandateId'],approveModuleMandate:['mandateId','confirmation','present'],declineModuleMandate:['mandateId','confirmation','reason'],cancelModuleMandate:['mandateId','confirmation','reason'],cancelModuleMandateAdmin:['mandateId','confirmation','reason']};
 export const moduleMandateActions=Object.keys(fields);
 const reads=new Set(['moduleMandates','moduleMandatesAdmin','prepareModuleMandateOffer','prepareModuleMandateApproval']);
 const admins=new Set(['moduleMandatesAdmin','prepareModuleMandateOffer','offerModuleMandate','cancelModuleMandateAdmin']);
 const open=r=>['MODULE_OFFERED','MODULE_APPROVED'].includes(r.status);
 export const hasModuleMandates=s=>s.spaceOutlaws?.moduleMandatesVersion===1&&s.spaceOutlaws.modulePurchasesVersion===1&&s.spaceOutlaws.navigationVersion===1&&s.spaceOutlaws.logisticsVersion===1;
+export const hasModuleRemoval=s=>s.spaceOutlaws?.moduleRemovalVersion===1&&s.spaceOutlaws.moduleInstallationVersion===1&&s.spaceOutlaws.moduleWorkVersion===1&&hasModuleMandates(s);
+export const installedModuleLot=(ship,lot)=>ship?.moduleInstallationVersion===1&&lot?.ownerId===ship.ownerId&&lot.quantity===1&&(lot.ownerType??'CHARACTER')==='CHARACTER'&&lot.holderId===ship.id&&lot.location?.kind==='SHIP_MODULE'&&lot.location.id===ship.id&&ship.modules?.filter(m=>m.lotId===lot.id&&m.code===lot.item?.shipModule?.code&&m.size===lot.item?.shipModule?.size&&m.status==='OPERATIONAL').length===1;
 const fit=(c,time)=>c?.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeVoyageId&&!c.activeNavigationId&&!c.activeMaintenanceId&&!c.activeCargoId&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&!(c.convalescentUntilGameMs>time);
 const free=ship=>ship?.enabled&&ship.soProfile&&ship.docked&&!ship.journey&&!ship.operation&&!ship.combatId&&!ship.rescueId&&!ship.maintenanceId&&!ship.ambushId&&!ship.convoy&&!ship.convoyOffer;
 const local=(s,c,ship)=>(c.spacePortId??s.transportRules?.homePort)===ship.portId;
 const proof=(s,r,version)=>hash(JSON.stringify([s.id,s.revision,r,version??null]));
-const view=(s,r,version,valid)=>({id:r.id,status:r.status,shipId:r.shipId,shipName:r.shipName,lotId:r.lotId,module:r.module,ownerId:r.ownerId,ownerName:r.ownerName,technicianId:r.technicianId,technicianName:r.technicianName,portName:r.portName,install:r.install,valid,confirmation:proof(s,r,version)});
+const view=(s,r,version,valid)=>({...((r.moduleOperation==='REMOVE')?{moduleOperation:'REMOVE'}:{}),id:r.id,status:r.status,shipId:r.shipId,shipName:r.shipName,lotId:r.lotId,module:r.module,ownerId:r.ownerId,ownerName:r.ownerName,technicianId:r.technicianId,technicianName:r.technicianName,portName:r.portName,install:r.install,valid,confirmation:proof(s,r,version)});
 
 export async function moduleMandateBinding(tx,s,input,at){
+  const removing=input.moduleOperation==='REMOVE';if(removing)requireThat(hasModuleRemoval(s),'SO_GAMEPLAY_NOT_OPEN');
   const base=`sessions/${s.id}`,time=gameTime(s.clock,at),ship=await tx.get(`${base}/ships/${documentId(input.shipId)}`);
   requireThat(free(ship),'SPACE_SHIP_BUSY');
   const owner=await inventoryParty(tx,s.id,ship.ownerId),tech=await inventoryParty(tx,s.id,documentId(input.technicianId));
   requireThat(owner.active&&fit(owner.c,time)&&local(s,owner.c,ship),'INVALID_MODULE_OWNER');
   const port=await tx.get(`${base}/ports/${ship.portId}`);requireThat(port?.versionId===s.versionId,'SHIP_NOT_LOCAL');
   const lot=await tx.get(`${base}/inventory/${documentId(input.lotId)}`),q=standardShipModuleQuote(lot?.item?.shipModule),profile=spaceShipProfiles.find(p=>p.id===ship.soProfile.id);
-  requireThat(q&&profile&&profile.size===q.size&&Array.isArray(ship.modules)&&ship.modules.length<profile.moduleSlots&&!ship.modules.some(m=>m.code===q.code),'INVALID_MODULE_CALIBRATION');
-  requireThat(lot.item.kind==='INDIVIDUAL'&&!lot.item.consumable&&personalLot(lot,ship.ownerId)&&lot.status==='AVAILABLE'&&lot.quantity===1&&lot.transferable===true&&lot.resellable===true&&!lot.transportContractId,'MODULE_LOT_UNAVAILABLE');
-  requireThat(tech.active&&fit(tech.c,time)&&local(s,tech.c,ship)&&navigationSkill(tech.c,'MEC-03')>=q.install.level,'MODULE_TECH_REQUIRED');
+  requireThat(q&&profile&&profile.size===q.size&&Array.isArray(ship.modules)&&(removing?ship.modules.length<=profile.moduleSlots&&installedModuleLot(ship,lot):ship.modules.length<profile.moduleSlots&&!ship.modules.some(m=>m.code===q.code)),'INVALID_MODULE_CALIBRATION');
+  requireThat(lot.item.kind==='INDIVIDUAL'&&!lot.item.consumable&&(removing?installedModuleLot(ship,lot)&&lot.status==='INSTALLED':personalLot(lot,ship.ownerId)&&lot.status==='AVAILABLE')&&lot.quantity===1&&lot.transferable===true&&lot.resellable===true&&!lot.transportContractId,'MODULE_LOT_UNAVAILABLE');
+  requireThat(tech.active&&fit(tech.c,time)&&local(s,tech.c,ship)&&navigationSkill(tech.c,'MEC-03')>=(removing?q.remove:q.install).level,'MODULE_TECH_REQUIRED');
   requireThat(!(await tx.list(`${base}/cargoTransfers`)).some(t=>t.status==='LOADING'&&[t.source,t.destination].some(l=>l.kind==='HOLD'&&l.id===ship.id)),'CARGO_TRANSFERS_OPEN');
-  return {shipId:ship.id,shipName:ship.name,shipRevision:ship.revision,ownerId:owner.c.id,ownerVersion:owner.version,ownerName:owner.c.public.displayName,technicianId:tech.c.id,technicianVersion:tech.version,technicianName:tech.c.public.displayName,lotId:lot.id,lotRevision:lot.revision,module:{code:q.code,size:q.size,label:q.label},portId:port.id,portName:port.name,install:q.install};
+  return {...(removing?{moduleOperation:'REMOVE',moduleRemovalVersion:1}:{}),shipId:ship.id,shipName:ship.name,shipRevision:ship.revision,ownerId:owner.c.id,ownerVersion:owner.version,ownerName:owner.c.public.displayName,technicianId:tech.c.id,technicianVersion:tech.version,technicianName:tech.c.public.displayName,lotId:lot.id,lotRevision:lot.revision,module:{code:q.code,size:q.size,label:q.label},portId:port.id,portName:port.name,install:removing?q.remove:q.install};
  }
 
 export function createModuleMandateService({store,signed,checkSession,now,uuid}){
@@ -47,14 +50,15 @@ export function createModuleMandateService({store,signed,checkSession,now,uuid})
    const admin=admins.has(action),ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId))}:await inventoryPlayer(tx,actor,input),{s,c,version}=ctx,base=`sessions/${s.id}`;
    requireThat(hasModuleMandates(s),'SO_GAMEPLAY_NOT_OPEN');requireThat(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage),'SESSION_CLOSED');
    const rights=async r=>{if(admin)return true;const ship=await tx.get(`${base}/ships/${r.shipId}`);return c.id===r.ownerId&&version===r.ownerVersion&&ship?.ownerId===c.id||c.id===r.technicianId&&version===r.technicianVersion;};
+   if(['prepareModuleMandateOffer','offerModuleMandate'].includes(action)){requireThat(input.moduleOperation===undefined||['INSTALL','REMOVE'].includes(input.moduleOperation),'INVALID_ADMISSION');if(input.moduleOperation==='REMOVE')requireThat(hasModuleRemoval(s),'SO_GAMEPLAY_NOT_OPEN');}
    if(['moduleMandates','moduleMandatesAdmin'].includes(action)){
     const jobs=[];for(const r of await tx.list(`${base}/shipMaintenance`))if(r.moduleMandateVersion===1&&await rights(r))jobs.push({...view(s,r,version,open(r)&&await current(tx,s,r)),owner:c?.id===r.ownerId,canCancel:open(r),technician:c?.id===r.technicianId,workEnabled:s.spaceOutlaws.moduleWorkVersion===1,working:r.status==='MODULE_ACTIVE'&&r.moduleWorkVersion===1,remainingSeconds:r.status==='MODULE_ACTIVE'?Math.max(0,Math.ceil((r.readyAtGameMs-gameTime(s.clock,at))/1000)):null});
     if(!admin)return {session:{id:s.id,stage:s.stage,safetyStopped:!!s.safetyStop?.active},admin:false,jobs};
-    const ships=(await tx.list(`${base}/ships`)).filter(free).map(sh=>({id:sh.id,name:sh.name,ownerId:sh.ownerId})),lots=(await tx.list(`${base}/inventory`)).filter(l=>l.item?.shipModule&&l.status==='AVAILABLE'&&l.quantity===1&&personalLot(l,l.ownerId)).map(l=>({id:l.id,name:l.item.name,ownerId:l.ownerId,code:l.item.shipModule.code,size:l.item.shipModule.size})),characters=(await tx.list(`${base}/characters`)).filter(ch=>ch.birth).map(ch=>({id:ch.id,name:ch.public.displayName,level:navigationSkill(ch,'MEC-03')}));
-    return {session:{id:s.id,stage:s.stage,safetyStopped:!!s.safetyStop?.active},admin:true,jobs,ships,lots,characters};
+    const ships=(await tx.list(`${base}/ships`)).filter(free).map(sh=>({id:sh.id,name:sh.name,ownerId:sh.ownerId})),lots=(await tx.list(`${base}/inventory`)).filter(l=>l.item?.shipModule&&l.quantity===1&&(l.status==='AVAILABLE'&&personalLot(l,l.ownerId)||hasModuleRemoval(s)&&l.status==='INSTALLED'&&l.location?.kind==='SHIP_MODULE')).map(l=>({id:l.id,name:l.item.name,ownerId:l.ownerId,code:l.item.shipModule.code,size:l.item.shipModule.size,mounted:l.status==='INSTALLED',shipId:l.status==='INSTALLED'?l.location.id:null})),characters=(await tx.list(`${base}/characters`)).filter(ch=>ch.birth).map(ch=>({id:ch.id,name:ch.public.displayName,level:navigationSkill(ch,'MEC-03')}));
+    return {session:{id:s.id,stage:s.stage,safetyStopped:!!s.safetyStop?.active},admin:true,removalEnabled:hasModuleRemoval(s),jobs,ships,lots,characters};
    }
    let r=null;
-   if(!['prepareModuleMandateOffer','offerModuleMandate'].includes(action)){r=await tx.get(`${base}/shipMaintenance/${documentId(input.mandateId)}`);requireThat(r?.moduleMandateVersion===1&&await rights(r),'FORBIDDEN');}
+   if(!['prepareModuleMandateOffer','offerModuleMandate'].includes(action)){r=await tx.get(`${base}/shipMaintenance/${documentId(input.mandateId)}`);requireThat(r?.moduleMandateVersion===1&&await rights(r),'FORBIDDEN');if(r.moduleOperation==='REMOVE')requireThat(hasModuleRemoval(s)&&r.moduleRemovalVersion===1,'SO_GAMEPLAY_NOT_OPEN');}
    if(action==='approveModuleMandate'){
     requireThat(c.id===r.ownerId,'FORBIDDEN');requireThat(open(r)&&await current(tx,s,r),'MODULE_MANDATE_STALE');
    }

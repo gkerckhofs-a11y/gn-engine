@@ -1,5 +1,16 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## Complément atelier — 4 novembre 2026
+
+| Exigence V0.7 chapitre 17 | État courant | Preuve |
+| --- | --- | --- |
+| Retrait MOD-01/02/03/06, MEC-03 N2, cinq minutes, 1 PA | Raccordé au mandat propriétaire et travail Mécano natifs | space-module-removal-suite, mémoire/Firestore ; HTTP/Auth ciblé |
+| Même identité, état opérationnel et gabarit ; réduction des maximums sans points rendus | Même lot au sac, profil recalculé, points plafonnés ; interruption conserve l’équipement | Quinze nouveaux cas partagés, deux UI |
+| Vols équipés/combats et neutralisation en voyage | À développer ; départ équipé toujours bloqué | Vol nu après retrait du dernier module testé |
+
+Local : 516/516 ciblés dans 39 fichiers et build. Profil module-removal, 24 suites Firestore/huit HTTP ; CI exacte à consigner dans PR #2. moduleRemovalVersion=1 sur nouveaux manifestes seulement. Aucun verdict de recette humaine ou publication.
+
+
 ## Finalisation du montage à quai — 2 novembre 2026
 
 Base réelle : `065329a438d69afd9f579b712ebfbfd4ce44fc61`, [CI ciblée 41515892870](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41515892870) réussie, huit jobs requis : build, 455 applicatifs, 373 Firestore (95 + 82 + 54 + 142), six HTTP. Pas de reprise d’audit historique. Source métier : [règles V0.7, chapitre 17](source/SO_Regles_V07.txt), montage et maximums sans effacer les dégâts.

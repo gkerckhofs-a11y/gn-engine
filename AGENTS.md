@@ -1,5 +1,20 @@
 # GN Engine — consignes de développement
 
+## Retrait chronométré des modules standards — 4 novembre 2026
+
+Base vérifiée : `e969f9a176df06dc0cf9fe70635ea2926dc42f50`, [CI ciblée 41521815633](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41521815633) réussie : build, 498 applicatifs, 402 Firestore, sept HTTP. Source : [V0.7 chapitre 17](docs/source/SO_Regles_V07.txt), retrait standard MEC-03 N2, cinq minutes de jeu, 1 PA. Aucun audit historique repris.
+
+Réutiliser les mandats et travaux natifs : `moduleOperation=REMOVE` exige un **nouvel accord personnel du propriétaire**, lié au même lot monté, vaisseau et Mécano. L’accord de montage antérieur ne vaut pas accord de retrait. La régie atteste l’atelier ; seul le Mécano désigné démarre et finalise personnellement. Réservation du lot monté/1 PA et verrous vaisseau/Mécano, délai figé par PAUSE/STOP, confirmation finale de présence/atelier/opération réellement effectuée. Le module reste monté jusqu’à la confirmation ; aucune restitution automatique à l’échéance.
+
+Finalisation : même exemplaire ordinaire rendu au sac du propriétaire, code/gabarit/quantité/propriété conservés ; MODULE_REMOVED, profil natif recalculé depuis la base et les modules restants. Coque/Bouclier actuels sont plafonnés aux nouveaux maximums sans gain de points. Interruption : module toujours monté, profil conservé, PA réservé rendu dans son plafond. Mandat, identités/droits courants et marqueurs vérifiés avant anciens reçus ; réserves étrangères et états incohérents refusés atomiquement. MODULE_WORK/MODULE_MANDATES conservent leurs capacités, aucun compte/ledger ou nouvelle collection. MOD-04/05, rares, endommagés et prototypes restent hors parcours. Aucun échange/pillage/rachat créé.
+
+`moduleRemovalVersion=1` sur nouveaux manifestes uniquement, dépendant de moduleInstallationVersion et de ses dépendances. Transmission à la naissance et conservation entre épisodes, ancien manifeste non enrichi. Sauvegarder marqueurs/manifeste/pages, mandats/opération/délais, droits/identités, mêmes lots/emplacements/historiques, modules/profils/verrous, PA/horloges et operations/logisticsHistory ensemble. Ancien binaire non équivalent pour un retrait actif ; pas de retour seul ou effacement de marqueur/réserve. Annuler sous le code compatible avant un retour approuvé, ou restaurer un ensemble cohérent. Aucune migration implicite.
+
+Local : build et **516/516 tests ciblés, 39 fichiers**, Node 24.22.1/npm 11.9.0 ; quinze nouveaux cas partagés mémoire/Firestore, deux UI, un HTTP/Auth et un cas du sélecteur. Profil `[ci targeted:module-removal]` : 24 suites Firestore, huit HTTP bornés, aucun Chromium ni suite complète. Java local 17 : émulateurs réservés à la CI Java 21. Consigner la CI exacte dans PR #2 avant le lot suivant. Tests ciblés distincts d’une régression intégrale et d’une recette humaine.
+
+Même branche/PR #2 brouillon, sans fusion main ni publication. Vols avec modules encore montés restent bloqués ; retirer le dernier module réouvre le parcours natif de vol nu. Suite : effets en combat, dommages/maximums et neutralisation temporaire de quinze minutes en voyage, y compris événement commun des convois, avant d’ouvrir les vols équipés.
+
+
 ## Finalisation du montage à quai — 2 novembre 2026
 
 Base réelle : `065329a438d69afd9f579b712ebfbfd4ce44fc61`, [CI ciblée 41515892870](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41515892870) réussie, huit jobs requis : build, 455 applicatifs, 373 Firestore (95 + 82 + 54 + 142), six HTTP. Pas de reprise d’audit historique. Source métier : [règles V0.7, chapitre 17](docs/source/SO_Regles_V07.txt), montage et maximums sans effacer les dégâts.

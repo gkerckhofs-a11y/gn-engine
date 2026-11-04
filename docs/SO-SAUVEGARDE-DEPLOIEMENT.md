@@ -1,5 +1,14 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## Compatibilité du retrait des modules — 4 novembre 2026
+
+Nouveau marqueur moduleRemovalVersion=1, dépendant de moduleInstallationVersion=1 et de ses dépendances. Nouveaux manifestes seulement ; naissance et reprise natives le conservent. Aucun enrichissement d’une ancienne session, migration ou nouvelle collection.
+
+Conserver ensemble manifeste/pages/marqueurs, mandat `moduleOperation=REMOVE` et versions d’identité, états MODULE_OFFERED/APPROVED/ACTIVE/REMOVED/CANCELLED, délais de jeu, même inventaire/lot/emplacement/historique, vaisseau/modules/profil/verrous, personnage/PA/horloges, droits courants et operations/logisticsHistory. Retrait actif : lot FIELD_RESERVED restant attaché au vaisseau et bonus conservés jusqu’à confirmation ; interruption rétablit INSTALLED et libère le PA ; finalisation consomme le PA et rend AVAILABLE au même propriétaire. Profil recalculé et points plafonnés sont atomiques avec la remise.
+
+Ancien binaire ne traite pas correctement ce retrait actif : retour logiciel seul non équivalent. Annuler explicitement les travaux sous le code compatible avant un retour approuvé, ou restaurer l’ensemble cohérent ; ne pas supprimer marqueur, dossier ou réservation séparément. Aucun retour arrière, export/restauration global ou migration exécuté ici. Local : 516 tests ciblés et build ; CI exacte dans PR #2. Aucune fusion ni publication. Les voyages équipés restent bloqués ; vol nu possible après retrait du dernier module.
+
+
 ## Finalisation du montage à quai — 2 novembre 2026
 
 Base réelle : `065329a438d69afd9f579b712ebfbfd4ce44fc61`, [CI ciblée 41515892870](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41515892870) réussie, huit jobs requis : build, 455 applicatifs, 373 Firestore (95 + 82 + 54 + 142), six HTTP. Pas de reprise d’audit historique. Source métier : [règles V0.7, chapitre 17](source/SO_Regles_V07.txt), montage et maximums sans effacer les dégâts.

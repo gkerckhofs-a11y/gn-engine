@@ -1,5 +1,18 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Retrait standard en atelier — 4 novembre 2026
+
+Base : `e969f9a`, [CI 41521815633](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41521815633) réussie : 498 applicatifs, 402 Firestore, sept HTTP et build. Source : [V0.7 chapitre 17](source/SO_Regles_V07.txt).
+
+Parcours livré : nouvelle proposition de retrait → accord personnel propriétaire → démarrage Mécano → cinq minutes de jeu et 1 PA réservé → aperçu et confirmation personnelle → même lot rendu au propriétaire. MEC-03 N2 pour MOD-01/02/03/06. Profil recalculé, maximums réduits et points actuels plafonnés sans restitution. Interruption conserve le module monté et rend le PA. Aucun nouvel achat, débit financier ou conversion du gabarit. Après retrait du dernier module, le vol natif nu est de nouveau possible ; vols équipés toujours fermés.
+
+Validation locale : **516/516 tests dans 39 fichiers et build réussis**, Node 24.22.1/npm 11.9.0. Quinze nouveaux cas partagés : consentement spécifique, quatre modules, MEC-03 N2/délai/PA, maximums/dommages, remontage du même lot, interruption après renouvellement des PA, PAUSE/STOP, séparation des rôles/opérations, concurrence/réessai, course avec annulation, décès/révocation, réserves incohérentes, rollback, clôture/reprise et ancien manifeste. Deux UI et un cas du sélecteur ; nouveau HTTP/Auth pour accord distinct, remise du même exemplaire et révocation avant reçu. Vol nu après retrait testé, pas de voyage équipé.
+
+Profil explicitement ciblé `module-removal` : 24 suites Firestore, huit HTTP bornés, aucun Chromium. Émulateurs non exécutés localement (Java 17 ; CI Java 21). Preuves du candidat exact à consigner dans PR #2 ; succès partiel exclu des références globales. Aucun verdict humain, migration, fusion main ou déploiement revendiqué.
+
+Compatibilité : moduleRemovalVersion=1 dépend de moduleInstallationVersion, uniquement dans les nouveaux manifestes, transmis à la naissance et conservé entre épisodes. Anciennes sessions non activées. Même inventaire/shipMaintenance/profils/PA et reçus ; sauvegarde cohérente requise. Suite : ouvrir les vols équipés après raccordement des effets, combats et neutralisations temporaires, y compris convoi.
+
+
 ## Finalisation du montage à quai — 2 novembre 2026
 
 Base réelle : `065329a438d69afd9f579b712ebfbfd4ce44fc61`, [CI ciblée 41515892870](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41515892870) réussie, huit jobs requis : build, 455 applicatifs, 373 Firestore (95 + 82 + 54 + 142), six HTTP. Pas de reprise d’audit historique. Source métier : [règles V0.7, chapitre 17](source/SO_Regles_V07.txt), montage et maximums sans effacer les dégâts.
