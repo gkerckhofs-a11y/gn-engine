@@ -1,5 +1,20 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## Fret/douane — contrôle DOM borné — 4 novembre 2026
+
+Base 2e1c1ef : [CI 41836026173](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41836026173) réussie, 840 applicatifs, 669 Firestore, quatorze HTTP et build.
+
+| Contrôle | Preuve automatisée locale | Limite |
+| --- | --- | --- |
+| Propriétaire et rangement | Aperçu sans mutation, présence requise, même lot rangé | Workflow natif en mémoire, pas de connexion réelle |
+| Agent et découverte | Délai/PA, attestations requises, résultat persistant | DOM de composants, pas l’app entière |
+| Régie après révocation | Fin joueur absente, annulation motivée et restitution PA | Identités fictives établies dans le fixture |
+| Panne B | Ancien contenu protégé et nouveau rangement absent | Règles métier inchangées |
+| Ergonomie | Pas de débordement 360/1280 px, attestations ≥44 px, interruption secondaire séparée | Émulation Chromium, aucun appareil Android/iOS réel |
+| Réponse obsolète | Contrôleur partagé app/test, aperçu/reçu ignorés après navigation | Test unitaire de routeVersion distinct du DOM |
+
+Local : 843/843 ciblés et build ; 8/8 DOM (quatre scénarios × deux viewports). Chromium 156.0.8078.4. hidden-visual : 66 fichiers, 37 suites Firestore, quatorze HTTP ; navigateur global désactivé. CI exacte dans PR #2. Recette humaine et authentification UI complète restent distinctes. Aucune fusion ou publication.
+
 ## MOD-04 — ouverture versionnée et décision B — 4 novembre 2026
 
 Base 6ebf2f2, [CI 41831727543](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41831727543) réussie : 829 applicatifs, 660 Firestore, treize HTTP et build. Décision utilisateur B du 4 novembre consignée dans les règles V0.7 chapitre 24.

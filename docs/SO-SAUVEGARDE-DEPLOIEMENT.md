@@ -1,5 +1,13 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## Ergonomie et contrôle DOM fret/douane — 4 novembre 2026
+
+Base 2e1c1ef, [CI 41836026173](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41836026173) réussie. Aucune nouvelle donnée, collection, permission, migration ou version de manifeste. Modifications limitées au contrôleur client partagé, aux textes/boutons et aux styles cargo-customs. Conserver app, contrôleur et styles comme un ensemble compatible ; données métier MOD-04 et règle B inchangées.
+
+La recette DOM dédiée utilise MemoryStore et des identités fictives, sans réseau/Firebase/Auth réels. Captures et rapports dans dist/hidden-cargo-browser, contexte de commit/arbre/dirty/navigateur/viewport et humanAcceptance=NOT_EXECUTED. Pas de sauvegarde de session réelle ou de verdict humain. Aucun déploiement, fusion main, retour arrière ou sauvegarde/restauration externe exécuté.
+
+Local : build, 843 applicatifs ciblés et huit parcours DOM, aucun débordement aux deux viewports. CI exacte dans PR #2 ; HTTP/Auth et Firestore distincts de cette vérification de composants.
+
 ## MOD-04 versionné, décision B — 4 novembre 2026
 
 Base 6ebf2f2, [CI 41831727543](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41831727543) réussie. Nouveau hiddenCargoVersion=1 émis dans les prochains manifestes compatibles, confirmé dans digest/naissance. Anciens manifestes/sessions sans ce marqueur non enrichis. Aucune migration ou activation manuelle. Décision B : contenus déjà rangés protégés pendant panne, nouveaux rangements bloqués, inspections normales.

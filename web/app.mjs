@@ -1,4 +1,4 @@
-import {hiddenCargoHtml,customsDeskHtml,customsAdminHtml,customsInspectionHtml,hiddenCargoConfirmHtml,hiddenCargoRequest,hiddenCargoErrors} from './space-hidden-cargo.mjs';
+import {hiddenCargoHtml,customsDeskHtml,customsAdminHtml,customsInspectionHtml,submitHiddenCargo,hiddenCargoErrors} from './space-hidden-cargo.mjs';
 import {moduleWorkConfirmHtml,moduleWorkErrors} from './space-module-work.mjs';
 import {moduleMandatesHtml,moduleMandateConfirmHtml,moduleMandateErrors} from './space-module-mandates.mjs';
 import {intelligenceHtml,intelligenceConfirmHtml,intelligenceInput,intelligenceErrors} from './intelligence.mjs';
@@ -593,11 +593,7 @@ document.addEventListener('submit',async event=>{
     if(kind==='shopProvision'){const p={sessionId:form.dataset.sid,shopId:form.dataset.shop,offerId:form.dataset.offer,provisionId:v.provisionId,quantity:Number(v.quantity),restricted:v.restricted==='on',source:v.source,reason:v.reason},d=await api('prepareShopProvision',p);if(submitVersion!==routeVersion)return;modal(shopProvisionConfirmHtml(d,p));return;}
     if(kind==='moduleMandateOffer'){const p={...(v.moduleOperation!==undefined?{moduleOperation:v.moduleOperation}:{}),sessionId:form.dataset.sid,shipId:v.shipId,lotId:v.lotId,technicianId:v.technicianId,source:v.source,reason:v.reason,present:v.present==='on',workshopConfirmed:v.workshopConfirmed==='on'},d=await api('prepareModuleMandateOffer',p);if(submitVersion!==routeVersion)return;modal(moduleMandateConfirmHtml('prepareModuleMandateOffer',d,p));return;}
     if(kind==='hiddenCargoCommand'){
-      const action=form.dataset.command,p=hiddenCargoRequest(action,JSON.parse(form.dataset.payload),v);
-      if(action.startsWith('prepare')){const d=await api(action,p);if(submitVersion!==routeVersion)return;modal(hiddenCargoConfirmHtml(action,d,p));return;}
-      const r=await mutate(action,p);if(submitVersion!==routeVersion)return;dialog.close();notice('Opération confirmée. Consultez le dossier actualisé.');
-      if(action.startsWith('startCustomsInspection')){location.hash=`#/customs-inspection${action.endsWith('Admin')?'-admin':''}/${p.sessionId}/${r.id}`;return;}
-      await route();return;
+      await submitHiddenCargo(form.dataset.command,JSON.parse(form.dataset.payload),v,{read:api,write:mutate,isCurrent:()=>submitVersion===routeVersion,confirm:modal,close:()=>dialog.close(),announce:notice,navigate:path=>{location.hash=path;},refresh:route});return;
     }
     if(kind==='moduleMandateCommand'){const action=form.dataset.command,p={...JSON.parse(form.dataset.payload),...(v.reason!==undefined?{reason:v.reason}:{}),...(v.present!==undefined?{present:v.present==='on'}:{}),...(v.performed!==undefined?{performed:v.performed==='on'}:{}),...(v.workshopConfirmed!==undefined?{workshopConfirmed:v.workshopConfirmed==='on'}:{})};if(['prepareModuleRemoval','prepareModuleInstallation','prepareModuleWorkStart','moduleWork','moduleWorkAdmin'].includes(action)){const d=await api(action,p);if(submitVersion!==routeVersion)return;modal(moduleWorkConfirmHtml(action,d,p));return;}if(action==='prepareModuleMandateApproval'){const d=await api(action,p);if(submitVersion!==routeVersion)return;modal(moduleMandateConfirmHtml(action,d,p));return;}await mutate(action,p);dialog.close();notice('Dossier de montage mis à jour. Consultez son état et ses réservations.');await route();return;}
     if(kind==='shopCommand'){const p=JSON.parse(form.dataset.payload);await mutate(form.dataset.command,{...p,...(form.dataset.command==='confirmShopPickup'?{received:v.received==='on'}:{})});dialog.close();notice(form.dataset.command==='buyShopOffer'?'Achat payé. Retirez les fournitures au comptoir.':'Opération confirmée.');await route();return;}

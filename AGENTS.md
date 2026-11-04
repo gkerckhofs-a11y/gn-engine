@@ -1,5 +1,21 @@
 # GN Engine — consignes de développement
 
+## MOD-04 — vérification DOM et ergonomie ciblée — 4 novembre 2026
+
+Base vérifiée : `2e1c1efcbffafc4ddab8456b579950a5f8c5488f`, [CI 41836026173](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41836026173) completed/success : build, 840 applicatifs, 669 Firestore, quatorze HTTP et huit jobs requis. Aucun audit historique repris. Décision B et ouverture versionnée MOD-04 conservées, aucun changement métier ou de marqueur.
+
+Vérification automatisée bornée des composants fret/douane sur Chromium local 156.0.8078.4, viewports 1280×900 et 360×800 (émulation tactile pour le second). Quatre parcours sur chaque viewport, soit huit : propriétaire (aperçu sans mutation puis présence obligatoire/rangement), agent (réserve PA, délai, deux attestations, résultat/découverte), régie (agent révoqué, aucune fin à sa place, annulation motivée et PA restitué), panne B (ancien contenu caché, nouveau rangement absent). Débordement horizontal et hauteur des attestations visibles vérifiés ; captures de contrôle.
+
+Corrections ergonomiques ciblées : attestations de cargo-customs à 44 px minimum ; interruption séparée par titre/texte et bordure, bouton secondaire distinct de la confirmation principale. Les autres formulaires ne changent pas. Contrôleur submitHiddenCargo extrait sans duplication depuis l’app, utilisé également dans les tests DOM ; même protocole, api/mutate, routeVersion et protections contre réponses obsolètes. Serveur autoritaire inchangé, aucun résultat ou droit local ajouté.
+
+Recette bornée dans test/browser/hidden-cargo.config.mjs et hidden-cargo.spec.mjs. Réutilise les vrais composants, styles et shell du projet, le contrôleur de production et nativeHiddenFlightFixture avec MemoryStore. Appels natifs du workflow, identités fictives déjà établies ; aucun réseau autorisé. Ce n’est PAS le parcours complet app.js/Auth Emulator, ni une recette humaine, ni une validation sur un véritable Android/iPhone. Les quatorze HTTP/Auth et suites Firestore restent distincts. Le navigateur global de recette reste désactivé pour ce profil ciblé.
+
+Exécution locale : GN_BROWSER_EXECUTABLE peut pointer vers un binaire Chromium existant ; sinon Playwright utilise son navigateur installé. Commande bornée : node node_modules/playwright/cli.js test --config=test/browser/hidden-cargo.config.mjs. Rapports/captures dans dist/hidden-cargo-browser, contexte avec commit/arbre/dirty/version/viewport et humanAcceptance=NOT_EXECUTED. Ce sont des données synthétiques reproductibles ; ne pas y connecter une session réelle.
+
+Validation : build, 843/843 applicatifs ciblés dans 66 fichiers et huit parcours navigateur locaux. Deux nouveaux tests UI (réponses obsolètes, séparation interruption/attestations) et un sélecteur. Profil hidden-visual : 37 suites Firestore, quatorze HTTP, browser=false pour ne pas lancer la recette globale. Vérifier la CI exacte et consigner dans PR #2 avant la suite ; Java 21 en CI, pas d’émulateurs locaux. L’arbre testé localement sera comparé à celui poussé.
+
+Compatibilité : code client cohérent (app/contrôleur/styles) ; aucune nouvelle donnée persistée, marqueur, collection, permission ou migration. Conserver les données et procédures du jalon MOD-04 ci-dessous. Pas de sauvegarde/restauration externe, fusion main ou déploiement. Même branche work/space-pilot-handover, PR #2 brouillon. Les anciennes mentions « Chromium absent » décrivent les contrôles précédents ; cette vérification DOM automatisée n’est pas un verdict humain mobile.
+
 ## MOD-04 — décision B et ouverture versionnée des parcours — 4 novembre 2026
 
 Décision explicite de l’utilisateur, 4 novembre 2026 : **B**, protection conservée pendant la neutralisation. Le fret déjà rangé reste caché, seul un nouveau rangement est bloqué. Contrôles ordinaires et approfondis habituels restent possibles ; aucune découverte automatique, aucune destruction/téléportation de fret. Décision consignée dans les règles V0.7 chapitre 24. Base réelle vérifiée : `6ebf2f24303d62d71103066116fe2bd34e3a11de`, [CI 41831727543](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41831727543) completed/success : build, 829 applicatifs, 660 Firestore, treize HTTP. Aucun audit historique repris.

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {hiddenCargoHtml,customsDeskHtml,customsAdminHtml,customsInspectionHtml,hiddenCargoConfirmHtml,hiddenCargoRequest,hiddenCargoErrors} from '../web/space-hidden-cargo.mjs';
+import {hiddenCargoHtml,customsDeskHtml,customsAdminHtml,customsInspectionHtml,hiddenCargoConfirmHtml,hiddenCargoRequest,hiddenCargoErrors,submitHiddenCargo} from '../web/space-hidden-cargo.mjs';
 import {playerRoute} from '../web/player-spaces.mjs';
 
 const session={id:'s',stage:'EN_JEU'},ship={id:'ship',name:'<img src=x>',capacity:20},lot={id:'lot',item:{name:'<script>Objet</script>',unit:'caisses',unitVolume:1},quantity:5,status:'AVAILABLE',concealed:false,discovered:true};
@@ -43,9 +43,16 @@ test('Douanes UI : protocole borné, chiffres éditables séparés des droits et
 });
 test('Douanes UI : parcours Terminal, routage existant et protection des réponses devenues obsolètes',()=>{
  for(const page of ['hidden-cargo','customs','customs-inspection'])assert.equal(playerRoute(page,'s').space,'terminal');for(const page of ['customs-admin','customs-inspection-admin'])assert.equal(playerRoute(page,'s'),null);
- const app=readFileSync(new URL('../web/app.mjs',import.meta.url),'utf8');assert.match(app,/async function hiddenCargoPage/);assert.match(app,/hiddenCargoRequest\(action,JSON.parse\(form.dataset.payload\),v\)/);assert.match(app,/modal\(hiddenCargoConfirmHtml/);const handler=app.slice(app.indexOf("if(kind==='hiddenCargoCommand')"),app.indexOf("if(kind==='moduleMandateCommand')"));assert.match(handler,/submitVersion!==routeVersion/);assert.match(handler,/await mutate\(action,p\)/);
+ const app=readFileSync(new URL('../web/app.mjs',import.meta.url),'utf8');assert.match(app,/async function hiddenCargoPage/);assert.match(app,/submitHiddenCargo\(form.dataset.command,JSON.parse\(form.dataset.payload\),v/);const handler=app.slice(app.indexOf("if(kind==='hiddenCargoCommand')"),app.indexOf("if(kind==='moduleMandateCommand')"));assert.match(handler,/isCurrent:\(\)=>submitVersion===routeVersion/);assert.match(handler,/read:api,write:mutate/);
 });
 
 test('Décision B UI : volume déjà caché conservé pendant panne, nouveau rangement fermé sans affichage 5/0',()=>{
  const h=hiddenCargoHtml({...owner,hiddenUsed:5,hiddenCapacity:0,hiddenInstalledCapacity:5,stock:[{...lot,concealed:true}]});assert.match(h,/5 \/ 5 unités dissimulées/);assert.match(h,/biens déjà rangés restent cachés/);assert.match(h,/inspections habituelles restent possibles/);assert.match(h,/Sortir du compartiment/);assert.doesNotMatch(h,/Ranger dans le compartiment|5 \/ 0 unités/);
+});
+
+test('Douanes UI : contrôleur ignore un aperçu ou reçu arrivé après navigation',async()=>{
+ for(const action of ['prepareCustomsInspection','finishCustomsInspection']){let current=true,release;const pending=new Promise(r=>release=r),calls=[],hooks={read:()=>pending,write:()=>pending,isCurrent:()=>current,confirm:()=>calls.push('modal'),close:()=>calls.push('close'),announce:()=>calls.push('notice'),navigate:()=>calls.push('navigate'),refresh:()=>calls.push('refresh')},request=submitHiddenCargo(action,{sessionId:'s'},{shipId:'ship',kind:'DEEP',present:'on',performed:'on'},hooks);current=false;release({id:'job'});await request;assert.deepEqual(calls,[]);}
+});
+test('Douanes UI : interruption secondaire séparée de la fin et attestations tactiles',()=>{
+ const h=customsInspectionHtml({session,confirmation:'proof',inspection:{id:'job',shipName:'Ship',kind:'DEEP',status:'ACTIVE',canFinish:true,canCancel:true,remainingSeconds:0,pnj:false}});assert.match(h,/class="customs-cancel"/);assert.match(h,/Aucun résultat ne sera appliqué/);assert.match(h,/<button class="quiet">Interrompre le contrôle/);assert.match(h,/<button class="primary">Confirmer le contrôle/);const css=readFileSync(new URL('../web/galactic.css',import.meta.url),'utf8');assert.match(css,/\.cargo-customs \.check\{min-height:44px/);
 });

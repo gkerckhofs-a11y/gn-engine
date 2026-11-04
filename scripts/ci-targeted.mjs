@@ -79,6 +79,9 @@ targetedProfiles['hidden-ui']={
 };
 // Versioned MOD-04 equipment and decision B: no disclosure on outage.
 targetedProfiles['hidden-flight']={...targetedProfiles['hidden-ui'],httpPattern:targetedProfiles['hidden-ui'].httpPattern.replace('fret caché préparatoire,|','MOD-04 équipé,|fret caché préparatoire,|'),files:[...targetedProfiles['hidden-ui'].files,'test/support/space-outlaws-voyages-suite.mjs','test/support/space-logistics-suite.mjs','test/support/space-module-installation-suite.mjs','test/support/space-module-mandates-suite.mjs','test/support/space-module-work-suite.mjs','test/support/space-module-purchases-suite.mjs','test/support/space-module-removal-suite.mjs','test/support/space-module-flight-suite.mjs','test/support/space-encounters-suite.mjs']};
+// Targeted component DOM checks run locally with a separate bounded config.
+// Keep the historical whole-app browser recipe disabled for this draft scope.
+targetedProfiles['hidden-visual']={...targetedProfiles['hidden-flight'],files:[...targetedProfiles['hidden-flight'].files,'web/galactic.css','test/browser/hidden-cargo.spec.mjs','test/browser/hidden-cargo.config.mjs']};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

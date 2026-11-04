@@ -1,5 +1,15 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Fret/douane — ergonomie et vérification navigateur bornée — 4 novembre 2026
+
+Base 2e1c1ef : [CI 41836026173](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41836026173) réussie, build, 840 applicatifs, 669 Firestore, quatorze HTTP. Décision B et règles métier inchangées.
+
+Huit parcours Chromium locaux : quatre scénarios sur 1280×900 et 360×800 tactile émulé. Composants/styles/shell réels, contrôleur de production, workflow natif et MemoryStore avec données fictives. Propriétaire : aperçu sans écriture et présence obligatoire ; agent : délai, PA, deux attestations puis découverte ; régie : aucune fin pour un joueur, annulation après révocation ; panne B : contenu protégé et nouveau rangement absent. Aucun débordement horizontal, attestations visibles ≥44 px ; captures de contrôle. Interruption séparée et secondaire pour éviter sa confusion avec la confirmation finale.
+
+Ce test n’initialise pas Firebase/Auth et ne teste pas l’application complète ni une connexion réelle. Aucun réseau autorisé ; aucune recette humaine sur Android/iPhone. Rapports et captures reproductibles dans dist/hidden-cargo-browser via la configuration dédiée. Métadonnées commit/arbre/version/viewport et humanAcceptance=NOT_EXECUTED. Les preuves HTTP/Auth/Firestore restent celles de la CI ciblée.
+
+Local : build et 843/843 ciblés dans 66 fichiers, plus 8/8 DOM. Deux UI et un sélecteur ajoutés ; 37 suites Firestore et quatorze HTTP sélectionnés, navigateur global désactivé. CI exacte dans PR #2 avant la suite. Aucun changement de marqueur, données ou autorisation ; aucune migration, fusion main ou publication.
+
 ## MOD-04 — décision B, équipement et vols versionnés — 4 novembre 2026
 
 Base 6ebf2f2, [CI 41831727543](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41831727543) réussie : build, 829 applicatifs, 660 Firestore, treize HTTP. Décision explicite utilisateur B du 4 novembre, intégrée au chapitre 24 des règles : protection du fret déjà rangé conservée pendant la panne ; nouveaux rangements bloqués, inspections habituelles maintenues.

@@ -61,3 +61,11 @@ Régie : lien depuis régie du fret, niveau N0–N5/poste/motif/révision, contr
 Routes joueur dans le Terminal, routes régie distinctes. Protocole de formulaire borné et réponses obsolètes ignorées après navigation. Liens absents sans le marqueur de composant, toujours non émis par la publication/naissance. Aucune ouverture en partie, montage/commerce/vol/publication MOD-04 fermés ; panne/profil/vol et ouverture cohérente encore à traiter.
 
 Local : build et 829/829 ciblés dans 66 fichiers. Huit nouveaux UI, un lien cargo, trois cas partagés serveur, un sélecteur ; HTTP existant renforcé. 37 suites Firestore et treize HTTP en CI ciblée ; aucun navigateur ou suite complète. Chromium local absent : validation visuelle et recette humaine mobile non réalisées.
+
+## Vérification navigateur ciblée et ergonomie — 4 novembre 2026
+
+Les composants, styles et shell du projet sont rendus avec le contrôleur de production et le workflow natif MemoryStore. Quatre parcours × deux viewports (1280×900 et 360×800 tactile émulé), soit huit : propriétaire/rangement, agent/délai/attestations/résultat, régie/annulation après révocation, panne B. Vérification de l’absence de débordement horizontal et des zones d’attestation visibles ≥44 px, avec captures. Bouton d’interruption secondaire et section séparée de la confirmation finale.
+
+Configuration bornée : test/browser/hidden-cargo.config.mjs, commande node node_modules/playwright/cli.js test --config=test/browser/hidden-cargo.config.mjs. GN_BROWSER_EXECUTABLE est facultatif pour un Chromium existant ; Playwright utilise sinon son navigateur installé. Rapports et captures reproductibles dans dist/hidden-cargo-browser. Métadonnées commit/arbre/dirty/navigateur/viewport ; humanAcceptance=NOT_EXECUTED et firebaseAuth=NOT_EXECUTED.
+
+Local : build, 843/843 tests ciblés et 8/8 DOM sur Chromium 156.0.8078.4. Aucun réseau autorisé, données et identités fictives. Ce n’est pas une recette du parcours complet app.js/connexion ni un essai humain sur téléphone réel. La CI ciblée conserve séparément ses 37 suites Firestore et quatorze HTTP/Auth ; navigateur global non lancé. Aucune modification des règles B, marqueurs ou données, aucune publication/fusion main.
