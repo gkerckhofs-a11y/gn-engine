@@ -28,6 +28,16 @@ Présence et réalisation explicites, délai non automatique, réserve PA et ver
 
 ## Limites avant ouverture
 
-Il reste à raccorder le retrait après vidage/consignation, le profil et le vol équipés MOD-04, la visibilité pendant une neutralisation, l’interface propriétaire/douane/régie, puis une ouverture versionnée cohérente sur nouveaux manifestes seulement. En panne MOD-04 : nouveau rangement sans capacité ; contrôles refusés par HIDDEN_CARGO_OUTAGE_NOT_OPEN, données conservées. Aucun comportement de découverte en panne n’est supposé.
+Le retrait après vidage explicite est maintenant raccordé au composant décrit ci-dessous. Il reste à raccorder le profil et le vol équipés MOD-04, la visibilité pendant une neutralisation, l’interface propriétaire/douane/régie, puis une ouverture versionnée cohérente sur nouveaux manifestes seulement. En panne MOD-04 : nouveau rangement sans capacité ; contrôles refusés par HIDDEN_CARGO_OUTAGE_NOT_OPEN, données conservées. Aucun comportement de découverte en panne n’est supposé.
 
-Les tests ne constituent ni une recette humaine Android/iOS ni une régression globale. Profil ciblé hidden-inspection : 64 fichiers applicatifs, 37 suites Firestore, treize HTTP, aucun Chromium. CI du commit exact consignée dans la PR #2 avant tout prochain lot. Aucun déploiement ou fusion main.
+Les tests ne constituent ni une recette humaine Android/iOS ni une régression globale. Profil ciblé hidden-removal : 64 fichiers applicatifs, 37 suites Firestore, treize HTTP, aucun Chromium. CI du commit exact consignée dans la PR #2 avant tout prochain lot. Aucun déploiement ou fusion main.
+
+## Retrait après vidage — 4 novembre 2026
+
+Le devis MOD-04 n’est utilisable que pour REMOVE avec le marqueur de composant courant ; INSTALL reste refusé. Dossier et binding portent hiddenCargoVersion=1, jamais ajouté aux manifestes. Contrôle de chaque lot encore concealed dans le HOLD correspondant, même connu ou appartenant à quelqu’un d’autre. Les propositions, accords, démarrages et ultimes confirmations réutilisent le même validateur.
+
+Vider par un transfert natif vers le sac, ou par la sortie explicite du compartiment vers la soute ordinaire via setCargoConcealment(false), sous droits et présence existants. Aucun stock créé ou détruit, découverte conservée. Une cargaison ordinaire peut rester dans la soute ; elle ne remplit plus le compartiment. Aucun champ « contenu consigné », aucune nouvelle procédure de consignation. Les opérations de cargaison ouvertes bloquent le retrait.
+
+Nouveau consentement personnel propriétaire/Mécano, port et atelier, MEC-03 N2. Cinq minutes de jeu et 1 PA, module/PA réservés, verrous natifs. PAUSE/STOP figent le temps, aucune fin automatique. Le Mécano confirme l’opération réellement effectuée ; le propriétaire ou la régie ne le remplace pas. Même exemplaire rendu au propriétaire, profil restant recalculé sans rendre de points, fret/autres modules/découvertes conservés. Annulation garde le module monté et rend le PA dans son plafond ; régie possible après révocation. Réserves étrangères et panne active refusées. Modification du contenu pendant le travail ferme la finalisation, même sans révision du vaisseau modifiée.
+
+Douze cas partagés supplémentaires, un UI et un sélecteur ; HTTP/Auth étendu au refus compartiment plein puis vidage et retrait complet/reçu unique. Le module/lot monté est synthétique en tests. Le vol nu après retrait et la conservation d’un autre module passent par les consommateurs natifs. Local : build et 813/813 ciblés, aucune régression intégrale ou recette humaine.

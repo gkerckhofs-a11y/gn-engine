@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {moduleMandatesHtml,moduleMandateConfirmHtml} from '../web/space-module-mandates.mjs';
+import {moduleMandatesHtml,moduleMandateConfirmHtml,moduleMandateErrors} from '../web/space-module-mandates.mjs';
 import {maintenanceHtml} from '../web/space-maintenance.mjs';
 import {playerRoute} from '../web/player-spaces.mjs';
 const record={id:'r',status:'MODULE_OFFERED',shipName:'<img src=x>',shipId:'ship',lotId:'lot',module:{code:'MOD-01',label:'Bouclier',size:2},ownerId:'owner',ownerName:'Propriétaire',technicianId:'tech',technicianName:'<script>Tech</script>',portName:'Port',install:{level:2,seconds:600,actionPoints:1},valid:true,owner:true,canCancel:true,confirmation:'proof'};
@@ -22,4 +22,8 @@ test('Mandats modules UI : propositions MJ, aperçu personnel et entrée depuis 
 
 test('Retrait modules UI : nouvel accord distinct et choix du module monté sur le vaisseau',()=>{
  const r={...record,moduleOperation:'REMOVE',install:{level:2,seconds:300,actionPoints:1}},h=moduleMandateConfirmHtml('prepareModuleMandateApproval',r,{});assert.match(h,/Retrait prévu : MEC-03 N2, 5 min/);assert.match(h,/Approuver ce retrait prévu/);assert.doesNotMatch(h,/<script>|<img/);const admin={...d,admin:true,removalEnabled:true,ships:[],lots:[],characters:[]};assert.match(moduleMandatesHtml(admin),/name="moduleOperation"/);assert.doesNotMatch(moduleMandatesHtml({...admin,removalEnabled:false}),/name="moduleOperation"/);
+});
+
+test('Retrait MOD-04 UI : compartiment vidé explicitement, découverte conservée et aucune consignation déclarative',()=>{
+ const r={...record,moduleOperation:'REMOVE',module:{...record.module,code:'MOD-04',label:'Soute clandestine'},install:{level:2,seconds:300,actionPoints:1}},h=moduleMandateConfirmHtml('prepareModuleMandateApproval',r,{});assert.match(h,/Videz le compartiment par un déplacement explicite/);assert.match(h,/La découverte des biens reste enregistrée/);assert.match(h,/5 min/);assert.doesNotMatch(h,/name="(contentConsigned|hiddenCargoVersion|concealed)"/);assert.match(moduleMandateErrors.MODULE_CONTENT_NOT_EMPTY,/Déplacez-les explicitement/);assert.doesNotMatch(moduleMandateConfirmHtml('prepareModuleMandateApproval',record,{}),/Videz le compartiment/);
 });

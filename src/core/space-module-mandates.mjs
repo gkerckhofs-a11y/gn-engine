@@ -5,7 +5,9 @@ import {admissionKeys,admissionText} from './admission-state.mjs';
 import {inventoryHash as hash,personalLot} from './inventory-state.mjs';
 import {inventoryPlayer,inventoryParty} from './inventory-transfers.mjs';
 import {navigationSkill} from './space-outlaws-navigation-state.mjs';
-import {playableShipModuleQuote} from '../shared/space-ship-modules.mjs';
+import {playableShipModuleQuote,standardShipModuleQuote} from '../shared/space-ship-modules.mjs';
+import {hasHiddenCargo,concealedIn} from './space-hidden-cargo.mjs';
+import {warehouseStock} from './storage-state.mjs';
 import {spaceShipProfiles} from '../shared/space-outlaws-navigation.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {gameTime} from './clock.mjs';
@@ -23,6 +25,8 @@ const fit=(c,time)=>c?.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeVoyageI
 const free=ship=>ship?.enabled&&ship.soProfile&&ship.docked&&!ship.journey&&!ship.operation&&!ship.combatId&&!ship.rescueId&&!ship.maintenanceId&&!ship.ambushId&&!ship.convoy&&!ship.convoyOffer;
 const local=(s,c,ship)=>(c.spacePortId??s.transportRules?.homePort)===ship.portId;
 const proof=(s,r,version)=>hash(JSON.stringify([s.id,s.revision,r,version??null]));
+// Removal-only component: this never makes MOD-04 purchasable or installable.
+const removalQuote=(s,calibration)=>calibration?.code==='MOD-04'&&hasHiddenCargo(s)?standardShipModuleQuote(calibration):playableShipModuleQuote(calibration);
 const view=(s,r,version,valid)=>({...((r.moduleOperation==='REMOVE')?{moduleOperation:'REMOVE'}:{}),id:r.id,status:r.status,shipId:r.shipId,shipName:r.shipName,lotId:r.lotId,module:r.module,ownerId:r.ownerId,ownerName:r.ownerName,technicianId:r.technicianId,technicianName:r.technicianName,portName:r.portName,install:r.install,valid,confirmation:proof(s,r,version)});
 
 export async function moduleMandateBinding(tx,s,input,at){
@@ -32,12 +36,13 @@ export async function moduleMandateBinding(tx,s,input,at){
   const owner=await inventoryParty(tx,s.id,ship.ownerId),tech=await inventoryParty(tx,s.id,documentId(input.technicianId));
   requireThat(owner.active&&fit(owner.c,time)&&local(s,owner.c,ship),'INVALID_MODULE_OWNER');
   const port=await tx.get(`${base}/ports/${ship.portId}`);requireThat(port?.versionId===s.versionId,'SHIP_NOT_LOCAL');
-  const lot=await tx.get(`${base}/inventory/${documentId(input.lotId)}`),q=playableShipModuleQuote(lot?.item?.shipModule),profile=spaceShipProfiles.find(p=>p.id===ship.soProfile.id);
+  const lot=await tx.get(`${base}/inventory/${documentId(input.lotId)}`),q=(removing?removalQuote(s,lot?.item?.shipModule):playableShipModuleQuote(lot?.item?.shipModule)),profile=spaceShipProfiles.find(p=>p.id===ship.soProfile.id);
   requireThat(q&&profile&&profile.size===q.size&&Array.isArray(ship.modules)&&(removing?ship.modules.length<=profile.moduleSlots&&installedModuleLot(ship,lot):ship.modules.length<profile.moduleSlots&&!ship.modules.some(m=>m.code===q.code)),'INVALID_MODULE_CALIBRATION');
-  requireThat(lot.item.kind==='INDIVIDUAL'&&!lot.item.consumable&&(removing?installedModuleLot(ship,lot)&&lot.status==='INSTALLED':personalLot(lot,ship.ownerId)&&lot.status==='AVAILABLE')&&lot.quantity===1&&lot.transferable===true&&lot.resellable===true&&!lot.transportContractId,'MODULE_LOT_UNAVAILABLE');
+  requireThat(lot.item.kind==='INDIVIDUAL'&&!lot.item.consumable&&(removing?installedModuleLot(ship,lot)&&lot.status==='INSTALLED':personalLot(lot,ship.ownerId)&&lot.status==='AVAILABLE')&&!lot.fieldActionId&&!lot.cargoTransferId&&lot.quantity===1&&lot.transferable===true&&lot.resellable===true&&!lot.transportContractId,'MODULE_LOT_UNAVAILABLE');
   requireThat(tech.active&&fit(tech.c,time)&&local(s,tech.c,ship)&&navigationSkill(tech.c,'MEC-03')>=(removing?q.remove:q.install).level,'MODULE_TECH_REQUIRED');
   requireThat(!(await tx.list(`${base}/cargoTransfers`)).some(t=>t.status==='LOADING'&&[t.source,t.destination].some(l=>l.kind==='HOLD'&&l.id===ship.id)),'CARGO_TRANSFERS_OPEN');
-  return {...(removing?{moduleOperation:'REMOVE',moduleRemovalVersion:1}:{}),shipId:ship.id,shipName:ship.name,shipRevision:ship.revision,ownerId:owner.c.id,ownerVersion:owner.version,ownerName:owner.c.public.displayName,technicianId:tech.c.id,technicianVersion:tech.version,technicianName:tech.c.public.displayName,lotId:lot.id,lotRevision:lot.revision,module:{code:q.code,size:q.size,label:q.label},portId:port.id,portName:port.name,install:removing?q.remove:q.install};
+  if(q.code==='MOD-04')requireThat(!(await warehouseStock(tx,s.id,ship.id,'HOLD')).some(l=>concealedIn(l,ship.id)),'MODULE_CONTENT_NOT_EMPTY');
+  return {...(removing?{moduleOperation:'REMOVE',moduleRemovalVersion:1}:{}),...(q.code==='MOD-04'?{hiddenCargoVersion:1}:{}),shipId:ship.id,shipName:ship.name,shipRevision:ship.revision,ownerId:owner.c.id,ownerVersion:owner.version,ownerName:owner.c.public.displayName,technicianId:tech.c.id,technicianVersion:tech.version,technicianName:tech.c.public.displayName,lotId:lot.id,lotRevision:lot.revision,module:{code:q.code,size:q.size,label:q.label},portId:port.id,portName:port.name,install:removing?q.remove:q.install};
  }
 
 export function createModuleMandateService({store,signed,checkSession,now,uuid}){
@@ -55,11 +60,11 @@ export function createModuleMandateService({store,signed,checkSession,now,uuid})
    if(['moduleMandates','moduleMandatesAdmin'].includes(action)){
     const jobs=[];for(const r of await tx.list(`${base}/shipMaintenance`))if(r.moduleMandateVersion===1&&await rights(r))jobs.push({...view(s,r,version,open(r)&&await current(tx,s,r)),owner:c?.id===r.ownerId,canCancel:open(r),technician:c?.id===r.technicianId,workEnabled:s.spaceOutlaws.moduleWorkVersion===1,working:r.status==='MODULE_ACTIVE'&&r.moduleWorkVersion===1,remainingSeconds:r.status==='MODULE_ACTIVE'?Math.max(0,Math.ceil((r.readyAtGameMs-gameTime(s.clock,at))/1000)):null});
     if(!admin)return {session:{id:s.id,stage:s.stage,safetyStopped:!!s.safetyStop?.active},admin:false,jobs};
-    const ships=(await tx.list(`${base}/ships`)).filter(free).map(sh=>({id:sh.id,name:sh.name,ownerId:sh.ownerId})),lots=(await tx.list(`${base}/inventory`)).filter(l=>l.item?.shipModule&&l.quantity===1&&(l.status==='AVAILABLE'&&personalLot(l,l.ownerId)||hasModuleRemoval(s)&&l.status==='INSTALLED'&&l.location?.kind==='SHIP_MODULE')).map(l=>({id:l.id,name:l.item.name,ownerId:l.ownerId,code:l.item.shipModule.code,size:l.item.shipModule.size,mounted:l.status==='INSTALLED',shipId:l.status==='INSTALLED'?l.location.id:null})),characters=(await tx.list(`${base}/characters`)).filter(ch=>ch.birth).map(ch=>({id:ch.id,name:ch.public.displayName,level:navigationSkill(ch,'MEC-03')}));
+    const ships=(await tx.list(`${base}/ships`)).filter(free).map(sh=>({id:sh.id,name:sh.name,ownerId:sh.ownerId})),lots=(await tx.list(`${base}/inventory`)).filter(l=>l.item?.shipModule&&l.quantity===1&&(l.status==='AVAILABLE'&&personalLot(l,l.ownerId)&&playableShipModuleQuote(l.item.shipModule)||hasModuleRemoval(s)&&l.status==='INSTALLED'&&l.location?.kind==='SHIP_MODULE'&&removalQuote(s,l.item.shipModule))).map(l=>({id:l.id,name:l.item.name,ownerId:l.ownerId,code:l.item.shipModule.code,size:l.item.shipModule.size,mounted:l.status==='INSTALLED',shipId:l.status==='INSTALLED'?l.location.id:null})),characters=(await tx.list(`${base}/characters`)).filter(ch=>ch.birth).map(ch=>({id:ch.id,name:ch.public.displayName,level:navigationSkill(ch,'MEC-03')}));
     return {session:{id:s.id,stage:s.stage,safetyStopped:!!s.safetyStop?.active},admin:true,removalEnabled:hasModuleRemoval(s),jobs,ships,lots,characters};
    }
    let r=null;
-   if(!['prepareModuleMandateOffer','offerModuleMandate'].includes(action)){r=await tx.get(`${base}/shipMaintenance/${documentId(input.mandateId)}`);requireThat(r?.moduleMandateVersion===1&&await rights(r),'FORBIDDEN');if(r.moduleOperation==='REMOVE')requireThat(hasModuleRemoval(s)&&r.moduleRemovalVersion===1,'SO_GAMEPLAY_NOT_OPEN');}
+   if(!['prepareModuleMandateOffer','offerModuleMandate'].includes(action)){r=await tx.get(`${base}/shipMaintenance/${documentId(input.mandateId)}`);requireThat(r?.moduleMandateVersion===1&&await rights(r),'FORBIDDEN');if(r.module?.code==='MOD-04')requireThat(hasHiddenCargo(s)&&r.hiddenCargoVersion===1&&r.moduleOperation==='REMOVE','SO_GAMEPLAY_NOT_OPEN');if(r.moduleOperation==='REMOVE')requireThat(hasModuleRemoval(s)&&r.moduleRemovalVersion===1,'SO_GAMEPLAY_NOT_OPEN');}
    if(action==='approveModuleMandate'){
     requireThat(c.id===r.ownerId,'FORBIDDEN');requireThat(open(r)&&await current(tx,s,r),'MODULE_MANDATE_STALE');
    }

@@ -1,3 +1,4 @@
+import {hasHiddenCargo} from './space-hidden-cargo.mjs';
 import {isDeepStrictEqual} from 'node:util';
 import {documentId,requireThat,DomainError} from './validation.mjs';
 import {admissionKeys,admissionText} from './admission-state.mjs';
@@ -24,7 +25,7 @@ export function createModuleWorkService({store,signed,checkSession,now,uuid}){
   return store.runTransaction(async tx=>{
    const admin=admins.has(action),ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId))}:await inventoryPlayer(tx,actor,input),{s,c,version}=ctx,base=`sessions/${s.id}`,time=gameTime(s.clock,at);
    requireThat(hasModuleWork(s),'SO_GAMEPLAY_NOT_OPEN');const finishing=['prepareModuleInstallation','finishModuleInstallation','prepareModuleRemoval','finishModuleRemoval'].includes(action);if(finishing)requireThat(hasModuleInstallation(s),'SO_GAMEPLAY_NOT_OPEN');requireThat(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage),'SESSION_CLOSED');
-   const r=await tx.get(`${base}/shipMaintenance/${documentId(input.mandateId)}`);requireThat(r?.moduleMandateVersion===1,'FORBIDDEN');const removing=r.moduleOperation==='REMOVE';if(removing)requireThat(hasModuleRemoval(s)&&r.moduleRemovalVersion===1,'SO_GAMEPLAY_NOT_OPEN');if(finishing)requireThat(removing===['prepareModuleRemoval','finishModuleRemoval'].includes(action),'MODULE_WORK_CLOSED');
+   const r=await tx.get(`${base}/shipMaintenance/${documentId(input.mandateId)}`);requireThat(r?.moduleMandateVersion===1,'FORBIDDEN');if(r.module?.code==='MOD-04')requireThat(hasHiddenCargo(s)&&r.hiddenCargoVersion===1&&r.moduleOperation==='REMOVE','SO_GAMEPLAY_NOT_OPEN');const removing=r.moduleOperation==='REMOVE';if(removing)requireThat(hasModuleRemoval(s)&&r.moduleRemovalVersion===1,'SO_GAMEPLAY_NOT_OPEN');if(finishing)requireThat(removing===['prepareModuleRemoval','finishModuleRemoval'].includes(action),'MODULE_WORK_CLOSED');
    const ship=await tx.get(`${base}/ships/${r.shipId}`),lot=await tx.get(`${base}/inventory/${r.lotId}`),tech=await inventoryParty(tx,s.id,r.technicianId),owner=await inventoryParty(tx,s.id,r.ownerId);
    requireThat(admin||c.id===r.ownerId&&version===r.ownerVersion&&ship?.ownerId===c.id||c.id===r.technicianId&&version===r.technicianVersion,'FORBIDDEN');
    const starting=['prepareModuleWorkStart','startModuleWork'].includes(action),cancel=action.startsWith('cancel');

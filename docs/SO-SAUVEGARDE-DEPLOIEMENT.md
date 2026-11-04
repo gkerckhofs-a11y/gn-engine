@@ -1,5 +1,13 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## MOD-04 — retrait vidé sous marqueur fermé — 4 novembre 2026
+
+Base ecd29a8, [CI 41823800629](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41823800629) réussie. Aucun nouveau marqueur de manifeste, migration ou activation en partie. hiddenCargoVersion=1 reste un composant fermé ; dossier et binding de retrait MOD-04 portent également ce marqueur avec moduleOperation=REMOVE. Montage/commerce/vol/publication restent fermés.
+
+Sauvegarder l’ensemble cohérent : version/manifeste/pages/marqueurs, accords/dossiers/bindings et identités/versions/droits, même module et inventory/history, fret réel et métadonnées de découverte, modules/profils/dommages, maintenanceId/activeMaintenanceId, réservations PA et horloges, opérations/reçus. Aucun fret ou découverte effacé par retrait/annulation. Réception native de fret ou rangement explicite hors compartiment précède le travail ; aucune consignation fictive.
+
+Ancien binaire ne sait pas finaliser le retrait MOD-04. Annulation compatible avant retour approuvé ou restauration cohérente de l’ensemble ; aucun retour logiciel seul ni suppression partielle de marqueur/réserve/verrou. Les verrous bloquent la clôture, la reprise conserve le même module rendu et la découverte. Aucun déploiement, retour arrière ou sauvegarde/restauration externe exécuté ici. Local : build et 813 ciblés ; CI exacte dans PR #2.
+
 ## Fret caché préparatoire, aucune activation — 4 novembre 2026
 
 hiddenCargoVersion=1 est un garde de composant non émis par publication/naissance. Les tests injectent le marqueur et un module monté synthétique. MOD-04 demeure fermé à la publication, au commerce, au montage et au vol ; aucune migration d’ancienne session. Ne pas appliquer ces données synthétiques en partie.

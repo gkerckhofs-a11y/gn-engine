@@ -138,3 +138,7 @@ test('CI ciblée : fret caché préparatoire couvre cargo natif, abordage, droit
  assert.ok(new RegExp(p.httpPattern).test('HTTP + Auth : fret caché préparatoire, droits et inspection'));assert.throws(()=>targetedScope('hidden-inspection',['src/core/customs.mjs'],{reliableBase:true}));
  const selected=matrixFor(p.suites).flatMap(({shard})=>selectFirestoreSuites({GN_FIRESTORE_SUITES:JSON.stringify(p.suites),GN_FIRESTORE_SHARD:shard}));assert.deepEqual(selected.map(s=>s.id).sort(),[...p.suites].sort());
 });
+
+test('CI ciblée : retrait MOD-04 garde le composant, mandats, travaux et profil natifs dans le même périmètre',()=>{
+ const p=targetedScope('hidden-removal',['src/core/space-module-mandates.mjs','src/core/space-module-work.mjs','web/space-module-mandates.mjs','test/support/space-hidden-cargo-suite.mjs'],{reliableBase:true});assert.equal(requestedTarget('[ci targeted:hidden-removal]'),'hidden-removal');assert.equal(p.applicationTests.length,64);assert.equal(p.suites.length,37);assert.equal(p.browser,false);for(const id of ['space-hidden-cargo','space-module-mandates','space-module-work','space-module-removal','space-module-flight','cargo'])assert.ok(p.suites.includes(id));assert.deepEqual(testCommand('application',{GN_CI_PROFILE:p.profile,GN_APPLICATION_TESTS:JSON.stringify(p.applicationTests)}).args,['--test',...p.applicationTests]);assert.throws(()=>targetedScope('hidden-removal',['src/core/customs.mjs'],{reliableBase:true}));
+});

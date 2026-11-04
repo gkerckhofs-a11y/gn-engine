@@ -1,5 +1,15 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## MOD-04 — retrait du compartiment vidé, composant fermé — 4 novembre 2026
+
+Base ecd29a8, [CI 41823800629](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41823800629) completed/success : build, 799 applicatifs, 645 Firestore, treize HTTP. Source V0.7 chapitre 17 : MEC-03 N2, cinq minutes, 1 PA, contenu transféré/consigné avant démontage.
+
+Retrait seul sous le marqueur inédit hiddenCargoVersion=1, également porté par le dossier/binding. Publication/naissance n’émettent toujours pas ce marqueur. MOD-04 demeure preparationOnly, achat/montage/vol fermés ; module et marqueur synthétiques en tests. Nouveau consentement personnel puis mêmes travaux natifs. Contenu vérifié à chaque étape, tous propriétaires et découvertes confondus ; aucun passage avec un simple champ « contenu consigné ». Vidage explicite vers soute ordinaire ou sac par les commandes existantes. Cargaison/réserves ouvertes et panne refusées. Annulation/réessai/rollback, révocation, PAUSE/STOP, profil restant et dommages, reprise d’épisode sans redistribution.
+
+Local : build et 813/813 ciblés dans 64 fichiers. Douze nouveaux cas partagés, un UI et un sélecteur ; HTTP préparatoire étendu jusqu’au retrait complet du même exemplaire, sans nouveau parcours publié. hidden-removal : 37 suites Firestore, treize HTTP, aucun navigateur ou suite complète. CI exacte dans PR #2, distincte d’une recette humaine.
+
+Le retrait vidé est raccordé au composant. Restent visibilité en panne, profil/vol MOD-04, interface et ouverture versionnée. Aucun déploiement, fusion main, migration ou procédure de consignation nouvelle. [Détail courant](SO-FRET-CACHE.md).
+
 ## Fret caché et inspections préparatoires — 4 novembre 2026
 
 Base b4b21f5 : [CI 41818695160](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41818695160) réussie, build, 748 applicatifs, 595 Firestore, douze HTTP. Source : V0.7 chapitre 24. [Périmètre du composant](SO-FRET-CACHE.md).

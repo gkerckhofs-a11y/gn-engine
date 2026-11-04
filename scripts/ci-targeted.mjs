@@ -68,6 +68,8 @@ targetedProfiles['hidden-inspection']={
  httpPattern:targetedProfiles['hidden-catalog'].httpPattern.replace('vol équipé,|','fret caché préparatoire,|vol équipé,|'),
  files:[...targetedProfiles['hidden-catalog'].files,'src/core/space-hidden-cargo.mjs','src/core/cargo-batches.mjs','src/core/space-boarding-cargo.mjs','test/space-hidden-cargo.test.mjs','test/cargo.test.mjs','test/space-boarding-cargo.test.mjs','test/support/space-hidden-cargo-suite.mjs','test/support/cargo-suite.mjs','test/support/space-boarding-cargo-suite.mjs'],
 };
+// Removal-only extension of the closed hidden-cargo component.
+targetedProfiles['hidden-removal']={...targetedProfiles['hidden-inspection']};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

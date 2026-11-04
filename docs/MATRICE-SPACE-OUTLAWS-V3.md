@@ -1,5 +1,21 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## MOD-04 — retrait vidé, composant fermé — 4 novembre 2026
+
+Base ecd29a8 : [CI 41823800629](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41823800629) réussie, 799 applicatifs, 645 Firestore, treize HTTP et build. Source : V0.7 chapitre 17.
+
+| Exigence | État courant | Preuve |
+| --- | --- | --- |
+| Pas de démontage avec contenu | Contrôle des lots encore dissimulés à proposition/accord/démarrage/finalisation | Lots connus/inconnus/autres propriétaires ; injection entre aperçu et confirmation |
+| Transfert préalable explicite | Sortie du compartiment vers soute ordinaire ou déchargement natif vers sac | Biens et découverte inchangés ; aucun champ de consignation déclaratif |
+| MEC-03 N2, cinq minutes, 1 PA | Mandat personnel et travaux natifs | Délai, PAUSE/STOP, présence/atelier, réserves et panne |
+| Même module rendu | Restitution au propriétaire, fret/autre module/dommages conservés | Cargo/transport, concurrence, réessai, rollback, reprise |
+| Annulation après révocation | Régie peut restituer les réserves en gardant le module monté | Cas partagé sans finalisation à la place du Mécano |
+| Ouverture MOD-04 en partie | Toujours fermée, marqueur et équipement synthétiques | Montage/commerce/vol/publication inchangés, anciens manifestes non enrichis |
+| Panne, profil/vol et interface | Restent avant ouverture versionnée | Aucun comportement de visibilité en panne supposé |
+
+Local : 813/813 ciblés dans 64 fichiers et build. hidden-removal : 37 suites Firestore, treize HTTP bornés, aucun Chromium ni suite complète. CI exacte consignée dans PR #2. [Détail](SO-FRET-CACHE.md).
+
 ## MOD-04 — composant de fret caché fermé — 4 novembre 2026
 
 Base b4b21f5, [CI 41818695160](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41818695160) réussie : 748 applicatifs, 595 Firestore, douze HTTP et build. Source : V0.7 chapitre 24.
