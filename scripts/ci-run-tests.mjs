@@ -7,7 +7,7 @@ const decode=raw=>raw===undefined||raw===''?null:JSON.parse(raw);
 export function applicationCommand(raw,exists=existsSync){
  const files=decode(raw);
  if(files===null)return {command:'npm',args:['test']};
- if(!Array.isArray(files)||files.length===0||files.length>40||new Set(files).size!==files.length||files.some(p=>typeof p!=='string'||!/^test\/[a-z0-9-]+\.test\.mjs$/.test(p)||!exists(p)))throw Error('Invalid targeted application test selection');
+ if(!Array.isArray(files)||files.length===0||files.length>64||new Set(files).size!==files.length||files.some(p=>typeof p!=='string'||!/^test\/[a-z0-9-]+\.test\.mjs$/.test(p)||!exists(p)))throw Error('Invalid targeted application test selection');
  return {command:process.execPath,args:['--test',...files]};
 }
 export function httpCommand(raw,source=()=>readFileSync('test/integration/http.test.mjs','utf8')){
