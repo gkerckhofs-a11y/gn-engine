@@ -4,9 +4,11 @@ import {installedShipProfile} from '../shared/space-ship-modules.mjs';
 // V0.7 chapters 17/19. Functional outage only; the installed lot stays intact.
 export const hasModuleFlights=s=>['moduleFlight','moduleRemoval','moduleInstallation','moduleWork','moduleMandates','modulePurchases','navigation','logistics','combat','convoy'].every(k=>s.spaceOutlaws?.[`${k}Version`]===1);
 export const hasTowingFlights=s=>['towingFlight','towingAttachment','towingWork'].every(k=>s.spaceOutlaws?.[`${k}Version`]===1)&&hasModuleFlights(s);
+export const hasTowingCombat=s=>s.spaceOutlaws?.towingCombatVersion===1&&hasTowingFlights(s);
 export const hasHiddenCargo=s=>s.spaceOutlaws?.hiddenCargoVersion===1&&hasModuleFlights(s);
 export const activeModuleOutages=(ship,time)=>(ship.moduleNeutralizations??[]).filter(n=>n.untilGameMs>time&&ship.modules?.some(m=>m.lotId===n.lotId));
 export function flightShip(s,ship,time){
+ if(ship?.wreckSpacePosition||ship?.journey?.releasedTowing)requireThat(hasTowingCombat(s),'TOWING_COMBAT_NOT_OPEN');
  if(ship?.moduleNeutralizations?.length)requireThat(hasModuleFlights(s),'MODULE_FLIGHT_NOT_OPEN');
  if(!ship?.modules?.length||!hasModuleFlights(s))return ship;
  requireThat(installedShipProfile(ship.soProfile,ship.modules,{hiddenCargo:hasHiddenCargo(s),towingProfile:hasTowingFlights(s)}),'INVALID_MODULE_CALIBRATION');
