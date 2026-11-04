@@ -34,3 +34,8 @@ test('Vols SO UI : confirmation de nom sans changement de propriété ou de papi
 test('Vols SO UI : modules montés affichés, plein disponible et départ équipé fermé',()=>{
  const h=soNavigationHtml({session:{id:'s'},ship:{...ship,moduleFlightBlocked:true,modules:[{code:'<script>MOD-01',size:2,status:'OPERATIONAL'}]},canAct:true,canPilot:true,lots:[]});assert.match(h,/Modules montés à quai/);assert.match(h,/Ce vaisseau doit rester à quai/);assert.match(h,/Faire le plein/);assert.doesNotMatch(h,/data-kind="depart"|<script>/);
 });
+
+test('Vols équipés UI : formulaire ouvert, état temporaire échappé et délai en temps de jeu',()=>{
+ const html=soNavigationHtml({session:{id:'s'},ship:{...ship,moduleFlightBlocked:false,modules:[{lotId:'lot',code:'MOD-01<script>',size:2,status:'OPERATIONAL'}],moduleNeutralizations:[{lotId:'lot',remainingSeconds:899}]},canPilot:true,canAct:true,lots:[]});
+ assert.match(html,/data-kind="depart"/);assert.match(html,/Neutralisé temporairement : 899 secondes de jeu/);assert.match(html,/sans rendre de points/);assert.doesNotMatch(html,/<script>|doit rester à quai/);
+});

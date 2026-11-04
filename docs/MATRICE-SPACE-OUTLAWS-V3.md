@@ -1,5 +1,21 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## Vols équipés et panne temporaire — 4 novembre 2026
+
+Base : 49e2b86, [CI 41813287248](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41813287248) réussie : 675 applicatifs, 535 Firestore, onze HTTP et build.
+
+| Exigence V0.7 | État de cette tranche | Preuve |
+| --- | --- | --- |
+| Vols équipés MOD-01/02/03/06 | Nouveau moduleFlightVersion=1 ; mêmes lots montés revalidés jusqu’au départ | Quatre parcours achat/montage/départ réels, HTTP/Auth |
+| Quinze minutes de neutralisation, sans casse | Horloge de jeu, PAUSE/STOP, même module, expiration sans soin | Cas partagés mémoire/Firestore |
+| Maximums, manœuvrabilité et canon lourd courants | Profil recalculé, points plafonnés, bonus restauré sans points | Entretien et combat avant/après expiration ; combat synthétique |
+| Événement commun de convoi | Un appareil admissible, un module ; retard commun sans module | Convoi équipé réel et repli natif conservé |
+| Droits, réessai, concurrence et rollback | Aucun double débit, effet ou exemplaire ; marqueur avant reçu | Lots incohérents, courses, révocation, interruption |
+| Épisodes et versions historiques | Échéances/événement conservés ; ancien manifeste non enrichi | Snapshot/reprise et garde historique |
+
+Local : 742/742 tests ciblés dans 61 fichiers et build ; profil module-flight, 34 suites Firestore/douze HTTP. CI exacte dans PR #2 ; aucune recette terrain ni publication. Les limites des sections historiques ci-dessous sont remplacées par cet état pour les seuls nouveaux manifestes compatibles.
+
+
 ## Raccordement préparatoire du canon lourd — 4 novembre 2026
 
 Base vérifiée : `a80a80551c35446edb127375149757cbeb4bebaa`, [CI ciblée 41810124019](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41810124019) completed/success : build, 516 applicatifs, 417 Firestore (132 + 89 + 111 + 85), huit HTTP. Verdict exact consigné dans PR #2 avant cette tranche.

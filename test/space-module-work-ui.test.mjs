@@ -14,7 +14,7 @@ test('Travaux modules UI : interruption, minuteur et absence de finalisation aut
 
 test('Montage modules UI : finalisation personnelle après délai, compte rendu et limites à quai',()=>{
  const d={...r,status:'MODULE_ACTIVE',remainingSeconds:0,canCancel:true,canFinish:true};assert.match(moduleWorkConfirmHtml('moduleWork',d,{sessionId:'s',mandateId:'m'}),/prepareModuleInstallation/);assert.doesNotMatch(moduleWorkConfirmHtml('moduleWorkAdmin',{...d,canFinish:false},{}),/prepareModuleInstallation/);
- const h=moduleWorkConfirmHtml('prepareModuleInstallation',{...d,hull:2,shield:1,afterProfile:{hullMax:4,shieldMax:3,maneuverability:1}},{});assert.match(h,/finishModuleInstallation/);for(const name of ['present','workshopConfirmed','performed'])assert.match(h,new RegExp(`name="${name}"`));assert.match(h,/restent à 2 et 1/);assert.match(h,/voyages avec modules restent à ouvrir/);assert.doesNotMatch(h,/<script>|name="(hull|shield|seconds|actionPoints)"/);
+ const h=moduleWorkConfirmHtml('prepareModuleInstallation',{...d,hull:2,shield:1,afterProfile:{hullMax:4,shieldMax:3,maneuverability:1}},{});assert.match(h,/finishModuleInstallation/);for(const name of ['present','workshopConfirmed','performed'])assert.match(h,new RegExp(`name="${name}"`));assert.match(h,/restent à 2 et 1/);assert.match(h,/version permet les vols équipés/);assert.doesNotMatch(h,/<script>|name="(hull|shield|seconds|actionPoints)"/);
 });
 
 test('Retrait modules UI : opération explicite, cinq minutes et confirmation de restitution sans points rendus',()=>{

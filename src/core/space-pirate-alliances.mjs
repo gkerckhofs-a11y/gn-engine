@@ -1,3 +1,4 @@
+import {flightShip} from './space-module-flight.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {inventoryHash as hash} from './inventory-state.mjs';
 import {inventoryParty} from './inventory-transfers.mjs';
@@ -26,12 +27,12 @@ export function pirateAllianceView(s,fleet,c,admin){
 export async function pirateAllianceCommand(tx,s,ship,c,input,action,id,at,time,inTransit,fit){
  requireThat(hasPirateAlliances(s),'SO_GAMEPLAY_NOT_OPEN');const base=`sessions/${s.id}`;
  if(action.startsWith('leavePirateAlliance')){
-  const g=ship.pirateAlliance,partner=g?await tx.get(`${base}/ships/${g.shipIds.find(x=>x!==ship.id)}`):null;
+  const g=ship.pirateAlliance,partner=g?flightShip(s,await tx.get(`${base}/ships/${g.shipIds.find(x=>x!==ship.id)}`),time):null;
   requireThat(g||ship.pirateOffer,'SPACE_ALLIANCE_CLOSED');requireThat(input.confirmation===proof(s,ship,partner),'STALE_REVISION');
   const rows=g?[ship,partner]:[ship];requireThat(rows.every(x=>x&&(!g||x.pirateAlliance?.id===g.id)&&!x.combatId),'SPACE_ALLIANCE_CLOSED');
   for(const x of rows)tx.set(`${base}/ships/${x.id}`,{...x,pirateAlliance:null,pirateOffer:null,revision:x.revision+1});return {result:{id:g?.id??ship.pirateOffer.id,status:'CANCELLED'},before:g??ship.pirateOffer,after:null};
  }
- const leader=action==='acceptPirateAlliance'?await tx.get(`${base}/ships/${documentId(input.leaderShipId)}`):ship,support=action==='acceptPirateAlliance'?ship:await tx.get(`${base}/ships/${documentId(input.supportShipId)}`),a=await position(tx,s,leader,time,inTransit,fit),b=await position(tx,s,support,time,inTransit,fit);
+ const leader=action==='acceptPirateAlliance'?flightShip(s,await tx.get(`${base}/ships/${documentId(input.leaderShipId)}`),time):ship,support=action==='acceptPirateAlliance'?ship:flightShip(s,await tx.get(`${base}/ships/${documentId(input.supportShipId)}`),time),a=await position(tx,s,leader,time,inTransit,fit),b=await position(tx,s,support,time,inTransit,fit);
  requireThat(a&&b&&leader.id!==support.id&&leader.pilotId!==support.pilotId&&a.a.routeId===b.a.routeId&&!leader.pirateAlliance&&!support.pirateAlliance&&!support.pirateOffer,'SPACE_ALLIANCE_UNAVAILABLE');
  const o=leader.pirateOffer;
  if(action==='acceptPirateAlliance'){

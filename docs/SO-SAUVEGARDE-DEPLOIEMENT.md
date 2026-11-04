@@ -1,5 +1,16 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## Vols équipés et neutralisations — 4 novembre 2026
+
+Nouveau moduleFlightVersion=1, dépendant de moduleRemovalVersion et de toute sa chaîne ainsi que combat/convoi. Nouveaux manifestes uniquement, transmission à la naissance et conservation entre épisodes ; aucune migration d’ancienne session. Les anciens manifestes gardent leur verrou de vol équipé.
+
+Conserver ensemble manifeste/pages/marqueurs et version, mêmes lots INSTALLED/emplacements/historiques/propriétaires, modules du vaisseau, profil et points courants, moduleNeutralizations (lot/code/voyage/début/échéance en temps de jeu), clock, voyages/événements/convois/combats/rounds, droits/versions, PA et operations/logisticsHistory. L’instantané natif copie ces données ensemble sans régénération d’événement, module ou échéance. Aucune collection supplémentaire. Les lectures recalculent le profil effectif sans écrire ; le plafond des points à la désactivation est déjà enregistré atomiquement au départ. Expiration : retour du bonus, aucun soin implicite.
+
+Un ancien binaire ignore les échéances et n’est pas équivalent : il pourrait conserver le mauvais profil et ne pas restaurer les bonus. Aucun retour de binaire seul, suppression de marqueur/neutralisation, restitution forcée ou remise à zéro. Avant tout retour approuvé, terminer les parcours sous code compatible ou restaurer un ensemble complet et cohérent. Aucune publication, migration, sauvegarde externe/restauration globale ni retour arrière exécuté ici.
+
+Local : build et 742/742 tests ciblés ; CI exacte à consigner dans PR #2. Le retour d’épisode conserve événement, échéance et lot, sans redistribution. Recette humaine et validation globale avant publication restent distinctes.
+
+
 ## Adaptateur canon lourd préparatoire — 4 novembre 2026
 
 Le serveur lit HEAVY dans le profil natif déjà produit par le montage et le transmet au résolveur duel/flotte ; les profils sans HEAVY conservent STANDARD. Aucun nouveau champ, marqueur de session, nouvelle collection ou migration. Conserver les profils, modules/lots, combats/rounds, droits et reçus ensemble selon la procédure existante. Un ancien binaire imposerait de nouveau STANDARD au combat : non équivalent pour un combat équipé synthétique ou futur ; aucun retour exécuté.

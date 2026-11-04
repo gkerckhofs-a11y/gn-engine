@@ -1,3 +1,4 @@
+import {activeModuleOutages} from './space-module-flight.mjs';
 import {DomainError,documentId,requireThat} from './validation.mjs';
 import {isDeepStrictEqual} from 'node:util';
 import {admissionKeys,admissionText} from './admission-state.mjs';
@@ -27,7 +28,7 @@ const view=(s,r,version,valid)=>({...((r.moduleOperation==='REMOVE')?{moduleOper
 export async function moduleMandateBinding(tx,s,input,at){
   const removing=input.moduleOperation==='REMOVE';if(removing)requireThat(hasModuleRemoval(s),'SO_GAMEPLAY_NOT_OPEN');
   const base=`sessions/${s.id}`,time=gameTime(s.clock,at),ship=await tx.get(`${base}/ships/${documentId(input.shipId)}`);
-  requireThat(free(ship),'SPACE_SHIP_BUSY');
+  requireThat(free(ship)&&activeModuleOutages(ship,time).length===0,'SPACE_SHIP_BUSY');
   const owner=await inventoryParty(tx,s.id,ship.ownerId),tech=await inventoryParty(tx,s.id,documentId(input.technicianId));
   requireThat(owner.active&&fit(owner.c,time)&&local(s,owner.c,ship),'INVALID_MODULE_OWNER');
   const port=await tx.get(`${base}/ports/${ship.portId}`);requireThat(port?.versionId===s.versionId,'SHIP_NOT_LOCAL');

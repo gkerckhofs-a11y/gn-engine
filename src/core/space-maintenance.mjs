@@ -1,3 +1,4 @@
+import {flightShip} from './space-module-flight.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {admissionKeys} from './admission-state.mjs';
 import {inventoryHash as hash,lotState,personalLot} from './inventory-state.mjs';
@@ -45,7 +46,7 @@ export function createSpaceMaintenanceService({store,signed,checkSession,now,uui
     const jobs=(await tx.list(`${base}/shipMaintenance`)).filter(r=>r.moduleMandateVersion===undefined&&(admin||[r.ownerId,r.payerId,r.technicianId].includes(c.id))).map(r=>view(r,time,proof(r),c?.id));
     if(!admin)return {session:{id:s.id,stage:s.stage},moduleMandatesReady:s.spaceOutlaws.moduleMandatesVersion===1,admin:false,jobs};
     const supplies=[];for(const shop of await tx.list(`${base}/shops`))for(const o of await tx.list(`${base}/shops/${shop.id}/offers`)){if(o.item.consumable&&o.item.kind==='STACKABLE'&&!o.item.laserRecharge&&o.unitPrice>0){const l=await tx.get(`${base}/inventory/${shopStockId(o.id)}`);supplies.push({shopId:shop.id,offerId:o.id,name:`${shop.name} · ${o.name}`,itemId:o.item.id,unitPrice:o.unitPrice,stock:l?.status==='AVAILABLE'?l.quantity:0});}}
-    const fleet=await tx.list(`${base}/ships`),personalSupplies=[];
+    const fleet=(await tx.list(`${base}/ships`)).map(x=>flightShip(s,x,time)),personalSupplies=[];
     if(s.spaceOutlaws.maintenanceSuppliesVersion===1)for(const l of await tx.list(`${base}/inventory`)){if(l.quantity>0&&l.status==='AVAILABLE'&&personalLot(l,l.ownerId)&&!l.transportContractId)for(const o of supplies.filter(o=>o.itemId===l.item.id&&o.unitPrice===50&&!fleet.some(x=>x.navigation?.fuelItemId===o.itemId)))personalSupplies.push({...o,lotId:l.id,ownerId:l.ownerId,quantity:l.quantity,protected:l.transferable===false});}
     const characters=(await tx.list(`${base}/characters`)).filter(x=>x.birth);
     return {session:{id:s.id,stage:s.stage},moduleMandatesReady:s.spaceOutlaws.moduleMandatesVersion===1,admin:true,jobs,personalSupplies,personalPnjReady:s.spaceOutlaws.maintenancePnjVersion===1,multipleSuppliesReady:s.spaceOutlaws.maintenanceLotsVersion===1,supplies:supplies.filter(o=>!fleet.some(x=>x.navigation?.fuelItemId===o.itemId)),ships:fleet.filter(x=>eligible(x)).map(x=>({id:x.id,name:x.name,ownerId:x.ownerId,pilotId:x.pilotId,hull:x.hull,shield:x.shield,revisionRequired:x.revisionRequired,profile:x.soProfile})),characters:characters.map(x=>({id:x.id,name:x.public.displayName,mecLevel:navigationSkill(x,'MEC-02')}))};
@@ -55,7 +56,7 @@ export function createSpaceMaintenanceService({store,signed,checkSession,now,uui
    requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');const cancel=action.startsWith('cancel');requireThat(s.stage==='EN_JEU'||cancel&&s.stage==='PAUSE','SESSION_NOT_RUNNING');
    const audit=(result,before,after,extra={})=>{authorizeSpaceOutlaws(tx,s,'MAINTENANCE');tx.set(`${base}/logisticsHistory/${id}`,{id,kind:action,at,actorUid:actor.uid,before,after,...extra});tx.set(`${base}/audit/${id}`,{id,action,at,actorUid:actor.uid});tx.set(op,{fingerprint,guard:version??null,result,at});return result;};
    if(['prepareSpaceMaintenanceOffer','offerSpaceMaintenance'].includes(action)){
-    requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');const ship=await tx.get(`${base}/ships/${documentId(input.shipId)}`);requireThat(eligible(ship),'SPACE_SHIP_BUSY');const plan=maintenancePlan(ship,input.kind,input.points),payer=await inventoryParty(tx,s.id,documentId(input.payerId));requireThat(payer.active&&[ship.ownerId,ship.pilotId].includes(payer.c.id),'FORBIDDEN');
+    requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');const ship=flightShip(s,await tx.get(`${base}/ships/${documentId(input.shipId)}`),time);requireThat(eligible(ship),'SPACE_SHIP_BUSY');const plan=maintenancePlan(ship,input.kind,input.points),payer=await inventoryParty(tx,s.id,documentId(input.payerId));requireThat(payer.active&&[ship.ownerId,ship.pilotId].includes(payer.c.id),'FORBIDDEN');
     const selected=selectedSupplies(input),multiple=input.supplyLotIds!==undefined,personal=selected.length>0;requireThat(!multiple||s.spaceOutlaws.maintenanceLotsVersion===1,'SO_GAMEPLAY_NOT_OPEN');requireThat(!personal||s.spaceOutlaws.maintenanceSuppliesVersion===1,'SO_GAMEPLAY_NOT_OPEN');
     const technician=input.technicianId?await inventoryParty(tx,s.id,documentId(input.technicianId)):null;
     requireThat(!personal||technician||s.spaceOutlaws.maintenancePnjVersion===1,'SO_GAMEPLAY_NOT_OPEN');
@@ -74,7 +75,7 @@ export function createSpaceMaintenanceService({store,signed,checkSession,now,uui
    const r=await tx.get(`${base}/shipMaintenance/${documentId(input.maintenanceId)}`);requireThat(r&&r.moduleMandateVersion===undefined&&(admin||[r.payerId,r.technicianId].includes(c.id)),'FORBIDDEN');requireThat(open(r),'MAINTENANCE_CLOSED');
    requireThat(!r.supplyLotIds||s.spaceOutlaws.maintenanceLotsVersion===1,'SO_GAMEPLAY_NOT_OPEN');
    const personal=!!r.supplyLotId,charged=!personal||!r.technicianId;requireThat(!personal||s.spaceOutlaws.maintenanceSuppliesVersion===1,'SO_GAMEPLAY_NOT_OPEN');requireThat(!personal||r.technicianId||s.spaceOutlaws.maintenancePnjVersion===1,'SO_GAMEPLAY_NOT_OPEN');
-   const ship=await tx.get(`${base}/ships/${r.shipId}`),payer=await inventoryParty(tx,s.id,r.payerId),tech=r.technicianId?await inventoryParty(tx,s.id,r.technicianId):null;
+   const ship=flightShip(s,await tx.get(`${base}/ships/${r.shipId}`),time),payer=await inventoryParty(tx,s.id,r.payerId),tech=r.technicianId?await inventoryParty(tx,s.id,r.technicianId):null;
    const lots=await Promise.all((r.supplyLotIds??[r.supplyLotId??shopStockId(r.offerId)]).map(lid=>tx.get(`${base}/inventory/${lid}`))),lot=lots[0],a=charged?await tx.get(`${base}/accounts/${accountId(r.payerId)}`):null,b=charged?await tx.get(`${base}/accounts/${shopAccountId(r.shopId)}`):null;
    if(!cancel){requireThat(payer.active&&payer.version===r.payerVersion&&ship.ownerId===r.ownerId&&[ship.ownerId,ship.pilotId].includes(r.payerId),'INVALID_RECIPIENT');requireThat(eligible(ship,r.id)&&ship.journey?.id===(r.journeyId??undefined)&&ship.portId===r.portId,'SPACE_SHIP_BUSY');maintenancePlan(ship,r.kind,r.points-r.completed);}
    if(['prepareSpaceMaintenance','acceptSpaceMaintenance'].includes(action)){

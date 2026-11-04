@@ -114,3 +114,12 @@ test('CI ciblée : canon lourd couvre adaptateur, duels, flottes et acquis modul
  for(const title of ['duel privé,','convoi consenti,','alliance contre convoi à quatre,','retrait de module,'])assert.ok(new RegExp(p.httpPattern).test(`HTTP + Auth : ${title}`));
  assert.throws(()=>targetedScope('module-removal',['src/core/space-combat.mjs'],{reliableBase:true}));assert.throws(()=>targetedScope('module-combat',['src/core/economy-state.mjs'],{reliableBase:true}));
 });
+
+test('CI ciblée : vols équipés, événement, reprise, entretien et détour passent par l’exécuteur réel',()=>{
+ const p=targetedScope('module-flight',['src/core/space-module-flight.mjs','src/core/space-detours.mjs','test/support/space-module-flight-suite.mjs'],{reliableBase:true});
+ for(const file of p.applicationTests)assert.ok(existsSync(file),file);assert.equal(new Set(p.applicationTests).size,p.applicationTests.length);assert.ok(p.applicationTests.length<=64);assert.equal(p.browser,false);
+ assert.deepEqual(testCommand('application',{GN_CI_PROFILE:'targeted-module-flight',GN_APPLICATION_TESTS:JSON.stringify(p.applicationTests)}).args,['--test',...p.applicationTests]);
+ for(const id of ['space-module-flight','space-logistics','space-convoy','space-encounters','space-detours','space-transport','space-episodes'])assert.ok(p.suites.includes(id));
+ const selected=matrixFor(p.suites).flatMap(({shard})=>selectFirestoreSuites({GN_FIRESTORE_SUITES:JSON.stringify(p.suites),GN_FIRESTORE_SHARD:shard}));assert.deepEqual(selected.map(s=>s.id).sort(),[...p.suites].sort());
+ assert.ok(new RegExp(p.httpPattern).test('HTTP + Auth : vol équipé, lecture privée'));assert.throws(()=>targetedScope('module-combat',['src/core/space-module-flight.mjs'],{reliableBase:true}));
+});

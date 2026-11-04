@@ -7,8 +7,8 @@ import {standardShipModuleQuote} from '../../src/shared/space-ship-modules.mjs';
 import {accountId} from '../../src/core/economy-state.mjs';
 import {episodeHarness} from './space-episodes-suite.mjs';
 
-export async function moduleMandateFixture(makeStore,{code='MOD-01'}={}){
- const f=await soVoyagesFixture(makeStore,{prepareExtra:async(f,rev)=>{
+export async function moduleMandateFixture(makeStore,{code='MOD-01',riskId='SECURED'}={}){
+ const f=await soVoyagesFixture(makeStore,{riskId,prepareExtra:async(f,rev)=>{
   await f.cc('saveCentralItem',{itemId:'module',itemRevision:0,draftRevision:rev++,item:{...moduleItem,shipModule:{code,size:2}},reason:'Module calibré'});
   await f.cc('saveCentralOffer',{offerId:'module-offer',offerRevision:0,draftRevision:rev++,offer:{name:'Module atelier',shopId:'counter',itemId:'module',unitPrice:standardShipModuleQuote({code,size:2}).price,buybackPrice:null,conditions:'Non monté',gmNotes:''},reason:'Prix canonique'});
  }});
@@ -79,7 +79,7 @@ export function moduleMandatesSuite(makeStore,prefix='Mandats modules SO'){
  });
  test(`${prefix} : ancien manifeste sans extension non enrichi, ancien reçu fermé sans marqueur`,async()=>{
   const f=await soVoyagesFixture(makeStore,{release:false}),out=await f.release(await f.releasePreview()),path=`campaigns/${f.campaignId}/versions/${out.versionId}`,canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
-  await f.store.runTransaction(async tx=>{const {moduleRemovalVersion,moduleInstallationVersion,moduleWorkVersion,moduleMandatesVersion,manifestDigest,...old}=await tx.get(path);tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});await f.birth(await f.birthPreview());assert.equal((await f.read('mySession')).session.spaceOutlaws.moduleMandatesVersion,undefined);await assert.rejects(f.read('moduleMandates'),{code:'SO_GAMEPLAY_NOT_OPEN'});
-  const g=await moduleMandateFixture(makeStore),r=await g.offer(),q=await g.read('prepareModuleMandateApproval',{mandateId:r.id}),p={mandateId:r.id,confirmation:q.confirmation,present:true,requestId:randomUUID()};await g.cmd('approveModuleMandate',p);await g.edit('',s=>{const {moduleRemovalVersion,moduleInstallationVersion,moduleWorkVersion,moduleMandatesVersion,...old}=s.spaceOutlaws;return {...s,spaceOutlaws:old};});await assert.rejects(g.cmd('approveModuleMandate',p),{code:'SO_GAMEPLAY_NOT_OPEN'});
+  await f.store.runTransaction(async tx=>{const {moduleFlightVersion,moduleRemovalVersion,moduleInstallationVersion,moduleWorkVersion,moduleMandatesVersion,manifestDigest,...old}=await tx.get(path);tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});await f.birth(await f.birthPreview());assert.equal((await f.read('mySession')).session.spaceOutlaws.moduleMandatesVersion,undefined);await assert.rejects(f.read('moduleMandates'),{code:'SO_GAMEPLAY_NOT_OPEN'});
+  const g=await moduleMandateFixture(makeStore),r=await g.offer(),q=await g.read('prepareModuleMandateApproval',{mandateId:r.id}),p={mandateId:r.id,confirmation:q.confirmation,present:true,requestId:randomUUID()};await g.cmd('approveModuleMandate',p);await g.edit('',s=>{const {moduleFlightVersion,moduleRemovalVersion,moduleInstallationVersion,moduleWorkVersion,moduleMandatesVersion,...old}=s.spaceOutlaws;return {...s,spaceOutlaws:old};});await assert.rejects(g.cmd('approveModuleMandate',p),{code:'SO_GAMEPLAY_NOT_OPEN'});
  });
 }

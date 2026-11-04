@@ -33,7 +33,7 @@ export async function detourCommand(tx,s,ship,c,version,input,action,id,at,roll,
  requireThat(!ship.convoy||ship.convoy.leaderShipId===ship.id,'SO_DETOUR_LEADER');
  const code=admissionText(input.navigationCode,80,true),ports=await tx.list(`${base}/ports`),routes=await tx.list(`${base}/routes`);
  const candidates=routes.filter(r=>r.versionId===s.versionId&&r.fromPort===ship.journey.fromPort&&r.id!==ship.journey.routeId&&(r.navigationCode===code||ports.find(p=>p.id===r.toPort)?.navigationCode===code));
- requireThat(candidates.length===1,'ROUTE_UNAVAILABLE');const route=candidates[0],fleet=await convoyFleet(tx,s,ship),rows=[];
+ requireThat(candidates.length===1,'ROUTE_UNAVAILABLE');const route=candidates[0],fleet=await convoyFleet(tx,s,ship,time),rows=[];
  for(const x of fleet){
   requireThat(eligible(x,time)&&x.journey.routeId===ship.journey.routeId&&(!ship.convoy||x.journey.convoyId===ship.convoy.id),'SO_DETOUR_UNAVAILABLE');
   const p=await inventoryParty(tx,s.id,x.pilotId);

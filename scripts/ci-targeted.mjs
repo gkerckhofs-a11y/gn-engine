@@ -51,6 +51,13 @@ targetedProfiles['module-combat']={
  httpPattern:targetedProfiles['module-removal'].httpPattern.replace('retrait de module,|','duel privé,|convoi consenti,|alliance contre convoi à quatre,|retrait de module,|'),
  files:[...targetedProfiles['module-removal'].files,'src/core/space-combat.mjs','test/support/space-encounters-suite.mjs','test/support/space-convoy-suite.mjs',...moduleCombatTests],
 };
+// Equipped departures, timed outage and native voyage/maintenance consumers.
+targetedProfiles['module-flight']={
+ tests:[...targetedProfiles['module-combat'].tests,'test/space-module-flight.test.mjs','test/space-detours.test.mjs','test/space-detours-ui.test.mjs','test/space-transport.test.mjs','test/space-transport-ui.test.mjs'],
+ suites:[...targetedProfiles['module-combat'].suites,'space-module-flight','space-detours','space-transport'],
+ httpPattern:targetedProfiles['module-combat'].httpPattern.replace('duel privé,|','vol équipé,|duel privé,|'),
+ files:[...targetedProfiles['module-combat'].files,'src/core/space-module-flight.mjs','src/core/space-pirate-alliances.mjs','src/core/space-outlaws-navigation-state.mjs','src/core/space-detours.mjs','test/space-module-flight.test.mjs','test/support/space-module-flight-suite.mjs','test/space-detours.test.mjs','test/space-detours-ui.test.mjs','test/space-transport.test.mjs','test/space-transport-ui.test.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;
