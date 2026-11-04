@@ -464,8 +464,9 @@ test('HTTP + Auth : modules M1 calibrés, brouillon privé et révocation avant 
  assert.equal((await request('saveCentralItem',{...input,item:{...item,shipModule:{code:'MOD-06',size:3,price:1}}},editor)).status,400);
  const saved=await cmd('saveCentralItem',input,editor);assert.deepEqual(await cmd('saveCentralItem',input,editor),saved);
  const d=await call('centralMaster',{campaignId,workshop:'M1'},editor);assert.deepEqual(d.changes[0].data.shipModule,{code:'MOD-06',size:3});assert.equal(d.history.length,1);
- await cmd('saveAdmissionSettings',{sessionId,policyRevision:0,draftRevision:1,settings:admissionTestSettings,reason:'Configurer les candidatures de recette'});
- const preview=await call('previewSpaceOutlawsRelease',{sessionId});assert.equal(preview.canRelease,false);assert.ok(preview.blockers.some(b=>b.code==='SO_SHIP_MODULE_NOT_CONNECTED'));
+ await cmd('saveCentralItem',{campaignId,itemId:'hidden-http',item:{...item,name:'Soute clandestine cargo',shipModule:{code:'MOD-04',size:2}},draftRevision:1,itemRevision:0,reason:'Préparation seulement'},editor);
+ await cmd('saveAdmissionSettings',{sessionId,policyRevision:0,draftRevision:2,settings:admissionTestSettings,reason:'Configurer les candidatures de recette'});
+ const preview=await call('previewSpaceOutlawsRelease',{sessionId});assert.equal(preview.canRelease,false);assert.ok(preview.blockers.some(b=>b.code==='SO_SHIP_MODULE_NOT_CONNECTED'));assert.ok(preview.blockers.some(b=>b.code==='SO_SHIP_MODULE_EFFECT_NOT_OPEN'&&b.entityId==='hidden-http'));
  await cmd('setCentralStaff',{...grant,active:false,revision:1});assert.equal((await request('saveCentralItem',input,editor)).status,403);assert.equal((await request('centralMaster',{campaignId,workshop:'M1'},editor)).status,403);
  const s=await call('session',{sessionId});for(const kind of ['characters','inventory','accounts'])assert.deepEqual(s[kind],[]);assert.equal(s.versionId,null);
 });

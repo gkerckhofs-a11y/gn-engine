@@ -1,5 +1,19 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## MOD-04 préparatoire — 4 novembre 2026
+
+Base : 880da94, [CI 41816277785](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41816277785) réussie : 742 applicatifs, 592 Firestore, douze HTTP et build.
+
+| Exigence | État | Preuve |
+| --- | --- | --- |
+| MOD-04, cargo/transport, 10 % du gabarit | Définition M1 : 1 000/2 000 Cr ; chasseur refusé | Cas partagé et pur |
+| 5/20 ou 10/50 unités, aucun volume ajouté | Description canonique préparatoire ; aucun fret caché créé | UI et absence de ressources en session |
+| Aucun équipement incomplet en partie | Publication bloquée malgré offre exacte ; commerce/mandat/profil installé refusés | Archivage puis publication sans MOD-04 ; injection synthétique refusée |
+| Fret caché, inspections et découvertes persistantes | À développer avant ouverture du montage | Limite explicite ; aucun nouveau marqueur actif |
+
+Local : 748/748 ciblés dans 61 fichiers et build. hidden-catalog : 34 suites Firestore, douze HTTP bornés. CI exacte dans PR #2 ; aucun verdict humain ou déploiement.
+
+
 ## Vols équipés et panne temporaire — 4 novembre 2026
 
 Base : 49e2b86, [CI 41813287248](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41813287248) réussie : 675 applicatifs, 535 Firestore, onze HTTP et build.

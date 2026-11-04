@@ -58,6 +58,9 @@ targetedProfiles['module-flight']={
  httpPattern:targetedProfiles['module-combat'].httpPattern.replace('duel privé,|','vol équipé,|duel privé,|'),
  files:[...targetedProfiles['module-combat'].files,'src/core/space-module-flight.mjs','src/core/space-pirate-alliances.mjs','src/core/space-outlaws-navigation-state.mjs','src/core/space-detours.mjs','test/space-module-flight.test.mjs','test/support/space-module-flight-suite.mjs','test/space-detours.test.mjs','test/space-detours-ui.test.mjs','test/space-transport.test.mjs','test/space-transport-ui.test.mjs'],
 };
+// Preparation-only MOD-04. Keep the live equipment/voyage consumers in scope
+// because the shared catalogue now distinguishes defined from playable modules.
+targetedProfiles['hidden-catalog']={...targetedProfiles['module-flight']};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

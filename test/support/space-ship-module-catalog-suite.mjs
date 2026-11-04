@@ -15,7 +15,7 @@ export function shipModuleCatalogSuite(makeStore,prefix='Catalogue modules M1'){
  });
  test(`${prefix} : calibration fermée et conditionnement obligatoire sans écriture partielle`,async()=>{
   const f=await centralFixture(makeStore);
-  for(const shipModule of [{code:'MOD-01',size:0},{code:'MOD-01',size:'2'},{code:'MOD-01',size:1.5},{code:'MOD-04',size:2},{code:'R04-01',size:2},{code:'MOD-01',size:2,price:1},{code:'MOD-01'},[],false,'MOD-01'])await assert.rejects(f.save({item:{...moduleItem,shipModule}}),{code:'INVALID_SHIP_MODULE'});
+  for(const shipModule of [{code:'MOD-01',size:0},{code:'MOD-01',size:'2'},{code:'MOD-01',size:1.5},{code:'MOD-04',size:1},{code:'R04-01',size:2},{code:'MOD-01',size:2,price:1},{code:'MOD-01'},[],false,'MOD-01'])await assert.rejects(f.save({item:{...moduleItem,shipModule}}),{code:'INVALID_SHIP_MODULE'});
   for(const patch of [{kind:'STACKABLE'},{consumable:true}])await assert.rejects(f.save({item:{...moduleItem,...patch}}),{code:'INVALID_SHIP_MODULE'});
   assert.equal((await f.view()).draft.revision,0);assert.equal((await f.view()).history.length,0);
  });
@@ -53,4 +53,22 @@ export function shipModuleCatalogSuite(makeStore,prefix='Catalogue modules M1'){
   const ready=await f.releasePreview();assert.deepEqual(ready.blockers,[]);await f.release(ready);await f.birth(await f.birthPreview());
   const s=await f.store.get(`sessions/${f.sid}`);assert.equal(s.spaceOutlaws.shipModulesVersion,undefined);
  });
+ test(`${prefix} : MOD-04 privé, cargo ou transport uniquement, sans instance ni volume ajouté`,async()=>{
+  for(const size of [2,3]){const f=await centralFixture(makeStore),item={...moduleItem,name:'Soute clandestine',shipModule:{code:'MOD-04',size}},p={item,requestId:randomUUID()};const r=await f.save(p);assert.deepEqual(await f.save(p),r);assert.deepEqual((await f.view()).changes[0].data.shipModule,item.shipModule);for(const kind of ['ships','inventory','accounts','shipMaintenance','voyages'])assert.deepEqual(await f.store.list(`sessions/${f.sid}/${kind}`),[]);}
+  const f=await centralFixture(makeStore);for(const patch of [{shipModule:{code:'MOD-04',size:1}},{shipModule:{code:'MOD-04',size:2,hiddenCargoCapacity:100}},{kind:'STACKABLE'},{consumable:true}])await assert.rejects(f.save({item:{...moduleItem,shipModule:{code:'MOD-04',size:2},...patch}}),{code:'INVALID_SHIP_MODULE'});assert.equal((await f.view()).draft.revision,0);
+ });
+ test(`${prefix} : MOD-04 ne devient pas jouable avec une offre au bon tarif, archive explicite nécessaire`,async()=>{
+  const {soVoyagesFixture}=await import('./space-outlaws-voyages-suite.mjs'),f=await soVoyagesFixture(makeStore,{release:false});let rev=(await f.view()).draft.revision;
+  await f.cc('saveCentralItem',{itemId:'hidden-module',itemRevision:0,draftRevision:rev++,item:{...moduleItem,name:'Soute clandestine',shipModule:{code:'MOD-04',size:2}},reason:'Préparation MOD-04'});
+  await f.cc('saveCentralOffer',{offerId:'hidden-offer',offerRevision:0,draftRevision:rev++,offer:{name:'Soute clandestine préparatoire',shopId:'counter',itemId:'hidden-module',unitPrice:1000,buybackPrice:null,conditions:'À raccorder',gmNotes:''},reason:'Tarif canonique préparé'});
+  const blocked=await f.releasePreview();assert.equal(blocked.canRelease,false);assert.ok(blocked.blockers.some(b=>b.code==='SO_SHIP_MODULE_EFFECT_NOT_OPEN'&&b.entityId==='hidden-module'));await assert.rejects(f.release(blocked),{code:'SO_RELEASE_BLOCKED'});assert.deepEqual(await f.store.list(`campaigns/${f.campaignId}/versions`),[]);
+  await f.cc('archiveCentralOffer',{offerId:'hidden-offer',offerRevision:1,draftRevision:rev++,reason:'Hors version jouable'});await f.cc('archiveCentralItem',{itemId:'hidden-module',itemRevision:1,draftRevision:rev++,reason:'Hors version jouable'});
+  const ready=await f.releasePreview();assert.deepEqual(ready.blockers,[]);await f.release(ready);await f.birth(await f.birthPreview());assert.equal((await f.read('mySession')).session.spaceOutlaws.hiddenCargoVersion,undefined);assert.deepEqual(await f.store.list(`sessions/${f.sid}/ships`),[]);
+ });
+ test(`${prefix} : MOD-04 injecté dans une session reste fermé au commerce et au mandat sans effet`,async()=>{
+  const {moduleMandateFixture}=await import('./space-module-mandates-suite.mjs'),f=await moduleMandateFixture(makeStore),ship=await f.ship(),pa=await f.points(f.other),lot=await f.get(`inventory/${f.sale.purchasedLotId}`);
+  await f.edit(`inventory/${lot.id}`,l=>({...l,item:{...l.item,shipModule:{code:'MOD-04',size:2}}}));await assert.rejects(f.preview(),{code:'INVALID_MODULE_CALIBRATION'});assert.deepEqual(await f.ship(),ship);assert.deepEqual(await f.points(f.other),pa);
+  await f.edit('shops/counter/offers/module-offer',o=>({...o,unitPrice:1000,item:{...o.item,shipModule:{code:'MOD-04',size:2}}}));await assert.rejects(f.read('prepareShopPurchase',{shopId:'counter',offerId:'module-offer',quantity:1,useProtected:false}),{code:'INVALID_SHIP_MODULE_OFFER'});assert.deepEqual(await f.ship(),ship);assert.equal((await f.get(`inventory/${lot.id}`)).status,'AVAILABLE');
+ });
+
 }

@@ -1,3 +1,4 @@
+import {standardShipModuleQuote} from '../shared/space-ship-modules.mjs';
 import {isPlaceSearch} from './space-outlaws-search-state.mjs';
 import {seedSoMissions} from './space-outlaws-mission-state.mjs';
 import {seedSoNavigation} from './space-outlaws-navigation-state.mjs';
@@ -91,6 +92,7 @@ export async function readSoEntryVersion(tx,c){
  requireThat(h.moduleWorkVersion===undefined||h.moduleWorkVersion===1&&h.moduleMandatesVersion===1,'SO_VERSION_INVALID');
  requireThat(h.moduleMandatesVersion===undefined||h.moduleMandatesVersion===1&&h.modulePurchasesVersion===1&&h.navigationVersion===1&&h.logisticsVersion===1,'SO_VERSION_INVALID');
  requireThat(h.modulePurchasesVersion===undefined||h.modulePurchasesVersion===1&&h.shopsVersion===1,'SO_VERSION_INVALID');
+ requireThat(!changes.some(c=>c.operation==='UPSERT'&&c.type==='item'&&standardShipModuleQuote(c.data?.shipModule)?.preparationOnly),'SO_VERSION_INVALID');
  requireThat(h.modulePurchasesVersion===1||!changes.some(c=>c.operation==='UPSERT'&&c.type==='item'&&c.data?.shipModule),'SO_VERSION_INVALID');
  requireThat(h.healthVersion===undefined||h.healthVersion===1,'SO_VERSION_INVALID');
  if(h.healthVersion===1)requireThat(digest(h.careProfiles)===digest(soCareProfiles(changes)),'SO_VERSION_INVALID');
@@ -102,7 +104,8 @@ async function releasePlan(tx,actor,ctx,authority,at){
  const report=centralDraftCheck({campaign:ctx.c,session:ctx.s,draft:ctx.draft,changes,actorUid:actor.uid,authority:{kind:'OWNER',revision:null},at});
  const admissions=await checkAdmissionM2({tx,ctx,actor,authority,at});
  const blockers=[...shopBlockers(changes),...report.diagnostics.filter(d=>d.code!=='REWARD_SOURCE_PENDING').map(d=>({code:d.code,message:d.message,entityId:d.entityId})),...admissions.diagnostics.map(d=>({code:d.code,message:'Reprendre ce dossier dans les candidatures.',entityId:d.characterId??''}))];
- for(const ch of changes)if(ch.operation==='UPSERT'&&ch.type==='item'&&ch.data?.shipModule&&!changes.some(o=>o.operation==='UPSERT'&&o.type==='offer'&&o.data.itemId===ch.entityId&&o.data.buybackPrice===null&&moduleOfferValid({...o.data,item:ch.data})))blockers.push({code:'SO_SHIP_MODULE_NOT_CONNECTED',entityId:ch.entityId,message:'Ce module doit être relié à une offre PNJ au tarif canonique de son gabarit, sans rachat. Le montage reste distinct de l’achat.'});
+ for(const ch of changes)if(ch.operation==='UPSERT'&&ch.type==='item'&&standardShipModuleQuote(ch.data?.shipModule)?.preparationOnly)blockers.push({code:'SO_SHIP_MODULE_EFFECT_NOT_OPEN',entityId:ch.entityId,message:'MOD-04 est disponible en préparation seulement. Le fret caché et les inspections doivent être raccordés avant publication ; archiver ce modèle et ses offres pour publier les autres éléments.'});
+ for(const ch of changes)if(ch.operation==='UPSERT'&&ch.type==='item'&&ch.data?.shipModule&&!standardShipModuleQuote(ch.data.shipModule)?.preparationOnly&&!changes.some(o=>o.operation==='UPSERT'&&o.type==='offer'&&o.data.itemId===ch.entityId&&o.data.buybackPrice===null&&moduleOfferValid({...o.data,item:ch.data})))blockers.push({code:'SO_SHIP_MODULE_NOT_CONNECTED',entityId:ch.entityId,message:'Ce module doit être relié à une offre PNJ au tarif canonique de son gabarit, sans rachat. Le montage reste distinct de l’achat.'});
  for(const ch of changes)if(ch.operation==='UPSERT'&&ch.type==='classKit'&&ch.data.bindings.some(b=>changes.some(i=>i.operation==='UPSERT'&&i.type==='item'&&i.entityId===b.itemId&&i.data.shipModule)))blockers.push({code:'SO_MODULE_INITIAL_KIT',entityId:ch.entityId,message:'Un module de vaisseau ne fait pas partie du kit initial. Choisir le modèle canonique de cet élément.'});
  for(const ch of changes)if(ch.operation==='UPSERT'&&!supported.has(ch.type))blockers.push({code:'SO_DOMAIN_NOT_CONNECTED',entityId:ch.entityId,message:`${ch.workshop} : ${ch.type} doit être raccordé au jeu avant publication. Le brouillon reste intact.`});
  for(const ch of changes)if(ch.operation==='UPSERT'&&ch.type==='fieldTarget'&&ch.data?.kind!=='ANALYSIS'&&!isPlaceSearch(ch.data))blockers.push({code:'SO_DOMAIN_NOT_CONNECTED',entityId:ch.entityId,message:'Seules les analyses V0.7 et les fouilles de lieux V3.6 sont raccordées au jeu.'});

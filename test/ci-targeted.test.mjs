@@ -123,3 +123,9 @@ test('CI ciblée : vols équipés, événement, reprise, entretien et détour pa
  const selected=matrixFor(p.suites).flatMap(({shard})=>selectFirestoreSuites({GN_FIRESTORE_SUITES:JSON.stringify(p.suites),GN_FIRESTORE_SHARD:shard}));assert.deepEqual(selected.map(s=>s.id).sort(),[...p.suites].sort());
  assert.ok(new RegExp(p.httpPattern).test('HTTP + Auth : vol équipé, lecture privée'));assert.throws(()=>targetedScope('module-combat',['src/core/space-module-flight.mjs'],{reliableBase:true}));
 });
+
+test('CI ciblée : MOD-04 préparatoire inclut M1, publication, commerce, mandats et vols existants',()=>{
+ const p=targetedScope('hidden-catalog',['src/shared/space-ship-modules.mjs','src/core/space-outlaws-entry.mjs','src/core/space-module-mandates.mjs','src/core/space-outlaws-shop-state.mjs','web/central-master.mjs'],{reliableBase:true});
+ assert.equal(requestedTarget('[ci targeted:hidden-catalog]'),'hidden-catalog');assert.equal(p.browser,false);for(const id of ['space-ship-module-catalog','central-master','central-import','space-outlaws-entry','space-module-purchases','space-module-mandates','space-module-flight'])assert.ok(p.suites.includes(id));
+ assert.deepEqual(testCommand('application',{GN_CI_PROFILE:'targeted-hidden-catalog',GN_APPLICATION_TESTS:JSON.stringify(p.applicationTests)}).args,['--test',...p.applicationTests]);assert.throws(()=>targetedScope('hidden-catalog',['src/core/customs.mjs'],{reliableBase:true}));
+});

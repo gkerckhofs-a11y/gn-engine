@@ -1,5 +1,20 @@
 # GN Engine — consignes de développement
 
+## MOD-04 — catalogue préparatoire — 4 novembre 2026
+
+Base vérifiée : `880da943f3bcc6d24e6423d7a17317947219e93e`, [CI ciblée 41816277785](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41816277785) completed/success : build, 742 applicatifs, 592 Firestore, douze HTTP. Source : V0.7 chapitre 17 (MOD-04, 10 %, compatibilité, atelier) et fret clandestin (5/20 unités cargo, 10/50 transport). Aucun audit historique repris.
+
+MOD-04 peut être défini dans le brouillon M1 comme objet individuel non consommable, calibration code/gabarit stricts inchangés. Chasseur refusé. Cargo : 1 000 Cr, 5 unités cachées dans les 20 existantes ; transport : 2 000 Cr, 10 dans les 50 existantes. Aucun volume supplémentaire. Profil canonique prévu : installation MEC-03 N2, dix minutes, 1 PA ; retrait MEC-03 N2, cinq minutes, 1 PA. Ces données préparatoires ne constituent pas un montage jouable.
+
+Séparation explicite entre devis de définition et module jouable : MOD-01/02/03/06 restent jouables ; MOD-04 est preparationOnly. Publication bloquée par SO_SHIP_MODULE_EFFECT_NOT_OPEN, y compris avec offre au bon tarif ; l’offre a son diagnostic préparatoire. Archiver modèle et offres permet de publier le reste. Lecture d’une version contenant ce module non raccordé refusée. Commerce et mandat de montage le refusent, profil installé/vol également ; aucun marqueur actif, stock, lot, argent, PA, volume ou vaisseau créé par la préparation. Le M1 affiche prix, fraction cachée et limites explicites ; aucune quantité cachée réglable ni effet client.
+
+Local : build et **748/748 tests ciblés dans 61 fichiers**, via l’exécuteur CI, Node 24.22.1/npm 11.9.0. Trois nouveaux cas partagés mémoire/Firestore : définition privée/compatibilité sans ressources, publication bloquée malgré tarif exact puis archivage, injection synthétique refusée au commerce/mandat. Un cas pur, un UI, un sélecteur ; HTTP M1 existant renforcé avec MOD-04 et son diagnostic. Ciblage hidden-catalog hérite des consommateurs du devis partagé : 34 suites Firestore, douze HTTP bornés, aucun Chromium ni régression complète. CI exacte à consigner dans PR #2 avant la suite ; émulateurs non exécutés localement (Java 17, CI Java 21).
+
+Compatibilité : même schéma de calibration à deux clés, aucune migration ou nouvelle version active. Les sessions existantes et leurs vols équipés déjà livrés ne sont pas enrichis. Conserver définition/brouillon/révision/historique/délégations et offres ensemble. Ancien binaire ne reconnaît pas MOD-04 dans M1 : retour logiciel seul non équivalent si ces définitions existent ; archivage compatible ou restauration cohérente selon procédure approuvée, jamais suppression partielle. Aucune publication, fusion main ou modification d’environnement Firebase.
+
+Suite MOD-04 : volume réellement caché dans la cargaison existante, droits/propriétaires, visibilité et découvertes persistantes, inspection approfondie et retrait après vidage/consignation, puis ouverture versionnée de l’équipement. Tant que cet ensemble n’est pas raccordé, garder publication/commerce/montage fermés. Même branche work/space-pilot-handover et PR #2 brouillon. Tests ciblés distincts de la recette humaine et d’une régression intégrale.
+
+
 ## Vols équipés et neutralisation temporaire — 4 novembre 2026
 
 Base vérifiée : `49e2b861ae0750f144a49b0b08a4a59d41ec8feb`, [CI ciblée 41813287248](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41813287248) completed/success : build, 675 applicatifs, 535 Firestore, onze HTTP. Aucun audit historique repris. Source métier : [V0.7 chapitres 17 et voyages](docs/source/SO_Regles_V07.txt), quinze minutes en temps de jeu, un événement commun par convoi et retard de cinq minutes sans module admissible.

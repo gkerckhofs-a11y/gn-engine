@@ -1,5 +1,14 @@
 # SPACE OUTLAWS — sauvegarde, reprise et déploiement À FAIRE VALIDER
 
+## Définition préparatoire MOD-04 — 4 novembre 2026
+
+Calibration M1 code/size inchangée. MOD-04 accepté dans le brouillon pour cargo/transport seulement, mais explicitement exclu des versions jouables, du commerce, des mandats et profils montés. Aucun marqueur actif, migration, nouvel inventaire ou collection. Les instances jouées ne sont pas modifiées.
+
+Conserver ensemble brouillon/changements/révisions/historiques/délégations et offres liées. Ancien binaire ne reconnaît pas ce code : aucun retour logiciel seul sur un brouillon qui le contient ; archivage explicite compatible ou restauration cohérente selon procédure approuvée. Ne pas effacer uniquement sa calibration, qui changerait le sens de l’objet. Aucun retour, migration, publication ou sauvegarde/restauration externe exécuté ici.
+
+Local : 748/748 ciblés et build ; CI exacte dans PR #2. L’ouverture future de MOD-04 exigera fret caché, inspection/découverte persistante, retrait et nouvelle compatibilité versionnée ; cette tranche ne l’autorise pas.
+
+
 ## Vols équipés et neutralisations — 4 novembre 2026
 
 Nouveau moduleFlightVersion=1, dépendant de moduleRemovalVersion et de toute sa chaîne ainsi que combat/convoi. Nouveaux manifestes uniquement, transmission à la naissance et conservation entre épisodes ; aucune migration d’ancienne session. Les anciens manifestes gardent leur verrou de vol équipé.

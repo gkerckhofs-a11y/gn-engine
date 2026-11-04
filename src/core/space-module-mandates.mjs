@@ -5,7 +5,7 @@ import {admissionKeys,admissionText} from './admission-state.mjs';
 import {inventoryHash as hash,personalLot} from './inventory-state.mjs';
 import {inventoryPlayer,inventoryParty} from './inventory-transfers.mjs';
 import {navigationSkill} from './space-outlaws-navigation-state.mjs';
-import {standardShipModuleQuote} from '../shared/space-ship-modules.mjs';
+import {playableShipModuleQuote} from '../shared/space-ship-modules.mjs';
 import {spaceShipProfiles} from '../shared/space-outlaws-navigation.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {gameTime} from './clock.mjs';
@@ -32,7 +32,7 @@ export async function moduleMandateBinding(tx,s,input,at){
   const owner=await inventoryParty(tx,s.id,ship.ownerId),tech=await inventoryParty(tx,s.id,documentId(input.technicianId));
   requireThat(owner.active&&fit(owner.c,time)&&local(s,owner.c,ship),'INVALID_MODULE_OWNER');
   const port=await tx.get(`${base}/ports/${ship.portId}`);requireThat(port?.versionId===s.versionId,'SHIP_NOT_LOCAL');
-  const lot=await tx.get(`${base}/inventory/${documentId(input.lotId)}`),q=standardShipModuleQuote(lot?.item?.shipModule),profile=spaceShipProfiles.find(p=>p.id===ship.soProfile.id);
+  const lot=await tx.get(`${base}/inventory/${documentId(input.lotId)}`),q=playableShipModuleQuote(lot?.item?.shipModule),profile=spaceShipProfiles.find(p=>p.id===ship.soProfile.id);
   requireThat(q&&profile&&profile.size===q.size&&Array.isArray(ship.modules)&&(removing?ship.modules.length<=profile.moduleSlots&&installedModuleLot(ship,lot):ship.modules.length<profile.moduleSlots&&!ship.modules.some(m=>m.code===q.code)),'INVALID_MODULE_CALIBRATION');
   requireThat(lot.item.kind==='INDIVIDUAL'&&!lot.item.consumable&&(removing?installedModuleLot(ship,lot)&&lot.status==='INSTALLED':personalLot(lot,ship.ownerId)&&lot.status==='AVAILABLE')&&lot.quantity===1&&lot.transferable===true&&lot.resellable===true&&!lot.transportContractId,'MODULE_LOT_UNAVAILABLE');
   requireThat(tech.active&&fit(tech.c,time)&&local(s,tech.c,ship)&&navigationSkill(tech.c,'MEC-03')>=(removing?q.remove:q.install).level,'MODULE_TECH_REQUIRED');
