@@ -3,11 +3,11 @@ import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 import {towingFlightFixture} from './space-towing-flight-suite.mjs';
 
-export async function towingCombatFixture(makeStore,{encounter=true,round=true,prepareOnly=false,...options}={}){
- const f=await towingFlightFixture(makeStore,{attach:false,...options});await f.edit('',s=>({...s,spaceOutlaws:{...s.spaceOutlaws,towingCombatVersion:1}}));
+export async function towingCombatFixture(makeStore,{encounter=true,round=true,prepareOnly=false,outage=false,...options}={}){
+ const f=await towingFlightFixture(makeStore,{attach:false,...options});await f.edit('',s=>({...s,spaceOutlaws:{...s.spaceOutlaws,towingCombatVersion:1,...(outage?{towingOutageVersion:1}:{})}}));if(outage)await f.edit('routes/out',r=>({...r,riskId:'DANGEROUS'}));
  await f.provision({shipId:'pirate',name:'Pirate',pilotId:f.otherId,ownerId:f.otherId});const supply={shopId:'counter',offerId:'fuel',provisionId:randomUUID(),quantity:6,restricted:true,source:'Réserve native PNJ',reason:'Essai duel remorqué'},q=await f.read('prepareShopProvision',supply,f.owner);await f.cmd('provisionShop',{...supply,confirmation:q.confirmation},f.owner);const sale=await f.buy({offerId:'fuel',quantity:6},f.other);await f.pickup(sale,f.other);const fuel={shipId:'pirate',lotId:sale.purchasedLotId,quantity:6},fq=await f.read('prepareRefuel',fuel,f.other);await f.cmd('refuelShip',{...fuel,confirmation:fq.confirmation,present:true},f.other);f.advance(120000);await f.navCommand('finishSoRefuel',{shipId:'pirate'},f.other);
  if(prepareOnly)return f;
- const r=await f.approved();await f.start(r);f.advance(300000);await f.finish(r);await f.startFlight();await f.startFlight({shipId:'pirate'},f.other);f.advance(180000);f.setDie(6);await f.navCommand('finishSoPreparation');await f.navCommand('finishSoPreparation',{shipId:'pirate'},f.other);
+ const r=await f.approved();await f.start(r);f.advance(300000);await f.finish(r);await f.startFlight();await f.startFlight({shipId:'pirate'},f.other);f.advance(180000);f.setDice(outage?[1,5,1,6]:[6,6,6,6]);await f.navCommand('finishSoPreparation');f.setDie(6);await f.navCommand('finishSoPreparation',{shipId:'pirate'},f.other);
  const ambush={shipId:'pirate',navigationCode:'OUT-SECRET'},aq=await f.read('prepareSpaceAmbush',ambush,f.other);await f.cmd('armSpaceAmbush',{...ambush,confirmation:aq.confirmation,present:true},f.other);let combatId;
  const detail=async(actor=f.player)=>(await f.read('spaceCombat',{combatId},actor)).combat,adminDetail=async()=>(await f.read('spaceCombatAdmin',{},f.owner)).combats.find(e=>e.id===combatId);
  const combatCmd=async(action,patch={},actor=f.player)=>{const admin=actor===f.owner,d=admin?await adminDetail():await detail(actor);return f.cmd(action,{combatId,...(!admin?{shipId:d.ownShipId}:{}),confirmation:d.confirmation,...patch},actor);};

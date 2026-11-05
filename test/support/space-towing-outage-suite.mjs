@@ -1,0 +1,51 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {towingFlightFixture} from './space-towing-flight-suite.mjs';
+import {towingCombatFixture} from './space-towing-combat-suite.mjs';
+
+export async function towingOutageFixture(makeStore,{launch=true,riskId='DANGEROUS'}={}){
+ const f=await towingFlightFixture(makeStore);await f.edit('',s=>({...s,spaceOutlaws:{...s.spaceOutlaws,towingCombatVersion:1,towingOutageVersion:1}}));await f.edit('routes/out',r=>({...r,riskId}));
+ const launchOutage=async()=>{await f.startFlight();f.advance(180000);f.setDice([1,5,1,6]);return f.navCommand('finishSoPreparation');};if(launch)await launchOutage();
+ const continueVoyage=async()=>{const q=(await f.read('spaceportAdmin',{},f.owner)).ships.find(s=>s.shipId==='ship');return f.cmd('continueSoVoyage',{shipId:'ship',confirmation:q.confirmation,reason:'Événement joué'},f.owner);};
+ return {...f,launchOutage,continueVoyage};
+}
+export function towingOutageSuite(makeStore,prefix='Attente MOD-05 décision B'){
+ test(`${prefix} : événement natif, même épave et quinze minutes sans second coût`,async()=>{
+  for(const riskId of ['DANGEROUS','HOSTILE']){const f=await towingOutageFixture(makeStore,{riskId}),ship=await f.ship(),wreck=await f.get('ships/wreck'),nav=await f.navigation();assert.equal(ship.journey.event.neutralizedModule.code,'MOD-05');assert.equal(nav.ship.journey.towingWait.remainingSeconds,900);assert.equal(nav.ship.journey.remainingSeconds,300);assert.equal(nav.ship.journey.suspended,true);assert.equal(ship.fuel,4);assert.equal((await f.points()).available,4);assert.equal((await f.points(f.other)).available,4);assert.equal(wreck.towingTransit.journeyId,ship.journey.id);assert.equal(wreck.maintenanceId,ship.maintenanceId);assert.equal(wreck.ownerId,f.otherId);assert.equal(wreck.hull,0);assert.equal(nav.ship.profile.maneuverability,0);assert.equal(wreck.wreckSpacePosition,undefined);assert.equal(nav.ship.journey.towingOutage,undefined);assert.equal(nav.ship.journey.event.neutralizedModule.lotId,undefined);await assert.rejects(f.arrive(),{code:'VOYAGE_SUSPENDED'});await assert.rejects(f.continueVoyage(),{code:'VOYAGE_SUSPENDED'});}
+ });
+ test(`${prefix} : limite exacte et lecture tardive reprennent au terme de la panne`,async()=>{
+  const f=await towingOutageFixture(makeStore);f.advance(899999);assert.equal((await f.navigation()).ship.journey.towingWait.remainingSeconds,1);f.advance(1);let q=await f.navigation();assert.equal(q.ship.journey.suspended,false);assert.equal(q.ship.journey.remainingSeconds,300);assert.equal(q.ship.moduleNeutralizations.length,0);f.advance(299999);await assert.rejects(f.arrive(),{code:'VOYAGE_NOT_READY'});f.advance(1);await f.arrive();assert.equal((await f.get('ships/wreck')).portId,'away');assert.equal((await f.get('ships/wreck')).ownerId,f.otherId);assert.equal((await f.points()).available,4);
+  const late=await towingOutageFixture(makeStore);late.advance(1200000);assert.equal((await late.navigation()).ship.journey.remainingSeconds,0);await late.arrive();assert.equal((await late.get('ships/wreck')).docked,true);
+ });
+ test(`${prefix} : pause et STOP figent ensemble panne, trajet et deux positions`,async()=>{
+  const f=await towingOutageFixture(makeStore);f.advance(100000);await f.stage('PAUSE');f.advance(999999);assert.equal((await f.navigation()).ship.journey.towingWait.remainingSeconds,800);assert.equal((await f.navigation()).ship.journey.remainingSeconds,300);await assert.rejects(f.arrive(),{code:'SESSION_NOT_RUNNING'});await f.stage('EN_JEU');await f.cmd('stopSafety',{reason:'STOP'});f.advance(999999);assert.equal((await f.navigation()).ship.journey.towingWait.remainingSeconds,800);await assert.rejects(f.arrive(),{code:'SO_SAFETY_STOP'});assert.equal((await f.get('ships/wreck')).docked,false);
+ });
+ test(`${prefix} : une clôture MJ avant échéance ne contourne pas l’attente`,async()=>{
+  const f=await towingOutageFixture(makeStore);await f.edit('ships/ship',s=>({...s,journey:{...s.journey,event:{...s.journey.event,needsMJ:true}}}));await f.continueVoyage();assert.equal((await f.ship()).journey.event.needsMJ,false);assert.equal((await f.navigation()).ship.journey.suspended,true);f.advance(900000);assert.equal((await f.navigation()).ship.journey.suspended,false);
+ });
+ test(`${prefix} : expiration ne clôture ni événement MJ ni dette de carburant`,async()=>{
+  for(const patch of [{needsMJ:true},{fuelDebt:1}]){const f=await towingOutageFixture(makeStore);await f.edit('ships/ship',s=>({...s,journey:{...s.journey,event:{...s.journey.event,...patch}}}));f.advance(1000000);assert.equal((await f.navigation()).ship.journey.suspended,true);await assert.rejects(f.arrive(),{code:'VOYAGE_SUSPENDED'});if(patch.needsMJ){await f.continueVoyage();assert.equal((await f.navigation()).ship.journey.remainingSeconds,300);}else await assert.rejects(f.continueVoyage(),{code:'VOYAGE_SUSPENDED'});}
+ });
+ test(`${prefix} : capacité courante avant ancien reçu de départ et arrivée`,async()=>{
+  const f=await towingOutageFixture(makeStore,{launch:false});await f.startFlight();f.advance(180000);const before=await f.get('');await f.edit('',s=>{const {towingOutageVersion,...rest}=s.spaceOutlaws;return {...s,spaceOutlaws:rest};});f.setDie(6);await assert.rejects(f.navCommand('finishSoPreparation'),{code:'TOWING_ROUTE_NOT_OPEN'});await f.edit('',()=>before);f.setDice([1,5,1,6]);const q=await f.navigation(),p={shipId:'ship',confirmation:q.confirmation,present:true,requestId:randomUUID()};await f.cmd('finishSoPreparation',p);const session=await f.get('');await f.edit('',s=>{const {towingOutageVersion,...rest}=s.spaceOutlaws;return {...s,spaceOutlaws:rest};});await assert.rejects(f.cmd('finishSoPreparation',p),{code:'TOWING_OUTAGE_NOT_OPEN'});await f.edit('',()=>session);f.advance(1200000);const ready=await f.navigation(),a={shipId:'ship',confirmation:ready.confirmation,requestId:randomUUID()};await f.cmd('arriveShip',a);await f.edit('',s=>{const {towingOutageVersion,...rest}=s.spaceOutlaws;return {...s,spaceOutlaws:rest};});await assert.rejects(f.cmd('arriveShip',a),{code:'TOWING_OUTAGE_NOT_OPEN'});
+ });
+ test(`${prefix} : confirmation avant expiration et lien corrompu refusés sans mouvement`,async()=>{
+  const f=await towingOutageFixture(makeStore),q=await f.navigation();f.advance(900000);await assert.rejects(f.cmd('arriveShip',{shipId:'ship',confirmation:q.confirmation}),{code:'STALE_REVISION'});const original=await f.ship();await f.edit('ships/ship',s=>{const {towingAttachment,...rest}=s;return rest;});await assert.rejects(f.navigation(),{code:'TOWING_RESERVATION'});await f.edit('ships/ship',()=>original);await f.edit('ships/wreck',s=>({...s,maintenanceId:'foreign'}));await assert.rejects(f.navigation(),{code:'TOWING_RESERVATION'});assert.equal((await f.ship()).docked,false);assert.equal((await f.get('ships/wreck')).docked,false);
+ });
+ test(`${prefix} : arrivée concurrente et réessai ne doublent ni coûts ni déplacement`,async()=>{
+  const f=await towingOutageFixture(makeStore);f.advance(1200000);const q=await f.navigation(),p={shipId:'ship',confirmation:q.confirmation,requestId:randomUUID()},out=await Promise.allSettled([p,{...p,requestId:randomUUID()}].map(p=>f.cmd('arriveShip',p)));assert.equal(out.filter(r=>r.status==='fulfilled').length,1);assert.deepEqual(await f.cmd('arriveShip',p),out[0].value);assert.equal((await f.points()).available,4);assert.equal((await f.get('ships/wreck')).portId,'away');
+ });
+ test(`${prefix} : rollback après écritures de départ conserve carburant, PA et attelage`,async()=>{
+  const raw=makeStore();let fail=false;const store={get:raw.get.bind(raw),list:raw.list.bind(raw),runTransaction:cb=>raw.runTransaction(async tx=>{const r=await cb(tx);if(fail)throw Error('OUTAGE_INTERRUPTION');return r;})},f=await towingOutageFixture(()=>store,{launch:false});await f.startFlight();f.advance(180000);f.setDice([1,5,1,6]);const q=await f.navigation(),before=await f.ship(),wreck=await f.get('ships/wreck');fail=true;await assert.rejects(f.cmd('finishSoPreparation',{shipId:'ship',confirmation:q.confirmation,present:true}),/OUTAGE_INTERRUPTION/);fail=false;assert.deepEqual(await f.ship(),before);assert.deepEqual(await f.get('ships/wreck'),wreck);assert.equal((await f.points()).reserved,1);
+ });
+ test(`${prefix} : paix avant ou après expiration respecte le blocage du combat`,async()=>{
+  for(const elapsed of [0,1000000]){const f=await towingCombatFixture(makeStore,{outage:true,round:false});f.advance(elapsed);assert.equal((await f.navigation()).ship.journey.suspended,true);await f.combatCmd('consentSpacePeace',{agree:true});await f.combatCmd('consentSpacePeace',{agree:true},f.other);const q=(await f.navigation()).ship;if(elapsed===0){assert.equal(q.journey.suspended,true);f.advance(900000);}else assert.equal(q.journey.suspended,false);assert.equal((await f.navigation()).ship.journey.remainingSeconds,300);assert.ok((await f.get('ships/wreck')).towingAttachment);}
+ });
+ test(`${prefix} : largage volontaire pendant panne libère le voyage du blocage MOD-05`,async()=>{
+  const f=await towingCombatFixture(makeStore,{outage:true,round:false});await f.drop();assert.equal((await f.ship()).journey.towingOutage,undefined);await f.combatCmd('consentSpacePeace',{agree:true});await f.combatCmd('consentSpacePeace',{agree:true},f.other);assert.equal((await f.navigation()).ship.journey.suspended,false);assert.equal((await f.navigation()).ship.profile.maneuverability,1);assert.ok((await f.get('ships/wreck')).wreckSpacePosition);assert.equal((await f.navigation()).ship.moduleNeutralizations.length,1);
+ });
+ test(`${prefix} : zéro Coque pendant panne interrompt seulement par la règle de combat`,async()=>{
+  const f=await towingCombatFixture(makeStore,{outage:true,sameOwner:true}),owner=(await f.get('ships/wreck')).ownerId;await f.edit('ships/ship',s=>({...s,hull:1,shield:0}));await f.submit('PASSIVE');await f.submit('ATTACK',f.other);f.setDie(6);await f.resolve();assert.equal((await f.ship()).hull,0);assert.equal((await f.ship()).journey.towingOutage,undefined);assert.equal((await f.get('ships/wreck')).ownerId,owner);assert.equal((await f.get('ships/wreck')).wreckSpacePosition.combatId,f.combatId);
+ });
+}

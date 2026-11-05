@@ -1,6 +1,6 @@
 import {isDeepStrictEqual} from 'node:util';
 import {requireThat} from './validation.mjs';
-import {hasTowingFlights,activeModuleOutages} from './space-module-flight.mjs';
+import {hasTowingFlights,hasTowingOutages,activeModuleOutages} from './space-module-flight.mjs';
 import {inventoryParty} from './inventory-transfers.mjs';
 import {stockVolume,warehouseStock} from './storage-state.mjs';
 import {spaceShipProfiles} from '../shared/space-outlaws-navigation.mjs';
@@ -38,7 +38,8 @@ export function validateTowingDeparture(s,ship,x){
  requireThat(!ship.convoy&&!ship.convoyOffer&&!ship.ambushId&&!ship.pirateAlliance&&!wreck.pirateAlliance,'TOWING_ACTION_NOT_OPEN');
  requireThat(!confirmationState.transfers.length&&confirmationState.stock.every(l=>['AVAILABLE','SEIZED'].includes(l.status))&&stockVolume(confirmationState.stock)<=wreck.capacity,'CARGO_TRANSFERS_OPEN');
 }
-export function towingRoute(route,x){if(!x)return route;requireThat(route.riskId==='SECURED','TOWING_ROUTE_NOT_OPEN');return {...route,fuelCost:route.fuelCost*2};}
+export function validateTowingRoute(route,x,s){if(x)requireThat(route.riskId==='SECURED'||hasTowingOutages(s)&&['DANGEROUS','HOSTILE'].includes(route.riskId),'TOWING_ROUTE_NOT_OPEN');}
+export function towingRoute(route,x,s){if(!x)return route;validateTowingRoute(route,x,s);return {...route,fuelCost:route.fuelCost*2};}
 export function towingEvent(event,x,fuel){if(!x)return event;const required=2*(event.fuelCost+event.fuelDebt);return {...event,fuelCost:Math.min(fuel,required),fuelDebt:Math.max(0,required-fuel)};}
 export function departTowedWreck(tx,s,x,journey,at){
  if(!x)return;authorizeSpaceOutlaws(tx,s,'TOWING_FLIGHT');const base=`sessions/${s.id}`,{wreck,r}=x;

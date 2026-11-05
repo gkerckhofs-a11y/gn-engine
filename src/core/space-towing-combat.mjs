@@ -25,6 +25,6 @@ export function releaseTowingInSpace(tx,s,x,tug,combat,at,time,reason){
  tx.set(`${base}/ships/${wreck.id}`,{...wreck,docked:false,maintenanceId:null,wreckSpacePosition:position,revision:wreck.revision+1});
  tx.set(`${base}/shipMaintenance/${x.r.id}`,{...x.r,status:'TOWING_RELEASED_IN_SPACE',towingCombatVersion:1,towingCombatId:combat.id,spaceRelease:position,closedAt:at,revision:x.r.revision+1});
  tx.set(`${base}/logisticsHistory/${combat.id}-tow-${x.r.id}`,{id:`${combat.id}-tow-${x.r.id}`,kind:reason,workId:x.r.id,combatId:combat.id,shipId:tug.id,wreckId:wreck.id,at});
- const {towingAttachment:attachment,...rest}=tug,{towing,...journey}=tug.journey;
+ const {towingAttachment:attachment,...rest}=tug,{towing,towingOutage,...journey}=tug.journey;
  return flightShip(s,{...rest,maintenanceId:null,journey:{...journey,releasedTowing:{version:1,workId:x.r.id,wreckId:wreck.id,combatId:combat.id,reason}},revision:tug.revision+1},time);
 }

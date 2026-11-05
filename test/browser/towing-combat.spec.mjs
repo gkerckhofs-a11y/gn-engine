@@ -1,3 +1,5 @@
+import {towingOutageFixture} from '../support/space-towing-outage-suite.mjs';
+import {soNavigationHtml} from '../../web/space-outlaws-voyages.mjs';
 import {test,expect} from 'playwright/test';
 import {build} from 'esbuild';
 import {readFile,mkdir} from 'node:fs/promises';
@@ -39,4 +41,10 @@ test('Zéro Coque : résultat du round et interruption automatique lisibles',asy
 test('Pause, pirate et régie : aucune commande de largage pour un rôle non autorisé',async({page},testInfo)=>{
  const f=await towingCombatFixture(()=>new MemoryStore());await f.stage('PAUSE');const h=await mount(page,f);await expect(page.getByRole('button',{name:'Largage indisponible'})).toBeDisabled();await h.check(testInfo,'pause');
  for(const role of ['pirate','admin']){const p=await page.context().newPage(),v=await mount(p,f,role);await expect(p.locator('[data-command="dropTowedWreck"]')).toHaveCount(0);expect(v.writes).toEqual([]);await p.close();}
+});
+
+test('Navigation : attente MOD-05 visible, pause figée et même trajet après rétablissement',async({page},testInfo)=>{
+ const f=await towingOutageFixture(()=>new MemoryStore()),errors=[],remote=[];page.on('pageerror',e=>errors.push(e.message));await page.route('**/*',r=>{remote.push(r.request().url());return r.abort();});await page.setContent(template);
+ const render=async()=>page.locator('#app').evaluate((el,html)=>el.innerHTML=html,playerShell(await f.read('mySession'),playerRoute('flight',f.sid,'ship'),soNavigationHtml(await f.navigation())));await render();await expect(page.getByRole('heading',{name:'MOD-05 neutralisé : voyage suspendu'})).toBeVisible();await expect(page.getByText(/900 secondes de jeu avant rétablissement/)).toBeVisible();await expect(page.locator('[data-command="arriveShip"]')).toHaveCount(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:testInfo.outputPath('attente-mod05.png'),fullPage:true});
+ await f.stage('PAUSE');f.advance(1000000);await render();await expect(page.getByText(/900 secondes de jeu avant rétablissement/)).toBeVisible();await f.stage('EN_JEU');f.advance(900000);await render();await expect(page.getByText('MOD-05 rétabli. Le trajet a repris avec le même attelage.')).toBeVisible();expect((await f.navigation()).ship.journey.remainingSeconds).toBe(300);expect((await f.get('ships/wreck')).towingTransit.journeyId).toBe((await f.ship()).journey.id);expect(errors).toEqual([]);expect(remote).toEqual([]);
 });
