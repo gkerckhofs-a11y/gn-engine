@@ -214,3 +214,6 @@ dialog .close { margin-bottom: 12px; }
 .space-towing{padding:1rem;border:1px solid var(--line,#667085);border-radius:.6rem;margin-block:1rem;overflow-wrap:anywhere}
 .space-towing .check{min-height:44px;display:flex;align-items:center;gap:.6rem}
 .space-towing button{min-height:44px;white-space:normal;max-width:100%}
+
+.towing-command .check{min-height:44px;display:flex;align-items:center;gap:.6rem}
+.towing-desk button,.towing-command button{min-height:44px;white-space:normal;max-width:100%}

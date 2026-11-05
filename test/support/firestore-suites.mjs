@@ -1,6 +1,7 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {"id":"space-towing-desk","module":"../support/space-towing-desk-suite.mjs","exportName":"towingDeskSuite","label":"Bureau attelage SO sur Firestore","seconds":180},
   {"id":"space-towing-outage","module":"../support/space-towing-outage-suite.mjs","exportName":"towingOutageSuite","label":"Attente MOD-05 décision B sur Firestore","seconds":300},
   {"id":"space-towing-combat","module":"../support/space-towing-combat-suite.mjs","exportName":"towingCombatSuite","label":"Interception et largage remorqués SO sur Firestore","seconds":240},
   {"id":"space-towing-flight","module":"../support/space-towing-flight-suite.mjs","exportName":"towingFlightSuite","label":"Trajets remorqués sécurisés SO sur Firestore","seconds":240},
