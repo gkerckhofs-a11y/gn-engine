@@ -1,3 +1,4 @@
+import {hasCompleteTowing} from './space-module-flight.mjs';
 import {activeModuleOutages} from './space-module-flight.mjs';
 import {DomainError,documentId,requireThat} from './validation.mjs';
 import {isDeepStrictEqual} from 'node:util';
@@ -26,7 +27,7 @@ const free=ship=>ship?.enabled&&ship.soProfile&&ship.docked&&!ship.journey&&!shi
 const local=(s,c,ship)=>(c.spacePortId??s.transportRules?.homePort)===ship.portId;
 const proof=(s,r,version)=>hash(JSON.stringify([s.id,s.revision,r,version??null]));
 // MOD-04 requires the complete hidden-cargo capability of this session.
-const moduleQuote=(s,calibration)=>playableShipModuleQuote(calibration,{hiddenCargo:hasHiddenCargo(s)});
+const moduleQuote=(s,calibration)=>playableShipModuleQuote(calibration,{hiddenCargo:hasHiddenCargo(s),towing:hasCompleteTowing(s)});
 const view=(s,r,version,valid)=>({...((r.moduleOperation==='REMOVE')?{moduleOperation:'REMOVE'}:{}),id:r.id,status:r.status,shipId:r.shipId,shipName:r.shipName,lotId:r.lotId,module:r.module,ownerId:r.ownerId,ownerName:r.ownerName,technicianId:r.technicianId,technicianName:r.technicianName,portName:r.portName,install:r.install,valid,confirmation:proof(s,r,version)});
 
 export async function moduleMandateBinding(tx,s,input,at){
@@ -64,7 +65,7 @@ export function createModuleMandateService({store,signed,checkSession,now,uuid})
     return {session:{id:s.id,stage:s.stage,safetyStopped:!!s.safetyStop?.active},admin:true,removalEnabled:hasModuleRemoval(s),jobs,ships,lots,characters};
    }
    let r=null;
-   if(!['prepareModuleMandateOffer','offerModuleMandate'].includes(action)){r=await tx.get(`${base}/shipMaintenance/${documentId(input.mandateId)}`);requireThat(r?.moduleMandateVersion===1&&await rights(r),'FORBIDDEN');if(r.module?.code==='MOD-04')requireThat(hasHiddenCargo(s)&&r.hiddenCargoVersion===1,'SO_GAMEPLAY_NOT_OPEN');if(r.moduleOperation==='REMOVE')requireThat(hasModuleRemoval(s)&&r.moduleRemovalVersion===1,'SO_GAMEPLAY_NOT_OPEN');}
+   if(!['prepareModuleMandateOffer','offerModuleMandate'].includes(action)){r=await tx.get(`${base}/shipMaintenance/${documentId(input.mandateId)}`);requireThat(r?.moduleMandateVersion===1&&await rights(r),'FORBIDDEN');if(r.module?.code==='MOD-05')requireThat(hasCompleteTowing(s),'SO_GAMEPLAY_NOT_OPEN');if(r.module?.code==='MOD-04')requireThat(hasHiddenCargo(s)&&r.hiddenCargoVersion===1,'SO_GAMEPLAY_NOT_OPEN');if(r.moduleOperation==='REMOVE')requireThat(hasModuleRemoval(s)&&r.moduleRemovalVersion===1,'SO_GAMEPLAY_NOT_OPEN');}
    if(action==='approveModuleMandate'){
     requireThat(c.id===r.ownerId,'FORBIDDEN');requireThat(open(r)&&await current(tx,s,r),'MODULE_MANDATE_STALE');
    }

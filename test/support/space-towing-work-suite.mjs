@@ -11,7 +11,7 @@ import {episodeHarness} from './space-episodes-suite.mjs';
 export async function towingWorkFixture(makeStore,options={}){
  const f=await soVoyagesFixture(makeStore,{profileId:options.profileId??'CARGO'}),get=p=>f.store.get(`sessions/${f.sid}${p?'/'+p:''}`),edit=(p,fn)=>f.store.runTransaction(async tx=>{const path=`sessions/${f.sid}${p?'/'+p:''}`;tx.set(path,fn(await tx.get(path)));});
  await f.provision({shipId:'wreck',name:'Épave',ownerId:options.sameOwner?f.cid:f.otherId,pilotId:f.otherId});
- const moduleId='towing-module';await edit('',s=>({...s,spaceOutlaws:{...s.spaceOutlaws,towingWorkVersion:1,...(options.attachment?{towingAttachmentVersion:1}:{})}}));
+ const moduleId='towing-module';await edit('',s=>({...s,spaceOutlaws:{...Object.fromEntries(Object.entries(s.spaceOutlaws).filter(([k])=>!k.startsWith('towing'))),towingWorkVersion:1,...(options.attachment?{towingAttachmentVersion:1}:{})}}));
  await edit(`characters/${f.otherId}`,c=>({...c,abilityProfile:{...c.abilityProfile,published:true,skills:[...c.abilityProfile.skills.filter(k=>k.id!=='MEC-02'),{id:'MEC-02',level:2}]}}));
  await edit('ships/ship',s=>({...s,moduleInstallationVersion:1,modules:[{lotId:moduleId,code:'MOD-05',size:s.soProfile.size,status:'OPERATIONAL'}]}));
  await edit('ships/wreck',s=>({...s,hull:0,shield:0,revisionRequired:true}));

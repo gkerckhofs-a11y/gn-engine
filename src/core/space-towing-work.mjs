@@ -1,3 +1,4 @@
+import {createTowingRecoveryService,towingRecoveryActions,towingRecoveryDesk} from './space-towing-recovery.mjs';
 import {isDeepStrictEqual} from 'node:util';
 import {documentId,requireThat,DomainError} from './validation.mjs';
 import {admissionKeys,admissionText} from './admission-state.mjs';
@@ -16,7 +17,7 @@ export const hasTowingWork=s=>s.spaceOutlaws?.towingWorkVersion===1&&hasModuleFl
 export const hasTowingAttachment=s=>s.spaceOutlaws?.towingAttachmentVersion===1&&hasTowingWork(s);
 const offer=['shipId','wreckId','technicianId','present','source','reason'];
 const fields={towingDesk:[],towingDeskAdmin:[],prepareTowingAttachment:['workId'],finishTowingAttachment:['workId','confirmation','present','performed'],releaseTowingAttachmentAdmin:['workId','confirmation','performed','reason'],prepareTowingWork:offer,offerTowingWork:[...offer,'confirmation'],prepareTowingApproval:['workId'],approveTowingWork:['workId','confirmation','present'],towingWork:['workId'],towingWorkAdmin:['workId'],prepareTowingStart:['workId'],startTowingWork:['workId','confirmation','present'],cancelTowingWork:['workId','confirmation','reason'],cancelTowingWorkAdmin:['workId','confirmation','reason']};
-export const towingWorkActions=Object.keys(fields);
+export const towingWorkActions=[...Object.keys(fields),...towingRecoveryActions];
 const reads=new Set(['towingDesk','towingDeskAdmin','prepareTowingAttachment','prepareTowingWork','prepareTowingApproval','towingWork','towingWorkAdmin','prepareTowingStart']);
 const admins=new Set(['towingDeskAdmin','releaseTowingAttachmentAdmin','prepareTowingWork','offerTowingWork','towingWorkAdmin','cancelTowingWorkAdmin']);
 const open=r=>['TOWING_OFFERED','TOWING_APPROVED','TOWING_ACTIVE','TOWING_ATTACHED'].includes(r.status);
@@ -51,7 +52,9 @@ async function binding(tx,s,input,at){
 }
 
 export function createTowingWorkService({store,signed,checkSession,now,uuid}){
+ const recovery=createTowingRecoveryService({store,signed,checkSession,now,uuid});
  return async(action,actor,input)=>{
+  if(towingRecoveryActions.includes(action))return recovery(action,actor,input);
   signed(actor);admissionKeys(input,['sessionId',...fields[action],...(reads.has(action)?[]:['requestId'])]);const at=now(),id=uuid();
   return store.runTransaction(async tx=>{
    const admin=admins.has(action),ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId))}:await inventoryPlayer(tx,actor,input),{s,c,version}=ctx,base=`sessions/${s.id}`,time=gameTime(s.clock,at);
@@ -66,7 +69,7 @@ export function createTowingWorkService({store,signed,checkSession,now,uuid}){
     for(const r of records){if(r.towingAttachmentVersion!==undefined)requireThat(r.towingAttachmentVersion===1&&hasTowingAttachment(s),'SO_GAMEPLAY_NOT_OPEN');const b=r.binding,ship=await tx.get(`${base}/ships/${b.shipId}`),wreck=await tx.get(`${base}/ships/${b.wreckId}`);if(!audience(admin,c,version,r,ship,wreck))continue;const tech=await inventoryParty(tx,s.id,b.technicianId),stored=tech.c?await tx.get(actionPointPath(s.id,b.technicianId)):null,points=tech.c?actionPointState(s,tech.c,stored,at):null;let valid=true;if(['TOWING_OFFERED','TOWING_APPROVED'].includes(r.status)){try{valid=isDeepStrictEqual(await binding(tx,s,b,at),b);}catch(e){if(!(e instanceof DomainError))throw e;valid=false;}}jobs.push(workView(s,c,version,r,ship,wreck,tech,points,time,token(r,ship,wreck,points),valid));}
     const choices={ships:[],wrecks:[],technicians:[]};
     if(admin){const occupied=new Set(records.filter(open).flatMap(r=>[r.binding.shipId,r.binding.wreckId])),ports=await tx.list(`${base}/ports`),ships=await tx.list(`${base}/ships`),label=sh=>({id:sh.id,name:sh.name,portName:ports.find(p=>p.id===sh.portId)?.name??sh.portId});for(const sh of ships.filter(sh=>free(sh)&&sh.ownerType==='CHARACTER'&&!occupied.has(sh.id))){if(sh.hull===0)choices.wrecks.push(label(sh));else if(sh.hull>0&&sh.soProfile.size>=2&&!sh.revisionRequired&&sh.modules?.some(m=>m.code==='MOD-05'&&m.status==='OPERATIONAL')&&!activeModuleOutages(sh,time).some(n=>n.code==='MOD-05'))choices.ships.push(label(sh));}for(const ch of await tx.list(`${base}/characters`)){if(!ch.birth||!fit(ch,time)||navigationSkill(ch,'MEC-02')<2)continue;const p=await inventoryParty(tx,s.id,ch.id);if(p.active)choices.technicians.push({id:ch.id,name:ch.public.displayName,portName:ports.find(p=>p.id===(ch.spacePortId??s.transportRules?.homePort))?.name??''});}}
-    return {session:{id:s.id,stage:s.stage,safetyStopped:!!s.safetyStop?.active},admin,jobs,...(admin?{choices,canOffer:s.stage==='EN_JEU'&&!s.safetyStop?.active}:{})};
+    return {recovery:await towingRecoveryDesk(tx,s,c,version,admin),session:{id:s.id,stage:s.stage,safetyStopped:!!s.safetyStop?.active},admin,jobs,...(admin?{choices,canOffer:s.stage==='EN_JEU'&&!s.safetyStop?.active}:{})};
    }
    if(['prepareTowingWork','offerTowingWork'].includes(action)){
     running();requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');const source=admissionText(input.source,1000,true),reason=admissionText(input.reason,500,true);

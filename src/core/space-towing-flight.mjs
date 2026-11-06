@@ -6,7 +6,7 @@ import {stockVolume,warehouseStock} from './storage-state.mjs';
 import {spaceShipProfiles} from '../shared/space-outlaws-navigation.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 
-const allowed=new Set(['towingCombat','shipNavigation','prepareRefuel','refuelShip','finishSoRefuel','prepareVoyage','departShip','finishSoPreparation','cancelSoNavigation','cancelSoNavigationAdmin','continueSoVoyage','arriveShip','arriveSoShipAdmin']);
+const allowed=new Set(['spaceRescue','towingCombat','shipNavigation','prepareRefuel','refuelShip','finishSoRefuel','prepareVoyage','departShip','finishSoPreparation','cancelSoNavigation','cancelSoNavigationAdmin','continueSoVoyage','arriveShip','arriveSoShipAdmin']);
 // One native voyage, one unmanned wreck; no parallel movement/event engine.
 export async function towingFlightContext(tx,s,ship,action,time){
  if(!ship?.towingAttachment)return null;
@@ -30,7 +30,7 @@ export function validateTowingConsent(x){if(x)requireThat(x.owners.every(o=>o.cu
 export function validateTowingDeparture(s,ship,x){
  if(!x)return;
  const {r,b,wreck,lot,owners,time,confirmationState}=x;
- requireThat(r.status==='TOWING_ATTACHED'&&!r.towingJourneyId,'TOWING_WORK_CLOSED');
+ requireThat(r.status==='TOWING_ATTACHED'&&!r.towingJourneyId||r.status==='TOWING_ARRIVED'&&r.towingJourneyId,'TOWING_WORK_CLOSED');
  validateTowingConsent(x);
  const m=ship.modules?.find(m=>m.lotId===b.lotId&&m.code==='MOD-05'&&m.size===ship.soProfile.size&&m.status==='OPERATIONAL');
  requireThat(m&&!activeModuleOutages(ship,time).some(n=>n.lotId===m.lotId),'TOWING_MODULE_UNAVAILABLE');

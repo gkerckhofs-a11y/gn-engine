@@ -1,3 +1,4 @@
+import {hasCompleteTowing} from './space-module-flight.mjs';
 import {hasHiddenCargo} from './space-module-flight.mjs';
 import {inventoryHash as hash,publicItem} from './inventory-state.mjs';
 import {playableShipModuleQuote,standardShipModuleQuote} from '../shared/space-ship-modules.mjs';
@@ -8,7 +9,7 @@ export function moduleOfferValid(offer,options={}){
  const item=offer?.item,q=playableShipModuleQuote(item?.shipModule,options);
  return !!q&&Object.keys(item.shipModule).length===2&&item.kind==='INDIVIDUAL'&&item.consumable===false&&offer.unitPrice===q.price;
 }
-export const shopOfferAvailable=(s,o)=>o?.item?.shipModule?hasSoModulePurchases(s)&&moduleOfferValid(o,{hiddenCargo:hasHiddenCargo(s)}):o?.item?.consumable===true;
+export const shopOfferAvailable=(s,o)=>o?.item?.shipModule?hasSoModulePurchases(s)&&moduleOfferValid(o,{hiddenCargo:hasHiddenCargo(s),towing:hasCompleteTowing(s)}):o?.item?.consumable===true;
 export const shopAccountId=id=>hash(`shop:${id}`);
 export const shopStockId=id=>hash(`shop-stock:${id}`);
 // Definitions only. Stock and a zero-balance till require a separate MJ command.
@@ -28,8 +29,7 @@ export function shopBlockers(changes){
   if(c.type==='offer'){
    const item=active.find(x=>x.type==='item'&&x.entityId===c.data.itemId);
    if(item?.data.shipModule){
-    if(standardShipModuleQuote(item.data.shipModule)?.preparationOnly){add(c,'MOD-05 Remorquage reste préparatoire : achat et équipement fermés même au tarif canonique.');continue;}
-    if(!moduleOfferValid({...c.data,item:item.data},{hiddenCargo:true})||c.data.buybackPrice!==null)add(c,'Un module standard exige le tarif canonique de son gabarit, sans rachat PNJ.');
+    if(!moduleOfferValid({...c.data,item:item.data},{hiddenCargo:true,towing:true})||c.data.buybackPrice!==null)add(c,'Un module standard exige le tarif canonique de son gabarit, sans rachat PNJ.');
    }else if(!item?.data.consumable||c.data.buybackPrice!==null)add(c,'Ce parcours ouvre la vente de consommables et de modules standards PNJ, sans rachat. Préparer les autres offres lors de leur raccordement.');
   }
  }

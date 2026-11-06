@@ -1,3 +1,4 @@
+import {hasCompleteTowing} from './space-module-flight.mjs';
 import {hasHiddenCargo} from './space-hidden-cargo.mjs';
 import {isDeepStrictEqual} from 'node:util';
 import {documentId,requireThat,DomainError} from './validation.mjs';
@@ -25,7 +26,7 @@ export function createModuleWorkService({store,signed,checkSession,now,uuid}){
   return store.runTransaction(async tx=>{
    const admin=admins.has(action),ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId))}:await inventoryPlayer(tx,actor,input),{s,c,version}=ctx,base=`sessions/${s.id}`,time=gameTime(s.clock,at);
    requireThat(hasModuleWork(s),'SO_GAMEPLAY_NOT_OPEN');const finishing=['prepareModuleInstallation','finishModuleInstallation','prepareModuleRemoval','finishModuleRemoval'].includes(action);if(finishing)requireThat(hasModuleInstallation(s),'SO_GAMEPLAY_NOT_OPEN');requireThat(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage),'SESSION_CLOSED');
-   const r=await tx.get(`${base}/shipMaintenance/${documentId(input.mandateId)}`);requireThat(r?.moduleMandateVersion===1,'FORBIDDEN');if(r.module?.code==='MOD-04')requireThat(hasHiddenCargo(s)&&r.hiddenCargoVersion===1,'SO_GAMEPLAY_NOT_OPEN');const removing=r.moduleOperation==='REMOVE';if(removing)requireThat(hasModuleRemoval(s)&&r.moduleRemovalVersion===1,'SO_GAMEPLAY_NOT_OPEN');if(finishing)requireThat(removing===['prepareModuleRemoval','finishModuleRemoval'].includes(action),'MODULE_WORK_CLOSED');
+   const r=await tx.get(`${base}/shipMaintenance/${documentId(input.mandateId)}`);requireThat(r?.moduleMandateVersion===1,'FORBIDDEN');if(r.module?.code==='MOD-04')requireThat(hasHiddenCargo(s)&&r.hiddenCargoVersion===1,'SO_GAMEPLAY_NOT_OPEN');if(r.module?.code==='MOD-05')requireThat(hasCompleteTowing(s),'SO_GAMEPLAY_NOT_OPEN');const removing=r.moduleOperation==='REMOVE';if(removing)requireThat(hasModuleRemoval(s)&&r.moduleRemovalVersion===1,'SO_GAMEPLAY_NOT_OPEN');if(finishing)requireThat(removing===['prepareModuleRemoval','finishModuleRemoval'].includes(action),'MODULE_WORK_CLOSED');
    const ship=await tx.get(`${base}/ships/${r.shipId}`),lot=await tx.get(`${base}/inventory/${r.lotId}`),tech=await inventoryParty(tx,s.id,r.technicianId),owner=await inventoryParty(tx,s.id,r.ownerId);
    requireThat(admin||c.id===r.ownerId&&version===r.ownerVersion&&ship?.ownerId===c.id||c.id===r.technicianId&&version===r.technicianVersion,'FORBIDDEN');
    const starting=['prepareModuleWorkStart','startModuleWork'].includes(action),cancel=action.startsWith('cancel');
@@ -59,7 +60,7 @@ export function createModuleWorkService({store,signed,checkSession,now,uuid}){
     const reader={get:path=>normalized.has(path)?Promise.resolve(normalized.get(path)):tx.get(path),list:(...args)=>tx.list(...args)};
     let b;try{b=await moduleMandateBinding(reader,s,r,at);}catch(e){if(e instanceof DomainError)requireThat(false,'MODULE_MANDATE_STALE');throw e;}
     requireThat(isDeepStrictEqual(b,r.binding),'MODULE_MANDATE_STALE');
-    const modules=removing?ship.modules.filter(m=>m.lotId!==lot.id):[...ship.modules,{lotId:lot.id,code:r.module.code,size:r.module.size,status:'OPERATIONAL',installationId:r.id}],profile=installedShipProfile(ship.soProfile,modules,{hiddenCargo:hasHiddenCargo(s)});
+    const modules=removing?ship.modules.filter(m=>m.lotId!==lot.id):[...ship.modules,{lotId:lot.id,code:r.module.code,size:r.module.size,status:'OPERATIONAL',installationId:r.id}],profile=installedShipProfile(ship.soProfile,modules,{hiddenCargo:hasHiddenCargo(s),towing:hasCompleteTowing(s)});
     requireThat(profile,'INVALID_MODULE_CALIBRATION');
     const result={...view(s,r,time,confirmation),beforeProfile:ship.soProfile,afterProfile:profile,hull:ship.hull,shield:ship.shield,afterHull:removing?Math.min(ship.hull,profile.hullMax):ship.hull,afterShield:removing?Math.min(ship.shield,profile.shieldMax):ship.shield};
     if(['prepareModuleInstallation','prepareModuleRemoval'].includes(action))return result;
