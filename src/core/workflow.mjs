@@ -128,6 +128,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     requireThat(c && (preview||c.assignedUid===actor.uid),'FORBIDDEN');
     requireThat(['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s.stage),'BRIEFING_CLOSED');
     requireThat(c.publicationState==='PUBLISHED' && c.public.publicationState==='PUBLISHED','CONTENT_UNPUBLISHED');
+    requireThat(!s.spaceOutlaws||!c.survival?.dead,'FORBIDDEN');
     requireThat(s.modules?.groups===true,'MODULE_DISABLED');
     const gid=documentId(input.groupId),g=await tx.get(`sessions/${sid}/groups/${gid}`);
     requireThat(groupVisible(g,cid),'FORBIDDEN');
@@ -353,7 +354,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       const groups=character && s.modules?.groups===true ? await tx.list(`sessions/${sid}/groups`) : [];
       return {session:publicSession(s),registration:ownRegistration(r),character,economyEnabled:s.economyRules?.enabled===true,actionPoints:rawCharacter&&s.actionPointRules?.enabled?actionPointSummary(s,rawCharacter,await tx.get(actionPointPath(sid,rawCharacter.id)),at):null,health:healthSummary(s,rawCharacter,at),reason,gameTimeMs:gameTime(s.clock,at),
         globalLevel:character?(rawCharacter.globalLevel??1):null,...(character&&s.spaceOutlaws?.episodesVersion===1?{progression:{xp:rawCharacter.xp??0,earnedXp:rawCharacter.earnedXp??0,completedSessions:r?.progression?.completedSessions??0,pendingXp:r?.progression?.pendingXp??0}}:{}),playerRules:character?playerRules(s):null,
-        groups:groups.filter(g=>groupVisible(g,cid)).map(g=>groupSummary(g,cid))};
+        groups:groups.filter(g=>(!s.spaceOutlaws||!rawCharacter?.survival?.dead)&&groupVisible(g,cid)).map(g=>groupSummary(g,cid))};
     });
     signed(actor);
     // Invitation redemption deliberately refuses every second consumption.

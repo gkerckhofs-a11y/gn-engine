@@ -24,3 +24,12 @@ test('Régie UI : contre-opération liée, confirmations avant mutation et lectu
 test('Régie UI : éditeur historique ne propose plus de changer les membres gérés',()=>{
  const html=createGroupsUi(helpers).editor(group,[{id:'c',public:{displayName:'Nom'}}],'session');assert.doesNotMatch(html,/data-members|addGroupMembers|removeGroupMember/);assert.match(html,/régie des groupes/);
 });
+
+test('Régie UI SO : seules permissions raccordées, décès et accès versionné',()=>{
+ const so={...data,availablePermissions:['readBriefing','readMembers'],connected:true,characters:[{...character,dead:true}]},member=ui.member(so,'c');
+ assert.match(member,/permission_readBriefing/);assert.match(member,/permission_readMembers/);assert.doesNotMatch(member,/permission_payWallet|permission_pilotShip|permission_withdrawStock/);assert.match(ui.page(so),/Décédé/);assert.match(ui.page({...so,connected:false,closed:true}),/ne sont pas raccordés/);
+});
+
+test('Groupes UI SO : régie versionnée, aucun bouton historique non raccordé',()=>{
+ const ui=createGroupsUi(helpers),html=ui.adminPanel({...data,id:'s',spaceOutlaws:{groupsVersion:1}},'session');assert.match(html,/#\/group-admin\/s/);assert.doesNotMatch(html,/editGroup|groupModule/);assert.doesNotMatch(ui.adminPanel({...data,spaceOutlaws:{}},'session'),/href=/);
+});

@@ -107,7 +107,7 @@ test('CI ciblée : canon lourd couvre adaptateur, duels, flottes et acquis modul
  const p=targetedScope('module-combat',['src/core/space-combat.mjs','test/support/space-encounters-suite.mjs','test/support/space-convoy-suite.mjs'],{reliableBase:true});
  assert.equal(requestedTarget('[ci targeted:module-combat]'),'module-combat');assert.equal(p.browser,false);
  assert.deepEqual(testCommand('application',{GN_CI_PROFILE:'targeted-module-combat',GN_APPLICATION_TESTS:JSON.stringify(p.applicationTests)}).args,['--test',...p.applicationTests]);
- assert.throws(()=>applicationCommand(JSON.stringify(Array.from({length:81},(_,i)=>`test/example-${i}.test.mjs`)),()=>true));
+ assert.throws(()=>applicationCommand(JSON.stringify(Array.from({length:97},(_,i)=>`test/example-${i}.test.mjs`)),()=>true));
  for(const id of ['space-module-removal','space-encounters','space-convoy','space-escort-maneuvers','space-alliance-convoy','space-alliance-duels','space-alliance-defense'])assert.ok(p.suites.includes(id));
  for(const file of p.applicationTests)assert.ok(existsSync(file),file);assert.equal(new Set(p.applicationTests).size,p.applicationTests.length);
  const selected=matrixFor(p.suites).flatMap(({shard})=>selectFirestoreSuites({GN_FIRESTORE_SUITES:JSON.stringify(p.suites),GN_FIRESTORE_SHARD:shard}));assert.deepEqual(selected.map(s=>s.id).sort(),[...p.suites].sort());
@@ -177,3 +177,8 @@ test('Ciblage bureau attelage : rôles, interface et parcours natif sans navigat
 
 
 test('Ciblage remorquage complet : récupération, chaîne publiée et dépannage natif dans le périmètre',()=>{const p=targetedScope('towing-complete',['src/core/space-rescue.mjs','src/core/space-towing-recovery.mjs','src/core/space-outlaws-entry.mjs','web/space-towing-recovery.mjs'],{reliableBase:true});assert.equal(p.applicationTests.length,76);assert.equal(p.suites.length,44);assert.equal(p.browser,false);for(const id of ['space-towing-completion','space-towing-recovery','space-encounters','space-module-installation'])assert.ok(p.suites.includes(id));assert.ok(new RegExp(p.httpPattern).test('HTTP + Auth : récupération PNJ, prestation financée'));assert.throws(()=>targetedScope('towing-complete',['src/core/new-wallet.mjs'],{reliableBase:true}));});
+
+test('Ciblage groupes SO : régie native, relève et périmètre cumulé sans navigateur global',()=>{
+ const p=targetedScope('space-groups',['src/core/group-management.mjs','src/core/workflow.mjs','web/group-management.mjs','test/browser/space-groups.spec.mjs'],{reliableBase:true});assert.equal(requestedTarget('[ci targeted:space-groups]'),'space-groups');
+ for(const id of ['space-groups','group-management','groups','space-succession','space-towing-completion','space-episodes'])assert.ok(p.suites.includes(id));assert.equal(p.browser,false);assert.ok(new RegExp(p.httpPattern).test('HTTP + Auth : groupes SO, transfert'));assert.equal(new Set(p.applicationTests).size,p.applicationTests.length);assert.ok(p.applicationTests.length<=96);for(const file of p.applicationTests)assert.ok(existsSync(file));assert.doesNotThrow(()=>applicationCommand(JSON.stringify(p.applicationTests)));assert.throws(()=>targetedScope('space-groups',['package.json'],{reliableBase:true}));
+});

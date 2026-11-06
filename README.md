@@ -1,5 +1,7 @@
 # GN Engine
 
+Suivi courant : [première régie des groupes SO](docs/SO-GROUPES-SESSION.md), avec périmètre et limites explicites.
+
 **Point fonctionnel du 6 novembre 2026 :** [audit global V3.5/V3.6 et travaux restants](docs/AUDIT-GLOBAL-2026-11-06.md). Le candidat de PR #2 raccorde le remorquage individuel et la récupération PNJ ; les limites de flotte, propriété/épaves, personnages et recette sont détaillées dans le rapport. Le développement n’est pas une certification de mise en service.
 
 État courant SPACE OUTLAWS : [suivi de validation](docs/SO-VALIDATION.md). [Kit de recette locale](docs/SO-RECETTE-LOCALE.md) : `npm run recette:check`, puis `npm run recette` sur un poste avec Java 21. Émulateurs, identités fictives et relevé manuel ; aucune publication ni recette terrain certifiée. Les jalons ci-dessous sont historiques.

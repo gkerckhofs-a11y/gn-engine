@@ -1,5 +1,18 @@
 # GN Engine — consignes de développement
 
+## Groupes SO — première régie en session — 6 novembre 2026
+
+Base `f40023ab225295a7cdf7241a16e0c7758ee582f9`, [CI 42206813645](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42206813645) completed/success : huit jobs, 957 applicatifs, 750 Firestore, 22 HTTP. [Parcours, limites et reprise](docs/SO-GROUPES-SESSION.md).
+
+`groupsVersion=1` publié/propagé à la naissance seulement ; espaces de groupe activés pour les nouvelles versions compatibles. Commandes natives de régie : création/configuration, affectation/retrait/transfert, responsable, archivage/restauration et contre-opération. Un TEAM principal, factions cumulables, capacités explicites ; limite technique de 50 groupes alignée sur décès/relève. Capacité GROUP_MANAGEMENT limitée aux groupes/historiques, aucun droit d’actifs ou de personnage ; le garde de révision de session reste en place. Propriétaire/MJ courants avant ancien reçu, STOP et clôture respectés.
+
+Premier raccord limité aux permissions readBriefing/readMembers ; autres cases masquées et attributions refusées au serveur. Transfert révoque tous les anciens droits sans redistribution ; décès et relève réutilisent leur révocation native, nouvelle incarnation sans héritage, nouvelle affectation explicite. Lectures des secrets fermées au défunt. Groupes/mandats conservés dans l’épisode suivant. Anciennes sessions fermées sans enrichissement manuel. Publication des définitions group M2, demandes d’amis/réserves intégrées et opérations collectives restent à livrer ; §4.11/INS-09/10 seulement partiels.
+
+Build et 1 027 tests applicatifs ciblés locaux réussis (82 fichiers), onze nouveaux cas partagés, quatre parcours Chromium bureau/petit écran simulé réussis et captures inspectées. Nouveau HTTP/Auth de création/affectation/transfert/révocation ; 48 suites Firestore et 23 HTTP dans targeted-space-groups. Sélecteur borné à 96 fichiers afin de conserver la couverture cumulée ; aucun complet. Émulateurs CI Node 22/Java 21 : résultat du commit exact à consigner dans PR #2 avant le lot suivant. Aucun appareil réel, recette humaine, fusion ou déploiement Firebase revendiqué.
+
+Reprise : code/manifeste/marqueur/modules, groupes/mandats/responsables/révisions/historiques, accès courants, décès/relève, épisodes/sauvegardes/reçus à conserver ensemble. Aucun marqueur ajouté aux anciennes sessions ni adhésion copiée vers un successeur. Même branche/PR #2.
+
+
 ## Correctif de recette HTTP — 6 novembre 2026
 
 La CI du candidat `c7ebe538d2cf1ed9b2f35344b1d0bf445cb6794f` ([42206048685](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42206048685)) a détecté deux assertions HTTP invalides : l’ancienne attente de fermeture de MOD-05 et le départ après remplacement des identités ayant donné leur accord. Le test catalogue suit désormais l’ouverture versionnée ; le trajet authentifié prouve le refus `TOWING_WORK_STALE`, puis détachement à quai et nouvel attelage par commandes natives avec les accès courants. Aucun garde métier ni accord enregistré n’est réécrit. La fixture permet aussi de préparer les bâtiments sans attelage.
