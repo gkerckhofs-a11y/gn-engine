@@ -1,5 +1,12 @@
 # GN Engine — consignes de développement
 
+## Correctif de recette HTTP — 6 novembre 2026
+
+La CI du candidat `c7ebe538d2cf1ed9b2f35344b1d0bf445cb6794f` ([42206048685](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42206048685)) a détecté deux assertions HTTP invalides : l’ancienne attente de fermeture de MOD-05 et le départ après remplacement des identités ayant donné leur accord. Le test catalogue suit désormais l’ouverture versionnée ; le trajet authentifié prouve le refus `TOWING_WORK_STALE`, puis détachement à quai et nouvel attelage par commandes natives avec les accès courants. Aucun garde métier ni accord enregistré n’est réécrit. La fixture permet aussi de préparer les bâtiments sans attelage.
+
+Contrôles locaux : build et 957/957 tests ciblés du candidat ; 8/8 parcours Chromium 153.0.8010.0 bureau/petit écran simulé revérifiés. Après correction, 55/55 tests ciblés catalogue/chaîne complète/sélection et sonde native mémoire du changement d’accès, nouvel accord et départ réussis ; syntaxe HTTP vérifiée. Émulateurs HTTP/Firestore réservés à la CI Node 22/Java 21. La preuve finale du correctif doit être consignée dans PR #2, sans lui attribuer le résultat du candidat précédent. Audit fonctionnel et limites inchangés ; aucune fusion ni publication Firebase.
+
+
 ## Remorquage individuel et récupération PNJ — candidat du 6 novembre 2026
 
 Base exacte `05c1eec4afe3ed4fbde294c3a50de149e41b08f5`, [CI 42201564805](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42201564805) terminée/success, huit jobs requis. Le parcours individuel peut désormais publier/acheter/monter MOD-05 via les services natifs, atteler, remplir, partir, conserver/larguer en duel compatible, attendre la panne B, être dépanné en carburant, arriver, repartir sur un autre tronçon et retirer le même module après détachement à quai. Carburant ×2 et Manœuvrabilité −1 minimum 0 ; coûts, PA, exemplaires et titres restent natifs.

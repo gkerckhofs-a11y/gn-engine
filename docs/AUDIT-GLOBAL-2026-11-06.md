@@ -209,6 +209,8 @@ Sources : [extension](source/SO_CDC_V36_Fouilles_Medias.md), `space-outlaws-sear
 
 Les chiffres ciblés ne s’additionnent pas aux suites historiques pour produire un total de couverture. Aucun pourcentage d’avancement global n’est déduit du nombre de tests ou de commits.
 
+La première CI du candidat (42206048685) a signalé deux attentes HTTP périmées : fermeture historique de MOD-05 et identité remplacée après consentement. Le correctif vérifie le refus du consentement périmé, puis renouvelle physiquement l’attelage par les commandes natives. Aucun contrôle métier retiré. Les résultats définitifs du correctif sont consignés dans PR nº 2 après terminaison ; la réussite locale ne remplace pas cette preuve.
+
 ## Ordre de travail proposé à partir de cet audit
 
 1. **Rétablir le cycle d’organisation de campagne** : groupes/factions SO jouables, affectation/transfert/révocation et préparation d’une nouvelle version du Master sans réinitialiser les acquis.

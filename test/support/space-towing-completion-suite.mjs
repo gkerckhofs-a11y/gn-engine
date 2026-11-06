@@ -4,13 +4,15 @@ import {randomUUID} from 'node:crypto';
 import {moduleInstallationFixture} from './space-module-installation-suite.mjs';
 import {accountId} from '../../src/core/economy-state.mjs';
 import {shopStockId} from '../../src/core/space-outlaws-shop-state.mjs';
-export async function completeTowingFixture(makeStore){
+export async function completeTowingFixture(makeStore,{attach=true}={}){
  const f=await moduleInstallationFixture(makeStore,{code:'MOD-05'});f.ready();await f.finish();
  // Scenario damage/qualifications are controlled test data; module acquisition,
  // publication, installation, consent, work and navigation are native commands.
  await f.provision({shipId:'wreck',name:'Épave du propriétaire',ownerId:f.cid,pilotId:f.otherId});await f.edit('ships/wreck',s=>({...s,hull:0,shield:0,revisionRequired:true}));
  await f.edit(`characters/${f.otherId}`,c=>({...c,abilityProfile:{...c.abilityProfile,skills:[...c.abilityProfile.skills.filter(k=>k.id!=='MEC-02'),{id:'MEC-02',level:2}]}}));
- const input={shipId:'ship',wreckId:'wreck',technicianId:f.otherId,present:true,source:'Deux bâtiments au port, attelage autorisé',reason:'Remorquage réel'},q=await f.read('prepareTowingWork',input,f.owner),r=await f.cmd('offerTowingWork',{...input,confirmation:q.confirmation},f.owner),p={workId:r.id},a=await f.read('prepareTowingApproval',p);await f.cmd('approveTowingWork',{...p,confirmation:a.confirmation,present:true});const start=await f.read('prepareTowingStart',p,f.other);await f.cmd('startTowingWork',{...p,confirmation:start.confirmation,present:true},f.other);f.advance(300000);const ready=await f.read('prepareTowingAttachment',p,f.other);await f.cmd('finishTowingAttachment',{...p,confirmation:ready.confirmation,present:true,performed:true},f.other);
+ let r=null;if(attach){
+ const input={shipId:'ship',wreckId:'wreck',technicianId:f.otherId,present:true,source:'Deux bâtiments au port, attelage autorisé',reason:'Remorquage réel'},q=await f.read('prepareTowingWork',input,f.owner);r=await f.cmd('offerTowingWork',{...input,confirmation:q.confirmation},f.owner);const p={workId:r.id},a=await f.read('prepareTowingApproval',p);await f.cmd('approveTowingWork',{...p,confirmation:a.confirmation,present:true});const start=await f.read('prepareTowingStart',p,f.other);await f.cmd('startTowingWork',{...p,confirmation:start.confirmation,present:true},f.other);f.advance(300000);const ready=await f.read('prepareTowingAttachment',p,f.other);await f.cmd('finishTowingAttachment',{...p,confirmation:ready.confirmation,present:true,performed:true},f.other);
+ }
  const launch=async(code='AWAY-CODE')=>{await f.startFlight({navigationCode:code});f.advance(180000);f.setDie(6);return f.navCommand('finishSoPreparation');};
  const arrive=async()=>{const d=await f.navigation();return f.cmd('arriveShip',{shipId:'ship',confirmation:d.confirmation});};
  return {...f,towingJob:r,launch,arrive};
