@@ -1,5 +1,7 @@
 # Space Outlaws — groupes préparés dans M2 vers la session
 
+Mise à jour : [souhaits textuels d’amis dans la régie](SO-SOUHAITS-GROUPES.md), projection privée du dossier courant sans nouveau droit. Les limitations ci-dessous décrivent le jalon M2.
+
 6 novembre 2026. Auteur : Codex. Base `a5e33fd6e3bc85c33c4f29373675692d5ce88c7a`, [CI 42220814560](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42220814560) completed/success : huit jobs requis, 1 027 applicatifs, 811 Firestore, 23 HTTP. Même branche et PR nº 2.
 
 ## Périmètre

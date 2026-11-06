@@ -1,5 +1,7 @@
 # GN Engine
 
+Suivi courant : [souhaits privés de groupe en régie](docs/SO-SOUHAITS-GROUPES.md), lecture MJ et affectation explicite.
+
 Suivi courant : [groupes M2 vers la session](docs/SO-GROUPES-M2.md), activation explicite des appartenances.
 
 Suivi courant : [première régie des groupes SO](docs/SO-GROUPES-SESSION.md), avec périmètre et limites explicites.

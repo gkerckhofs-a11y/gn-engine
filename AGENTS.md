@@ -1,5 +1,18 @@
 # GN Engine — consignes de développement
 
+## Souhaits privés d’amis en régie — 6 novembre 2026
+
+Base `b8625fac61405db8c213a007e1e83821129444c6`, [CI 42226337186](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42226337186) completed/success : 1 068 applicatifs / 846 Firestore / 24 HTTP, huit jobs réussis. [Parcours et limites](docs/SO-SOUHAITS-GROUPES.md).
+
+Lecture privée du champ natif admission.proposal.friends dans groupManagement, propriétaire/MJ courants seulement, après autorisation et sous groupsVersion=1. Aucun marqueur de jeu ou stockage supplémentaire. Projection bornée des seuls dossiers approuvés avec souhait courant ; pas d’UID/courriel/métadonnées d’inscription, ni de texte dans M2/groupe/historique/joueur/public. Le texte libre peut contenir les coordonnées saisies par l’auteur, jamais interprétées. Aucun lien ou consentement entre personnes déduit.
+
+Recherche commune nom fictif/souhait et bouton vers le formulaire natif, sans groupe/permission/autorisation présélectionnés. Avant naissance, décès, STOP et clôture : consultation sans affectation. Le rattachement au personnage courant est vérifié ; la relève n’hérite pas d’un ancien souhait depuis l’historique, les épisodes conservent uniquement le dossier courant. Affectation et ressources restent sous commandes natives.
+
+Validation locale explicitement ciblée : build et 127/127 tests dans huit fichiers, douze nouveaux cas partagés ; huit parcours Chromium bureau/petit écran simulé réussis, captures inspectées. CI targeted-friend-requests : 86 fichiers applicatifs / 51 suites Firestore / 25 HTTP, périmètre cumulé des dépendances non fusionnées, aucun complet. Résultat du commit exact à consigner dans PR #2 après CI Node 22/Java 21. Aucun appareil réel ou recette humaine certifiés.
+
+Restent recherche unifiée de toutes réserves/remplacés, mandats collectifs, Master Vn+1 et recette ; pas de réseau d’invitations entre amis ajouté. Conserver rôles, dossier privé courant/projection, commandes/reçus/historiques, relève et épisodes. Aucune copie du souhait dans la fiction ni reconstruction pour un successeur. Même branche/PR #2 ; aucun merge, déploiement Firebase ou migration.
+
+
 ## Groupes M2 vers la session — 6 novembre 2026
 
 Base `a5e33fd6e3bc85c33c4f29373675692d5ce88c7a`, [CI 42220814560](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42220814560) completed/success : huit jobs, 1 027 applicatifs, 811 Firestore et 23 HTTP. [Périmètre, preuves et reprise](docs/SO-GROUPES-M2.md).

@@ -107,6 +107,13 @@ targetedProfiles['group-definitions']={...targetedProfiles['space-groups'],
  httpPattern:targetedProfiles['space-groups'].httpPattern.replace('groupes SO,|','groupes M2,|groupes SO,|'),
  files:[...targetedProfiles['space-groups'].files,'src/shared/space-outlaws-groups.mjs','src/core/space-outlaws-group-state.mjs','test/space-group-definitions.test.mjs','test/support/space-group-definitions-suite.mjs','test/central-groups.test.mjs','test/central-groups-ui.test.mjs','test/support/space-groups-suite.mjs'],
 };
+// Read-only private admission wishes, existing roster commands and cumulative branch guards.
+targetedProfiles['friend-requests']={...targetedProfiles['group-definitions'],
+ tests:[...targetedProfiles['group-definitions'].tests,'test/space-group-requests.test.mjs'],
+ suites:[...targetedProfiles['group-definitions'].suites,'space-group-requests'],
+ httpPattern:targetedProfiles['group-definitions'].httpPattern.replace('groupes M2,|','souhaits de groupe,|groupes M2,|'),
+ files:[...targetedProfiles['group-definitions'].files,'src/core/space-outlaws-group-requests.mjs','test/space-group-requests.test.mjs','test/support/space-group-requests-suite.mjs','test/support/space-outlaws-actions-suite.mjs','test/support/space-outlaws-entry-suite.mjs','test/support/space-succession-suite.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

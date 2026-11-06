@@ -8,8 +8,8 @@ import {admissionClasses} from '../../src/shared/admission-rules.mjs';
 import {accountId} from '../../src/core/economy-state.mjs';
 import {actionPointPath} from '../../src/core/action-point-state.mjs';
 
-export async function entryFixture(makeStore,{classId='COM',nature='HUMANOID'}={}){
- const f=await admissionM2Fixture(makeStore,{proposal:{classId,secondaryId:classId==='MED'?'COM-03':'MED-02',speciesId:nature==='DROID'?'droid-test':'species-test'}});
+export async function entryFixture(makeStore,{classId='COM',nature='HUMANOID',friends}={}){
+ const f=await admissionM2Fixture(makeStore,{proposal:{classId,secondaryId:classId==='MED'?'COM-03':'MED-02',speciesId:nature==='DROID'?'droid-test':'species-test',...(friends===undefined?{}:{friends})}});
  const m2=await f.prepare(await f.preview());let revision=m2.draftRevision;
  const kit=initialClassKit(classId),bindings=[];
  for(const slot of kit.slots){
