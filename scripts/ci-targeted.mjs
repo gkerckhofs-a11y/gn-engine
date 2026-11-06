@@ -114,6 +114,12 @@ targetedProfiles['friend-requests']={...targetedProfiles['group-definitions'],
  httpPattern:targetedProfiles['group-definitions'].httpPattern.replace('groupes M2,|','souhaits de groupe,|groupes M2,|'),
  files:[...targetedProfiles['group-definitions'].files,'src/core/space-outlaws-group-requests.mjs','test/space-group-requests.test.mjs','test/support/space-group-requests-suite.mjs','test/support/space-outlaws-actions-suite.mjs','test/support/space-outlaws-entry-suite.mjs','test/support/space-succession-suite.mjs'],
 };
+targetedProfiles['roster-search']={...targetedProfiles['friend-requests'],
+ tests:[...targetedProfiles['friend-requests'].tests,'test/space-roster.test.mjs'],
+ suites:[...targetedProfiles['friend-requests'].suites,'space-roster'],
+ httpPattern:targetedProfiles['friend-requests'].httpPattern.replace('souhaits de groupe,|','catalogue de personnages,|souhaits de groupe,|'),
+ files:[...targetedProfiles['friend-requests'].files,'src/core/space-outlaws-roster.mjs','test/space-roster.test.mjs','test/support/space-roster-suite.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

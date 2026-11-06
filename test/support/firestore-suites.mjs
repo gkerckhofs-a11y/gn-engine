@@ -1,6 +1,7 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {"id":"space-roster","module":"../support/space-roster-suite.mjs","exportName":"spaceRosterSuite","label":"Catalogue personnages SO sur Firestore","seconds":90},
   {"id":"space-group-requests","module":"../support/space-group-requests-suite.mjs","exportName":"groupRequestsSuite","label":"Souhaits de groupe SO sur Firestore","seconds":90},
   {"id":"space-group-definitions","module":"../support/space-group-definitions-suite.mjs","exportName":"groupDefinitionsSuite","label":"Groupes M2 vers SO sur Firestore","seconds":90},
   {"id":"space-groups","module":"../support/space-groups-suite.mjs","exportName":"spaceGroupsSuite","label":"Groupes SO sur Firestore","seconds":80},

@@ -1,5 +1,17 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## Recherche unifiée des personnages — 6 novembre 2026
+
+Base `918e68f0afad1b55de7da1f904dad42c32c23c85`, [CI 42237060772](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42237060772) completed/success : 1 082 applicatifs, 858 Firestore et 25 HTTP. [Parcours, sources et limites](SO-RECHERCHE-PERSONNAGES.md).
+
+La régie propriétaire/MJ réunit instances actives, premières naissances à préparer, réserves non incarnées, décès et remplacements. Définitions de la version figée de session ; un dossier même retiré conserve sa définition réservée. Liens prédécesseur/successeur seulement réciproques. Recherche par nom courant, nom lié et souhait privé courant. Aucun UID ni secret de fiche dans la projection.
+
+Lecture seule : aucune incarnation, attribution de ressources ou permission ajoutée. Réserves, décès, remplacés, incohérences, STOP et clôture n’ouvrent pas de formulaire d’affectation. Les parcours natifs de naissance/relève restent requis. Anciens marqueurs et sessions génériques conservés ; aucun nouveau marqueur ni migration.
+
+Validation locale ciblée : 136/136 tests dans neuf fichiers et build réussis ; dix parcours Chromium bureau/petit écran simulé réussis, capture petit écran inspectée. Profil CI targeted-roster-search : 87 fichiers applicatifs, 52 suites Firestore et 26 HTTP sélectionnés, périmètre cumulé des dépendances non fusionnées ; aucun complet. Consigner le résultat du commit exact dans PR #2 après CI. Aucun appareil réel ou test humain certifié.
+
+Restent mandats collectifs, nouvelle version Master et recette. Même branche/PR #2, sans merge ni déploiement Firebase.
+
 ## Souhaits privés d’amis en régie — 6 novembre 2026
 
 Base `b8625fac61405db8c213a007e1e83821129444c6`, [CI 42226337186](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42226337186) completed/success : 1 068 applicatifs / 846 Firestore / 24 HTTP, huit jobs réussis. [Parcours et limites](SO-SOUHAITS-GROUPES.md).

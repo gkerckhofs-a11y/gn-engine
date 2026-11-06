@@ -1,5 +1,7 @@
 # GN Engine
 
+Suivi courant : [recherche des personnages et réserves](docs/SO-RECHERCHE-PERSONNAGES.md), catalogue privé sans incarnation automatique.
+
 Suivi courant : [souhaits privés de groupe en régie](docs/SO-SOUHAITS-GROUPES.md), lecture MJ et affectation explicite.
 
 Suivi courant : [groupes M2 vers la session](docs/SO-GROUPES-M2.md), activation explicite des appartenances.
