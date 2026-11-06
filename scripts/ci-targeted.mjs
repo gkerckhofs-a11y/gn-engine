@@ -100,6 +100,13 @@ targetedProfiles['space-groups']={...targetedProfiles['towing-complete'],
  httpPattern:targetedProfiles['towing-complete'].httpPattern.replace('remorquage complet,|','groupes SO,|remorquage complet,|'),
  files:[...targetedProfiles['towing-complete'].files,'src/core/group-management.mjs','web/group-management.mjs','web/groups.mjs','web/space-outlaws-entry.mjs','test/space-groups.test.mjs','test/support/space-groups-suite.mjs','test/group-management.test.mjs','test/group-management-ui.test.mjs','test/groups.test.mjs','test/groups-ui.test.mjs','test/space-succession.test.mjs','test/browser/space-groups.spec.mjs','test/browser/space-groups.config.mjs'],
 };
+// M2 definitions are seeded once, memberships remain explicit native roster commands.
+targetedProfiles['group-definitions']={...targetedProfiles['space-groups'],
+ tests:[...targetedProfiles['space-groups'].tests,'test/space-group-definitions.test.mjs','test/central-groups.test.mjs','test/central-groups-ui.test.mjs'],
+ suites:[...targetedProfiles['space-groups'].suites,'space-group-definitions','central-groups'],
+ httpPattern:targetedProfiles['space-groups'].httpPattern.replace('groupes SO,|','groupes M2,|groupes SO,|'),
+ files:[...targetedProfiles['space-groups'].files,'src/shared/space-outlaws-groups.mjs','src/core/space-outlaws-group-state.mjs','test/space-group-definitions.test.mjs','test/support/space-group-definitions-suite.mjs','test/central-groups.test.mjs','test/central-groups-ui.test.mjs','test/support/space-groups-suite.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

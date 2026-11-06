@@ -1,3 +1,7 @@
+import {soGroupPermissions,soGroupLimit} from '../shared/space-outlaws-groups.mjs';
+import {readSoEntryVersion} from './space-outlaws-entry.mjs';
+import {soPreparedMemberships} from './space-outlaws-group-state.mjs';
+export {soGroupPermissions} from '../shared/space-outlaws-groups.mjs';
 import {inventoryHash as hash} from './inventory-state.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {groupInput,groupPermissions,validateGroupMembers} from './groups.mjs';
@@ -12,7 +16,7 @@ export const groupManagementAction=a=>groupManagementCommands.includes(a);
 const revoked=m=>({...m,active:false,revealed:false,visibleToMembers:false,publicAffiliation:false,permissions:Object.fromEntries(groupPermissions.map(p=>[p,false]))});
 const sameNullable=(value)=>value===null?null:documentId(value);
 // The first SO connection covers membership and private group briefings only.
-export const soGroupPermissions=['readBriefing','readMembers'];
+
 
 export function createGroupManagementService({store,signed,checkSession,now,uuid}){
  return async(action,actor,input)=>{
@@ -25,7 +29,11 @@ export function createGroupManagementService({store,signed,checkSession,now,uuid
    if(action!=='groupManagement')requireThat(!['ARCHIVED','FINISHED'].includes(s.stage)&&!s.campaignSealed,'SESSION_CLOSED');
    if(!read){const old=await tx.get(op);if(old){requireThat(old.fingerprint===fingerprint,'REQUEST_ID_REUSED');return old.result;}}
    const groups=await tx.list(`${base}/groups`),characters=await tx.list(`${base}/characters`);
-   if(action==='groupManagement')return {sessionId:sid,revision:s.revision,closed:['ARCHIVED','FINISHED'].includes(s.stage)||!!s.campaignSealed||!connected||!!s.spaceOutlaws&&!!s.safetyStop?.active,groupsEnabled:s.modules?.groups===true,connected,...(s.spaceOutlaws?{availablePermissions:soGroupPermissions}:{}),groups,
+   let preparedMemberships;
+   if(action==='groupManagement'&&s.spaceOutlaws?.groupDefinitionsVersion===1){
+    const campaign=await tx.get(`campaigns/${s.campaignId}`);requireThat(campaign?.ownerUid===s.ownerUid,'SO_VERSION_INVALID');const version=await readSoEntryVersion(tx,{...campaign,master:{...campaign.master,activeVersionId:s.versionId}});requireThat(version.header.groupDefinitionsVersion===1,'SO_VERSION_INVALID');preparedMemberships=soPreparedMemberships(s,groups,characters,version);
+   }
+   if(action==='groupManagement')return {sessionId:sid,revision:s.revision,closed:['ARCHIVED','FINISHED'].includes(s.stage)||!!s.campaignSealed||!connected||!!s.spaceOutlaws&&!!s.safetyStop?.active,groupsEnabled:s.modules?.groups===true,connected,...(preparedMemberships?{preparedMemberships}:{}),...(s.spaceOutlaws?{availablePermissions:soGroupPermissions}:{}),groups,
     characters:characters.map(c=>({id:c.id,name:c.public.displayName,assigned:!!c.assignedUid,outOfCombat:c.outOfCombat===true||c.hp===0,publicationState:c.publicationState,...(s.spaceOutlaws?{dead:c.survival?.dead===true}: {})})),
     events:(await tx.list(`${base}/audit`,null,{orderBy:'at',direction:'desc',limit:100})).filter(e=>groupManagementCommands.includes(e.action))};
    const changed=new Map();let details={},result;
@@ -34,7 +42,7 @@ export function createGroupManagementService({store,signed,checkSession,now,uuid
    if(action==='saveGroupRoster'){
     rosterKeys(input,['sessionId','requestId','groupId','groupRevision','name','description','briefing','gmNotes','visibility','publicationState','kind','capacity','leaderId','reason']);
     const gid=documentId(input.groupId),old=groups.find(x=>x.id===gid),reason=text(input.reason);
-    if(s.spaceOutlaws&&!old)requireThat(groups.length<50,'SO_RELEASE_LIMIT');
+    if(s.spaceOutlaws&&!old)requireThat(groups.length<soGroupLimit,'SO_RELEASE_LIMIT');
     requireThat(input.groupRevision===(old?.revision??0),'STALE_REVISION');
     requireThat(!old?.roster?.archived,'GROUP_ARCHIVED');
     const roster=rosterInput({kind:input.kind,capacity:input.capacity,leaderId:input.leaderId,archived:false});

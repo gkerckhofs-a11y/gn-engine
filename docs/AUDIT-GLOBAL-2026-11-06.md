@@ -2,13 +2,13 @@
 
 **Auteur : Codex, à la demande de l’organisateur. Périmètre : V3.5 + extension V3.6 D12 + règles V0.7 et décision B sur MOD-05.**
 
-Mise à jour du même jour : [première régie de groupes SO](SO-GROUPES-SESSION.md) raccordée sur la branche candidate, sans publication des définitions M2 ni opérations collectives. Les résultats CI exacts du candidat sont consignés dans la PR nº 2.
+Mise à jour du même jour : [première régie de groupes SO](SO-GROUPES-SESSION.md) raccordée sur la branche candidate, complétée par le [raccord des définitions et propositions M2](SO-GROUPES-M2.md), sans opérations collectives. Les résultats CI exacts du candidat sont consignés dans la PR nº 2.
 
 ## Décision et état du produit
 
 Le socle, la première publication, les inscriptions, la naissance/succession, la santé, les fouilles D12 et une grande partie de la chaîne spatiale sont développés. Le parcours individuel de remorquage est désormais raccordé à l’achat/montage réel de MOD-05, au plein, aux trajets et à la récupération PNJ payante. **Le produit complet n’est pas encore conforme à tout le cahier des charges et ne peut pas être déclaré prêt pour un GN réel.**
 
-Les principaux travaux restants sont : les compétences de terrain non raccordées (Rogue, Infiltrateur, plusieurs actions rares/médicales/commerciales), les modules de droïdes, la Force PNJ, les recettes et doses, la publication des groupes M2 et leurs opérations collectives, l’évolution du Master après publication initiale, les assurances, la propriété/revendication/casse des épaves et l’identité documentaire. La recette Android/iOS, la charge et une vraie restauration restent à réaliser.
+Les principaux travaux restants sont : les compétences de terrain non raccordées (Rogue, Infiltrateur, plusieurs actions rares/médicales/commerciales), les modules de droïdes, la Force PNJ, les recettes et doses, les opérations collectives des groupes, l’évolution du Master après publication initiale, les assurances, la propriété/revendication/casse des épaves et l’identité documentaire. La recette Android/iOS, la charge et une vraie restauration restent à réaliser.
 
 Ne pas utiliser les anciennes sections « restant à développer » du README ou des rapports historiques comme état courant : certaines décrivent des étapes de préparation antérieures à la publication/naissance effectivement livrée. À l’inverse, une compétence présente dans un catalogue d’apprentissage n’est pas la preuve que son action fonctionne en jeu.
 
@@ -66,7 +66,7 @@ Sources de code : [catalogue](../src/shared/space-ship-modules.mjs), [publicatio
 | Interface joueur et QR (§4.1–4.2) | D/P | Espaces privés, badge public distinct de l’invitation, révocation et projections autorisées. | Recette smartphones, scanner/codes sur appareils réels et réseau dégradé. | `workflow.mjs ; web/player-spaces.mjs` |
 | Création, XP et apprentissage (§4.3) | D/P | Profils initiaux, initiation, limite des secondaires, PA, XP de campagne, reconversion encadrée. | Apprendre une compétence ne raccorde pas son effet ; complétude des actions à finir. | `initial-character-profile.mjs ; space-outlaws-learning.mjs` |
 | Succession et réserve (§4.10, §8.4) | D/P | Mort puis proposition/réserve et incarnation unique ; XP hérités, kit/PA/fonds distincts. | Affectation complète aux groupes et recette de relève avec toutes les mécaniques. | `space-outlaws-succession.mjs ; space-succession tests` |
-| Groupes/factions en partie (§4.11) | P — première régie SO raccordée | Création/affectation/transfert/archivage natifs, briefings/membres, révocation au décès et affectation explicite du successeur ; groupes conservés entre épisodes. | Définitions M2, demandes d’amis/réserves intégrées et permissions collectives restantes ; anciennes sessions non activées. | `group-management.mjs ; space-outlaws-entry-guard.mjs` |
+| Groupes/factions en partie (§4.11) | P — première régie SO raccordée | Création/affectation/transfert/archivage natifs, briefings/membres, révocation au décès et affectation explicite du successeur ; groupes conservés entre épisodes. | Définitions M2 publiables et réserves proposées en régie ; demandes d’amis, recherche unifiée et permissions collectives restantes ; anciennes sessions non activées. | `group-management.mjs ; space-outlaws-entry-guard.mjs` |
 | PV, protection, survie, STOP (§5.2–5.3) | D/P | Dégâts déclarés, survie réelle, stabilisation 60 s, soins MED-02/MEC-02, convalescence et STOP. | Cliniques/protocoles complets et effets spécialisés non tous raccordés ; recette terrain distincte. | `space-outlaws-health-state.mjs ; health.mjs ; person-actions.mjs` |
 | Analyses COM-03, TRA-01/03, MEC-01, PIL-01 (§5.1) | D/P | Contenus préparés par niveau ; route/diagnostic et durées autorisées. | Une analyse préparée ne répare pas et ne donne aucun droit de prise ; MED-01 complet à raccorder. | `space-outlaws-analysis.mjs ; space-technical-analysis.mjs ; space-route-analysis.mjs` |
 | ROG-02 / ROG-03 (§4.4–4.5) | A | Compétences présentes dans les profils/catalogues ; certaines briques de fouille génériques existent. | Poste organisation, identité/quota/notification du vol ; prison, gardien, évasion et captivité 20 min. | `person-state.mjs ; person-actions.mjs : portes SO` |
@@ -97,7 +97,7 @@ Sondes historiques exécutées le 6 novembre avant cette mise à jour, avec `soV
 
 | Sonde | Résultat observé | Conséquence |
 |---|---|---|
-| Création d’un groupe par `saveGroupRoster`, avec un propriétaire autorisé, après naissance SO | Refus `SO_GAMEPLAY_NOT_OPEN` | Blocage de régie levé par groupsVersion=1 pour les nouvelles versions compatibles ; publication M2/opérations collectives restent partielles. |
+| Création d’un groupe par `saveGroupRoster`, avec un propriétaire autorisé, après naissance SO | Refus `SO_GAMEPLAY_NOT_OPEN` | Blocage de régie levé par groupsVersion=1 pour les nouvelles versions compatibles ; publication M2 raccordée sous marqueur ; opérations collectives encore partielles. |
 | Réouverture de l’atelier central après publication initiale et naissance | Refus `CENTRAL_PREPARATION_REQUIRED` | Le brouillon initial scellé ne fournit pas encore le cycle de révision Vn+1 demandé au §8.3. La continuité d’épisode ne remplace pas cette édition. |
 
 Ces sondes identifient des raccordements à développer ; elles ne justifient pas de retirer les gardes ou de forcer les données en base.
@@ -159,7 +159,7 @@ La colonne « couverture » décrit le code et les tests disponibles. **Aucune l
 | REC-SO-INS-04 | D | Brouillon/reprise/correction et confidentialité des propositions. |
 | REC-SO-INS-05 | P | Préférence d’amis distincte des droits ; groupes SO après naissance à raccorder. |
 | REC-SO-INS-06 | D/P | M2 puis publication/naissance uniques ; recette humaine privée à achever. |
-| REC-SO-INS-07 | D/P | Successeur/réserve, XP et nouvelle dotation ; affectation explicite du successeur raccordée ; publication M2 et opérations collectives restent partielles. |
+| REC-SO-INS-07 | D/P | Successeur/réserve, XP et nouvelle dotation ; affectation explicite du successeur raccordée ; propositions M2 et réserves raccordées ; opérations collectives encore partielles. |
 | REC-SO-INS-08 | D/P | Proposition de successeur sous règles publiées ; toutes interactions du nouveau personnage à recetter. |
 | REC-SO-INS-09 | P | Retrait des mandats au décès ; réaffectation SO explicite livrée ; mandats collectifs restent fermés. |
 | REC-SO-INS-10 | P | Concurrence/révocation générique testée ; commande de régie SO raccordée et testée ; recette humaine et mandats collectifs restent ouverts. |
@@ -191,7 +191,7 @@ Sources : [extension](source/SO_CDC_V36_Fouilles_Medias.md), `space-outlaws-sear
 | SEC-SO-02 | D/P | Transactions/reçus et concurrence testés ; scénario de réseau réellement dégradé à recetter. |
 | SEC-SO-03 | D/P | Imports et acquis conservés ; toutes évolutions de version non disponibles. |
 | SEC-SO-04 | A | ROG-02 et quota de plusieurs voleurs non raccordés. |
-| SEC-SO-05 | P | Droits collectifs génériques ; régie SO raccordée ; publication M2 et mandats collectifs encore partiels. |
+| SEC-SO-05 | P | Droits collectifs génériques ; régie SO raccordée ; propositions M2 raccordées ; mandats collectifs encore partiels. |
 | SEC-SO-06 | D/P | Combat et consommation testés ; toutes combinaisons de flotte/remorquage non ouvertes. |
 | SEC-SO-07 | P | Stocks/comptes PNJ vérifiés ; assureur absent. |
 | SEC-SO-08 | P/R | STOP médical testé numériquement ; captivité et recette physique à terminer. |
@@ -215,7 +215,7 @@ La première CI du candidat (42206048685) a signalé deux attentes HTTP périmé
 
 ## Ordre de travail proposé à partir de cet audit
 
-1. **Terminer le cycle d’organisation de campagne** : groupes M2, demandes/réserves et mandats collectifs après la première régie SO, puis nouvelle version du Master sans réinitialiser les acquis.
+1. **Terminer le cycle d’organisation de campagne** : demandes d’amis et mandats collectifs après la régie SO et les propositions M2, puis nouvelle version du Master sans réinitialiser les acquis.
 2. **Terminer les actions de personnage** : Rogue, Infiltrateur, diagnostic/soins avancés, Courtier et entretien ; conserver les gestes physiques sous arbitrage humain.
 3. **Terminer les systèmes absents** : modules droïdes, sabotage/cache/traces, TOXI/recettes/doses, puis extension Force PNJ selon la priorité de scénario.
 4. **Fermer les écarts spatiaux/économiques** : combinaisons restantes de remorquage, titre/identité/épaves/casse, douanes complètes, marché canonique et assurances financées.

@@ -65,7 +65,7 @@ export function spaceGroupsSuite(makeStore,prefix='Groupes SO'){
  test(`${prefix} : ancien manifeste conservé, aucune activation rétroactive`,async()=>{
   const f=await entryFixture(makeStore),r=await f.release(await f.releasePreview()),path=`campaigns/${f.campaignId}/versions/${r.versionId}`,h=await f.store.get(path);assert.equal(h.groupsVersion,1);
   const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
-  await f.store.runTransaction(async tx=>{const {groupsVersion,manifestDigest,...old}=h;tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});
+  await f.store.runTransaction(async tx=>{const {groupDefinitionsVersion,groupsVersion,manifestDigest,...old}=h;tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});
   await f.birth(await f.birthPreview());const s=await f.store.get(`sessions/${f.sid}`);assert.equal(s.spaceOutlaws.groupsVersion,undefined);assert.equal(s.modules.groups,false);assert.equal((await f.store.get(path)).groupsVersion,undefined);const d=await f.read('groupManagement');assert.equal(d.closed,true);assert.equal(d.connected,false);
  });
 }

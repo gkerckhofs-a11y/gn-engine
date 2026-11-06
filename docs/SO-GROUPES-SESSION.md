@@ -1,5 +1,7 @@
 # Space Outlaws — groupes et factions en session
 
+Mise à jour : [raccord des définitions et propositions M2](SO-GROUPES-M2.md). La limitation historique sur leur publication, décrite ci-dessous pour la première tranche, est levée pour les nouvelles versions compatibles.
+
 6 novembre 2026. Auteur : Codex. Base `f40023ab225295a7cdf7241a16e0c7758ee582f9`, [CI 42206813645](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42206813645) completed/success, huit jobs, 957 applicatifs / 750 Firestore / 22 HTTP. Même branche et PR nº 2.
 
 ## Parcours livré

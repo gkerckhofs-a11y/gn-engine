@@ -534,6 +534,7 @@ document.addEventListener('click',async event=>{
     if(a==='knowledgeShare'){modal(`<h2>Choisir le destinataire</h2><form data-form="knowledgeSharePrepare" data-id="${esc(b.dataset.id)}" data-sid="${esc(b.dataset.sid)}" data-receipt="${b.dataset.receipt}">${input('Lien du badge public de ce personnage','badgeUrl','','url',true)}<p class="muted">Demandez son badge au personnage rencontré, puis collez son lien ici. Vous pourrez vérifier le nom avant de transmettre. Aucun annuaire privé n’est proposé.</p><button type="submit" class="primary">Vérifier le destinataire</button></form>`);return;}
     if(a==='rosterEdit'){modal(rosterUi.editor(currentRoster,currentRoster.groups.find(g=>g.id===b.dataset.id),crypto.randomUUID()));return;}
     if(a==='rosterArchive'){modal(rosterUi.archive(currentRoster.groups.find(g=>g.id===b.dataset.id)));return;}
+    if(a==='rosterPrepared'){const p=currentRoster.preparedMemberships?.find(p=>p.characterId===b.dataset.character&&p.groupId===b.dataset.group);if(!p?.canPrepare)throw new Error('Actualisez la régie et vérifiez cette proposition.');pendingRoster=null;modal(rosterUi.member(currentRoster,p.characterId,null,p));return;}
     if(a==='rosterMember'){pendingRoster=null;modal(rosterUi.member(currentRoster,b.dataset.id));return;}
     if(a==='rosterReverse'){const e=currentRoster.events.find(e=>e.id===b.dataset.id);pendingRoster=null;modal(rosterUi.member(currentRoster,e.characterId,e));return;}
     if(a==='rosterHistory'){

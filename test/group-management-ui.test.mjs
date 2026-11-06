@@ -33,3 +33,8 @@ test('Régie UI SO : seules permissions raccordées, décès et accès versionn�
 test('Groupes UI SO : régie versionnée, aucun bouton historique non raccordé',()=>{
  const ui=createGroupsUi(helpers),html=ui.adminPanel({...data,id:'s',spaceOutlaws:{groupsVersion:1}},'session');assert.match(html,/#\/group-admin\/s/);assert.doesNotMatch(html,/editGroup|groupModule/);assert.doesNotMatch(ui.adminPanel({...data,spaceOutlaws:{}},'session'),/href=/);
 });
+
+test('Régie UI M2 : proposition distincte des droits actifs et validation explicite',()=>{
+ const membership={role:'Contact <privé>',revealed:true,visibleToMembers:true,publicAffiliation:false,permissions:{readBriefing:true,readMembers:true}},p={groupId:'g',groupName:'Cellule <M2>',characterId:'c',name:character.name,membership,active:true,born:true,configured:true,alreadyMember:false,canPrepare:true},d={...data,availablePermissions:['readBriefing','readMembers'],preparedMemberships:[p]};
+ assert.match(ui.page(d),/Appartenances prévues dans M2/);assert.match(ui.page(d),/data-action="rosterPrepared"/);assert.doesNotMatch(ui.page({...d,preparedMemberships:[{...p,born:false,canPrepare:false}]}),/data-action="rosterPrepared"/);const h=ui.member(d,'c',null,p);assert.match(h,/Proposition M2/);assert.match(h,/name="permission_readBriefing" checked/);assert.doesNotMatch(h,/name="authorizePermissions" checked|<privé>|<M2>/);assert.match(h,/value="g" selected/);assert.doesNotMatch(ui.page({...d,closed:true}),/data-action="rosterPrepared"/);
+});

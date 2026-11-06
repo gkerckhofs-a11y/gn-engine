@@ -1,5 +1,18 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Groupes M2 vers la session — 6 novembre 2026
+
+Base `a5e33fd6e3bc85c33c4f29373675692d5ce88c7a`, [CI 42220814560](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42220814560) completed/success : huit jobs, 1 027 applicatifs, 811 Firestore et 23 HTTP. [Périmètre, preuves et reprise](SO-GROUPES-M2.md).
+
+Les définitions group M2 deviennent publiables sous groupDefinitionsVersion=1 et groupsVersion=1. Forme native, références même inactives, droits raccordés, 50 groupes et budget des définitions contrôlés avant publication et lecture de version. La publication ne crée aucune instance. Première naissance seulement : groupes avec contenu natif, membres vides, sans roster/type/capacité inventés ; provenance vers le manifeste, aucune dotation. Les naissances suivantes ne rejouent pas les groupes.
+
+Les appartenances prévues, dont réserves, sont relues depuis la version de session en régie propriétaire/MJ. Configuration puis aperçu et confirmation par les commandes de session existantes ; autorisation de droits jamais précochée. Les propositions ne donnent aucun accès ni affiliation de badge avant validation. Droits non raccordés bloqués à la publication avec champ précis, sans suppression silencieuse. Réserve et successeur sans héritage automatique ; groupes/choix conservés entre épisodes. Anciens manifestes non enrichis.
+
+Local : build, 1 068 applicatifs ciblés réussis, douze nouveaux cas partagés et six parcours Chromium bureau/petit écran simulé réussis, captures inspectées. Profil targeted-group-definitions : 85 fichiers applicatifs, 50 suites Firestore, 24 HTTP sélectionnés ; aucun complet. Résultat du commit exact à consigner dans PR #2 après émulateurs CI Node 22/Java 21. Pas de téléphone réel ni recette humaine certifiés.
+
+Permissions limitées à readBriefing/readMembers ; restent demandes d’amis intégrées, recherche unifiée, mandats collectifs et Master Vn+1. Conserver code/marqueurs/version/pages, provenance/groupes/rosters/mandats, accès, décès/relève, épisodes, historiques et reçus cohérents. Aucun marqueur rétroactif ou réapplication de M2 à une incarnation. Même branche/PR #2, aucun merge ou déploiement Firebase.
+
+
 ## Groupes SO — première régie en session — 6 novembre 2026
 
 Base `f40023ab225295a7cdf7241a16e0c7758ee582f9`, [CI 42206813645](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42206813645) completed/success : huit jobs, 957 applicatifs, 750 Firestore, 22 HTTP. [Parcours, limites et reprise](SO-GROUPES-SESSION.md).
