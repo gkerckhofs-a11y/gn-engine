@@ -6,7 +6,7 @@ import {stockVolume,warehouseStock} from './storage-state.mjs';
 import {spaceShipProfiles} from '../shared/space-outlaws-navigation.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 
-const allowed=new Set(['towingCombat','shipNavigation','prepareVoyage','departShip','finishSoPreparation','cancelSoNavigation','cancelSoNavigationAdmin','continueSoVoyage','arriveShip','arriveSoShipAdmin']);
+const allowed=new Set(['towingCombat','shipNavigation','prepareRefuel','refuelShip','finishSoRefuel','prepareVoyage','departShip','finishSoPreparation','cancelSoNavigation','cancelSoNavigationAdmin','continueSoVoyage','arriveShip','arriveSoShipAdmin']);
 // One native voyage, one unmanned wreck; no parallel movement/event engine.
 export async function towingFlightContext(tx,s,ship,action,time){
  if(!ship?.towingAttachment)return null;

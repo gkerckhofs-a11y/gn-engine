@@ -1,5 +1,16 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Remorquage — commandes de navigation attachée — 6 novembre 2026
+
+Reprise demandée : terminer le remorquage puis produire un audit global des fonctions réalisées/restantes. Base `ef2d7def38e525371647c6611aef783bedc17ac3`, CI 42093021370 réussie. Cette étape corrige le raccord de navigation ; elle ne termine pas encore la récupération spatiale ou l’ouverture de MOD-05.
+
+Le plein natif (préparation, réservation du lot, interruption et finalisation) fonctionne sur le remorqueur attaché à quai. Le contexte vérifie toujours les liens réciproques et le dossier ; un vrai verrou technique reste bloquant. Projection publique `towingAttached`/`towingWreck` sans lot/binding : l’interface n’assimile plus le remorqueur attaché à une réparation active, permet les commandes normales et l’arrivée joueur/régie, et garde fermées les commandes de convoi/embuscade non raccordées. Une épave larguée n’est plus annoncée à quai à cause de son ancien port. Aucun déplacement, coût ou propriété arbitraire ajouté.
+
+Validation locale : build et **944/944 tests applicatifs ciblés**, 73 fichiers du profil towing-desk ; deux nouveaux cas partagés mémoire/Firestore (plein, interruption, arrivée MJ, verrou incohérent et STOP), un cas UI des commandes pilote/régie, HTTP du trajet enrichi avec le plein attaché. Tests Firestore/HTTP réservés à la CI Java 21 ; résultat exact à consigner dans la PR avant le prochain lot. Installation du Chromium Playwright échouée (archive distante vide/invalide) ; aucune recette visuelle de cette étape revendiquée à ce stade. Node 24.22.1 local, cible CI Node 22.
+
+Conserver ensemble deux vaisseaux, dossier/liens, module/lot/fret, équipage, PA/réserves, voyage/événement/dette/horloge, panne B et reçus/historiques. Anciennes sessions inchangées ; aucun marqueur émis, MOD-05 reste preparationOnly jusqu’à sa chaîne complète. Suite : secours en panne sèche sous attelage, récupération spatiale, ouverture cohérente et recette visuelle. Puis audit global demandé, fondé sur le code et les preuves courantes. Même branche/PR #2 brouillon ; aucune fusion ni publication Firebase.
+
+
 ## MOD-05 — bureau d’attelage à quai, rôles et confirmations — 5 novembre 2026
 
 Base vérifiée : `60039f509254aab3c14abd90afd56bfb60157221`, [CI 42030868030](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42030868030) completed/success : huit jobs, build, 927 applicatifs, 732 Firestore, dix-neuf HTTP ; preuve finale présente dans PR #2. Source métier : V0.7 chapitre 22 et services d’attelage déjà implantés ; décision B du 5 novembre conservée. Aucun audit historique repris.
