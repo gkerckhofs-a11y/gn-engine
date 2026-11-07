@@ -132,6 +132,12 @@ targetedProfiles['group-stock']={...targetedProfiles['group-wallets'],
  httpPattern:targetedProfiles['group-wallets'].httpPattern.replace('caisse SO,|','stock SO,|caisse SO,|'),
  files:[...targetedProfiles['group-wallets'].files,'src/core/logistics.mjs','src/core/storage-state.mjs','web/logistics.mjs','test/logistics-ui.test.mjs','test/space-group-stock.test.mjs','test/support/space-group-stock-suite.mjs'],
 };
+targetedProfiles['group-pilot']={...targetedProfiles['group-stock'],
+ tests:[...targetedProfiles['group-stock'].tests,'test/space-group-pilot.test.mjs'],
+ suites:[...targetedProfiles['group-stock'].suites,'space-group-pilot'],
+ httpPattern:targetedProfiles['group-stock'].httpPattern.replace('stock SO,|','pilotage de groupe SO,|stock SO,|'),
+ files:[...targetedProfiles['group-stock'].files,'test/space-group-pilot.test.mjs','test/support/space-group-pilot-suite.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

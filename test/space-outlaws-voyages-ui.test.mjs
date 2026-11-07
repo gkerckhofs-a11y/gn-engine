@@ -53,3 +53,12 @@ test('Navigation attachée UI : plein et départ à quai, arrivée joueur/régie
  assert.doesNotMatch(soNavigationHtml({...d,ship:{...attached,towingAttached:false,journey}}),/data-command="arriveShip"/);assert.doesNotMatch(soSpaceportHtml({...admin,ships:[{...attached,towingAttached:false,journey}]}),/data-command="arriveSoShipAdmin"/);
  const suspended={...journey,suspended:true,event:{label:'Contrôle',fuelDebt:0}};assert.match(soSpaceportHtml({...admin,ships:[{...attached,journey:suspended}]}),/data-command="continueSoVoyage"/);
 });
+
+test('Vol de groupe SO UI : attribution au groupe et mandat modifié pendant la préparation',()=>{
+ const admin=soSpaceportHtml({session:{id:'s'},admin:true,models:[],ports:[],items:[],characters:[],ships:[],groups:[{id:'secret',name:'Faction <script>'}]});
+ assert.match(admin,/value="GROUP:secret"/);assert.match(admin,/mandat de pilotage/);assert.doesNotMatch(admin,/<script>/);
+ const d={session:{id:'s'},ship:{...ship,groupShip:true,operation:{kind:'PREPARE',remainingSeconds:0,manifest:[]}},canPilot:true,canAct:false,mandateChanged:true,confirmation:'proof'};
+ const html=soNavigationHtml(d);
+ assert.match(html,/liaison sécurisée/);assert.match(html,/Le mandat a changé/);assert.match(html,/cancelSoNavigation/);
+ assert.doesNotMatch(html,/finishSoPreparation|Entretien|Dépannage PNJ/);
+});

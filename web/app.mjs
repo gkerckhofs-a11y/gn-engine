@@ -704,7 +704,12 @@ document.addEventListener('submit',async event=>{
     else if(kind==='routeEditor')await mutate('saveRoute',{...JSON.parse(form.dataset.payload),...v,durationSeconds:Number(v.durationSeconds),fuelCost:Number(v.fuelCost),enabled:v.enabled==='on'});
     else if(kind==='soShipNamePrepare'){const p={...JSON.parse(form.dataset.payload),name:v.name},d=await api('prepareSoShipName',p);if(submitVersion!==routeVersion)return;modal(soShipNameConfirmHtml(d,p));return;}
     else if(kind==='soPilotPrepare'){const p={...JSON.parse(form.dataset.payload),...v},d=await api('prepareSoPilot',p);if(submitVersion!==routeVersion)return;modal(soPilotConfirmHtml(d,p));return;}
-    else if(kind==='soShipPrepare'){const p={...JSON.parse(form.dataset.payload),...v},d=await api('prepareSoShip',p);if(submitVersion!==routeVersion)return;modal(soShipConfirmHtml(d,p));return;}
+    else if(kind==='soShipPrepare'){
+      const p={...JSON.parse(form.dataset.payload),...v};
+      if(p.ownerId?.startsWith('GROUP:')){p.groupId=p.ownerId.slice(6);delete p.ownerId;}
+      const d=await api('prepareSoShip',p);if(submitVersion!==routeVersion)return;
+      modal(soShipConfirmHtml(d,p));return;
+    }
     else if(kind==='soConvoyPrepare'){const p={...JSON.parse(form.dataset.payload),escortShipId:v.escortShipId,navigationCode:v.navigationCode},d=await api('prepareSoConvoy',p);if(submitVersion!==routeVersion)return;modal(convoyConfirmHtml(d,p));return;}
     else if(kind==='soDetourPrepare'){const p={...JSON.parse(form.dataset.payload),navigationCode:v.navigationCode},d=await api('prepareSoDetour',p);if(submitVersion!==routeVersion)return;modal(detourConfirmHtml(d,p));return;}
     else if(kind==='soRouteAnalysis'){const navigationCode=v.navigationCode.trim(),d=await api('fieldTarget',{...JSON.parse(form.dataset.payload),navigationCode});if(submitVersion!==routeVersion)return;pageRenderer()(`<div class="narrow">${fieldTargetHtml(d)}</div>`);fieldUi.mount('target',d,{navigationCode});return;}

@@ -21,7 +21,7 @@ const admins=new Set(['spaceMaintenanceAdmin','prepareSpaceMaintenanceOffer','of
 const open=r=>['OFFERED','AWAITING_TECH','ACTIVE'].includes(r.status);
 const fit=(c,time,id=null)=>c?.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeNavigationId&&!c.activeCargoId&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&(!c.activeMaintenanceId||c.activeMaintenanceId===id)&&!(c.convalescentUntilGameMs>time);
 const accessible=(s,ship,c)=>ship.journey?ship.journey.suspended&&c.activeVoyageId===ship.journey.id&&ship.journey.manifest.some(m=>m.id===c.id):ship.docked&&!c.activeVoyageId&&(c.spacePortId??s.transportRules?.homePort)===ship.portId;
-const eligible=(ship,id=null)=>ship?.soProfile&&!ship.operation&&!ship.combatId&&!ship.rescueId&&(!ship.maintenanceId||ship.maintenanceId===id)&&(ship.docked&&!ship.journey||ship.journey?.suspended);
+const eligible=(ship,id=null)=>ship?.soProfile&&ship.ownerType!=='GROUP'&&!ship.operation&&!ship.combatId&&!ship.rescueId&&(!ship.maintenanceId||ship.maintenanceId===id)&&(ship.docked&&!ship.journey||ship.journey?.suspended);
 export function maintenancePlan(ship,kind,points){
  requireThat(['REVISION','HULL','SHIELD'].includes(kind),'INVALID_MAINTENANCE');whole(points,'INVALID_MAINTENANCE');
  const missing=kind==='REVISION'?(ship.revisionRequired?1:0):Math.max(0,ship.soProfile[kind==='HULL'?'hullMax':'shieldMax']-ship[kind==='HULL'?'hull':'shield']);

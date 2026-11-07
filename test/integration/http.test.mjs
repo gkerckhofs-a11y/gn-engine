@@ -1,3 +1,4 @@
+import {spaceGroupPilotFixture} from '../support/space-group-pilot-suite.mjs';
 import {spaceGroupStockFixture} from '../support/space-group-stock-suite.mjs';
 import {spaceGroupWalletFixture} from '../support/space-group-wallets-suite.mjs';
 import {groupRequestsFixture,friendWishA,friendWishB} from '../support/space-group-requests-suite.mjs';
@@ -1832,4 +1833,26 @@ test('HTTP + Auth : stock SO, dépôt privé et retrait selon le mandat courant'
  await cmd('revokeAccess',{uid:uid(player)});
  assert.equal((await request('moveWarehouseStock',{sessionId,...input},player)).status,403);
  assert.equal((await f.get(`inventory/${deposited.id}`)).quantity,2);
+});
+
+
+test('HTTP + Auth : pilotage de groupe SO, révocation avant départ et annulation MJ',async()=>{
+ const f=await spaceGroupPilotFixture(()=>firestoreStore(getFirestore()));
+ await f.refuelGroup(4);
+ const {sessionId,player,outsider,call,cmd}=await towingHttpActors(f,1000000);
+ assert.equal((await request('shipNavigation',{sessionId,shipId:f.shipId},outsider)).status,403);
+ const detail=await call('shipNavigation',{shipId:f.shipId},player);
+ assert.equal(detail.canPilot,true);assert.equal(detail.ship.ownerId,undefined);
+ const q=await call('prepareVoyage',f.plan,player);
+ const input={...f.plan,confirmation:q.confirmation,present:true,requestId:randomUUID()};
+ await cmd('departShip',input,player);
+ const removal={characterId:f.cid,sourceGroupId:f.groupId,targetGroupId:null,
+  membership:null,authorizePermissions:false,reason:'Retrait du mandat en régie'};
+ const change=await call('prepareGroupMembership',removal);
+ await cmd('applyGroupMembership',{...removal,confirmation:change.confirmation});
+ assert.equal((await request('departShip',{sessionId,...input},player)).status,403);
+ const ship=(await call('spaceportAdmin')).ships.find(s=>s.shipId===f.shipId);
+ await cmd('cancelSoNavigationAdmin',{shipId:f.shipId,confirmation:ship.confirmation,reason:'Préparation annulée'});
+ assert.equal((await f.ship()).operation,null);
+ assert.equal((await f.ship()).fuel,4);
 });

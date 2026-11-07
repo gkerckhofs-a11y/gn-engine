@@ -1,5 +1,9 @@
 # Space Outlaws — groupes et factions en session
 
+Depuis le 7 novembre 2026, les versions avec `groupPilotVersion=1` permettent d’attribuer un vaisseau à un groupe publié depuis la **Régie du spatioport**. Le MJ accorde le droit de pilotage dans **Groupes et mandats**, puis désigne un pilote disposant de PIL-02. Le pilote retrouve le vaisseau dans **Mes vaisseaux et vols**.
+
+Cette première tranche couvre le plein avec du carburant ordinaire et le vol autonome sur une liaison sécurisée publiée. Le pilote prévoit une unité de réserve en plus du coût du trajet pour couvrir un éventuel surcoût. La révocation bloque une préparation ouverte. Le MJ peut l’annuler et restituer le PA ou le lot réservé. Un vol déjà parti peut être clos par le MJ. La relève du pilote ne change ni la propriété ni le réservoir du vaisseau.
+
 Depuis le 7 novembre 2026, les versions avec `groupStockVersion=1` permettent au MJ d’attribuer des entrepôts privés dans **Groupes et mandats → Entrepôts de groupe**. Le MJ choisit le groupe et la capacité. L’entrepôt est attribué à ce groupe pour la session et se retrouve à l’épisode suivant.
 
 Un mandat de dépôt permet de céder un bien ordinaire du sac au groupe. Un mandat de consultation permet de voir le stock. Un retrait exige la consultation et le droit de retrait. Les confirmations annoncent le changement de propriétaire. La régie peut fermer les dépôts tout en laissant les retraits autorisés. Les opérations confirmées figurent au journal. La caisse, la location et le pilotage relèvent de parcours distincts.

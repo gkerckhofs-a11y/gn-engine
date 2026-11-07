@@ -5,7 +5,7 @@ import {shopsFixture} from './space-outlaws-shops-suite.mjs';
 import {centralTestItem} from './central-master-suite.mjs';
 import {accountId} from '../../src/core/economy-state.mjs';
 
-export async function soVoyagesFixture(makeStore,{profileId='CARGO',riskId='SECURED',distanceId='SHORT',release=true,prepareExtra=null,departureCode='AWAY-CODE'}={}){
+export async function soVoyagesFixture(makeStore,{profileId='CARGO',riskId='SECURED',distanceId='SHORT',release=true,prepareExtra=null,departureCode='AWAY-CODE',restrictedFuel=true}={}){
  const f=await shopsFixture(makeStore,{classId:'PIL',release:false}),read=f.actionRead,cmd=f.actionCmd;let revision=(await f.view()).draft.revision;
  // The shop fixture references a medical supply: prepare it explicitly for this pilot fixture.
  await f.cc('saveCentralItem',{itemId:'kit_medical-supplies',itemRevision:0,draftRevision:revision++,item:{...centralTestItem,name:'Fourniture de soins',kind:'STACKABLE',consumable:true,pillable:true},reason:'Offre de soins'});
@@ -24,10 +24,10 @@ export async function soVoyagesFixture(makeStore,{profileId='CARGO',riskId='SECU
  const startFlight=async(patch={},actor=f.player)=>{const input={shipId:'ship',navigationCode:departureCode,passengerCodes:[],...patch},p=await read('prepareVoyage',input,actor);return cmd('departShip',{...input,confirmation:p.confirmation,present:true},actor);};
  const fly=async(patch={})=>{await startFlight(patch);f.advance(180000);return command('finishSoPreparation');};
  if(release){assert.deepEqual((await f.releasePreview()).blockers,[]);await f.release(await f.releasePreview());await f.birth(await f.birthPreview());await f.birth(await f.birthPreview(f.owner,{uid:f.other.uid}),{uid:f.other.uid});cid=(await read('mySession')).character.id;otherId=(await read('mySession',{},f.other)).character.id;
-  await provision();await f.provision({offerId:'fuel',quantity:40,restricted:true});await f.stage('EN_JEU');
+  await provision();await f.provision({offerId:'fuel',quantity:40,restricted:restrictedFuel});await f.stage('EN_JEU');
   // Money here is a test setup, never a gameplay grant.
   await f.store.runTransaction(async tx=>{const a=await tx.get(`sessions/${f.sid}/accounts/${accountId(cid)}`);tx.set(`sessions/${f.sid}/accounts/${a.id}`,{...a,balance:1000,revision:a.revision+1});});
-  const sale=await f.buy({offerId:'fuel',quantity:40});await f.pickup(sale);f.setDie(6);
+  const sale=await f.buy({offerId:'fuel',quantity:40,useProtected:restrictedFuel});await f.pickup(sale);f.setDie(6);
  }
  return {...f,read,cmd,provisionInput,provision,navigation,navCommand:command,refuel,startFlight,fly,cid,otherId,ship:()=>f.store.get(`sessions/${f.sid}/ships/ship`)};
 }

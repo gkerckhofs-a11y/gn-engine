@@ -1,3 +1,4 @@
+import {spaceGroupPilotFixture} from '../support/space-group-pilot-suite.mjs';
 import {spaceGroupStockFixture} from '../support/space-group-stock-suite.mjs';
 import {spaceGroupWalletFixture} from '../support/space-group-wallets-suite.mjs';
 import {groupRequestsFixture} from '../support/space-group-requests-suite.mjs';
@@ -8,7 +9,7 @@ import {readFile} from 'node:fs/promises';
 import {MemoryStore} from '../support/memory.mjs';
 import {spaceGroupsFixture} from '../support/space-groups-suite.mjs';
 let template,bundle;
-test.beforeAll(async()=>{const css=await readFile('web/style.css','utf8')+'\n'+await readFile('web/galactic.css','utf8');template=(await readFile('web/index.html','utf8')).replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'').replace(/<link[^>]*rel="stylesheet"[^>]*>/g,'').replace('</head>',`<style>${css}</style></head>`);bundle=(await build({stdin:{contents:"export * from './web/group-management.mjs'; export {createCollectiveUi} from './web/collective-accounts.mjs'; export {createLogisticsUi} from './web/logistics.mjs';",resolveDir:process.cwd()},bundle:true,format:'iife',globalName:'Groups',write:false})).outputFiles[0].text;});
+test.beforeAll(async()=>{const css=await readFile('web/style.css','utf8')+'\n'+await readFile('web/galactic.css','utf8');template=(await readFile('web/index.html','utf8')).replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'').replace(/<link[^>]*rel="stylesheet"[^>]*>/g,'').replace('</head>',`<style>${css}</style></head>`);bundle=(await build({stdin:{contents:"export * from './web/group-management.mjs'; export {createCollectiveUi} from './web/collective-accounts.mjs'; export {createLogisticsUi} from './web/logistics.mjs'; export {soSpaceportHtml,soNavigationHtml} from './web/space-outlaws-voyages.mjs';",resolveDir:process.cwd()},bundle:true,format:'iife',globalName:'Groups',write:false})).outputFiles[0].text;});
 async function mount(page,f,warehouseId=null){
  const remote=[],errors=[];page.on('pageerror',e=>errors.push(e.message));await page.route('**/*',r=>{remote.push(r.request().url());return r.abort();});await page.exposeBinding('__read',(_,a,p)=>f.read(a,p));await page.exposeBinding('__cmd',(_,a,p)=>f.cmd(a,p));await page.setContent(template);await page.addScriptTag({content:bundle});
  await page.evaluate(async warehouseId=>{
@@ -99,4 +100,23 @@ test('Stock SO : un dépôt sans droit de lecture transfère les biens après co
  expect((await f.get(`inventory/${f.lotId}`)).quantity).toBe(2);
  expect((await f.detail(f.other)).stock[0].ownerId).toBe(f.groupId);
  await check(info,'stock-depot');
+});
+
+
+test('Vol collectif SO : attribution à un groupe et préparation bloquée après changement de mandat',async({page},info)=>{
+ const f=await spaceGroupPilotFixture(()=>new MemoryStore());
+ const check=await mount(page,{read:(a,p)=>f.read(a,p,f.owner),cmd:(a,p)=>f.cmd(a,p,f.owner)});
+ const port=await f.read('spaceportAdmin',{},f.owner);
+ await page.evaluate(d=>{document.querySelector('#app').innerHTML=Groups.soSpaceportHtml(d);},port);
+ await page.getByRole('combobox',{name:'Propriétaire',exact:true}).selectOption(`GROUP:${f.groupId}`);
+ await expect(page.getByText('Vaisseau de groupe',{exact:true})).toBeVisible();
+ await f.refuelGroup(4);await f.reserve();
+ await f.membership(f.cid,f.groupId,null);await f.membership(f.cid,null,f.groupId);
+ f.advance(180000);
+ const nav=await f.navigation(f.shipId);
+ await page.evaluate(d=>{document.querySelector('#app').innerHTML=Groups.soNavigationHtml(d);},nav);
+ await expect(page.getByText('Le mandat a changé',{exact:false})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Valider la préparation et partir'})).toHaveCount(0);
+ await expect(page.getByRole('button',{name:'Interrompre et libérer les réservations'})).toBeVisible();
+ await check(info,'vol-collectif-mandat-modifie');
 });

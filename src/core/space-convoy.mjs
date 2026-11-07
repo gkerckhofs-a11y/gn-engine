@@ -10,7 +10,7 @@ import {gameTime} from './clock.mjs';
 
 export const hasSoConvoy=s=>s.spaceOutlaws?.convoyVersion===1;
 export const convoyFields={prepareSoConvoy:['shipId','escortShipId','navigationCode'],proposeSoConvoy:['shipId','escortShipId','navigationCode','confirmation'],acceptSoConvoy:['shipId','leaderShipId','confirmation'],leaveSoConvoy:['shipId','confirmation','reason'],leaveSoConvoyAdmin:['shipId','confirmation','reason']};
-const idle=x=>x?.soProfile&&x.enabled&&x.docked&&!x.journey&&!x.operation&&!x.combatId&&!x.rescueId&&!x.maintenanceId&&x.hull>0&&!x.revisionRequired;
+const idle=x=>x?.soProfile&&x.ownerType!=='GROUP'&&x.enabled&&x.docked&&!x.journey&&!x.operation&&!x.combatId&&!x.rescueId&&!x.maintenanceId&&x.hull>0&&!x.revisionRequired;
 const publicOffer=(x,confirmation)=>({id:x.id,leaderShipId:x.leaderShipId,escortShipId:x.escortShipId,leaderName:x.leaderName,escortName:x.escortName,routeName:x.routeName,fromPort:x.fromPort,toPort:x.toPort,confirmation});
 export async function convoyInvitations(tx,s,c,time){
  if(!hasSoConvoy(s)||!c)return [];

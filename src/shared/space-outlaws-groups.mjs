@@ -7,7 +7,10 @@ export const hasSoGroupWallets=s=>s.spaceOutlaws?.actionsVersion===1&&
  s.spaceOutlaws.groupsVersion===1&&s.spaceOutlaws.groupWalletVersion===1&&s.modules?.groups===true;
 export const hasSoGroupStock=s=>s.spaceOutlaws?.actionsVersion===1&&
  s.spaceOutlaws.groupsVersion===1&&s.spaceOutlaws.groupStockVersion===1&&s.modules?.groups===true;
+export const hasSoGroupPilot=s=>s.spaceOutlaws?.actionsVersion===1&&
+ s.spaceOutlaws.groupsVersion===1&&s.spaceOutlaws.groupPilotVersion===1&&s.modules?.groups===true;
 export const soSessionGroupPermissions=s=>[
  ...(hasSoGroupWallets(s)?walletPermissions:soGroupPermissions),
- ...(hasSoGroupStock(s)?soStockPermissions:[])
+ ...(hasSoGroupStock(s)?soStockPermissions:[]),
+ ...(hasSoGroupPilot(s)?['pilotShip']:[])
 ];

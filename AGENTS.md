@@ -1,5 +1,15 @@
 # GN Engine — consignes de développement
 
+## Mandats de pilotage collectif — 7 novembre 2026
+
+Base `356509d19b2e1a0f92e807a84e8c110990d34545`, [CI 42363174852](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42363174852) réussie sur le commit exact. Périmètre §4.11 et navigation native. Voir [groupes en session](docs/SO-GROUPES-SESSION.md).
+
+Les versions `groupPilotVersion=1` exposent le mandat de pilotage dans la régie. Un vaisseau attribué au groupe conserve le groupe comme propriétaire et un pilote désigné, habilité et qualifié. Réemploi du ravitaillement, de la réservation du PA, du départ et de l’arrivée natifs. La préparation mémorise la révision du mandat. Une révocation ou une nouvelle attribution invalide une préparation ouverte. L’annulation MJ libère les réservations. Un voyage déjà engagé conserve ses passagers et peut être clos en régie. Les passagers n’obtiennent ni le mandat ni l’identifiant du groupe propriétaire.
+
+Périmètre initial : vols autonomes sur liaisons sécurisées, une unité de carburant ordinaire de réserve pour le surcoût d’événement. Le carburant protégé reste personnel. Les commandes d’entretien, de convoi, de combat, de soute et de détour ne sont pas ouvertes par ce mandat. Pas de modification des vaisseaux personnels ou d’activation rétroactive.
+
+Local : 194 tests applicatifs ciblés, compilation, 5 cas Firestore et 1 HTTP/Auth dédiés. Profil CI `targeted-group-pilot` : 94 fichiers applicatifs, 57 suites Firestore et 29 HTTP sélectionnés. Consigner le résultat du commit exact dans PR #2 avant la tranche suivante.
+
 ## Mandats sur les biens de faction — 7 novembre 2026
 
 Base `031e0c620c00e9631c0d22a5fd01f0796b699f5b`, [CI 42356916366](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42356916366) réussie sur le commit exact. Périmètre §4.11. Voir [groupes en session](docs/SO-GROUPES-SESSION.md).

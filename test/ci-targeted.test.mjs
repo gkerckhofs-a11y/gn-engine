@@ -210,3 +210,11 @@ test('Ciblage stock SO : stock versionné, logistique et cas HTTP sélectionné'
  assert.ok(new RegExp(p.httpPattern).test('HTTP + Auth : stock SO, dépôt'));
  assert.equal(p.browser,false);assert.doesNotThrow(()=>applicationCommand(JSON.stringify(p.applicationTests)));
 });
+
+test('Ciblage pilotage SO : navigation, changement de mandat et cas HTTP dédié',()=>{
+ const p=targetedScope('group-pilot',['src/core/space-outlaws-voyages.mjs','web/space-outlaws-voyages.mjs','test/support/space-group-pilot-suite.mjs'],{reliableBase:true});
+ assert.equal(requestedTarget('[ci targeted:group-pilot]'),'group-pilot');
+ assert.ok(p.suites.includes('space-group-pilot'));assert.ok(p.suites.includes('space-outlaws-voyages'));
+ assert.ok(new RegExp(p.httpPattern).test('HTTP + Auth : pilotage de groupe SO, révocation'));
+ assert.equal(p.browser,false);assert.doesNotThrow(()=>applicationCommand(JSON.stringify(p.applicationTests)));
+});
