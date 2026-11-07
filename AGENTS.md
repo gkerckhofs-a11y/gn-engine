@@ -1,5 +1,11 @@
 # GN Engine — consignes de développement
 
+## Brouillon du Master après publication — 7 novembre 2026
+
+Base `d2228837f30795e6673d7ebe1f5d9d69f0f44925`, [CI 42366339038](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42366339038) réussie sur le commit exact. Périmètre §3.6, ouverture et édition web, voir [rapport courant](docs/SO-VALIDATION.md).
+
+Le brouillon Vn+1 est créé par le propriétaire à partir d’une version READY. Les ateliers héritent du manifeste vérifié et superposent leurs modifications sans changer la campagne publiée ou les sessions. Préserver les droits par atelier, le contrôle d’identité et de révision du brouillon, l’historique et les reçus. Excel, instantanés, diff, contrôle global et publication Vn+1 restent à raccorder. Profil `targeted-central-revision` : 95 fichiers applicatifs, 58 suites Firestore et 30 HTTP sélectionnés. Consigner le résultat du commit exact dans PR #2 avant la tranche suivante.
+
 ## Mandats de pilotage collectif — 7 novembre 2026
 
 Base `356509d19b2e1a0f92e807a84e8c110990d34545`, [CI 42363174852](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42363174852) réussie sur le commit exact. Périmètre §4.11 et navigation native. Voir [groupes en session](docs/SO-GROUPES-SESSION.md).

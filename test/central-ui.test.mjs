@@ -37,3 +37,15 @@ test('Central UI : soute clandestine versionnée, capacité dans le volume exist
 test('Central UI : MOD-05 préparatoire, prix non éditable et remorquage explicitement fermé',()=>{
  const c={type:'item',entityId:'tow',operation:'UPSERT',data:{name:'Treuil <script>',description:'',revision:1,shipModule:{code:'MOD-05',size:2}}},h=ui.itemForm(model,'tow',c);assert.match(h,/1000 Cr/);assert.match(h,/MEC-03 N2, 10 min/);assert.match(h,/MOD-05 : nécessite une nouvelle version compatible remorquage/);assert.match(h,/Achat, montage et attelage sont distincts/);assert.match(h,/MOD-05 · Remorquage/);assert.doesNotMatch(h,/<script>|name="(towedShipId|towFuel|modulePrice)"/);assert.match(ui.page({...model,changes:[c]}),/ce modèle ne crée aucun remorquage/);
 });
+
+test('Central UI : ouvre la version suivante puis montre les éditeurs web',()=>{
+ const base={baseVersionId:'v1',pointerRevision:1};
+ const published=ui.page({...model,draft:{status:'PUBLISHED',...base}});
+ assert.match(published,/data-form="centralRevision" data-cid="campaign" data-version="v1" data-pointer="1"/);
+ assert.match(published,/Ouvrir le brouillon V2/);
+ assert.doesNotMatch(published,/data-action="centralItem"|data-action="centralImport"/);
+ const draft=ui.page({...model,draft:{...base,status:'DRAFT',revision:0},rights:{...model.rights,editWorkshops:['M1'],checkCentral:true,manageStaff:true}});
+ assert.match(draft,/brouillon V2/);
+ assert.match(draft,/data-action="centralItem"/);
+ assert.doesNotMatch(draft,/data-action="centralImport"|data-action="centralExport"|data-action="centralSnapshotPreview"|#\/central-check\//);
+});

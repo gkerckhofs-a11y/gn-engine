@@ -138,6 +138,12 @@ targetedProfiles['group-pilot']={...targetedProfiles['group-stock'],
  httpPattern:targetedProfiles['group-stock'].httpPattern.replace('stock SO,|','pilotage de groupe SO,|stock SO,|'),
  files:[...targetedProfiles['group-stock'].files,'test/space-group-pilot.test.mjs','test/support/space-group-pilot-suite.mjs'],
 };
+targetedProfiles['central-revision']={...targetedProfiles['group-pilot'],
+ tests:[...targetedProfiles['group-pilot'].tests,'test/central-revision.test.mjs'],
+ suites:[...targetedProfiles['group-pilot'].suites,'central-revision'],
+ httpPattern:targetedProfiles['group-pilot'].httpPattern.replace('Master central,|','candidature, naissance,|Master central,|'),
+ files:[...targetedProfiles['group-pilot'].files,'test/central-revision.test.mjs','test/support/central-revision-suite.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

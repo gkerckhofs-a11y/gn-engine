@@ -1,5 +1,13 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## Brouillon du Master après publication — 7 novembre 2026
+
+Le propriétaire ouvre depuis le tableau de bord un brouillon commun Vn+1 rattaché au manifeste publié et à la révision de son pointeur. Les ateliers héritent des définitions figées. Ils enregistrent seulement les ajouts, modifications et archivages web dans ce brouillon. Les droits de lecture et d’édition restent distincts par atelier. Chaque modification conserve le motif, l’auteur et la définition précédente.
+
+Le brouillon utilise l’époque du pointeur comme identifiant. L’ouverture ne modifie ni le pointeur, ni les pages publiées, ni les sessions et leurs confirmations en cours. L’édition vérifie l’identité et la révision du brouillon, ainsi que la révision de la définition. Sauvegarder ensemble le manifeste et ses pages, le brouillon et ses changements, historiques, délégations et reçus.
+
+Périmètre §3.6, étapes 1 et 2 pour l’édition web. L’import/export Excel, les instantanés, le diff et les contrôles globaux du Vn+1, sa publication et le retour de version restent à raccorder. Preuves du commit exact dans [PR #2](https://github.com/gkerckhofs-a11y/gn-engine/pull/2).
+
 ## Recherche unifiée des personnages — 6 novembre 2026
 
 Base `918e68f0afad1b55de7da1f904dad42c32c23c85`, [CI 42237060772](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42237060772) completed/success : 1 082 applicatifs, 858 Firestore et 25 HTTP. [Parcours, sources et limites](SO-RECHERCHE-PERSONNAGES.md).
