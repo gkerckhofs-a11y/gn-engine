@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {boardingHtml,boardingCargoConfirmHtml} from '../web/space-boarding.mjs';
+import {boardingCustodyHtml} from '../web/boarding-custody.mjs';
+import {boardingShopReturnFixture} from './support/space-boarding-shop-return-suite.mjs';
+import {MemoryStore} from './support/memory.mjs';
+test('UI retour comptoir : choix MJ distinct, destination serveur, réception et règlement séparés',async()=>{
+ const f=await boardingShopReturnFixture(()=>new MemoryStore()),admin=boardingHtml(await f.board()),player=boardingHtml(await f.board(f.other));assert.match(admin,/value="RETURN_SHOP"/);assert.doesNotMatch(player,/value="RETURN_SHOP"|boardingCargoPrepare/);const q=await f.prepare(),confirm=boardingCargoConfirmHtml('prepareBoardingCargoTransfer',q,f.input);assert.match(confirm,/comptoir propriétaire au port d’origine/);assert.match(confirm,/sans règlement de mission/);assert.match(confirm,/startBoardingCargoTransfer/);const t=await f.start(),view=await f.receipt(t);assert.match(boardingHtml(await f.board()),/retour au comptoir/);assert.match(boardingCustodyHtml((await f.read('cargoAdmin',{},f.owner)).boardingCustody),/Retour au comptoir réservé/);const receipt=boardingCargoConfirmHtml('prepareBoardingCargoReceipt',view,{sessionId:f.sid});assert.match(receipt,new RegExp(view.destinationName));assert.doesNotMatch(receipt,/receiveBoardingCargo/);f.advance(180000);assert.match(boardingCargoConfirmHtml('prepareBoardingCargoReceipt',await f.receipt(t),{sessionId:f.sid}),/name="received"/);
+});
+test('UI retour comptoir : noms échappés et dossier ancien sans suggestion de reprise propriétaire',()=>{
+ const h=boardingCargoConfirmHtml('prepareBoardingCargoReceipt',{name:'Lot',quantity:1,remainingSeconds:0,canReceive:true,confirmation:'proof',sourceName:'<script>source</script>',destinationName:'<img src=x>'},{sessionId:'s'});assert.doesNotMatch(h,/<script>|<img/);assert.match(h,/&lt;script&gt;/);const d={sessionId:'s',totalVolume:1,loading:0,lots:[{lotId:'l',name:'Lot',quantity:1,unit:'unité',volume:1,owner:{name:'PNJ'},holder:{name:'Gardien'},ship:{name:'Cargo'},port:{name:'Port'},carrier:{name:'Titulaire'},alerts:[],combatId:'c',boardingId:'b',loading:null}]};assert.doesNotMatch(boardingCustodyHtml(d),/dispose d’un parcours MJ distinct/);d.lots[0].shopReturnReady=true;assert.match(boardingCustodyHtml(d),/dispose d’un parcours MJ distinct/);
+});

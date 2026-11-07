@@ -2,6 +2,7 @@ import {execFileSync} from 'node:child_process';
 import {readFileSync,appendFileSync,writeFileSync} from 'node:fs';
 import {pathToFileURL} from 'node:url';
 import {scopeForChanges,matrixFor} from './ci-scope.mjs';
+import {isTargetedCommit,requestedTarget,targetedScope} from './ci-targeted.mjs';
 
 const git=(...args)=>execFileSync('git',args,{encoding:'utf8'}).trim();
 const sha=value=>typeof value==='string'&&/^[0-9a-f]{40}$/.test(value);
@@ -21,6 +22,7 @@ export async function makePlan({env=process.env,event,fetchRuns,gitCommand=git}=
   const message=gitCommand('log','-1','--format=%B',candidate);
   const forceFull=env.GITHUB_EVENT_NAME!=='pull_request'||event.action==='ready_for_review'
     ||event.pull_request?.draft===false||message.includes('[ci full]');
+  const target=forceFull?null:requestedTarget(message);
   let baseline=null,paths=[],baselineRun=null;
   if(!forceFull&&event.pull_request?.head.repo.full_name===repository){
     try{
@@ -32,6 +34,8 @@ export async function makePlan({env=process.env,event,fetchRuns,gitCommand=git}=
       }))();
       for(const run of eligibleRuns(runs,{repository,branch,runId:env.GITHUB_RUN_ID})){
         try{
+          // A partial success cannot hide earlier untested changes from later runs.
+          if(isTargetedCommit(gitCommand('log','-1','--format=%B',run.head_sha)))continue;
           gitCommand('merge-base','--is-ancestor',run.head_sha,checkout);
           // Compare trees, including the current merge with base. Do not just compare
           // the latest push: an earlier failing/cancelled commit must remain covered.
@@ -41,7 +45,8 @@ export async function makePlan({env=process.env,event,fetchRuns,gitCommand=git}=
       }
     }catch{ /* No trustworthy API history: full validation. */ }
   }
-  const scope=scopeForChanges(paths,{forceFull,reliableBase:!!baseline});
+  const scope=target?targetedScope(target,paths,{reliableBase:!!baseline}):{...scopeForChanges(paths,{forceFull,reliableBase:!!baseline}),applicationTests:null,httpPattern:null,browser:null};
+  if(scope.browser===null)scope.browser=scope.http;
   return {...scope,checkout,candidate,baseline,baselineRun,paths,matrix:matrixFor(scope.suites)};
 }
 
@@ -50,8 +55,8 @@ if(process.argv[1]&&import.meta.url===pathToFileURL(process.argv[1]).href){
   writeFileSync('ci-plan.json',JSON.stringify(plan,null,2)+'\n');
   console.log(JSON.stringify(plan,null,2));
   if(process.env.GITHUB_OUTPUT)for(const [key,value] of Object.entries({
-    profile:plan.profile,matrix:JSON.stringify(plan.matrix),suites:JSON.stringify(plan.suites),http:String(plan.http),
+    profile:plan.profile,matrix:JSON.stringify(plan.matrix),suites:JSON.stringify(plan.suites),http:String(plan.http),applicationTests:JSON.stringify(plan.applicationTests),httpPattern:JSON.stringify(plan.httpPattern),browser:String(plan.browser),
   }))appendFileSync(process.env.GITHUB_OUTPUT,`${key}=${value}\n`);
   if(process.env.GITHUB_STEP_SUMMARY)appendFileSync(process.env.GITHUB_STEP_SUMMARY,
-    `### Tests sélectionnés : ${plan.profile}\n\n${plan.reason}\n\nCandidat : \`${plan.candidate}\` ; checkout : \`${plan.checkout}\`.\n\nRéférence réussie : ${plan.baseline??'aucune (suite complète)'}${plan.baselineRun?` — run ${plan.baselineRun}`:''}.\n\nTous les tests applicatifs et le build ; ${plan.suites.length} suites Firestore en ${plan.matrix.length} lots ; HTTP/Auth/Storage : ${plan.http?'complet':'non requis'}.\n\nSuites : ${plan.suites.join(', ')||'aucune'}.\n`);
+    `### Tests sélectionnés : ${plan.profile}\n\n${plan.reason}\n\nCandidat : \`${plan.candidate}\` ; checkout : \`${plan.checkout}\`.\n\nRéférence réussie : ${plan.baseline??'aucune (suite complète)'}${plan.baselineRun?` — run ${plan.baselineRun}`:''}.\n\n${plan.applicationTests?`${plan.applicationTests.length} fichiers applicatifs ciblés`:'Tous les tests applicatifs'} et le build ; ${plan.suites.length} suites Firestore en ${plan.matrix.length} lots ; HTTP/Auth/Storage : ${plan.httpPattern?'ciblé':plan.http?'complet':'non requis'}.\n\nFichiers applicatifs : ${plan.applicationTests?.join(', ')??'tous'}.\n\nFiltre HTTP : ${plan.httpPattern??'aucun'}.\n\nNavigateur : ${plan.browser?'requis':'non requis'}.\n\nSuites : ${plan.suites.join(', ')||'aucune'}.\n`);
 }

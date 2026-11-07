@@ -12,18 +12,9 @@ const wallet=async(tx,sid,cid)=>{
   const a=await tx.get(`sessions/${sid}/accounts/${accountId(cid)}`);
   requireThat(a?.sessionId===sid&&a.characterId===cid&&a.ownerType==='CHARACTER','ACCOUNT_UNAVAILABLE');moneyState(a);return a;
 };
-export function createEconomyService({store,signed,checkSession,checkScenario,now,uuid}){
-  async function player(tx,actor,input,preview=false){
-    const sid=documentId(input.sessionId),s=preview?await checkSession(tx,actor,sid):await tx.get(`sessions/${sid}`);
-    requireThat(s&&s.stage!=='ARCHIVED','FORBIDDEN');const r=preview?null:await tx.get(`sessions/${sid}/registrations/${hash(actor.uid)}`);
-    if(!preview)requireThat(r?.status==='ACCEPTED'&&r.accessActive&&r.characterId&&actor.authTime>=r.minAuthTime,'FORBIDDEN');
-    const c=await tx.get(`sessions/${sid}/characters/${preview?documentId(input.characterId):r.characterId}`);
-    requireThat(c&&(preview||c.assignedUid===actor.uid),'FORBIDDEN');
-    requireThat(['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s.stage),'BRIEFING_CLOSED');requireThat(published(c),'CONTENT_UNPUBLISHED');
-    requireThat(s.economyRules?.enabled,'ECONOMY_DISABLED');return {s,c,r,a:await wallet(tx,sid,c.id),guard:preview?null:identity(c,r)};
-  }
-  async function payment(tx,ctx,input){
-    const {s,c,a,guard}=ctx;
+export async function preparePersonalPayment(tx,ctx,input){
+    const {s,c}=ctx,a=ctx.a??await wallet(tx,s.id,c.id),guard=ctx.guard??ctx.version;
+    requireThat(s.economyRules?.enabled,'ECONOMY_DISABLED');
     if(s.spaceOutlaws){requireThat(hasSoShops(s),'SO_GAMEPLAY_NOT_OPEN');requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');}
     requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,c,'pay');
     const recipientId=documentId(input.recipientId);requireThat(recipientId!==c.id,'INVALID_RECIPIENT');
@@ -34,7 +25,26 @@ export function createEconomyService({store,signed,checkSession,checkScenario,no
     requireThat(before.available>=amount,'INSUFFICIENT_FUNDS');whole(to.balance+amount,'BALANCE_OVERFLOW');
     const after={...before,balance:a.balance-amount,available:before.available-amount,revision:a.revision+1};
     const result={source:partyName(c),recipient:partyName(recipient),currency:currencyView(s.economyRules),amount,memo,before,after};
-    return {to,recipient,result:{...result,confirmation:hash(JSON.stringify([s.id,guard,identity(recipient,reg),s.healthRules,result]))}};
+    return {a,to,recipient,result:{...result,confirmation:hash(JSON.stringify([s.id,guard,identity(recipient,reg),s.healthRules,result]))}};
+  }
+export function settlePersonalPayment(tx,ctx,x,{id,at,actorUid}){
+ const {s,c}=ctx,a=x.a;
+ if(s.spaceOutlaws)authorizeSpaceOutlaws(tx,s,'PAYMENT');
+ const amount=x.result.amount,fromNext={...a,balance:a.balance-amount,revision:a.revision+1},toNext={...x.to,balance:x.to.balance+amount,revision:x.to.revision+1};
+ tx.set(`sessions/${s.id}/accounts/${a.id}`,fromNext);tx.set(`sessions/${s.id}/accounts/${x.to.id}`,toNext);
+ writeLedger(tx,s.id,{id,kind:'TRANSFER',at,actorUid,memo:x.result.memo,reason:'Paiement confirmé par le payeur',source:partyName(c),recipient:partyName(x.recipient),createdCurrency:0,removedCurrency:0,
+  entries:[{accountId:a.id,characterId:c.id,delta:-amount,before:moneyState(a),after:moneyState(fromNext)},{accountId:x.to.id,characterId:x.recipient.id,delta:amount,before:moneyState(x.to),after:moneyState(toNext)}]});
+ return {id,amount,recipient:partyName(x.recipient),currency:x.result.currency,account:moneyState(fromNext)};
+}
+export function createEconomyService({store,signed,checkSession,checkScenario,now,uuid}){
+  async function player(tx,actor,input,preview=false){
+    const sid=documentId(input.sessionId),s=preview?await checkSession(tx,actor,sid):await tx.get(`sessions/${sid}`);
+    requireThat(s&&s.stage!=='ARCHIVED','FORBIDDEN');const r=preview?null:await tx.get(`sessions/${sid}/registrations/${hash(actor.uid)}`);
+    if(!preview)requireThat(r?.status==='ACCEPTED'&&r.accessActive&&r.characterId&&actor.authTime>=r.minAuthTime,'FORBIDDEN');
+    const c=await tx.get(`sessions/${sid}/characters/${preview?documentId(input.characterId):r.characterId}`);
+    requireThat(c&&(preview||c.assignedUid===actor.uid),'FORBIDDEN');
+    requireThat(['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s.stage),'BRIEFING_CLOSED');requireThat(published(c),'CONTENT_UNPUBLISHED');
+    requireThat(s.economyRules?.enabled,'ECONOMY_DISABLED');return {s,c,r,a:await wallet(tx,sid,c.id),guard:preview?null:identity(c,r)};
   }
   async function administrative(tx,action,actor,input,at,newId){
     const scenario=['saveScenarioEconomy','prepareStartingCredits','setStartingCredits'].includes(action),id=documentId(scenario?input.scenarioId:input.sessionId),base=`${scenario?'scenarios':'sessions'}/${id}`;
@@ -83,16 +93,11 @@ export function createEconomyService({store,signed,checkSession,checkScenario,no
       if(adminActions.has(action))return administrative(tx,action,actor,input,at,newId);
       const preview=action==='previewWallet',ctx=await player(tx,actor,input,preview),{s,c,a,guard}=ctx;
       if(action==='myWallet'||preview)return {session:{id:s.id,stage:s.stage,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{})},preview,character:partyName(c),currency:currencyView(s.economyRules),account:{id:a.id,...moneyState(a)},canPay:!preview&&(!s.spaceOutlaws||hasSoShops(s))&&!s.safetyStop?.active&&s.stage==='EN_JEU'&&canGameAction(s,c,'pay'),entries:(await tx.list(`sessions/${s.id}/accounts/${a.id}/history`,null,{orderBy:'at',direction:'desc',limit:30})).map(projectEntry)};
-      if(action==='preparePayment')return (await payment(tx,ctx,input)).result;
+      if(action==='preparePayment')return (await preparePersonalPayment(tx,ctx,input)).result;
       const op=`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`,fingerprint=hash(JSON.stringify([action,input])),previous=await tx.get(op);
       if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');requireThat(previous.guard===guard,'FORBIDDEN');return previous.result;}
-      const x=await payment(tx,ctx,input);requireThat(x.result.confirmation===input.confirmation,'STALE_REVISION');
-      if(s.spaceOutlaws)authorizeSpaceOutlaws(tx,s,'PAYMENT');
-      const amount=x.result.amount,fromNext={...a,balance:a.balance-amount,revision:a.revision+1},toNext={...x.to,balance:x.to.balance+amount,revision:x.to.revision+1};
-      tx.set(`sessions/${s.id}/accounts/${a.id}`,fromNext);tx.set(`sessions/${s.id}/accounts/${x.to.id}`,toNext);
-      writeLedger(tx,s.id,{id:newId,kind:'TRANSFER',at,actorUid:actor.uid,memo:x.result.memo,reason:'Paiement confirmé par le payeur',source:partyName(c),recipient:partyName(x.recipient),createdCurrency:0,removedCurrency:0,
-        entries:[{accountId:a.id,characterId:c.id,delta:-amount,before:moneyState(a),after:moneyState(fromNext)},{accountId:x.to.id,characterId:x.recipient.id,delta:amount,before:moneyState(x.to),after:moneyState(toNext)}]});
-      const result={id:newId,amount,recipient:partyName(x.recipient),currency:x.result.currency,account:moneyState(fromNext)};
+      const x=await preparePersonalPayment(tx,ctx,input);requireThat(x.result.confirmation===input.confirmation,'STALE_REVISION');
+      const result=settlePersonalPayment(tx,ctx,x,{id:newId,at,actorUid:actor.uid}),amount=result.amount;
       tx.set(`sessions/${s.id}/audit/${newId}`,{id:newId,action,at,actorUid:actor.uid,sourceId:c.id,recipientId:x.recipient.id,amount});
       tx.set(op,{fingerprint,result,guard,at});return result;
     });

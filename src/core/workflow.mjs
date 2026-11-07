@@ -1,8 +1,14 @@
+import {createTowingWorkService,towingWorkActions} from './space-towing-work.mjs';
+import {createHiddenCargoService,hiddenCargoActions} from './space-hidden-cargo.mjs';
+import {createModuleWorkService,moduleWorkActions} from './space-module-work.mjs';
+import {createModuleMandateService,moduleMandateActions} from './space-module-mandates.mjs';
+import {createBoardingCargoService,boardingCargoActions} from './space-boarding-cargo.mjs';
 import {createSoLearningService,soLearningActions} from './space-outlaws-learning.mjs';
 import {createSpaceOutlawsSuccessionService,spaceOutlawsSuccessionActions} from './space-outlaws-succession.mjs';
 import {rewardsOpen} from './space-outlaws-mission-rewards.mjs';
 import {createSpaceMaintenanceService,spaceMaintenanceActions} from './space-maintenance.mjs';
 import {createSpaceCombatService,spaceCombatActions} from './space-combat.mjs';
+import {createSpaceBoardingService,spaceBoardingActions} from './space-boarding.mjs';
 import {createSpaceRescueService,spaceRescueActions} from './space-rescue.mjs';
 import {createShopService,shopActions} from './shops.mjs';
 import {hasSoHealth,survival} from './space-outlaws-health-state.mjs';
@@ -122,6 +128,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     requireThat(c && (preview||c.assignedUid===actor.uid),'FORBIDDEN');
     requireThat(['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s.stage),'BRIEFING_CLOSED');
     requireThat(c.publicationState==='PUBLISHED' && c.public.publicationState==='PUBLISHED','CONTENT_UNPUBLISHED');
+    requireThat(!s.spaceOutlaws||!c.survival?.dead,'FORBIDDEN');
     requireThat(s.modules?.groups===true,'MODULE_DISABLED');
     const gid=documentId(input.groupId),g=await tx.get(`sessions/${sid}/groups/${gid}`);
     requireThat(groupVisible(g,cid),'FORBIDDEN');
@@ -154,10 +161,16 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     return record.mediaImages?.[slot]??null;
   }});
   const priceService=createPriceService({store,signed,checkSession,now,uuid});
+  const towingWorkService=createTowingWorkService({store,signed,checkSession,now,uuid});
+  const moduleWorkService=createModuleWorkService({store,signed,checkSession,now,uuid});
+  const moduleMandateService=createModuleMandateService({store,signed,checkSession,now,uuid});
   const spaceMaintenanceService=createSpaceMaintenanceService({store,signed,checkSession,now,uuid});
   const spaceCombatService=createSpaceCombatService({store,signed,checkSession,now,uuid,rollD6});
+  const boardingCargoService=createBoardingCargoService({store,signed,checkSession,now,uuid});
+  const spaceBoardingService=createSpaceBoardingService({store,signed,checkSession,now,uuid});
   const spaceRescueService=createSpaceRescueService({store,signed,checkSession,now,uuid});
   const voyageService=createVoyageService({store,signed,checkSession,now,uuid,rollD6});
+  const hiddenCargoService=createHiddenCargoService({store,signed,checkSession,now,uuid,rollD6});
   const cargoService=createCargoService({store,signed,checkSession,now,uuid});
   const logisticsService=createLogisticsService({store,signed,checkSession,now,uuid});
   const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,now,uuid});
@@ -198,10 +211,16 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(centralMasterAction(action))return centralMasterService(action,actor,input);
     if(groupManagementAction(action))return groupManagementService(action,actor,input);
     if(priceAction(action))return priceService(action,actor,input);
+    if(towingWorkActions.includes(action))return towingWorkService(action,actor,input);
+    if(moduleWorkActions.includes(action))return moduleWorkService(action,actor,input);
+    if(moduleMandateActions.includes(action))return moduleMandateService(action,actor,input);
     if(spaceMaintenanceActions.includes(action))return spaceMaintenanceService(action,actor,input);
     if(spaceCombatActions.includes(action))return spaceCombatService(action,actor,input);
+    if(boardingCargoActions.includes(action))return boardingCargoService(action,actor,input);
+    if(spaceBoardingActions.includes(action))return spaceBoardingService(action,actor,input);
     if(spaceRescueActions.includes(action))return spaceRescueService(action,actor,input);
     if(voyageAction(action))return voyageService(action,actor,input);
+    if(hiddenCargoActions.includes(action))return hiddenCargoService(action,actor,input);
     if(cargoAction(action))return cargoService(action,actor,input);
     if(logisticsAction(action))return logisticsService(action,actor,input);
     if(personAction(action))return personService(action,actor,input);
@@ -335,7 +354,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       const groups=character && s.modules?.groups===true ? await tx.list(`sessions/${sid}/groups`) : [];
       return {session:publicSession(s),registration:ownRegistration(r),character,economyEnabled:s.economyRules?.enabled===true,actionPoints:rawCharacter&&s.actionPointRules?.enabled?actionPointSummary(s,rawCharacter,await tx.get(actionPointPath(sid,rawCharacter.id)),at):null,health:healthSummary(s,rawCharacter,at),reason,gameTimeMs:gameTime(s.clock,at),
         globalLevel:character?(rawCharacter.globalLevel??1):null,...(character&&s.spaceOutlaws?.episodesVersion===1?{progression:{xp:rawCharacter.xp??0,earnedXp:rawCharacter.earnedXp??0,completedSessions:r?.progression?.completedSessions??0,pendingXp:r?.progression?.pendingXp??0}}:{}),playerRules:character?playerRules(s):null,
-        groups:groups.filter(g=>groupVisible(g,cid)).map(g=>groupSummary(g,cid))};
+        groups:groups.filter(g=>(!s.spaceOutlaws||!rawCharacter?.survival?.dead)&&groupVisible(g,cid)).map(g=>groupSummary(g,cid))};
     });
     signed(actor);
     // Invitation redemption deliberately refuses every second consumption.

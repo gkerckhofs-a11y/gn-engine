@@ -20,11 +20,12 @@ export function soShipProfile(model){
  const profile=spaceShipProfiles.find(p=>p.id===model?.profileId);requireThat(profile,'INVALID_SHIP');return {...profile};
 }
 const labels={SECURED:['Rencontre commerciale','Patrouille officielle','Appel de détresse','Retard de trois minutes','Surcharge de carburant','Alerte pirate sans interception'],DANGEROUS:['Renseignement commercial','Contrôle documentaire','Appel de détresse','Retard de cinq minutes','Module neutralisé','Menace pirate à préparer'],HOSTILE:['Balise abandonnée','Patrouille suspecte','Détresse potentiellement piégée','Retard de cinq minutes','Module neutralisé','Menace pirate à préparer']};
-export function soVoyageEvent(route,roll,tableRoll,fuel){
+export function soVoyageEvent(route,roll,tableRoll,fuel,module=null){
  requireThat([roll,tableRoll].every(n=>Number.isInteger(n)&&n>=1&&n<=6),'INVALID_ROLL');
  if(roll>route.eventFaces)return {roll,tableRoll:null,label:'Aucun événement',delaySeconds:0,fuelCost:0,fuelDebt:0,needsMJ:false};
- const delaySeconds=tableRoll===4?(route.riskId==='SECURED'?180:300):tableRoll===5&&route.riskId!=='SECURED'?300:0;
- // This release provisions bare ships only: no eligible module => +5 min.
+ const neutralizedModule=tableRoll===5&&route.riskId!=='SECURED'?module:null;
+ const delaySeconds=tableRoll===4?(route.riskId==='SECURED'?180:300):tableRoll===5&&route.riskId!=='SECURED'&&!neutralizedModule?300:0;
+ // With no eligible module, the same event becomes a five-minute delay.
  const cost=tableRoll===5&&route.riskId==='SECURED'?1:0;
- return {roll,tableRoll,label:labels[route.riskId][tableRoll-1]+(tableRoll===5&&route.riskId!=='SECURED'?' : aucun module admissible, retard de cinq minutes':''),delaySeconds,fuelCost:Math.min(fuel,cost),fuelDebt:Math.max(0,cost-fuel),needsMJ:tableRoll<=3||tableRoll===6&&route.riskId!=='SECURED'};
+ return {...(neutralizedModule?{neutralizedModule:{lotId:neutralizedModule.lotId,code:neutralizedModule.code,durationSeconds:900}}:{}),roll,tableRoll,label:labels[route.riskId][tableRoll-1]+(neutralizedModule?` : ${neutralizedModule.code}, quinze minutes` :tableRoll===5&&route.riskId!=='SECURED'?' : aucun module admissible, retard de cinq minutes':''),delaySeconds,fuelCost:Math.min(fuel,cost),fuelDebt:Math.max(0,cost-fuel),needsMJ:tableRoll<=3||tableRoll===6&&route.riskId!=='SECURED'};
 }

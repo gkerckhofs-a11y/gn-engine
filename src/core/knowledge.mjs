@@ -1,3 +1,4 @@
+import {createKnowledgeSalesService,knowledgeSaleActions} from './knowledge-sales.mjs';
 import {requireGameAction,canGameAction} from './health-state.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {abilityLevel} from './abilities.mjs';
@@ -39,9 +40,10 @@ export function seedKnowledge(tx,sid,knowledge,at){
 }
 const reads=new Set(['myKnowledge','previewKnowledge','knowledgeDetail','previewKnowledgeDetail','prepareKnowledgeShare','knowledgeHistory','knowledgeRecipients']);
 const mutations=new Set(['saveKnowledge','saveSessionKnowledge','grantKnowledge','discoverKnowledge','shareKnowledge','markKnowledgeRead']);
-export const knowledgeAction=action=>reads.has(action)||mutations.has(action);
+export const knowledgeAction=action=>reads.has(action)||mutations.has(action)||knowledgeSaleActions.includes(action);
 
 export function createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid}) {
+  const sales=createKnowledgeSalesService({store,signed,checkSession,now,uuid,knowledgeSnapshot});
   const context=async(tx,actor,input,preview=false)=>{
     signed(actor);const sid=documentId(input.sessionId);
     const s=preview?await checkSession(tx,actor,sid):await tx.get(`sessions/${sid}`);
@@ -77,6 +79,7 @@ export function createKnowledgeService({store,signed,checkSession,checkScenario,
     return {parent,base:`${scenario?'scenarios':'sessions'}/${id}`};
   };
   return async function dispatch(action,actor,input){
+    if(knowledgeSaleActions.includes(action))return sales(action,actor,input);
     signed(actor);const at=now();
     if(reads.has(action))return store.runTransaction(async tx=>{
       if(action==='knowledgeHistory'||action==='knowledgeRecipients'){

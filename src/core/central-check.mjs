@@ -21,7 +21,7 @@ import {admissionSettings,emptyAdmissionCounts} from './admission-state.mjs';
 import {centralWorkshops} from '../shared/central-workshops.mjs';
 import {centralImportContracts} from '../shared/central-import-schema.mjs';
 
-// Initial, empty-base drafts only. This report is not a publication consent.
+// This report is read-only and cannot authorize publication.
 export const centralCheckLimits={records:1809,inputBytes:16*1024*1024,reportBytes:4*1024*1024};
 const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
 const json=v=>JSON.stringify(canonical(v));
@@ -72,30 +72,15 @@ export function validateCentralChange(c,revision){
  }
  check(same(normalized,d));
 }
-export function centralDraftCheck({campaign,session,draft,changes,actorUid,authority=null,at}){
- requireThat(changes.length<=centralCheckLimits.records&&Buffer.byteLength(JSON.stringify(changes))<=centralCheckLimits.inputBytes,'CENTRAL_CHECK_LIMIT');
- const revision=draft?.revision??0,ordered=[...changes].sort((a,b)=>safe(a?.id).localeCompare(safe(b?.id),'en')),valid=[],diagnostics=[],invalid=new Set(),seen=new Set(),counts={};
- const add=(c,code,message,field='')=>diagnostics.push({...location(c,field),code,message,reference:null});
- for(const c of ordered){
-  try{validateCentralChange(c,revision);check(!seen.has(c.id));seen.add(c.id);counts[c.type]=(counts[c.type]??0)+1;check(counts[c.type]<=limits[c.type]);valid.push(c);}
-  catch(e){invalid.add(safe(c?.id));add(c,'INVALID_RECORD',`Définition ou provenance incohérente (${safe(e.code)||'structure'}). Corriger la source avant de poursuivre.`);}
- }
- // A duplicated ID cannot serve as a valid target, even if its first row passed.
- const records=valid.filter(c=>!invalid.has(c.id)),items=records.filter(c=>c.type==='item');
- const kitDiagnostics=centralClassKitProjection(records).diagnostics;
- const initial=centralInitialCoherence(records,invalid,kitDiagnostics);
- const referenceDiagnostics=[...centralFieldTargetProjection(records,items).diagnostics,...centralGroupProjection(records).diagnostics,...centralSpaceProjection(records,records).diagnostics,...centralMissionProjection(records,records,records,records).diagnostics,...kitDiagnostics,...centralCharacterProjection(records).diagnostics,...centralRecipeProjection(records,items,records).diagnostics,...centralKnowledgeProjection(records,records).diagnostics,...centralShopProjection(records,items,records.filter(c=>c.type==='character'),records).diagnostics,...initial.diagnostics];
- for(const d of referenceDiagnostics){
-   const c=records.find(c=>c.entityId===d.entityId&&c.workshop===d.workshop&&(!d.entityType||c.type===d.entityType)),target=d.field==='creationPlan.speciesId'?'speciesCatalogue_player':`${d.referenceType??(d.workshop==='M2'?'character':'item')}_${d.reference}`;
-  diagnostics.push({...location(c,d.field),...d,...(d.code==='REFERENCE_MISSING'&&invalid.has(target)?{code:'REFERENCE_INVALID',message:'Corriger la définition cible incohérente dans son atelier.'}:{})});
- }
- const edges=[];
+function centralEdges(records,invalid){
+ const edges=[],byId=new Map(records.map(c=>[c.id,c]));
+ const species=new Set(byId.get('speciesCatalogue_player')?.data.map(s=>s.id));
  const edge=(c,field,type,id)=>{
   if(type==='species'){
-   const catalogue=records.find(t=>t.id==='speciesCatalogue_player'),exists=catalogue?.data.some(s=>s.id===id);
+   const exists=species.has(id);
    edges.push({from:{workshop:c.workshop,type:c.type,id:c.entityId},field,to:{type,id,workshop:'M2'},status:invalid.has('speciesCatalogue_player')?'INVALID':exists?'RESOLVED':'MISSING'});return;
   }
-  if(!id)return;const target=records.find(t=>t.type===type&&t.entityId===id),supported=Object.hasOwn(owners,type);
+  if(!id)return;const target=byId.get(`${type}_${id}`),supported=Object.hasOwn(owners,type);
   edges.push({from:{workshop:c.workshop,type:c.type,id:c.entityId},field,to:{type,id,workshop:owners[type]??null},status:!supported?'NOT_CHECKED':invalid.has(`${type}_${id}`)?'INVALID':!target?'MISSING':target.operation==='ARCHIVE'?'ARCHIVED':'RESOLVED'});
  };
  for(const c of records.filter(c=>c.operation==='UPSERT')){
@@ -116,21 +101,79 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
    for(const [field,type] of [['skillId','skill'],['effectId','effect'],['laboratoryTargetId','fieldTarget'],['unlockKnowledgeId','knowledge']])edge(c,field,type,c.data[field]);
   }
  }
- const diff=records.map(c=>({id:c.entityId,type:c.type,workshop:c.workshop,name:c.type==='character'?c.data.public.displayName:c.type==='speciesCatalogue'?'Catalogue narratif des espèces':['knowledge','mission','fieldTarget'].includes(c.type)?c.data.title:c.data.name,
-  operation:c.operation==='ARCHIVE'?'EXCLUDED':'ADD',contentRevision:c.data[revisionKey(c.type)]??null,location:location(c),
-  fields:c.type==='speciesCatalogue'?['species']:Object.keys(c.data).filter(k=>!['id','revision','contentRevision'].includes(k)).sort(),
+ return edges;
+}
+function compareEdges(before,after){
+ const key=e=>JSON.stringify([e.from.type,e.from.id,e.field,e.to.type,e.to.id]);
+ const pending=new Map(before.map(e=>[key(e),e])),changes=[];
+ for(const edge of after){
+  const id=key(edge),old=pending.get(id);
+  if(old?.status!==edge.status)changes.push({...edge,previousStatus:old?.status??null});
+  pending.delete(id);
+ }
+ for(const edge of pending.values())changes.push({...edge,previousStatus:edge.status,status:null});
+ return changes;
+}
+function describe(c,operation,fields){
+ return {id:c.entityId,type:c.type,workshop:c.workshop,name:c.type==='character'?c.data.public.displayName:c.type==='speciesCatalogue'?'Catalogue narratif des espèces':['knowledge','mission','fieldTarget'].includes(c.type)?c.data.title:c.data.name,
+  operation,contentRevision:c.data[revisionKey(c.type)]??null,location:location(c),
+  fields,
   privateFields:c.type==='fieldTarget'?['description','gmNotes','profiles','rewards']:c.type==='group'?['briefing','gmNotes','members']:centralSpaceTypes.includes(c.type)?['description','gmNotes',...(c.type==='shipModel'?[]:['navigationCode'])]:c.type==='mission'?['description','gmNotes','steps','conditions','proofExpected']:c.type==='knowledge'?['body','gmTruth','gmNotes','initialCharacterIds','qrCharacterIds']:c.type==='character'?['biography','roleplay','playerSecrets','gmNotes','objectives','relations',...(c.data.creationPlan?['creationPlan']:[])]:c.type==='speciesCatalogue'?[]:['gmNotes'],
-  publicAccessCreated:false,resourcesCreated:false}));
- const remainingChecks=[
+  publicAccessCreated:false,resourcesCreated:false};
+}
+export function centralDraftCheck({campaign,session,draft,changes,actorUid,authority=null,at,base=null}){
+ const inherited=base?.changes??[];
+ requireThat(changes.length<=centralCheckLimits.records&&inherited.length<=centralCheckLimits.records
+  &&Buffer.byteLength(JSON.stringify(changes))+(base?Buffer.byteLength(JSON.stringify(inherited)):0)<=centralCheckLimits.inputBytes,'CENTRAL_CHECK_LIMIT');
+ const editIds=new Set(changes.map(c=>c?.id)),effective=base?[...inherited.filter(c=>!editIds.has(c?.id)),...changes]:changes;
+ requireThat(effective.length<=centralCheckLimits.records,'CENTRAL_CHECK_LIMIT');
+ const revision=draft?.revision??0,ordered=[...effective].sort((a,b)=>safe(a?.id).localeCompare(safe(b?.id),'en')),valid=[],diagnostics=[],invalid=new Set(),seen=new Set(),counts={};
+ const add=(c,code,message,field='')=>diagnostics.push({...location(c,field),code,message,reference:null});
+ for(const c of ordered){
+  try{validateCentralChange(c,base&&!editIds.has(c?.id)?base.header.draftRevision:revision);check(!seen.has(c.id));seen.add(c.id);counts[c.type]=(counts[c.type]??0)+1;check(counts[c.type]<=limits[c.type]);valid.push(c);}
+  catch(e){invalid.add(safe(c?.id));add(c,'INVALID_RECORD',`Définition ou provenance incohérente (${safe(e.code)||'structure'}). Corriger la source avant de poursuivre.`);}
+ }
+ // A duplicated ID cannot serve as a valid target, even if its first row passed.
+ const records=valid.filter(c=>!invalid.has(c.id)),items=records.filter(c=>c.type==='item');
+ const kitDiagnostics=centralClassKitProjection(records).diagnostics;
+ const initial=centralInitialCoherence(records,invalid,kitDiagnostics);
+ const referenceDiagnostics=[...centralFieldTargetProjection(records,items).diagnostics,...centralGroupProjection(records).diagnostics,...centralSpaceProjection(records,records).diagnostics,...centralMissionProjection(records,records,records,records).diagnostics,...kitDiagnostics,...centralCharacterProjection(records).diagnostics,...centralRecipeProjection(records,items,records).diagnostics,...centralKnowledgeProjection(records,records).diagnostics,...centralShopProjection(records,items,records.filter(c=>c.type==='character'),records).diagnostics,...initial.diagnostics];
+ for(const d of referenceDiagnostics){
+   const c=records.find(c=>c.entityId===d.entityId&&c.workshop===d.workshop&&(!d.entityType||c.type===d.entityType)),target=d.field==='creationPlan.speciesId'?'speciesCatalogue_player':`${d.referenceType??(d.workshop==='M2'?'character':'item')}_${d.reference}`;
+  diagnostics.push({...location(c,d.field),...d,...(d.code==='REFERENCE_MISSING'&&invalid.has(target)?{code:'REFERENCE_INVALID',message:'Corriger la définition cible incohérente dans son atelier.'}:{})});
+ }
+ const edges=centralEdges(records,invalid);
+ const baseline=new Map(),invalidBase=new Set();
+ for(const c of inherited){
+  try{validateCentralChange(c,base.header.draftRevision);check(!baseline.has(c.id));baseline.set(c.id,c);}
+  catch{invalidBase.add(safe(c?.id));}
+ }
+ const diff=records.flatMap(c=>{
+  const previous=baseline.get(c.id);
+  const fields=c.type==='speciesCatalogue'?['species']:[...new Set([...Object.keys(c.data),...Object.keys(previous?.data??{})])].filter(k=>!['id','revision','contentRevision'].includes(k)&&(!base||k!=='masterArchived')).sort();
+  if(!base)return [describe(c,c.operation==='ARCHIVE'?'EXCLUDED':'ADD',fields)];
+  if(!editIds.has(c.id))return [];
+  const changed=previous?fields.filter(k=>!same(c.type==='speciesCatalogue'?c.data:c.data[k],c.type==='speciesCatalogue'?previous.data:previous.data[k])):fields;
+  if(previous?.operation===c.operation&&!changed.length)return [];
+  const operation=c.operation==='ARCHIVE'?(previous?.operation==='UPSERT'?'ARCHIVE':'EXCLUDED'):previous?.operation==='ARCHIVE'?'RESTORE':previous||invalidBase.has(c.id)?'UPDATE':'ADD';
+  const row=describe(c,operation,changed);
+  const visibilityFields=changed.filter(k=>['visibility','public','shareMode','initialCharacterIds','members','relations','objectives'].includes(k));
+  return [{...row,privateFields:row.privateFields.filter(k=>changed.includes(k)),visibilityFields,qrFields:changed.filter(k=>k.startsWith('qr'))}];
+ });
+ const referenceChanges=base?compareEdges(centralEdges([...baseline.values()].filter(c=>!invalidBase.has(c.id)),invalidBase),edges):[];
+ const remainingChecks=base?[
+  {code:'RUNTIME_IMPACTS_PENDING',message:'Le contrôle des compétences et effets signalés comme non vérifiés, ainsi que les impacts sur les QR actifs, les droits de session, les budgets, les caisses, les stocks et les instances de jeu restent à compléter.'},
+  {code:'PUBLICATION_PENDING',message:'La publication et le retour de version restent à raccorder.'},
+ ]:[
   {code:'RULE_PROFILE_PENDING',message:'Raccordement complet du profil canonique V0.7, des classes, compétences, effets, dotations et liens courants entre admissions et incarnations à terminer.'},
   {code:'OTHER_DOMAINS_PENDING',message:'Autres contenus M1/M2/M3/M5/M6/M7, instances spatiales, rencontres, événements, médias, conformité des lieux/actions, QR, habilitations des vendeurs, caisses, stocks, tarifs de jeu et impacts à compléter.'},
   {code:'PUBLICATION_PENDING',message:'Version immuable, reprise de construction, contrôle du parent et activation globale à développer. Ce rapport ne vaut pas autorisation de publier.'},
  ];
- const report={schemaVersion:1,scope:'INITIAL_DRAFT_PREPARATION',campaign:{id:campaign.id,title:campaign.title},draft:{id:'initial',revision,baseVersionId:null,basePointerRevision:0},checkedAt:at,
+ const report={schemaVersion:1,scope:base?'REVISION_DRAFT_PREPARATION':'INITIAL_DRAFT_PREPARATION',campaign:{id:campaign.id,title:campaign.title},draft:{id:draft?.id??'initial',revision,baseVersionId:draft?.baseVersionId??null,basePointerRevision:draft?.basePointerRevision??0},checkedAt:at,
   authority:authority?{kind:authority.kind,revision:authority.revision}:null,
-  fingerprint:hash({schema:15,actorUid,authority,campaign:{id:campaign.id,revision:campaign.revision,master:campaign.master??null,ruleProfile:campaign.ruleProfile,ownerUid:campaign.ownerUid},session:{id:session.id,revision:session.revision},draft:draft??null,changes:ordered}),
+  fingerprint:hash({schema:base?16:15,actorUid,authority,campaign:{id:campaign.id,revision:campaign.revision,master:campaign.master??null,ruleProfile:campaign.ruleProfile,ownerUid:campaign.ownerUid},...(base?{base:base.header.manifestDigest}:{session:{id:session.id,revision:session.revision}}),draft:draft??null,changes:ordered,...(base?{edits:changes.map(c=>safe(c?.id)).sort()}:{})}),
   status:diagnostics.length?'CORRECTIONS_REQUIRED':'NO_DETECTED_ERROR',publicationAvailable:false,remainingChecks,
-  workshops:centralWorkshops.map(w=>({id:w.id,label:w.label,coverage:'PARTIAL',active:records.filter(c=>c.workshop===w.id&&c.operation==='UPSERT').length,archived:records.filter(c=>c.workshop===w.id&&c.operation==='ARCHIVE').length})),
-  totals:{records:changes.length,valid:records.length,invalid:changes.length-records.length,diagnostics:diagnostics.length,references:edges.length},initialPreparation:initial.summary,diff,edges,diagnostics};
+  workshops:centralWorkshops.map(w=>({id:w.id,label:w.label,coverage:'PARTIAL',active:records.filter(c=>c.workshop===w.id&&c.operation==='UPSERT').length,archived:records.filter(c=>c.workshop===w.id&&c.operation==='ARCHIVE').length,...(base?{changes:diff.filter(c=>c.workshop===w.id).length,referenceChanges:referenceChanges.filter(e=>e.from.workshop===w.id).length}:{})})),
+  totals:{records:effective.length,valid:records.length,invalid:effective.length-records.length,diagnostics:diagnostics.length,references:edges.length},initialPreparation:initial.summary,diff,edges,diagnostics,...(base?{referenceChanges}:{})};
  requireThat(Buffer.byteLength(JSON.stringify(report))<=centralCheckLimits.reportBytes,'CENTRAL_CHECK_LIMIT');return report;
 }

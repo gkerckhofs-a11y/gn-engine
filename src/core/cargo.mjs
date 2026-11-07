@@ -1,3 +1,6 @@
+import {hasHiddenCargo} from './space-hidden-cargo.mjs';
+import {readBoardingCustody} from './space-boarding-custody.mjs';
+import {reserveCargoBatch,finishCargoBatch} from './cargo-batches.mjs';
 import {hasSoTransport,transportView,transportCargoAccess,transportPlaceAllowed} from './space-transport.mjs';
 import {participantAccess} from './mission-parties.mjs';
 import {admissionKeys} from './admission-state.mjs';
@@ -22,7 +25,7 @@ const ownerOf=l=>({type:l.ownerType??'CHARACTER',id:l.ownerId});
 const sameOwner=(a,b)=>a.type===b.type&&a.id===b.id;
 const state=l=>({quantity:l.quantity,status:l.status,revision:l.revision,ownerType:l.ownerType??'CHARACTER',ownerId:l.ownerId,holderId:l.holderId,location:l.location});
 const locationInput=v=>{requireThat(v&&['CHARACTER','WAREHOUSE','HOLD','SHOP','PORT'].includes(v.kind),'INVALID_DESTINATION');return {kind:v.kind,id:documentId(v.id)};};
-const publicTransfer=t=>({...Object.fromEntries(['id','status','revision','lotId','name','quantity','volume','source','destination','sourceName','destinationName','at','closedAt'].filter(k=>t[k]!==undefined).map(k=>[k,t[k]])),clearance:publicClearance(t.clearance),feeReceipt:t.feeReceipt??null});
+const publicTransfer=t=>({...Object.fromEntries(['id','status','revision','lotId','name','quantity','volume','source','destination','sourceName','destinationName','at','closedAt'].filter(k=>t[k]!==undefined).map(k=>[k,t[k]])),...(t.boardingContext?{boardingContext:{combatId:t.boardingContext.combatId,boardingId:t.boardingContext.boardingId}}:{}),clearance:publicClearance(t.clearance),feeReceipt:t.feeReceipt??null});
 
 export function createCargoService({store,signed,checkSession,now,uuid}){
  return async(action,actor,input)=>{
@@ -107,7 +110,7 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
      if(!terms||terms.toPort!==port.id||contract.acceptedAt==null||!admin&&!await participantAccess(tx,s,ctx,actor,contract))continue;
      const evidence=await transportView(tx,s,contract),lots=[],transfers=[];
      for(const l of evidence.lots){
-      if(l.location.kind!=='HOLD'||l.quantity<=0)continue;
+      if(l.location.kind!=='HOLD'||l.quantity<=0||l.boardingCustody)continue;
       const lot=await readLot(tx,sid,l.id,at),source=await visibleLot(lot),dest=await place({kind:'PORT',id:port.id});
       lots.push({lot:publicLot(lot),canMove:canMove&&source.withdraw&&dest.deposit&&lot.status==='AVAILABLE'});
      }
@@ -118,9 +121,10 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
     return {session:{id:sid,stage:s.stage,spaceOutlaws:true},admin,port:{id:port.id,name:port.name},contracts};
    }
    if(action==='cargoAdmin'){
-    const characters=await tx.list(`${base}/characters`),ships=await tx.list(`${base}/ships`),rows=[];
+    const characters=await tx.list(`${base}/characters`),ships=await tx.list(`${base}/ships`),cargoTransfers=await tx.list(`${base}/cargoTransfers`),rows=[];
     for(const ship of ships){const p=await place({kind:'HOLD',id:ship.id});rows.push({...ship,used:p.used,incoming:p.incoming});}
-    return {session:{id:sid,revision:s.revision,stage:s.stage,...(so?{spaceOutlaws:true}:{})},ships:rows,...(hasSoTransport(s)?{deliveryPorts:(await tx.list(`${base}/ports`)).filter(p=>p.versionId===s.spaceOutlaws.versionId).map(p=>({id:p.id,name:p.name}))}:{}),transportRules:s.transportRules??null,items:await tx.list(`${base}/items`),routes:await tx.list(`${base}/routes`),owners:[...characters.map(c=>({type:'CHARACTER',id:c.id,name:c.public.displayName})),...allGroups.map(g=>({type:'GROUP',id:g.id,name:g.name}))],transfers:(await tx.list(`${base}/cargoTransfers`)).filter(t=>t.status==='LOADING').map(publicTransfer)};
+    const boardingCustody=await readBoardingCustody(tx,s,time,{characters,ships,cargoTransfers});
+    return {...(hasHiddenCargo(s)?{customsReady:true}:{}),session:{id:sid,revision:s.revision,stage:s.stage,...(so?{spaceOutlaws:true}:{})},ships:rows,...(boardingCustody?{boardingCustody}:{}),...(hasSoTransport(s)?{deliveryPorts:(await tx.list(`${base}/ports`)).filter(p=>p.versionId===s.spaceOutlaws.versionId).map(p=>({id:p.id,name:p.name}))}:{}),transportRules:s.transportRules??null,items:await tx.list(`${base}/items`),routes:await tx.list(`${base}/routes`),owners:[...characters.map(c=>({type:'CHARACTER',id:c.id,name:c.public.displayName})),...allGroups.map(g=>({type:'GROUP',id:g.id,name:g.name}))],transfers:cargoTransfers.filter(t=>t.status==='LOADING').map(publicTransfer)};
    }
    if(action==='saveShip'){
     requireThat(input.revision===s.revision,'STALE_REVISION');const id=input.shipId?documentId(input.shipId):eventId,old=await tx.get(`${base}/ships/${id}`);
@@ -141,11 +145,11 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
    if(action==='myCargo'){
     const holds=[];for(const ship of await tx.list(`${base}/ships`)){const p=await place({kind:'HOLD',id:ship.id});if(p.read||p.deposit||p.withdraw||p.pilot)holds.push({...viewPlace(p),docked:ship.docked,enabled:ship.enabled,portId:ship.portId??null,inTransit:!!ship.journey,local:local(ship)});}
     const transfers=[];for(const t of await tx.list(`${base}/cargoTransfers`)){if(t.status!=='LOADING'||t.destination.kind==='CHARACTER'&&t.destination.id!==c.id)continue;if(t.transportContractId&&t.characterId!==c.id)continue;transport=t.transportContractId?await transportCargoAccess(tx,s,await readLot(tx,sid,t.lotId,at),c.id):null;const p=await place(t.destination);if(p.read)transfers.push(publicTransfer(t));transport=null;}
-    return {session:{id:sid,stage:s.stage,...(so?{spaceOutlaws:true}:{})},holds,transfers};
+    return {...(hasHiddenCargo(s)&&c.customsAuthorization?.level>=1?{customsReady:true}:{}),session:{id:sid,stage:s.stage,...(so?{spaceOutlaws:true}:{})},holds,transfers};
    }
    if(action==='shipHold'){
     const p=await place({kind:'HOLD',id:documentId(input.shipId)});requireThat(p.read||p.deposit||p.withdraw||p.pilot,'FORBIDDEN');
-    return {session:{id:sid,stage:s.stage,...(so?{spaceOutlaws:true}:{})},hold:{...viewPlace(p),description:p.record.description,docked:p.record.docked,enabled:p.record.enabled,local:local(p.record),portId:p.record.portId??null,inTransit:!!p.record.journey},stock:p.read?p.stock.map(publicLot):[],canRead:p.read};
+    return {session:{id:sid,stage:s.stage,...(so?{spaceOutlaws:true}:{})},hold:{...viewPlace(p),...(hasHiddenCargo(s)&&p.record.ownerType==='CHARACTER'&&p.record.ownerId===c.id&&p.record.modules?.some(m=>m.code==='MOD-04')?{hiddenCargoReady:true}:{}),description:p.record.description,docked:p.record.docked,enabled:p.record.enabled,local:local(p.record),portId:p.record.portId??null,inTransit:!!p.record.journey},stock:p.read?p.stock.map(publicLot):[],canRead:p.read};
    }
    if(action==='cargoLot'){
     const lot=await readLot(tx,sid,documentId(input.lotId),at),p=await visibleLot(lot);
@@ -161,15 +165,10 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
     const view={lotId:lot.id,name:lot.item.name,quantity,volume,source:viewPlace(source),destination:viewPlace(dest),remaining:lot.quantity-quantity,clearance:publicClearance(clearance),...(so?{durationSeconds:180,maxVolume:5}:{})};
     const confirmation=hash(JSON.stringify([sid,guard,lot,source.record,dest.record,clearance,view,s.healthRules]));
     if(action==='prepareCargoTransfer')return {...view,confirmation};requireThat(input.confirmation===confirmation,'STALE_REVISION');if(so)requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');
-    const entire=quantity===lot.quantity,id=entire?lot.id:eventId,reserved={...lot,id,quantity,status:'CARGO_RESERVED',cargoTransferId:eventId,revision:entire?lot.revision+1:1,...(!entire?{createdAt:at,origin:{kind:'CARGO_SPLIT',parentLotId:lot.id,rootLotId:lot.origin?.rootLotId??lot.id}}:{})};
-    const remaining=entire?reserved:{...lot,quantity:lot.quantity-quantity,revision:lot.revision+1};
-    const transfer={id:eventId,status:'LOADING',revision:1,lotId:id,originalLotId:lot.id,name:lot.item.name,quantity,volume,source:source.location,destination:dest.location,sourceName:source.name,destinationName:dest.name,owner:ownerOf(lot),at,actorUid:actor.uid,characterId:c.id,clearance,...(transport?{transportContractId:transport.c.id}:{}),...(so?{actorVersion:ctx.version,readyAtGameMs:time+180000}:{} )};
-    const event={id:eventId,kind:'CARGO_LOADING',at,actorUid:actor.uid,name:lot.item.name,quantity,transferId:eventId,before:state(lot),after:state(remaining),movedLotId:id,reserved:state(reserved)};
-    tx.set(`${base}/inventory/${lot.id}`,remaining);tx.set(`${base}/inventory/${lot.id}/history/${eventId}`,event);
-    if(!entire){tx.set(`${base}/inventory/${id}`,reserved);tx.set(`${base}/inventory/${id}/history/${eventId}`,{...event,before:null,after:state(reserved)});}
-    tx.set(`${base}/cargoTransfers/${eventId}`,transfer);if(so)tx.set(`${base}/characters/${c.id}`,{...c,activeCargoId:eventId});bump(source);bump(dest);return audit({id:eventId,lotId:id,status:'LOADING'},event);
+    const transfer={id:eventId,status:'LOADING',revision:1,name:lot.item.name,quantity,volume,source:source.location,destination:dest.location,sourceName:source.name,destinationName:dest.name,owner:ownerOf(lot),at,actorUid:actor.uid,characterId:c.id,clearance,...(transport?{transportContractId:transport.c.id}:{}),...(so?{actorVersion:ctx.version,readyAtGameMs:time+180000}:{} )};
+    const batch=reserveCargoBatch(tx,sid,{lot,quantity,transfer,id:eventId,at,actorUid:actor.uid});if(so)tx.set(`${base}/characters/${c.id}`,{...c,activeCargoId:eventId});bump(source);bump(dest);return audit(batch.result,batch.event);
    }
-   const t=await tx.get(`${base}/cargoTransfers/${documentId(input.transferId)}`);requireThat(t,'CARGO_UNAVAILABLE');
+   const t=await tx.get(`${base}/cargoTransfers/${documentId(input.transferId)}`);requireThat(t,'CARGO_UNAVAILABLE');requireThat(!t.boardingContext,'BOARDING_CARGO_REGIE');
    const {lot,source,dest,baseConfirmation,feeTotal,canReceive,canCancel,view}=await transferState(t);
    if(action==='cargoTransfer')return view;
    requireThat(t.status==='LOADING'&&lot?.status==='CARGO_RESERVED'&&lot.cargoTransferId===t.id&&lot.quantity===t.quantity&&same(lot.location,t.source)&&sameOwner(ownerOf(lot),t.owner),'CARGO_TRANSFER_CLOSED');
@@ -183,14 +182,11 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
    if(action==='prepareCargoReceipt')return {session:{id:sid},transfer:publicTransfer(t),...(payment?payment.result:{fees:publicClearance(t.clearance),payer:null}),confirmation};
    if(!admin)requireThat(input.confirmation===confirmation,'STALE_REVISION');
    if(receive)requireThat(input.received===true,'CARGO_RECEIPT_REQUIRED');
-   const next={...lot,status:'AVAILABLE',cargoTransferId:null,location:receive?dest.location:source.location,revision:lot.revision+1,...(receive&&transport&&dest.location.kind==='PORT'?{transportDelivered:true,transportDeliveredGameMs:time}:{})};
    const feeReceipt=payment?settleCargoFees(tx,s,{...t,receivedByCharacterId:c.id},payment,paymentFrom,at,eventId,actor):null;
-   const closed={...t,status:receive?'RECEIVED':'CANCELLED',closedAt:at,closedBy:actor.uid,revision:t.revision+1,...(feeReceipt?{feeReceipt}:{})};
    const reason=admin?moneyText(input.reason):receive?'Réception à destination confirmée':'Chargement annulé ; biens conservés à la source';
-   const event={id:eventId,kind:receive?'CARGO_RECEIVED':'CARGO_CANCELLED',at,actorUid:actor.uid,name:t.name,quantity:t.quantity,transferId:t.id,before:state(lot),after:state(next),reason};
    if(so){const mover=await tx.get(`${base}/characters/${t.characterId}`);requireThat(mover?.activeCargoId===t.id,'CARGO_TRANSFER_CLOSED');tx.set(`${base}/characters/${mover.id}`,{...mover,activeCargoId:null});}
-   tx.set(`${base}/inventory/${lot.id}`,next);tx.set(`${base}/inventory/${lot.id}/history/${eventId}`,event);tx.set(`${base}/cargoTransfers/${t.id}`,closed);bump(source);bump(dest);
-   return audit({id:t.id,lotId:lot.id,status:closed.status,...(feeReceipt?{feeReceipt}:{})},event);
+   const batch=finishCargoBatch(tx,sid,{lot,transfer:t,receive,id:eventId,at,actorUid:actor.uid,reason,feeReceipt,patch:receive&&transport&&t.destination.kind==='PORT'?{transportDelivered:true,transportDeliveredGameMs:time}:{}});bump(source);bump(dest);
+   return audit(batch.result,batch.event);
   });
  };
 }

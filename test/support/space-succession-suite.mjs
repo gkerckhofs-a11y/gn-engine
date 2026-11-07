@@ -9,8 +9,8 @@ import {initialClassKit} from '../../src/shared/initial-class-kit.mjs';
 import {centralTestItem} from './central-master-suite.mjs';
 const hash=v=>createHash('sha256').update(v).digest('hex');
 export const successorProposal={firstName:'Cora',lastName:'Relève',speciesId:'species-test',classId:'COM',secondaryId:'MED-02',background:'Une nouvelle histoire privée.',friends:''};
-export async function successionFixture(makeStore,{helper=false,dead=true}={}){
- const f=await actionsFixture(makeStore,{helper,release:false});
+export async function successionFixture(makeStore,{helper=false,dead=true,friends,otherFriends}={}){
+ const f=await actionsFixture(makeStore,{helper,release:false,friends,otherFriends});
  const bindings=[];for(const slot of initialClassKit('ROG').slots){const itemId=`rog_${slot.id}`;bindings.push({slotId:slot.id,itemId});const d=await f.view();await f.cc('saveCentralItem',{itemId,itemRevision:0,draftRevision:d.draft.revision,item:{...centralTestItem,name:slot.label,kind:slot.requiresConsumable?'STACKABLE':'INDIVIDUAL',consumable:slot.requiresConsumable},reason:'Kit publié pour la relève'});}
  await f.cc('saveCentralClassKit',{classKitId:'ROG',classKitRevision:0,draftRevision:(await f.view()).draft.revision,classKit:{bindings,gmNotes:''},reason:'Kit publié pour la relève'});
  for(const [id,name] of [['reserve','Dana Réserve'],['reserve2','Eli Réserve']]){const d=await f.view();await f.cc('saveCentralCharacter',{characterId:id,characterRevision:0,draftRevision:d.draft.revision,character:{...centralTestCharacter,displayName:name,nature:'HUMANOID',creationPlan:{classId:'COM',speciesId:'species-test',secondaryId:'MED-02'},objectives:[],relations:[]},reason:'Réserve jamais incarnée'});}

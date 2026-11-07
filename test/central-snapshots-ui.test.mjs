@@ -21,7 +21,17 @@ test('Instantanés centraux UI : commandes réservées au propriétaire et lectu
 });
 test('Instantanés centraux UI : téléchargement relu par API et réponses tardives écartées',()=>{
  const source=readFileSync(new URL('../web/app.mjs',import.meta.url),'utf8');
- assert.match(source,/if\(a==='centralSnapshotDownload'\)\{const d=await api\('centralSnapshot',\{campaignId:b.dataset.cid,snapshotId:b.dataset.id\}\);if\(actionVersion!==routeVersion\)return;/);
- assert.match(source,/if\(v.confirmed!=='on'\)return;const d=await mutate\('captureCentralSnapshot',\{campaignId:form.dataset.cid,draftRevision:Number\(form.dataset.draft\),confirmation:form.dataset.confirmation,reason:v.reason\}\);if\(submitVersion!==routeVersion\)return;/);
+ assert.match(source,/if\(a==='centralSnapshotDownload'\)\{const d=await api\('centralSnapshot',\{campaignId:b.dataset.cid,snapshotId:b.dataset.id,\.\.\.\(b.dataset.draftId\?\{draftId:b.dataset.draftId\}:\{\}\)\}\);if\(actionVersion!==routeVersion\)return;/);
+ assert.match(source,/if\(v.confirmed!=='on'\)return;const d=await mutate\('captureCentralSnapshot',\{campaignId:form.dataset.cid,draftRevision:Number\(form.dataset.draft\),confirmation:form.dataset.confirmation,reason:v.reason,\.\.\.\(form.dataset.draftId\?\{draftId:form.dataset.draftId\}:\{\}\)\}\);if\(submitVersion!==routeVersion\)return;/);
  assert.match(source,/if\(render.current\(\)\)render\(snapshotId\?centralSnapshotUi.detail\(d\)\+centralCheckUi.page\(d.report\)/);
+});
+
+test('Instantanés centraux UI : aperçu, liste et téléchargement gardent le brouillon Vn+1',async()=>{
+ const f=await centralSnapshotsFixture(()=>new MemoryStore()),d=await f.view(),draftId='revision-1';
+ const preview=await f.preview(),out=await f.capture(preview),saved=await f.saved(out.id);
+ const revised={...d,draft:{...d.draft,id:draftId,baseVersionId:'v1',pointerRevision:1}};
+ assert.match(createCentralUi(helpers).page(revised),new RegExp(`central-snapshots/${d.campaign.id}/${draftId}`));
+ assert.match(ui.preview({...preview,draftId}),/data-draft-id="revision-1"/);
+ assert.match(ui.list({...await f.list(),draftId}),new RegExp(`central-snapshot/${d.campaign.id}/${out.id}/${draftId}`));
+ assert.match(ui.detail({...saved,header:{...saved.header,source:{...saved.header.source,draftId,baseVersionId:'v1'}}}),/data-draft-id="revision-1"/);
 });

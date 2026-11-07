@@ -14,7 +14,7 @@ test('M5 central UI : lecture échappée, actions restreintes et export autoris�
 test('M5 central UI : formulaires typés, motif, révisions et aucune ressource',()=>{
  const h=ui.shopForm(d,'same',shop),o=ui.offerForm(d,'same',offer);assert.match(h,/data-form="centralShop"/);assert.match(o,/data-form="centralOffer"/);
  for(const form of [h,o]){assert.match(form,/data-id="same"/);assert.match(form,/data-draft="6"/);assert.match(form,/name="reason"[^>]+required/);assert.doesNotMatch(form,/name="(publicationState|published|stock|quantity|accountId|sellerUid|role|publicCode)"/);}
- assert.match(h,/data-revision="3"/);assert.match(o,/data-revision="2"/);assert.match(h,/value="seller"/);assert.match(o,/value="item"/);assert.match(ui.offerForm(d,'new'),/data-revision="0"/);assert.match(ui.offerForm(d,'new'),/name="unitPrice"[^>]*value=""/);assert.match(ui.offerForm(d,'new'),/Aucun tarif n’est imposé/);
+ assert.match(h,/data-revision="3"/);assert.match(o,/data-revision="2"/);assert.match(h,/value="seller"/);assert.match(o,/value="item"/);assert.match(ui.offerForm(d,'new'),/data-revision="0"/);assert.match(ui.offerForm(d,'new'),/name="unitPrice"[^>]*value=""/);assert.match(ui.offerForm(d,'new'),/tarif canonique de son gabarit/);
 });
 test('M5 central UI : suggestions minimales avec provenance et état des références',()=>{
  const data={...d,references:{...d.references,itemsReadable:true,charactersReadable:true,items:[{id:'item',name:'<i>Objet</i>',revision:4,source:'XLSX',archived:true}],characters:[{id:'seller',name:'<i>Vendeur</i>',revision:2,source:'WEB',archived:false}]}},o=ui.offerForm(data,'same',offer),s=ui.shopForm(data,'same',shop);

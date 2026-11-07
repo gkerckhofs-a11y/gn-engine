@@ -97,4 +97,17 @@ export function spaceConvoySuite(makeStore,prefix='Convois SO'){
   const f=await convoyFixture(makeStore,{freight:true});await f.launch();const cargo=await f.ship(),lot=(await f.lots())[0];assert.equal(lot.transportVoyageId,cargo.journey.id);assert.doesNotMatch(JSON.stringify(await f.navigation('escort',f.other)),/transportManifest|transportContractId|SECRET_BRIEFING/);await assert.rejects(f.read('contractDetail',{contractId:f.c.id},f.other),{code:'FORBIDDEN'});f.advance(300000);const q=await f.navigation('escort',f.other);await f.cmd('arriveShip',{shipId:'escort',confirmation:q.confirmation},f.other);await f.deliver();await f.proof();await f.review();assert.equal((await f.lots())[0].ownerType,'SHOP');assert.equal((await f.lots())[0].location.kind,'PORT');
  });
 
+ test(`${prefix} : canon lourd en flotte, défense désigne un seul tir et dégâts additionnés`,async()=>{
+  for(const defend of [false,true]){
+   const f=await convoyFixture(makeStore,{combat:true});
+   // Synthetic combat-only equipment; no equipped departure is enabled.
+   await f.edit('ships/ship',s=>({...s,soProfile:{...s.soProfile,weapon:'HEAVY'}}));
+   await f.edit('ships/pirate',s=>({...s,hull:4,shield:1}));await f.begin();
+   await f.submit('ATTACK','pirate');await f.submit('ATTACK','pirate',f.other);
+   if(defend)await f.submit('DEFEND','ship',f.pirate,{defenseIds:['ship']});
+   const r=await f.round(Array(13).fill(5)),shots=r.result.shots;assert.equal(shots.length,2);const heavy=shots.find(x=>x.shipId==='ship');assert.equal(heavy.threshold,5);assert.equal(heavy.damage,defend?0:2);
+   const target=await f.get('ships/pirate');assert.equal(target.shield,0);assert.equal(target.hull,defend?4:2);assert.equal(target.revisionRequired,true);
+  }
+ });
+
 }

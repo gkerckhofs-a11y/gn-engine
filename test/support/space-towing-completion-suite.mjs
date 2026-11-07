@@ -1,0 +1,36 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {moduleInstallationFixture} from './space-module-installation-suite.mjs';
+import {accountId} from '../../src/core/economy-state.mjs';
+import {shopStockId} from '../../src/core/space-outlaws-shop-state.mjs';
+export async function completeTowingFixture(makeStore,{attach=true}={}){
+ const f=await moduleInstallationFixture(makeStore,{code:'MOD-05'});f.ready();await f.finish();
+ // Scenario damage/qualifications are controlled test data; module acquisition,
+ // publication, installation, consent, work and navigation are native commands.
+ await f.provision({shipId:'wreck',name:'Épave du propriétaire',ownerId:f.cid,pilotId:f.otherId});await f.edit('ships/wreck',s=>({...s,hull:0,shield:0,revisionRequired:true}));
+ await f.edit(`characters/${f.otherId}`,c=>({...c,abilityProfile:{...c.abilityProfile,skills:[...c.abilityProfile.skills.filter(k=>k.id!=='MEC-02'),{id:'MEC-02',level:2}]}}));
+ let r=null;if(attach){
+ const input={shipId:'ship',wreckId:'wreck',technicianId:f.otherId,present:true,source:'Deux bâtiments au port, attelage autorisé',reason:'Remorquage réel'},q=await f.read('prepareTowingWork',input,f.owner);r=await f.cmd('offerTowingWork',{...input,confirmation:q.confirmation},f.owner);const p={workId:r.id},a=await f.read('prepareTowingApproval',p);await f.cmd('approveTowingWork',{...p,confirmation:a.confirmation,present:true});const start=await f.read('prepareTowingStart',p,f.other);await f.cmd('startTowingWork',{...p,confirmation:start.confirmation,present:true},f.other);f.advance(300000);const ready=await f.read('prepareTowingAttachment',p,f.other);await f.cmd('finishTowingAttachment',{...p,confirmation:ready.confirmation,present:true,performed:true},f.other);
+ }
+ const launch=async(code='AWAY-CODE')=>{await f.startFlight({navigationCode:code});f.advance(180000);f.setDie(6);return f.navCommand('finishSoPreparation');};
+ const arrive=async()=>{const d=await f.navigation();return f.cmd('arriveShip',{shipId:'ship',confirmation:d.confirmation});};
+ return {...f,towingJob:r,launch,arrive};
+}
+export function towingCompletionSuite(makeStore,prefix='Remorquage complet SO'){
+ test(`${prefix} : publication, achat/montage réel, attelage, plein, deux trajets puis retrait du même module`,async()=>{
+  const f=await completeTowingFixture(makeStore),lot=await f.get(`inventory/${f.sale.purchasedLotId}`);assert.equal(lot.item.shipModule.code,'MOD-05');assert.equal(lot.status,'INSTALLED');assert.equal((await f.points(f.other)).available,3);
+  await f.refuel(8);await f.launch();assert.equal((await f.ship()).fuel,4);f.advance(300000);await f.arrive();assert.equal((await f.get('ships/wreck')).portId,'away');await f.launch('HOME-CODE');assert.equal((await f.ship()).fuel,0);f.advance(300000);await f.arrive();assert.equal((await f.get('ships/wreck')).portId,'home');assert.equal((await f.points()).available,3);assert.equal((await f.points(f.other)).available,3);
+  const d=await f.read('towingWorkAdmin',{workId:f.towingJob.id},f.owner);await f.cmd('releaseTowingAttachmentAdmin',{workId:f.towingJob.id,confirmation:d.confirmation,performed:true,reason:'Retour et détachement effectués'},f.owner);
+  const p={moduleOperation:'REMOVE',shipId:'ship',lotId:lot.id,technicianId:f.otherId,present:true,workshopConfirmed:true,source:'Atelier disponible au retour',reason:'Retrait autorisé'},q=await f.read('prepareModuleMandateOffer',p,f.owner),r=await f.cmd('offerModuleMandate',{...p,confirmation:q.confirmation},f.owner);await f.approve(r);const work=await f.read('prepareModuleWorkStart',{mandateId:r.id},f.other);await f.cmd('startModuleWork',{mandateId:r.id,confirmation:work.confirmation,present:true,workshopConfirmed:true},f.other);f.advance(300000);const finish=await f.read('prepareModuleRemoval',{mandateId:r.id},f.other);await f.cmd('finishModuleRemoval',{mandateId:r.id,confirmation:finish.confirmation,present:true,performed:true,workshopConfirmed:true},f.other);
+  const after=await f.get(`inventory/${lot.id}`);assert.equal(after.status,'AVAILABLE');assert.equal(after.ownerId,lot.ownerId);assert.equal(after.quantity,1);assert.equal((await f.ship()).modules.length,0);assert.equal((await f.get('ships/wreck')).hull,0);assert.equal((await f.get('ships/wreck')).ownerId,f.cid);assert.equal((await f.points(f.other)).available,2);
+ });
+ test(`${prefix} : panne sèche attachée, dépannage natif payé une fois et reprise du même voyage`,async()=>{
+  const f=await completeTowingFixture(makeStore);await f.refuel(5);await f.startFlight();f.advance(180000);f.setDice([1,5,6,6]);await f.navCommand('finishSoPreparation');let sh=await f.ship();assert.equal(sh.journey.event.fuelDebt,1);const journey=sh.journey.id,wreck=await f.get('ships/wreck');
+  const supply={shopId:'counter',offerId:'fuel',provisionId:randomUUID(),quantity:2,restricted:true,source:'Stock réel du service',reason:'Panne sèche'},sq=await f.read('prepareShopProvision',supply,f.owner);await f.cmd('provisionShop',{...supply,confirmation:sq.confirmation},f.owner);
+  const p={shipId:'ship',shopId:'counter',offerId:'fuel',quantity:2,source:'PNJ disponible auprès du remorqueur',reason:'Livraison réelle',present:true},q=await f.read('prepareSpaceRescueOffer',p,f.owner),r=await f.cmd('offerSpaceRescue',{...p,confirmation:q.confirmation},f.owner),start=await f.read('prepareSpaceRescue',{rescueId:r.id});await f.cmd('startSpaceRescue',{rescueId:r.id,confirmation:start.confirmation,present:true});f.advance(120000);const v=(await f.read('spaceRescues')).rescues.find(v=>v.id===r.id),input={rescueId:r.id,confirmation:v.confirmation,received:true,requestId:randomUUID()},before=await f.get(`accounts/${accountId(f.cid)}`);await f.cmd('finishSpaceRescue',input);await f.cmd('finishSpaceRescue',input);sh=await f.ship();assert.equal(sh.journey.id,journey);assert.equal(sh.journey.suspended,false);assert.equal(sh.fuel,1);assert.equal(sh.maintenanceId,f.towingJob.id);assert.deepEqual(await f.get('ships/wreck'),wreck);assert.equal((await f.get(`accounts/${accountId(f.cid)}`)).balance,before.balance-150);assert.equal((await f.get(`inventory/${shopStockId('fuel')}`)).quantity,0);f.advance(300000);await f.arrive();assert.equal((await f.get('ships/wreck')).portId,'away');
+ });
+ test(`${prefix} : chaîne incomplète ferme achat et montage sans modifier les anciennes sessions`,async()=>{
+  const f=await completeTowingFixture(makeStore),s=await f.get(''),lot=await f.get(`inventory/${f.sale.purchasedLotId}`);for(const key of ['towingRecoveryVersion','towingCombatVersion','towingOutageVersion']){await f.edit('',()=>({...s,spaceOutlaws:Object.fromEntries(Object.entries(s.spaceOutlaws).filter(([k])=>k!==key))}));await assert.rejects(f.read('prepareShopPurchase',{shopId:'counter',offerId:'module-offer',quantity:1,useProtected:false}),{code:'INVALID_SHIP_MODULE_OFFER'});assert.deepEqual(await f.get(`inventory/${lot.id}`),lot);}await f.edit('',()=>s);
+ });
+}

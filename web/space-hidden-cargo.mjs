@@ -1,0 +1,60 @@
+import {escapeHtml as esc} from './groups.mjs';
+
+const kinds={ORDINARY:'Contrôle documentaire',DEEP:'Inspection approfondie'},statuses={ACTIVE:'En cours',COMPLETED:'Terminé',CANCELLED:'Annulé'};
+const link=(path,label)=>`<a class="button quiet" href="#/${esc(path)}">${esc(label)}</a>`;
+const check=(name,label)=>`<label class="check"><input type="checkbox" name="${name}" required>${label}</label>`;
+const reason='<label>Motif<input name="reason" maxlength="500" required></label>';
+const select=(name,label,rows)=>`<label>${label}<select name="${name}" required><option value="">Choisir…</option>${rows.map(r=>`<option value="${esc(r.id)}">${esc(r.name)}</option>`).join('')}</select></label>`;
+const form=(action,p,content,label)=>`<form class="${action.startsWith('cancel')?'customs-cancel':''}" data-form="hiddenCargoCommand" data-command="${action}" data-payload="${esc(JSON.stringify(p))}">${content}<button class="${action.startsWith('cancel')?'quiet':'primary'}">${label}</button></form>`;
+const active=d=>d.session.stage==='EN_JEU'&&!d.session.safetyStopped;
+const refresh='<button class="quiet" data-action="refresh">Actualiser</button>';
+const stop=d=>d.session.safetyStopped?'<p role="status">STOP SÉCURITÉ : attendez la reprise du MJ.</p>':d.session.stage==='PAUSE'?'<p role="status">En pause : les délais de jeu sont suspendus.</p>':'';
+const cargoRows=lots=>lots.length?`<ul>${lots.map(l=>`<li>${esc(l.item.name)} · ${esc(l.quantity)} ${esc(l.item.unit??'')}</li>`).join('')}</ul>`:'<p>Aucun nouveau lot découvert par ce contrôle.</p>';
+const controlForm=(d,admin)=>form(admin?'prepareCustomsInspectionAdmin':'prepareCustomsInspection',{sessionId:d.session.id},select('shipId','Vaisseau présent au port',d.ships.filter(s=>s.canInspect!==false))+(admin?select('agentId','Agent PNJ habilité',d.characters.filter(c=>!c.player&&c.authority?.level>=1)):'' )+select('kind','Contrôle',[{id:'ORDINARY',name:'Documentaire · 2 min · 0 PA'},{id:'DEEP',name:`Approfondi · 2 min · ${admin?'0':'1'} PA`}]),'Vérifier le contrôle');
+
+export const hiddenCargoErrors={HIDDEN_CARGO_FULL:'Le volume du lot entier dépasse la place disponible dans le compartiment.',INVALID_CUSTOMS_AUTHORITY:'Choisissez un poste et un niveau de contrôle de 0 à 5.',INVALID_CUSTOMS_KIND:'Choisissez un contrôle documentaire ou une inspection approfondie.',CUSTOMS_ATTEMPT_USED:'Une inspection approfondie a déjà été résolue pour ce vaisseau à cette escale. Une nouvelle tentative exige une décision motivée du MJ.',CUSTOMS_ATTEMPT_UNAVAILABLE:'Aucune tentative à renouveler pour cette escale.',CUSTOMS_INSPECTION_CLOSED:'Ce contrôle est fermé ou ses réservations ont changé. Actualisez.',CUSTOMS_NOT_READY:'Le délai de deux minutes de jeu n’est pas terminé.',CUSTOMS_RESERVATION:'La réservation de PA ne correspond plus au contrôle. Faites vérifier le dossier par le MJ.'};
+
+export function hiddenCargoHtml(d){
+ const sid=d.session.id;
+ return `<div class="narrow cargo-customs"><h1>Mon compartiment · ${esc(d.ship.name)}</h1>${stop(d)}${refresh}<section class="panel"><h2>${esc(d.hiddenUsed)} / ${esc(d.hiddenInstalledCapacity??d.hiddenCapacity)} unités dissimulées</h2><p>Le compartiment fait partie des ${esc(d.ship.capacity)} unités de la soute. Il n’ajoute aucun volume. Pendant une neutralisation, les biens déjà rangés restent cachés ; les inspections habituelles restent possibles, mais aucun nouveau rangement. Le rangement porte sur le lot entier ; fractionnez-le d’abord par la manutention habituelle si nécessaire.</p>${d.hiddenCapacity===0&&d.hiddenInstalledCapacity>0?'<p role="status">Compartiment neutralisé : aucun nouveau rangement. Les biens déjà rangés restent cachés.</p>':''}<p>Sortir puis replacer une marchandise déjà découverte ne la rend pas inconnue.</p></section>${d.stock.map(l=>{const volume=l.quantity*l.item.unitVolume,canMove=active(d)&&d.canMove&&l.status==='AVAILABLE'&&Number.isSafeInteger(volume)&&volume>0&&(l.concealed||d.hiddenCapacity-d.hiddenUsed>=volume);return `<article class="panel"><h2>${esc(l.item.name)} · ${esc(l.quantity)} ${esc(l.item.unit??'')}</h2><p>${l.concealed?'Dans le compartiment':'Dans la soute ordinaire'}${l.discovered?' · déjà découvert':''}.</p>${canMove?form('prepareCargoConcealment',{sessionId:sid,shipId:d.ship.id,lotId:l.id,conceal:!l.concealed},'',l.concealed?'Sortir du compartiment':'Ranger dans le compartiment'):''}</article>`;}).join('')||'<p>Aucun lot personnel en soute.</p>'}${link(`hold/${sid}/${d.ship.id}`,'Cargaison et manutention')}${link(`module-mandates/${sid}`,'Accords de modules')}</div>`;
+}
+export function customsDeskHtml(d){
+ return `<div class="narrow cargo-customs"><h1>Poste de douane</h1>${stop(d)}${refresh}<p>Habilitation de contrôle : N${esc(d.level)}. Le contrôle documentaire ne révèle aucun contenu caché inconnu. L’inspection approfondie réserve 1 PA pour deux minutes de jeu ; succès sur 1D6 + niveau ≥ 7.</p><p>Une tentative approfondie par vaisseau et escale, tous agents confondus. Aucun contrôle ne prélève automatiquement taxe ou amende.</p>${active(d)&&d.ships.some(s=>s.canInspect!==false)?controlForm(d,false):'<p>Aucun contrôle ne peut être préparé ici pour le moment.</p>'}${inspectionLinks(d,false)}${link(`cargo/${d.session.id}`,'Soutes et fret')}</div>`;
+}
+function inspectionLinks(d,admin){return `<section class="panel"><h2>Contrôles suivis</h2>${d.inspections.map(r=>link(`customs-inspection${admin?'-admin':''}/${d.session.id}/${r.id}`,`${r.shipName} · ${kinds[r.kind]} · ${statuses[r.status]}`)).join('')||'<p>Aucun contrôle enregistré.</p>'}</section>`;}
+export function customsAdminHtml(d){
+ const sid=d.session.id,enabled=!d.session.safetyStopped;
+ return `<div class="narrow cargo-customs"><h1>Régie des douanes</h1>${stop(d)}${refresh}<p>L’habilitation organisation N1 à N5 est indépendante des classes et des XP. Le niveau 0 la révoque. Pour un PNJ, le poste choisi détermine le port de ses contrôles.</p>${d.characters.map(c=>`<section class="panel"><h2>${esc(c.name)} · ${c.player?'joueur':'PNJ'}</h2><p>Habilitation : N${esc(c.authority?.level??0)}.</p>${enabled?form('setCustomsAuthority',{sessionId:sid,characterId:c.id,authorityRevision:c.authority?.revision??0},select('level','Niveau',[{id:0,name:'0 · Révoquer'},...Array.from({length:5},(_,i)=>({id:i+1,name:`N${i+1}`}))])+select('portId','Poste douanier',d.ports)+reason,'Enregistrer l’habilitation'):''}</section>`).join('')}${active(d)&&d.ships.some(s=>s.canInspect!==false)&&d.characters.some(c=>!c.player&&c.authority?.level>=1)?`<section class="panel"><h2>Contrôle par un PNJ</h2>${controlForm(d,true)}</section>`:''}<section class="panel"><h2>Nouvelles tentatives</h2><p>Une nouvelle inspection approfondie nécessite un indice nouveau ou une décision MJ motivée. Changer d’agent ne renouvelle pas la tentative.</p>${enabled?d.ships.filter(s=>s.canRetry&&s.attempt?.used&&!s.attempt.retryAuthorized).map(s=>`<article><h3>${esc(s.name)}</h3>${form('authorizeCustomsRetry',{sessionId:sid,shipId:s.id,confirmation:s.confirmation},reason,'Autoriser une nouvelle tentative')}</article>`).join(''):''}</section>${inspectionLinks(d,true)}${link(`cargo-admin/${sid}`,'Régie du fret')}</div>`;
+}
+export function customsInspectionHtml(d,admin=false){
+ const r=d.inspection,sid=d.session.id,p={sessionId:sid,inspectionId:r.id,confirmation:d.confirmation},suffix=admin?'Admin':'',result=r.result;
+ return `<div class="narrow cargo-customs"><h1>${esc(kinds[r.kind])} · ${esc(r.shipName)}</h1>${stop(d)}${refresh}<section class="panel"><h2>${esc(statuses[r.status])}</h2>${r.status==='ACTIVE'?`<p>${esc(r.remainingSeconds)} secondes de jeu restantes. Aucune résolution automatique à l’échéance.</p>`:''}${admin&&!r.pnj?'<p>Seul l’agent joueur peut finaliser son contrôle. La régie peut l’interrompre et restituer ses réservations.</p>':''}${r.canFinish&&(!admin||r.pnj)?form(`finishCustomsInspection${suffix}`,p,check('present','Je suis présent au vaisseau.')+check('performed','Le contrôle a été réellement effectué.'),'Confirmer le contrôle'):''}${r.canCancel?form(`cancelCustomsInspection${suffix}`,p,'<h3>Interruption</h3><p>Aucun résultat ne sera appliqué. Le PA réservé sera libéré.</p>'+reason,'Interrompre le contrôle'):''}${result?r.kind==='ORDINARY'?`<p>Contrôle documentaire attesté, sans nouvelle révélation du compartiment. Cette attestation ne valide ni l’authenticité des documents, ni les licences ou les droits fiscaux.</p><h3>Biens déjà connus</h3>${cargoRows(result.knownCargo)}`:`<p>D6 ${esc(result.roll)} + N${esc(result.level)} = ${esc(result.total)} · ${result.success?'inspection réussie':'seuil non atteint'}.</p>${cargoRows(result.discovered)}<p>Une découverte ne donne aucun code de coffre et n’autorise aucune saisie automatique.</p>`:''}</section>${link(`customs${admin?'-admin':''}/${sid}`,'Retour aux douanes')}</div>`;
+}
+export function hiddenCargoConfirmHtml(action,d,p){
+ if(action==='prepareCargoConcealment')return `<div class="cargo-customs"><h2>${d.conceal?'Ranger dans le compartiment':'Sortir du compartiment'}</h2><p>${esc(d.name)} · ${esc(d.volume)} unités de volume. ${d.discovered?'La découverte reste enregistrée.':''}</p>${form('setCargoConcealment',{...p,confirmation:d.confirmation},check('present','Je confirme ma présence et le déplacement réel du lot entier.'),'Confirmer le rangement')}</div>`;
+ const admin=action==='prepareCustomsInspectionAdmin';
+ return `<div class="cargo-customs"><h2>${esc(kinds[d.kind])} · ${esc(d.shipName)}</h2><p>Deux minutes de jeu · ${esc(d.actionPoints)} PA${d.actionPoints?' réservé':''}. Habilitation N${esc(d.level)}.</p>${d.kind==='DEEP'?'<p>Succès sur 1D6 + niveau ≥ 7. Une tentative partagée par vaisseau et escale ; une annulation avant résolution ne la consomme pas.</p>':'<p>Contrôle documentaire sans révélation nouvelle et sans validation automatique de l’authenticité, des licences ou des taxes.</p>'}${form(`startCustomsInspection${admin?'Admin':''}`,{...p,confirmation:d.confirmation},check('present','Je confirme la présence de l’agent au vaisseau.'),'Démarrer le contrôle')}</div>`;
+}
+
+// Explicit form protocol: editable fields never include cost, die or authority revision.
+const commands=['prepareCargoConcealment','setCargoConcealment','prepareCustomsInspection','prepareCustomsInspectionAdmin','startCustomsInspection','startCustomsInspectionAdmin','finishCustomsInspection','finishCustomsInspectionAdmin','cancelCustomsInspection','cancelCustomsInspectionAdmin','setCustomsAuthority','authorizeCustomsRetry'];
+export function hiddenCargoRequest(action,p,values){
+ if(!commands.includes(action))throw Error('Commande de douane inconnue.');
+ const next={...p};
+ if(action.startsWith('prepareCustomsInspection')){next.shipId=values.shipId;next.kind=values.kind;if(action.endsWith('Admin'))next.agentId=values.agentId;}
+ if(action==='setCustomsAuthority'){if(!/^[0-5]$/.test(String(values.level??'')))throw Error('Choisissez un niveau de 0 à 5.');next.level=Number(values.level);next.portId=values.portId;}
+ if(action.startsWith('cancel')||['setCustomsAuthority','authorizeCustomsRetry'].includes(action))next.reason=values.reason;
+ if(action.startsWith('start')||action==='setCargoConcealment'||action.startsWith('finish'))next.present=values.present==='on';
+ if(action.startsWith('finish'))next.performed=values.performed==='on';
+ return next;
+}
+
+// Same controller in the app and bounded DOM tests; authorization stays on the server.
+export async function submitHiddenCargo(action,payload,values,hooks){
+ const p=hiddenCargoRequest(action,payload,values);
+ if(action.startsWith('prepare')){const d=await hooks.read(action,p);if(!hooks.isCurrent())return;hooks.confirm(hiddenCargoConfirmHtml(action,d,p));return;}
+ const r=await hooks.write(action,p);if(!hooks.isCurrent())return;
+ hooks.close();hooks.announce('Opération confirmée. Consultez le dossier actualisé.');
+ if(action.startsWith('startCustomsInspection')){hooks.navigate(`#/customs-inspection${action.endsWith('Admin')?'-admin':''}/${p.sessionId}/${r.id}`);return;}
+ await hooks.refresh();
+}
