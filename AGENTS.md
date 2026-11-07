@@ -1,5 +1,11 @@
 # GN Engine — consignes de développement
 
+## Excel du Master Vn+1 — 7 novembre 2026
+
+Base `600eba6d9f90376259f3c2d22af96aa37e090dd2`, [CI 42371982795](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42371982795) réussie sur le commit exact. Périmètre §3.6–3.8. Voir [rapport courant](docs/SO-VALIDATION.md).
+
+Réutiliser les formats d’atelier et l’aperçu du Master central sur les définitions héritées et les modifications. Les métadonnées lient le classeur à la version de base et au brouillon. Droits, manifeste et cycle courants avant reçus. Enregistrer uniquement les lignes modifiées et conserver leur provenance. Les instantanés, contrôles opérationnels, publication et retour de version Vn+1 restent à raccorder. Profil `targeted-central-revision-excel` : 96 fichiers applicatifs, 65 suites Firestore et 30 HTTP sélectionnés. Consigner le résultat du commit exact dans PR #2 avant la tranche suivante.
+
 ## Comparaison et contrôle du Master Vn+1 — 7 novembre 2026
 
 Base `569d84fabb2c5ca3cbf06a62bdf77cf10cdd755d`, [CI 42370086308](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42370086308) réussie sur le commit exact. Périmètre §3.6, comparaison et contrôle des références raccordées. Voir [rapport courant](docs/SO-VALIDATION.md).

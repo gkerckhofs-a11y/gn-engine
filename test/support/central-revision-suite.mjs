@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
+import {readCentralXlsx,writeCentralXlsx} from '../../web/central-xlsx.mjs';
+import {centralItemRow} from './central-import-suite.mjs';
+import {centralShopRow,centralOfferRow} from './central-shop-import-suite.mjs';
 import {entryFixture} from './space-outlaws-entry-suite.mjs';
 import {centralTestKnowledge} from './central-knowledge-suite.mjs';
 import {centralTestItem} from './central-master-suite.mjs';
@@ -79,9 +82,7 @@ export function centralRevisionSuite(makeStore,prefix='Master Vn+1'){
   assert.ok(d.changes.every(c=>c.workshop==='M1'));
   assert.equal((await f.read('dashboard',f.mj)).centralCampaigns[0].id,f.campaignId);
   await assert.rejects(f.central('centralMaster',{workshop:'M2'},f.mj),{code:'FORBIDDEN'});
-  for(const action of ['exportCentralDraft','prepareCentralImport','previewCentralSnapshot']){
-   await assert.rejects(f.central(action),{code:'CENTRAL_REVISION_WEB_ONLY'});
-  }
+  await assert.rejects(f.central('previewCentralSnapshot'),{code:'CENTRAL_REVISION_WEB_ONLY'});
   const check=(actor,patch={})=>f.central('checkCentralDraft',{draftId,draftRevision:0,...patch},actor);
   await assert.rejects(check(f.mj),{code:'FORBIDDEN'});
   await f.grant(1,{readWorkshops:['M1','M2','M3','M4','M5','M6','M7'],editWorkshops:['M1'],checkCentral:true});
@@ -155,6 +156,96 @@ export function centralRevisionSuite(makeStore,prefix='Master Vn+1'){
   assert.equal(invalid.totals.invalid,1);
   assert.ok(invalid.diagnostics.some(d=>d.code==='INVALID_RECORD'&&d.entityId==='reserve'));
   assert.ok(!invalid.diff.some(d=>d.id==='reserve'));
+ });
+
+ test(`${prefix} : Excel hérité et partiel, lot atomique, provenance et rejeu dans le seul brouillon`,async()=>{
+  const f=await entryFixture(makeStore),campaign=`campaigns/${f.campaignId}`,session=`sessions/${f.sid}`;
+  const {changes}=await f.central('centralMaster',{workshop:'M1'}),item=changes.find(c=>c.type==='item');
+  const historical=(await f.central('exportCentralDraft',{workshop:'M1',ids:[item.entityId]})).sheets;
+  const {versionId}=await f.release(await f.releasePreview());
+  const {id:draftId}=await f.cc('openCentralRevision',{baseVersionId:versionId,pointerRevision:1,reason:'Préparer dans Excel'});
+  const versionPath=`${campaign}/versions/${versionId}`,version=await f.store.get(versionPath),pages=await f.store.list(`${versionPath}/pages`);
+  const beforeSession=await f.store.get(session),beforeDraft=await f.store.get(f.base),path=`${campaign}/masterDrafts/${draftId}`;
+  const exportInput={workshop:'M1',draftId,draftRevision:0,ids:[item.entityId]};
+  const {sheets}=await f.central('exportCentralDraft',exportInput);
+  assert.equal(sheets.Meta[0].central_base_version,versionId);
+  assert.equal(sheets.Meta[0].draft_id,draftId);
+  assert.equal(sheets.Objets[0].revision,item.data.revision);
+  const workbook=sheets=>({workshop:'M1',sheets:readCentralXlsx(writeCentralXlsx(sheets)),fileName:'Atelier V2.xlsx'});
+  const original=await f.central('prepareCentralImport',workbook(sheets));
+  assert.equal(original.changes[0].operation,'INCHANGE');
+  const wrong=await f.central('prepareCentralImport',workbook(historical));
+  assert.deepEqual(wrong.errors.map(e=>e.column),['central_base_version','draft_id']);
+  sheets.Objets[0].nom='Modèle révisé dans Excel';
+  sheets.Objets.push({...centralItemRow,id:'new',consommable:'Invalide'});
+  const invalid=workbook(sheets),bad=await f.central('prepareCentralImport',invalid);
+  assert.equal(bad.errors[0].row,3);
+  await assert.rejects(f.cc('applyCentralImport',{...invalid,confirmation:bad.confirmation,reason:'Lot invalide'}),{code:'INVALID_CENTRAL_IMPORT'});
+  assert.deepEqual(await f.store.list(`${path}/changes`),[]);
+  assert.deepEqual(await f.store.list(`${path}/imports`),[]);
+  sheets.Objets[1].consommable='OUI';
+  const input=workbook(sheets),p=await f.central('prepareCentralImport',input);
+  assert.deepEqual(p.errors,[]);
+  assert.deepEqual(await f.store.list(`${path}/history`),[]);
+  const apply={...input,confirmation:p.confirmation,reason:'Lot Excel',requestId:randomUUID()};
+  const result=await f.cc('applyCentralImport',apply);
+  assert.equal(result.changed,2);
+  assert.equal(result.draftRevision,1);
+  assert.deepEqual(await f.cc('applyCentralImport',apply),result);
+  assert.deepEqual(await f.cc('applyCentralImport',{...apply,requestId:randomUUID()}),result);
+  assert.deepEqual((await f.central('prepareCentralImport',input)).alreadyApplied,result);
+  await assert.rejects(f.central('exportCentralDraft',exportInput),{code:'STALE_REVISION'});
+  const updated=await f.central('centralMaster',{workshop:'M1'}),retouched=updated.changes.find(c=>c.id===item.id);
+  assert.equal(retouched.data.name,'Modèle révisé dans Excel');
+  assert.deepEqual(updated.changes.filter(c=>c.id!==item.id&&c.entityId!=='new'),changes.filter(c=>c.id!==item.id));
+  assert.equal(updated.history.length,2);
+  assert.deepEqual(updated.history.find(h=>h.change.id===item.id).before,item);
+  const report=await f.central('checkCentralDraft',{draftId,draftRevision:1});
+  assert.equal(report.diff.find(d=>d.id===item.entityId).location.sheet,'Objets');
+  assert.equal(report.diff.find(d=>d.id===item.entityId).location.row,2);
+  assert.equal(report.totals.invalid,0);
+  assert.deepEqual(await f.store.get(session),beforeSession);
+  assert.deepEqual(await f.store.get(f.base),beforeDraft);
+  assert.deepEqual(await f.store.get(versionPath),version);
+  assert.deepEqual(await f.store.list(`${versionPath}/pages`),pages);
+ });
+
+ test(`${prefix} : Excel M5 respecte les droits courants et les références héritées puis archivées`,async()=>{
+  const f=await entryFixture(makeStore),m2=await f.view(),seller=m2.changes.find(c=>c.type==='character');
+  const {changes}=await f.central('centralMaster',{workshop:'M1'}),item=changes.find(c=>c.type==='item');
+  const {versionId}=await f.release(await f.releasePreview());
+  const {id:draftId}=await f.cc('openCentralRevision',{baseVersionId:versionId,pointerRevision:1,reason:'Préparer le comptoir'});
+  await f.grant(0,{readWorkshops:['M5'],editWorkshops:[]});
+  const file=async draftRevision=>{
+   const {sheets}=await f.central('exportCentralDraft',{workshop:'M5',draftId,draftRevision,ids:[]},f.mj);
+   sheets.Boutiques=[{...centralShopRow,vendeur_personnage_id:seller.entityId}];
+   sheets.Offres=[{...centralOfferRow,objet_id:item.entityId}];
+   return {workshop:'M5',fileName:'Comptoir V2.xlsx',sheets:readCentralXlsx(writeCentralXlsx(sheets))};
+  };
+  const input=await file(0),prepare=input=>f.central('prepareCentralImport',input,f.mj);
+  const apply=(input,p,extra={})=>f.cc('applyCentralImport',{...input,confirmation:p.confirmation,reason:'Comptoir',...extra},f.mj);
+  await assert.rejects(prepare(input),{code:'FORBIDDEN'});
+  await f.grant(1,{readWorkshops:['M5'],editWorkshops:['M5']});
+  const limited=await prepare(input);
+  assert.equal(limited.diagnostics.filter(d=>['item','character'].includes(d.referenceType)&&d.code==='REFERENCE_NOT_CHECKED').length,2);
+  assert.doesNotMatch(JSON.stringify(limited),/Note MJ cachée|Note M1 privée/);
+  await f.grant(2,{readWorkshops:['M1','M2','M5'],editWorkshops:['M5']});
+  await assert.rejects(apply(input,limited),{code:'CENTRAL_IMPORT_STALE'});
+  const inherited=await prepare(input);
+  assert.ok(inherited.confirmation);
+  assert.ok(!inherited.diagnostics.some(d=>['item','character'].includes(d.referenceType)));
+  await f.cc('archiveCentralItem',{draftId,draftRevision:0,itemId:item.entityId,itemRevision:item.data.revision,reason:'Objet retiré'});
+  await assert.rejects(apply(input,inherited),{code:'STALE_REVISION'});
+  const current=await file(1),archived=await prepare(current),diagnostic=archived.diagnostics.find(d=>d.referenceType==='item');
+  assert.equal(diagnostic.code,'REFERENCE_ARCHIVED');
+  assert.equal(diagnostic.sheet,'Offres');
+  assert.equal(diagnostic.column,'objet_id');
+  assert.equal(diagnostic.row,2);
+  const requestId=randomUUID(),result=await apply(current,archived,{requestId});
+  assert.equal(result.changed,2);
+  assert.equal(result.draftRevision,2);
+  await f.grant(3,{active:false});
+  await assert.rejects(apply(current,archived,{requestId}),{code:'FORBIDDEN'});
  });
 
  test(`${prefix} : version source endommagée refusée à la réouverture et au contrôle`,async()=>{

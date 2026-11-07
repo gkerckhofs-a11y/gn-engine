@@ -48,5 +48,8 @@ test('Central UI : ouvre la version suivante puis montre les éditeurs web',()=>
  assert.match(draft,/brouillon V2/);
  assert.match(draft,/data-action="centralItem"/);
  assert.match(draft,/#\/central-check\/campaign\/0\/revision-1/);
- assert.doesNotMatch(draft,/data-action="centralImport"|data-action="centralExport"|data-action="centralSnapshotPreview"/);
+ assert.match(draft,/data-action="centralImport"/);
+ assert.match(draft,/data-action="centralExport"/);
+ assert.match(ui.exportForm({...model,draft:{...base,revision:3}}),/data-draft-id="revision-1" data-draft="3"/);
+ assert.doesNotMatch(draft,/data-action="centralSnapshotPreview"/);
 });

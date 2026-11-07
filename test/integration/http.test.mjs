@@ -1202,6 +1202,18 @@ test('HTTP + Auth : candidature, naissance, QR, soins, sécurité, boutique et r
  assert.deepEqual(report.diff.map(d=>[d.id,d.operation,d.fields]),[[inherited.entityId,'UPDATE',['name']]]);
  assert.ok(report.edges.some(e=>e.from.workshop==='M5'&&e.to.id===inherited.entityId&&e.status==='RESOLVED'));
  assert.doesNotMatch(JSON.stringify(report),/SECRET_HTTP_MJ|RENSEIGNEMENT_HTTP_PRIVE|SECRET_BOUTIQUE_HTTP/);
+ const {sheets}=await call('exportCentralDraft',{...check,workshop:'M1',ids:[inherited.entityId]});
+ assert.equal(sheets.Meta[0].central_base_version,versionId);
+ assert.equal(sheets.Meta[0].draft_id,draftId);
+ sheets.Objets[0].description='Révision via Excel';
+ const workbook={campaignId,workshop:'M1',fileName:'Master V2.xlsx',sheets:readCentralXlsx(writeCentralXlsx(sheets))};
+ assert.equal((await request('prepareCentralImport',workbook,player)).status,403);
+ const previewImport=await call('prepareCentralImport',workbook);
+ assert.deepEqual(previewImport.errors,[]);
+ const imported=await cmd('applyCentralImport',{...workbook,confirmation:previewImport.confirmation,reason:'Import V2'});
+ assert.equal(imported.draftRevision,2);
+ const afterImport=await call('checkCentralDraft',{...check,draftRevision:2});
+ assert.deepEqual(afterImport.diff.map(d=>[d.id,d.fields,d.location.sheet]),[[inherited.entityId,['description','name'],'Objets']]);
  const birth={sessionId,uid,options,confirmation:b.confirmation,reason:'Entrée de test',requestId:randomUUID()};assert.equal((await request('birthSpaceOutlaws',birth,player)).status,403);
  const born=await cmd('birthSpaceOutlaws',birth);assert.deepEqual(await cmd('birthSpaceOutlaws',birth),born);
  const own=await call('mySession',{sessionId},player);assert.equal(own.character.id,born.characterId);assert.equal(own.actionPoints.available,5);assert.equal(own.character.hp,3);assert.equal((await call('mySession',{sessionId},other)).character,null);

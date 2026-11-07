@@ -149,6 +149,10 @@ targetedProfiles['central-revision-check']={...targetedProfiles['central-revisio
  suites:[...targetedProfiles['central-revision'].suites,'central-check','central-review'],
  files:[...targetedProfiles['central-revision'].files,'src/core/central-check.mjs','web/central-check.mjs','test/central-check-ui.test.mjs'],
 };
+targetedProfiles['central-revision-excel']={...targetedProfiles['central-revision-check'],
+ suites:[...targetedProfiles['central-revision-check'].suites,'central-character-import','central-field-import','central-shop-import','central-space-import','central-story-import'],
+ files:[...targetedProfiles['central-revision-check'].files,'src/core/central-import.mjs','web/central-import.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

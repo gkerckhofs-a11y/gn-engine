@@ -83,7 +83,7 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
   return store.runTransaction(async tx=>{
    const c=await tx.get(root(cid));requireThat(c,'FORBIDDEN');
    const {owner,grant,rights}=await centralAuthority(tx,actor,c,isAdmin);requireThat(rights,'FORBIDDEN');
-   const published=hasPublishedMaster(c),opening=action==='openCentralRevision';
+   const published=hasPublishedMaster(c),opening=action==='openCentralRevision',importing=centralImportCommands.includes(action);
    if(opening)requireThat(owner,'FORBIDDEN');
    if(action==='checkCentralDraft')requireThat(rights.checkCentral,'FORBIDDEN');
    const path=draftPath(cid,published?revisionDraftId(c):'initial'),draft=await tx.get(path);
@@ -98,7 +98,8 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
      keys(input,['campaignId','baseVersionId','pointerRevision','requestId','reason']);
      requireThat(input.baseVersionId===baseVersionId&&whole(input.pointerRevision)===pointerRevision,'STALE_REVISION');
     }else{
-     requireThat(!centralSnapshotActions.includes(action)&&!centralImportCommands.includes(action),'CENTRAL_REVISION_WEB_ONLY');
+     requireThat(!centralSnapshotActions.includes(action),'CENTRAL_REVISION_WEB_ONLY');
+     if(importing)requireThat(rights.readWorkshops.includes(input.workshop)&&(action==='exportCentralDraft'||rights.editWorkshops.includes(input.workshop)),'FORBIDDEN');
      if(!draft){
       requireThat(owner&&action==='centralMaster','CENTRAL_DRAFT_UNAVAILABLE');
       keys(input,['campaignId','workshop']);
@@ -120,7 +121,8 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
     const authority=owner?{kind:'OWNER',revision:null}:{kind:'DELEGATED',revision:grant.revision,readWorkshops:grant.readWorkshops,editWorkshops:grant.editWorkshops};
     return centralDraftCheck({campaign:c,session:s,draft,changes,actorUid:actor.uid,authority,at,base});
    }
-   const baseChanges=published&&action!=='setCentralStaff'?(await readSoEntryVersion(tx,c)).changes:[];
+   const version=published&&action!=='setCentralStaff'?await readSoEntryVersion(tx,c):null;
+   const baseChanges=version?.changes??[];
    const listChanges=async(field,value,options)=>{
     const edits=await tx.list(`${path}/changes`,[field,value],options);
     if(!published)return edits;
@@ -129,7 +131,7 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
     return [...merged.values()];
    };
    if(centralSnapshotActions.includes(action))return centralSnapshots(tx,action,actor,input,{c,s,draft,owner,grant,rights,at,uuid});
-   if(centralImportCommands.includes(action))return centralImport(tx,action,actor,input,{c,s,draft,rights,grant,at,uuid});
+   if(importing)return centralImport(tx,action,actor,input,{c,s,draft,rights,grant,at,uuid,path,version,listChanges});
    if(action==='centralMaster'){
     keys(input,['campaignId','workshop']);const workshop=input.workshop??rights.readWorkshops[0];
     requireThat(ids.includes(workshop),'INVALID_CENTRAL_MASTER');requireThat(rights.readWorkshops.includes(workshop),'FORBIDDEN');

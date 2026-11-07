@@ -634,9 +634,9 @@ document.addEventListener('submit',async event=>{
     const centralDraftInput={draftRevision:Number(form.dataset.draft),...(form.dataset.draftId&&form.dataset.draftId!=='initial'?{draftId:form.dataset.draftId}:{})};
     if(kind==='centralExport'){
       const ids=[...form.querySelectorAll('[name=selected]:checked')].map(el=>el.value);
-      const d=await api('exportCentralDraft',{campaignId:form.dataset.cid,workshop:form.dataset.workshop,ids,schemaVersion:Number(form.dataset.schema)});if(submitVersion!==routeVersion||!form.isConnected)return;
+      const d=await api('exportCentralDraft',{campaignId:form.dataset.cid,workshop:form.dataset.workshop,ids,schemaVersion:Number(form.dataset.schema),...(form.dataset.draftId?centralDraftInput:{})});if(submitVersion!==routeVersion||!form.isConnected)return;
       const bytes=writeCentralXlsx(d.sheets),href=URL.createObjectURL(new Blob([bytes],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'})),a=document.createElement('a');
-      a.href=href;a.download=`Master-central-${form.dataset.workshop}-${form.dataset.cid}.xlsx`;a.click();setTimeout(()=>URL.revokeObjectURL(href),1000);successMessage='Fichier Excel préparé.';
+      a.href=href;a.download=`Master-central-${form.dataset.workshop}-${form.dataset.cid}${form.dataset.draftId?`-${form.dataset.draftId}-r${form.dataset.draft}`:''}.xlsx`;a.click();setTimeout(()=>URL.revokeObjectURL(href),1000);successMessage='Fichier Excel préparé.';
     }
     else if(kind==='centralImportPreview'){
       const file=form.elements.file.files[0];if(!file||file.size>8*1024*1024)throw new Error('Choisissez un fichier XLSX de 8 Mio maximum.');

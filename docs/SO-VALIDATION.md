@@ -1,5 +1,13 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Excel du Master Vn+1 — 7 novembre 2026
+
+Les sept ateliers réutilisent leurs formats Excel existants sur le brouillon après publication. Un export de sélection ou un gabarit porte l’identifiant du brouillon, sa révision et sa version de base. Un fichier de première préparation ou d’un autre brouillon est refusé. Les formats gardent leur périmètre, notamment les kits M1 et les groupes M2 édités sur le web.
+
+L’aperçu compare les valeurs héritées et les éditions en cours. Il vérifie les références des ateliers dont la lecture est accordée et localise les diagnostics dans le classeur. L’application revérifie les droits, le manifeste, la révision et le lot. Elle écrit les seules lignes modifiées en une transaction, avec historique et provenance. Une ligne omise conserve la définition existante. Le manifeste publié et les sessions restent sur leur version.
+
+Périmètre §3.6–3.8 pour l’import/export par atelier. Les instantanés du Vn+1, les contrôles sur les données de jeu, la publication et le retour de version restent à raccorder. Preuves du commit exact dans [PR #2](https://github.com/gkerckhofs-a11y/gn-engine/pull/2).
+
 ## Comparaison et contrôle du Master Vn+1 — 7 novembre 2026
 
 Le rapport du brouillon compare la base publiée vérifiée et les modifications web. Il distingue les ajouts, modifications, archivages et restaurations. Une définition revenue à son état publié disparaît du diff net. Le rapport indique les champs modifiés, y compris ceux liés à la confidentialité, à la visibilité et aux QR, sans afficher leurs valeurs privées.
