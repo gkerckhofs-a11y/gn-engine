@@ -281,9 +281,10 @@ async function knowledgePage(sid,kid){const render=pageRenderer();
 }
 async function accountsPage(sid,aid,onlyGroups=false){const render=pageRenderer();
  const d=await api(aid?'readAccount':'myAccounts',{sessionId:sid,...(aid?{accountId:aid}:{})});
+ const fundingAccount=onlyGroups&&d.accounts.some(a=>a.kind==='GROUP')?d.accounts.find(a=>a.kind==='CHARACTER'):null;
  if(onlyGroups)d.accounts=d.accounts.filter(a=>a.kind==='GROUP');
  const group=aid?d.account.kind==='GROUP':onlyGroups;
- render(`<div class="narrow"><nav class="breadcrumb">${link(group?'Mon groupe':'Mon personnage',`${group?'groups':'play'}/${sid}`,'')}</nav>${aid?collectiveUi.detail(d):collectiveUi.list(d)}${onlyGroups&&!d.accounts.length?'<p class="empty">Aucune caisse de groupe ne vous est actuellement accessible.</p>':''}</div>`,group?'group':'character');
+ render(`<div class="narrow"><nav class="breadcrumb">${link(group?'Mon groupe':'Mon personnage',`${group?'groups':'play'}/${sid}`,'')}</nav>${fundingAccount?link('Alimenter une caisse',`account/${sid}/${fundingAccount.id}`,'button quiet'):''}${aid?collectiveUi.detail(d):collectiveUi.list(d)}${onlyGroups&&!d.accounts.length?'<p class="empty">Aucune caisse de groupe ne vous est actuellement accessible.</p>':''}</div>`,group?'group':'character');
 }
 async function walletPage(sid){const render=pageRenderer();if(!auth.currentUser){render(`<div class="narrow"><h1>Mon portefeuille</h1>${loginPanel()}</div>`);return;}const d=await api('myWallet',{sessionId:sid});render(`<div class="narrow"><nav class="breadcrumb">${link('Mon personnage',`play/${sid}`,'')}</nav>${economyUi.page(d)}</div>`);}
 async function bountiesPage(sid,id,admin=false){const render=pageRenderer();if(!auth.currentUser){render(`<div class="narrow"><h1>Primes ouvertes</h1>${loginPanel()}</div>`);return;}const d=await api(id?(admin?'sessionBounty':'bountyDetail'):(admin?'sessionBounties':'bounties'),{sessionId:sid,...(id?{bountyId:id}:{})});render(`<div class="narrow"><nav class="breadcrumb">${admin?link('Régie',`session/${sid}`,'')+link('Primes',`bounties-admin/${sid}`,''):link('Petites annonces',`missions/${sid}`,'')+link('Primes',`bounties/${sid}`,'')}</nav>${id?bountyUi.detail(d):bountyUi.list(d)}</div>`);}
@@ -435,9 +436,14 @@ document.addEventListener('click',async event=>{
       const d=await api('characterHistory',{...context,characterId:b.dataset.id});if(actionVersion!==routeVersion)return;
       modal(`<p class="eyebrow">Historique des publications</p><h2>Les fiches destinées au joueur</h2><p class="muted">Une publication est disponible seulement lorsque le briefing est ouvert. Cet historique ne prouve pas une lecture.</p>${d.versions.map(v=>`<details class="panel"><summary>Fiche ${v.revision} · ${new Date(v.at).toLocaleString('fr-FR')}</summary><p class="muted">${esc(v.reason)}${v.source==='LEGACY_CAPTURE'?' · Date de capture, date de publication d’origine inconnue.':''}<br>Auteur : ${esc(v.actorUid)}</p>${characterView(v.character)}</details>`).join('')||'<p class="empty">Aucune publication suivie pour cette fiche. Les fiches anciennes seront conservées lors de leur prochaine modification.</p>'}`);return;
     }
-    if(a==='groupWalletConfig'){const scope=b.dataset.scope,c=scope==='session'?currentSession:currentScenario;modal(collectiveUi.configure(c,scope,c.groups.find(g=>g.id===b.dataset.id)));return;}
+    if(a==='groupWalletConfig'){
+      const roster=b.dataset.roster==='true';
+      const scope=roster?'session':b.dataset.scope;
+      const c=roster?{id:currentRoster.sessionId,revision:currentRoster.revision,groups:currentRoster.groups}:scope==='session'?currentSession:currentScenario;
+      modal(collectiveUi.configure(c,scope,c.groups.find(g=>g.id===b.dataset.id)));return;
+    }
     if(a==='groupCreditAdjustment'){modal(collectiveUi.adjustment(currentSession,currentSession.groups.find(g=>g.id===b.dataset.id)));return;}
-    if(a==='groupWalletHistory'){const d=await api('walletHistory',{sessionId:currentSession.id,groupId:b.dataset.id});if(actionVersion!==routeVersion)return;modal(economyUi.history(d));return;}
+    if(a==='groupWalletHistory'){const d=await api('walletHistory',{sessionId:b.dataset.roster==='true'?currentRoster.sessionId:currentSession.id,groupId:b.dataset.id});if(actionVersion!==routeVersion)return;modal(economyUi.history(d));return;}
     if(a==='accountPreviewForm'){modal(collectiveUi.previewForm(currentSession,currentSession.groups.find(g=>g.id===b.dataset.id),b.dataset.account));return;}
     if(a==='accountPaymentForm'){const [d,choices]=await Promise.all([api('readAccount',{sessionId:b.dataset.sid,accountId:b.dataset.id}),api('myAccounts',{sessionId:b.dataset.sid})]);if(actionVersion!==routeVersion)return;if(!d.canPay)throw new Error('Ce compte ne permet pas de payer actuellement. Actualisez.');modal(collectiveUi.payment(d,choices.accounts));return;}
     if(a==='economyRules'){const scope=b.dataset.scope;modal(economyUi.rules(scope==='session'?currentSession:currentScenario,scope));return;}

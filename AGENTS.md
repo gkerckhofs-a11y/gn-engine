@@ -1,5 +1,13 @@
 # GN Engine — consignes de développement
 
+## Mandats de caisse collective — 7 novembre 2026
+
+Base `b357cac2e76676b5af7dd0b891661668b8677033`, [CI 42243196257](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42243196257) réussie sur le commit exact. Périmètre §4.11. Voir [groupes en session](docs/SO-GROUPES-SESSION.md).
+
+Les versions publiées avec `groupWalletVersion=1` raccordent les droits distincts de consultation et de paiement. L’ouverture à zéro est une commande MJ confirmée, distincte de la création du groupe. Les crédits ordinaires circulent par le service de comptes et le journal natifs. Les accès et les reçus sont revérifiés après transfert, retrait ou révocation. Décès et relève réutilisent la révocation native. L’épisode suivant reprend le solde et les mandats courants. Le libellé de couverture de la caisse est transmis aux contreparties.
+
+Validation locale dans douze fichiers (170 tests) et compilation réussies. Profil CI `targeted-group-wallets` avec 90 fichiers applicatifs, 54 suites Firestore et 27 HTTP sélectionnés. Résultat du commit exact dans PR #2. Mandats de biens et pilotage collectif, Master Vn+1 et recette restent à traiter.
+
 ## Recherche unifiée des personnages — 6 novembre 2026
 
 Base `918e68f0afad1b55de7da1f904dad42c32c23c85`, [CI 42237060772](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42237060772) completed/success : 1 082 applicatifs, 858 Firestore et 25 HTTP. [Parcours, sources et limites](docs/SO-RECHERCHE-PERSONNAGES.md).

@@ -72,3 +72,11 @@ test('Action : les deux historiques sont intégrables sans multiplier les champs
  const person={session:{id:'s1',stage:'PAUSE'},character:{id:'c1'},convalescenceMs:0,captureMs:0,encounter:{taken:false},skills:[],aidOffers:[],actions:[]};
  const ph=personMineHtml(person,{embedded:true});assert.ok(!ph.includes('data-person-form="badge"'));assert.ok(ph.includes('data-person-form="offer"'));assert.ok(personMineHtml(person).includes('data-person-form="badge"'));
 });
+
+test('Navigation SO : accès à Mon groupe sur une session compatible',()=>{
+ const route=playerRoute('play','s1'),d=context();
+ d.session.spaceOutlaws={actionsVersion:1};
+ assert.doesNotMatch(playerShell(d,route,''),/href="#\/groups\/s1"/);
+ d.session.spaceOutlaws.groupsVersion=1;
+ assert.match(playerShell(d,route,''),/href="#\/groups\/s1"/);
+});

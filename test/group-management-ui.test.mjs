@@ -49,3 +49,11 @@ test('Catalogue UI : filtres, liens réciproques et réserves sans formulaire de
  assert.equal(rosterCharacterMatches(rows[1],'Ari','ACTIVE'),true);assert.equal(rosterCharacterMatches(rows[2],'','RESERVE'),true);assert.equal(rosterCharacterMatches(rows[2],'','ACTIVE'),false);
  const d={...data,characters:rows};assert.match(ui.page(d,'','RESERVE'),/Réserve non incarnée/);assert.doesNotMatch(ui.page(d,'','RESERVE'),/data-action="rosterMember"|<img/);for(const id of ['old','reserve'])assert.doesNotMatch(ui.member(d,id),/data-form=|name="targetGroupId"/);assert.match(ui.member(d,'new'),/name="targetGroupId"/);
 });
+
+test('Régie UI : caisse configurable sur version compatible et historique accessible en lecture seule',()=>{
+ const d={...data,groupWalletsEnabled:true,groups:[{...group,walletConfig:{label:'Comptoir'}}]};
+ assert.match(ui.page(d),/data-action="groupWalletConfig"[^>]*data-roster="true"/);
+ assert.doesNotMatch(ui.page({...d,closed:true}),/data-action="groupWalletConfig"/);
+ assert.match(ui.page({...d,closed:true}),/data-action="groupWalletHistory"/);
+ assert.doesNotMatch(ui.page(data),/data-action="groupWalletConfig"/);
+});

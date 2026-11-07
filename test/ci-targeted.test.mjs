@@ -194,3 +194,11 @@ test('Ciblage souhaits : lecture privée et régie native, sans régression int�
 test('Ciblage catalogue : réserves, relève et recherche sans régression intégrale',()=>{
  const p=targetedScope('roster-search',['src/core/space-outlaws-roster.mjs','web/group-management.mjs','test/support/space-roster-suite.mjs'],{reliableBase:true});assert.equal(requestedTarget('[ci targeted:roster-search]'),'roster-search');assert.ok(p.suites.includes('space-roster'));assert.ok(p.suites.includes('space-succession'));assert.ok(new RegExp(p.httpPattern).test('HTTP + Auth : catalogue de personnages, confidentialité'));assert.equal(p.browser,false);assert.doesNotThrow(()=>applicationCommand(JSON.stringify(p.applicationTests)));assert.throws(()=>targetedScope('roster-search',['package.json'],{reliableBase:true}));
 });
+
+test('Ciblage caisses SO : scénario natif, mandats et HTTP sélectionnés',()=>{
+ const p=targetedScope('group-wallets',['src/core/collective-accounts.mjs','src/core/space-outlaws-entry-guard.mjs','web/collective-accounts.mjs','test/support/space-group-wallets-suite.mjs'],{reliableBase:true});
+ assert.equal(requestedTarget('[ci targeted:group-wallets]'),'group-wallets');
+ assert.ok(p.suites.includes('collective'));assert.ok(p.suites.includes('space-group-wallets'));
+ assert.ok(new RegExp(p.httpPattern).test('HTTP + Auth : caisse SO, mandat'));
+ assert.equal(p.browser,false);assert.doesNotThrow(()=>applicationCommand(JSON.stringify(p.applicationTests)));
+});

@@ -1,5 +1,9 @@
 # Space Outlaws — groupes et factions en session
 
+Depuis le 7 novembre 2026, les sessions issues d’une version publiée avec `groupWalletVersion=1` disposent des deux mandats de caisse. Les propositions M2 conservent leurs droits de briefing et de liste des membres. Les mandats financiers se valident explicitement dans la régie de session.
+
+Dans **Groupes et mandats**, le MJ ouvre la caisse d’un groupe configuré à zéro et choisit le libellé visible lors des paiements. Les joueurs la retrouvent sous **Mon groupe → Mes caisses de groupe**. Un titulaire autorisé peut l’alimenter depuis son portefeuille ordinaire. Consulter ouvre le solde et l’historique. Payer autorise la dépense pendant le jeu et masque ces données si le droit de consultation est absent. Les paiements confirmés réutilisent le journal natif. Un changement de mandat invalide la confirmation, et le solde reste attaché au groupe. Cette tranche couvre la caisse. Les biens et le pilotage collectif restent à raccorder.
+
 Mise à jour : [raccord des définitions et propositions M2](SO-GROUPES-M2.md). La limitation historique sur leur publication, décrite ci-dessous pour la première tranche, est levée pour les nouvelles versions compatibles.
 
 6 novembre 2026. Auteur : Codex. Base `f40023ab225295a7cdf7241a16e0c7758ee582f9`, [CI 42206813645](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42206813645) completed/success, huit jobs, 957 applicatifs / 750 Firestore / 22 HTTP. Même branche et PR nº 2.

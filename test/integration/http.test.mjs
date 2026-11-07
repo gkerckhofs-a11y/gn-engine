@@ -1,3 +1,4 @@
+import {spaceGroupWalletFixture} from '../support/space-group-wallets-suite.mjs';
 import {groupRequestsFixture,friendWishA,friendWishB} from '../support/space-group-requests-suite.mjs';
 import {groupDefinitionsFixture} from '../support/space-group-definitions-suite.mjs';
 import {spaceGroupsFixture} from '../support/space-groups-suite.mjs';
@@ -1785,4 +1786,24 @@ test('HTTP + Auth : catalogue de personnages, consultation privée sans incarnat
  const f=await spaceGroupsFixture(()=>firestoreStore(getFirestore())),{db,base,sessionId,player,tech,outsider,call}=await towingHttpActors(f,1000000),before=await f.assets(),d=await call('groupManagement');
  assert.equal(d.characters.find(c=>c.id===f.cid).rosterState,'ACTIVE');assert.equal(d.characters.find(c=>c.id==='reserve').rosterState,'RESERVE');assert.equal(d.characters.find(c=>c.id==='reserve').canManageMembership,false);assert.equal((await db.doc(`${base}/characters/reserve`).get()).exists,false);assert.deepEqual(await f.assets(),before);assert.doesNotMatch(JSON.stringify(d.characters),/assignedUid|@|SECRET_|creationPlan/);
  for(const token of [player,tech,outsider])assert.equal((await request('groupManagement',{sessionId},token)).status,403);const badge=await request('publicBadge',{sessionId,characterId:'reserve'},player);assert.equal(badge.status,400);assert.equal(badge.error,'NOT_FOUND');assert.deepEqual(await f.assets(),before);
+});
+
+
+test('HTTP + Auth : caisse SO, mandat de paiement séparé et révocation avant reçu',async()=>{
+ const f=await spaceGroupWalletFixture(()=>firestoreStore(getFirestore()));
+ const {base,db,sessionId,player,tech,outsider,call,cmd,uid}=await towingHttpActors(f,1000000);
+ const accountId=f.walletId;
+ const payer=await call('readAccount',{accountId},tech);
+ assert.equal(payer.canPay,true);assert.equal(payer.entries,undefined);assert.equal(payer.balances,undefined);
+ assert.equal((await call('readAccount',{accountId},player)).balances.balance,40);
+ assert.equal((await request('readAccount',{sessionId,accountId},outsider)).status,403);
+ assert.equal((await request('prepareAccountPayment',{sessionId,...f.spend},player)).status,403);
+ const quote=await call('prepareAccountPayment',f.spend,tech);
+ const input={...f.spend,confirmation:quote.confirmation,requestId:randomUUID()};
+ const paid=await cmd('payFromAccount',input,tech);
+ assert.deepEqual(await cmd('payFromAccount',input,tech),paid);
+ assert.equal(paid.source.name,'Comptoir des Dunes');assert.equal(paid.account,undefined);
+ await cmd('revokeAccess',{uid:uid(tech)});
+ assert.equal((await request('payFromAccount',{sessionId,...input},tech)).status,403);
+ assert.equal((await db.doc(`${base}/accounts/${accountId}`).get()).data().balance,30);
 });

@@ -1,3 +1,4 @@
+import {hasSoGroupWallets} from '../shared/space-outlaws-groups.mjs';
 import {isDeepStrictEqual} from 'node:util';
 import {requireThat} from './validation.mjs';
 
@@ -24,6 +25,7 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(path.startsWith(`${base}audit/`))continue;
   const relative=path.slice(base.length);
   if(scopes.has('GROUP_MANAGEMENT')&&session.spaceOutlaws.groupsVersion===1&&/^groups\/[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
+  if(scopes.has('GROUP_WALLET_CONFIG')&&hasSoGroupWallets(session)&&/^(groups\/[^/]+(?:\/history\/[^/]+)?|accounts\/[a-f0-9]{64}(?:\/history\/[a-f0-9]{64})?|ledger\/[a-f0-9]{64})$/.test(relative))continue;
   if(scopes.has('ESCORT_AMENDMENT')&&session.spaceOutlaws.escortAmendmentVersion===1&&/^(ships\/[^/]+|contracts\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('ESCORT')&&session.spaceOutlaws.escortVersion===1&&/^(ships\/[^/]+|characters\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|contracts\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('TRANSPORT')&&session.spaceOutlaws.transportVersion===1&&/^inventory\/[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
