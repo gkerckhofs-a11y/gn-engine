@@ -1814,7 +1814,9 @@ test('HTTP + Auth : stock SO, dépôt privé et retrait selon le mandat courant'
  const f=await spaceGroupStockFixture(()=>firestoreStore(getFirestore()));
  const {sessionId,player,tech,outsider,call,cmd,uid}=await towingHttpActors(f,1000000);
  const warehouseId=f.warehouseId;
- assert.equal((await request('warehouseDetail',{sessionId,warehouseId},outsider)).status,403);
+ const denied=await request('warehouseDetail',{sessionId,warehouseId},outsider);
+ const missing=await request('warehouseDetail',{sessionId,warehouseId:'absent'},outsider);
+ assert.equal(denied.status,403);assert.equal(missing.status,denied.status);assert.equal(missing.error,denied.error);
  const detail=await call('warehouseDetail',{warehouseId},player);
  assert.equal(detail.canDeposit,true);assert.deepEqual(detail.stock,[]);assert.equal(detail.used,null);
  const q=await call('prepareWarehouseMove',f.deposit,player);

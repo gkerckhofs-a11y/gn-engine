@@ -100,7 +100,8 @@ export function createLogisticsService({store,signed,checkSession,now,uuid}){
         return audit({id:eventId,lotId:lot.id,quantity,pellets},{lotId:lot.id,quantity,pellets});
       }
 
-      const wid=documentId(input.warehouseId),w=await tx.get(`${base}/warehouses/${wid}`);requireThat(w,'WAREHOUSE_UNAVAILABLE');
+      const wid=documentId(input.warehouseId),w=await tx.get(`${base}/warehouses/${wid}`);
+      requireThat(w,factionStock?'FORBIDDEN':'WAREHOUSE_UNAVAILABLE');
       const access=warehouseAccess(w,c.id,groups),viewWarehouse=publicWarehouse(w,access,time);
       if(factionStock)requireThat(w.groupStock===true&&access.access,'FORBIDDEN');
       if(action==='warehouseDetail'){
