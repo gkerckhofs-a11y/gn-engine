@@ -51,5 +51,6 @@ test('Central UI : ouvre la version suivante puis montre les éditeurs web',()=>
  assert.match(draft,/data-action="centralImport"/);
  assert.match(draft,/data-action="centralExport"/);
  assert.match(ui.exportForm({...model,draft:{...base,revision:3}}),/data-draft-id="revision-1" data-draft="3"/);
- assert.doesNotMatch(draft,/data-action="centralSnapshotPreview"/);
+ assert.match(draft,/data-action="centralSnapshotPreview"/);
+ assert.match(draft,/central-snapshots\/campaign\/revision-1/);
 });

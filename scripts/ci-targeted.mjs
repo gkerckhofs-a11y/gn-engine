@@ -153,6 +153,9 @@ targetedProfiles['central-revision-excel']={...targetedProfiles['central-revisio
  suites:[...targetedProfiles['central-revision-check'].suites,'central-character-import','central-field-import','central-shop-import','central-space-import','central-story-import'],
  files:[...targetedProfiles['central-revision-check'].files,'src/core/central-import.mjs','web/central-import.mjs'],
 };
+targetedProfiles['central-revision-snapshots']={...targetedProfiles['central-revision-excel'],
+ files:[...targetedProfiles['central-revision-excel'].files,'src/core/central-snapshots.mjs','web/central-snapshots.mjs','test/central-snapshots-ui.test.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

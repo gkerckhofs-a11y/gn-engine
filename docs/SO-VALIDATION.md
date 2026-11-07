@@ -1,5 +1,11 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Instantanés privés du Master Vn+1 — 7 novembre 2026
+
+Dans les ateliers du Vn+1, **Conserver un instantané** permet au propriétaire de confirmer la capture d’une révision après aperçu. Elle contient toutes les définitions effectives, y compris les définitions héritées et les archives de travail, ainsi que le rapport de comparaison et ses diagnostics. L’empreinte de la version publiée de départ est conservée. La capture suit les droits, reçus, bornes et pages scellées du [parcours C2n](SO-02-C2N-INSTANTANES-CENTRAUX.md). La liste, les liens et le téléchargement du Vn+1 sont liés à son identifiant de brouillon. Un contrôleur disposant encore de la lecture globale peut consulter et télécharger la copie privée.
+
+La capture est stockée sous `campaigns/{cid}/masterDrafts/revision-{pointerRevision}/checks/{snapshotId}`. Une retouche ultérieure laisse la copie et le rapport historiques intacts. Le périmètre couvre la conservation et la relecture dans le cycle du brouillon ouvert. La publication du Vn+1, les contrôles sur les données de jeu et le retour de version restent à traiter. Validation ciblée du commit exact dans la [PR #2](https://github.com/gkerckhofs-a11y/gn-engine/pull/2).
+
 ## Excel du Master Vn+1 — 7 novembre 2026
 
 Les sept ateliers réutilisent leurs formats Excel existants sur le brouillon après publication. Un export de sélection ou un gabarit porte l’identifiant du brouillon, sa révision et sa version de base. Un fichier de première préparation ou d’un autre brouillon est refusé. Les formats gardent leur périmètre, notamment les kits M1 et les groupes M2 édités sur le web.

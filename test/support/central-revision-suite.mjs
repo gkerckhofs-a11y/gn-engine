@@ -82,7 +82,7 @@ export function centralRevisionSuite(makeStore,prefix='Master Vn+1'){
   assert.ok(d.changes.every(c=>c.workshop==='M1'));
   assert.equal((await f.read('dashboard',f.mj)).centralCampaigns[0].id,f.campaignId);
   await assert.rejects(f.central('centralMaster',{workshop:'M2'},f.mj),{code:'FORBIDDEN'});
-  await assert.rejects(f.central('previewCentralSnapshot'),{code:'CENTRAL_REVISION_WEB_ONLY'});
+  await assert.rejects(f.central('previewCentralSnapshot'),{code:'STALE_REVISION'});
   const check=(actor,patch={})=>f.central('checkCentralDraft',{draftId,draftRevision:0,...patch},actor);
   await assert.rejects(check(f.mj),{code:'FORBIDDEN'});
   await f.grant(1,{readWorkshops:['M1','M2','M3','M4','M5','M6','M7'],editWorkshops:['M1'],checkCentral:true});
@@ -94,6 +94,64 @@ export function centralRevisionSuite(makeStore,prefix='Master Vn+1'){
   await assert.rejects(check(f.mj),{code:'FORBIDDEN'});
   await assert.rejects(f.cc('saveCentralItem',input,f.mj),{code:'FORBIDDEN'});
   await assert.rejects(f.read('dashboard',f.mj),{code:'FORBIDDEN'});
+ });
+
+ test(`${prefix} : instantané complet, immuable et isolé après une édition`,async()=>{
+  const f=await entryFixture(makeStore),campaign=`campaigns/${f.campaignId}`,session=`sessions/${f.sid}`;
+  const {versionId}=await f.release(await f.releasePreview()),birth=await f.birthPreview();
+  const {id:draftId}=await f.cc('openCentralRevision',{baseVersionId:versionId,pointerRevision:1,reason:'Préparer V2'});
+  const versionPath=`${campaign}/versions/${versionId}`,version=await f.store.get(versionPath);
+  const draftPath=`${campaign}/masterDrafts/${draftId}`,before=await f.store.get(campaign),beforeSession=await f.store.get(session);
+  const preview=await f.central('previewCentralSnapshot',{draftId,draftRevision:0});
+  assert.equal(preview.report.draft.baseVersionId,versionId);
+  assert.equal(preview.records,version.records);
+  assert.deepEqual(preview.report.diff,[]);
+  assert.deepEqual(await f.store.list(`${draftPath}/checks`),[]);
+  const capture={draftId,draftRevision:0,confirmation:preview.confirmation,reason:'Avant retouche'};
+  const [first,retry]=await Promise.all([f.cc('captureCentralSnapshot',capture),f.cc('captureCentralSnapshot',capture)]);
+  assert.deepEqual(first,retry);
+  const read=()=>f.central('centralSnapshot',{draftId,snapshotId:first.id});
+  const saved=await read();
+  assert.equal(saved.header.source.baseManifestDigest,version.manifestDigest);
+  assert.ok(saved.changes.some(c=>c.revision>0));
+  const item=saved.changes.find(c=>c.type==='item');
+  await f.cc('saveCentralItem',{draftId,draftRevision:0,itemId:item.entityId,itemRevision:item.data.revision,item:{...centralTestItem,name:'Nom du brouillon'},reason:'Retouche'});
+  assert.deepEqual(await f.cc('captureCentralSnapshot',capture),first);
+  const old=await read();
+  assert.equal(old.sourceIsCurrentRevision,false);
+  assert.deepEqual(old.changes,saved.changes);
+  assert.deepEqual(old.report,saved.report);
+  const next=await f.central('previewCentralSnapshot',{draftId,draftRevision:1});
+  const second=await f.cc('captureCentralSnapshot',{...capture,draftRevision:1,confirmation:next.confirmation,reason:'Après retouche'});
+  const edited=await f.central('centralSnapshot',{draftId,snapshotId:second.id});
+  assert.equal(edited.changes.find(c=>c.id===item.id).data.name,'Nom du brouillon');
+  assert.equal(edited.changes.length,saved.changes.length);
+  assert.equal((await f.central('listCentralSnapshots',{draftId})).snapshots.length,2);
+  assert.deepEqual(await f.store.list(`${f.base}/checks`),[]);
+  assert.deepEqual(await f.store.get(campaign),before);
+  assert.deepEqual(await f.store.get(session),beforeSession);
+  assert.deepEqual(await f.store.get(versionPath),version);
+  await f.birth(birth);
+  assert.equal((await f.store.get(session)).versionId,versionId);
+ });
+
+ test(`${prefix} : instantané lié au brouillon, droits revérifiés et intégrité des pages`,async()=>{
+  const f=await entryFixture(makeStore),{versionId}=await f.release(await f.releasePreview());
+  const {id:draftId}=await f.cc('openCentralRevision',{baseVersionId:versionId,pointerRevision:1,reason:'Préparer V2'});
+  const scope={draftId,draftRevision:0},preview=await f.central('previewCentralSnapshot',scope);
+  const input={...scope,confirmation:preview.confirmation,reason:'Copie privée',requestId:randomUUID()};
+  await assert.rejects(f.cc('captureCentralSnapshot',{...input,draftId:'revision-2'}),{code:'STALE_REVISION'});
+  await f.grant(0,{readWorkshops:['M1','M2','M3','M4','M5','M6','M7'],editWorkshops:[],checkCentral:true});
+  await assert.rejects(f.central('previewCentralSnapshot',scope,f.mj),{code:'FORBIDDEN'});
+  const out=await f.cc('captureCentralSnapshot',input),link={draftId,snapshotId:out.id};
+  await assert.rejects(f.cc('captureCentralSnapshot',input,f.mj),{code:'FORBIDDEN'});
+  assert.equal((await f.central('centralSnapshot',link,f.mj)).snapshot.id,out.id);
+  await f.grant(1,{active:false});
+  await assert.rejects(f.central('centralSnapshot',link,f.mj),{code:'FORBIDDEN'});
+  const pagePath=`campaigns/${f.campaignId}/masterDrafts/${draftId}/checks/${out.id}/pages/0`;
+  const page=await f.store.get(pagePath);
+  await f.store.runTransaction(async tx=>tx.set(pagePath,{...page,entries:[]}));
+  await assert.rejects(f.central('centralSnapshot',link),{code:'CENTRAL_SNAPSHOT_INVALID'});
  });
 
  test(`${prefix} : diff net et références affectées sur les définitions héritées`,async()=>{

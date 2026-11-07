@@ -1,5 +1,11 @@
 # GN Engine — consignes de développement
 
+## Instantanés du Master Vn+1 — 7 novembre 2026
+
+Base `9b1616adf499497b9a96fa03ff2cb25b058e16b7`, [CI 42373840202](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42373840202) réussie sur le commit exact. Périmètre §3.6, voir [rapport courant](docs/SO-VALIDATION.md).
+
+Réutiliser les captures C2n sous le brouillon Vn+1 courant. Le propriétaire confirme une révision, la capture fige les définitions effectives et le rapport, et les droits du contrôle central protègent la relecture et le téléchargement. Préserver l’identité du brouillon, l’empreinte du parent et le pointeur actif. Profil `targeted-central-revision-snapshots` : 96 fichiers applicatifs, 65 suites Firestore et 30 HTTP sélectionnés. Consigner le résultat du commit exact dans PR #2 avant la tranche suivante.
+
 ## Excel du Master Vn+1 — 7 novembre 2026
 
 Base `600eba6d9f90376259f3c2d22af96aa37e090dd2`, [CI 42371982795](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42371982795) réussie sur le commit exact. Périmètre §3.6–3.8. Voir [rapport courant](docs/SO-VALIDATION.md).

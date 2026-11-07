@@ -1214,6 +1214,18 @@ test('HTTP + Auth : candidature, naissance, QR, soins, sécurité, boutique et r
  assert.equal(imported.draftRevision,2);
  const afterImport=await call('checkCentralDraft',{...check,draftRevision:2});
  assert.deepEqual(afterImport.diff.map(d=>[d.id,d.fields,d.location.sheet]),[[inherited.entityId,['description','name'],'Objets']]);
+ const snapshotScope={...check,draftRevision:2},snapshotPreview=await call('previewCentralSnapshot',snapshotScope);
+ assert.equal((await request('previewCentralSnapshot',snapshotScope,player)).status,403);
+ const snapshotInput={...snapshotScope,confirmation:snapshotPreview.confirmation,reason:'Instantané après Excel',requestId:randomUUID()};
+ const snapshot=await cmd('captureCentralSnapshot',snapshotInput);
+ assert.deepEqual(await cmd('captureCentralSnapshot',snapshotInput),snapshot);
+ const snapshotLink={campaignId,draftId,snapshotId:snapshot.id};
+ assert.equal((await request('centralSnapshot',snapshotLink,player)).status,403);
+ const saved=await call('centralSnapshot',snapshotLink);
+ assert.equal(saved.header.source.baseVersionId,versionId);
+ assert.equal(saved.changes.find(c=>c.id===inherited.id).data.description,'Révision via Excel');
+ assert.equal(saved.changes.find(c=>c.type==='knowledge').data.body,'RENSEIGNEMENT_HTTP_PRIVE');
+ assert.equal((await call('listCentralSnapshots',{campaignId,draftId})).snapshots[0].id,snapshot.id);
  const birth={sessionId,uid,options,confirmation:b.confirmation,reason:'Entrée de test',requestId:randomUUID()};assert.equal((await request('birthSpaceOutlaws',birth,player)).status,403);
  const born=await cmd('birthSpaceOutlaws',birth);assert.deepEqual(await cmd('birthSpaceOutlaws',birth),born);
  const own=await call('mySession',{sessionId},player);assert.equal(own.character.id,born.characterId);assert.equal(own.actionPoints.available,5);assert.equal(own.character.hp,3);assert.equal((await call('mySession',{sessionId},other)).character,null);
