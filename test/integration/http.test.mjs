@@ -1194,6 +1194,14 @@ test('HTTP + Auth : candidature, naissance, QR, soins, sécurité, boutique et r
  const edit={campaignId,draftId,draftRevision:0,itemId:inherited.entityId,itemRevision:inherited.data.revision,item:{...centralTestItem,kind:'STACKABLE',consumable:true,name:'Nouveau nom pour V2'},reason:'Révision web'};
  await cmd('saveCentralItem',edit);
  assert.equal((await call('centralMaster',{campaignId,workshop:'M1'})).changes.find(c=>c.id===inherited.id).data.name,edit.item.name);
+ const check={campaignId,draftId,draftRevision:1};
+ assert.equal((await request('checkCentralDraft',check,player)).status,403);
+ assert.equal((await request('checkCentralDraft',{...check,draftRevision:0},owner)).error,'STALE_REVISION');
+ const report=await call('checkCentralDraft',check);
+ assert.equal(report.draft.baseVersionId,versionId);
+ assert.deepEqual(report.diff.map(d=>[d.id,d.operation,d.fields]),[[inherited.entityId,'UPDATE',['name']]]);
+ assert.ok(report.edges.some(e=>e.from.workshop==='M5'&&e.to.id===inherited.entityId&&e.status==='RESOLVED'));
+ assert.doesNotMatch(JSON.stringify(report),/SECRET_HTTP_MJ|RENSEIGNEMENT_HTTP_PRIVE|SECRET_BOUTIQUE_HTTP/);
  const birth={sessionId,uid,options,confirmation:b.confirmation,reason:'Entrée de test',requestId:randomUUID()};assert.equal((await request('birthSpaceOutlaws',birth,player)).status,403);
  const born=await cmd('birthSpaceOutlaws',birth);assert.deepEqual(await cmd('birthSpaceOutlaws',birth),born);
  const own=await call('mySession',{sessionId},player);assert.equal(own.character.id,born.characterId);assert.equal(own.actionPoints.available,5);assert.equal(own.character.hp,3);assert.equal((await call('mySession',{sessionId},other)).character,null);

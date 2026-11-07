@@ -1,5 +1,11 @@
 # GN Engine — consignes de développement
 
+## Comparaison et contrôle du Master Vn+1 — 7 novembre 2026
+
+Base `569d84fabb2c5ca3cbf06a62bdf77cf10cdd755d`, [CI 42370086308](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42370086308) réussie sur le commit exact. Périmètre §3.6, comparaison et contrôle des références raccordées. Voir [rapport courant](docs/SO-VALIDATION.md).
+
+Réutiliser la validation centrale et le graphe des sept ateliers. Vérifier le manifeste et distinguer les révisions héritées des révisions d’édition. Le diff net présente les opérations et noms de champs, avec références ajoutées, retirées et affectées. Préserver l’autorité de contrôle global, la provenance et le rapport historique de première préparation. Le rapport Vn+1 n’ouvre aucun droit de publication. Profil `targeted-central-revision-check` : 96 fichiers applicatifs, 60 suites Firestore et 30 HTTP sélectionnés. Consigner le résultat du commit exact dans PR #2 avant la tranche suivante.
+
 ## Brouillon du Master après publication — 7 novembre 2026
 
 Base `d2228837f30795e6673d7ebe1f5d9d69f0f44925`, [CI 42366339038](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42366339038) réussie sur le commit exact. Périmètre §3.6, ouverture et édition web, voir [rapport courant](docs/SO-VALIDATION.md).

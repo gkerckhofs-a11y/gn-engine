@@ -1,5 +1,13 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Comparaison et contrôle du Master Vn+1 — 7 novembre 2026
+
+Le rapport du brouillon compare la base publiée vérifiée et les modifications web. Il distingue les ajouts, modifications, archivages et restaurations. Une définition revenue à son état publié disparaît du diff net. Le rapport indique les champs modifiés, y compris ceux liés à la confidentialité, à la visibilité et aux QR, sans afficher leurs valeurs privées.
+
+Le graphe vérifie les définitions héritées et modifiées ensemble. Il identifie les liens ajoutés, retirés ou dont la cible a changé d’état, par exemple un kit intact dont un objet est archivé dans le brouillon. Les diagnostics gardent la provenance des définitions. Le propriétaire et les délégués explicitement habilités au contrôle global y accèdent avec l’identifiant et la révision du brouillon. Le rapport est en lecture seule et respecte les limites centrales de 1 809 définitions effectives, 16 Mio d’entrées et 4 Mio de sortie.
+
+Périmètre §3.6, aperçu du diff et contrôle des références raccordées. Les vérifications sur les données opérationnelles et les références signalées comme non contrôlées restent à compléter. Excel, instantanés, publication et retour de version Vn+1 restent à raccorder. Preuves du commit exact dans [PR #2](https://github.com/gkerckhofs-a11y/gn-engine/pull/2).
+
 ## Brouillon du Master après publication — 7 novembre 2026
 
 Le propriétaire ouvre depuis le tableau de bord un brouillon commun Vn+1 rattaché au manifeste publié et à la révision de son pointeur. Les ateliers héritent des définitions figées. Ils enregistrent seulement les ajouts, modifications et archivages web dans ce brouillon. Les droits de lecture et d’édition restent distincts par atelier. Chaque modification conserve le motif, l’auteur et la définition précédente.

@@ -144,6 +144,11 @@ targetedProfiles['central-revision']={...targetedProfiles['group-pilot'],
  httpPattern:targetedProfiles['group-pilot'].httpPattern.replace('Master central,|','candidature, naissance,|Master central,|'),
  files:[...targetedProfiles['group-pilot'].files,'test/central-revision.test.mjs','test/support/central-revision-suite.mjs'],
 };
+targetedProfiles['central-revision-check']={...targetedProfiles['central-revision'],
+ tests:[...targetedProfiles['central-revision'].tests,'test/central-check-ui.test.mjs'],
+ suites:[...targetedProfiles['central-revision'].suites,'central-check','central-review'],
+ files:[...targetedProfiles['central-revision'].files,'src/core/central-check.mjs','web/central-check.mjs','test/central-check-ui.test.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

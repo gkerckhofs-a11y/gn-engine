@@ -39,7 +39,7 @@ test('Central UI : MOD-05 préparatoire, prix non éditable et remorquage explic
 });
 
 test('Central UI : ouvre la version suivante puis montre les éditeurs web',()=>{
- const base={baseVersionId:'v1',pointerRevision:1};
+ const base={id:'revision-1',baseVersionId:'v1',pointerRevision:1};
  const published=ui.page({...model,draft:{status:'PUBLISHED',...base}});
  assert.match(published,/data-form="centralRevision" data-cid="campaign" data-version="v1" data-pointer="1"/);
  assert.match(published,/Ouvrir le brouillon V2/);
@@ -47,5 +47,6 @@ test('Central UI : ouvre la version suivante puis montre les éditeurs web',()=>
  const draft=ui.page({...model,draft:{...base,status:'DRAFT',revision:0},rights:{...model.rights,editWorkshops:['M1'],checkCentral:true,manageStaff:true}});
  assert.match(draft,/brouillon V2/);
  assert.match(draft,/data-action="centralItem"/);
- assert.doesNotMatch(draft,/data-action="centralImport"|data-action="centralExport"|data-action="centralSnapshotPreview"|#\/central-check\//);
+ assert.match(draft,/#\/central-check\/campaign\/0\/revision-1/);
+ assert.doesNotMatch(draft,/data-action="centralImport"|data-action="centralExport"|data-action="centralSnapshotPreview"/);
 });
