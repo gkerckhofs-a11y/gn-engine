@@ -1,3 +1,4 @@
+import {spaceGroupStockFixture} from '../support/space-group-stock-suite.mjs';
 import {spaceGroupWalletFixture} from '../support/space-group-wallets-suite.mjs';
 import {groupRequestsFixture,friendWishA,friendWishB} from '../support/space-group-requests-suite.mjs';
 import {groupDefinitionsFixture} from '../support/space-group-definitions-suite.mjs';
@@ -1806,4 +1807,27 @@ test('HTTP + Auth : caisse SO, mandat de paiement séparé et révocation avant 
  await cmd('revokeAccess',{uid:uid(tech)});
  assert.equal((await request('payFromAccount',{sessionId,...input},tech)).status,403);
  assert.equal((await db.doc(`${base}/accounts/${accountId}`).get()).data().balance,30);
+});
+
+
+test('HTTP + Auth : stock SO, dépôt privé et retrait selon le mandat courant',async()=>{
+ const f=await spaceGroupStockFixture(()=>firestoreStore(getFirestore()));
+ const {sessionId,player,tech,outsider,call,cmd,uid}=await towingHttpActors(f,1000000);
+ const warehouseId=f.warehouseId;
+ assert.equal((await request('warehouseDetail',{sessionId,warehouseId},outsider)).status,403);
+ const detail=await call('warehouseDetail',{warehouseId},player);
+ assert.equal(detail.canDeposit,true);assert.deepEqual(detail.stock,[]);assert.equal(detail.used,null);
+ const q=await call('prepareWarehouseMove',f.deposit,player);
+ assert.equal(q.used,undefined);
+ const input={...f.deposit,confirmation:q.confirmation,requestId:randomUUID()};
+ const deposited=await cmd('moveWarehouseStock',input,player);
+ const stock=await call('warehouseDetail',{warehouseId},tech);
+ assert.equal(stock.stock[0].id,deposited.id);assert.equal(stock.canMove,true);
+ const take={warehouseId,lotId:deposited.id,direction:'WITHDRAW',quantity:1};
+ assert.equal((await request('prepareWarehouseMove',{sessionId,...take},player)).status,403);
+ const quote=await call('prepareWarehouseMove',take,tech);
+ await cmd('moveWarehouseStock',{...take,confirmation:quote.confirmation},tech);
+ await cmd('revokeAccess',{uid:uid(player)});
+ assert.equal((await request('moveWarehouseStock',{sessionId,...input},player)).status,403);
+ assert.equal((await f.get(`inventory/${deposited.id}`)).quantity,2);
 });

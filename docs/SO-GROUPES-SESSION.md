@@ -1,5 +1,9 @@
 # Space Outlaws — groupes et factions en session
 
+Depuis le 7 novembre 2026, les versions avec `groupStockVersion=1` permettent au MJ d’attribuer des entrepôts privés dans **Groupes et mandats → Entrepôts de groupe**. Le MJ choisit le groupe et la capacité. L’entrepôt est attribué à ce groupe pour la session et se retrouve à l’épisode suivant.
+
+Un mandat de dépôt permet de céder un bien ordinaire du sac au groupe. Un mandat de consultation permet de voir le stock. Un retrait exige la consultation et le droit de retrait. Les confirmations annoncent le changement de propriétaire. La régie peut fermer les dépôts tout en laissant les retraits autorisés. Les opérations confirmées figurent au journal. La caisse, la location et le pilotage relèvent de parcours distincts.
+
 Depuis le 7 novembre 2026, les sessions issues d’une version publiée avec `groupWalletVersion=1` disposent des deux mandats de caisse. Les propositions M2 conservent leurs droits de briefing et de liste des membres. Les mandats financiers se valident explicitement dans la régie de session.
 
 Dans **Groupes et mandats**, le MJ ouvre la caisse d’un groupe configuré à zéro et choisit le libellé visible lors des paiements. Les joueurs la retrouvent sous **Mon groupe → Mes caisses de groupe**. Un titulaire autorisé peut l’alimenter depuis son portefeuille ordinaire. Consulter ouvre le solde et l’historique. Payer autorise la dépense pendant le jeu et masque ces données si le droit de consultation est absent. Les paiements confirmés réutilisent le journal natif. Un changement de mandat invalide la confirmation, et le solde reste attaché au groupe. Cette tranche couvre la caisse. Les biens et le pilotage collectif restent à raccorder.

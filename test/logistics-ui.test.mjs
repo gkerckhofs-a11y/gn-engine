@@ -32,3 +32,17 @@ test('logistique UI : parcours Terminal, sac et organisation raccordés sans act
   assert.match(inventory.page(d),/data-action="laserRecharge"/);assert.match(inventory.page(d),/#\/warehouse\/session\/warehouse/);assert.doesNotMatch(inventory.page({...d,preview:true}),/<button|<a /);
   const app=readFileSync(new URL('../web/app.mjs',import.meta.url),'utf8');for(const form of ['warehouseEditor','warehouseRent','warehouseMove','laserRecharge','logisticsCommand'])assert.ok(app.includes(`kind==='${form}'`));
 });
+
+test('Stock SO : formulaire MJ privé et dépôt sans inventaire ni volume affichés',()=>{
+ const session={id:'s',revision:1},warehouse={...w,groupStock:true,group:{name:'Faction'}};
+ const admin={session,factionStock:true,groupOptions:[{id:'f',name:evil}]};
+ const editor=ui.editor(admin);
+ assert.match(editor,/name="groupId"|data-faction-stock="true"/);
+ assert.doesNotMatch(editor,/name="rent"|<img/);
+ const lot={id:'own',item:{name:'Sac de pièces',unit:'lot',unitVolume:2},quantity:1,status:'AVAILABLE'};
+ const html=ui.detail({session,warehouse,canReadStock:false,canDeposit:true,canMove:false,used:null,stock:[],bag:[lot]});
+ assert.match(html,/data-direction="DEPOSIT"/);
+ assert.doesNotMatch(html,/data-direction="WITHDRAW"|cargoQr|warehouseRent|unités de volume|<img/);
+ const p={direction:'DEPOSIT',quantity:1,name:lot.item.name,warehouseName:'Stock'};
+ assert.doesNotMatch(ui.confirm('move',p,{warehouseId:'warehouse'}),/undefined|Volume :/);
+});

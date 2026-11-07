@@ -1,5 +1,13 @@
 # GN Engine — consignes de développement
 
+## Mandats sur les biens de faction — 7 novembre 2026
+
+Base `031e0c620c00e9631c0d22a5fd01f0796b699f5b`, [CI 42356916366](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42356916366) réussie sur le commit exact. Périmètre §4.11. Voir [groupes en session](docs/SO-GROUPES-SESSION.md).
+
+Les nouveaux manifestes `groupStockVersion=1` raccordent consultation, dépôt et retrait. La régie attribue un entrepôt privé à un groupe configuré. Le titulaire reste fixe, et l’entrepôt ne dépend d’aucun bail ni loyer. Réemploi du mouvement natif avec confirmation de propriété, fractionnement, contrôle de capacité et journal transactionnel. Dépôt seul sans liste ni volume occupé. Le retrait exige aussi la lecture. Le kit protégé et les lots sous garde restent fermés. Aucun droit de fret, de caisse ou de pilotage n’est ajouté par un mandat de stock. Révocation et STOP vérifiés avant retour d’un reçu. Continuité des biens et des entrepôts à l’épisode suivant.
+
+Local : 188 tests applicatifs ciblés, compilation, 14 parcours Chromium, 39 cas sur émulateurs et un cas HTTP/Auth ciblé réussis. Profil CI `targeted-group-stock` : 93 fichiers applicatifs, 56 suites Firestore et 28 HTTP sélectionnés. Consigner la validation du commit exact dans PR #2 avant la tranche suivante.
+
 ## Mandats de caisse collective — 7 novembre 2026
 
 Base `b357cac2e76676b5af7dd0b891661668b8677033`, [CI 42243196257](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42243196257) réussie sur le commit exact. Périmètre §4.11. Voir [groupes en session](docs/SO-GROUPES-SESSION.md).

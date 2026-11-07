@@ -1,3 +1,4 @@
+import {spaceGroupStockFixture} from '../support/space-group-stock-suite.mjs';
 import {spaceGroupWalletFixture} from '../support/space-group-wallets-suite.mjs';
 import {groupRequestsFixture} from '../support/space-group-requests-suite.mjs';
 import {groupDefinitionsFixture} from '../support/space-group-definitions-suite.mjs';
@@ -7,14 +8,14 @@ import {readFile} from 'node:fs/promises';
 import {MemoryStore} from '../support/memory.mjs';
 import {spaceGroupsFixture} from '../support/space-groups-suite.mjs';
 let template,bundle;
-test.beforeAll(async()=>{const css=await readFile('web/style.css','utf8')+'\n'+await readFile('web/galactic.css','utf8');template=(await readFile('web/index.html','utf8')).replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'').replace(/<link[^>]*rel="stylesheet"[^>]*>/g,'').replace('</head>',`<style>${css}</style></head>`);bundle=(await build({stdin:{contents:"export * from './web/group-management.mjs'; export {createCollectiveUi} from './web/collective-accounts.mjs';",resolveDir:process.cwd()},bundle:true,format:'iife',globalName:'Groups',write:false})).outputFiles[0].text;});
-async function mount(page,f){
+test.beforeAll(async()=>{const css=await readFile('web/style.css','utf8')+'\n'+await readFile('web/galactic.css','utf8');template=(await readFile('web/index.html','utf8')).replace(/<script\b[^>]*>[\s\S]*?<\/script>/g,'').replace(/<link[^>]*rel="stylesheet"[^>]*>/g,'').replace('</head>',`<style>${css}</style></head>`);bundle=(await build({stdin:{contents:"export * from './web/group-management.mjs'; export {createCollectiveUi} from './web/collective-accounts.mjs'; export {createLogisticsUi} from './web/logistics.mjs';",resolveDir:process.cwd()},bundle:true,format:'iife',globalName:'Groups',write:false})).outputFiles[0].text;});
+async function mount(page,f,warehouseId=null){
  const remote=[],errors=[];page.on('pageerror',e=>errors.push(e.message));await page.route('**/*',r=>{remote.push(r.request().url());return r.abort();});await page.exposeBinding('__read',(_,a,p)=>f.read(a,p));await page.exposeBinding('__cmd',(_,a,p)=>f.cmd(a,p));await page.setContent(template);await page.addScriptTag({content:bundle});
- await page.evaluate(async()=>{
+ await page.evaluate(async warehouseId=>{
   const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const helpers={button:(label,a,attrs='',cls='')=>`<button type="button" class="${cls}" data-action="${a}" ${attrs}>${label}</button>`,link:(label,path)=>`<a href="#/${path}">${label}</a>`,input:(label,name,value='',type='text',required=false)=>`<label>${label}<input name="${name}" value="${esc(value)}" type="${type}" ${required?'required':''}></label>`,textarea:(label,name,value='')=>`<label>${label}<textarea name="${name}">${esc(value)}</textarea></label>`};
-  const ui=Groups.createGroupManagementUi(helpers),wallet=Groups.createCollectiveUi(helpers);
-  let d,pending,busy=false;const app=document.querySelector('#app'),dialog=document.querySelector('#dialog'),modal=html=>{dialog.innerHTML=html;if(!dialog.open)dialog.showModal();},refresh=async()=>{d=await window.__read('groupManagement',{});app.innerHTML=ui.page(d);};
+  const ui=Groups.createGroupManagementUi(helpers),wallet=Groups.createCollectiveUi(helpers),logistics=Groups.createLogisticsUi(helpers);
+  let d,pending,busy=false;const app=document.querySelector('#app'),dialog=document.querySelector('#dialog'),modal=html=>{dialog.innerHTML=html;if(!dialog.open)dialog.showModal();},refresh=async()=>{d=warehouseId?await window.__read('warehouseDetail',{warehouseId}):await window.__read('groupManagement',{});app.innerHTML=warehouseId?logistics.detail(d):ui.page(d);};
   document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;if(b.dataset.action==='rosterEdit')modal(ui.editor(d,d.groups.find(g=>g.id===b.dataset.id),'new-team'));if(b.dataset.action==='rosterPrepared'){const p=d.preparedMemberships.find(p=>p.characterId===b.dataset.character&&p.groupId===b.dataset.group);modal(ui.member(d,p.characterId,null,p));}if(b.dataset.action==='rosterMember')modal(ui.member(d,b.dataset.id));
    if(b.dataset.action==='groupWalletConfig')modal(wallet.configure({id:d.sessionId,revision:d.revision},'session',d.groups.find(g=>g.id===b.dataset.id)));
   });
@@ -27,11 +28,16 @@ async function mount(page,f){
     const p={groupId:form.dataset.group,revision:Number(form.dataset.revision),label:v.label,reason:v.reason};
     modal(wallet.configConfirm(await window.__read('prepareGroupWallet',p),p));return;
    }
+   else if(form.dataset.form==='warehouseMove'){
+    const p={warehouseId,lotId:form.dataset.lot,direction:form.dataset.direction,quantity:Number(v.quantity)};
+    modal(logistics.confirm('move',await window.__read('prepareWarehouseMove',p),p));return;
+   }
+   else if(form.dataset.form==='logisticsCommand')await window.__cmd(form.dataset.command,JSON.parse(form.dataset.payload));
    else if(form.dataset.form==='accountCommand')await window.__cmd(form.dataset.command,JSON.parse(form.dataset.payload));
    else return;
    dialog.close();await refresh();
   }catch(e){window.__uiError=e.message;}finally{busy=false;}});await refresh();
- });
+ },warehouseId);
  return async(info,name)=>{expect(errors).toEqual([]);expect(remote).toEqual([]);expect(await page.evaluate(()=>window.__uiError??null)).toBeNull();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(name+'.png'),fullPage:true});};
 }
 test('Régie SO : création, permissions privées puis transfert sans héritage',async({page},info)=>{
@@ -73,4 +79,24 @@ test('Caisse SO : confirmation explicite en régie, ouverte à zéro',async({pag
  expect((await f.get(f.walletPath)).balance).toBe(0);
  await expect(page.getByRole('button',{name:'Historique de la caisse'})).toBeVisible();
  await check(info,'caisse-ouverte');
+});
+
+
+test('Stock SO : un dépôt sans droit de lecture transfère les biens après confirmation',async({page},info)=>{
+ const f=await spaceGroupStockFixture(()=>new MemoryStore());
+ const player={read:(a,p)=>f.read(a,p,f.player),cmd:(a,p)=>f.cmd(a,p,f.player)};
+ const check=await mount(page,player,f.warehouseId);
+ await expect(page.getByText('Votre mandat ne donne pas accès au contenu du stock.')).toBeVisible();
+ await expect(page.getByRole('button',{name:'QR de destination'})).toHaveCount(0);
+ await page.getByLabel('Quantité à déposer').fill('3');
+ await page.getByRole('button',{name:'Vérifier le mouvement'}).click();
+ const dialog=page.locator('#dialog');
+ await expect(dialog.getByText('Transfert de propriété', {exact:false})).toBeVisible();
+ await expect(dialog.getByText('Volume :', {exact:false})).toHaveCount(0);
+ expect((await f.get(`inventory/${f.lotId}`)).quantity).toBe(5);
+ await dialog.getByRole('button',{name:'Confirmer le mouvement'}).click();
+ await expect(dialog).not.toBeVisible();
+ expect((await f.get(`inventory/${f.lotId}`)).quantity).toBe(2);
+ expect((await f.detail(f.other)).stock[0].ownerId).toBe(f.groupId);
+ await check(info,'stock-depot');
 });

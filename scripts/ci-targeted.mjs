@@ -126,6 +126,12 @@ targetedProfiles['group-wallets']={...targetedProfiles['roster-search'],
  httpPattern:targetedProfiles['roster-search'].httpPattern.replace('catalogue de personnages,|','caisse SO,|catalogue de personnages,|'),
  files:[...targetedProfiles['roster-search'].files,'src/core/collective-accounts.mjs','web/collective-accounts.mjs','test/collective-ui.test.mjs','test/space-group-wallets.test.mjs','test/support/space-group-wallets-suite.mjs'],
 };
+targetedProfiles['group-stock']={...targetedProfiles['group-wallets'],
+ tests:[...targetedProfiles['group-wallets'].tests,'test/logistics.test.mjs','test/logistics-ui.test.mjs','test/space-group-stock.test.mjs'],
+ suites:[...targetedProfiles['group-wallets'].suites,'logistics','space-group-stock'],
+ httpPattern:targetedProfiles['group-wallets'].httpPattern.replace('caisse SO,|','stock SO,|caisse SO,|'),
+ files:[...targetedProfiles['group-wallets'].files,'src/core/logistics.mjs','src/core/storage-state.mjs','web/logistics.mjs','test/logistics-ui.test.mjs','test/space-group-stock.test.mjs','test/support/space-group-stock-suite.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

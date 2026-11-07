@@ -1,6 +1,6 @@
 import {soRosterCharacters} from './space-outlaws-roster.mjs';
 import {soFriendRequests} from './space-outlaws-group-requests.mjs';
-import {hasSoGroupWallets,soSessionGroupPermissions,soGroupLimit} from '../shared/space-outlaws-groups.mjs';
+import {hasSoGroupStock,hasSoGroupWallets,soSessionGroupPermissions,soGroupLimit} from '../shared/space-outlaws-groups.mjs';
 import {readSoEntryVersion} from './space-outlaws-entry.mjs';
 import {soPreparedMemberships} from './space-outlaws-group-state.mjs';
 export {soGroupPermissions} from '../shared/space-outlaws-groups.mjs';
@@ -34,13 +34,13 @@ export function createGroupManagementService({store,signed,checkSession,now,uuid
    const groups=await tx.list(`${base}/groups`),characters=await tx.list(`${base}/characters`);
    let preparedMemberships,version,roster;
    if(action==='groupManagement'&&s.spaceOutlaws?.groupsVersion===1){
-    const campaign=await tx.get(`campaigns/${s.campaignId}`);requireThat(campaign?.ownerUid===s.ownerUid,'SO_VERSION_INVALID');version=await readSoEntryVersion(tx,{...campaign,master:{...campaign.master,activeVersionId:s.versionId}});requireThat(version.header.groupsVersion===1&&s.spaceOutlaws.groupWalletVersion===version.header.groupWalletVersion,'SO_VERSION_INVALID');if(s.spaceOutlaws.groupDefinitionsVersion===1){requireThat(version.header.groupDefinitionsVersion===1,'SO_VERSION_INVALID');preparedMemberships=soPreparedMemberships(s,groups,characters,version);}
+    const campaign=await tx.get(`campaigns/${s.campaignId}`);requireThat(campaign?.ownerUid===s.ownerUid,'SO_VERSION_INVALID');version=await readSoEntryVersion(tx,{...campaign,master:{...campaign.master,activeVersionId:s.versionId}});requireThat(version.header.groupsVersion===1&&s.spaceOutlaws.groupWalletVersion===version.header.groupWalletVersion&&s.spaceOutlaws.groupStockVersion===version.header.groupStockVersion,'SO_VERSION_INVALID');if(s.spaceOutlaws.groupDefinitionsVersion===1){requireThat(version.header.groupDefinitionsVersion===1,'SO_VERSION_INVALID');preparedMemberships=soPreparedMemberships(s,groups,characters,version);}
    }
    let friendRequests;
    if(action==='groupManagement'&&s.spaceOutlaws?.groupsVersion===1){
     const registrations=await tx.list(`${base}/registrations`,null,{limit:1001});requireThat(registrations.length<=1000&&characters.length<=1000,'SO_RELEASE_LIMIT');friendRequests=soFriendRequests(s,registrations,characters);roster=soRosterCharacters(s,characters,registrations,version);
    }
-   if(action==='groupManagement')return {sessionId:sid,revision:s.revision,closed:['ARCHIVED','FINISHED'].includes(s.stage)||!!s.campaignSealed||!connected||!!s.spaceOutlaws&&!!s.safetyStop?.active,groupsEnabled:s.modules?.groups===true,connected,...(friendRequests?{friendRequests}:{}),...(preparedMemberships?{preparedMemberships}:{}),...(s.spaceOutlaws?{availablePermissions}:{}),...(hasSoGroupWallets(s)&&s.economyRules?.enabled?{groupWalletsEnabled:true}:{}),groups,
+   if(action==='groupManagement')return {sessionId:sid,revision:s.revision,closed:['ARCHIVED','FINISHED'].includes(s.stage)||!!s.campaignSealed||!connected||!!s.spaceOutlaws&&!!s.safetyStop?.active,groupsEnabled:s.modules?.groups===true,connected,...(friendRequests?{friendRequests}:{}),...(preparedMemberships?{preparedMemberships}:{}),...(s.spaceOutlaws?{availablePermissions}:{}),...(hasSoGroupWallets(s)&&s.economyRules?.enabled?{groupWalletsEnabled:true}:{}),...(hasSoGroupStock(s)?{groupStockEnabled:true}:{}),groups,
     characters:roster??characters.map(c=>({id:c.id,name:c.public.displayName,assigned:!!c.assignedUid,outOfCombat:c.outOfCombat===true||c.hp===0,publicationState:c.publicationState,...(s.spaceOutlaws?{dead:c.survival?.dead===true}: {})})),
     events:(await tx.list(`${base}/audit`,null,{orderBy:'at',direction:'desc',limit:100})).filter(e=>groupManagementCommands.includes(e.action))};
    const changed=new Map();let details={},result;

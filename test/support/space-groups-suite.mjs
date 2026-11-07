@@ -20,7 +20,7 @@ export function spaceGroupsSuite(makeStore,prefix='Groupes SO'){
   const f=await spaceGroupsFixture(makeStore),s=await f.get(''),before=await f.assets(),version=(await f.store.get(`campaigns/${f.campaignId}`)).master.activeVersionId;
   assert.equal(s.spaceOutlaws.groupsVersion,1);assert.equal(s.modules.groups,true);assert.equal((await f.read('spaceOutlawsEntry')).groupsReady,true);
   await f.config('a');await f.config('b',{kind:'FACTION'});await f.applyGroup(f.cid,null,'a');await f.applyGroup(f.cid,null,'b');await f.config('a',{leaderId:f.cid});
-  assert.deepEqual(await f.assets(),before);assert.equal((await f.store.get(`campaigns/${f.campaignId}`)).master.activeVersionId,version);assert.deepEqual((await f.read('groupManagement')).availablePermissions,['readBriefing','readMembers','readWallet','payWallet']);
+  assert.deepEqual(await f.assets(),before);assert.equal((await f.store.get(`campaigns/${f.campaignId}`)).master.activeVersionId,version);assert.deepEqual((await f.read('groupManagement')).availablePermissions,['readBriefing','readMembers','readWallet','payWallet','readStock','depositStock','withdrawStock']);
   const d=await f.read('myGroup',{groupId:'a'},f.player);assert.equal(d.group.briefing,'SECRET_a');assert.doesNotMatch(JSON.stringify(d),/SECRET_MJ|assignedUid|actorUid|@/);assert.equal(d.group.permissions.payWallet,false);
  });
  test(`${prefix} : transfert, secrets révoqués immédiatement, responsable et contre-opération`,async()=>{
@@ -34,7 +34,7 @@ export function spaceGroupsSuite(makeStore,prefix='Groupes SO'){
  });
  test(`${prefix} : autorités courantes, STOP, anciennes versions et permissions fermées`,async()=>{
   const f=await spaceGroupsFixture(makeStore);await f.config('a');for(const actor of [f.player,f.other])await assert.rejects(f.read('groupManagement',{},actor),{code:'FORBIDDEN'});
-  await assert.rejects(f.prepareGroup(f.cid,null,'a',{membership:rosterMembership(['withdrawStock'])}),{code:'SO_GROUP_PERMISSION_NOT_OPEN'});
+  await assert.rejects(f.prepareGroup(f.cid,null,'a',{membership:rosterMembership(['pilotShip'])}),{code:'SO_GROUP_PERMISSION_NOT_OPEN'});
   const p=await f.prepareGroup(f.cid,null,'a');await f.cmd('stopSafety',{reason:'STOP de test'},f.player);assert.equal((await f.read('groupManagement')).closed,true);await assert.rejects(f.cmd('applyGroupMembership',p),{code:'SO_SAFETY_STOP'});const s=await f.get('');await f.cmd('resumeSafety',{revision:s.revision,reason:'Reprise du test'});
   await f.edit('',s=>{const {groupsVersion,groupWalletVersion,...old}=s.spaceOutlaws;return {...s,spaceOutlaws:old};});assert.equal((await f.read('groupManagement')).closed,true);await assert.rejects(f.cmd('applyGroupMembership',p),{code:'SO_GAMEPLAY_NOT_OPEN'});
  });
@@ -65,7 +65,7 @@ export function spaceGroupsSuite(makeStore,prefix='Groupes SO'){
  test(`${prefix} : ancien manifeste conservé, aucune activation rétroactive`,async()=>{
   const f=await entryFixture(makeStore),r=await f.release(await f.releasePreview()),path=`campaigns/${f.campaignId}/versions/${r.versionId}`,h=await f.store.get(path);assert.equal(h.groupsVersion,1);
   const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
-  await f.store.runTransaction(async tx=>{const {groupDefinitionsVersion,groupsVersion,groupWalletVersion,manifestDigest,...old}=h;tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});
+  await f.store.runTransaction(async tx=>{const {groupDefinitionsVersion,groupsVersion,groupWalletVersion,groupStockVersion,manifestDigest,...old}=h;tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});
   await f.birth(await f.birthPreview());const s=await f.store.get(`sessions/${f.sid}`);assert.equal(s.spaceOutlaws.groupsVersion,undefined);assert.equal(s.modules.groups,false);assert.equal((await f.store.get(path)).groupsVersion,undefined);const d=await f.read('groupManagement');assert.equal(d.closed,true);assert.equal(d.connected,false);
  });
 }

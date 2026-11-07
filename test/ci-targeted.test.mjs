@@ -202,3 +202,11 @@ test('Ciblage caisses SO : scénario natif, mandats et HTTP sélectionnés',()=>
  assert.ok(new RegExp(p.httpPattern).test('HTTP + Auth : caisse SO, mandat'));
  assert.equal(p.browser,false);assert.doesNotThrow(()=>applicationCommand(JSON.stringify(p.applicationTests)));
 });
+
+test('Ciblage stock SO : stock versionné, logistique et cas HTTP sélectionné',()=>{
+ const p=targetedScope('group-stock',['src/core/logistics.mjs','src/core/storage-state.mjs','web/logistics.mjs','test/support/space-group-stock-suite.mjs'],{reliableBase:true});
+ assert.equal(requestedTarget('[ci targeted:group-stock]'),'group-stock');
+ assert.ok(p.suites.includes('logistics'));assert.ok(p.suites.includes('space-group-stock'));
+ assert.ok(new RegExp(p.httpPattern).test('HTTP + Auth : stock SO, dépôt'));
+ assert.equal(p.browser,false);assert.doesNotThrow(()=>applicationCommand(JSON.stringify(p.applicationTests)));
+});
