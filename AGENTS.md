@@ -1,5 +1,11 @@
 # GN Engine — consignes de développement
 
+## Contrôles de mise en jeu du Master Vn+1 — 8 novembre 2026
+
+Base `bf385d119139666ad9e6d24e3dbe461dd6f7aeb6`, [CI 42377109330](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42377109330) réussie sur le commit exact. Périmètre §3.6, étape 4 pour les définitions d’une future session. Voir [rapport courant](docs/SO-VALIDATION.md).
+
+Réutiliser les contrôles de publication initiale sur les définitions effectives du Vn+1. Rattacher les diagnostics à la définition et à sa provenance. Préserver la forme des réponses de publication initiale, les admissions, les droits du contrôle et la lecture des anciens instantanés. Le rapport Vn+1 reste en lecture seule. Le contrôle d’une migration, la publication et le retour de version restent à raccorder. Profil `targeted-central-revision-release-check` avec 96 fichiers applicatifs, 65 suites Firestore et 30 cas HTTP sélectionnés. Consigner le résultat du commit exact dans PR #2 avant la tranche suivante.
+
 ## Instantanés du Master Vn+1 — 7 novembre 2026
 
 Base `9b1616adf499497b9a96fa03ff2cb25b058e16b7`, [CI 42373840202](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42373840202) réussie sur le commit exact. Périmètre §3.6, voir [rapport courant](docs/SO-VALIDATION.md).

@@ -1,5 +1,14 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## Contrôles de mise en jeu du Master Vn+1 — 8 novembre 2026
+
+| Exigence | Parcours raccordé | Vérifications ciblées |
+|---|---|---|
+| §3.6 étape 4, dépendances de la future session | Même garde que la première publication pour groupes, offres PNJ, modules, kits et domaines raccordés. Diagnostics situés dans les ateliers. | Installation hors périmètre, archivage, provenance M5, offre héritée bloquée après modification M1. |
+| §3.6 étape 5, bornes du stockage | Vérification des limites de création des données et de la pagination du manifeste. Résultat conservé dans les nouveaux instantanés. | Seuil de 440 écritures, rejet des manifestes hors limites, version et session de départ conservées. |
+
+Périmètre de cette tranche limité à la préparation d’une future session. L’activation et le retour de version nécessitent leur propre commande. La migration d’une session active relève d’un contrôle distinct. Preuves dans la [PR #2](https://github.com/gkerckhofs-a11y/gn-engine/pull/2).
+
 ## Excel du Master Vn+1 — 7 novembre 2026
 
 Les sept ateliers réutilisent leurs formats Excel existants sur le brouillon après publication. Un export de sélection ou un gabarit porte l’identifiant du brouillon, sa révision et sa version de base. Un fichier de première préparation ou d’un autre brouillon est refusé. Les formats gardent leur périmètre, notamment les kits M1 et les groupes M2 édités sur le web.

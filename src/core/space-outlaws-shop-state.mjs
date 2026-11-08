@@ -20,17 +20,17 @@ export function soShops(changes){
 }
 export function shopBlockers(changes){
  const active=changes.filter(c=>c.operation==='UPSERT'),out=[];
- const add=(c,message)=>out.push({code:'SO_SHOP_NOT_CONNECTED',entityId:c.entityId,message});
+ const add=(c,detailField,message)=>out.push({detailField,code:'SO_SHOP_NOT_CONNECTED',changeId:c.id,entityId:c.entityId,message});
  for(const c of active){
   if(c.type==='shop'){
    const seller=active.find(x=>x.type==='character'&&x.entityId===c.data.sellerCharacterId);
-   if(!seller||seller.data.creationPlan!=null||seller.source==='ADMISSION')add(c,'Le comptoir PNJ doit référencer une fiche narrative M2 sans création de personnage joueur. Les opérateurs du comptoir sont les MJ autorisés.');
+   if(!seller||seller.data.creationPlan!=null||seller.source==='ADMISSION')add(c,'sellerCharacterId','Le comptoir PNJ doit référencer une fiche narrative M2 sans création de personnage joueur. Les opérateurs du comptoir sont les MJ autorisés.');
   }
   if(c.type==='offer'){
    const item=active.find(x=>x.type==='item'&&x.entityId===c.data.itemId);
    if(item?.data.shipModule){
-    if(!moduleOfferValid({...c.data,item:item.data},{hiddenCargo:true,towing:true})||c.data.buybackPrice!==null)add(c,'Un module standard exige le tarif canonique de son gabarit, sans rachat PNJ.');
-   }else if(!item?.data.consumable||c.data.buybackPrice!==null)add(c,'Ce parcours ouvre la vente de consommables et de modules standards PNJ, sans rachat. Préparer les autres offres lors de leur raccordement.');
+    if(!moduleOfferValid({...c.data,item:item.data},{hiddenCargo:true,towing:true})||c.data.buybackPrice!==null)add(c,c.data.buybackPrice!==null?'buybackPrice':'unitPrice','Un module standard exige le tarif canonique de son gabarit, sans rachat PNJ.');
+   }else if(!item?.data.consumable||c.data.buybackPrice!==null)add(c,c.data.buybackPrice!==null?'buybackPrice':'itemId','Ce parcours ouvre la vente de consommables et de modules standards PNJ, sans rachat. Préparer les autres offres lors de leur raccordement.');
   }
  }
  return out;

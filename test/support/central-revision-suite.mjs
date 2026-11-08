@@ -7,6 +7,7 @@ import {centralShopRow,centralOfferRow} from './central-shop-import-suite.mjs';
 import {entryFixture} from './space-outlaws-entry-suite.mjs';
 import {centralTestKnowledge} from './central-knowledge-suite.mjs';
 import {centralTestItem} from './central-master-suite.mjs';
+import {centralTestInstallation} from './central-field-targets-suite.mjs';
 
 export function centralRevisionSuite(makeStore,prefix='Master Vn+1'){
  test(`${prefix} : ouverture concurrente sans copie ni changement de la naissance préparée`,async()=>{
@@ -302,8 +303,37 @@ export function centralRevisionSuite(makeStore,prefix='Master Vn+1'){
   const requestId=randomUUID(),result=await apply(current,archived,{requestId});
   assert.equal(result.changed,2);
   assert.equal(result.draftRevision,2);
+  const report=await f.central('checkCentralDraft',{draftId,draftRevision:2});
+  assert.deepEqual(report.diagnostics.filter(d=>d.code==='SO_SHOP_NOT_CONNECTED').map(d=>[d.entityId,d.sheet,d.row,d.column]),[
+   ['offer','Offres',2,'objet_id'],['shop','Boutiques',2,'vendeur_personnage_id'],
+  ]);
   await f.grant(3,{active:false});
   await assert.rejects(apply(current,archived,{requestId}),{code:'FORBIDDEN'});
+ });
+
+ test(`${prefix} : un lieu sans raccord de jeu est signalé et son archivage lève le blocage`,async()=>{
+  const f=await entryFixture(makeStore),{versionId}=await f.release(await f.releasePreview());
+  const {id:draftId}=await f.cc('openCentralRevision',{baseVersionId:versionId,pointerRevision:1,reason:'Préparer le terrain'});
+  const campaign=`campaigns/${f.campaignId}`,session=`sessions/${f.sid}`;
+  const before=await f.store.get(session),check=draftRevision=>f.central('checkCentralDraft',{draftId,draftRevision});
+  assert.deepEqual((await check(0)).releaseChecks,{definitionBlockers:0,manifestChecked:true});
+  const input={draftId,draftRevision:0,fieldTargetId:'experimental',fieldTargetRevision:0,reason:'Préparer une installation'};
+  await f.cc('saveCentralFieldTarget',{...input,fieldTarget:centralTestInstallation});
+  const report=await check(1);
+  const diagnostic=report.diagnostics.find(d=>d.code==='SO_DOMAIN_NOT_CONNECTED');
+  assert.deepEqual([diagnostic.workshop,diagnostic.entityId,diagnostic.field,diagnostic.source],['M6','experimental','kind','WEB']);
+  assert.equal(report.totals.invalid,0);
+  assert.equal(report.releaseChecks.definitionBlockers,1);
+  assert.equal(report.status,'CORRECTIONS_REQUIRED');
+  assert.equal(report.publicationAvailable,false);
+  assert.doesNotMatch(JSON.stringify(report),/Secret MJ terrain|Description privée terrain/);
+  const preview=await f.central('previewCentralSnapshot',{draftId,draftRevision:1});
+  assert.deepEqual(preview.report.releaseChecks,report.releaseChecks);
+  assert.equal(preview.report.fingerprint,report.fingerprint);
+  await f.cc('archiveCentralFieldTarget',{...input,draftRevision:1,fieldTargetRevision:1});
+  assert.deepEqual((await check(2)).releaseChecks,{definitionBlockers:0,manifestChecked:true});
+  assert.equal((await f.store.get(campaign)).master.activeVersionId,versionId);
+  assert.deepEqual(await f.store.get(session),before);
  });
 
  test(`${prefix} : version source endommagée refusée à la réouverture et au contrôle`,async()=>{

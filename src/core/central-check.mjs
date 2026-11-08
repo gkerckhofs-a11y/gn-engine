@@ -11,7 +11,7 @@ import {centralClassKitInput,centralClassKitProjection} from './central-class-ki
 import {centralInitialCoherence} from './central-initial-coherence.mjs';
 import {centralShopInput,centralOfferInput,centralShopProjection} from './central-shops.mjs';
 import {createHash} from 'node:crypto';
-import {documentId,requireThat} from './validation.mjs';
+import {documentId,DomainError,requireThat} from './validation.mjs';
 import {itemInput} from './inventory-state.mjs';
 import {recipeInput} from './recipe-state.mjs';
 import {centralCharacterInput,centralCharacterEditable,centralCharacterProjection} from './central-characters.mjs';
@@ -20,6 +20,7 @@ import {centralRecipeProjection} from './central-recipes.mjs';
 import {admissionSettings,emptyAdmissionCounts} from './admission-state.mjs';
 import {centralWorkshops} from '../shared/central-workshops.mjs';
 import {centralImportContracts} from '../shared/central-import-schema.mjs';
+import {soReleaseDefinitionChecks,soReleaseManifest} from './space-outlaws-release-check.mjs';
 
 // This report is read-only and cannot authorize publication.
 export const centralCheckLimits={records:1809,inputBytes:16*1024*1024,reportBytes:4*1024*1024};
@@ -142,6 +143,26 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
    const c=records.find(c=>c.entityId===d.entityId&&c.workshop===d.workshop&&(!d.entityType||c.type===d.entityType)),target=d.field==='creationPlan.speciesId'?'speciesCatalogue_player':`${d.referenceType??(d.workshop==='M2'?'character':'item')}_${d.reference}`;
   diagnostics.push({...location(c,d.field),...d,...(d.code==='REFERENCE_MISSING'&&invalid.has(target)?{code:'REFERENCE_INVALID',message:'Corriger la définition cible incohérente dans son atelier.'}:{})});
  }
+ let releaseChecks=null;
+ if(base){
+  const {groupAndShop,definitions}=soReleaseDefinitionChecks(records);
+  const blockers=[...groupAndShop,...definitions];
+  const byId=new Map(records.map(c=>[c.id,c]));
+  for(const {changeId,code,entityId,message,field,detailField} of blockers){
+   const record=byId.get(changeId);
+   diagnostics.push({...location(record??{workshop:entityId},field??detailField),code,entityId,message,reference:null});
+  }
+  let manifestChecked=false;
+  if(records.length===effective.length){
+   try{soReleaseManifest(records);manifestChecked=true;}
+   catch(e){
+    if(!(e instanceof DomainError)||!['SO_RELEASE_LIMIT','CAMPAIGN_RECORD_TOO_LARGE'].includes(e.code))throw e;
+    const message=e.code==='CAMPAIGN_RECORD_TOO_LARGE'?'Une définition dépasse la taille autorisée par page. Réduire sa taille.':'La version doit tenir dans un manifeste non vide de 6 Mio et 100 pages maximum. Réduire le contenu à publier.';
+    diagnostics.push({...location(null),code:e.code,message,reference:null});
+   }
+  }
+  releaseChecks={definitionBlockers:blockers.length,manifestChecked};
+ }
  const edges=centralEdges(records,invalid);
  const baseline=new Map(),invalidBase=new Set();
  for(const c of inherited){
@@ -162,7 +183,7 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
  });
  const referenceChanges=base?compareEdges(centralEdges([...baseline.values()].filter(c=>!invalidBase.has(c.id)),invalidBase),edges):[];
  const remainingChecks=base?[
-  {code:'RUNTIME_IMPACTS_PENDING',message:'Le contrôle des compétences et effets signalés comme non vérifiés, ainsi que les impacts sur les QR actifs, les droits de session, les budgets, les caisses, les stocks et les instances de jeu restent à compléter.'},
+  {code:'RUNTIME_IMPACTS_PENDING',message:'Les compétences et effets signalés comme non vérifiés restent à contrôler. L’impact d’une migration sur les QR actifs, les droits, les budgets, les caisses, les stocks et les instances de jeu relève d’un contrôle de session distinct.'},
   {code:'PUBLICATION_PENDING',message:'La publication et le retour de version restent à raccorder.'},
  ]:[
   {code:'RULE_PROFILE_PENDING',message:'Raccordement complet du profil canonique V0.7, des classes, compétences, effets, dotations et liens courants entre admissions et incarnations à terminer.'},
@@ -171,9 +192,9 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
  ];
  const report={schemaVersion:1,scope:base?'REVISION_DRAFT_PREPARATION':'INITIAL_DRAFT_PREPARATION',campaign:{id:campaign.id,title:campaign.title},draft:{id:draft?.id??'initial',revision,baseVersionId:draft?.baseVersionId??null,basePointerRevision:draft?.basePointerRevision??0},checkedAt:at,
   authority:authority?{kind:authority.kind,revision:authority.revision}:null,
-  fingerprint:hash({schema:base?16:15,actorUid,authority,campaign:{id:campaign.id,revision:campaign.revision,master:campaign.master??null,ruleProfile:campaign.ruleProfile,ownerUid:campaign.ownerUid},...(base?{base:base.header.manifestDigest}:{session:{id:session.id,revision:session.revision}}),draft:draft??null,changes:ordered,...(base?{edits:changes.map(c=>safe(c?.id)).sort()}:{})}),
+  fingerprint:hash({schema:base?17:15,actorUid,authority,campaign:{id:campaign.id,revision:campaign.revision,master:campaign.master??null,ruleProfile:campaign.ruleProfile,ownerUid:campaign.ownerUid},...(base?{base:base.header.manifestDigest}:{session:{id:session.id,revision:session.revision}}),draft:draft??null,changes:ordered,...(base?{edits:changes.map(c=>safe(c?.id)).sort()}:{})}),
   status:diagnostics.length?'CORRECTIONS_REQUIRED':'NO_DETECTED_ERROR',publicationAvailable:false,remainingChecks,
   workshops:centralWorkshops.map(w=>({id:w.id,label:w.label,coverage:'PARTIAL',active:records.filter(c=>c.workshop===w.id&&c.operation==='UPSERT').length,archived:records.filter(c=>c.workshop===w.id&&c.operation==='ARCHIVE').length,...(base?{changes:diff.filter(c=>c.workshop===w.id).length,referenceChanges:referenceChanges.filter(e=>e.from.workshop===w.id).length}:{})})),
-  totals:{records:effective.length,valid:records.length,invalid:effective.length-records.length,diagnostics:diagnostics.length,references:edges.length},initialPreparation:initial.summary,diff,edges,diagnostics,...(base?{referenceChanges}:{})};
+  totals:{records:effective.length,valid:records.length,invalid:effective.length-records.length,diagnostics:diagnostics.length,references:edges.length},initialPreparation:initial.summary,diff,edges,diagnostics,...(base?{referenceChanges,releaseChecks}:{})};
  requireThat(Buffer.byteLength(JSON.stringify(report))<=centralCheckLimits.reportBytes,'CENTRAL_CHECK_LIMIT');return report;
 }

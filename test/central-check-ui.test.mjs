@@ -29,12 +29,15 @@ test('Master Vn+1 UI : différences et références affectées visibles sans act
  const ui=createCentralCheckUi({link}),empty=ui.page(await check(0));
  assert.match(empty,/Comparaison avec le Master publié V1/);
  assert.match(empty,/Aucune différence de définition/);
+ assert.match(empty,/Préparation d’une future session/);
+ assert.match(empty,/Le manifeste respecte les limites/);
  const {changes}=await f.central('centralMaster',{workshop:'M1'}),item=changes.find(c=>c.type==='item');
  await f.cc('archiveCentralItem',{draftId,draftRevision:0,itemId:item.entityId,itemRevision:item.data.revision,reason:'Archiver'});
  const r=await check(1);
  r.diff[0].name='<img onerror=bad>';
  const html=ui.page(r);
  assert.match(html,/Différences avec la version publiée/);
+ assert.match(html,/migration sur les QR actifs/);
  assert.match(html,/Archivé/);
  assert.match(html,/Références qui changent/);
  assert.match(html,/cible présente → cible archivée/);

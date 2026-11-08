@@ -1199,6 +1199,7 @@ test('HTTP + Auth : candidature, naissance, QR, soins, sécurité, boutique et r
  assert.equal((await request('checkCentralDraft',{...check,draftRevision:0},owner)).error,'STALE_REVISION');
  const report=await call('checkCentralDraft',check);
  assert.equal(report.draft.baseVersionId,versionId);
+ assert.deepEqual(report.releaseChecks,{definitionBlockers:0,manifestChecked:true});
  assert.deepEqual(report.diff.map(d=>[d.id,d.operation,d.fields]),[[inherited.entityId,'UPDATE',['name']]]);
  assert.ok(report.edges.some(e=>e.from.workshop==='M5'&&e.to.id===inherited.entityId&&e.status==='RESOLVED'));
  assert.doesNotMatch(JSON.stringify(report),/SECRET_HTTP_MJ|RENSEIGNEMENT_HTTP_PRIVE|SECRET_BOUTIQUE_HTTP/);
@@ -1226,6 +1227,13 @@ test('HTTP + Auth : candidature, naissance, QR, soins, sécurité, boutique et r
  assert.equal(saved.changes.find(c=>c.id===inherited.id).data.description,'Révision via Excel');
  assert.equal(saved.changes.find(c=>c.type==='knowledge').data.body,'RENSEIGNEMENT_HTTP_PRIVE');
  assert.equal((await call('listCentralSnapshots',{campaignId,draftId})).snapshots[0].id,snapshot.id);
+ const editedItem=saved.changes.find(c=>c.id===inherited.id);
+ await cmd('saveCentralItem',{...edit,draftRevision:2,itemRevision:editedItem.data.revision,item:{...edit.item,kind:'INDIVIDUAL',consumable:false}});
+ const blocked=await call('checkCentralDraft',{...check,draftRevision:3});
+ assert.ok(blocked.edges.some(e=>e.from.workshop==='M5'&&e.to.id===inherited.entityId&&e.status==='RESOLVED'));
+ assert.ok(blocked.diagnostics.some(d=>d.code==='SO_SHOP_NOT_CONNECTED'&&d.workshop==='M5'&&d.field==='itemId'));
+ assert.equal(blocked.releaseChecks.definitionBlockers,1);
+ assert.equal(blocked.publicationAvailable,false);
  const birth={sessionId,uid,options,confirmation:b.confirmation,reason:'Entrée de test',requestId:randomUUID()};assert.equal((await request('birthSpaceOutlaws',birth,player)).status,403);
  const born=await cmd('birthSpaceOutlaws',birth);assert.deepEqual(await cmd('birthSpaceOutlaws',birth),born);
  const own=await call('mySession',{sessionId},player);assert.equal(own.character.id,born.characterId);assert.equal(own.actionPoints.available,5);assert.equal(own.character.hp,3);assert.equal((await call('mySession',{sessionId},other)).character,null);

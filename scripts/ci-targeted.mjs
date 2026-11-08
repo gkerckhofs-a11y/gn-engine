@@ -156,6 +156,9 @@ targetedProfiles['central-revision-excel']={...targetedProfiles['central-revisio
 targetedProfiles['central-revision-snapshots']={...targetedProfiles['central-revision-excel'],
  files:[...targetedProfiles['central-revision-excel'].files,'src/core/central-snapshots.mjs','web/central-snapshots.mjs','test/central-snapshots-ui.test.mjs'],
 };
+targetedProfiles['central-revision-release-check']={...targetedProfiles['central-revision-snapshots'],
+ files:[...targetedProfiles['central-revision-snapshots'].files,'src/core/space-outlaws-release-check.mjs','src/core/space-outlaws-shop-state.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

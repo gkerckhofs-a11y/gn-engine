@@ -1,5 +1,11 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Contrôles de mise en jeu du Master Vn+1 — 8 novembre 2026
+
+Dans **Contrôle du brouillon central**, la section **Préparation d’une future session** applique les vérifications de publication existantes aux définitions héritées et aux modifications actives. Elle couvre les droits de groupe raccordés, les vendeurs PNJ et les offres, les modules et leurs tarifs, les types de contenus pris en charge, ainsi que la limite de 440 écritures de définitions pour l’activation. Les diagnostics indiquent l’atelier, l’identifiant et, pour une ligne Excel, sa provenance. Les archives sont exclues des contrôles de mise en jeu et conservées dans le calcul de taille du manifeste.
+
+Le contrôle du manifeste reprend les limites de 6 Mio et 100 pages. Les nouveaux instantanés conservent le résultat du rapport. Les admissions de première publication restent propres à leur session. Les contrôles de migration des sessions, la publication du Vn+1 et le retour de version restent à traiter. Vérifications du commit exact dans la [PR #2](https://github.com/gkerckhofs-a11y/gn-engine/pull/2).
+
 ## Instantanés privés du Master Vn+1 — 7 novembre 2026
 
 Dans les ateliers du Vn+1, **Conserver un instantané** permet au propriétaire de confirmer la capture d’une révision après aperçu. Elle contient toutes les définitions effectives, y compris les définitions héritées et les archives de travail, ainsi que le rapport de comparaison et ses diagnostics. L’empreinte de la version publiée de départ est conservée. La capture suit les droits, reçus, bornes et pages scellées du [parcours C2n](SO-02-C2N-INSTANTANES-CENTRAUX.md). La liste, les liens et le téléchargement du Vn+1 sont liés à son identifiant de brouillon. Un contrôleur disposant encore de la lecture globale peut consulter et télécharger la copie privée.
