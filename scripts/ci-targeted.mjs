@@ -206,6 +206,16 @@ targetedProfiles['infiltrator-intrusion']={...targetedProfiles['infiltrator-decr
   'web/space-intrusion.mjs','web/central-field-targets.mjs','web/field-actions.mjs',
   'test/support/space-intrusion-suite.mjs','test/space-intrusion.test.mjs','test/space-intrusion-ui.test.mjs'],
 };
+// INF-03: M6 fictional forgery templates, blank form stocks and private evidence.
+targetedProfiles['infiltrator-forgery']={...targetedProfiles['infiltrator-intrusion'],
+ tests:[...new Set([...targetedProfiles['infiltrator-intrusion'].tests.filter(p=>![
+  'test/space-towing-work.test.mjs','test/space-towing-flight.test.mjs'
+ ].includes(p)),'test/space-forgery.test.mjs','test/space-forgery-ui.test.mjs'])],
+ suites:[...new Set([...targetedProfiles['infiltrator-intrusion'].suites,'space-forgery'])],
+ files:[...targetedProfiles['infiltrator-intrusion'].files,
+  'src/core/space-forgery.mjs','web/space-forgery.mjs',
+  'test/support/space-forgery-suite.mjs','test/space-forgery.test.mjs','test/space-forgery-ui.test.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

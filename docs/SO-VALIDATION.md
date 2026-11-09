@@ -1,5 +1,10 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Candidat INF-03 — 9 novembre 2026
+
+Atelier M6 FORGERY préparé, modèle de faux document fictif, formulaire vierge depuis M1/inventaire, PA et modèle réservés, D6 + niveau, durée, récupération et un document de fiction suivi au seul succès. Échec : formulaire consommé sans document. Dossiers privés de qualité et anomalies distincts des objets visibles. Pas de vraie habilitation ni de modification de transpondeur. **CI du SHA candidat à vérifier** ; contrôle terrain, qualité douanière et cas avancés hors périmètre. Voir [SO-INF-03](SO-INF-03.md).
+
+
 ## Extension candidate INF-01 — mini-jeu à code (9 novembre 2026)
 
 Énigme M6 fictive à réponse hachée, minuterie préparée, soumission d'un code côté serveur, **sans D6 supplémentaire**, PA à la résolution et récupération avant réessai. Les anciens profils au D6 restent inchangés. CI sur le nouveau SHA non encore vérifiée ; essais terrain et gestion des indices à consultation unique restent hors périmètre. Voir [SO-INF-01](SO-INF-01.md).

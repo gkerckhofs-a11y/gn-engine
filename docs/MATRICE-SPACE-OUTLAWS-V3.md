@@ -1,5 +1,15 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## INF-03 — Falsification (candidat, CI à vérifier)
+
+| Référence | Parcours candidat | Limites |
+|---|---|---|
+| V0.7 chapitre 14 / CDC §5.1 | Modèle M6 de catégorie N1–N5, formulaire M1 dans l'inventaire, durée canonique, PA réservé puis dépensé à la résolution, D6 + niveau, création d'un objet documentaire suivi si succès et consommation du formulaire même en cas d'échec. | Contrôle documentaire TRA-03 / douanes à intégrer séparément, pas d'habilitation technique réelle |
+| Secrets et versions | Anomalies et qualité dans un registre privé ; faux transférable comme objet narratif, révision Master figée ; refus des anciens profils et sessions. | Recette transfert/pillage, smartphones et vérification MJ requise |
+
+Voir [SO-INF-03](SO-INF-03.md).
+
+
 ## INF-01 — Mini-jeu à code (extension candidate)
 
 | Règle V0.7 | Résultat implémenté dans le candidat | Limite |

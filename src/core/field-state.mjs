@@ -31,6 +31,25 @@ export function fieldProfile(v,kind){
 }
 export function fieldTargetInput(v,id,old={}){
  if(isPlaceSearch(v))return searchTargetInput(v,id,old);
+ if(v?.kind==='FORGERY'){
+  check(['DRAFT','READY','PUBLISHED'].includes(v.publicationState));
+  const x=v.forgery;
+  check(x&&typeof x==='object'&&!Array.isArray(x)&&Object.keys(x).every(k=>[
+   'category','minLevel','threshold','blankItemId','documentTitle','documentText','anomalies'
+  ].includes(k)));
+  const categories={RECEIPT:1,MANIFEST:2,LICENSE:3,ORDER:4,EXCEPTIONAL:5};
+  check(Object.hasOwn(categories,x.category));
+  check(Number.isSafeInteger(x.minLevel)&&x.minLevel>=categories[x.category]&&x.minLevel<=5);
+  check(Number.isSafeInteger(x.threshold)&&x.threshold>=2&&x.threshold<=12);
+  check((v.rewards??[]).length===0&&Object.keys(v.profiles??{}).length===0&&!v.dependencyId);
+  return {id,kind:'FORGERY',title:text(v.title,150,true),description:text(v.description??'',6000),
+   gmNotes:text(v.gmNotes??'',10000),publicationState:v.publicationState,profiles:{},rewards:[],
+   forgery:{category:x.category,minLevel:x.minLevel,threshold:x.threshold,
+    blankItemId:documentId(x.blankItemId),documentTitle:text(x.documentTitle,150,true),
+    documentText:text(x.documentText,6000,true),anomalies:text(x.anomalies??'',6000,true)},
+   dependencyId:null,offlineSeconds:0,failureLockSeconds:0,repairProtectionSeconds:0,
+   revision:(old.revision??0)+1};
+ }
  if(v?.kind==='INTRUSION'){
   check(v.publicationState==='DRAFT'||v.publicationState==='READY'||v.publicationState==='PUBLISHED');
   check(v.intrusion&&typeof v.intrusion==='object'&&!Array.isArray(v.intrusion));

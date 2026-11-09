@@ -4,7 +4,7 @@ import {analysisProfile} from '../shared/space-outlaws-analysis.mjs';
 import {isPlaceSearch} from './space-outlaws-search-state.mjs';
 import {initialSkillIds} from '../shared/initial-character-profile.mjs';
 
-const fields=['kind','title','description','gmNotes','intrusion','profiles','rewards','dependencyId','offlineSeconds','failureLockSeconds','repairProtectionSeconds','searchVersion','search','finds'];
+const fields=['kind','title','description','gmNotes','forgery','intrusion','profiles','rewards','dependencyId','offlineSeconds','failureLockSeconds','repairProtectionSeconds','searchVersion','search','finds'];
 const profileFields=['skillId','minLevel','instructions','durationSeconds','durationByLevel','test','threshold','cost','cooldownSeconds','bonusItems','consumable','successText','failureText'];
 const keys=(v,allowed)=>requireThat(v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).every(k=>allowed.includes(k)),'INVALID_CENTRAL_FIELD_TARGET');
 export const centralFieldTargetBytes=96*1024;
@@ -13,7 +13,7 @@ export function centralFieldTargetEditable(d){
 }
 export function centralFieldTargetInput(v,id,old={}){
  keys(v,fields);requireThat(Buffer.byteLength(JSON.stringify(v))<=centralFieldTargetBytes,'CENTRAL_FIELD_TARGET_SIZE');
- if(isPlaceSearch(v)||v.kind==='INTRUSION')return {...fieldTargetInput({...v,publicationState:'DRAFT'},id,old),masterArchived:false};
+ if(isPlaceSearch(v)||v.kind==='INTRUSION'||v.kind==='FORGERY')return {...fieldTargetInput({...v,publicationState:'DRAFT'},id,old),masterArchived:false};
  keys(v.profiles,['SEARCH','SABOTAGE','REPAIR','ANALYZE']);
  for(const p of Object.values(v.profiles)){
   keys(p,profileFields);
@@ -39,6 +39,7 @@ export function centralLocationDiagnostics(c,field,id,changes,required=false){
 }
 export function centralFieldTargetReferences(d){
  const refs=[];const add=(field,type,id,extra={})=>{if(id)refs.push({field,type,id,...extra});};
+ if(d.kind==='FORGERY'){add('forgery.blankItemId','item',d.forgery.blankItemId,{consumable:true});return refs;}
  if(d.kind==='INTRUSION')return refs;
  if(isPlaceSearch(d)){
   d.finds.forEach((f,i)=>{add(`finds.${i}.itemId`,'item',f.itemId,{quantity:f.quantity});add(`finds.${i}.knowledgeId`,'knowledge',f.knowledgeId);f.characterIds.forEach(cid=>add(`finds.${i}.characterIds`,'character',cid));});
@@ -63,10 +64,13 @@ export function centralFieldTargetProjection(changes,itemChanges=null){
    if(!target){add(ref.field,ref.id,ref.type,'REFERENCE_MISSING','Préparer la définition cible dans son atelier ou corriger son identifiant.');continue;}
    if(target.operation!=='UPSERT'){add(ref.field,ref.id,ref.type,'REFERENCE_ARCHIVED','Restaurer la définition cible ou modifier la référence.');continue;}
    if(ref.field==='dependencyId'&&target.data.kind!=='INSTALLATION')add(ref.field,ref.id,ref.type,'FIELD_DEPENDENCY_TYPE','La dépendance d’une fouille doit être une installation native.');
-   if(ref.type==='item'&&ref.consumable&&!target.data.consumable)add(ref.field,ref.id,ref.type,'FIELD_CONSUMABLE','Choisir un objet consommable.');
+   if(ref.type==='item'&&ref.consumable&&!target.data.consumable){
+    const legacyBlank=ref.field==='forgery.blankItemId'&&changes.some(k=>k.type==='classKit'&&k.entityId==='INF'&&k.operation==='UPSERT'&&k.data?.bindings?.some(b=>b.slotId==='blank-forms'&&b.itemId===ref.id));
+    if(!legacyBlank)add(ref.field,ref.id,ref.type,'FIELD_CONSUMABLE','Choisir un formulaire consommable ou le modèle du slot INF blank-forms.');
+   }
    if(ref.type==='item'&&ref.quantity!==undefined&&target.data.kind==='INDIVIDUAL'&&ref.quantity!==1)add(ref.field,ref.id,ref.type,'FIELD_ITEM_QUANTITY','Un objet individuel exige une quantité de 1.');
   }
-  if(c.data.kind!=='ANALYSIS'&&c.data.kind!=='INTRUSION'&&!isPlaceSearch(c.data)){
+  if(c.data.kind!=='ANALYSIS'&&c.data.kind!=='INTRUSION'&&c.data.kind!=='FORGERY'&&!isPlaceSearch(c.data)){
    add('profiles',null,null,'FIELD_RULES_PENDING','Paramètres préparatoires : conformité V0.7, compétences, autorisations et QR de jeu restent à valider avant toute activation.');
    if(c.data.rewards.length)add('rewards',null,null,'FIELD_REWARD_SOURCE_PENDING','Quantités et plafonds proposés seulement ; source, réserve réelle et attribution transactionnelle restent à raccorder.');
   }

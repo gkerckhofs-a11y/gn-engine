@@ -66,6 +66,7 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(scopes.has('SHOP')&&/^(inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+|lotSales\/[^/]+|shopProvisions\/[^/]+)$/.test(relative))continue;
   if(scopes.has('PAYMENT')&&/^(accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('FIELD')&&/^(fieldActions\/[^/]+|fieldStates\/[^/]+|aidOffers\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/(?:resources\/actionPoints|fieldCooldowns\/[^/]+|knowledge\/[^/]+))?)$/.test(relative))continue;
+  if(scopes.has('INF03')&&session.spaceOutlaws.inf03Version===1&&/^(inf03Actions\/[^/]+|inf03Actors\/[^/]+|forgeryRecords\/[^/]+|fieldStates\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/resources\/actionPoints)?)$/.test(relative))continue;
   if(scopes.has('INF01')&&session.spaceOutlaws.inf01Version===1&&/^(inf01Actions\/[^/]+|inf01Actors\/[^/]+|fieldStates\/[^/]+|characters\/[^/]+(?:\/resources\/actionPoints)?)$/.test(relative))continue;
   if(scopes.has('INF02')&&session.spaceOutlaws.inf02Version===1&&/^(inf02Actions\/[^/]+|inf02Actors\/[^/]+|inf02Attempts\/[^/]+|characters\/[^/]+(?:\/(?:knowledge\/[^/]+|resources\/actionPoints))?)$/.test(relative))continue;
   if(scopes.has('ESCAPE')&&session.spaceOutlaws.escapeVersion===1&&/^(soCaptivities\/[^/]+|soEscapeActions\/[^/]+|soEscapeRogues\/[^/]+|characters\/[^/]+\/resources\/actionPoints)$/.test(relative))continue;
