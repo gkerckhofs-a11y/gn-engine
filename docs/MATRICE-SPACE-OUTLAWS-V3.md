@@ -1,5 +1,14 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## Publication du Master Vn+1 — 9 novembre 2026
+
+| Exigence | Parcours raccordé | Vérifications ciblées |
+|---|---|---|
+| §3.6 étapes 5 et 6 | Publication du brouillon contrôlé par le propriétaire. Manifeste immuable, pointeur et journal écrits ensemble. | Refus sans changement, blocage M5, aperçu périmé, refus au délégué, concurrence, réessais et héritage V3. |
+| §3.6 étape 7 | Première naissance, relève, apprentissage et régie liés à la version de leur session. | Confirmation de naissance V1 après publication V2, lecture de la régie V1, instantanés du brouillon publié toujours accessibles. |
+
+Le rattachement d’une nouvelle session ou d’un épisode au Master révisé, le contrôle de migration et le retour de version restent ouverts. [PR #2](https://github.com/gkerckhofs-a11y/gn-engine/pull/2).
+
 ## Contrôles de mise en jeu du Master Vn+1 — 8 novembre 2026
 
 | Exigence | Parcours raccordé | Vérifications ciblées |

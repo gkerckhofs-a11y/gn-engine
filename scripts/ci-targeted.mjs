@@ -159,6 +159,11 @@ targetedProfiles['central-revision-snapshots']={...targetedProfiles['central-rev
 targetedProfiles['central-revision-release-check']={...targetedProfiles['central-revision-snapshots'],
  files:[...targetedProfiles['central-revision-snapshots'].files,'src/core/space-outlaws-release-check.mjs','src/core/space-outlaws-shop-state.mjs'],
 };
+targetedProfiles['central-revision-release']={...targetedProfiles['central-revision-release-check'],
+ tests:[...new Set([...targetedProfiles['central-revision-release-check'].tests,'test/space-learning.test.mjs'])],
+ suites:[...new Set([...targetedProfiles['central-revision-release-check'].suites,'space-learning'])],
+ files:[...targetedProfiles['central-revision-release-check'].files,'src/core/space-outlaws-learning.mjs','src/core/space-outlaws-succession.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

@@ -31,6 +31,7 @@ const regPath=(sid,uid)=>`sessions/${sid}/registrations/${hash(uid)}`;
 const reads=['spaceOutlawsEntry','mySpaceOutlawsEntry','previewSpaceOutlawsRelease','previewSpaceOutlawsBirth'];
 export const spaceOutlawsEntryActions=[...reads,'releaseSpaceOutlaws','birthSpaceOutlaws'];
 const versionKind='SPACE_OUTLAWS_ENTRY_V1';
+const releaseCapabilities={groupDefinitionsVersion:1,groupsVersion:1,groupWalletVersion:1,groupStockVersion:1,groupPilotVersion:1,...Object.fromEntries(towingVersionKeys.map(k=>[k,1])),hiddenCargoVersion:1,moduleFlightVersion:1,moduleRemovalVersion:1,moduleInstallationVersion:1,moduleWorkVersion:1,moduleMandatesVersion:1,modulePurchasesVersion:1,technicalAnalysisVersion:1,shipNamingVersion:1,boardingRansomSponsorVersion:1,boardingShopReturnVersion:1,boardingFreightVersion:1,boardingCargoVersion:1,boardingRansomVersion:1,fleetBoardingVersion:1,boardingVersion:1,allianceDefenseVersion:1,allianceDuelVersion:1,allianceConvoyVersion:1,pirateAllianceVersion:1,targetedAmbushVersion:1,intelligenceVersion:1,maintenanceLotsVersion:1,maintenancePnjVersion:1,maintenanceSuppliesVersion:1,bountyVersion:1,appealFinanceVersion:1,routeAnalysisVersion:1,detourVersion:1,escortManeuverVersion:1,escortAmendmentVersion:1,escortVersion:1,convoyVersion:1,transportVersion:1,learningVersion:1,successionVersion:1,searchVersion:1,mediaVersion:1,episodesVersion:1,missionExecutionVersion:1,missionsVersion:1,logisticsVersion:1,combatVersion:1,navigationVersion:1,shopsVersion:1,healthVersion:1};
 const publicSession=s=>({id:s.id,title:s.title,date:s.date,time:s.time,place:s.place});
 
 async function context(tx,s,c){
@@ -38,8 +39,8 @@ async function context(tx,s,c){
  const [draft,policy,counts,species]=await Promise.all([tx.get(base),tx.get(`sessions/${s.id}/admission/settings`),tx.get(`sessions/${s.id}/admission/occupancy`),tx.get(`${base}/changes/speciesCatalogue_player`)]);
  return {c,s,draft,policy,occupancy:admissionOccupancy(counts,s.accepted),settings:policy?{...policy,species:species?.data??[]}:null};
 }
-export async function readSoEntryVersion(tx,c){
- const id=c.master?.activeVersionId;requireThat(id,'SO_RELEASE_REQUIRED');
+export async function readSoEntryVersion(tx,c,id=c.master?.activeVersionId){
+ requireThat(id,'SO_RELEASE_REQUIRED');
  const base=`campaigns/${c.id}/versions/${id}`,h=await tx.get(base);
  requireThat(h?.kind===versionKind&&h.status==='READY'&&h.id===id&&h.campaignId===c.id&&h.ruleProfile===spaceOutlawsProfile&&Array.isArray(h.pages)&&h.pages.length<=100,'SO_VERSION_INVALID');
  const {manifestDigest,...manifest}=h;requireThat(digest(manifest)===manifestDigest,'SO_VERSION_INVALID');
@@ -109,6 +110,16 @@ export async function readSoEntryVersion(tx,c){
  if(h.healthVersion===1)requireThat(digest(h.careProfiles)===digest(soCareProfiles(changes)),'SO_VERSION_INVALID');
  return {header:h,changes};
 }
+export function writeSoReleaseVersion(tx,{campaignId,confirmation,entries,pages:contentPages,...metadata}){
+ const id=`so_${confirmation}`,base=`campaigns/${campaignId}/versions/${id}`;
+ const pages=contentPages.map((entries,i)=>({id:String(i),versionId:id,entries}));
+ const manifest={id,kind:versionKind,status:'READY',ruleProfile:spaceOutlawsProfile,campaignId,confirmation,...metadata,
+  ...releaseCapabilities,careProfiles:soCareProfiles(entries.map(e=>e.data)),records:entries.length,
+  contentDigest:digest(entries),pages:pages.map(p=>({id:p.id,digest:digest(p)}))};
+ for(const p of pages)tx.set(`${base}/pages/${p.id}`,p);
+ tx.set(base,{...manifest,manifestDigest:digest(manifest)});
+ return id;
+}
 async function releasePlan(tx,actor,ctx,authority,at){
  requireCentralPreparation(ctx.c,ctx.s,ctx.draft);
  const changes=await tx.list(`campaigns/${ctx.c.id}/masterDrafts/initial/changes`,null,{limit:centralCheckLimits.records+1});
@@ -117,7 +128,7 @@ async function releasePlan(tx,actor,ctx,authority,at){
  const {groupAndShop,definitions}=soReleaseDefinitionChecks(changes);
  const blockers=[...groupAndShop.map(({changeId,detailField,...d})=>d),...report.diagnostics.filter(d=>d.code!=='REWARD_SOURCE_PENDING').map(d=>({code:d.code,message:d.message,entityId:d.entityId})),...admissions.diagnostics.map(d=>({code:d.code,message:'Reprendre ce dossier dans les candidatures.',entityId:d.characterId??''})),...definitions.map(({changeId,detailField,...d})=>d)];
  const {entries,pages}=soReleaseManifest(changes);
- const confirmation=digest({groupDefinitionsVersion:1,groupsVersion:1,groupWalletVersion:1,groupStockVersion:1,groupPilotVersion:1,...Object.fromEntries(towingVersionKeys.map(k=>[k,1])),hiddenCargoVersion:1,moduleFlightVersion:1,moduleRemovalVersion:1,moduleInstallationVersion:1,moduleWorkVersion:1,moduleMandatesVersion:1,modulePurchasesVersion:1,technicalAnalysisVersion:1,shipNamingVersion:1,boardingRansomSponsorVersion:1,boardingShopReturnVersion:1,boardingFreightVersion:1,boardingCargoVersion:1,boardingRansomVersion:1,fleetBoardingVersion:1,boardingVersion:1,allianceDefenseVersion:1,allianceDuelVersion:1,allianceConvoyVersion:1,pirateAllianceVersion:1,targetedAmbushVersion:1,intelligenceVersion:1,maintenanceLotsVersion:1,maintenancePnjVersion:1,maintenanceSuppliesVersion:1,bountyVersion:1,appealFinanceVersion:1,routeAnalysisVersion:1,detourVersion:1,escortManeuverVersion:1,escortAmendmentVersion:1,escortVersion:1,convoyVersion:1,transportVersion:1,learningVersion:1,successionVersion:1,searchVersion:1,mediaVersion:1,episodesVersion:1,missionExecutionVersion:1,missionsVersion:1,logisticsVersion:1,combatVersion:1,navigationVersion:1,shopsVersion:1,healthVersion:1,actorUid:actor.uid,c:ctx.c,s:ctx.s,draft:ctx.draft,entries,admissions:admissions.fingerprint});
+ const confirmation=digest({...releaseCapabilities,actorUid:actor.uid,c:ctx.c,s:ctx.s,draft:ctx.draft,entries,admissions:admissions.fingerprint});
  return {entries,pages,confirmation,blockers,draftRevision:ctx.draft.revision,characters:changes.filter(c=>c.type==='character'&&c.operation==='UPSERT').length,approved:admissions.totals.approved};
 }
 export function soBirthOptions(v){
@@ -143,7 +154,7 @@ async function birthPlan(tx,actor,ctx,version,uid,options){
  requireThat(r.status==='RECEIVED'&&!r.characterId&&!r.accessActive,'SO_BIRTH_CONFLICT');
  requireThat(!(await tx.list(`sessions/${s.id}/characters`,['assignedUid',uid],{limit:1})).length,'SO_BIRTH_CONFLICT');
  const {profile,lots}=await planSoBirthAssets(tx,s,version,id,proposal.classId,proposal.secondaryId,options);
- return {r,definition:d,characterId:id,profile,lots,options,confirmation:digest({actorUid:actor.uid,s,c,admission:r.admission,policy:ctx.policy,occupancy:ctx.occupancy,version:version.header.manifestDigest,options})};
+ return {r,definition:d,characterId:id,profile,lots,options,confirmation:digest({actorUid:actor.uid,s,campaign:{id:c.id,ownerUid:c.ownerUid,preparationSessionId:c.preparationSessionId,activeSessionId:c.activeSessionId,activeBuildId:c.activeBuildId},admission:r.admission,policy:ctx.policy,occupancy:ctx.occupancy,version:version.header.manifestDigest,options})};
 }
 
 // Shared by the first birth and the explicitly validated successor transaction.
@@ -197,8 +208,9 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
    const authority=await centralAuthority(tx,actor,c,isAdmin),publishing=['previewSpaceOutlawsRelease','releaseSpaceOutlaws'].includes(action);
    if(publishing)requireThat(authority.owner,'FORBIDDEN');
    const ctx=await context(tx,s,c);
+   const sessionVersionId=s.spaceOutlaws?s.versionId??null:ctx.draft?.publishedVersionId??null;
    if(action==='spaceOutlawsEntry'){
-    admissionKeys(input,['sessionId']);const version=c.master?.activeVersionId?await readSoEntryVersion(tx,c):null;
+    admissionKeys(input,['sessionId']);const version=sessionVersionId?await readSoEntryVersion(tx,c,sessionVersionId):null;
     const registrations=await tx.list(`sessions/${sid}/registrations`,null,{limit:1001});requireThat(registrations.length<=1000,'SO_RELEASE_LIMIT');
     return {session:{...publicSession(s),revision:s.revision},campaignId:c.id,campaignEpisode:s.campaignEpisode,learningReady:s.spaceOutlaws?.learningVersion===1,successionReady:s.spaceOutlaws?.successionVersion===1,episodesReady:s.spaceOutlaws?.episodesVersion===1,groupsReady:s.spaceOutlaws?.groupsVersion===1,stage:s.stage,canRelease:authority.owner,actionsReady:s.spaceOutlaws?.actionsVersion===1,missionsReady:s.spaceOutlaws?.missionsVersion===1,bountiesReady:s.spaceOutlaws?.bountyVersion===1,intelligenceReady:s.spaceOutlaws?.intelligenceVersion===1,navigationReady:s.spaceOutlaws?.navigationVersion===1,shopsReady:s.spaceOutlaws?.shopsVersion===1,healthReady:s.spaceOutlaws?.healthVersion===1,safetyStopped:s.safetyStop?.active===true,versionId:version?.header.id??null,draftRevision:ctx.draft?.revision??0,
      targets:(version?.changes??[]).filter(ch=>ch.type==='fieldTarget'&&ch.operation==='UPSERT').map(ch=>({id:ch.entityId,title:ch.data.title})),
@@ -208,21 +220,18 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
    if(op){const receipt=await tx.get(op);if(receipt){requireThat(receipt.fingerprint===fingerprint,'REQUEST_ID_REUSED');return receipt.result;}}
    if(publishing){
     admissionKeys(input,['sessionId',...(read?[]:['requestId','confirmation','reason'])]);
-    if(c.master?.activeVersionId){const version=await readSoEntryVersion(tx,c);requireThat(!read&&version.header.confirmation===input.confirmation,'SO_ALREADY_RELEASED');return {versionId:version.header.id};}
+    if(c.master?.activeVersionId){const version=await readSoEntryVersion(tx,c,ctx.draft?.publishedVersionId??null);requireThat(!read&&version.header.confirmation===input.confirmation,'SO_ALREADY_RELEASED');return {versionId:version.header.id};}
     const plan=await releasePlan(tx,actor,ctx,authority,at);
     if(read)return {careProfiles:plan.blockers.length?[]:soCareProfiles(plan.entries.map(e=>e.data)).map(p=>({name:p.name,itemId:p.consumable?.itemId??null})),confirmation:plan.confirmation,blockers:plan.blockers,canRelease:!plan.blockers.length,draftRevision:plan.draftRevision,characters:plan.characters,approved:plan.approved};
     const reason=admissionText(input.reason,500,true);requireThat(!plan.blockers.length,'SO_RELEASE_BLOCKED');requireThat(plan.confirmation===input.confirmation,'SO_ENTRY_STALE');
-    const id=`so_${plan.confirmation}`,base=`campaigns/${c.id}/versions/${id}`,pages=plan.pages.map((entries,i)=>({id:String(i),versionId:id,entries}));
-    const manifest={id,kind:versionKind,status:'READY',ruleProfile:spaceOutlawsProfile,campaignId:c.id,sessionId:sid,draftRevision:plan.draftRevision,confirmation:plan.confirmation,createdAt:at,actorUid:actor.uid,reason,groupDefinitionsVersion:1,groupsVersion:1,groupWalletVersion:1,groupStockVersion:1,groupPilotVersion:1,...Object.fromEntries(towingVersionKeys.map(k=>[k,1])),hiddenCargoVersion:1,moduleFlightVersion:1,moduleRemovalVersion:1,moduleInstallationVersion:1,moduleWorkVersion:1,moduleMandatesVersion:1,modulePurchasesVersion:1,technicalAnalysisVersion:1,shipNamingVersion:1,boardingRansomSponsorVersion:1,boardingShopReturnVersion:1,boardingFreightVersion:1,boardingCargoVersion:1,boardingRansomVersion:1,fleetBoardingVersion:1,boardingVersion:1,allianceDefenseVersion:1,allianceDuelVersion:1,allianceConvoyVersion:1,pirateAllianceVersion:1,targetedAmbushVersion:1,intelligenceVersion:1,maintenanceLotsVersion:1,maintenancePnjVersion:1,maintenanceSuppliesVersion:1,bountyVersion:1,appealFinanceVersion:1,routeAnalysisVersion:1,detourVersion:1,escortManeuverVersion:1,escortAmendmentVersion:1,escortVersion:1,convoyVersion:1,transportVersion:1,learningVersion:1,successionVersion:1,searchVersion:1,mediaVersion:1,episodesVersion:1,missionExecutionVersion:1,missionsVersion:1,logisticsVersion:1,combatVersion:1,navigationVersion:1,shopsVersion:1,healthVersion:1,careProfiles:soCareProfiles(plan.entries.map(e=>e.data)),records:plan.entries.length,contentDigest:digest(plan.entries),pages:pages.map(p=>({id:p.id,digest:digest(p)}))};
-    for(const p of pages)tx.set(`${base}/pages/${p.id}`,p);
-    tx.set(base,{...manifest,manifestDigest:digest(manifest)});
+    const id=writeSoReleaseVersion(tx,{campaignId:c.id,sessionId:sid,draftRevision:plan.draftRevision,confirmation:plan.confirmation,createdAt:at,actorUid:actor.uid,reason,entries:plan.entries,pages:plan.pages});
     tx.set(`campaigns/${c.id}`,{...c,revision:c.revision+1,master:{...c.master,activeVersionId:id,pointerRevision:1,openDraftId:null}});
     tx.set(`campaigns/${c.id}/masterDrafts/initial`,{...ctx.draft,status:'SEALED',publishedVersionId:id,updatedAt:at});
     const eventId=uuid();tx.set(`campaigns/${c.id}/history/${eventId}`,{id:eventId,action,actorUid:actor.uid,at,reason,versionId:id,draftRevision:plan.draftRevision});
     const result={versionId:id};tx.set(op,{fingerprint,result,at});return result;
    }
    admissionKeys(input,['sessionId','uid','options',...(read?[]:['requestId','confirmation','reason'])]);
-   const uid=documentId(input.uid),options=soBirthOptions(input.options),version=await readSoEntryVersion(tx,c),plan=await birthPlan(tx,actor,ctx,version,uid,options);
+   const uid=documentId(input.uid),options=soBirthOptions(input.options),version=await readSoEntryVersion(tx,c,sessionVersionId),plan=await birthPlan(tx,actor,ctx,version,uid,options);
    if(plan.alreadyBorn)return {characterId:plan.characterId,alreadyBorn:true,accessActive:plan.accessActive};
    if(read)return {characterId:plan.characterId,name:plan.definition.public.displayName,profile:plan.profile,hp:plan.profile.classId==='COM'?4:3,protection:plan.profile.classId==='COM'?1:0,actionPoints:5,protectedCredits:200,kit:plan.lots.map(l=>({name:l.item.name,quantity:l.quantity})),options,confirmation:plan.confirmation};
    const reason=admissionText(input.reason,500,true);requireThat(plan.confirmation===input.confirmation,'SO_ENTRY_STALE');

@@ -34,7 +34,7 @@ export function createGroupManagementService({store,signed,checkSession,now,uuid
    const groups=await tx.list(`${base}/groups`),characters=await tx.list(`${base}/characters`);
    let preparedMemberships,version,roster;
    if(action==='groupManagement'&&s.spaceOutlaws?.groupsVersion===1){
-    const campaign=await tx.get(`campaigns/${s.campaignId}`);requireThat(campaign?.ownerUid===s.ownerUid,'SO_VERSION_INVALID');version=await readSoEntryVersion(tx,{...campaign,master:{...campaign.master,activeVersionId:s.versionId}});requireThat(version.header.groupsVersion===1&&s.spaceOutlaws.groupWalletVersion===version.header.groupWalletVersion&&s.spaceOutlaws.groupStockVersion===version.header.groupStockVersion&&s.spaceOutlaws.groupPilotVersion===version.header.groupPilotVersion,'SO_VERSION_INVALID');if(s.spaceOutlaws.groupDefinitionsVersion===1){requireThat(version.header.groupDefinitionsVersion===1,'SO_VERSION_INVALID');preparedMemberships=soPreparedMemberships(s,groups,characters,version);}
+    const campaign=await tx.get(`campaigns/${s.campaignId}`);requireThat(campaign?.ownerUid===s.ownerUid,'SO_VERSION_INVALID');version=await readSoEntryVersion(tx,campaign,s.versionId??null);requireThat(version.header.groupsVersion===1&&s.spaceOutlaws.groupWalletVersion===version.header.groupWalletVersion&&s.spaceOutlaws.groupStockVersion===version.header.groupStockVersion&&s.spaceOutlaws.groupPilotVersion===version.header.groupPilotVersion,'SO_VERSION_INVALID');if(s.spaceOutlaws.groupDefinitionsVersion===1){requireThat(version.header.groupDefinitionsVersion===1,'SO_VERSION_INVALID');preparedMemberships=soPreparedMemberships(s,groups,characters,version);}
    }
    let friendRequests;
    if(action==='groupManagement'&&s.spaceOutlaws?.groupsVersion===1){

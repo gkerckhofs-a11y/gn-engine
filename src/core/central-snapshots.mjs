@@ -43,7 +43,7 @@ async function plan(tx,{c,s,draft,path,version,rights},actor,at,revision){
  requireThat(bytes(entries)<=centralSnapshotLimits.bytes,'CENTRAL_SNAPSHOT_LIMIT');
  const pages=campaignPagesFor(entries);requireThat(pages.length<=centralSnapshotLimits.pages,'CENTRAL_SNAPSHOT_LIMIT');
  const source={draftId:draft?.id??'initial',draftRevision:revision,baseVersionId:draft?.baseVersionId??null,basePointerRevision:draft?.basePointerRevision??0,
-  ruleProfile:c.ruleProfile,campaignRevision:c.revision,...(version?{baseDraftRevision:version.header.draftRevision,baseManifestDigest:version.header.manifestDigest}:{sessionId:s.id,sessionRevision:s.revision})};
+  ruleProfile:c.ruleProfile,campaignRevision:c.revision,...(version?{baseDraftRevision:version.header.definitionRevision??version.header.draftRevision,baseManifestDigest:version.header.manifestDigest}:{sessionId:s.id,sessionRevision:s.revision})};
  // The actual capture time is recorded, but waiting alone does not invalidate consent.
  const confirmation=digest({formatVersion,actorUid:actor.uid,authority,rights,ownerUid:c.ownerUid,campaignId:c.id,source,changes,report:{...report,checkedAt:0}});
  return {changes,report,entries,pages,source,confirmation};

@@ -123,7 +123,7 @@ function describe(c,operation,fields){
   publicAccessCreated:false,resourcesCreated:false};
 }
 export function centralDraftCheck({campaign,session,draft,changes,actorUid,authority=null,at,base=null}){
- const inherited=base?.changes??[];
+ const inherited=base?.changes??[],baseRevision=base?.header.definitionRevision??base?.header.draftRevision;
  requireThat(changes.length<=centralCheckLimits.records&&inherited.length<=centralCheckLimits.records
   &&Buffer.byteLength(JSON.stringify(changes))+(base?Buffer.byteLength(JSON.stringify(inherited)):0)<=centralCheckLimits.inputBytes,'CENTRAL_CHECK_LIMIT');
  const editIds=new Set(changes.map(c=>c?.id)),effective=base?[...inherited.filter(c=>!editIds.has(c?.id)),...changes]:changes;
@@ -131,7 +131,7 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
  const revision=draft?.revision??0,ordered=[...effective].sort((a,b)=>safe(a?.id).localeCompare(safe(b?.id),'en')),valid=[],diagnostics=[],invalid=new Set(),seen=new Set(),counts={};
  const add=(c,code,message,field='')=>diagnostics.push({...location(c,field),code,message,reference:null});
  for(const c of ordered){
-  try{validateCentralChange(c,base&&!editIds.has(c?.id)?base.header.draftRevision:revision);check(!seen.has(c.id));seen.add(c.id);counts[c.type]=(counts[c.type]??0)+1;check(counts[c.type]<=limits[c.type]);valid.push(c);}
+  try{validateCentralChange(c,base&&!editIds.has(c?.id)?baseRevision:revision);check(!seen.has(c.id));seen.add(c.id);counts[c.type]=(counts[c.type]??0)+1;check(counts[c.type]<=limits[c.type]);valid.push(c);}
   catch(e){invalid.add(safe(c?.id));add(c,'INVALID_RECORD',`Définition ou provenance incohérente (${safe(e.code)||'structure'}). Corriger la source avant de poursuivre.`);}
  }
  // A duplicated ID cannot serve as a valid target, even if its first row passed.
@@ -166,7 +166,7 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
  const edges=centralEdges(records,invalid);
  const baseline=new Map(),invalidBase=new Set();
  for(const c of inherited){
-  try{validateCentralChange(c,base.header.draftRevision);check(!baseline.has(c.id));baseline.set(c.id,c);}
+  try{validateCentralChange(c,baseRevision);check(!baseline.has(c.id));baseline.set(c.id,c);}
   catch{invalidBase.add(safe(c?.id));}
  }
  const diff=records.flatMap(c=>{
@@ -184,7 +184,7 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
  const referenceChanges=base?compareEdges(centralEdges([...baseline.values()].filter(c=>!invalidBase.has(c.id)),invalidBase),edges):[];
  const remainingChecks=base?[
   {code:'RUNTIME_IMPACTS_PENDING',message:'Les compétences et effets signalés comme non vérifiés restent à contrôler. L’impact d’une migration sur les QR actifs, les droits, les budgets, les caisses, les stocks et les instances de jeu relève d’un contrôle de session distinct.'},
-  {code:'PUBLICATION_PENDING',message:'La publication et le retour de version restent à raccorder.'},
+  {code:'SESSION_ACTIVATION_PENDING',message:'Le rattachement d’une nouvelle session à cette version et le retour de version restent à raccorder.'},
  ]:[
   {code:'RULE_PROFILE_PENDING',message:'Raccordement complet du profil canonique V0.7, des classes, compétences, effets, dotations et liens courants entre admissions et incarnations à terminer.'},
   {code:'OTHER_DOMAINS_PENDING',message:'Autres contenus M1/M2/M3/M5/M6/M7, instances spatiales, rencontres, événements, médias, conformité des lieux/actions, QR, habilitations des vendeurs, caisses, stocks, tarifs de jeu et impacts à compléter.'},

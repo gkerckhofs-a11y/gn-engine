@@ -10,6 +10,52 @@ import {centralTestItem} from './central-master-suite.mjs';
 import {centralTestInstallation} from './central-field-targets-suite.mjs';
 
 export function centralRevisionSuite(makeStore,prefix='Master Vn+1'){
+ test(`${prefix} : publication atomique, rejeu et versions de session isolées`,async()=>{
+  const f=await entryFixture(makeStore),campaign=`campaigns/${f.campaignId}`,session=`sessions/${f.sid}`;
+  const firstPreview=await f.releasePreview(),first=await f.release(firstPreview),birth=await f.birthPreview();
+  const v1=`${campaign}/versions/${first.versionId}`,original=await f.store.get(v1),originalSession=await f.store.get(session);
+  const {id:draftId}=await f.cc('openCentralRevision',{baseVersionId:first.versionId,pointerRevision:1,reason:'Préparer V2'});
+  const preview=draftRevision=>f.central('previewCentralRelease',{draftId,draftRevision});
+  assert.equal((await preview(0)).canRelease,false);
+  await assert.rejects(f.cc('publishCentralRevision',{draftId,draftRevision:0,confirmation:'no-op',reason:'Brouillon intact'}),{code:'SO_RELEASE_BLOCKED'});
+  const item=(await f.central('centralMaster',{workshop:'M1'})).changes.find(c=>c.type==='item');
+  const edit={draftId,draftRevision:0,itemId:item.entityId,itemRevision:item.data.revision,item:{...centralTestItem,name:'Objet du Master V2',kind:item.data.kind,consumable:item.data.consumable,pillable:item.data.pillable},reason:'Renommer'};
+  await f.cc('saveCentralItem',edit);
+  const ready=await preview(1);
+  assert.equal(ready.canRelease,true);
+  assert.equal((await f.store.get(campaign)).master.activeVersionId,first.versionId);
+  const snap=await f.central('previewCentralSnapshot',{draftId,draftRevision:1});
+  const saved=await f.cc('captureCentralSnapshot',{draftId,draftRevision:1,confirmation:snap.confirmation,reason:'Avant publication'});
+  const input={draftId,draftRevision:1,confirmation:ready.confirmation,reason:'Publier V2',requestId:randomUUID()};
+  await f.grant(0,{readWorkshops:['M1','M2','M3','M4','M5','M6','M7'],editWorkshops:[],checkCentral:true});
+  await assert.rejects(f.cc('publishCentralRevision',input,f.mj),{code:'FORBIDDEN'});
+  await assert.rejects(f.cc('publishCentralRevision',{...input,confirmation:'stale'}),{code:'SO_ENTRY_STALE'});
+  const [v2,retry]=await Promise.all([f.cc('publishCentralRevision',input),f.cc('publishCentralRevision',{...input,requestId:randomUUID()})]);
+  assert.deepEqual(retry,v2);
+  assert.deepEqual(await f.cc('publishCentralRevision',input),v2);
+  assert.equal(v2.pointerRevision,2);
+  assert.deepEqual(await f.store.get(v1),original);
+  assert.deepEqual(await f.store.get(session),originalSession);
+  assert.equal((await f.store.list(`${campaign}/versions`)).length,2);
+  assert.equal((await f.store.list(`${campaign}/history`)).filter(e=>e.action==='publishCentralRevision').length,1);
+  const manifest=await f.store.get(`${campaign}/versions/${v2.versionId}`);
+  assert.equal(manifest.parentManifestDigest,original.manifestDigest);
+  assert.equal(manifest.records,original.records);
+  assert.equal((await f.central('centralSnapshot',{draftId,snapshotId:saved.id},f.mj)).snapshot.id,saved.id);
+  assert.deepEqual(await f.release(firstPreview),first);
+  assert.equal((await f.read('spaceOutlawsEntry')).versionId,first.versionId);
+  await f.birth(birth);
+  assert.equal((await f.store.get(session)).versionId,first.versionId);
+  assert.ok((await f.store.list(`${session}/inventory`)).every(l=>l.name!=='Objet du Master V2'));
+  await f.read('soLearningAdmin');
+  await f.read('spaceOutlawsSuccession');
+  const next=await f.cc('openCentralRevision',{baseVersionId:v2.versionId,pointerRevision:2,reason:'Préparer V3'});
+  const check=await f.central('checkCentralDraft',{draftId:next.id,draftRevision:0});
+  assert.equal(check.totals.invalid,0);
+  assert.equal(check.totals.records,original.records);
+  assert.equal((await f.central('centralMaster',{workshop:'M1'})).changes.find(c=>c.id===item.id).data.name,'Objet du Master V2');
+ });
+
  test(`${prefix} : ouverture concurrente sans copie ni changement de la naissance préparée`,async()=>{
   const f=await entryFixture(makeStore),campaign=`campaigns/${f.campaignId}`,session=`sessions/${f.sid}`;
   const intent={baseVersionId:'unknown',pointerRevision:1,reason:'Préparer la suite'};

@@ -381,6 +381,12 @@ document.addEventListener('click',async event=>{
     if(a==='soReleasePreview'){const d=await api('previewSpaceOutlawsRelease',{sessionId:b.dataset.sid});if(actionVersion!==routeVersion)return;pendingEntry={sessionId:b.dataset.sid,confirmation:d.confirmation};modal(entryUi.release(d));return;}
     if(a==='soBirthOptions'){pendingEntry=null;modal(entryUi.options(b.dataset.sid,b.dataset.uid,b.dataset.name));return;}
     if(a==='newSpaceOutlawsPreparation'){const uid=auth.currentUser.uid,id=preparationDraftId(preparationStorage(),uid,()=>crypto.randomUUID());modal(preparationUi.form({},id,uid));return;}
+    if(a==='centralReleasePreview'){
+      const {campaign,draft}=currentCentral;
+      const d=await api('previewCentralRelease',{campaignId:campaign.id,draftId:draft.id,draftRevision:draft.revision});
+      if(actionVersion!==routeVersion)return;
+      modal(centralUi.releasePreview(d));return;
+    }
     if(a==='centralSnapshotPreview'){const d=await api('previewCentralSnapshot',{campaignId:currentCentral.campaign.id,draftRevision:currentCentral.draft.revision,...(currentCentral.draft.baseVersionId?{draftId:currentCentral.draft.id}:{})});if(actionVersion!==routeVersion)return;modal(centralSnapshotUi.preview(d));return;}
     if(a==='centralSnapshotDownload'){const d=await api('centralSnapshot',{campaignId:b.dataset.cid,snapshotId:b.dataset.id,...(b.dataset.draftId?{draftId:b.dataset.draftId}:{})});if(actionVersion!==routeVersion)return;const href=URL.createObjectURL(new Blob([centralSnapshotFile(d)],{type:'application/json'})),a=document.createElement('a');a.href=href;a.download=`Instantane-central-${d.snapshot.id}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(href),1000);return;}
     if(a==='centralExport'){pendingCentralImport=null;modal(centralUi.exportForm(currentCentral));return;}
@@ -647,6 +653,11 @@ document.addEventListener('submit',async event=>{
     else if(kind==='centralImportApply'){
       if(!pendingCentralImport||v.confirmed!=='on')throw new Error('Préparez et confirmez un aperçu avant l’import.');
       const r=await api('applyCentralImport',{...pendingCentralImport,reason:v.reason});successMessage=`Import enregistré : ${r.changed} modification(s), ${r.unchanged} ligne(s) inchangée(s).`;pendingCentralImport=null;
+    }
+    else if(kind==='centralRelease'){
+      if(v.confirmed!=='on')return;
+      const d=await mutate('publishCentralRevision',{campaignId:form.dataset.cid,...centralDraftInput,confirmation:form.dataset.confirmation,reason:v.reason});
+      successMessage=`Master V${d.pointerRevision} publié dans la campagne.`;
     }
     else if(kind==='centralRevision'){
       await mutate('openCentralRevision',{campaignId:form.dataset.cid,baseVersionId:form.dataset.version,pointerRevision:Number(form.dataset.pointer),reason:v.reason});

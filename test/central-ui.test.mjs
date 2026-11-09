@@ -54,3 +54,15 @@ test('Central UI : ouvre la version suivante puis montre les éditeurs web',()=>
  assert.match(draft,/data-action="centralSnapshotPreview"/);
  assert.match(draft,/central-snapshots\/campaign\/revision-1/);
 });
+
+test('Central UI : le propriétaire confirme la publication d’un brouillon Vn+1 contrôlé',()=>{
+ const draft={id:'revision-1',baseVersionId:'v1',pointerRevision:1,revision:3,status:'DRAFT'};
+ assert.doesNotMatch(ui.page({...model,draft}),/centralReleasePreview/);
+ assert.match(ui.page({...model,draft,rights:{...model.rights,manageStaff:true}}),/centralReleasePreview/);
+ const preview={campaignId:'campaign',draftId:draft.id,draftRevision:3,pointerRevision:2,confirmation:'confirm'};
+ assert.doesNotMatch(ui.releasePreview(preview),/data-form="centralRelease"/);
+ const ready=ui.releasePreview({...preview,canRelease:true});
+ assert.match(ready,/data-form="centralRelease".*data-draft-id="revision-1".*data-draft="3".*data-confirmation="confirm"/);
+ assert.match(ready,/name="confirmed" required/);
+ assert.match(ready,/Publier V2/);
+});

@@ -16,7 +16,8 @@ import {isPreparation,spaceOutlawsProfile} from './preparation-state.mjs';
 import {itemInput} from './inventory-state.mjs';
 import {recipeInput} from './recipe-state.mjs';
 import {centralRecipeProjection} from './central-recipes.mjs';
-import {readSoEntryVersion} from './space-outlaws-entry.mjs';
+import {readSoEntryVersion,writeSoReleaseVersion} from './space-outlaws-entry.mjs';
+import {soReleaseManifest} from './space-outlaws-release-check.mjs';
 import {centralWorkshops} from '../shared/central-workshops.mjs';
 
 const hash=v=>createHash('sha256').update(v).digest('hex');
@@ -36,7 +37,7 @@ const reasonText=v=>{requireThat(typeof v==='string'&&v.trim()&&v.length<=500,'I
 const workshopList=v=>{requireThat(Array.isArray(v)&&v.length<=7&&new Set(v).size===v.length&&v.every(id=>ids.includes(id)),'INVALID_CENTRAL_GRANT');return [...v].sort();};
 const editableIds=centralWorkshops.filter(w=>w.editable).map(w=>w.id);
 const ownerRights={readWorkshops:ids,editWorkshops:editableIds,manageStaff:true,checkCentral:true};
-export const centralMasterCommands=[...centralSnapshotActions,'saveCentralFieldTarget','archiveCentralFieldTarget','saveCentralGroup','archiveCentralGroup',...centralImportCommands,'centralMaster','openCentralRevision','checkCentralDraft','setCentralStaff','saveCentralItem','archiveCentralItem','saveCentralRecipe','archiveCentralRecipe','saveCentralCharacter','archiveCentralCharacter','saveCentralClassKit','archiveCentralClassKit','saveCentralShipModel','archiveCentralShipModel','saveCentralPort','archiveCentralPort','saveCentralRoute','archiveCentralRoute','saveCentralMission','archiveCentralMission','saveCentralKnowledge','archiveCentralKnowledge','saveCentralShop','archiveCentralShop','saveCentralOffer','archiveCentralOffer'];
+export const centralMasterCommands=[...centralSnapshotActions,'saveCentralFieldTarget','archiveCentralFieldTarget','saveCentralGroup','archiveCentralGroup',...centralImportCommands,'centralMaster','openCentralRevision','previewCentralRelease','publishCentralRevision','checkCentralDraft','setCentralStaff','saveCentralItem','archiveCentralItem','saveCentralRecipe','archiveCentralRecipe','saveCentralCharacter','archiveCentralCharacter','saveCentralClassKit','archiveCentralClassKit','saveCentralShipModel','archiveCentralShipModel','saveCentralPort','archiveCentralPort','saveCentralRoute','archiveCentralRoute','saveCentralMission','archiveCentralMission','saveCentralKnowledge','archiveCentralKnowledge','saveCentralShop','archiveCentralShop','saveCentralOffer','archiveCentralOffer'];
 export const centralMasterAction=a=>centralMasterCommands.includes(a);
 export const centralLimits={items:250,recipes:250,characters:100,groups:50,fieldTargets:100,classKits:8,shops:50,offers:250,knowledge:250,missions:100,shipModels:100,ports:100,routes:200,staff:50};
 const actionType=action=>action.endsWith('FieldTarget')?'fieldTarget':action.endsWith('Group')?'group':action.endsWith('ShipModel')?'shipModel':action.endsWith('Port')?'port':action.endsWith('Route')?'route':action.endsWith('Mission')?'mission':action.endsWith('Knowledge')?'knowledge':action.endsWith('Shop')?'shop':action.endsWith('Offer')?'offer':action.endsWith('ClassKit')?'classKit':action.endsWith('Character')?'character':action.endsWith('Recipe')?'recipe':'item';
@@ -77,6 +78,52 @@ export async function centralDashboard(tx,actor,isAdmin){
  }
  return result;
 }
+async function releaseRevision(tx,{c,actor,input,at,uuid,published,preview}){
+ const cid=c.id;
+ requireThat(published,'SO_RELEASE_REQUIRED');
+ keys(input,['campaignId','draftId','draftRevision',...(preview?[]:['confirmation','reason','requestId'])]);
+ const id=documentId(input.draftId),revision=whole(input.draftRevision);
+ const path=draftPath(cid,id),draft=await tx.get(path);
+ requireThat(draft?.id===id&&draft.ruleProfile===spaceOutlawsProfile&&draft.revision===revision,'STALE_REVISION');
+ const op=preview?null:`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`;
+ const fingerprint=preview?null:digest(['publishCentralRevision',input]);
+ const receipt=op?await tx.get(op):null;
+ if(receipt){requireThat(receipt.fingerprint===fingerprint,'REQUEST_ID_REUSED');return receipt.result;}
+ const reason=preview?null:reasonText(input.reason);
+ if(!preview&&draft.status==='SEALED'&&draft.publishedVersionId){
+  const {header}=await readSoEntryVersion(tx,c,draft.publishedVersionId);
+  requireThat(header.draftId===id&&header.actorUid===actor.uid&&header.confirmation===input.confirmation,'SO_ENTRY_STALE');
+  return {versionId:header.id,pointerRevision:header.pointerRevision};
+ }
+ requireThat(id===revisionDraftId(c)&&draft.status==='DRAFT'&&draft.baseVersionId===c.master.activeVersionId
+  &&draft.basePointerRevision===c.master.pointerRevision,'STALE_REVISION');
+ const base=await readSoEntryVersion(tx,c);
+ const changes=await tx.list(`${path}/changes`,null,{limit:centralCheckLimits.records+1});
+ const report=centralDraftCheck({campaign:c,session:null,draft,changes,actorUid:actor.uid,authority:{kind:'OWNER',revision:null},at,base});
+ const canRelease=report.diff.length>0&&report.releaseChecks.manifestChecked
+  &&report.diagnostics.every(d=>d.code==='REWARD_SOURCE_PENDING');
+ const confirmation=canRelease?digest(['CENTRAL_REVISION_RELEASE',report.fingerprint]):null;
+ const pointerRevision=c.master.pointerRevision+1;
+ if(preview)return {campaignId:cid,draftId:id,draftRevision:revision,pointerRevision,canRelease,confirmation};
+ requireThat(canRelease,'SO_RELEASE_BLOCKED');
+ requireThat(confirmation===input.confirmation,'SO_ENTRY_STALE');
+ const effective=new Map(base.changes.map(change=>[change.id,change]));
+ for(const change of changes)effective.set(change.id,change);
+ const {entries,pages}=soReleaseManifest([...effective.values()]);
+ const parentVersionId=base.header.id,parentManifestDigest=base.header.manifestDigest;
+ const definitionRevision=Math.max(revision,base.header.definitionRevision??base.header.draftRevision);
+ const versionId=writeSoReleaseVersion(tx,{campaignId:cid,draftId:id,draftRevision:revision,definitionRevision,
+  pointerRevision,parentVersionId,parentManifestDigest,confirmation,createdAt:at,actorUid:actor.uid,reason,entries,pages});
+ tx.set(path,{...draft,status:'SEALED',publishedVersionId:versionId,updatedAt:at});
+ tx.set(root(cid),{...c,revision:c.revision+1,master:{...c.master,activeVersionId:versionId,pointerRevision}});
+ const eventId=uuid();
+ tx.set(`${root(cid)}/history/${eventId}`,{id:eventId,action:'publishCentralRevision',actorUid:actor.uid,at,reason,versionId,parentVersionId,
+  parentManifestDigest,draftId:id,draftRevision:revision,pointerRevision,reportFingerprint:report.fingerprint});
+ const result={versionId,pointerRevision};
+ tx.set(op,{fingerprint,result,at});
+ return result;
+}
+
 export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
  return async(action,actor,input)=>{
   signed(actor);const cid=documentId(input.campaignId),at=now();
@@ -85,8 +132,18 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
    const {owner,grant,rights}=await centralAuthority(tx,actor,c,isAdmin);requireThat(rights,'FORBIDDEN');
    const published=hasPublishedMaster(c),opening=action==='openCentralRevision',importing=centralImportCommands.includes(action);
    const snapshotting=centralSnapshotActions.includes(action),capturing=action==='previewCentralSnapshot'||action==='captureCentralSnapshot';
+   if(action==='previewCentralRelease'||action==='publishCentralRevision'){
+    requireThat(owner,'FORBIDDEN');
+    return releaseRevision(tx,{c,actor,input,at,uuid,published,preview:action==='previewCentralRelease'});
+   }
    if(opening||capturing)requireThat(owner,'FORBIDDEN');
    if(action==='checkCentralDraft'||snapshotting)requireThat(rights.checkCentral,'FORBIDDEN');
+   if(published&&snapshotting&&!capturing&&input.draftId!==revisionDraftId(c)){
+    requireThat(typeof input.draftId==='string','STALE_REVISION');
+    const historicalId=documentId(input.draftId),path=draftPath(cid,historicalId),draft=await tx.get(path);
+    requireThat(draft?.id===historicalId&&typeof draft.baseVersionId==='string'&&draft.status==='SEALED'&&draft.ruleProfile===spaceOutlawsProfile,'STALE_REVISION');
+    return centralSnapshots(tx,action,actor,input,{c,draft,path,owner:false});
+   }
    const path=draftPath(cid,published?revisionDraftId(c):'initial'),draft=await tx.get(path);
    const s=published?null:await tx.get(`sessions/${c.preparationSessionId??'none'}`);
    let baseVersionId=null,pointerRevision=0;
@@ -104,8 +161,9 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
       requireThat(owner&&action==='centralMaster','CENTRAL_DRAFT_UNAVAILABLE');
       keys(input,['campaignId','workshop']);
       requireThat(input.workshop===undefined||ids.includes(input.workshop),'INVALID_CENTRAL_MASTER');
-      await readSoEntryVersion(tx,c);
-      return {campaign:{id:cid,title:c.title},draft:{status:'PUBLISHED',baseVersionId,pointerRevision}};
+      const {header}=await readSoEntryVersion(tx,c);
+      return {campaign:{id:cid,title:c.title},draft:{status:'PUBLISHED',baseVersionId,pointerRevision},
+       ...(header.draftId?{publishedDraftId:header.draftId}:{})};
      }
     }
    }else{

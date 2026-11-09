@@ -25,7 +25,7 @@ const dossier=r=>r.succession?{status:r.succession.status,revision:r.succession.
 async function context(tx,s){
  const campaign=await tx.get(`campaigns/${s.campaignId}`);
  requireThat(campaign?.activeSessionId===s.id&&!campaign.activeBuildId&&!s.campaignSealed,'SO_SUCCESSION_CLOSED');
- const version=await readSoEntryVersion(tx,campaign);
+ const version=await readSoEntryVersion(tx,campaign,s.versionId??null);
  requireThat(version.header.successionVersion===1&&version.header.id===s.versionId,'SO_GAMEPLAY_NOT_OPEN');
  const [policy,counts,registrations,characters,groups]=await Promise.all([
   tx.get(`sessions/${s.id}/admission/settings`),tx.get(`sessions/${s.id}/admission/occupancy`),

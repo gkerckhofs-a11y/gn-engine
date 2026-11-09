@@ -1,5 +1,11 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Publication du Master Vn+1 — 9 novembre 2026
+
+Depuis un brouillon révisé, le propriétaire ouvre l’aperçu puis confirme la publication et saisit son motif. Le serveur refuse un brouillon sans changement, bloqué ou devenu périmé. Une seule transaction écrit les pages du manifeste immuable, scelle le brouillon, journalise son parent et active le nouveau pointeur de campagne. Les réessais renvoient la même version. Les instantanés d’un brouillon scellé restent lisibles par les personnes habilitées au contrôle global.
+
+Les premières naissances utilisent la version scellée de leur préparation. La régie, la relève et l’apprentissage d’une session ouverte lisent la version propre à cette session. La publication ne lance aucune migration et ne crée aucune ressource. Le raccordement d’une nouvelle session ou d’un épisode à cette version, le contrôle d’une migration et le retour de version restent à développer. Validation du candidat dans la [PR #2](https://github.com/gkerckhofs-a11y/gn-engine/pull/2).
+
 ## Contrôles de mise en jeu du Master Vn+1 — 8 novembre 2026
 
 Dans **Contrôle du brouillon central**, la section **Préparation d’une future session** applique les vérifications de publication existantes aux définitions héritées et aux modifications actives. Elle couvre les droits de groupe raccordés, les vendeurs PNJ et les offres, les modules et leurs tarifs, les types de contenus pris en charge, ainsi que la limite de 440 écritures de définitions pour l’activation. Les diagnostics indiquent l’atelier, l’identifiant et, pour une ligne Excel, sa provenance. Les archives sont exclues des contrôles de mise en jeu et conservées dans le calcul de taille du manifeste.
