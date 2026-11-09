@@ -178,6 +178,22 @@ targetedProfiles['rogue-escape']={...targetedProfiles['rogue-pickpocket'],
  suites:[...new Set([...targetedProfiles['rogue-pickpocket'].suites,'space-escape'])],
  files:[...targetedProfiles['rogue-pickpocket'].files,'src/core/field-actions.mjs','src/core/person-actions.mjs','src/core/space-escape.mjs','web/space-escape.mjs','test/space-escape.test.mjs','test/space-escape-ui.test.mjs','test/support/space-escape-suite.mjs'],
 };
+// INF-02 retains the transitive Rogue/Master scope while selecting at most 100
+// application files. Omitted tests are unrelated towing/group UI and remain covered
+// by the full regression gate before merge.
+targetedProfiles['infiltrator-decryption']={...targetedProfiles['rogue-escape'],
+ tests:[...new Set([...targetedProfiles['rogue-escape'].tests.filter(p=>![
+  'test/space-towing-combat-ui.test.mjs','test/space-towing-recovery-ui.test.mjs',
+  'test/space-towing-work-ui.test.mjs','test/central-groups-ui.test.mjs'
+ ].includes(p)),'test/space-decryption.test.mjs','test/space-decryption-ui.test.mjs',
+ 'test/central-knowledge.test.mjs','test/knowledge.test.mjs'])],
+ suites:[...new Set([...targetedProfiles['rogue-escape'].suites,'space-decryption','central-knowledge','knowledge'])],
+ files:[...targetedProfiles['rogue-escape'].files,
+ 'src/core/space-decryption.mjs','src/core/knowledge.mjs','src/core/central-knowledge.mjs',
+ 'web/space-decryption.mjs','web/central-knowledge.mjs',
+ 'test/support/space-decryption-suite.mjs','test/space-decryption.test.mjs','test/space-decryption-ui.test.mjs',
+ 'test/central-knowledge.test.mjs','test/knowledge.test.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

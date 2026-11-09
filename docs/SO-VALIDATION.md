@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Candidat INF-02 — 9 novembre 2026
+
+Premier raccord du déchiffrement à un document M6 déjà acquis : texte crypté dans le reçu, version, niveau INF-02, D6 + niveau, durée, un PA consommé à la résolution, une tentative par personnage/version, résultat privé. Texte clair révélé seulement en cas de succès ; anciennes sessions non activées. La CI du commit exact et les tests Firestore restent à établir avant validation. Voir [périmètre INF-02](SO-INF-02.md).
+
 ## Candidat ROG-03 — 9 novembre 2026
 
 Captivité MJ, QR et conditions d'évasion (niveau, garde, temps de jeu, PA et délai réel). Aucun mécanisme d'ouverture de serrure. CI du commit candidat à vérifier sur son SHA exact ; vérification physique non certifiée. [Périmètre](SO-ROG-03.md).

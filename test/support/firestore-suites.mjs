@@ -1,6 +1,7 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {"id":"space-decryption","module":"../support/space-decryption-suite.mjs","exportName":"soDecryptionSuite","label":"Déchiffrement INF-02 sur Firestore","seconds":55},
   {"id":"space-escape","module":"../support/space-escape-suite.mjs","exportName":"soEscapeSuite","label":"Évasion Rogue ROG-03 sur Firestore","seconds":65},
   {"id":"space-pickpocket","module":"../support/space-pickpocket-suite.mjs","exportName":"soPickpocketSuite","label":"Vol à la tire ROG-02 sur Firestore","seconds":65},
   {"id":"central-revision","module":"../support/central-revision-suite.mjs","exportName":"centralRevisionSuite","label":"Master Vn+1 sur Firestore","seconds":30},

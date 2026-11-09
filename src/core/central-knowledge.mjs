@@ -3,7 +3,7 @@ import {knowledgeInput} from './knowledge.mjs';
 
 export function centralKnowledgeInput(v,id,old={}){
  const code='INVALID_CENTRAL_KNOWLEDGE';
- requireThat(v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).every(k=>['kind','title','body','origin','shareMode','gmTruth','gmNotes','initialCharacterIds','qrEnabled','qrAudience','qrCharacterIds','qrSkillId','qrSkillLevel'].includes(k)),code);
+ requireThat(v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).every(k=>['kind','title','body','origin','shareMode','gmTruth','gmNotes','initialCharacterIds','qrEnabled','qrAudience','qrCharacterIds','qrSkillId','qrSkillLevel','cipher'].includes(k)),code);
  for(const key of ['initialCharacterIds','qrCharacterIds'])requireThat(v[key]===undefined||Array.isArray(v[key])&&v[key].length<=100,code);
  requireThat(v.qrEnabled===undefined||typeof v.qrEnabled==='boolean',code);
  const skill=v.qrSkillId??null,level=v.qrSkillLevel??null;

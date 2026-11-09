@@ -6,6 +6,7 @@ import {createBoardingCargoService,boardingCargoActions} from './space-boarding-
 import {createSoLearningService,soLearningActions} from './space-outlaws-learning.mjs';
 import {createSoPickpocketService,soPickpocketActions} from './space-pickpocket.mjs';
 import {createSoEscapeService,soEscapeActions} from './space-escape.mjs';
+import {createSoDecryptionService,soDecryptionActions} from './space-decryption.mjs';
 import {createSpaceOutlawsSuccessionService,spaceOutlawsSuccessionActions} from './space-outlaws-succession.mjs';
 import {rewardsOpen} from './space-outlaws-mission-rewards.mjs';
 import {createSpaceMaintenanceService,spaceMaintenanceActions} from './space-maintenance.mjs';
@@ -180,6 +181,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const learningService=createSoLearningService({store,signed,checkSession,now,uuid});
   const pickpocketService=createSoPickpocketService({store,signed,now,uuid});
   const escapeService=createSoEscapeService({store,signed,checkSession,now,uuid});
+  const decryptionService=createSoDecryptionService({store,signed,now,uuid,rollD6});
   const successionService=createSpaceOutlawsSuccessionService({store,signed,checkSession,now,uuid});
   const entryService=createSpaceOutlawsEntryService({store,signed,isAdmin,checkSession,now,uuid});
   const centralMasterService=createCentralMasterService({store,signed,isAdmin,now,uuid});
@@ -211,6 +213,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(soLearningActions.includes(action))return learningService(action,actor,input);
     if(soPickpocketActions.includes(action))return pickpocketService(action,actor,input);
     if(soEscapeActions.includes(action))return escapeService(action,actor,input);
+    if(soDecryptionActions.includes(action))return decryptionService(action,actor,input);
     if(spaceOutlawsSuccessionActions.includes(action))return successionService(action,actor,input);
     if(spaceOutlawsEntryActions.includes(action))return entryService(action,actor,input);
     if(admissionAction(action))return admissionService(action,actor,input);

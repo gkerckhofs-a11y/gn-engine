@@ -1,5 +1,14 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## INF-02 — Déchiffrement (candidat, CI non encore validée)
+
+| Exigence | Réalisation candidate | Limite |
+|---|---|---|
+| §5.1, règle V0.7 | Document M6 obtenu, niveau, texte clair réservé, D6 + niveau contre seuil, 1 PA, une tentative par personnage et version, annulation et récupération. | Le transfert d'un document physique par inventaire ne confère pas encore automatiquement le reçu de connaissance. Mini-jeu distinct non raccordé. |
+| Confidentialité | Texte clair absent des projections avant succès ; reçu personnel actualisé après succès. | Recette multicomptes et téléphones réels encore requise. |
+
+Voir [INF-02](SO-INF-02.md).
+
 ## ROG-03 — Évasion (première tranche, CI à confirmer)
 
 | Exigence | Parcours candidat | Limites |
