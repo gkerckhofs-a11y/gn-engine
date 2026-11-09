@@ -1,5 +1,12 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## Kits de relève M1 dans les nouveaux épisodes — 9 novembre 2026
+
+| Exigence | Parcours raccordé | Vérifications ciblées |
+|---|---|---|
+| §3.6 étape 7 et A08–A10 | Adoption de nouveaux modèles de matériel ordinaire pour les kits de relève. La dotation lit le Master choisi à la préparation. | Le nouveau lot est attribué une seule fois lors de la relève. Les lots repris conservent leur contenu et leurs droits. |
+| §3.6 étape 7 | Blocage des changements touchant aux références de jeu ou aux soins, avec possibilité de reprendre sur le Master précédent. | Lien vers une analyse M6, modèle M1 hors kit, aperçu et refus de création, reprise sur version conservée. |
+
 ## Adoption du Master pour un nouvel épisode — 9 novembre 2026
 
 | Exigence | Parcours raccordé | Vérifications ciblées |

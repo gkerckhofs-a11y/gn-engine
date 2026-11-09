@@ -1445,12 +1445,14 @@ test('HTTP + Auth : succession proposée, validée par MJ, nouveau QR et dotatio
  await cmd('revokeAccess',{uid:uid(player)},owner);assert.equal((await request('mySpaceOutlawsSuccession',{sessionId},player)).status,403);assert.equal((await request('succeedSpaceOutlawsCharacter',{sessionId,...input},owner)).status,403);
 });
 
-test('HTTP + Auth : épisode sur Master révisé, réserves et état scellé',async()=>{
- const {successionFixture,publishReserveRevision}=await import('../support/space-succession-suite.mjs');
+test('HTTP + Auth : épisode sur Master révisé, réserves, kit de relève et état scellé',async()=>{
+ const {successionFixture,publishReserveRevision,publishKitRevision}=await import('../support/space-succession-suite.mjs');
  const {episodeHarness}=await import('../support/space-episodes-suite.mjs');
  const db=getFirestore(),f=await successionFixture(()=>firestoreStore(db)),e=await episodeHarness(f);
  await e.close({participantUids:[f.player.uid]});
- const v1=(await e.get('')).versionId,v2=await publishReserveRevision(f,[{characterId:'http-reserve',displayName:'Zora Réserve'}]);
+ const v1=(await e.get('')).versionId;
+ await publishReserveRevision(f,[{characterId:'http-reserve',displayName:'Zora Réserve'}]);
+ const v3=await publishKitRevision(f);
  const owner=await googleTestAccount(process.env.OWNER_EMAIL),outsider=await googleTestAccount(`episode-master-${randomUUID()}@example.invalid`);
  const ownerUid=JSON.parse(Buffer.from(owner.split('.')[1],'base64url').toString()).sub;
  await db.doc(`campaigns/${e.campaignId}`).update({ownerUid});
@@ -1459,7 +1461,8 @@ test('HTTP + Auth : épisode sur Master révisé, réserves et état scellé',as
  const cmd=(action,input)=>call(action,{requestId:randomUUID(),...input});
  const input=e.nextInput(),p=await call('prepareCampaignEpisode',input);
  assert.equal(p.master.status,'ADOPT');
- assert.equal(p.master.versionId,v2.versionId);
+ assert.equal(p.master.kits,1);
+ assert.equal(p.master.versionId,v3.versionId);
  assert.equal((await request('prepareCampaignEpisode',input,outsider)).status,403);
  const confirm={...input,confirmation:p.confirmation,requestId:randomUUID()};
  assert.equal((await request('beginCampaignEpisode',confirm,outsider)).status,403);
@@ -1469,10 +1472,16 @@ test('HTTP + Auth : épisode sur Master révisé, réserves et état scellé',as
  while(build.status!=='READY')build=await cmd('advanceCampaignEpisode',{campaignId:e.campaignId,buildId});
  const copied=(await db.doc(`sessions/${sessionId}`).get()).data();
  assert.equal(copied.versionId,v1);
- assert.equal(copied.spaceOutlaws.masterVersionId,v2.versionId);
+ assert.equal(copied.spaceOutlaws.masterVersionId,v3.versionId);
  assert.equal((await e.get('')).spaceOutlaws.masterVersionId,undefined);
  assert.ok((await call('groupManagement',{sessionId})).characters.some(ch=>ch.id==='http-reserve'&&ch.rosterState==='RESERVE'));
  assert.equal((await request('groupManagement',{sessionId},outsider)).status,403);
+ const replacement={sessionId,...f.input({reserveId:'http-reserve'})};
+ const q=await call('prepareSpaceOutlawsSuccession',replacement);
+ assert.ok(q.kit.some(item=>item.name==='Communicateur de relève'));
+ const born=await cmd('succeedSpaceOutlawsCharacter',{...replacement,confirmation:q.confirmation,reason:'Kit M1 à la relève'});
+ const lots=await db.collection(`sessions/${sessionId}/inventory`).where('ownerId','==',born.characterId).get();
+ assert.ok(lots.docs.some(doc=>doc.data().item.id==='communicator-next'&&doc.data().origin.masterVersionId===v3.versionId));
 });
 
 test('HTTP + Auth : apprentissage privé entre épisodes, XP débités une fois et accès révoqué',async()=>{

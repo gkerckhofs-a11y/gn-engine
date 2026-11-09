@@ -1,5 +1,11 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Kits de relève M1 dans les nouveaux épisodes — 9 novembre 2026
+
+Un nouvel épisode peut adopter un Master qui remplace du matériel ordinaire dans un kit de classe par un nouveau modèle M1. L’aperçu identifie les kits et modèles concernés. Le serveur contrôle que les modèles sont indépendants des autres ateliers, que le nouvel identifiant ne correspond à aucun modèle ni lot repris et que les profils de soins restent identiques. Les consommables, modules, modifications des modèles existants, créations ou archivages de kits et changements incompatibles restent bloqués pour la reprise.
+
+La dotation intervient seulement à la naissance d’un successeur. Les lots reprennent les quantités canoniques et la protection du kit, et leur origine indique le Master adopté. La création et le réessai de la relève utilisent la transaction existante. Les lots du prédécesseur, stocks, dossiers et épisodes archivés conservent leurs données. [PR #2](https://github.com/gkerckhofs-a11y/gn-engine/pull/2).
+
 ## Adoption du Master pour un nouvel épisode — 9 novembre 2026
 
 À la préparation du prochain épisode, le propriétaire voit la dernière version publiée proposée et les éventuels blocages. L’adoption est disponible lorsque les seules différences concernent des réserves M2 non incarnées, non attribuées par admission et sans appartenance déjà enregistrée. Les changements d’autres ateliers ou de capacités de jeu restent bloqués. Le propriétaire peut reprendre avec le Master de l’épisode clôturé après un nouvel aperçu.

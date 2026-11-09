@@ -2,6 +2,8 @@ import {boardingCustodyReport} from './space-boarding-custody.mjs';
 import {missionObligations} from './space-mission-obligations.mjs';
 import {isDeepStrictEqual} from 'node:util';
 import {admissionIdentity} from './admission-state.mjs';
+import {centralFieldTargetReferences} from './central-field-targets.mjs';
+import {centralMissionReferences} from './central-missions.mjs';
 import {createHash} from 'node:crypto';
 import {requireThat,documentId,whole} from './validation.mjs';
 import {preparationInput} from './preparation-state.mjs';
@@ -86,6 +88,43 @@ export function soClosure(s,data,input,at){
   pickups:data.lotSales.filter(x=>x.status==='SOLD'&&x.pickupStatus!=='RECEIVED').length+data.contracts.reduce((n,c)=>n+(c.rewardPickups??[]).filter(x=>x.pickupStatus!=='RECEIVED').length,0),gameTimeMs:time};
  return {changes,blocks,continuity,cancelled:{market:0,sales:0,transfers:0},canClose:blocks.length===0};
 }
+function kitItemReferences(changes){
+ const linked=new Set();
+ for(const {type,operation,data} of changes){
+  if(operation!=='UPSERT')continue;
+  if(type==='offer')linked.add(data.itemId);
+  if(type==='recipe'){
+   linked.add(data.productItemId);
+   for(const component of data.components)linked.add(component.itemId);
+  }
+  const refs=type==='fieldTarget'?centralFieldTargetReferences(data):type==='mission'?centralMissionReferences(data):[];
+  for(const ref of refs)if(ref.type==='item')linked.add(ref.id);
+ }
+ return linked;
+}
+
+function planEpisodeKitChanges(before,after,changes,data,careUnchanged){
+ const kits=new Set(),items=new Set();
+ if(!careUnchanged||!changes.some(([old])=>old?.type==='classKit'))return {kits,items};
+ const ordinary=record=>record?.operation==='UPSERT'&&!record.data.consumable&&!record.data.shipModule;
+ const carriedIds=new Set([...data.items.map(item=>item.id),...data.inventory.map(lot=>lot.item.id)]);
+ const linked=kitItemReferences(after.values());
+ for(const [old,next] of changes){
+  if(old?.type!=='classKit'||old.operation!=='UPSERT'||next?.operation!=='UPSERT')continue;
+  const previousSlots=new Map(old.data.bindings.map(b=>[b.slotId,b.itemId]));
+  const replacements=next.data.bindings.filter(b=>previousSlots.get(b.slotId)!==b.itemId);
+  if(next.data.bindings.length!==previousSlots.size||replacements.length===0)continue;
+  if(!replacements.every(({slotId,itemId})=>{
+   const oldId=previousSlots.get(slotId);
+   return ordinary(before.get(`item_${oldId}`))&&ordinary(after.get(`item_${itemId}`))
+    &&!before.has(`item_${itemId}`)&&!carriedIds.has(itemId)&&!linked.has(oldId)&&!linked.has(itemId);
+  }))continue;
+  kits.add(next.id);
+  for(const {itemId} of replacements)items.add(`item_${itemId}`);
+ }
+ return {kits,items};
+}
+
 export async function planSoEpisodeMaster(tx,c,source,data,readVersion,policy='LATEST'){
  requireThat(['LATEST','KEEP'].includes(policy),'INVALID_CAMPAIGN');
  const sourceId=soEpisodeMasterId(source),latestId=c.master?.activeVersionId;
@@ -99,18 +138,22 @@ export async function planSoEpisodeMaster(tx,c,source,data,readVersion,policy='L
  const displayKey=name=>admissionIdentity({firstName:name,lastName:'display'});
  const usedNames=new Set(data.characters.map(ch=>displayKey(ch.public.displayName)));
  const before=new Map(previous.changes.map(ch=>[ch.id,ch])),after=new Map(latest.changes.map(ch=>[ch.id,ch]));
+ const changes=[...new Set([...before.keys(),...after.keys()])].map(id=>[before.get(id),after.get(id)]).filter(([old,next])=>!isDeepStrictEqual(old,next));
+ const {kits,items}=planEpisodeKitChanges(before,after,changes,data,isDeepStrictEqual(previous.header.careProfiles,latest.header.careProfiles));
  let reserves=0;
- for(const id of new Set([...before.keys(),...after.keys()])){
-  const old=before.get(id),next=after.get(id);
-  if(isDeepStrictEqual(old,next))continue;
+ for(const [old,next] of changes){
   const ch=next??old,detail={workshop:ch.workshop,entityId:ch.entityId};
-  if(ch.type!=='character'||!next?.data.creationPlan||(old&&!old.data.creationPlan)){
+  if(kits.has(ch.id)||items.has(ch.id))continue;
+  if(ch.type==='classKit'){
+   blockers.push({code:'KIT_INCOMPATIBLE',...detail});
+  }else if(ch.type!=='character'||!next?.data.creationPlan||(old&&!old.data.creationPlan)){
    blockers.push({code:'DEFINITION',...detail});
   }else if(lockedIds.has(ch.entityId)||next.operation==='UPSERT'&&usedNames.has(displayKey(next.data.public.displayName))){
    blockers.push({code:'CHARACTER_IN_USE',...detail});
   }else reserves++;
  }
- return {status:blockers.length?'BLOCKED':'ADOPT',sourceId,versionId:latestId,number:latest.header.pointerRevision??1,reserves,blockers};
+ return {status:blockers.length?'BLOCKED':'ADOPT',sourceId,versionId:latestId,number:latest.header.pointerRevision??1,reserves,
+  ...(kits.size?{kits:kits.size,kitItems:items.size}:{}),blockers};
 }
 
 export function soEpisodeHeader(input,source,c,id,at,master){

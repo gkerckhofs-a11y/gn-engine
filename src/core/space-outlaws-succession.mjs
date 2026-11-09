@@ -77,7 +77,7 @@ async function plan(tx,s,ctx,r,input,actor,at){
  requireThat(byClass[oldClass]>=0,'ADMISSION_ACCOUNTING_CONFLICT');
  // Reserve faction membership must be resolved explicitly by its own MJ command before activation.
  requireThat(!ctx.groups.some(g=>g.members.some(m=>m.characterId===id&&(m.active||Object.values(m.permissions??{}).some(Boolean)))),'SO_SUCCESSION_GROUP_CONFLICT');
- const assets=await planSoBirthAssets(tx,s,ctx.version,id,proposal.classId,proposal.secondaryId,options);
+ const assets=await planSoBirthAssets(tx,s,ctx.master,id,proposal.classId,proposal.secondaryId,options);
  requireThat(assets.profile,'INVALID_ADMISSION_CHOICE');
  const earned=whole(old.earnedXp??0),inheritedXp=Math.min(9,Math.floor(earned/4));
  const completedSessions=whole(r.progression?.completedSessions??0),pendingXp=whole(r.progression?.pendingXp??0);
@@ -130,7 +130,7 @@ export function createSpaceOutlawsSuccessionService({store,signed,checkSession,n
    requireThat(p.confirmation===input.confirmation,'SO_SUCCESSION_STALE');const reason=admissionText(input.reason,500,true),eventId=uuid();
    const character=soBornCharacter({definition:p.definition,sid,uid,profile:p.profile,options:p.options,version:ctx.version,at,actor,uuid,progression:p.progression});
    character.birth={...character.birth,predecessorId:p.old.id,order:(p.old.birth?.order??1)+1,source:input.source,
-    ...(input.source==='RESERVE'&&ctx.master!==ctx.version?{masterVersionId:ctx.master.header.id}:{})};
+    ...(ctx.master!==ctx.version?{masterVersionId:ctx.master.header.id}:{})};
    const succession={version:1,predecessorId:p.old.id,successorId:p.id,status:'COMPLETED',revision:(r.succession?.revision??0)+1,at,actorUid:actor.uid,source:input.source};
    const admission={...r.admission,revision:r.admission.revision+1,proposal:p.proposal,confirmation:{classId:p.proposal.classId,identityKey:admissionIdentity(p.proposal),approvedAt:at,actorUid:actor.uid,sourceRevision:r.admission.revision,exception:false,exceptionReason:null},updatedAt:at};
    const next={...r,previousCharacterId:p.old.id,characterId:p.id,accessVersion:r.accessVersion+1,briefingReadAt:null,briefingReadRevision:null,admission,succession,progression:{...r.progression,completedSessions:whole(r.progression?.completedSessions??0),pendingXp:0}};

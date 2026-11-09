@@ -9,8 +9,8 @@ import {initialClassKit} from '../../src/shared/initial-class-kit.mjs';
 import {centralTestItem} from './central-master-suite.mjs';
 const hash=v=>createHash('sha256').update(v).digest('hex');
 export const successorProposal={firstName:'Cora',lastName:'Relève',speciesId:'species-test',classId:'COM',secondaryId:'MED-02',background:'Une nouvelle histoire privée.',friends:''};
-export async function successionFixture(makeStore,{helper=false,dead=true,friends,otherFriends}={}){
- const f=await actionsFixture(makeStore,{helper,release:false,friends,otherFriends});
+export async function successionFixture(makeStore,{helper=false,dead=true,friends,otherFriends,material=false}={}){
+ const f=await actionsFixture(makeStore,{helper,release:false,friends,otherFriends,material,...(material?{skillId:'TRA-01'}:{})});
  const bindings=[];for(const slot of initialClassKit('ROG').slots){const itemId=`rog_${slot.id}`;bindings.push({slotId:slot.id,itemId});const d=await f.view();await f.cc('saveCentralItem',{itemId,itemRevision:0,draftRevision:d.draft.revision,item:{...centralTestItem,name:slot.label,kind:slot.requiresConsumable?'STACKABLE':'INDIVIDUAL',consumable:slot.requiresConsumable},reason:'Kit publié pour la relève'});}
  await f.cc('saveCentralClassKit',{classKitId:'ROG',classKitRevision:0,draftRevision:(await f.view()).draft.revision,classKit:{bindings,gmNotes:''},reason:'Kit publié pour la relève'});
  for(const [id,name] of [['reserve','Dana Réserve'],['reserve2','Eli Réserve']]){const d=await f.view();await f.cc('saveCentralCharacter',{characterId:id,characterRevision:0,draftRevision:d.draft.revision,character:{...centralTestCharacter,displayName:name,nature:'HUMANOID',creationPlan:{classId:'COM',speciesId:'species-test',secondaryId:'MED-02'},objectives:[],relations:[]},reason:'Réserve jamais incarnée'});}
@@ -42,7 +42,58 @@ export async function publishReserveRevision(f,changes){
  return f.cc('publishCentralRevision',{...scope,confirmation:p.confirmation,reason:'Révision M2 publiée'});
 }
 
+export async function publishKitRevision(f){
+ const {baseVersionId,pointerRevision}=(await f.view()).draft;
+ const {id:draftId}=await f.cc('openCentralRevision',{baseVersionId,pointerRevision,reason:'Équipement de relève'});
+ const kit=(await f.central('centralMaster',{workshop:'M1'})).changes.find(ch=>ch.type==='classKit'&&ch.entityId==='COM');
+ await f.cc('saveCentralItem',{draftId,draftRevision:0,itemId:'communicator-next',itemRevision:0,
+  item:{...centralTestItem,name:'Communicateur de relève',kind:'INDIVIDUAL',consumable:false},reason:'Nouveau modèle indépendant'});
+ await f.cc('saveCentralClassKit',{draftId,draftRevision:1,classKitId:'COM',classKitRevision:kit.data.revision,
+  classKit:{bindings:kit.data.bindings.map(b=>b.slotId==='communicator'?{...b,itemId:'communicator-next'}:b),gmNotes:kit.data.gmNotes},reason:'Réviser le kit COM'});
+ const scope={draftId,draftRevision:2},preview=await f.central('previewCentralRelease',scope);
+ assert.equal(preview.canRelease,true);
+ return f.cc('publishCentralRevision',{...scope,confirmation:preview.confirmation,reason:'Révision M1 publiée'});
+}
+
 export function spaceSuccessionSuite(makeStore,prefix='Succession SO'){
+ test(`${prefix} : un kit M1 révisé équipe la relève et conserve les lots hérités`,async()=>{
+  const f=await successionFixture(makeStore),e=await episodeHarness(f),v1=(await e.get('')).versionId;
+  await e.close({participantUids:[f.player.uid]});
+  const before=await f.store.list(`sessions/${e.sid}/inventory`);
+  const v2=await publishKitRevision(f);
+  const p=await e.read('prepareCampaignEpisode',e.nextInput());
+  assert.deepEqual(p.master,{status:'ADOPT',sourceId:v1,versionId:v2.versionId,number:2,reserves:0,kits:1,kitItems:1,blockers:[]});
+  await e.resume(await e.begin());
+  assert.equal((await e.get('')).versionId,v1);
+  assert.equal((await e.get('')).spaceOutlaws.masterVersionId,v2.versionId);
+  assert.equal((await f.store.list(`sessions/${e.sid}/inventory`)).length,before.length);
+  for(const l of before)assert.deepEqual(await e.get(`inventory/${l.id}`),l);
+  const input=f.input(),q=await e.read('prepareSpaceOutlawsSuccession',input);
+  assert.ok(q.kit.some(item=>item.name==='Communicateur de relève'&&item.quantity===1));
+  const command={...input,confirmation:q.confirmation,reason:'Relève équipée',requestId:randomUUID()};
+  const born=await e.cmd('succeedSpaceOutlawsCharacter',command);
+  assert.deepEqual(await e.cmd('succeedSpaceOutlawsCharacter',command),born);
+  const lots=(await f.store.list(`sessions/${e.sid}/inventory`)).filter(l=>l.item.id==='communicator-next');
+  assert.equal(lots.length,1);
+  assert.equal(lots[0].ownerId,born.characterId);
+  assert.equal(lots[0].quantity,1);
+  assert.equal(lots[0].transferable,false);
+  assert.equal(lots[0].origin.versionId,v1);
+  assert.equal(lots[0].origin.masterVersionId,v2.versionId);
+  for(const l of before)assert.deepEqual(await e.get(`inventory/${l.id}`),l);
+ });
+
+ test(`${prefix} : un objet de kit référencé par une action M6 bloque la reprise du kit`,async()=>{
+  const f=await successionFixture(makeStore,{material:true}),e=await episodeHarness(f);
+  await e.close({participantUids:[f.player.uid]});
+  await publishKitRevision(f);
+  const p=await e.read('prepareCampaignEpisode',e.nextInput());
+  assert.equal(p.confirmation,null);
+  assert.ok(p.master.blockers.some(b=>b.code==='KIT_INCOMPATIBLE'&&b.workshop==='M1'&&b.entityId==='COM'));
+  await assert.rejects(e.cmd('beginCampaignEpisode',{...e.nextInput(),confirmation:null}),{code:'SO_EPISODE_MASTER_BLOCKED'});
+  assert.equal((await e.read('prepareCampaignEpisode',e.nextInput({masterPolicy:'KEEP'}))).master.status,'KEEP');
+ });
+
  test(`${prefix} : un épisode adopte et fige les réserves du Master révisé`,async()=>{
   const f=await successionFixture(makeStore),e=await episodeHarness(f),v1=(await e.get('')).versionId;
   await e.close({participantUids:[f.player.uid]});

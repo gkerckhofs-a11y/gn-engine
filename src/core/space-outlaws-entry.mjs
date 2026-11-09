@@ -199,7 +199,7 @@ export function writeSoBirthAssets({tx,s,character,lots,version,at,actor,reason,
    const wallet=openWallet(tx,sid,character,0,at,actor.uid,'SO_BIRTH'),protectedWallet={...wallet,protectedCredits:200,protectedOrigin:{kind:'SO_BIRTH',characterId:id,sessionId:sid},revision:2};
    tx.set(`${base}/accounts/${wallet.id}`,protectedWallet);
    writeLedger(tx,sid,{id:eventId,at,kind:'SO_PROTECTED_GRANT',actorUid:actor.uid,memo:'200 Cr de création protégés',reason,createdCurrency:200,removedCurrency:0,entries:[{accountId:wallet.id,characterId:id,delta:0,protectedDelta:200,before:moneyState(wallet),after:moneyState(protectedWallet)}]});
-   for(const l of lots){const lot={...newLot(l.id,{...l.item,pillable:false},l.quantity,id,at,{kind:'SO_BIRTH',slotId:l.slotId,versionId:version.header.id}),pillable:false,transferable:false,resellable:false};tx.set(`${base}/inventory/${l.id}`,lot);tx.set(`${base}/inventory/${l.id}/history/${eventId}`,{id:eventId,kind:'SO_BIRTH',at,actorUid:actor.uid,reason,before:null,after:lotState(lot)});}
+   for(const l of lots){const lot={...newLot(l.id,{...l.item,pillable:false},l.quantity,id,at,{kind:'SO_BIRTH',slotId:l.slotId,versionId:version.header.id,...(character.birth.masterVersionId?{masterVersionId:character.birth.masterVersionId}:{})}),pillable:false,transferable:false,resellable:false};tx.set(`${base}/inventory/${l.id}`,lot);tx.set(`${base}/inventory/${l.id}/history/${eventId}`,{id:eventId,kind:'SO_BIRTH',at,actorUid:actor.uid,reason,before:null,after:lotState(lot)});}
 }
 
 export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSession,now,uuid}){
