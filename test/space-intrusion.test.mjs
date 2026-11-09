@@ -1,3 +1,5 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
 import {soIntrusionSuite} from './support/space-intrusion-suite.mjs';
 import {MemoryStore} from './support/memory.mjs';
 import {centralFieldTargetInput,centralFieldTargetEditable} from '../src/core/central-field-targets.mjs';
