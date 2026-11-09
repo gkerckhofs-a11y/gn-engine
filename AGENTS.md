@@ -1,3 +1,36 @@
+# GN Engine — consignes opérationnelles Codex (Space Outlaws)
+
+> Priorité actuelle : **SPACE OUTLAWS**. Cette section constitue la politique de travail
+> courante de l'agent et complète, sans effacer, les consignes et jalons historiques ci-dessous.
+> Procédure détaillée : [docs/SO-AGENT-OPERATIONS.md](docs/SO-AGENT-OPERATIONS.md).
+> Première mission d'audit en lecture seule : [docs/SO-CODEX-FIRST-AUDIT.md](docs/SO-CODEX-FIRST-AUDIT.md).
+
+## Obligations à chaque mission
+
+1. Vérifier dépôt, branche, HEAD, état Git, PR #2 et **CI sur le SHA exact** ; ne pas reprendre une
+   ancienne validation comme preuve du dernier commit. Ne jamais écraser une modification concurrente.
+2. Lire la portée des sources applicables : décisions explicites documentées de l'organisateur,
+   `docs/source/SO_Regles_V07.txt` (arbitrages A01–A38 clos),
+   `docs/source/SO_CDC_V35.md`, `docs/source/SO_CDC_V36_Fouilles_Medias.md`,
+   `docs/MATRICE-SPACE-OUTLAWS-V3.md`, `docs/SO-VALIDATION.md`
+   et `docs/AUDIT-GLOBAL-2026-11-06.md`. Les anciens rapports sont historiques.
+3. Préserver les Masters publiés et leurs versions, les sessions/épisodes historiques, les droits
+   serveur, la confidentialité, les reçus, l'idempotence, les transactions, les PA et les ressources.
+   Ne pas inventer ou réviser les règles validées ; signaler précisément les contradictions.
+4. Développer par **tranches verticales jouables**, avec changements limités, tests de succès
+   et de refus, documentation des écarts. Réutiliser le système CI existant
+   (`scripts/ci-plan.mjs`, `ci-targeted.mjs`, `ci-run-tests.mjs`,
+   `.github/workflows/check.yml`) ; les profils ciblés ne valent pas certification globale.
+5. **Sans autorisation distincte : aucune fusion dans main, aucun déploiement Firebase,
+   aucune migration ou suppression de données, aucun changement de secret ou de permission.**
+   Si la mission est « audit sans modification », n'effectuer **aucune écriture**,
+   aucun commit/push/commentaire et aucun déclenchement ou rejeu CI.
+6. Livrer un rapport factuel : SHAs et références, fichiers, commandes/tests réellement exécutés,
+   URL et état de CI exacts, risques, limites, arbitrages et prochaine priorité motivée.
+   Un test simulé ne remplace jamais une recette Android/iOS ou une session GN réelle.
+
+---
+
 # GN Engine — consignes de développement
 
 ## Contrôles de mise en jeu du Master Vn+1 — 8 novembre 2026
