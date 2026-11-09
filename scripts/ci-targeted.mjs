@@ -176,7 +176,7 @@ targetedProfiles['rogue-pickpocket']={...targetedProfiles['episode-master'],
 targetedProfiles['rogue-escape']={...targetedProfiles['rogue-pickpocket'],
  tests:[...new Set([...targetedProfiles['rogue-pickpocket'].tests.filter(p=>!['test/inventory-ui.test.mjs','test/central-import.test.mjs'].includes(p)),'test/space-escape.test.mjs','test/space-escape-ui.test.mjs'])],
  suites:[...new Set([...targetedProfiles['rogue-pickpocket'].suites,'space-escape'])],
- files:[...targetedProfiles['rogue-pickpocket'].files,'src/core/space-escape.mjs','web/space-escape.mjs','test/space-escape.test.mjs','test/space-escape-ui.test.mjs','test/support/space-escape-suite.mjs'],
+ files:[...targetedProfiles['rogue-pickpocket'].files,'src/core/field-actions.mjs','src/core/person-actions.mjs','src/core/space-escape.mjs','web/space-escape.mjs','test/space-escape.test.mjs','test/space-escape-ui.test.mjs','test/support/space-escape-suite.mjs'],
 };
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
