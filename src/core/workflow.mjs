@@ -7,6 +7,7 @@ import {createSoLearningService,soLearningActions} from './space-outlaws-learnin
 import {createSoPickpocketService,soPickpocketActions} from './space-pickpocket.mjs';
 import {createSoEscapeService,soEscapeActions} from './space-escape.mjs';
 import {createSoDecryptionService,soDecryptionActions} from './space-decryption.mjs';
+import {createSoIntrusionService,soIntrusionActions} from './space-intrusion.mjs';
 import {createSpaceOutlawsSuccessionService,spaceOutlawsSuccessionActions} from './space-outlaws-succession.mjs';
 import {rewardsOpen} from './space-outlaws-mission-rewards.mjs';
 import {createSpaceMaintenanceService,spaceMaintenanceActions} from './space-maintenance.mjs';
@@ -182,6 +183,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const pickpocketService=createSoPickpocketService({store,signed,now,uuid});
   const escapeService=createSoEscapeService({store,signed,checkSession,now,uuid});
   const decryptionService=createSoDecryptionService({store,signed,now,uuid,rollD6});
+  const intrusionService=createSoIntrusionService({store,signed,now,uuid,rollD6});
   const successionService=createSpaceOutlawsSuccessionService({store,signed,checkSession,now,uuid});
   const entryService=createSpaceOutlawsEntryService({store,signed,isAdmin,checkSession,now,uuid});
   const centralMasterService=createCentralMasterService({store,signed,isAdmin,now,uuid});
@@ -214,6 +216,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(soPickpocketActions.includes(action))return pickpocketService(action,actor,input);
     if(soEscapeActions.includes(action))return escapeService(action,actor,input);
     if(soDecryptionActions.includes(action))return decryptionService(action,actor,input);
+    if(soIntrusionActions.includes(action))return intrusionService(action,actor,input);
     if(spaceOutlawsSuccessionActions.includes(action))return successionService(action,actor,input);
     if(spaceOutlawsEntryActions.includes(action))return entryService(action,actor,input);
     if(admissionAction(action))return admissionService(action,actor,input);
@@ -514,6 +517,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
               requireThat(!(await tx.list(`sessions/${sid}/ships`)).some(x=>x.journey||x.operation||x.combatId||x.rescueId||x.maintenanceId),'VOYAGES_OPEN');
               requireThat(!(await tx.list(`sessions/${sid}/personActions`)).some(personOpen),'PERSON_ACTIONS_OPEN');
               if(s.spaceOutlaws.escapeVersion===1)requireThat(!(await tx.list(`sessions/${sid}/soCaptivities`)).some(c=>c.status==='ACTIVE'),'SO_CAPTIVITY_OPEN');
+              if(s.spaceOutlaws.inf01Version===1)requireThat(!(await tx.list(`sessions/${sid}/inf01Actions`)).some(a=>a.status==='RUNNING'),'FIELD_ACTIONS_OPEN');
               if(hasSoHealth(s))requireThat(!(await tx.list(`sessions/${sid}/characters`)).some(c=>['URGENT','EXPIRED'].includes(survival(s,c,at).status)),'SO_SURVIVAL_OPEN');
             }
           }

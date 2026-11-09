@@ -22,6 +22,22 @@ export function fieldProfile(v,kind){
 }
 export function fieldTargetInput(v,id,old={}){
  if(isPlaceSearch(v))return searchTargetInput(v,id,old);
+ if(v?.kind==='INTRUSION'){
+  check(v.publicationState==='DRAFT'||v.publicationState==='READY'||v.publicationState==='PUBLISHED');
+  check(v.intrusion&&typeof v.intrusion==='object'&&!Array.isArray(v.intrusion));
+  const i=v.intrusion;
+  check(['LOCK','SAFE','TERMINAL'].includes(i.category));
+  check(Number.isSafeInteger(i.minLevel)&&i.minLevel>=1&&i.minLevel<=5);
+  check(Number.isSafeInteger(i.threshold)&&i.threshold>=2&&i.threshold<=12);
+  check((v.rewards??[]).length===0&&Object.keys(v.profiles??{}).length===0&&!v.dependencyId);
+  return {id,kind:'INTRUSION',title:text(v.title,150,true),description:text(v.description??'',6000),
+   gmNotes:text(v.gmNotes??'',10000),publicationState:v.publicationState,profiles:{},rewards:[],
+   intrusion:{category:i.category,minLevel:i.minLevel,threshold:i.threshold,
+    successText:text(i.successText,4000,true),failureText:text(i.failureText??'',4000)},
+   dependencyId:null,offlineSeconds:0,failureLockSeconds:0,repairProtectionSeconds:0,
+   revision:(old.revision??0)+1};
+ }
+
  check(v&&['SEARCH','INSTALLATION','ANALYSIS'].includes(v.kind));check(['DRAFT','READY','PUBLISHED'].includes(v.publicationState));
  check(v.profiles&&typeof v.profiles==='object'&&!Array.isArray(v.profiles));check(Array.isArray(v.rewards??[]));
  const analysis=v.kind==='ANALYSIS';

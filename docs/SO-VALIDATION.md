@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Candidat INF-01 — 9 novembre 2026
+
+Intrusion fictive sur serrure/coffre/terminal M6 préparé : QR, niveau, D6, durée, PA à la résolution, récupération et résultat narratif privé. Aucun matériel réel contrôlé ; pas de mini-jeu ni ouverture physique. La CI du commit candidat reste à confirmer sur son SHA exact. Voir [périmètre INF-01](SO-INF-01.md).
+
 ## Candidat INF-02 — 9 novembre 2026
 
 Premier raccord du déchiffrement à un document M6 déjà acquis : texte crypté dans le reçu, version, niveau INF-02, D6 + niveau, durée, un PA consommé à la résolution, une tentative par personnage/version, résultat privé. Texte clair révélé seulement en cas de succès ; anciennes sessions non activées. La CI du commit exact et les tests Firestore restent à établir avant validation. Voir [périmètre INF-02](SO-INF-02.md).

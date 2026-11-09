@@ -194,6 +194,18 @@ targetedProfiles['infiltrator-decryption']={...targetedProfiles['rogue-escape'],
  'test/support/space-decryption-suite.mjs','test/space-decryption.test.mjs','test/space-decryption-ui.test.mjs',
  'test/central-knowledge.test.mjs','test/knowledge.test.mjs'],
 };
+// Ordinary fictional INF-01 using M6 fieldTarget; no live device control.
+targetedProfiles['infiltrator-intrusion']={...targetedProfiles['infiltrator-decryption'],
+ tests:[...new Set([...targetedProfiles['infiltrator-decryption'].tests.filter(p=>![
+  'test/space-towing-desk.test.mjs','test/space-towing-outage.test.mjs'
+ ].includes(p)),'test/space-intrusion.test.mjs','test/space-intrusion-ui.test.mjs'])],
+ suites:[...new Set([...targetedProfiles['infiltrator-decryption'].suites,'space-intrusion','central-field-targets'])],
+ files:[...targetedProfiles['infiltrator-decryption'].files,
+  'src/core/space-intrusion.mjs','src/core/field-state.mjs','src/core/central-field-targets.mjs',
+  'src/core/space-outlaws-release-check.mjs',
+  'web/space-intrusion.mjs','web/central-field-targets.mjs','web/field-actions.mjs',
+  'test/support/space-intrusion-suite.mjs','test/space-intrusion.test.mjs','test/space-intrusion-ui.test.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

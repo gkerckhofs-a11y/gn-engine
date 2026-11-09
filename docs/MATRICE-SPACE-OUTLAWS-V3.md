@@ -1,5 +1,14 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## INF-01 — Intrusion fictive (candidat, CI à confirmer)
+
+| Exigence | Parcours préparé | Réserves |
+|---|---|---|
+| §5.1 et V0.7 chapitre 14 | M6 cible INTRUSION, QR dédié, contrôle niveau, D6 + niveau, 1 PA à la résolution, durée N1–N5, récupération, résultat narratif privé. | Mini-jeu, bonus matériels/aide, éventuel effet sur installation native et recette physique non inclus. |
+| Sécurité des lieux | Aucun déverrouillage, contrôle informatique ou commande réelle ; validation côté serveur. | Présence physique déclarative à contrôler par l'organisateur. |
+
+Voir [INF-01](SO-INF-01.md).
+
 ## INF-02 — Déchiffrement (candidat, CI non encore validée)
 
 | Exigence | Réalisation candidate | Limite |
