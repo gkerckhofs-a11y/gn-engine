@@ -16,3 +16,9 @@ Date : 9 novembre 2026. Références : règles V0.7 chapitre 8 ; CDC V3.5 §4.5 
 - Les autres systèmes (combat, pillage, transport, santé et autres actions simultanées) ne sont **pas encore universellement bloqués** par le statut de captivité. Il reste une recette d'interopérabilité.
 - La lecture du QR montre une invitation à jouer et ne commande aucun dispositif physique.
 - Pas de certification smartphone, terrain, sécurité globale ou charge. Résultat CI à relever sur le **SHA exact** avant de déclarer le lot validé.
+
+## Contrôles d’interactions complémentaires
+- Une capture est refusée tant qu'une action terrain, une intervention personnelle, un voyage, une maintenance, une cargaison ou un vol ROG-02 demeure actif pour le personnage.
+- Un captif actif ne peut initier ni ROG-02, ni une nouvelle action de terrain, ni une intervention personnelle ; les lectures privées et la libération MJ restent permises.
+- Le démarrage de l'évasion refuse également un ROG-02 en cours, et toutes ces gardes sont vérifiées côté serveur sur les données courantes.
+- Ces verrous sont limités aux parcours raccordés : un audit ultérieur est nécessaire pour l’ensemble des services commerciaux et spatiaux, et pour la recette physique.

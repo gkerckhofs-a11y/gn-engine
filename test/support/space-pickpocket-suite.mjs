@@ -23,6 +23,15 @@ export async function pickpocketFixture(makeStore){
  return {...f,thief,victim,give,start,finish,choose,cancel};
 }
 export function soPickpocketSuite(makeStore,prefix='ROG-02'){
+ test(prefix+' : un Rogue captif ne peut pas démarrer un vol, la libération rend le droit',async()=>{
+  const f=await pickpocketFixture(makeStore);
+  await f.actionCmd('setSoCaptivity',{characterId:f.thief,kind:'CELL',safePath:true,reason:'Scène de prison'},f.owner);
+  await assert.rejects(f.start(),{code:'SO_ESCAPE_CAPTIVE'});
+  await f.actionCmd('endSoCaptivity',{characterId:f.thief},f.owner);
+  await f.give('eligible');
+  const a=await f.start();
+  assert.equal(a.status,'RUNNING');
+ });
  test(prefix+' : identité, départ, minuterie, PA conditionnels, vol et notification différée',async()=>{
   const f=await pickpocketFixture(makeStore);
   const kit=await f.store.list('sessions/'+f.sid+'/inventory');

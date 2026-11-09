@@ -113,6 +113,7 @@ export function createSoPickpocketService({store,signed,now,uuid}){
    authorizeSpaceOutlaws(tx,s,'PICKPOCKET');
    const record=(result)=>{tx.set(op,{fingerprint,result,at});return result;};
    if(action==='startSoPickpocket'){
+    if(s.spaceOutlaws.escapeVersion===1){const cap=await tx.get(prefix(sid)+'/soCaptivities/'+c.id);requireThat(cap?.status!=='ACTIVE','SO_ESCAPE_CAPTIVE');}
     requireThat(!active&&clock>=state.cooldownUntil,'SO_PICKPOCKET_COOLDOWN');
     requireThat(!c.activeFieldActionId&&!c.activePersonActionId&&!c.activeNavigationId,'SO_PICKPOCKET_UNAVAILABLE');
     const targetId=documentId(input.targetId);

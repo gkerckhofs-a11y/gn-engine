@@ -66,6 +66,20 @@ export function soEscapeSuite(makeStore,prefix='ROG-03'){
   await assert.rejects(f.start(undefined),{code:'SO_ESCAPE_RELEASE_DUE'});
   assert.equal((await f.release()).releaseDue,true);
  });
+ test(prefix+' : STOP SÉCURITÉ met la minuterie en pause et une reprise ne dépense pas de PA précocement',async()=>{
+  const f=await escapeFixture(makeStore),cap=await f.capture();
+  const a=await f.start(cap.code);
+  f.advance(15000);
+  await f.actionCmd('stopSafety',{reason:'Interruption de sécurité réelle'});
+  f.advance(120000);
+  await assert.rejects(f.finish(a.id),{code:'SESSION_NOT_RUNNING'});
+  const snapshot=await f.actionRead('session',{},f.owner);
+  await f.actionCmd('resumeSafety',{revision:snapshot.revision,reason:'Fin du STOP'},f.owner);
+  await assert.rejects(f.finish(a.id),{code:'SO_ESCAPE_TOO_EARLY'});
+  f.advance(30000);
+  assert.equal((await f.finish(a.id)).status,'ESCAPED');
+  assert.equal((await f.points()).available,4);
+ });
  test(prefix+' : permissions MJ, ancienne version et STOP',async()=>{
   const f=await escapeFixture(makeStore);
   await assert.rejects(f.actionCmd('setSoCaptivity',{characterId:f.id,kind:'CELL',safePath:true,reason:'Invalide'}),{code:'FORBIDDEN'});

@@ -43,7 +43,8 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
   else {requirePatientNature(p,t);if(hasSoHealth(s)){requireSoPatient(s,t,at);if(p.kind==='STABILIZE')requireThat(t.hp===0&&!t.survival?.stabilized,'SO_NO_STABILIZATION_NEEDED');}requireThat(s.healthRules?.enabled,'HEALTH_DISABLED');healthState(t);requireThat(t.hp<t.maxHp||convalescent(s,t,at),'NO_HEAL_NEEDED');if(p.kind==='FIELD_CARE'){requireThat(t.hp<t.maxHp,'NO_HEAL_NEEDED');requireThat(t.hp>0||level>=p.reviveLevel,'FIELD_SKILL_REQUIRED');requireThat(c.id!==t.id||!convalescent(s,t,at),'OUT_OF_COMBAT');}}
  }
  async function plan(tx,ctx,input,at){
-  const {s,c,r}=ctx;requireThat(s.stage==='EN_JEU'||(hasSoHealth(s)&&s.stage==='PAUSE'),'SESSION_NOT_RUNNING');requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(!c.activeFieldActionId&&!c.activePersonActionId,'FIELD_ACTOR_BUSY');
+  const {s,c,r}=ctx;
+  if(s.spaceOutlaws?.escapeVersion===1){const cap=await tx.get(`sessions/${s.id}/soCaptivities/${c.id}`);requireThat(cap?.status!=='ACTIVE','SO_ESCAPE_CAPTIVE');}requireThat(s.stage==='EN_JEU'||(hasSoHealth(s)&&s.stage==='PAUSE'),'SESSION_NOT_RUNNING');requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(!c.activeFieldActionId&&!c.activePersonActionId,'FIELD_ACTOR_BUSY');
   const p=await tx.get(`sessions/${s.id}/personProfiles/${documentId(input.profileId)}`);requireThat(p?.publicationState==='PUBLISHED','PERSON_PROFILE_UNAVAILABLE');
   if(s.spaceOutlaws)requireThat(hasSoHealth(s)&&['STABILIZE','FIELD_CARE'].includes(p.kind)&&p.id.startsWith('SO-'),'SO_GAMEPLAY_NOT_OPEN');
   const target=await activeCharacter(tx,s.id,input.targetId),t=target.c;requireThat(s.stage==='EN_JEU'||(hasSoHealth(s)&&t.hp===0),'SESSION_NOT_RUNNING');requireThat(!t.activePersonActionId&&!t.activeFieldActionId,'FIELD_TARGET_BUSY');

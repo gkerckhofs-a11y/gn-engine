@@ -76,6 +76,9 @@ export function createSoEscapeService({store,signed,checkSession,now,uuid}){
     requireThat(s.stage==='EN_JEU'||action==='endSoCaptivity','SESSION_NOT_RUNNING');
     requireThat(action==='endSoCaptivity'||!s.safetyStop?.active,'SO_SAFETY_STOP');
     if(action==='setSoCaptivity'){
+     requireThat(!c.activeFieldActionId&&!c.activePersonActionId&&!c.activeNavigationId&&!c.activeVoyageId&&!c.activeMaintenanceId&&!c.activeCargoId,'SO_ESCAPE_BUSY');
+     const pick=await tx.get(root(sid)+'/pickpocketRogues/'+cid);
+     requireThat(!pick?.activeId,'SO_ESCAPE_BUSY');
      requireThat(!cap||cap.status!=='ACTIVE','SO_ESCAPE_CAPTIVE');
      requireThat(['CELL','ESCORT','OPEN'].includes(input.kind)&&input.safePath===true,'SO_ESCAPE_OPPORTUNITY');
      requireThat(typeof input.reason==='string'&&input.reason.trim()&&input.reason.length<=500,'REASON_REQUIRED');
@@ -114,7 +117,9 @@ export function createSoEscapeService({store,signed,checkSession,now,uuid}){
     live(s,c);
     requireThat(!cap.activeId&&!state.activeId&&time>=state.cooldownUntil,'SO_ESCAPE_COOLDOWN');
     requireThat(!cap.guarded,'SO_ESCAPE_GUARDED');
-    requireThat(!c.activeFieldActionId&&!c.activePersonActionId&&!c.activeNavigationId,'SO_ESCAPE_UNAVAILABLE');
+    requireThat(!c.activeFieldActionId&&!c.activePersonActionId&&!c.activeNavigationId&&!c.activeVoyageId&&!c.activeMaintenanceId&&!c.activeCargoId,'SO_ESCAPE_UNAVAILABLE');
+    const pick=await tx.get(root(sid)+'/pickpocketRogues/'+c.id);
+    requireThat(!pick?.activeId,'SO_ESCAPE_BUSY');
     requireThat(input.present===true,'SO_ESCAPE_PRESENCE');
     requireThat(cap.kind==='CELL'||cap.kind==='ESCORT'&&level>=3||cap.kind==='OPEN'&&level>=5,'SO_ESCAPE_SKILL');
     requireThat(cap.kind==='OPEN'||documentId(input.code)===cap.code,'SO_ESCAPE_QR');
