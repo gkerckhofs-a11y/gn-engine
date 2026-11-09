@@ -68,6 +68,7 @@ export function createSoPickpocketService({store,signed,now,uuid}){
   if(!lot||quota.success===true){
    const ended={...a,status:'EMPTY',finishedAtGameMs:when,choices:[],result:{success:false,reason:'NO_ELIGIBLE_ITEM'}};
    tx.set(actionPath(s.id,a.id),ended);
+   tx.set(victimPath(s.id,a.targetId),{...quota,activeId:null});
    tx.set(roguePath(s.id,rogue.id),{...rogueState,activeId:null});
    tx.set(actionPointPath(s.id,rogue.id),releaseActionPoints(points,1,actionPointMaximum(s.actionPointRules,rogue)));
    return compact(ended);
@@ -145,10 +146,10 @@ export function createSoPickpocketService({store,signed,now,uuid}){
    const quota=await tx.get(victimPath(sid,a.targetId));
    requireThat(state.activeId===id&&quota,'SO_PICKPOCKET_UNAVAILABLE');
    if(action==='cancelSoPickpocket'){
-    const before=a.status==='RUNNING',ended={...a,status:'CANCELLED',finishedAtGameMs:clock,choices:[],result:{success:false,reason:'CANCELLED'}};
+    const ended={...a,status:'CANCELLED',finishedAtGameMs:clock,choices:[],result:{success:false,reason:'CANCELLED'}};
     tx.set(actionPath(sid,id),ended);
     tx.set(roguePath(sid,c.id),{...state,activeId:null});
-    if(before){requireThat(quota.activeId===id,'SO_PICKPOCKET_UNAVAILABLE');tx.set(victimPath(sid,a.targetId),{...quota,activeId:null});}
+    requireThat(quota.activeId===id,'SO_PICKPOCKET_UNAVAILABLE');tx.set(victimPath(sid,a.targetId),{...quota,activeId:null});
     tx.set(pointPath,releaseActionPoints(points,1,actionPointMaximum(s.actionPointRules,c)));
     return record(compact(ended));
    }
@@ -158,7 +159,8 @@ export function createSoPickpocketService({store,signed,now,uuid}){
     const choices=await stocked(tx,sid,a.targetId,at);
     const chosen=[...choices].sort((l,r)=>hash(a.id+':'+l.itemId).localeCompare(hash(a.id+':'+r.itemId)));
     const available=a.level<=2?chosen.slice(0,1):a.level<=4?chosen.slice(0,2):chosen;
-    const updatedQuota={...quota,attempts:quota.attempts+1,activeId:null};
+    // Keep victim locked during choice phase.
+     const updatedQuota={...quota,attempts:quota.attempts+1,activeId:available.length>1?id:null};
     const updatedState={...state,cooldownUntil:clock+cooldownMs};
     // Every transactional read (including selected lot) must precede all writes.
     if(available.length===1)return record(await finishTransfer(tx,s,a,c,updatedState,updatedQuota,points,at,available[0].itemId,uuid));
@@ -177,7 +179,7 @@ export function createSoPickpocketService({store,signed,now,uuid}){
    }
    requireThat(action==='chooseSoPickpocket'&&a.status==='CHOOSING','SO_PICKPOCKET_UNAVAILABLE');
    const itemId=documentId(input.itemId);
-   requireThat(a.choices.some(x=>x.itemId===itemId),'SO_PICKPOCKET_CHOICE');
+   requireThat(quota.activeId===id&&a.choices.some(x=>x.itemId===itemId),'SO_PICKPOCKET_CHOICE');
    return record(await finishTransfer(tx,s,a,c,state,quota,points,at,itemId,uuid));
   });
  };

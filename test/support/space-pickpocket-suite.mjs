@@ -94,6 +94,8 @@ export function soPickpocketSuite(makeStore,prefix='ROG-02'){
   const r=await f.finish(b.id);
   assert.equal(r.status,'CHOOSING');
   assert.equal(r.choices.length,2);
+  // A pending choice keeps the victim locked for other Rogues until finalization.
+  assert.equal((await f.store.get('sessions/'+f.sid+'/pickpocketVictims/'+f.victim)).activeId,b.id);
   assert.equal((await f.points()).reserved,1);
   const chosen=await f.choose(b.id,r.choices[0].itemId);
   assert.equal(chosen.status,'SUCCESS');
@@ -101,6 +103,17 @@ export function soPickpocketSuite(makeStore,prefix='ROG-02'){
   const attempted=await f.store.get('sessions/'+f.sid+'/pickpocketVictims/'+f.victim);
   assert.equal(attempted.attempts,1);
   assert.equal(attempted.success,true);
+ });
+ test(prefix+' : choix abandonné libère le verrou et restitue le PA sans effacer le quota',async()=>{
+  const f=await pickpocketFixture(makeStore);await f.give('left');await f.give('right');
+  const p='sessions/'+f.sid+'/characters/'+f.thief;
+  await f.store.runTransaction(async tx=>{const c=await tx.get(p);tx.set(p,{...c,abilityProfile:{...c.abilityProfile,skills:c.abilityProfile.skills.map(sk=>sk.id==='ROG-02'?{...sk,level:3}:sk)}});});
+  const a=await f.start();f.advance(45000);const selection=await f.finish(a.id);
+  assert.equal(selection.status,'CHOOSING');assert.equal((await f.store.get('sessions/'+f.sid+'/pickpocketVictims/'+f.victim)).activeId,a.id);
+  const cancel=await f.cancel(a.id);assert.equal(cancel.status,'CANCELLED');
+  const q=await f.store.get('sessions/'+f.sid+'/pickpocketVictims/'+f.victim);
+  assert.equal(q.activeId,null);assert.equal(q.attempts,1);
+  assert.equal((await f.points()).available,5);assert.equal((await f.points()).reserved,0);
  });
  test(prefix+' : objet non éligible, ancienne version et STOP refusés sans transfert',async()=>{
   const f=await pickpocketFixture(makeStore);await f.give('protected',1,false);

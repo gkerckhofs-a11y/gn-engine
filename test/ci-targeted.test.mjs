@@ -107,7 +107,7 @@ test('CI ciblée : canon lourd couvre adaptateur, duels, flottes et acquis modul
  const p=targetedScope('module-combat',['src/core/space-combat.mjs','test/support/space-encounters-suite.mjs','test/support/space-convoy-suite.mjs'],{reliableBase:true});
  assert.equal(requestedTarget('[ci targeted:module-combat]'),'module-combat');assert.equal(p.browser,false);
  assert.deepEqual(testCommand('application',{GN_CI_PROFILE:'targeted-module-combat',GN_APPLICATION_TESTS:JSON.stringify(p.applicationTests)}).args,['--test',...p.applicationTests]);
- assert.throws(()=>applicationCommand(JSON.stringify(Array.from({length:98},(_,i)=>`test/example-${i}.test.mjs`)),()=>true));
+ assert.equal(applicationCommand(JSON.stringify(Array.from({length:100},(_,i)=>`test/example-${i}.test.mjs`)),()=>true).args.length,101);assert.throws(()=>applicationCommand(JSON.stringify(Array.from({length:101},(_,i)=>`test/example-${i}.test.mjs`)),()=>true));
  for(const id of ['space-module-removal','space-encounters','space-convoy','space-escort-maneuvers','space-alliance-convoy','space-alliance-duels','space-alliance-defense'])assert.ok(p.suites.includes(id));
  for(const file of p.applicationTests)assert.ok(existsSync(file),file);assert.equal(new Set(p.applicationTests).size,p.applicationTests.length);
  const selected=matrixFor(p.suites).flatMap(({shard})=>selectFirestoreSuites({GN_FIRESTORE_SUITES:JSON.stringify(p.suites),GN_FIRESTORE_SHARD:shard}));assert.deepEqual(selected.map(s=>s.id).sort(),[...p.suites].sort());
@@ -225,4 +225,13 @@ test('CI cible la publication du Master révisé et conserve les suites de sessi
  assert.ok(p.suites.includes('space-learning'));
  assert.ok(p.suites.includes('space-succession'));
  assert.doesNotThrow(()=>testCommand('application',{GN_CI_PROFILE:p.profile,GN_APPLICATION_TESTS:JSON.stringify(p.applicationTests)}));
+});
+
+// ROG-02 retains the cumulative Master dependencies from the last trusted global baseline.
+test('CI ciblée : ROG-02 garde la sélection cumulée et refuse les chemins étrangers',()=>{
+ const p=targetedScope('rogue-pickpocket',['src/core/space-pickpocket.mjs','src/core/campaigns.mjs','scripts/ci-run-tests.mjs'],{reliableBase:true});
+ assert.equal(p.applicationTests.length,100);assert.ok(p.applicationTests.includes('test/space-pickpocket.test.mjs'));
+ assert.ok(p.suites.includes('space-pickpocket'));assert.ok(p.suites.includes('central-revision'));
+ assert.doesNotThrow(()=>applicationCommand(JSON.stringify(p.applicationTests)));
+ assert.throws(()=>targetedScope('rogue-pickpocket',['src/adapters/firestore.mjs'],{reliableBase:true}));
 });
