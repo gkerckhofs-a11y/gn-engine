@@ -28,10 +28,10 @@ export function soPickpocketSuite(makeStore,prefix='ROG-02'){
   const kit=await f.store.list('sessions/'+f.sid+'/inventory');
   assert.ok(kit.every(l=>l.item.pickpocketable!==true));
   await f.give('eligible',2);
-  assert.equal((await f.actionRead('mySoPickpocket')).level,1);
+  assert.equal((await f.actionRead('mySoPickpocket')).level,2);
   const a=await f.start();
   assert.equal(a.status,'RUNNING');
-  assert.equal(a.durationSeconds,60);
+  assert.equal(a.durationSeconds,45);
   assert.equal((await f.points()).reserved,1);
   await assert.rejects(f.finish(a.id),{code:'SO_PICKPOCKET_TOO_EARLY'});
   assert.deepEqual((await f.actionRead('mySoPickpocketAlerts',{},f.other)).alerts,[]);
