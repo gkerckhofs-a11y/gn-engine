@@ -1,7 +1,7 @@
 import {soRosterCharacters} from './space-outlaws-roster.mjs';
 import {soFriendRequests} from './space-outlaws-group-requests.mjs';
 import {hasSoGroupStock,hasSoGroupWallets,soSessionGroupPermissions,soGroupLimit} from '../shared/space-outlaws-groups.mjs';
-import {readSoEntryVersion} from './space-outlaws-entry.mjs';
+import {readSoEntryVersion,readSoEpisodeMaster} from './space-outlaws-entry.mjs';
 import {soPreparedMemberships} from './space-outlaws-group-state.mjs';
 export {soGroupPermissions} from '../shared/space-outlaws-groups.mjs';
 import {inventoryHash as hash} from './inventory-state.mjs';
@@ -32,13 +32,11 @@ export function createGroupManagementService({store,signed,checkSession,now,uuid
    if(action!=='groupManagement')requireThat(!['ARCHIVED','FINISHED'].includes(s.stage)&&!s.campaignSealed,'SESSION_CLOSED');
    if(!read){const old=await tx.get(op);if(old){requireThat(old.fingerprint===fingerprint,'REQUEST_ID_REUSED');return old.result;}}
    const groups=await tx.list(`${base}/groups`),characters=await tx.list(`${base}/characters`);
-   let preparedMemberships,version,roster;
+   let preparedMemberships,friendRequests,roster;
    if(action==='groupManagement'&&s.spaceOutlaws?.groupsVersion===1){
-    const campaign=await tx.get(`campaigns/${s.campaignId}`);requireThat(campaign?.ownerUid===s.ownerUid,'SO_VERSION_INVALID');version=await readSoEntryVersion(tx,campaign,s.versionId??null);requireThat(version.header.groupsVersion===1&&s.spaceOutlaws.groupWalletVersion===version.header.groupWalletVersion&&s.spaceOutlaws.groupStockVersion===version.header.groupStockVersion&&s.spaceOutlaws.groupPilotVersion===version.header.groupPilotVersion,'SO_VERSION_INVALID');if(s.spaceOutlaws.groupDefinitionsVersion===1){requireThat(version.header.groupDefinitionsVersion===1,'SO_VERSION_INVALID');preparedMemberships=soPreparedMemberships(s,groups,characters,version);}
-   }
-   let friendRequests;
-   if(action==='groupManagement'&&s.spaceOutlaws?.groupsVersion===1){
-    const registrations=await tx.list(`${base}/registrations`,null,{limit:1001});requireThat(registrations.length<=1000&&characters.length<=1000,'SO_RELEASE_LIMIT');friendRequests=soFriendRequests(s,registrations,characters);roster=soRosterCharacters(s,characters,registrations,version);
+    const campaign=await tx.get(`campaigns/${s.campaignId}`);requireThat(campaign?.ownerUid===s.ownerUid,'SO_VERSION_INVALID');const version=await readSoEntryVersion(tx,campaign,s.versionId??null);requireThat(version.header.groupsVersion===1&&s.spaceOutlaws.groupWalletVersion===version.header.groupWalletVersion&&s.spaceOutlaws.groupStockVersion===version.header.groupStockVersion&&s.spaceOutlaws.groupPilotVersion===version.header.groupPilotVersion,'SO_VERSION_INVALID');if(s.spaceOutlaws.groupDefinitionsVersion===1){requireThat(version.header.groupDefinitionsVersion===1,'SO_VERSION_INVALID');preparedMemberships=soPreparedMemberships(s,groups,characters,version);}
+    const master=await readSoEpisodeMaster(tx,campaign,s,version);
+    const registrations=await tx.list(`${base}/registrations`,null,{limit:1001});requireThat(registrations.length<=1000&&characters.length<=1000,'SO_RELEASE_LIMIT');friendRequests=soFriendRequests(s,registrations,characters);roster=soRosterCharacters(s,characters,registrations,master);
    }
    if(action==='groupManagement')return {sessionId:sid,revision:s.revision,closed:['ARCHIVED','FINISHED'].includes(s.stage)||!!s.campaignSealed||!connected||!!s.spaceOutlaws&&!!s.safetyStop?.active,groupsEnabled:s.modules?.groups===true,connected,...(friendRequests?{friendRequests}:{}),...(preparedMemberships?{preparedMemberships}:{}),...(s.spaceOutlaws?{availablePermissions}:{}),...(hasSoGroupWallets(s)&&s.economyRules?.enabled?{groupWalletsEnabled:true}:{}),...(hasSoGroupStock(s)?{groupStockEnabled:true}:{}),groups,
     characters:roster??characters.map(c=>({id:c.id,name:c.public.displayName,assigned:!!c.assignedUid,outOfCombat:c.outOfCombat===true||c.hp===0,publicationState:c.publicationState,...(s.spaceOutlaws?{dead:c.survival?.dead===true}: {})})),

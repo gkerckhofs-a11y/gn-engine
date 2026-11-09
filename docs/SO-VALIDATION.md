@@ -1,5 +1,11 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Adoption du Master pour un nouvel épisode — 9 novembre 2026
+
+À la préparation du prochain épisode, le propriétaire voit la dernière version publiée proposée et les éventuels blocages. L’adoption est disponible lorsque les seules différences concernent des réserves M2 non incarnées, non attribuées par admission et sans appartenance déjà enregistrée. Les changements d’autres ateliers ou de capacités de jeu restent bloqués. Le propriétaire peut reprendre avec le Master de l’épisode clôturé après un nouvel aperçu.
+
+Le build fige le choix à sa création, même si une nouvelle version est publiée pendant la copie. La régie des personnages et la relève utilisent le catalogue choisi. Les incarnations, contrats, stocks, droits, vaisseaux et autres dossiers continuent d’utiliser leurs références d’origine. Le journal identifie le Master adopté et la version des données de jeu. Le rattachement de nouvelles sessions hors reprise, l’adoption des autres ateliers, le retour de version et la migration des sessions existantes restent ouverts. [PR #2](https://github.com/gkerckhofs-a11y/gn-engine/pull/2).
+
 ## Publication du Master Vn+1 — 9 novembre 2026
 
 Depuis un brouillon révisé, le propriétaire ouvre l’aperçu puis confirme la publication et saisit son motif. Le serveur refuse un brouillon sans changement, bloqué ou devenu périmé. Une seule transaction écrit les pages du manifeste immuable, scelle le brouillon, journalise son parent et active le nouveau pointeur de campagne. Les réessais renvoient la même version. Les instantanés d’un brouillon scellé restent lisibles par les personnes habilitées au contrôle global.

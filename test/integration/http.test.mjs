@@ -1445,6 +1445,36 @@ test('HTTP + Auth : succession proposée, validée par MJ, nouveau QR et dotatio
  await cmd('revokeAccess',{uid:uid(player)},owner);assert.equal((await request('mySpaceOutlawsSuccession',{sessionId},player)).status,403);assert.equal((await request('succeedSpaceOutlawsCharacter',{sessionId,...input},owner)).status,403);
 });
 
+test('HTTP + Auth : épisode sur Master révisé, réserves et état scellé',async()=>{
+ const {successionFixture,publishReserveRevision}=await import('../support/space-succession-suite.mjs');
+ const {episodeHarness}=await import('../support/space-episodes-suite.mjs');
+ const db=getFirestore(),f=await successionFixture(()=>firestoreStore(db)),e=await episodeHarness(f);
+ await e.close({participantUids:[f.player.uid]});
+ const v1=(await e.get('')).versionId,v2=await publishReserveRevision(f,[{characterId:'http-reserve',displayName:'Zora Réserve'}]);
+ const owner=await googleTestAccount(process.env.OWNER_EMAIL),outsider=await googleTestAccount(`episode-master-${randomUUID()}@example.invalid`);
+ const ownerUid=JSON.parse(Buffer.from(owner.split('.')[1],'base64url').toString()).sub;
+ await db.doc(`campaigns/${e.campaignId}`).update({ownerUid});
+ await db.doc(`sessions/${e.sid}`).update({ownerUid});
+ const call=async(action,input)=>{const r=await request(action,input,owner);assert.equal(r.status,200,JSON.stringify(r));return r.result;};
+ const cmd=(action,input)=>call(action,{requestId:randomUUID(),...input});
+ const input=e.nextInput(),p=await call('prepareCampaignEpisode',input);
+ assert.equal(p.master.status,'ADOPT');
+ assert.equal(p.master.versionId,v2.versionId);
+ assert.equal((await request('prepareCampaignEpisode',input,outsider)).status,403);
+ const confirm={...input,confirmation:p.confirmation,requestId:randomUUID()};
+ assert.equal((await request('beginCampaignEpisode',confirm,outsider)).status,403);
+ let build=await cmd('beginCampaignEpisode',confirm);
+ assert.deepEqual(await cmd('beginCampaignEpisode',confirm),build);
+ const {buildId, id:sessionId}=build;
+ while(build.status!=='READY')build=await cmd('advanceCampaignEpisode',{campaignId:e.campaignId,buildId});
+ const copied=(await db.doc(`sessions/${sessionId}`).get()).data();
+ assert.equal(copied.versionId,v1);
+ assert.equal(copied.spaceOutlaws.masterVersionId,v2.versionId);
+ assert.equal((await e.get('')).spaceOutlaws.masterVersionId,undefined);
+ assert.ok((await call('groupManagement',{sessionId})).characters.some(ch=>ch.id==='http-reserve'&&ch.rosterState==='RESERVE'));
+ assert.equal((await request('groupManagement',{sessionId},outsider)).status,403);
+});
+
 test('HTTP + Auth : apprentissage privé entre épisodes, XP débités une fois et accès révoqué',async()=>{
  const {learningFixture}=await import('../support/space-learning-suite.mjs'),db=getFirestore(),f=await learningFixture(()=>firestoreStore(db)),owner=await googleTestAccount(process.env.OWNER_EMAIL),player=await googleTestAccount(`learning-${randomUUID()}@example.invalid`),outsider=await googleTestAccount(`learning-other-${randomUUID()}@example.invalid`),uid=t=>JSON.parse(Buffer.from(t.split('.')[1],'base64url').toString()).sub,sessionId=f.e.sid,base=`sessions/${sessionId}`;
  const registration=(await db.doc(`${base}/registrations/${hash(f.f.player.uid)}`).get()).data();await db.doc(base).update({ownerUid:uid(owner)});await db.doc(`campaigns/${f.e.campaignId}`).update({ownerUid:uid(owner)});await db.doc(`${base}/registrations/${hash(f.f.player.uid)}`).delete();await db.doc(`${base}/registrations/${hash(uid(player))}`).set({...registration,id:hash(uid(player)),uid:uid(player),minAuthTime:0});await db.doc(`${base}/characters/${f.cid}`).update({assignedUid:uid(player)});

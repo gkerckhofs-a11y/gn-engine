@@ -1,5 +1,8 @@
 import {boardingCustodyReport} from './space-boarding-custody.mjs';
 import {missionObligations} from './space-mission-obligations.mjs';
+import {isDeepStrictEqual} from 'node:util';
+import {admissionIdentity} from './admission-state.mjs';
+import {readSoEntryVersion,soEpisodeMasterId} from './space-outlaws-entry.mjs';
 import {createHash} from 'node:crypto';
 import {requireThat,documentId,whole} from './validation.mjs';
 import {preparationInput} from './preparation-state.mjs';
@@ -83,13 +86,41 @@ export function soClosure(s,data,input,at){
   pickups:data.lotSales.filter(x=>x.status==='SOLD'&&x.pickupStatus!=='RECEIVED').length+data.contracts.reduce((n,c)=>n+(c.rewardPickups??[]).filter(x=>x.pickupStatus!=='RECEIVED').length,0),gameTimeMs:time};
  return {changes,blocks,continuity,cancelled:{market:0,sales:0,transfers:0},canClose:blocks.length===0};
 }
-export function soEpisodeHeader(input,source,c,id,at){
+export async function planSoEpisodeMaster(tx,c,source,data,policy='LATEST'){
+ requireThat(['LATEST','KEEP'].includes(policy),'INVALID_CAMPAIGN');
+ const sourceId=soEpisodeMasterId(source),latestId=c.master?.activeVersionId;
+ if(policy==='KEEP'||!latestId||latestId===sourceId)return {status:'KEEP',sourceId,versionId:sourceId};
+ const [previous,latest]=await Promise.all([readSoEntryVersion(tx,c,sourceId??null),readSoEntryVersion(tx,c,latestId)]);
+ const capabilities=h=>Object.fromEntries(Object.entries(h).filter(([key])=>key.endsWith('Version')));
+ const blockers=[];
+ if(!isDeepStrictEqual(capabilities(previous.header),capabilities(latest.header)))blockers.push({code:'CAPABILITIES'});
+ const lockedIds=new Set([...data.characters.map(ch=>ch.id),...data.registrations.flatMap(r=>[r.characterId,r.admission?.m2Preparation?.characterId]),
+  ...data.groups.flatMap(g=>(g.members??[]).map(m=>m.characterId))]);
+ const displayKey=name=>admissionIdentity({firstName:name,lastName:'display'});
+ const usedNames=new Set(data.characters.map(ch=>displayKey(ch.public.displayName)));
+ const before=new Map(previous.changes.map(ch=>[ch.id,ch])),after=new Map(latest.changes.map(ch=>[ch.id,ch]));
+ let reserves=0;
+ for(const id of new Set([...before.keys(),...after.keys()])){
+  const old=before.get(id),next=after.get(id);
+  if(isDeepStrictEqual(old,next))continue;
+  const ch=next??old,detail={workshop:ch.workshop,entityId:ch.entityId};
+  if(ch.type!=='character'||!next?.data.creationPlan||(old&&!old.data.creationPlan)){
+   blockers.push({code:'DEFINITION',...detail});
+  }else if(lockedIds.has(ch.entityId)||next.operation==='UPSERT'&&usedNames.has(displayKey(next.data.public.displayName))){
+   blockers.push({code:'CHARACTER_IN_USE',...detail});
+  }else reserves++;
+ }
+ return {status:blockers.length?'BLOCKED':'ADOPT',sourceId,versionId:latestId,number:latest.header.pointerRevision??1,reserves,blockers};
+}
+
+export function soEpisodeHeader(input,source,c,id,at,master){
  requireThat(hasSoEpisodes(source),'SO_GAMEPLAY_NOT_OPEN');
  requireThat(input.healthPolicy==='PRESERVE'&&!(input.fields?.length),'SO_EPISODE_PRESERVE_REQUIRED');
  const metadata=preparationInput(Object.fromEntries(['title','summary','date','time','place','practical','privacy','capacity'].map(k=>[k,input[k]??(['title','privacy','capacity'].includes(k)?source[k]:'')])));
  requireThat(metadata.capacity>=source.accepted,'INVALID_CAPACITY');
  const {campaignClosedAt,...prior}=source;
- return {...prior,...metadata,id,previousSessionId:source.id,campaignEpisode:c.episodeCount+1,campaignSealed:false,campaignHealthPolicy:'PRESERVE',stage:'BRIEFING',registrationOpen:false,revision:1,createdAt:at,
+ const masterOverride=master?.status==='ADOPT'?{spaceOutlaws:{...source.spaceOutlaws,masterVersionId:master.versionId}}:{};
+ return {...prior,...metadata,...masterOverride,id,previousSessionId:source.id,campaignEpisode:c.episodeCount+1,campaignSealed:false,campaignHealthPolicy:'PRESERVE',stage:'BRIEFING',registrationOpen:false,revision:1,createdAt:at,
   actionPointSchedule:{nextAtGameMs:whole(source.clock.elapsedMs+source.actionPointRules.renewalMinutes*60000,'CLOCK_OVERFLOW')}};
 }
 export function soEpisodeEntries(data,source,s,actor,at){

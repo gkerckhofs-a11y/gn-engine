@@ -164,6 +164,10 @@ targetedProfiles['central-revision-release']={...targetedProfiles['central-revis
  suites:[...new Set([...targetedProfiles['central-revision-release-check'].suites,'space-learning'])],
  files:[...targetedProfiles['central-revision-release-check'].files,'src/core/space-outlaws-learning.mjs','src/core/space-outlaws-succession.mjs'],
 };
+targetedProfiles['episode-master']={...targetedProfiles['central-revision-release'],
+ httpPattern:targetedProfiles['central-revision-release'].httpPattern.replace('candidature, naissance,|','épisode sur Master révisé,|candidature, naissance,|'),
+ files:[...targetedProfiles['central-revision-release'].files,'src/core/campaigns.mjs','src/core/space-outlaws-episodes.mjs','web/campaigns.mjs','web/space-outlaws-episodes.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

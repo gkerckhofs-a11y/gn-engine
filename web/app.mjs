@@ -878,6 +878,11 @@ document.addEventListener('submit',async event=>{
     else if(kind==='groupUpdate')await mutate('publishGroupUpdate',{sessionId:form.dataset.sid,groupId:form.dataset.id,title:v.title,body:v.body});
     else if(kind==='staff')await mutate('setStaff',{...v,active:v.active==='on',sessionId:currentSession.id,revision:currentSession.revision});
     else if(kind==='campaignClose'){const p={sessionId:form.dataset.sid,reason:v.reason,cancelOffers:v.cancelOffers==='on',...(form.dataset.so?{participantUids:new FormData(form).getAll('participantUid')}:{})},d=await api('prepareCampaignClosure',p);if(submitVersion!==routeVersion)return;modal(campaignUi.closePreview(d,p));return;}
+    else if(kind==='campaignEpisodeKeep'){
+      const p={...JSON.parse(form.dataset.payload),masterPolicy:'KEEP'},d=await api('prepareCampaignEpisode',p);
+      if(submitVersion!==routeVersion)return;
+      modal(campaignUi.episodePreview(d,p));return;
+    }
     else if(kind==='campaignEpisode'){const fields=(v.fields??'').split('\n').map(s=>s.trim()).filter(Boolean).map((label,i)=>({id:`question_${i+1}`,label,required:false})),p={...v,...(form.dataset.so?{healthPolicy:'PRESERVE'}:{}),campaignId:form.dataset.campaign,capacity:Number(v.capacity),fields},d=await api('prepareCampaignEpisode',p);if(submitVersion!==routeVersion)return;modal(campaignUi.episodePreview(d,p));return;}
     else if(kind==='campaignReopen'){await mutate('reopenCampaignSession',{sessionId:form.dataset.sid,reason:v.reason});destination=`session/${form.dataset.sid}`;}
     else if(kind==='campaignCommand'){const p=JSON.parse(form.dataset.payload),d=await mutate(form.dataset.command,p);if(submitVersion!==routeVersion)return;if(form.dataset.command==='beginCampaignEpisode'){dialog.close();await continueCampaignBuild(d.campaignId,d.buildId,submitVersion);return;}destination=form.dataset.command==='closeCampaignSession'&&identity.admin?`campaign/${d.campaignId}`:`session/${d.id}`;}

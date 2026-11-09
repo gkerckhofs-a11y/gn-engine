@@ -110,6 +110,14 @@ export async function readSoEntryVersion(tx,c,id=c.master?.activeVersionId){
  if(h.healthVersion===1)requireThat(digest(h.careProfiles)===digest(soCareProfiles(changes)),'SO_VERSION_INVALID');
  return {header:h,changes};
 }
+// Runtime records retain their original version. A compatible episode can
+// freeze a newer reserve catalogue independently of those records.
+export const soEpisodeMasterId=s=>s.spaceOutlaws.masterVersionId??s.versionId;
+export async function readSoEpisodeMaster(tx,c,s,runtime){
+ const id=soEpisodeMasterId(s);
+ return id===runtime.header.id?runtime:readSoEntryVersion(tx,c,id??null);
+}
+
 export function writeSoReleaseVersion(tx,{campaignId,confirmation,entries,pages:contentPages,...metadata}){
  const id=`so_${confirmation}`,base=`campaigns/${campaignId}/versions/${id}`;
  const pages=contentPages.map((entries,i)=>({id:String(i),versionId:id,entries}));

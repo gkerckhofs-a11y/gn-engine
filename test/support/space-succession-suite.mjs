@@ -27,7 +27,73 @@ export async function successionFixture(makeStore,{helper=false,dead=true,friend
  const submit=async(proposal=successorProposal,actor=f.player)=>{const r=await get(`registrations/${hash(actor.uid)}`);return cmd('submitSpaceOutlawsSuccessor',{predecessorId:r.characterId,revision:r.succession.revision,proposal},actor);};
  return {...f,cid,otherId,get,edit,death,readSuccession:read,cmdSuccession:cmd,input,previewSuccession:preview,succeed,open,submit};
 }
+export async function publishReserveRevision(f,changes){
+ const {baseVersionId,pointerRevision}=(await f.view()).draft;
+ const {id:draftId}=await f.cc('openCentralRevision',{
+  baseVersionId,pointerRevision,reason:'Réserves de l’épisode suivant',
+ });
+ for(const [index,{characterId,displayName,characterRevision=0}] of changes.entries()){
+  await f.cc('saveCentralCharacter',{draftId,draftRevision:index,characterId,characterRevision,
+   character:{...centralTestCharacter,displayName,nature:'HUMANOID',creationPlan:{classId:'COM',speciesId:'species-test',secondaryId:'MED-02'},objectives:[],relations:[]},
+   reason:'Préparer la réserve M2'});
+ }
+ const scope={draftId,draftRevision:changes.length},p=await f.central('previewCentralRelease',scope);
+ assert.equal(p.canRelease,true);
+ return f.cc('publishCentralRevision',{...scope,confirmation:p.confirmation,reason:'Révision M2 publiée'});
+}
+
 export function spaceSuccessionSuite(makeStore,prefix='Succession SO'){
+ test(`${prefix} : un épisode adopte et fige les réserves du Master révisé`,async()=>{
+  const f=await successionFixture(makeStore),e=await episodeHarness(f),v1=(await e.get('')).versionId;
+  await e.close({participantUids:[f.player.uid]});
+  const oldRoster=await e.read('groupManagement'),oldPreview=await e.read('prepareCampaignEpisode',e.nextInput());
+  const v2=await publishReserveRevision(f,[{characterId:'reserve-new',displayName:'Zora Réserve'}]);
+  await assert.rejects(e.cmd('beginCampaignEpisode',{...e.nextInput(),confirmation:oldPreview.confirmation}),{code:'STALE_REVISION'});
+  const p=await e.read('prepareCampaignEpisode',e.nextInput());
+  assert.deepEqual(p.master,{status:'ADOPT',sourceId:v1,versionId:v2.versionId,number:2,reserves:1,blockers:[]});
+  const b=await e.cmd('beginCampaignEpisode',{...e.nextInput(),confirmation:p.confirmation});
+  assert.equal(await f.store.get(`sessions/${b.id}`),null);
+  await publishReserveRevision(f,[{characterId:'reserve-later',displayName:'Nora Réserve'}]);
+  await e.resume(b);
+  const s=await e.get(''),roster=await e.read('groupManagement');
+  assert.equal(s.versionId,v1);
+  assert.equal(s.spaceOutlaws.masterVersionId,v2.versionId);
+  assert.equal(roster.characters.find(ch=>ch.id==='reserve-new').rosterState,'RESERVE');
+  assert.ok(!roster.characters.some(ch=>ch.id==='reserve-later'));
+  assert.deepEqual((await f.readSuccession('groupManagement')).characters,oldRoster.characters);
+  const input=f.input({reserveId:'reserve-new'}),q=await e.read('prepareSpaceOutlawsSuccession',input);
+  const done=await e.cmd('succeedSpaceOutlawsCharacter',{...input,confirmation:q.confirmation,reason:'Relève de l’épisode'});
+  assert.equal(done.characterId,'reserve-new');
+  const born=await e.get('characters/reserve-new');
+  assert.equal(born.birth.versionId,v1);
+  assert.equal(born.birth.masterVersionId,v2.versionId);
+  assert.equal((await e.read('groupManagement')).characters.find(ch=>ch.id==='reserve-new').rosterState,'ACTIVE');
+ });
+
+ test(`${prefix} : une définition déjà incarnée bloque l’adoption, le propriétaire peut conserver la version`,async()=>{
+  const f=await successionFixture(makeStore),e=await episodeHarness(f);
+  await f.succeed(await f.previewSuccession());
+  await e.close({participantUids:[f.player.uid]});
+  const v1=(await e.get('')).versionId;
+  await publishReserveRevision(f,[{characterId:'reserve',displayName:'Dana Révisée',characterRevision:1}]);
+  const p=await e.read('prepareCampaignEpisode',e.nextInput());
+  assert.equal(p.confirmation,null);
+  assert.deepEqual(p.master.blockers,[{code:'CHARACTER_IN_USE',workshop:'M2',entityId:'reserve'}]);
+  await assert.rejects(e.cmd('beginCampaignEpisode',{...e.nextInput(),confirmation:null}),{code:'SO_EPISODE_MASTER_BLOCKED'});
+  const {baseVersionId,pointerRevision}=(await f.view()).draft;
+  const {id:draftId}=await f.cc('openCentralRevision',{baseVersionId,pointerRevision,reason:'Autre atelier'});
+  await f.cc('saveCentralItem',{draftId,draftRevision:0,itemId:'new-model',itemRevision:0,item:centralTestItem,reason:'Définition M1'});
+  const scope={draftId,draftRevision:1},release=await f.central('previewCentralRelease',scope);
+  await f.cc('publishCentralRevision',{...scope,confirmation:release.confirmation,reason:'Publication M1'});
+  const blocked=await e.read('prepareCampaignEpisode',e.nextInput());
+  assert.ok(blocked.master.blockers.some(b=>b.code==='DEFINITION'&&b.workshop==='M1'&&b.entityId==='new-model'));
+
+  await e.resume(await e.begin({masterPolicy:'KEEP'}));
+  assert.equal((await e.get('')).versionId,v1);
+  assert.equal((await e.get('')).spaceOutlaws.masterVersionId,undefined);
+  assert.equal((await e.get('characters/reserve')).public.displayName,'Dana Réserve');
+ });
+
  test(`${prefix} : décès confirmé, réserve publiée, nouvelle fiche et dotation unique`,async()=>{
   const f=await successionFixture(makeStore),before=await f.get(''),oldWallet=await f.get(`accounts/${accountId(f.cid)}`),oldLots=await f.store.list(`sessions/${f.sid}/inventory`);
   await f.edit(`characters/${f.cid}`,c=>({...c,earnedXp:38,xp:1,inheritedXp:9}));await f.edit(`registrations/${hash(f.player.uid)}`,r=>({...r,progression:{completedSessions:4,pendingXp:3}}));

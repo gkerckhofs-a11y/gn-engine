@@ -3,7 +3,7 @@ import {documentId,requireThat,whole} from './validation.mjs';
 import {admissionKeys,admissionText,admissionProposal,admissionIdentity,admissionOccupancy} from './admission-state.mjs';
 import {admissionM2Fiction} from './admission-m2.mjs';
 import {centralCharacterInput} from './central-characters.mjs';
-import {readSoEntryVersion,soBirthOptions,planSoBirthAssets,soBornCharacter,writeSoBirthAssets} from './space-outlaws-entry.mjs';
+import {readSoEntryVersion,readSoEpisodeMaster,soBirthOptions,planSoBirthAssets,soBornCharacter,writeSoBirthAssets} from './space-outlaws-entry.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {actionPointPath,actionPointSummary} from './action-point-state.mjs';
 import {initialReceipt} from './knowledge.mjs';
@@ -34,9 +34,10 @@ async function context(tx,s){
  const settings={...policy,species:version.changes.find(ch=>ch.type==='speciesCatalogue'&&ch.operation==='UPSERT')?.data??[]};
  const occupancy=admissionOccupancy(counts,s.accepted),confirmed=registrations.filter(r=>r.admission?.status==='APPROVED');
  requireThat(confirmed.length===s.accepted&&Object.entries(occupancy.byClass).every(([id,n])=>confirmed.filter(r=>r.admission.confirmation?.classId===id).length===n),'ADMISSION_ACCOUNTING_CONFLICT');
+ const master=await readSoEpisodeMaster(tx,campaign,s,version);
  const reservedIds=new Set(registrations.map(r=>r.admission?.m2Preparation?.characterId).filter(Boolean));
- const reserves=version.changes.filter(ch=>ch.type==='character'&&ch.operation==='UPSERT'&&ch.data.creationPlan&&!reservedIds.has(ch.entityId)&&!characters.some(c=>c.id===ch.entityId));
- return {campaign,version,policy,settings,occupancy,registrations,characters,groups,confirmed,reserves};
+ const reserves=master.changes.filter(ch=>ch.type==='character'&&ch.operation==='UPSERT'&&ch.data.creationPlan&&!reservedIds.has(ch.entityId)&&!characters.some(c=>c.id===ch.entityId));
+ return {campaign,version,master,policy,settings,occupancy,registrations,characters,groups,confirmed,reserves};
 }
 function deceased(ctx,r,predecessorId){
  requireThat(r?.status==='ACCEPTED'&&r.admission?.status==='APPROVED'&&r.accessActive,'FORBIDDEN');
@@ -68,7 +69,7 @@ async function plan(tx,s,ctx,r,input,actor,at){
  const identityKey=displayKey(definition.public.displayName);
  requireThat(!ctx.characters.some(c=>c.id===id||displayKey(c.public.displayName)===identityKey),'ADMISSION_IDENTITY_TAKEN');
  requireThat(!ctx.confirmed.some(x=>x.uid!==r.uid&&displayKey(nameOf(x))===identityKey),'ADMISSION_IDENTITY_TAKEN');
- requireThat(!ctx.version.changes.some(ch=>ch.type==='character'&&ch.operation==='UPSERT'&&ch.entityId!==id&&displayKey(ch.data.public.displayName)===identityKey),'ADMISSION_IDENTITY_TAKEN');
+ requireThat(!ctx.master.changes.some(ch=>ch.type==='character'&&ch.operation==='UPSERT'&&ch.entityId!==id&&displayKey(ch.data.public.displayName)===identityKey),'ADMISSION_IDENTITY_TAKEN');
  // A succession consumes the participant's existing place, but never carries a quota exception implicitly.
  const ordinary=ctx.confirmed.filter(x=>x.uid!==r.uid&&!x.admission.confirmation.exception);
  requireThat(ordinary.length<s.capacity&&ordinary.filter(x=>x.admission.confirmation.classId===proposal.classId).length<ctx.settings.quotas[proposal.classId],'ADMISSION_QUOTA_FULL');
@@ -81,7 +82,7 @@ async function plan(tx,s,ctx,r,input,actor,at){
  const earned=whole(old.earnedXp??0),inheritedXp=Math.min(9,Math.floor(earned/4));
  const completedSessions=whole(r.progression?.completedSessions??0),pendingXp=whole(r.progression?.pendingXp??0);
  const progression={globalLevel:completedSessions>=4?2:1,xp:whole(inheritedXp+pendingXp),inheritedXp,earnedXp:pendingXp};
- const confirmation=digest([actor.uid,s,ctx.version.header.manifestDigest,ctx.policy,ctx.occupancy,r,old,definition,options,progression,assets.lots,ctx.groups]);
+ const confirmation=digest([actor.uid,s,ctx.version.header.manifestDigest,...(ctx.master!==ctx.version?[ctx.master.header.manifestDigest]:[]),ctx.policy,ctx.occupancy,r,old,definition,options,progression,assets.lots,ctx.groups]);
  return {...assets,definition,proposal,id,old,options,progression,pendingXp,byClass,confirmation};
 }
 
@@ -128,7 +129,8 @@ export function createSpaceOutlawsSuccessionService({store,signed,checkSession,n
    if(read)return {name:p.definition.public.displayName,biography:p.definition.biography,nature:p.definition.nature,predecessor:p.old.public.displayName,profile:p.profile,hp:p.profile.classId==='COM'?4:3,protection:p.profile.classId==='COM'?1:0,actionPoints:p.progression.globalLevel===2?8:5,protectedCredits:200,kit:p.lots.map(l=>({name:l.item.name,quantity:l.quantity})),options:p.options,inheritedXp:p.progression.inheritedXp,pendingXp:p.pendingXp,xp:p.progression.xp,globalLevel:p.progression.globalLevel,nextRefillGameMs:actionPointSummary(s,p.old,await tx.get(actionPointPath(sid,p.old.id)),at).nextRefillGameMs,confirmation:p.confirmation};
    requireThat(p.confirmation===input.confirmation,'SO_SUCCESSION_STALE');const reason=admissionText(input.reason,500,true),eventId=uuid();
    const character=soBornCharacter({definition:p.definition,sid,uid,profile:p.profile,options:p.options,version:ctx.version,at,actor,uuid,progression:p.progression});
-   character.birth={...character.birth,predecessorId:p.old.id,order:(p.old.birth?.order??1)+1,source:input.source};
+   character.birth={...character.birth,predecessorId:p.old.id,order:(p.old.birth?.order??1)+1,source:input.source,
+    ...(input.source==='RESERVE'&&ctx.master!==ctx.version?{masterVersionId:ctx.master.header.id}:{})};
    const succession={version:1,predecessorId:p.old.id,successorId:p.id,status:'COMPLETED',revision:(r.succession?.revision??0)+1,at,actorUid:actor.uid,source:input.source};
    const admission={...r.admission,revision:r.admission.revision+1,proposal:p.proposal,confirmation:{classId:p.proposal.classId,identityKey:admissionIdentity(p.proposal),approvedAt:at,actorUid:actor.uid,sourceRevision:r.admission.revision,exception:false,exceptionReason:null},updatedAt:at};
    const next={...r,previousCharacterId:p.old.id,characterId:p.id,accessVersion:r.accessVersion+1,briefingReadAt:null,briefingReadRevision:null,admission,succession,progression:{...r.progression,completedSessions:whole(r.progression?.completedSessions??0),pendingXp:0}};

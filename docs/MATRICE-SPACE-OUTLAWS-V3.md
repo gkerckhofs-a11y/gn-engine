@@ -1,5 +1,12 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## Adoption du Master pour un nouvel épisode — 9 novembre 2026
+
+| Exigence | Parcours raccordé | Vérifications ciblées |
+|---|---|---|
+| §3.6 étape 7 | Proposition du dernier Master pour les réserves M2 sans lien avec les acquis. Choix conservé dans la préparation de l’épisode et journalisé. | Réserve disponible en régie puis à la relève, copie figée malgré une nouvelle publication, ancien épisode inchangé. |
+| §3.6 étape 7 | Blocage des changements touchant les incarnations ou les autres ateliers. Aperçu distinct pour conserver le Master de l’épisode clôturé. | Aperçu périmé, blocage M1 et M2, conservation explicite, contrôle HTTP des droits et du réessai. |
+
 ## Publication du Master Vn+1 — 9 novembre 2026
 
 | Exigence | Parcours raccordé | Vérifications ciblées |
