@@ -66,3 +66,20 @@ test('Central UI : le propriétaire confirme la publication d’un brouillon Vn+
  assert.match(ready,/name="confirmed" required/);
  assert.match(ready,/Publier V2/);
 });
+
+test('Central UI : retour explicite au Master parent et accès au brouillon suspendu',()=>{
+ const draft={status:'PUBLISHED',baseVersionId:'v1',pointerRevision:3};
+ const page=ui.page({...model,draft,activeVersionNumber:1,suspendedDraftId:'revision-2'});
+ assert.match(page,/version publiée V1/);
+ assert.match(page,/central-snapshots\/campaign\/revision-2/);
+ assert.match(page,/Ouvrir le brouillon V4/);
+ assert.doesNotMatch(page,/centralRollbackPreview/);
+ assert.match(ui.page({...model,draft,canPreviewRollback:true}),/centralRollbackPreview/);
+ const preview={campaignId:'campaign',fromNumber:2,toNumber:1,draftId:'revision-2',confirmation:'token'};
+ assert.doesNotMatch(ui.rollbackPreview(preview),/data-form="centralRollback"/);
+ const ready=ui.rollbackPreview({...preview,canRollback:true,snapshotId:'saved'});
+ assert.match(ready,/Réactiver le Master V1/);
+ assert.match(ready,/instantané restera consultable/);
+ assert.match(ready,/data-form="centralRollback".*data-confirmation="token"/);
+ assert.match(ready,/name="confirmed" required/);
+});

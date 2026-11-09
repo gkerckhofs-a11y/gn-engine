@@ -184,13 +184,14 @@ export function centralDraftCheck({campaign,session,draft,changes,actorUid,autho
  const referenceChanges=base?compareEdges(centralEdges([...baseline.values()].filter(c=>!invalidBase.has(c.id)),invalidBase),edges):[];
  const remainingChecks=base?[
   {code:'RUNTIME_IMPACTS_PENDING',message:'Les compétences et effets signalés comme non vérifiés restent à contrôler. L’impact d’une migration sur les QR actifs, les droits, les budgets, les caisses, les stocks et les instances de jeu relève d’un contrôle de session distinct.'},
-  {code:'SESSION_ACTIVATION_PENDING',message:'Le rattachement d’une nouvelle session à cette version et le retour de version restent à raccorder.'},
+  {code:'SESSION_ACTIVATION_PENDING',message:'L’adoption par les nouveaux épisodes est soumise au contrôle de reprise. Le rattachement d’une nouvelle session hors reprise reste à raccorder.'},
  ]:[
   {code:'RULE_PROFILE_PENDING',message:'Raccordement complet du profil canonique V0.7, des classes, compétences, effets, dotations et liens courants entre admissions et incarnations à terminer.'},
   {code:'OTHER_DOMAINS_PENDING',message:'Autres contenus M1/M2/M3/M5/M6/M7, instances spatiales, rencontres, événements, médias, conformité des lieux/actions, QR, habilitations des vendeurs, caisses, stocks, tarifs de jeu et impacts à compléter.'},
   {code:'PUBLICATION_PENDING',message:'Version immuable, reprise de construction, contrôle du parent et activation globale à développer. Ce rapport ne vaut pas autorisation de publier.'},
  ];
  const report={schemaVersion:1,scope:base?'REVISION_DRAFT_PREPARATION':'INITIAL_DRAFT_PREPARATION',campaign:{id:campaign.id,title:campaign.title},draft:{id:draft?.id??'initial',revision,baseVersionId:draft?.baseVersionId??null,basePointerRevision:draft?.basePointerRevision??0},checkedAt:at,
+  ...(base&&(base.header.pointerRevision??1)!==draft?.basePointerRevision?{baseVersionNumber:base.header.pointerRevision??1}:{}),
   authority:authority?{kind:authority.kind,revision:authority.revision}:null,
   fingerprint:hash({schema:base?17:15,actorUid,authority,campaign:{id:campaign.id,revision:campaign.revision,master:campaign.master??null,ruleProfile:campaign.ruleProfile,ownerUid:campaign.ownerUid},...(base?{base:base.header.manifestDigest}:{session:{id:session.id,revision:session.revision}}),draft:draft??null,changes:ordered,...(base?{edits:changes.map(c=>safe(c?.id)).sort()}:{})}),
   status:diagnostics.length?'CORRECTIONS_REQUIRED':'NO_DETECTED_ERROR',publicationAvailable:false,remainingChecks,

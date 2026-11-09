@@ -146,9 +146,9 @@ export async function planSoEpisodeMaster(tx,c,source,data,readVersion,policy='L
   if(kits.has(ch.id)||items.has(ch.id))continue;
   if(ch.type==='classKit'){
    blockers.push({code:'KIT_INCOMPATIBLE',...detail});
-  }else if(ch.type!=='character'||!next?.data.creationPlan||(old&&!old.data.creationPlan)){
+  }else if(ch.type!=='character'||(next&&!next.data.creationPlan)||(old&&!old.data.creationPlan)){
    blockers.push({code:'DEFINITION',...detail});
-  }else if(lockedIds.has(ch.entityId)||next.operation==='UPSERT'&&usedNames.has(displayKey(next.data.public.displayName))){
+  }else if(lockedIds.has(ch.entityId)||next?.operation==='UPSERT'&&usedNames.has(displayKey(next.data.public.displayName))){
    blockers.push({code:'CHARACTER_IN_USE',...detail});
   }else reserves++;
  }

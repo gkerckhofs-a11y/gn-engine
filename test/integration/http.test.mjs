@@ -1248,6 +1248,17 @@ test('HTTP + Auth : candidature, naissance, QR, soins, sécurité, boutique et r
  assert.equal(v2.pointerRevision,2);
  assert.notEqual(v2.versionId,versionId);
  assert.deepEqual(await cmd('publishCentralRevision',publishInput),v2);
+ const rollbackScope={campaignId};
+ assert.equal((await request('previewCentralRollback',rollbackScope,player)).status,403);
+ const rollbackPreview=await call('previewCentralRollback',rollbackScope);
+ assert.deepEqual([rollbackPreview.fromNumber,rollbackPreview.toNumber,rollbackPreview.canRollback],[2,1,true]);
+ const rollbackInput={...rollbackScope,confirmation:rollbackPreview.confirmation,reason:'Retour à V1',requestId:randomUUID()};
+ assert.equal((await request('rollbackCentralRelease',rollbackInput,player)).status,403);
+ const rollback=await cmd('rollbackCentralRelease',rollbackInput);
+ assert.deepEqual(rollback,{versionId,versionNumber:1,pointerRevision:3});
+ assert.deepEqual(await cmd('rollbackCentralRelease',rollbackInput),rollback);
+ assert.equal((await call('centralMaster',{campaignId})).activeVersionNumber,1);
+
  assert.equal((await call('spaceOutlawsEntry',{sessionId})).versionId,versionId);
  assert.equal((await call('centralSnapshot',snapshotLink)).snapshot.id,snapshot.id);
  const birth={sessionId,uid,options,confirmation:b.confirmation,reason:'Entrée de test',requestId:randomUUID()};assert.equal((await request('birthSpaceOutlaws',birth,player)).status,403);

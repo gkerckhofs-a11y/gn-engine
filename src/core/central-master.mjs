@@ -1,6 +1,6 @@
 import {centralFieldTargetInput,centralFieldTargetProjection} from './central-field-targets.mjs';
 import {centralGroupInput,centralGroupProjection} from './central-groups.mjs';
-import {centralSnapshots,centralSnapshotActions} from './central-snapshots.mjs';
+import {centralSnapshots,centralSnapshotActions,centralSnapshotLimits} from './central-snapshots.mjs';
 import {centralSpaceInput,centralSpaceProjection,centralSpaceTypes} from './central-space.mjs';
 import {centralMissionInput,centralMissionProjection} from './central-missions.mjs';
 import {centralKnowledgeInput,centralKnowledgeProjection} from './central-knowledge.mjs';
@@ -37,7 +37,7 @@ const reasonText=v=>{requireThat(typeof v==='string'&&v.trim()&&v.length<=500,'I
 const workshopList=v=>{requireThat(Array.isArray(v)&&v.length<=7&&new Set(v).size===v.length&&v.every(id=>ids.includes(id)),'INVALID_CENTRAL_GRANT');return [...v].sort();};
 const editableIds=centralWorkshops.filter(w=>w.editable).map(w=>w.id);
 const ownerRights={readWorkshops:ids,editWorkshops:editableIds,manageStaff:true,checkCentral:true};
-export const centralMasterCommands=[...centralSnapshotActions,'saveCentralFieldTarget','archiveCentralFieldTarget','saveCentralGroup','archiveCentralGroup',...centralImportCommands,'centralMaster','openCentralRevision','previewCentralRelease','publishCentralRevision','checkCentralDraft','setCentralStaff','saveCentralItem','archiveCentralItem','saveCentralRecipe','archiveCentralRecipe','saveCentralCharacter','archiveCentralCharacter','saveCentralClassKit','archiveCentralClassKit','saveCentralShipModel','archiveCentralShipModel','saveCentralPort','archiveCentralPort','saveCentralRoute','archiveCentralRoute','saveCentralMission','archiveCentralMission','saveCentralKnowledge','archiveCentralKnowledge','saveCentralShop','archiveCentralShop','saveCentralOffer','archiveCentralOffer'];
+export const centralMasterCommands=[...centralSnapshotActions,'saveCentralFieldTarget','archiveCentralFieldTarget','saveCentralGroup','archiveCentralGroup',...centralImportCommands,'centralMaster','openCentralRevision','previewCentralRelease','publishCentralRevision','previewCentralRollback','rollbackCentralRelease','checkCentralDraft','setCentralStaff','saveCentralItem','archiveCentralItem','saveCentralRecipe','archiveCentralRecipe','saveCentralCharacter','archiveCentralCharacter','saveCentralClassKit','archiveCentralClassKit','saveCentralShipModel','archiveCentralShipModel','saveCentralPort','archiveCentralPort','saveCentralRoute','archiveCentralRoute','saveCentralMission','archiveCentralMission','saveCentralKnowledge','archiveCentralKnowledge','saveCentralShop','archiveCentralShop','saveCentralOffer','archiveCentralOffer'];
 export const centralMasterAction=a=>centralMasterCommands.includes(a);
 export const centralLimits={items:250,recipes:250,characters:100,groups:50,fieldTargets:100,classKits:8,shops:50,offers:250,knowledge:250,missions:100,shipModels:100,ports:100,routes:200,staff:50};
 const actionType=action=>action.endsWith('FieldTarget')?'fieldTarget':action.endsWith('Group')?'group':action.endsWith('ShipModel')?'shipModel':action.endsWith('Port')?'port':action.endsWith('Route')?'route':action.endsWith('Mission')?'mission':action.endsWith('Knowledge')?'knowledge':action.endsWith('Shop')?'shop':action.endsWith('Offer')?'offer':action.endsWith('ClassKit')?'classKit':action.endsWith('Character')?'character':action.endsWith('Recipe')?'recipe':'item';
@@ -124,6 +124,57 @@ async function releaseRevision(tx,{c,actor,input,at,uuid,published,preview}){
  return result;
 }
 
+async function rollbackRelease(tx,{c,actor,input,at,uuid,published,preview}){
+ requireThat(published,'SO_RELEASE_REQUIRED');
+ keys(input,['campaignId',...(preview?[]:['confirmation','reason','requestId'])]);
+ const op=preview?null:`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`;
+ const fingerprint=preview?null:digest(['rollbackCentralRelease',input]);
+ const receipt=op?await tx.get(op):null;
+ if(receipt){requireThat(receipt.fingerprint===fingerprint,'REQUEST_ID_REUSED');return receipt.result;}
+ const {header:current}=await readSoEntryVersion(tx,c);
+ requireThat(current.parentVersionId,'SO_ROLLBACK_UNAVAILABLE');
+ const {header:parent}=await readSoEntryVersion(tx,c,documentId(current.parentVersionId));
+ const fromNumber=current.pointerRevision??1,toNumber=parent.pointerRevision??1;
+ requireThat(fromNumber>toNumber&&parent.manifestDigest===current.parentManifestDigest,'SO_VERSION_INVALID');
+ const path=draftPath(c.id,revisionDraftId(c)),draft=await tx.get(path);
+ requireThat(!draft||draft.id===revisionDraftId(c)&&draft.status==='DRAFT'&&draft.ruleProfile===spaceOutlawsProfile
+  &&draft.baseVersionId===current.id&&draft.basePointerRevision===c.master.pointerRevision
+  &&Number.isSafeInteger(draft.revision)&&draft.revision>=0,'CENTRAL_DRAFT_UNAVAILABLE');
+ let snapshot=null;
+ if(draft?.revision>0){
+  const snapshots=await tx.list(`${path}/checks`,null,{orderBy:'createdAt',direction:'desc',limit:centralSnapshotLimits.recent});
+  const last=snapshots.find(h=>h.source?.draftRevision===draft.revision);
+  if(last){
+   const saved=await centralSnapshots(tx,'centralSnapshot',actor,{campaignId:c.id,draftId:draft.id,snapshotId:last.id},{c,draft,path});
+   requireThat(saved.header.source.baseManifestDigest===current.manifestDigest,'CENTRAL_SNAPSHOT_INVALID');
+   snapshot=saved.snapshot;
+  }
+ }
+ const canRollback=!draft?.revision||!!snapshot;
+ const confirmation=canRollback?digest(['CENTRAL_ROLLBACK',actor.uid,c.id,c.master.pointerRevision,
+  current.manifestDigest,parent.manifestDigest,draft??null,snapshot?.manifestDigest??null]):null;
+ if(preview)return {campaignId:c.id,fromNumber,toNumber,canRollback,confirmation,draftId:draft?.id??null,snapshotId:snapshot?.id??null};
+ requireThat(canRollback,'SO_ROLLBACK_SNAPSHOT_REQUIRED');
+ requireThat(confirmation===input.confirmation,'SO_ENTRY_STALE');
+ const reason=reasonText(input.reason),pointerRevision=whole(c.master.pointerRevision+1);
+ const rollback={fromVersionId:current.id,versionId:parent.id,pointerRevision,
+  ...(draft?{suspendedDraftId:draft.id}:{}),...(snapshot?{snapshotId:snapshot.id}:{})};
+ if(draft)tx.set(path,{...draft,status:'SUSPENDED',updatedAt:at});
+ tx.set(root(c.id),{...c,revision:c.revision+1,master:{...c.master,activeVersionId:parent.id,pointerRevision,...(draft?{lastSuspendedDraftId:draft.id}:{})}});
+ const eventId=uuid();
+ tx.set(`${root(c.id)}/history/${eventId}`,{id:eventId,action:'rollbackCentralRelease',actorUid:actor.uid,at,reason,...rollback,
+  fromManifestDigest:current.manifestDigest,manifestDigest:parent.manifestDigest});
+ const result={versionId:parent.id,versionNumber:toNumber,pointerRevision};
+ tx.set(op,{fingerprint,result,at});return result;
+}
+
+function masterVersionView(c,header,owner){
+ const number=header.pointerRevision??1;
+ return {...(number!==c.master.pointerRevision?{activeVersionNumber:number}:{}),
+  ...(owner&&header.parentVersionId?{canPreviewRollback:true}:{}),
+  ...(owner&&c.master.lastSuspendedDraftId?{suspendedDraftId:c.master.lastSuspendedDraftId}:{})};
+}
+
 export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
  return async(action,actor,input)=>{
   signed(actor);const cid=documentId(input.campaignId),at=now();
@@ -136,12 +187,16 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
     requireThat(owner,'FORBIDDEN');
     return releaseRevision(tx,{c,actor,input,at,uuid,published,preview:action==='previewCentralRelease'});
    }
+   if(action==='previewCentralRollback'||action==='rollbackCentralRelease'){
+    requireThat(owner,'FORBIDDEN');
+    return rollbackRelease(tx,{c,actor,input,at,uuid,published,preview:action==='previewCentralRollback'});
+   }
    if(opening||capturing)requireThat(owner,'FORBIDDEN');
    if(action==='checkCentralDraft'||snapshotting)requireThat(rights.checkCentral,'FORBIDDEN');
    if(published&&snapshotting&&!capturing&&input.draftId!==revisionDraftId(c)){
     requireThat(typeof input.draftId==='string','STALE_REVISION');
     const historicalId=documentId(input.draftId),path=draftPath(cid,historicalId),draft=await tx.get(path);
-    requireThat(draft?.id===historicalId&&typeof draft.baseVersionId==='string'&&draft.status==='SEALED'&&draft.ruleProfile===spaceOutlawsProfile,'STALE_REVISION');
+    requireThat(draft?.id===historicalId&&typeof draft.baseVersionId==='string'&&['SEALED','SUSPENDED'].includes(draft.status)&&draft.ruleProfile===spaceOutlawsProfile,'STALE_REVISION');
     return centralSnapshots(tx,action,actor,input,{c,draft,path,owner:false});
    }
    const path=draftPath(cid,published?revisionDraftId(c):'initial'),draft=await tx.get(path);
@@ -163,7 +218,7 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
       requireThat(input.workshop===undefined||ids.includes(input.workshop),'INVALID_CENTRAL_MASTER');
       const {header}=await readSoEntryVersion(tx,c);
       return {campaign:{id:cid,title:c.title},draft:{status:'PUBLISHED',baseVersionId,pointerRevision},
-       ...(header.draftId?{publishedDraftId:header.draftId}:{})};
+       ...(header.draftId?{publishedDraftId:header.draftId}:{}),...masterVersionView(c,header,owner)};
      }
     }
    }else{
@@ -214,7 +269,7 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
      rights.readWorkshops.includes('M6')?await listChanges('workshop','M6'):null):workshop==='M6'?await (async()=>{const information=centralKnowledgeProjection(changes,rights.readWorkshops.includes('M2')?await listChanges('workshop','M2'):null),terrain=centralFieldTargetProjection(changes,rights.readWorkshops.includes('M1')?await listChanges('workshop','M1'):null);return {...information,references:{...information.references,...terrain.references},diagnostics:[...information.diagnostics,...terrain.diagnostics]};})():{};
     return {campaign:{id:cid,title:c.title},draft:{id:draft?.id??'initial',revision,status:'DRAFT',baseVersionId,pointerRevision},rights,workshop,
      workshops:centralWorkshops.map(w=>({...w,canRead:rights.readWorkshops.includes(w.id),canEdit:rights.editWorkshops.includes(w.id)})),
-     changes:changes.sort((a,b)=>a.id.localeCompare(b.id)),history:history.sort((a,b)=>b.revision-a.revision).slice(0,30),
+     ...(version?masterVersionView(c,version.header,owner):{}),changes:changes.sort((a,b)=>a.id.localeCompare(b.id)),history:history.sort((a,b)=>b.revision-a.revision).slice(0,30),
      staff:staff.map(g=>({email:g.email,active:g.active,readWorkshops:g.readWorkshops,editWorkshops:g.editWorkshops,checkCentral:g.checkCentral===true,revision:g.revision})),...recipeProjection};
    }
    if(opening||action==='setCentralStaff')requireThat(rights.manageStaff,'FORBIDDEN');

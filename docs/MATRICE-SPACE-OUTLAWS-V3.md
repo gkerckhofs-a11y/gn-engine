@@ -1,5 +1,12 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## Retour à la version parente du Master — 9 novembre 2026
+
+| Exigence | Parcours raccordé | Vérifications ciblées |
+|---|---|---|
+| §3.6 étapes 5–6 | Réactivation transactionnelle du parent vérifié, avec confirmation du propriétaire, motif et journal. | Droits refusés, page du parent altérée, instantané périmé, réessai concurrent, nouvelle publication après le retour. |
+| §3.6 étape 7 | Brouillon suspendu en lecture seule. Sessions et copies engagées conservent leur version. | Relecture de l’instantané, naissance déjà confirmée et copie d’épisode préservées, retrait d’une réserve libre dans un épisode ultérieur. |
+
 ## Kits de relève M1 dans les nouveaux épisodes — 9 novembre 2026
 
 | Exigence | Parcours raccordé | Vérifications ciblées |

@@ -10,6 +10,68 @@ import {centralTestItem} from './central-master-suite.mjs';
 import {centralTestInstallation} from './central-field-targets-suite.mjs';
 
 export function centralRevisionSuite(makeStore,prefix='Master Vn+1'){
+ test(`${prefix} : retour au parent vérifié, brouillon suspendu et confirmations isolées`,async()=>{
+  const f=await entryFixture(makeStore),campaign=`campaigns/${f.campaignId}`,sid=`sessions/${f.sid}`;
+  const {versionId:v1}=await f.release(await f.releasePreview()),birth=await f.birthPreview();
+  await assert.rejects(f.central('previewCentralRollback'),{code:'SO_ROLLBACK_UNAVAILABLE'});
+  const open=(baseVersionId,pointerRevision)=>f.cc('openCentralRevision',{baseVersionId,pointerRevision,reason:'Réviser le Master'});
+  const save=(draftId,draftRevision,itemId,name)=>f.cc('saveCentralItem',{draftId,draftRevision,itemId,itemRevision:0,
+   item:{...centralTestItem,name},reason:'Préparer une définition'});
+  const publish=async(draftId,draftRevision)=>{
+   const p=await f.central('previewCentralRelease',{draftId,draftRevision});
+   return f.cc('publishCentralRevision',{draftId,draftRevision,confirmation:p.confirmation,reason:'Publier les définitions'});
+  };
+  const {id:publishedDraft}=await open(v1,1);
+  await save(publishedDraft,0,'v2-only','Objet de la V2');
+  const {versionId:v2}=await publish(publishedDraft,1),withoutDraft=await f.central('previewCentralRollback');
+  const {id:draftId}=await open(v2,2);
+  await assert.rejects(f.cc('rollbackCentralRelease',{confirmation:withoutDraft.confirmation,reason:'Ancien aperçu'}),{code:'SO_ENTRY_STALE'});
+  await save(draftId,0,'draft-only','Objet de travail');
+  assert.equal((await f.central('previewCentralRollback')).canRollback,false);
+  const capture=async draftRevision=>{
+   const p=await f.central('previewCentralSnapshot',{draftId,draftRevision});
+   return f.cc('captureCentralSnapshot',{draftId,draftRevision,confirmation:p.confirmation,reason:'Préserver le brouillon'});
+  };
+  await capture(1);
+  const oldPreview=await f.central('previewCentralRollback');
+  await save(draftId,1,'newer-only','Retouche du brouillon');
+  await assert.rejects(f.cc('rollbackCentralRelease',{confirmation:oldPreview.confirmation,reason:'Instantané ancien'}),{code:'SO_ROLLBACK_SNAPSHOT_REQUIRED'});
+  const snapshot=await capture(2),p=await f.central('previewCentralRollback');
+  assert.deepEqual([p.fromNumber,p.toNumber,p.snapshotId],[2,1,snapshot.id]);
+  await f.grant(0,{readWorkshops:['M1','M2','M3','M4','M5','M6','M7'],editWorkshops:[],checkCentral:true});
+  const input={confirmation:p.confirmation,reason:'Réactiver les définitions d’origine',requestId:randomUUID()};
+  const parentPage=`${campaign}/versions/${v1}/pages/0`,page=await f.store.get(parentPage);
+  await f.store.runTransaction(async tx=>tx.set(parentPage,{...page,entries:[]}));
+  await assert.rejects(f.cc('rollbackCentralRelease',input),{code:'SO_VERSION_INVALID'});
+  assert.equal((await f.store.get(campaign)).master.activeVersionId,v2);
+  await f.store.runTransaction(async tx=>tx.set(parentPage,page));
+
+  await assert.rejects(f.central('previewCentralRollback',{},f.mj),{code:'FORBIDDEN'});
+  await assert.rejects(f.cc('rollbackCentralRelease',input,f.mj),{code:'FORBIDDEN'});
+  const [first,retry]=await Promise.all([f.cc('rollbackCentralRelease',input),f.cc('rollbackCentralRelease',input)]);
+  assert.deepEqual(first,{versionId:v1,versionNumber:1,pointerRevision:3});
+  assert.deepEqual(retry,first);
+  assert.equal((await f.store.list(`${campaign}/history`)).filter(e=>e.action==='rollbackCentralRelease').length,1);
+  assert.equal((await f.store.list(`${campaign}/versions`)).length,2);
+  assert.equal((await f.store.get(`${campaign}/masterDrafts/${draftId}`)).status,'SUSPENDED');
+  const read=await f.central('centralSnapshot',{draftId,snapshotId:snapshot.id},f.mj);
+  assert.ok(read.changes.some(ch=>ch.entityId==='newer-only'));
+  assert.equal(read.draftSuspended,true);
+  const view=await f.central('centralMaster');
+  assert.equal(view.activeVersionNumber,1);
+  assert.equal(view.suspendedDraftId,draftId);
+  assert.equal(view.draft.baseVersionId,v1);
+  await assert.rejects(f.central('previewCentralRollback'),{code:'SO_ROLLBACK_UNAVAILABLE'});
+  const {id:newDraft}=await open(v1,3);
+  assert.equal(newDraft,'revision-3');
+  assert.equal((await f.central('checkCentralDraft',{draftId:newDraft,draftRevision:0})).baseVersionNumber,1);
+  assert.ok(!(await f.central('centralMaster',{workshop:'M1'})).changes.some(ch=>ch.entityId==='v2-only'));
+  await save(newDraft,0,'v4-only','Objet de la V4');
+  assert.equal((await publish(newDraft,1)).pointerRevision,4);
+  await f.birth(birth);
+  assert.equal((await f.store.get(sid)).versionId,v1);
+ });
+
  test(`${prefix} : publication atomique, rejeu et versions de session isolées`,async()=>{
   const f=await entryFixture(makeStore),campaign=`campaigns/${f.campaignId}`,session=`sessions/${f.sid}`;
   const firstPreview=await f.releasePreview(),first=await f.release(firstPreview),birth=await f.birthPreview();

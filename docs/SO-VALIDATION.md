@@ -1,5 +1,11 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Retour à la version parente du Master — 9 novembre 2026
+
+Dans le Master central, le propriétaire peut prévisualiser et confirmer la réactivation du parent publié de la version active. Le serveur vérifie les deux manifestes, leurs pages et le lien d’empreinte entre les versions. L’opération change le pointeur de campagne et journalise le motif en une transaction. L’ordre des révisions reste croissant. Par exemple, après V2 → V1, la prochaine publication porte le numéro V4.
+
+Un brouillon modifié exige un instantané privé vérifié à sa révision actuelle. Le retour suspend le brouillon et conserve ses données et son instantané téléchargeable. Les préparations, sessions et copies d’épisode déjà engagées gardent leur version. À la préparation d’un épisode ultérieur, le retour peut retirer une réserve M2 qui n’a été ni incarnée ni attribuée. Les autres différences restent soumises aux contrôles d’adoption existants. La reprise directe de l’édition d’un brouillon suspendu et la migration des sessions ouvertes restent hors de ce parcours. [PR #2](https://github.com/gkerckhofs-a11y/gn-engine/pull/2).
+
 ## Kits de relève M1 dans les nouveaux épisodes — 9 novembre 2026
 
 Un nouvel épisode peut adopter un Master qui remplace du matériel ordinaire dans un kit de classe par un nouveau modèle M1. L’aperçu identifie les kits et modèles concernés. Le serveur contrôle que les modèles sont indépendants des autres ateliers, que le nouvel identifiant ne correspond à aucun modèle ni lot repris et que les profils de soins restent identiques. Les consommables, modules, modifications des modèles existants, créations ou archivages de kits et changements incompatibles restent bloqués pour la reprise.

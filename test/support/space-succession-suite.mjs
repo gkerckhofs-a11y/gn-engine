@@ -56,6 +56,25 @@ export async function publishKitRevision(f){
 }
 
 export function spaceSuccessionSuite(makeStore,prefix='Succession SO'){
+ test(`${prefix} : le retour de version laisse la copie engagée sur le Master confirmé`,async()=>{
+  const f=await successionFixture(makeStore),e=await episodeHarness(f),v1=(await e.get('')).versionId;
+  await e.close({participantUids:[f.player.uid]});
+  const {versionId:v2}=await publishReserveRevision(f,[{characterId:'temporary-reserve',displayName:'Zora Réserve'}]);
+  const build=await e.begin(),p=await f.central('previewCentralRollback');
+  await f.cc('rollbackCentralRelease',{confirmation:p.confirmation,reason:'Restaurer le Master parent'});
+  await e.resume(build);
+  assert.equal((await e.get('')).spaceOutlaws.masterVersionId,v2);
+  assert.ok((await e.read('groupManagement')).characters.some(ch=>ch.id==='temporary-reserve'));
+  await e.stage('EN_JEU');
+  await e.close({participantUids:[]});
+  const plan=await e.read('prepareCampaignEpisode',e.nextInput());
+  assert.equal(plan.master.status,'ADOPT');
+  assert.equal(plan.master.versionId,v1);
+  await e.resume(await e.begin());
+  assert.equal((await e.get('')).spaceOutlaws.masterVersionId,v1);
+  assert.ok(!(await e.read('groupManagement')).characters.some(ch=>ch.id==='temporary-reserve'));
+ });
+
  test(`${prefix} : un kit M1 révisé équipe la relève et conserve les lots hérités`,async()=>{
   const f=await successionFixture(makeStore),e=await episodeHarness(f),v1=(await e.get('')).versionId;
   await e.close({participantUids:[f.player.uid]});

@@ -381,6 +381,11 @@ document.addEventListener('click',async event=>{
     if(a==='soReleasePreview'){const d=await api('previewSpaceOutlawsRelease',{sessionId:b.dataset.sid});if(actionVersion!==routeVersion)return;pendingEntry={sessionId:b.dataset.sid,confirmation:d.confirmation};modal(entryUi.release(d));return;}
     if(a==='soBirthOptions'){pendingEntry=null;modal(entryUi.options(b.dataset.sid,b.dataset.uid,b.dataset.name));return;}
     if(a==='newSpaceOutlawsPreparation'){const uid=auth.currentUser.uid,id=preparationDraftId(preparationStorage(),uid,()=>crypto.randomUUID());modal(preparationUi.form({},id,uid));return;}
+    if(a==='centralRollbackPreview'){
+      const d=await api('previewCentralRollback',{campaignId:currentCentral.campaign.id});
+      if(actionVersion!==routeVersion)return;
+      modal(centralUi.rollbackPreview(d));return;
+    }
     if(a==='centralReleasePreview'){
       const {campaign,draft}=currentCentral;
       const d=await api('previewCentralRelease',{campaignId:campaign.id,draftId:draft.id,draftRevision:draft.revision});
@@ -653,6 +658,11 @@ document.addEventListener('submit',async event=>{
     else if(kind==='centralImportApply'){
       if(!pendingCentralImport||v.confirmed!=='on')throw new Error('Préparez et confirmez un aperçu avant l’import.');
       const r=await api('applyCentralImport',{...pendingCentralImport,reason:v.reason});successMessage=`Import enregistré : ${r.changed} modification(s), ${r.unchanged} ligne(s) inchangée(s).`;pendingCentralImport=null;
+    }
+    else if(kind==='centralRollback'){
+      if(v.confirmed!=='on')return;
+      const d=await mutate('rollbackCentralRelease',{campaignId:form.dataset.cid,confirmation:form.dataset.confirmation,reason:v.reason});
+      successMessage=`Master V${d.versionNumber} réactivé dans la campagne.`;
     }
     else if(kind==='centralRelease'){
       if(v.confirmed!=='on')return;

@@ -77,7 +77,7 @@ export async function centralSnapshots(tx,action,actor,input,ctx){
  }
  if(action==='centralSnapshot'){
   keys(input,['campaignId','snapshotId',...scope]);const id=documentId(input.snapshotId),saved=await readSnapshot(tx,base,c,id,draft);
-  return {...saved,snapshot:summary(saved.header),currentDraftRevision:draft?.revision??0,sourceIsCurrentRevision:(draft?.revision??0)===saved.header.source.draftRevision,publicationAvailable:false};
+  return {...saved,snapshot:summary(saved.header),currentDraftRevision:draft?.revision??0,...(draft?.status==='SUSPENDED'?{draftSuspended:true}:{}),sourceIsCurrentRevision:(draft?.revision??0)===saved.header.source.draftRevision,publicationAvailable:false};
  }
  if(action==='previewCentralSnapshot'){
   keys(input,['campaignId','draftRevision',...scope]);const p=await plan(tx,ctx,actor,at,input.draftRevision);
