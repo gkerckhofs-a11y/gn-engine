@@ -13,7 +13,7 @@ test('M6 INF-02 : texte secret distinct, seuil validé et compatibilité ancienn
  assert.equal(created.cipher.plaintext,cipher.plaintext);
  assert.equal(created.body,'Texte chiffré');
  const old=centralKnowledgeInput(document,'old');
- assert.equal(old.cipher,null);
+ assert.equal(old.cipher,undefined);
  const updated=centralKnowledgeInput({...document,title:'Révision'},'encrypted',created);
  assert.deepEqual(updated.cipher,cipher);
 });

@@ -31,7 +31,7 @@ export function knowledgeInput(input,id,old={}) {
    requireThat(input.body!==plaintext,'INVALID_KNOWLEDGE');
    return {minLevel:sourceCipher.minLevel,threshold:sourceCipher.threshold,plaintext};
   })();
-  return {id,cipher,qrSkillId:skillId,qrSkillLevel:skillLevel,title:text(input.title,150,true),body:text(input.body,20000,true),origin:text(input.origin??'',300),
+  return {id,...(cipher?{cipher}:{}),qrSkillId:skillId,qrSkillLevel:skillLevel,title:text(input.title,150,true),body:text(input.body,20000,true),origin:text(input.origin??'',300),
     kind:input.kind,publicationState:input.publicationState,shareMode:input.shareMode,
     gmTruth:text(input.gmTruth??'',10000),gmNotes:text(input.gmNotes??'',10000),
     initialCharacterIds:ids(input.initialCharacterIds??[]),qrEnabled:input.qrEnabled===true,
