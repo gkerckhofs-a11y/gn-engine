@@ -1236,7 +1236,7 @@ test('HTTP + Auth : candidature, naissance, QR, soins, sécurité, boutique et r
  assert.equal(blocked.publicationAvailable,false);
  const blockedRelease=await call('previewCentralRelease',{...snapshotScope,draftRevision:3});
  assert.equal(blockedRelease.canRelease,false);
- assert.equal((await request('publishCentralRevision',{...snapshotScope,draftRevision:3,confirmation:'blocked',reason:'Essai bloqué',requestId:randomUUID()})).error,'SO_RELEASE_BLOCKED');
+ assert.equal((await request('publishCentralRevision',{...snapshotScope,draftRevision:3,confirmation:'blocked',reason:'Essai bloqué',requestId:randomUUID()},owner)).error,'SO_RELEASE_BLOCKED');
  await cmd('saveCentralItem',{...edit,draftRevision:3,itemRevision:editedItem.data.revision+1});
  const publishScope={...snapshotScope,draftRevision:4};
  assert.equal((await request('previewCentralRelease',publishScope,player)).status,403);
