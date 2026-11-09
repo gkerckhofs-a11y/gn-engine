@@ -1,8 +1,12 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Extension candidate INF-01 — mini-jeu à code (9 novembre 2026)
+
+Énigme M6 fictive à réponse hachée, minuterie préparée, soumission d'un code côté serveur, **sans D6 supplémentaire**, PA à la résolution et récupération avant réessai. Les anciens profils au D6 restent inchangés. CI sur le nouveau SHA non encore vérifiée ; essais terrain et gestion des indices à consultation unique restent hors périmètre. Voir [SO-INF-01](SO-INF-01.md).
+
 ## Candidat INF-01 — 9 novembre 2026
 
-Intrusion fictive sur serrure/coffre/terminal M6 préparé : QR, niveau, D6, durée, PA à la résolution, récupération et résultat narratif privé. Aucun matériel réel contrôlé ; pas de mini-jeu ni ouverture physique. La CI du commit candidat reste à confirmer sur son SHA exact. Voir [périmètre INF-01](SO-INF-01.md).
+Intrusion fictive sur serrure/coffre/terminal M6 préparé : QR, niveau, D6, durée, PA à la résolution, récupération et résultat narratif privé. Aucun matériel réel contrôlé ; mini-jeu à code ajouté dans l’extension ci-dessus, aucune ouverture physique. La CI du commit candidat reste à confirmer sur son SHA exact. Voir [périmètre INF-01](SO-INF-01.md).
 
 ## Candidat INF-02 — 9 novembre 2026
 

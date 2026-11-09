@@ -13,9 +13,20 @@ Date : 9 novembre 2026. Sources : SO_Regles_V07.txt, chapitre 14 ; SO_CDC_V35.md
 - Résultats et réessais enregistrés transactionnellement et idempotents ; la progression n’est jamais re-jouée par un rafraîchissement.
 - Une intrusion **ne donne aucun vrai droit informatique, aucun accès MJ, aucune modification de propriété et aucune commande physique**.
 
+## Tranche suivante — mini-jeu à code (candidat, CI à vérifier)
+
+- L'éditeur M6 permet de choisir **D6 ordinaire** ou **mini-jeu à code** pour une cible fictive INTRUSION.
+- Le MJ saisit la consigne publique, une solution et une durée propre au défi (1 à 3 600 secondes de jeu). Le serveur n'enregistre que l'empreinte SHA-256 de la solution normalisée, jamais la réponse en clair, et ne projette pas cette empreinte sur l'écran joueur.
+- Après scan QR et présence fictive, le joueur lance le défi, réserve 1 PA et joue la durée prévue. Il soumet ensuite une réponse de fiction. Une réponse correcte est une réussite **sans aucun D6** ; une erreur déclenche un échec, un PA débité et 10 minutes de récupération de jeu. Une nouvelle tentative implique un nouveau PA. Annuler avant résolution restitue le PA.
+- Les textes de réussite et d'échec prévus pour la cible sont utilisés ; le secret n'est pas envoyé avant réussite. Les opérations sont transactionnelles avec les gardes de version et d'autorisation préexistantes.
+- Les anciennes cibles sans mini-jeu restent au D6 ; les anciennes sessions/versions publiées sont conservées.
+- **Limite voulue :** cette tranche ne crée pas de module d'indices à consultation unique, ni d'énigmes complexes ou d'équipements physiques contrôlés. Les fiches proposant de tels indices devront attendre leur mécanisme et leurs protections spécifiques.
+
+**Vérifier la CI du SHA exact** avant de considérer cette tranche validée, et prévoir des essais sur smartphones et avec un MJ.
+
 ## Limites et recette
 - La présence physique est déclarative ; le MJ doit préparer les QR, vérifier la sécurité et les passages réellement autorisés.
-- Les mini-jeux spéciaux remplacent le D6 dans le canon V0.7 : **non raccordés dans cette tranche**.
+- Les mini-jeux spéciaux remplacent le D6 dans le canon V0.7 : le défi simple à code est raccordé par l’extension candidate ; les énigmes complexes et indices à consultation unique restent hors périmètre.
 - L’intervention ne manipule ni serrure, ni réseau, ni ordinateur réel ; même un succès reste un résultat purement narratif.
 - Aucun bonus d’objet, aide compétente, consommable spécifique, verrou métier autre que la cible dédiée ou effet sur l’état d’une installation native n’est ajouté. Ces capacités nécessiteront une tranche distincte et ses tests.
 - Les anciennes lignes Excel M6 ne sont pas transformées automatiquement en cible `INTRUSION`. Utiliser l’édition web M6 ; auditer l’import/export avant d’annoncer ce parcours comme supporté par Excel.

@@ -1,10 +1,16 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## INF-01 — Mini-jeu à code (extension candidate)
+
+| Règle V0.7 | Résultat implémenté dans le candidat | Limite |
+|---|---|---|
+| Défi spécial sans second jet | Énigme M6, durée propre, solution hachée, comparaison serveur sans D6, un PA consommé à la résolution, récupération de dix minutes de jeu avant nouvelle tentative | Pas d'indices à consultation unique ni de mini-jeux graphiques complexes ; recette mobile requise |
+
 ## INF-01 — Intrusion fictive (candidat, CI à confirmer)
 
 | Exigence | Parcours préparé | Réserves |
 |---|---|---|
-| §5.1 et V0.7 chapitre 14 | M6 cible INTRUSION, QR dédié, contrôle niveau, D6 + niveau, 1 PA à la résolution, durée N1–N5, récupération, résultat narratif privé. | Mini-jeu, bonus matériels/aide, éventuel effet sur installation native et recette physique non inclus. |
+| §5.1 et V0.7 chapitre 14 | M6 cible INTRUSION, QR dédié, contrôle niveau, D6 + niveau, 1 PA à la résolution, durée N1–N5, récupération, résultat narratif privé. | Mini-jeu à code décrit dans l’extension ci-dessus ; bonus matériels/aide, autres effets et recette physique non inclus. |
 | Sécurité des lieux | Aucun déverrouillage, contrôle informatique ou commande réelle ; validation côté serveur. | Présence physique déclarative à contrôler par l'organisateur. |
 
 Voir [INF-01](SO-INF-01.md).

@@ -4,6 +4,7 @@ import {actionPointPath,actionPointState,actionPointMaximum,reserveActionPoints,
 import {gameTime} from './clock.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {documentId,requireThat} from './validation.mjs';
+import {intrusionAnswerDigest} from './field-state.mjs';
 
 const hash=v=>createHash('sha256').update(v).digest('hex');
 const base=sid=>'sessions/'+sid;
@@ -14,7 +15,7 @@ const targetPath=(sid,tid)=>base(sid)+'/fieldTargets/'+tid;
 const statePath=(sid,tid)=>base(sid)+'/fieldStates/'+tid;
 const cooldownMs=600000,durations=[null,180,165,150,135,120];
 export const soIntrusionActions=['mySoIntrusion','startSoIntrusion','finishSoIntrusion','cancelSoIntrusion'];
-const resultView=a=>({id:a.id,status:a.status,targetId:a.targetId,durationSeconds:a.durationSeconds,
+const resultView=a=>({id:a.id,status:a.status,targetId:a.targetId,mode:a.mode??'D6',durationSeconds:a.durationSeconds,
  remainingMs:a.remainingMs??0,roll:a.roll??null,total:a.total??null,threshold:a.threshold??null,
  success:a.success??null,...(a.text?{text:a.text}:{})});
 export function createSoIntrusionService({store,signed,now,uuid,rollD6=()=>randomInt(1,7)}){
@@ -34,7 +35,8 @@ export function createSoIntrusionService({store,signed,now,uuid,rollD6=()=>rando
   requireThat(!c.survival?.dead&&c.hp>0&&!c.outOfCombat,'SO_INF01_UNAVAILABLE');
  };
  return async function dispatch(action,actor,input){
-  const sid=documentId(input.sessionId),at=now(),roll=action==='finishSoIntrusion'?rollD6():null;
+  const sid=documentId(input.sessionId),at=now();
+  let rolled=null; // One random draw per ordinary command, stable across transactional retries.
   return store.runTransaction(async tx=>{
    const {s,c,r}=await access(tx,actor,sid);
    const tid=documentId(input.targetId);
@@ -48,7 +50,9 @@ export function createSoIntrusionService({store,signed,now,uuid,rollD6=()=>rando
     requireThat(last.length<=1000,'SO_RELEASE_LIMIT');
     return {enabled:level>0,level,session:{id:sid,stage:s.stage},
      target:{id:t.id,title:t.title,description:t.description,category:t.intrusion.category,
-      minLevel:t.intrusion.minLevel,threshold:t.intrusion.threshold,busy:!!field.activeActionId},
+      minLevel:t.intrusion.minLevel,threshold:t.intrusion.challenge?null:t.intrusion.threshold,busy:!!field.activeActionId,
+      ...(t.intrusion.challenge&&level>=t.intrusion.minLevel?{challenge:{type:'CODE',
+       prompt:t.intrusion.challenge.prompt,durationSeconds:t.intrusion.challenge.durationSeconds}}:{})},
      cooldownMs:Math.max(0,state.cooldownUntil-time),
      active:active?resultView({...active,remainingMs:Math.max(0,active.readyAtGameMs-time)}):null,
      previous:last.filter(a=>a.targetId===tid&&a.status!=='RUNNING').slice(-5).map(resultView)};
@@ -76,7 +80,8 @@ export function createSoIntrusionService({store,signed,now,uuid,rollD6=()=>rando
      const decoding=await tx.get(base(sid)+'/inf02Actors/'+c.id);requireThat(!decoding?.activeId,'SO_INF01_BUSY');
     }
     const path=actionPointPath(sid,c.id),points=actionPointState(s,c,await tx.get(path),at),id=uuid();
-    const seconds=durations[level],a={id,characterId:c.id,targetId:tid,targetRevision:t.revision,
+    const seconds=t.intrusion.challenge?.durationSeconds??durations[level],a={id,characterId:c.id,targetId:tid,targetRevision:t.revision,
+     mode:t.intrusion.challenge?'CODE':'D6',
      accessVersion:r.accessVersion,status:'RUNNING',durationSeconds:seconds,level,
      startedAtGameMs:time,readyAtGameMs:time+seconds*1000};
     tx.set(path,reserveActionPoints(points,1));
@@ -104,10 +109,22 @@ export function createSoIntrusionService({store,signed,now,uuid,rollD6=()=>rando
    requireThat(time>=a.readyAtGameMs,'SO_INF01_TOO_EARLY');
    requireThat(input.present===true,'SO_INF01_PRESENCE');
    requireThat(t.revision===a.targetRevision&&field.status==='ONLINE','SO_INF01_STALE');
-   const total=roll+a.level,success=total>=t.intrusion.threshold;
+   const challenge=t.intrusion.challenge;
+   requireThat(a.mode===(challenge?'CODE':'D6'),'SO_INF01_STALE');
+   let roll=null,total=null,success;
+   if(challenge){
+    requireThat(typeof input.answer==='string'&&input.answer.length<=128&&input.answer.trim().length>=4,'SO_INF01_ANSWER');
+    let digest;
+    try{digest=intrusionAnswerDigest(input.answer);}catch{requireThat(false,'SO_INF01_ANSWER');}
+    success=digest===challenge.answerDigest;
+   }else{
+    roll=rolled??(rolled=rollD6());
+    requireThat(Number.isInteger(roll)&&roll>=1&&roll<=6,'INVALID_DIE');
+    total=roll+a.level;success=total>=t.intrusion.threshold;
+   }
    const text=success?t.intrusion.successText:t.intrusion.failureText;
    const ended={...a,status:success?'SUCCESS':'FAILED',finishedAtGameMs:time,
-    roll,total,threshold:t.intrusion.threshold,success,text};
+    roll,total,threshold:challenge?null:t.intrusion.threshold,success,text};
    tx.set(path,resolveActionPoints(points,1));
    tx.set(characterPath(sid,c.id),{...c,activeFieldActionId:null});
    tx.set(actorPath(sid,c.id),{...state,activeId:null,cooldownUntil:time+cooldownMs});
