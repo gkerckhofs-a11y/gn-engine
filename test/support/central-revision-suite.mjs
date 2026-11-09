@@ -34,7 +34,12 @@ export function centralRevisionSuite(makeStore,prefix='Master Vn+1'){
   };
   await capture(1);
   const oldPreview=await f.central('previewCentralRollback');
-  await save(draftId,1,'newer-only','Retouche du brouillon');
+  const {sheets}=await f.central('exportCentralDraft',{workshop:'M1',draftId,draftRevision:1,ids:[]});
+  sheets.Objets.push({...centralItemRow,id:'newer-only',nom:'Retouche du brouillon',consommable:'OUI'});
+  const workbook={workshop:'M1',sheets:readCentralXlsx(writeCentralXlsx(sheets)),fileName:'Brouillon suspendu.xlsx'};
+  const importPreview=await f.central('prepareCentralImport',workbook);
+  assert.deepEqual(importPreview.errors,[]);
+  await f.cc('applyCentralImport',{...workbook,confirmation:importPreview.confirmation,reason:'Ajout du modèle'});
   await assert.rejects(f.cc('rollbackCentralRelease',{confirmation:oldPreview.confirmation,reason:'Instantané ancien'}),{code:'SO_ROLLBACK_SNAPSHOT_REQUIRED'});
   const snapshot=await capture(2),p=await f.central('previewCentralRollback');
   assert.deepEqual([p.fromNumber,p.toNumber,p.snapshotId],[2,1,snapshot.id]);
@@ -66,10 +71,58 @@ export function centralRevisionSuite(makeStore,prefix='Master Vn+1'){
   assert.equal(newDraft,'revision-3');
   assert.equal((await f.central('checkCentralDraft',{draftId:newDraft,draftRevision:0})).baseVersionNumber,1);
   assert.ok(!(await f.central('centralMaster',{workshop:'M1'})).changes.some(ch=>ch.entityId==='v2-only'));
+  const resumeScope={draftId,snapshotId:snapshot.id};
+  assert.equal((await f.central('centralSnapshot',resumeScope)).canResumeDraft,true);
+  assert.equal(read.canResumeDraft,undefined);
+  const stale=await f.central('previewCentralResume',resumeScope);
   await save(newDraft,0,'v4-only','Objet de la V4');
-  assert.equal((await publish(newDraft,1)).pointerRevision,4);
+  await assert.rejects(f.cc('resumeCentralDraft',{...resumeScope,confirmation:stale.confirmation,reason:'Aperçu périmé'}),{code:'SO_ENTRY_STALE'});
+  await save(newDraft,1,'draft-only','Objet de travail');
+  const resume=await f.central('previewCentralResume',resumeScope);
+  assert.deepEqual([resume.restored,resume.unchanged,resume.canResume],[1,1,true]);
+  const resumeInput={...resumeScope,confirmation:resume.confirmation,reason:'Réintégrer le travail',requestId:randomUUID()};
+  await assert.rejects(f.cc('resumeCentralDraft',resumeInput,f.mj),{code:'FORBIDDEN'});
+  const [restored,repeat]=await Promise.all([f.cc('resumeCentralDraft',resumeInput),f.cc('resumeCentralDraft',resumeInput)]);
+  assert.deepEqual(restored,{draftId:newDraft,draftRevision:3,restored:1});
+  assert.deepEqual(repeat,restored);
+  assert.equal((await f.central('previewCentralResume',resumeScope)).blocked,'NO_CHANGES');
+  const edited=await f.central('centralMaster',{workshop:'M1'});
+  assert.equal(edited.changes.find(ch=>ch.entityId==='v4-only').data.name,'Objet de la V4');
+  assert.equal(edited.changes.find(ch=>ch.entityId==='newer-only').provenance.fileName,workbook.fileName);
+  assert.ok(!edited.changes.some(ch=>ch.entityId==='v2-only'));
+  assert.equal((await f.store.get(`${campaign}/masterDrafts/${draftId}`)).status,'SUSPENDED');
+  assert.equal((await publish(newDraft,3)).pointerRevision,4);
   await f.birth(birth);
   assert.equal((await f.store.get(sid)).versionId,v1);
+ });
+
+ test(`${prefix} : un conflit à la reprise protège le brouillon courant de toute écriture`,async()=>{
+  const f=await entryFixture(makeStore),{versionId:v1}=await f.release(await f.releasePreview());
+  const open=(baseVersionId,pointerRevision)=>f.cc('openCentralRevision',{baseVersionId,pointerRevision,reason:'Ouvrir le brouillon'});
+  const {id:firstDraft}=await open(v1,1);
+  const save=(draftId,draftRevision,itemRevision,name)=>f.cc('saveCentralItem',{draftId,draftRevision,itemId:'example',
+   itemRevision,item:{...centralTestItem,name},reason:'Préparer le modèle'});
+  await save(firstDraft,0,0,'Modèle de V2');
+  const p=await f.central('previewCentralRelease',{draftId:firstDraft,draftRevision:1});
+  const {versionId:v2}=await f.cc('publishCentralRevision',{draftId:firstDraft,draftRevision:1,confirmation:p.confirmation,reason:'Publier V2'});
+  const {id:draftId}=await open(v2,2);
+  await f.cc('saveCentralItem',{draftId,draftRevision:0,itemId:'non-conflicting',itemRevision:0,item:centralTestItem,reason:'Ajout compatible'});
+  await save(draftId,1,1,'Version du brouillon suspendu');
+  const capture=await f.central('previewCentralSnapshot',{draftId,draftRevision:2});
+  const snapshot=await f.cc('captureCentralSnapshot',{draftId,draftRevision:2,confirmation:capture.confirmation,reason:'Conserver le brouillon'});
+  const rollback=await f.central('previewCentralRollback');
+  await f.cc('rollbackCentralRelease',{confirmation:rollback.confirmation,reason:'Revenir à V1'});
+  const {id:current}=await open(v1,3);
+  await save(current,0,0,'Version du brouillon courant');
+  const scope={draftId,snapshotId:snapshot.id},before=await f.central('centralMaster',{workshop:'M1'});
+  const result=await f.central('previewCentralResume',scope);
+  assert.deepEqual(result.conflicts,[{workshop:'M1',entityId:'example',type:'item'}]);
+  assert.equal(result.canResume,false);
+  assert.equal(result.restored,1);
+  assert.equal(result.confirmation,null);
+  assert.doesNotMatch(JSON.stringify(result),/Version du brouillon/);
+  await assert.rejects(f.cc('resumeCentralDraft',{...scope,confirmation:null,reason:'Conflit'}),{code:'CENTRAL_RESUME_BLOCKED'});
+  assert.deepEqual(await f.central('centralMaster',{workshop:'M1'}),before);
  });
 
  test(`${prefix} : publication atomique, rejeu et versions de session isolées`,async()=>{

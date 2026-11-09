@@ -393,6 +393,11 @@ document.addEventListener('click',async event=>{
       modal(centralUi.releasePreview(d));return;
     }
     if(a==='centralSnapshotPreview'){const d=await api('previewCentralSnapshot',{campaignId:currentCentral.campaign.id,draftRevision:currentCentral.draft.revision,...(currentCentral.draft.baseVersionId?{draftId:currentCentral.draft.id}:{})});if(actionVersion!==routeVersion)return;modal(centralSnapshotUi.preview(d));return;}
+    if(a==='centralResumePreview'){
+      const d=await api('previewCentralResume',{campaignId:b.dataset.cid,draftId:b.dataset.draftId,snapshotId:b.dataset.id});
+      if(actionVersion!==routeVersion)return;
+      modal(centralSnapshotUi.resumePreview(d));return;
+    }
     if(a==='centralSnapshotDownload'){const d=await api('centralSnapshot',{campaignId:b.dataset.cid,snapshotId:b.dataset.id,...(b.dataset.draftId?{draftId:b.dataset.draftId}:{})});if(actionVersion!==routeVersion)return;const href=URL.createObjectURL(new Blob([centralSnapshotFile(d)],{type:'application/json'})),a=document.createElement('a');a.href=href;a.download=`Instantane-central-${d.snapshot.id}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(href),1000);return;}
     if(a==='centralExport'){pendingCentralImport=null;modal(centralUi.exportForm(currentCentral));return;}
     if(a==='centralImport'){pendingCentralImport=null;modal(centralUi.importForm(currentCentral));return;}
@@ -658,6 +663,12 @@ document.addEventListener('submit',async event=>{
     else if(kind==='centralImportApply'){
       if(!pendingCentralImport||v.confirmed!=='on')throw new Error('Préparez et confirmez un aperçu avant l’import.');
       const r=await api('applyCentralImport',{...pendingCentralImport,reason:v.reason});successMessage=`Import enregistré : ${r.changed} modification(s), ${r.unchanged} ligne(s) inchangée(s).`;pendingCentralImport=null;
+    }
+    else if(kind==='centralResume'){
+      if(v.confirmed!=='on')return;
+      const d=await mutate('resumeCentralDraft',{campaignId:form.dataset.cid,draftId:form.dataset.draftId,snapshotId:form.dataset.id,confirmation:form.dataset.confirmation,reason:v.reason});
+      successMessage=`${d.restored} modification(s) reprise(s) dans le brouillon.`;
+      destination=`central/${form.dataset.cid}`;
     }
     else if(kind==='centralRollback'){
       if(v.confirmed!=='on')return;

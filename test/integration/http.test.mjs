@@ -1248,6 +1248,12 @@ test('HTTP + Auth : candidature, naissance, QR, soins, sécurité, boutique et r
  assert.equal(v2.pointerRevision,2);
  assert.notEqual(v2.versionId,versionId);
  assert.deepEqual(await cmd('publishCentralRevision',publishInput),v2);
+ const {id:suspendedDraft}=await cmd('openCentralRevision',{campaignId,baseVersionId:v2.versionId,pointerRevision:2,reason:'Brouillon V3'});
+ await cmd('saveCentralItem',{campaignId,draftId:suspendedDraft,draftRevision:0,itemId:'resume-http',itemRevision:0,
+  item:{...centralTestItem,name:'Travail conservé'},reason:'Préparer une définition'});
+ const suspendedScope={campaignId,draftId:suspendedDraft,draftRevision:1};
+ const suspendedPreview=await call('previewCentralSnapshot',suspendedScope);
+ const suspendedSnapshot=await cmd('captureCentralSnapshot',{...suspendedScope,confirmation:suspendedPreview.confirmation,reason:'Sauvegarder V3'});
  const rollbackScope={campaignId};
  assert.equal((await request('previewCentralRollback',rollbackScope,player)).status,403);
  const rollbackPreview=await call('previewCentralRollback',rollbackScope);
@@ -1258,6 +1264,18 @@ test('HTTP + Auth : candidature, naissance, QR, soins, sécurité, boutique et r
  assert.deepEqual(rollback,{versionId,versionNumber:1,pointerRevision:3});
  assert.deepEqual(await cmd('rollbackCentralRelease',rollbackInput),rollback);
  assert.equal((await call('centralMaster',{campaignId})).activeVersionNumber,1);
+ const resumeScope={campaignId,draftId:suspendedDraft,snapshotId:suspendedSnapshot.id};
+ assert.equal((await call('centralSnapshot',resumeScope)).canResumeDraft,true);
+ assert.equal((await request('previewCentralResume',resumeScope,player)).status,403);
+ const resume=await call('previewCentralResume',resumeScope);
+ assert.equal(resume.restored,1);
+ const resumeInput={...resumeScope,confirmation:resume.confirmation,reason:'Réintégrer le travail',requestId:randomUUID()};
+ assert.equal((await request('resumeCentralDraft',resumeInput,player)).status,403);
+ const resumedDraft=await cmd('resumeCentralDraft',resumeInput);
+ assert.deepEqual(resumedDraft,{draftId:'revision-3',draftRevision:1,restored:1});
+ assert.deepEqual(await cmd('resumeCentralDraft',resumeInput),resumedDraft);
+ assert.equal((await call('centralMaster',{campaignId,workshop:'M1'})).changes.find(ch=>ch.entityId==='resume-http').data.name,'Travail conservé');
+
 
  assert.equal((await call('spaceOutlawsEntry',{sessionId})).versionId,versionId);
  assert.equal((await call('centralSnapshot',snapshotLink)).snapshot.id,snapshot.id);

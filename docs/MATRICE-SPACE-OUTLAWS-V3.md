@@ -1,5 +1,12 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## Reprise d’un brouillon suspendu — 9 novembre 2026
+
+| Exigence | Parcours raccordé | Vérifications ciblées |
+|---|---|---|
+| §3.6 étapes 2–4 | Aperçu depuis un instantané de la dernière révision suspendue. Comparaison des définitions avec leur base d’origine et le brouillon courant. | Préservation des changements courants, détection des doublons et conflits par définition, refus sans écriture partielle. |
+| §3.6 étapes 5–7 | Reprise transactionnelle réservée au propriétaire et séparée de la publication. | Droits, aperçu périmé, réessais concurrents, provenance Excel et publication ultérieure du brouillon repris. |
+
 ## Retour à la version parente du Master — 9 novembre 2026
 
 | Exigence | Parcours raccordé | Vérifications ciblées |

@@ -1,5 +1,11 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Reprise d’un brouillon suspendu — 9 novembre 2026
+
+Le propriétaire peut reprendre l’édition depuis l’instantané de la dernière révision suspendue. L’aperçu compare la version de départ, les définitions conservées et le contenu du brouillon courant, sur le Master actif. Seules les modifications du brouillon suspendu sont proposées. Les définitions déjà identiques sont ignorées. Si la même définition a changé différemment des deux côtés, l’aperçu indique son atelier et son identifiant et bloque toute la reprise. La résolution reste manuelle au niveau de la définition.
+
+Après confirmation, les modifications compatibles rejoignent le brouillon courant ou ouvrent un brouillon sur la version active. La transaction conserve la provenance des lignes, journalise la reprise et remet les références au contrôle normal de publication. Le brouillon suspendu, ses instantanés, les versions publiées et les sessions conservent leurs données. La reprise est bornée à 200 définitions et au volume d’écriture prévu. [PR #2](https://github.com/gkerckhofs-a11y/gn-engine/pull/2).
+
 ## Retour à la version parente du Master — 9 novembre 2026
 
 Dans le Master central, le propriétaire peut prévisualiser et confirmer la réactivation du parent publié de la version active. Le serveur vérifie les deux manifestes, leurs pages et le lien d’empreinte entre les versions. L’opération change le pointeur de campagne et journalise le motif en une transaction. L’ordre des révisions reste croissant. Par exemple, après V2 → V1, la prochaine publication porte le numéro V4.

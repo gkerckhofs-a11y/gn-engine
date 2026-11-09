@@ -37,7 +37,7 @@ const reasonText=v=>{requireThat(typeof v==='string'&&v.trim()&&v.length<=500,'I
 const workshopList=v=>{requireThat(Array.isArray(v)&&v.length<=7&&new Set(v).size===v.length&&v.every(id=>ids.includes(id)),'INVALID_CENTRAL_GRANT');return [...v].sort();};
 const editableIds=centralWorkshops.filter(w=>w.editable).map(w=>w.id);
 const ownerRights={readWorkshops:ids,editWorkshops:editableIds,manageStaff:true,checkCentral:true};
-export const centralMasterCommands=[...centralSnapshotActions,'saveCentralFieldTarget','archiveCentralFieldTarget','saveCentralGroup','archiveCentralGroup',...centralImportCommands,'centralMaster','openCentralRevision','previewCentralRelease','publishCentralRevision','previewCentralRollback','rollbackCentralRelease','checkCentralDraft','setCentralStaff','saveCentralItem','archiveCentralItem','saveCentralRecipe','archiveCentralRecipe','saveCentralCharacter','archiveCentralCharacter','saveCentralClassKit','archiveCentralClassKit','saveCentralShipModel','archiveCentralShipModel','saveCentralPort','archiveCentralPort','saveCentralRoute','archiveCentralRoute','saveCentralMission','archiveCentralMission','saveCentralKnowledge','archiveCentralKnowledge','saveCentralShop','archiveCentralShop','saveCentralOffer','archiveCentralOffer'];
+export const centralMasterCommands=[...centralSnapshotActions,'saveCentralFieldTarget','archiveCentralFieldTarget','saveCentralGroup','archiveCentralGroup',...centralImportCommands,'centralMaster','openCentralRevision','previewCentralRelease','publishCentralRevision','previewCentralRollback','rollbackCentralRelease','previewCentralResume','resumeCentralDraft','checkCentralDraft','setCentralStaff','saveCentralItem','archiveCentralItem','saveCentralRecipe','archiveCentralRecipe','saveCentralCharacter','archiveCentralCharacter','saveCentralClassKit','archiveCentralClassKit','saveCentralShipModel','archiveCentralShipModel','saveCentralPort','archiveCentralPort','saveCentralRoute','archiveCentralRoute','saveCentralMission','archiveCentralMission','saveCentralKnowledge','archiveCentralKnowledge','saveCentralShop','archiveCentralShop','saveCentralOffer','archiveCentralOffer'];
 export const centralMasterAction=a=>centralMasterCommands.includes(a);
 export const centralLimits={items:250,recipes:250,characters:100,groups:50,fieldTargets:100,classKits:8,shops:50,offers:250,knowledge:250,missions:100,shipModels:100,ports:100,routes:200,staff:50};
 const actionType=action=>action.endsWith('FieldTarget')?'fieldTarget':action.endsWith('Group')?'group':action.endsWith('ShipModel')?'shipModel':action.endsWith('Port')?'port':action.endsWith('Route')?'route':action.endsWith('Mission')?'mission':action.endsWith('Knowledge')?'knowledge':action.endsWith('Shop')?'shop':action.endsWith('Offer')?'offer':action.endsWith('ClassKit')?'classKit':action.endsWith('Character')?'character':action.endsWith('Recipe')?'recipe':'item';
@@ -168,6 +168,88 @@ async function rollbackRelease(tx,{c,actor,input,at,uuid,published,preview}){
  tx.set(op,{fingerprint,result,at});return result;
 }
 
+// Compare the authored definition, independently of its local revision and import receipt.
+function changeContent(change){
+ if(!change)return null;
+ if(change.type==='speciesCatalogue')return [change.operation,change.data];
+ const {revision,contentRevision,...data}=change.data;
+ return [change.operation,data];
+}
+
+async function resumeCentralDraft(tx,{c,actor,input,at,uuid,published,preview}){
+ requireThat(published,'SO_RELEASE_REQUIRED');
+ keys(input,['campaignId','draftId','snapshotId',...(preview?[]:['confirmation','reason','requestId'])]);
+ const sourceId=documentId(input.draftId),snapshotId=documentId(input.snapshotId);
+ const op=preview?null:`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`;
+ const fingerprint=preview?null:digest(['resumeCentralDraft',input]);
+ const receipt=op?await tx.get(op):null;
+ if(receipt){requireThat(receipt.fingerprint===fingerprint,'REQUEST_ID_REUSED');return receipt.result;}
+ const sourcePath=draftPath(c.id,sourceId),source=await tx.get(sourcePath);
+ requireThat(source?.status==='SUSPENDED'&&source.id===sourceId&&source.ruleProfile===spaceOutlawsProfile,'CENTRAL_RESUME_UNAVAILABLE');
+ const saved=await centralSnapshots(tx,'centralSnapshot',actor,{campaignId:c.id,draftId:sourceId,snapshotId},{c,draft:source,path:sourcePath});
+ requireThat(saved.sourceIsCurrentRevision&&source.revision>0,'CENTRAL_RESUME_UNAVAILABLE');
+ const origin=await readSoEntryVersion(tx,c,documentId(source.baseVersionId));
+ requireThat(saved.header.source.baseManifestDigest===origin.header.manifestDigest,'CENTRAL_SNAPSHOT_INVALID');
+ const active=await readSoEntryVersion(tx,c),id=revisionDraftId(c),path=draftPath(c.id,id),draft=await tx.get(path);
+ requireThat(!draft||draft.id===id&&draft.status==='DRAFT'&&draft.ruleProfile===spaceOutlawsProfile
+  &&draft.baseVersionId===active.header.id&&draft.basePointerRevision===c.master.pointerRevision
+  &&Number.isSafeInteger(draft.revision)&&draft.revision>=0,'CENTRAL_DRAFT_UNAVAILABLE');
+ const before=new Map(origin.changes.map(ch=>[ch.id,ch]));
+ const current=new Map(active.changes.map(ch=>[ch.id,ch]));
+ const edits=await tx.list(`${path}/changes`,null,{limit:centralCheckLimits.records+1});
+ requireThat(edits.length<=centralCheckLimits.records,'CENTRAL_CHECK_LIMIT');
+ for(const edit of edits)current.set(edit.id,edit);
+ const conflicts=[],planned=[];
+ let unchanged=0,revision=draft?.revision??0;
+ for(const savedChange of saved.changes){
+  const old=before.get(savedChange.id),present=current.get(savedChange.id);
+  const wanted=digest(changeContent(savedChange)),original=digest(changeContent(old));
+  if(wanted===original)continue;
+  requireThat(savedChange.type!=='speciesCatalogue','CENTRAL_RESUME_INVALID');
+  const currentContent=digest(changeContent(present));
+  if(currentContent===wanted){unchanged++;continue;}
+  if(currentContent!==original){
+   conflicts.push({workshop:savedChange.workshop,entityId:savedChange.entityId,type:savedChange.type});
+   continue;
+  }
+  const field=savedChange.type==='character'?'contentRevision':'revision';
+  const data={...savedChange.data,[field]:Math.max(savedChange.data[field],(present?.data[field]??0)+1)};
+  const change={...savedChange,data,revision:++revision};
+  planned.push({change,before:present??null});
+ }
+ // Each restored row writes its change and a history entry. Leave room for the draft, audit and receipt.
+ const tooLarge=planned.length>200||Buffer.byteLength(JSON.stringify(planned))>centralSnapshotLimits.bytes/2;
+ const blocked=conflicts.length?'CONFLICT':tooLarge?'LIMIT':!planned.length?'NO_CHANGES':null;
+ const nextDraft={id,status:'DRAFT',ruleProfile:spaceOutlawsProfile,baseVersionId:active.header.id,basePointerRevision:c.master.pointerRevision,revision};
+ let diagnostics=0,canResume=false;
+ if(!blocked){
+  const merged=new Map(edits.map(ch=>[ch.id,ch]));
+  for(const {change} of planned)merged.set(change.id,change);
+  const report=centralDraftCheck({campaign:c,session:null,draft:nextDraft,changes:[...merged.values()],actorUid:actor.uid,authority:{kind:'OWNER',revision:null},at,base:active});
+  requireThat(report.totals.invalid===0,'CENTRAL_RESUME_INVALID');
+  diagnostics=report.totals.diagnostics;
+  canResume=true;
+ }
+ const confirmation=canResume?digest(['CENTRAL_RESUME',actor.uid,c.id,c.master.pointerRevision,
+  active.header.manifestDigest,saved.header.manifestDigest,draft??null,planned]):null;
+ if(preview)return {campaignId:c.id,draftId:sourceId,snapshotId,activeVersionNumber:active.header.pointerRevision??1,
+  restored:planned.length,unchanged,conflicts,diagnostics,blocked,canResume,confirmation};
+ requireThat(canResume,'CENTRAL_RESUME_BLOCKED');
+ requireThat(confirmation===input.confirmation,'SO_ENTRY_STALE');
+ const reason=reasonText(input.reason);
+ tx.set(path,{...(draft??{createdAt:at,actorUid:actor.uid,requestId:input.requestId,reason}),...nextDraft,updatedAt:at});
+ for(const {change,before} of planned){
+  tx.set(`${path}/changes/${change.id}`,change);
+  tx.set(`${path}/history/${change.revision}`,{id:String(change.revision),revision:change.revision,workshop:change.workshop,
+   action:'resumeCentralDraft',actorUid:actor.uid,at,reason,before,change});
+ }
+ const eventId=uuid();
+ tx.set(`${root(c.id)}/history/${eventId}`,{id:eventId,action:'resumeCentralDraft',actorUid:actor.uid,at,reason,
+  sourceDraftId:sourceId,snapshotId,draftId:id,baseVersionId:active.header.id,draftRevision:revision,restored:planned.length});
+ const result={draftId:id,draftRevision:revision,restored:planned.length};
+ tx.set(op,{fingerprint,result,at});return result;
+}
+
 function masterVersionView(c,header,owner){
  const number=header.pointerRevision??1;
  return {...(number!==c.master.pointerRevision?{activeVersionNumber:number}:{}),
@@ -191,13 +273,18 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
     requireThat(owner,'FORBIDDEN');
     return rollbackRelease(tx,{c,actor,input,at,uuid,published,preview:action==='previewCentralRollback'});
    }
+   if(action==='previewCentralResume'||action==='resumeCentralDraft'){
+    requireThat(owner,'FORBIDDEN');
+    return resumeCentralDraft(tx,{c,actor,input,at,uuid,published,preview:action==='previewCentralResume'});
+   }
    if(opening||capturing)requireThat(owner,'FORBIDDEN');
    if(action==='checkCentralDraft'||snapshotting)requireThat(rights.checkCentral,'FORBIDDEN');
    if(published&&snapshotting&&!capturing&&input.draftId!==revisionDraftId(c)){
     requireThat(typeof input.draftId==='string','STALE_REVISION');
     const historicalId=documentId(input.draftId),path=draftPath(cid,historicalId),draft=await tx.get(path);
     requireThat(draft?.id===historicalId&&typeof draft.baseVersionId==='string'&&['SEALED','SUSPENDED'].includes(draft.status)&&draft.ruleProfile===spaceOutlawsProfile,'STALE_REVISION');
-    return centralSnapshots(tx,action,actor,input,{c,draft,path,owner:false});
+    const result=await centralSnapshots(tx,action,actor,input,{c,draft,path,owner:false});
+    return {...result,...(owner&&result.draftSuspended&&result.sourceIsCurrentRevision&&draft.revision>0?{canResumeDraft:true}:{})};
    }
    const path=draftPath(cid,published?revisionDraftId(c):'initial'),draft=await tx.get(path);
    const s=published?null:await tx.get(`sessions/${c.preparationSessionId??'none'}`);
