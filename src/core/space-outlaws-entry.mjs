@@ -15,6 +15,7 @@ import {admissionOccupancy,admissionKeys,admissionText} from './admission-state.
 import {initialCharacterProfile} from '../shared/initial-character-profile.mjs';
 import {initialClassKit} from '../shared/initial-class-kit.mjs';
 import {campaignLimits} from './campaigns.mjs';
+import {soEpisodeMasterId} from './space-outlaws-episodes.mjs';
 import {soReleaseDefinitionChecks,soReleaseManifest} from './space-outlaws-release-check.mjs';
 import {portBrecheActionPoints,actionPointPath,actionPointState} from './action-point-state.mjs';
 import {accountId,openWallet,writeLedger,moneyState} from './economy-state.mjs';
@@ -112,7 +113,6 @@ export async function readSoEntryVersion(tx,c,id=c.master?.activeVersionId){
 }
 // Runtime records retain their original version. A compatible episode can
 // freeze a newer reserve catalogue independently of those records.
-export const soEpisodeMasterId=s=>s.spaceOutlaws.masterVersionId??s.versionId;
 export async function readSoEpisodeMaster(tx,c,s,runtime){
  const id=soEpisodeMasterId(s);
  return id===runtime.header.id?runtime:readSoEntryVersion(tx,c,id??null);

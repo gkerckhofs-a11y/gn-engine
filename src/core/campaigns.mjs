@@ -101,7 +101,7 @@ export function campaignPagesFor(entries){
  if(page.length)pages.push(page);return pages;
 }
 
-export function createCampaignService({store,signed,admin,checkScenario,checkSession,now,uuid}){
+export function createCampaignService({store,signed,admin,checkScenario,checkSession,readSoEntryVersion,now,uuid}){
  const owned=async(tx,actor,id)=>{admin(actor);const c=await tx.get(root(id));requireThat(c&&c.ownerUid===actor.uid,'FORBIDDEN');return c;};
  const sessionContext=async(tx,actor,input)=>{const s=await checkSession(tx,actor,documentId(input.sessionId));requireThat(s.campaignId,'NOT_A_CAMPAIGN');const c=await tx.get(root(s.campaignId));requireThat(c&&c.ownerUid===s.ownerUid,'FORBIDDEN');return {s,c};};
  async function startPlan(tx,actor,input){
@@ -152,7 +152,7 @@ export function createCampaignService({store,signed,admin,checkScenario,checkSes
   requireThat(!c.activeSessionId&&!c.activeBuildId,'CAMPAIGN_EPISODE_ACTIVE');requireThat(c.latestSessionId,'CAMPAIGN_NO_CHECKPOINT');
   const source=await tx.get(`sessions/${c.latestSessionId}`);requireThat(source?.campaignSealed&&source.campaignId===c.id,'CAMPAIGN_NO_CHECKPOINT');
   const data=source.spaceOutlaws?await readSoEpisode(tx,source):await readState(tx,source);
-  const master=source.spaceOutlaws?await planSoEpisodeMaster(tx,c,source,data,input.masterPolicy):null;
+  const master=source.spaceOutlaws?await planSoEpisodeMaster(tx,c,source,data,readSoEntryVersion,input.masterPolicy):null;
   const header=episodeHeader(input,source,c,'preview',actor,0,master);
   const entries=episodeEntries(data,source,header,actor,0),summary=stateSummary(hasSoEpisodes(source)?{...data,characters:entries.filter(e=>/^characters\/[^/]+$/.test(e.path)).map(e=>e.data),accounts:entries.filter(e=>/^accounts\/[^/]+$/.test(e.path)).map(e=>e.data)}:data,input.healthPolicy),reason=text(input.reason);
   return {source,data,summary,master,confirmation:master?.status==='BLOCKED'?null:digest({campaign:cpSummary(c),source:sourceIdentity(source),header,entries,reason,...(master?.status==='ADOPT'?{master}:{})}),recordCount:entries.length};

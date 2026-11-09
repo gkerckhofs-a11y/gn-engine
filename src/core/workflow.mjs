@@ -12,7 +12,7 @@ import {createSpaceBoardingService,spaceBoardingActions} from './space-boarding.
 import {createSpaceRescueService,spaceRescueActions} from './space-rescue.mjs';
 import {createShopService,shopActions} from './shops.mjs';
 import {hasSoHealth,survival} from './space-outlaws-health-state.mjs';
-import {createSpaceOutlawsEntryService,spaceOutlawsEntryActions} from './space-outlaws-entry.mjs';
+import {createSpaceOutlawsEntryService,spaceOutlawsEntryActions,readSoEntryVersion} from './space-outlaws-entry.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {characterInput} from './character-state.mjs';
 import {recipeInput,validateRecipeReferences} from './recipe-state.mjs';
@@ -173,7 +173,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const hiddenCargoService=createHiddenCargoService({store,signed,checkSession,now,uuid,rollD6});
   const cargoService=createCargoService({store,signed,checkSession,now,uuid});
   const logisticsService=createLogisticsService({store,signed,checkSession,now,uuid});
-  const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,now,uuid});
+  const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,readSoEntryVersion,now,uuid});
   const admissionService=createAdmissionService({store,signed,isAdmin,checkSession,now,uuid});
   const learningService=createSoLearningService({store,signed,checkSession,now,uuid});
   const successionService=createSpaceOutlawsSuccessionService({store,signed,checkSession,now,uuid});

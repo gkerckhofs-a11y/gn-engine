@@ -2,7 +2,6 @@ import {boardingCustodyReport} from './space-boarding-custody.mjs';
 import {missionObligations} from './space-mission-obligations.mjs';
 import {isDeepStrictEqual} from 'node:util';
 import {admissionIdentity} from './admission-state.mjs';
-import {readSoEntryVersion,soEpisodeMasterId} from './space-outlaws-entry.mjs';
 import {createHash} from 'node:crypto';
 import {requireThat,documentId,whole} from './validation.mjs';
 import {preparationInput} from './preparation-state.mjs';
@@ -12,6 +11,7 @@ import {personOpen} from './person-state.mjs';
 import {actionPointMaximum,actionPointState} from './action-point-state.mjs';
 import {moneyState,writeLedger} from './economy-state.mjs';
 
+export const soEpisodeMasterId=s=>s.spaceOutlaws.masterVersionId??s.versionId;
 export const hasSoEpisodes=s=>s?.spaceOutlaws?.episodesVersion===1;
 const hash=v=>createHash('sha256').update(v).digest('hex');
 // Runtime collections of the connected SO services. Global request receipts and
@@ -86,11 +86,11 @@ export function soClosure(s,data,input,at){
   pickups:data.lotSales.filter(x=>x.status==='SOLD'&&x.pickupStatus!=='RECEIVED').length+data.contracts.reduce((n,c)=>n+(c.rewardPickups??[]).filter(x=>x.pickupStatus!=='RECEIVED').length,0),gameTimeMs:time};
  return {changes,blocks,continuity,cancelled:{market:0,sales:0,transfers:0},canClose:blocks.length===0};
 }
-export async function planSoEpisodeMaster(tx,c,source,data,policy='LATEST'){
+export async function planSoEpisodeMaster(tx,c,source,data,readVersion,policy='LATEST'){
  requireThat(['LATEST','KEEP'].includes(policy),'INVALID_CAMPAIGN');
  const sourceId=soEpisodeMasterId(source),latestId=c.master?.activeVersionId;
  if(policy==='KEEP'||!latestId||latestId===sourceId)return {status:'KEEP',sourceId,versionId:sourceId};
- const [previous,latest]=await Promise.all([readSoEntryVersion(tx,c,sourceId??null),readSoEntryVersion(tx,c,latestId)]);
+ const [previous,latest]=await Promise.all([readVersion(tx,c,sourceId??null),readVersion(tx,c,latestId)]);
  const capabilities=h=>Object.fromEntries(Object.entries(h).filter(([key])=>key.endsWith('Version')));
  const blockers=[];
  if(!isDeepStrictEqual(capabilities(previous.header),capabilities(latest.header)))blockers.push({code:'CAPABILITIES'});
