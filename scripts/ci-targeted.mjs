@@ -173,6 +173,11 @@ targetedProfiles['rogue-pickpocket']={...targetedProfiles['episode-master'],
  suites:[...new Set([...targetedProfiles['episode-master'].suites,'space-pickpocket','inventory','field','person','space-outlaws-actions','space-outlaws-entry'])],
  files:[...targetedProfiles['episode-master'].files,'src/core/space-pickpocket.mjs','src/core/workflow.mjs','src/core/inventory-state.mjs','src/core/space-outlaws-entry-guard.mjs','src/core/space-outlaws-entry.mjs','src/core/central-master.mjs','web/app.mjs','web/central-master.mjs','web/inventory.mjs','web/space-pickpocket.mjs','test/support/space-pickpocket-suite.mjs','test/space-pickpocket.test.mjs','test/space-pickpocket-ui.test.mjs','test/support/firestore-suites.mjs','scripts/ci-targeted.mjs'],
 };
+targetedProfiles['rogue-escape']={...targetedProfiles['rogue-pickpocket'],
+ tests:[...new Set([...targetedProfiles['rogue-pickpocket'].tests.filter(p=>!['test/inventory-ui.test.mjs','test/central-import.test.mjs'].includes(p)),'test/space-escape.test.mjs','test/space-escape-ui.test.mjs'])],
+ suites:[...new Set([...targetedProfiles['rogue-pickpocket'].suites,'space-escape'])],
+ files:[...targetedProfiles['rogue-pickpocket'].files,'src/core/space-escape.mjs','web/space-escape.mjs','test/space-escape.test.mjs','test/space-escape-ui.test.mjs','test/support/space-escape-suite.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Candidat ROG-03 — 9 novembre 2026
+
+Captivité MJ, QR et conditions d'évasion (niveau, garde, temps de jeu, PA et délai réel). Aucun mécanisme d'ouverture de serrure. CI du commit candidat à vérifier sur son SHA exact ; vérification physique non certifiée. [Périmètre](SO-ROG-03.md).
+
 ## Candidat ROG-02 — 9 novembre 2026
 
 Ajout proposé sur la PR #2 d'un parcours « vol à la tire » versionné, sur cible identifiée par son QR public et le nom/prénom fictifs, avec quota transversal, sélection par niveau, PA conditionnels, récupération et notification différée. Tests ciblés applicatifs et Firestore ajoutés ; **aucun résultat de CI affirmé avant conclusion sur le commit exact**. Limites : pas de vérification physique du poste organisation, remise des objets matériels à coordonner par le MJ, aucune mise en production. [Périmètre](SO-ROG-02.md).

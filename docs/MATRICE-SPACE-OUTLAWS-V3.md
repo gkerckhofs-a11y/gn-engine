@@ -1,5 +1,14 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## ROG-03 — Évasion (première tranche, CI à confirmer)
+
+| Exigence | Parcours candidat | Limites |
+|---|---|---|
+| §4.5, REC-SO-08 | Captivité MJ, QR, niveau, surveillance, minuterie, annulation/découverte, PA et récupération. | Surveillance physique et sortie sûre à confirmer par MJ, pas de déverrouillage réel. |
+| Captivité 20 minutes réelles | Échéance serveur indépendante de l'horloge de jeu. | La libération physique doit être assurée par le MJ. |
+
+Voir [détail ROG-03](SO-ROG-03.md).
+
 ## ROG-02 — vol à la tire (candidat, validation CI à confirmer)
 
 | Exigence | Implémentation candidate | Réserve |
