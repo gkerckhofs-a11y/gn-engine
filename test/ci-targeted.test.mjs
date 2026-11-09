@@ -107,7 +107,7 @@ test('CI ciblée : canon lourd couvre adaptateur, duels, flottes et acquis modul
  const p=targetedScope('module-combat',['src/core/space-combat.mjs','test/support/space-encounters-suite.mjs','test/support/space-convoy-suite.mjs'],{reliableBase:true});
  assert.equal(requestedTarget('[ci targeted:module-combat]'),'module-combat');assert.equal(p.browser,false);
  assert.deepEqual(testCommand('application',{GN_CI_PROFILE:'targeted-module-combat',GN_APPLICATION_TESTS:JSON.stringify(p.applicationTests)}).args,['--test',...p.applicationTests]);
- assert.throws(()=>applicationCommand(JSON.stringify(Array.from({length:97},(_,i)=>`test/example-${i}.test.mjs`)),()=>true));
+ assert.throws(()=>applicationCommand(JSON.stringify(Array.from({length:98},(_,i)=>`test/example-${i}.test.mjs`)),()=>true));
  for(const id of ['space-module-removal','space-encounters','space-convoy','space-escort-maneuvers','space-alliance-convoy','space-alliance-duels','space-alliance-defense'])assert.ok(p.suites.includes(id));
  for(const file of p.applicationTests)assert.ok(existsSync(file),file);assert.equal(new Set(p.applicationTests).size,p.applicationTests.length);
  const selected=matrixFor(p.suites).flatMap(({shard})=>selectFirestoreSuites({GN_FIRESTORE_SUITES:JSON.stringify(p.suites),GN_FIRESTORE_SHARD:shard}));assert.deepEqual(selected.map(s=>s.id).sort(),[...p.suites].sort());
@@ -217,4 +217,12 @@ test('Ciblage pilotage SO : navigation, changement de mandat et cas HTTP dédié
  assert.ok(p.suites.includes('space-group-pilot'));assert.ok(p.suites.includes('space-outlaws-voyages'));
  assert.ok(new RegExp(p.httpPattern).test('HTTP + Auth : pilotage de groupe SO, révocation'));
  assert.equal(p.browser,false);assert.doesNotThrow(()=>applicationCommand(JSON.stringify(p.applicationTests)));
+});
+
+test('CI cible la publication du Master révisé et conserve les suites de session',()=>{
+ const p=targetedScope('central-revision-release',['src/core/central-master.mjs','src/core/space-outlaws-learning.mjs'],{reliableBase:true});
+ assert.ok(p.suites.includes('central-revision'));
+ assert.ok(p.suites.includes('space-learning'));
+ assert.ok(p.suites.includes('space-succession'));
+ assert.doesNotThrow(()=>testCommand('application',{GN_CI_PROFILE:p.profile,GN_APPLICATION_TESTS:JSON.stringify(p.applicationTests)}));
 });
