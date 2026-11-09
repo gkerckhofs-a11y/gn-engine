@@ -1267,12 +1267,18 @@ test('HTTP + Auth : candidature, naissance, QR, soins, sécurité, boutique et r
  const resumeScope={campaignId,draftId:suspendedDraft,snapshotId:suspendedSnapshot.id};
  assert.equal((await call('centralSnapshot',resumeScope)).canResumeDraft,true);
  assert.equal((await request('previewCentralResume',resumeScope,player)).status,403);
- const resume=await call('previewCentralResume',resumeScope);
+ const {id:currentDraft}=await cmd('openCentralRevision',{campaignId,baseVersionId:versionId,pointerRevision:3,reason:'Brouillon courant'});
+ await cmd('saveCentralItem',{campaignId,draftId:currentDraft,draftRevision:0,itemId:'resume-http',itemRevision:0,
+  item:{...centralTestItem,name:'Version courante'},reason:'Créer une version concurrente'});
+ const conflict=await call('previewCentralResume',resumeScope);
+ assert.deepEqual(conflict.conflicts,[{workshop:'M1',type:'item',entityId:'resume-http'}]);
+ const selection={...resumeScope,review:conflict.review,resolutions:[{type:'item',entityId:'resume-http',choice:'USE_SUSPENDED'}]};
+ const resume=await call('previewCentralResume',selection);
  assert.equal(resume.restored,1);
- const resumeInput={...resumeScope,confirmation:resume.confirmation,reason:'Réintégrer le travail',requestId:randomUUID()};
+ const resumeInput={...selection,confirmation:resume.confirmation,reason:'Réintégrer le travail',requestId:randomUUID()};
  assert.equal((await request('resumeCentralDraft',resumeInput,player)).status,403);
  const resumedDraft=await cmd('resumeCentralDraft',resumeInput);
- assert.deepEqual(resumedDraft,{draftId:'revision-3',draftRevision:1,restored:1});
+ assert.deepEqual(resumedDraft,{draftId:currentDraft,draftRevision:2,restored:1});
  assert.deepEqual(await cmd('resumeCentralDraft',resumeInput),resumedDraft);
  assert.equal((await call('centralMaster',{campaignId,workshop:'M1'})).changes.find(ch=>ch.entityId==='resume-http').data.name,'Travail conservé');
 

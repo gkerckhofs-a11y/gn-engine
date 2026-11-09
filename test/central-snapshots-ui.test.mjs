@@ -38,10 +38,16 @@ test('Instantanés centraux UI : aperçu, liste et téléchargement gardent le b
 
 test('Instantanés centraux UI : les conflits empêchent la reprise et les identifiants sont échappés',()=>{
  const p={campaignId:'campaign',activeVersionNumber:1,draftId:'revision-2',snapshotId:'snapshot',restored:2,unchanged:1};
- const blocked=ui.resumePreview({...p,blocked:'CONFLICT',conflicts:[{workshop:'M2',type:'character',entityId:'<script>'}]});
+ const blocked=ui.resumePreview({...p,review:'review',blocked:'CONFLICT',conflicts:[{workshop:'M2',type:'character',entityId:'<script>'}]});
  assert.match(blocked,/M2 · character · &lt;script&gt;/);
  assert.doesNotMatch(blocked,/<script>|data-form="centralResume"/);
- const ready=ui.resumePreview({...p,canResume:true,confirmation:'token',diagnostics:1});
+ assert.match(blocked,/data-form="centralResumeChoices"/);
+ assert.match(blocked,/name="choice_0" required/);
+ assert.match(blocked,/KEEP_CURRENT/);
+ assert.match(blocked,/USE_SUSPENDED/);
+ const ready=ui.resumePreview({...p,canResume:true,confirmation:'token',diagnostics:1,review:'review',
+  resolutions:[{type:'item',entityId:'id',choice:'USE_SUSPENDED'}]});
+ assert.match(ready,/Définition de l’instantané reprise/);
  assert.match(ready,/data-form="centralResume".*data-confirmation="token"/);
  assert.match(ready,/1 diagnostic/);
  assert.match(ready,/name="confirmed" required/);

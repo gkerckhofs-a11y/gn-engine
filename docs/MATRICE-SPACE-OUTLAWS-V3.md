@@ -1,5 +1,12 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## Résolution des conflits de reprise — 9 novembre 2026
+
+| Exigence | Parcours raccordé | Vérifications ciblées |
+|---|---|---|
+| §3.6 étapes 2–4 | Choix explicite pour chaque définition en conflit. Nouvel aperçu avant confirmation. | Choix incomplet, dupliqué ou hors conflit refusé. Sélection et aperçu périmés refusés. |
+| §3.6 étapes 5–6 | Reprise transactionnelle et journal des décisions. | Choix mixtes, modifications compatibles conservées, droits, réessai et contrôle HTTP. |
+
 ## Reprise d’un brouillon suspendu — 9 novembre 2026
 
 | Exigence | Parcours raccordé | Vérifications ciblées |

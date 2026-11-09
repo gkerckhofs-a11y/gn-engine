@@ -178,7 +178,7 @@ function changeContent(change){
 
 async function resumeCentralDraft(tx,{c,actor,input,at,uuid,published,preview}){
  requireThat(published,'SO_RELEASE_REQUIRED');
- keys(input,['campaignId','draftId','snapshotId',...(preview?[]:['confirmation','reason','requestId'])]);
+ keys(input,['campaignId','draftId','snapshotId','resolutions','review',...(preview?[]:['confirmation','reason','requestId'])]);
  const sourceId=documentId(input.draftId),snapshotId=documentId(input.snapshotId);
  const op=preview?null:`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`;
  const fingerprint=preview?null:digest(['resumeCentralDraft',input]);
@@ -199,8 +199,20 @@ async function resumeCentralDraft(tx,{c,actor,input,at,uuid,published,preview}){
  const edits=await tx.list(`${path}/changes`,null,{limit:centralCheckLimits.records+1});
  requireThat(edits.length<=centralCheckLimits.records,'CENTRAL_CHECK_LIMIT');
  for(const edit of edits)current.set(edit.id,edit);
- const conflicts=[],planned=[];
- let unchanged=0,revision=draft?.revision??0;
+ const review=digest(['CENTRAL_RESUME_REVIEW',actor.uid,c.id,c.master.pointerRevision,active.header.manifestDigest,saved.header.manifestDigest,draft??null]);
+ const resolutions=new Map();
+ if(input.resolutions!==undefined){
+  requireThat(input.review===review,'SO_ENTRY_STALE');
+  requireThat(Array.isArray(input.resolutions)&&input.resolutions.length>0&&input.resolutions.length<=200,'CENTRAL_RESUME_INVALID_CHOICES');
+  for(const resolution of input.resolutions){
+   keys(resolution,['type','entityId','choice']);
+   const type=documentId(resolution.type),entityId=documentId(resolution.entityId),key=JSON.stringify([type,entityId]);
+   requireThat(!resolutions.has(key)&&['KEEP_CURRENT','USE_SUSPENDED'].includes(resolution.choice),'CENTRAL_RESUME_INVALID_CHOICES');
+   resolutions.set(key,resolution.choice);
+  }
+ }
+ const conflicts=[],planned=[],choices=[];
+ let unchanged=0,kept=0,revision=draft?.revision??0;
  for(const savedChange of saved.changes){
   const old=before.get(savedChange.id),present=current.get(savedChange.id);
   const wanted=digest(changeContent(savedChange)),original=digest(changeContent(old));
@@ -209,14 +221,18 @@ async function resumeCentralDraft(tx,{c,actor,input,at,uuid,published,preview}){
   const currentContent=digest(changeContent(present));
   if(currentContent===wanted){unchanged++;continue;}
   if(currentContent!==original){
-   conflicts.push({workshop:savedChange.workshop,entityId:savedChange.entityId,type:savedChange.type});
-   continue;
+   const {workshop,entityId,type}=savedChange;
+   const choice=resolutions.get(JSON.stringify([type,entityId]));
+   if(!choice){conflicts.push({workshop,entityId,type});continue;}
+   choices.push({type,entityId,choice});
+   if(choice==='KEEP_CURRENT'){kept++;continue;}
   }
   const field=savedChange.type==='character'?'contentRevision':'revision';
   const data={...savedChange.data,[field]:Math.max(savedChange.data[field],(present?.data[field]??0)+1)};
   const change={...savedChange,data,revision:++revision};
   planned.push({change,before:present??null});
  }
+ requireThat(!resolutions.size||(!conflicts.length&&choices.length===resolutions.size),'CENTRAL_RESUME_INVALID_CHOICES');
  // Each restored row writes its change and a history entry. Leave room for the draft, audit and receipt.
  const tooLarge=planned.length>200||Buffer.byteLength(JSON.stringify(planned))>centralSnapshotLimits.bytes/2;
  const blocked=conflicts.length?'CONFLICT':tooLarge?'LIMIT':!planned.length?'NO_CHANGES':null;
@@ -231,9 +247,10 @@ async function resumeCentralDraft(tx,{c,actor,input,at,uuid,published,preview}){
   canResume=true;
  }
  const confirmation=canResume?digest(['CENTRAL_RESUME',actor.uid,c.id,c.master.pointerRevision,
-  active.header.manifestDigest,saved.header.manifestDigest,draft??null,planned]):null;
+  active.header.manifestDigest,saved.header.manifestDigest,draft??null,planned,...(choices.length?[choices]:[])]):null;
  if(preview)return {campaignId:c.id,draftId:sourceId,snapshotId,activeVersionNumber:active.header.pointerRevision??1,
-  restored:planned.length,unchanged,conflicts,diagnostics,blocked,canResume,confirmation};
+  restored:planned.length,unchanged,conflicts,diagnostics,blocked,canResume,confirmation,
+  ...(conflicts.length||choices.length?{review}:{}),...(choices.length?{resolutions:choices,kept}:{})};
  requireThat(canResume,'CENTRAL_RESUME_BLOCKED');
  requireThat(confirmation===input.confirmation,'SO_ENTRY_STALE');
  const reason=reasonText(input.reason);
@@ -245,7 +262,7 @@ async function resumeCentralDraft(tx,{c,actor,input,at,uuid,published,preview}){
  }
  const eventId=uuid();
  tx.set(`${root(c.id)}/history/${eventId}`,{id:eventId,action:'resumeCentralDraft',actorUid:actor.uid,at,reason,
-  sourceDraftId:sourceId,snapshotId,draftId:id,baseVersionId:active.header.id,draftRevision:revision,restored:planned.length});
+  sourceDraftId:sourceId,snapshotId,draftId:id,baseVersionId:active.header.id,draftRevision:revision,restored:planned.length,...(choices.length?{resolutions:choices}:{})});
  const result={draftId:id,draftRevision:revision,restored:planned.length};
  tx.set(op,{fingerprint,result,at});return result;
 }

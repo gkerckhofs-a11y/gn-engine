@@ -1,5 +1,11 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Résolution des conflits de reprise — 9 novembre 2026
+
+Pour chaque définition en conflit, le propriétaire choisit de garder la définition courante ou de reprendre celle de l’instantané. Le choix porte sur la définition entière. Un nouvel aperçu vérifie la sélection complète et affiche les choix avant confirmation. Toute modification du brouillon entre les aperçus ou avant la confirmation impose de recommencer le contrôle.
+
+La transaction applique les choix et les modifications compatibles ensemble, conserve les définitions courantes choisies et journalise les décisions. Les règles du contrôle de publication restent applicables. Les limites de 200 définitions reprises et du volume d’écriture demeurent. [PR #2](https://github.com/gkerckhofs-a11y/gn-engine/pull/2).
+
 ## Reprise d’un brouillon suspendu — 9 novembre 2026
 
 Le propriétaire peut reprendre l’édition depuis l’instantané de la dernière révision suspendue. L’aperçu compare la version de départ, les définitions conservées et le contenu du brouillon courant, sur le Master actif. Seules les modifications du brouillon suspendu sont proposées. Les définitions déjà identiques sont ignorées. Si la même définition a changé différemment des deux côtés, l’aperçu indique son atelier et son identifiant et bloque toute la reprise. La résolution reste manuelle au niveau de la définition.

@@ -664,9 +664,16 @@ document.addEventListener('submit',async event=>{
       if(!pendingCentralImport||v.confirmed!=='on')throw new Error('Préparez et confirmez un aperçu avant l’import.');
       const r=await api('applyCentralImport',{...pendingCentralImport,reason:v.reason});successMessage=`Import enregistré : ${r.changed} modification(s), ${r.unchanged} ligne(s) inchangée(s).`;pendingCentralImport=null;
     }
+    else if(kind==='centralResumeChoices'){
+      const {conflicts,...scope}=JSON.parse(form.dataset.payload);
+      const resolutions=conflicts.map(({type,entityId},i)=>({type,entityId,choice:v[`choice_${i}`]}));
+      const d=await api('previewCentralResume',{...scope,resolutions});
+      if(submitVersion!==routeVersion||!form.isConnected)return;
+      modal(centralSnapshotUi.resumePreview(d));return;
+    }
     else if(kind==='centralResume'){
       if(v.confirmed!=='on')return;
-      const d=await mutate('resumeCentralDraft',{campaignId:form.dataset.cid,draftId:form.dataset.draftId,snapshotId:form.dataset.id,confirmation:form.dataset.confirmation,reason:v.reason});
+      const d=await mutate('resumeCentralDraft',{campaignId:form.dataset.cid,draftId:form.dataset.draftId,snapshotId:form.dataset.id,confirmation:form.dataset.confirmation,reason:v.reason,...JSON.parse(form.dataset.selections)});
       successMessage=`${d.restored} modification(s) reprise(s) dans le brouillon.`;
       destination=`central/${form.dataset.cid}`;
     }

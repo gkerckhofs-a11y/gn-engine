@@ -96,11 +96,11 @@ export function centralRevisionSuite(makeStore,prefix='Master Vn+1'){
   assert.equal((await f.store.get(sid)).versionId,v1);
  });
 
- test(`${prefix} : un conflit à la reprise protège le brouillon courant de toute écriture`,async()=>{
+ test(`${prefix} : la reprise exige une décision par conflit et revérifie les choix à la confirmation`,async()=>{
   const f=await entryFixture(makeStore),{versionId:v1}=await f.release(await f.releasePreview());
   const open=(baseVersionId,pointerRevision)=>f.cc('openCentralRevision',{baseVersionId,pointerRevision,reason:'Ouvrir le brouillon'});
   const {id:firstDraft}=await open(v1,1);
-  const save=(draftId,draftRevision,itemRevision,name)=>f.cc('saveCentralItem',{draftId,draftRevision,itemId:'example',
+  const save=(draftId,draftRevision,itemRevision,name,itemId='example')=>f.cc('saveCentralItem',{draftId,draftRevision,itemId,
    itemRevision,item:{...centralTestItem,name},reason:'Préparer le modèle'});
   await save(firstDraft,0,0,'Modèle de V2');
   const p=await f.central('previewCentralRelease',{draftId:firstDraft,draftRevision:1});
@@ -108,21 +108,49 @@ export function centralRevisionSuite(makeStore,prefix='Master Vn+1'){
   const {id:draftId}=await open(v2,2);
   await f.cc('saveCentralItem',{draftId,draftRevision:0,itemId:'non-conflicting',itemRevision:0,item:centralTestItem,reason:'Ajout compatible'});
   await save(draftId,1,1,'Version du brouillon suspendu');
-  const capture=await f.central('previewCentralSnapshot',{draftId,draftRevision:2});
-  const snapshot=await f.cc('captureCentralSnapshot',{draftId,draftRevision:2,confirmation:capture.confirmation,reason:'Conserver le brouillon'});
+  await save(draftId,2,0,'À conserver dans la reprise','keep');
+  const capture=await f.central('previewCentralSnapshot',{draftId,draftRevision:3});
+  const snapshot=await f.cc('captureCentralSnapshot',{draftId,draftRevision:3,confirmation:capture.confirmation,reason:'Conserver le brouillon'});
   const rollback=await f.central('previewCentralRollback');
   await f.cc('rollbackCentralRelease',{confirmation:rollback.confirmation,reason:'Revenir à V1'});
   const {id:current}=await open(v1,3);
   await save(current,0,0,'Version du brouillon courant');
+  await save(current,1,0,'À conserver dans le courant','keep');
   const scope={draftId,snapshotId:snapshot.id},before=await f.central('centralMaster',{workshop:'M1'});
   const result=await f.central('previewCentralResume',scope);
-  assert.deepEqual(result.conflicts,[{workshop:'M1',entityId:'example',type:'item'}]);
+  assert.deepEqual(result.conflicts,[{workshop:'M1',entityId:'example',type:'item'},{workshop:'M1',entityId:'keep',type:'item'}]);
   assert.equal(result.canResume,false);
   assert.equal(result.restored,1);
   assert.equal(result.confirmation,null);
   assert.doesNotMatch(JSON.stringify(result),/Version du brouillon/);
   await assert.rejects(f.cc('resumeCentralDraft',{...scope,confirmation:null,reason:'Conflit'}),{code:'CENTRAL_RESUME_BLOCKED'});
   assert.deepEqual(await f.central('centralMaster',{workshop:'M1'}),before);
+  const use={entityId:'example',type:'item',choice:'USE_SUSPENDED'},keep={entityId:'keep',type:'item',choice:'KEEP_CURRENT'};
+  const selection={...scope,review:result.review,resolutions:[keep,use]};
+  await assert.rejects(f.central('previewCentralResume',{...selection,resolutions:[use]}),{code:'CENTRAL_RESUME_INVALID_CHOICES'});
+  await assert.rejects(f.central('previewCentralResume',{...selection,resolutions:[use,use]}),{code:'CENTRAL_RESUME_INVALID_CHOICES'});
+  await assert.rejects(f.central('previewCentralResume',{...selection,resolutions:[use,{...keep,entityId:'non-conflicting'}]}),{code:'CENTRAL_RESUME_INVALID_CHOICES'});
+  const ready=await f.central('previewCentralResume',selection);
+  assert.deepEqual([ready.canResume,ready.restored,ready.kept],[true,2,1]);
+  const command={...selection,confirmation:ready.confirmation,reason:'Résoudre les conflits',requestId:randomUUID()};
+  await assert.rejects(f.cc('resumeCentralDraft',{...command,resolutions:[{...keep,choice:'USE_SUSPENDED'},use]}),{code:'SO_ENTRY_STALE'});
+  await save(current,2,0,'Modification entre-temps','new-edit');
+  await assert.rejects(f.cc('resumeCentralDraft',command),{code:'SO_ENTRY_STALE'});
+  const updated=await f.central('previewCentralResume',scope);
+  const selected={...selection,review:updated.review};
+  const final=await f.central('previewCentralResume',selected);
+  const input={...selected,confirmation:final.confirmation,reason:'Confirmer les choix',requestId:randomUUID()};
+  const resumed=await f.cc('resumeCentralDraft',input);
+  assert.deepEqual(resumed,{draftId:current,draftRevision:5,restored:2});
+  assert.deepEqual(await f.cc('resumeCentralDraft',input),resumed);
+  const after=await f.central('centralMaster',{workshop:'M1'});
+  assert.equal(after.changes.find(ch=>ch.entityId==='keep').data.name,'À conserver dans le courant');
+  assert.equal(after.changes.find(ch=>ch.entityId==='example').data.name,'Version du brouillon suspendu');
+  assert.equal(after.changes.find(ch=>ch.entityId==='new-edit').data.name,'Modification entre-temps');
+  assert.ok(after.changes.some(ch=>ch.entityId==='non-conflicting'));
+  const events=await f.store.list(`campaigns/${f.campaignId}/history`);
+  assert.deepEqual(events.find(e=>e.action==='resumeCentralDraft').resolutions,[use,keep]);
+
  });
 
  test(`${prefix} : publication atomique, rejeu et versions de session isolées`,async()=>{
