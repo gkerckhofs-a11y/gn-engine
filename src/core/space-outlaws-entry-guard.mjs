@@ -66,6 +66,7 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(scopes.has('SHOP')&&/^(inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+|lotSales\/[^/]+|shopProvisions\/[^/]+)$/.test(relative))continue;
   if(scopes.has('PAYMENT')&&/^(accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('FIELD')&&/^(fieldActions\/[^/]+|fieldStates\/[^/]+|aidOffers\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/(?:resources\/actionPoints|fieldCooldowns\/[^/]+|knowledge\/[^/]+))?)$/.test(relative))continue;
+  if(scopes.has('PICKPOCKET')&&session.spaceOutlaws.pickpocketVersion===1&&/^(pickpocketActions\/[^/]+|pickpocketRogues\/[^/]+|pickpocketVictims\/[^/]+|pickpocketAlerts\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+\/resources\/actionPoints)$/.test(relative))continue;
   if(scopes.has('CARE')&&/^(personActions\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/(?:resources\/actionPoints|fieldCooldowns\/[^/]+|cooldowns\/field-care|healthHistory\/[^/]+))?)$/.test(relative))continue;
   if(scopes.has('HEALTH')&&/^characters\/[^/]+(?:\/healthHistory\/[^/]+)?$/.test(relative))continue;
   if(scopes.has('SAFETY')&&path===base.slice(0,-1)){

@@ -1,5 +1,14 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## ROG-02 — vol à la tire (candidat, validation CI à confirmer)
+
+| Exigence | Implémentation candidate | Réserve |
+|---|---|---|
+| REC-SO-06/07, §4.4, V0.7 | Accès Rogue, QR public de cible, nom et prénom fictifs, délais, quota par victime, réussite une seule fois, choix selon niveau, PA uniquement sur transfert, notification différée. | Présence au poste organisation attestée seulement ; remise d'accessoire physique à contrôler par le MJ, recette téléphone/humaine à faire. |
+
+Voir [périmètre et limites](SO-ROG-02.md). Une CI ciblée ne certifie pas une session réelle.
+
+
 ## Résolution des conflits de reprise — 9 novembre 2026
 
 | Exigence | Parcours raccordé | Vérifications ciblées |

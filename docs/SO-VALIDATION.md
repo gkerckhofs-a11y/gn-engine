@@ -1,5 +1,10 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Candidat ROG-02 — 9 novembre 2026
+
+Ajout proposé sur la PR #2 d'un parcours « vol à la tire » versionné, sur cible identifiée par son QR public et le nom/prénom fictifs, avec quota transversal, sélection par niveau, PA conditionnels, récupération et notification différée. Tests ciblés applicatifs et Firestore ajoutés ; **aucun résultat de CI affirmé avant conclusion sur le commit exact**. Limites : pas de vérification physique du poste organisation, remise des objets matériels à coordonner par le MJ, aucune mise en production. [Périmètre](SO-ROG-02.md).
+
+
 ## Résolution des conflits de reprise — 9 novembre 2026
 
 Pour chaque définition en conflit, le propriétaire choisit de garder la définition courante ou de reprendre celle de l’instantané. Le choix porte sur la définition entière. Un nouvel aperçu vérifie la sélection complète et affiche les choix avant confirmation. Toute modification du brouillon entre les aperçus ou avant la confirmation impose de recommencer le contrôle.

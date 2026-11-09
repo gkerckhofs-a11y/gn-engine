@@ -9,16 +9,17 @@ export function itemInput(input,id,old={}){
   requireThat(['DRAFT','READY','PUBLISHED'].includes(input.publicationState),'INVALID_ITEM');
   requireThat(['UNSPECIFIED','LEGAL','ILLEGAL'].includes(input.legality??'UNSPECIFIED'),'INVALID_ITEM');
   requireThat(input.pillable===undefined||typeof input.pillable==='boolean','INVALID_ITEM');
+  requireThat(input.pickpocketable===undefined||typeof input.pickpocketable==='boolean','INVALID_ITEM');
   const laserRecharge=input.laserRecharge===undefined?old.laserRecharge??null:input.laserRecharge;
   if(laserRecharge!==null)requireThat(input.consumable&&Number.isSafeInteger(laserRecharge?.pelletsPerUnit)&&laserRecharge.pelletsPerUnit>0,'INVALID_RECHARGE');
   const shipModule=input.shipModule===undefined?old.shipModule??null:input.shipModule;
   if(shipModule!==null)requireThat(typeof shipModule==='object'&&!Array.isArray(shipModule)&&Object.keys(shipModule).length===2&&Object.hasOwn(shipModule,'code')&&Object.hasOwn(shipModule,'size')&&standardShipModuleQuote(shipModule)!==null&&input.kind==='INDIVIDUAL'&&!input.consumable&&laserRecharge===null,'INVALID_SHIP_MODULE');
   const unitVolume=input.unitVolume==null?null:whole(input.unitVolume,'INVALID_ITEM');
   return {...mediaFields(old,['illustration']),id,name:text(input.name,150,true),description:text(input.description??'',6000),category:text(input.category??'',150),
-    pillable:input.pillable??old.pillable??false,unit:text(input.unit??'unité',50,true),kind:input.kind,consumable:input.consumable,unitVolume,legality:input.legality??'UNSPECIFIED',
+    pillable:input.pillable??old.pillable??false,pickpocketable:input.pickpocketable??old.pickpocketable??false,unit:text(input.unit??'unité',50,true),kind:input.kind,consumable:input.consumable,unitVolume,legality:input.legality??'UNSPECIFIED',
     ...(shipModule?{shipModule:{code:shipModule.code,size:shipModule.size}}:{}),...(laserRecharge?{laserRecharge:{pelletsPerUnit:laserRecharge.pelletsPerUnit}}:{}),gmNotes:text(input.gmNotes??'',10000),publicationState:input.publicationState,revision:(old.revision??0)+1};
 }
-export const publicItem=d=>({...(d.shipModule?{shipModule:{code:d.shipModule.code,size:d.shipModule.size}}:{}),...(d.laserRecharge?{laserRecharge:{pelletsPerUnit:d.laserRecharge.pelletsPerUnit}}:{}),...mediaFields(d,['illustration']),id:d.id,name:d.name,pillable:d.pillable??false,description:d.description,category:d.category,unit:d.unit,kind:d.kind,consumable:d.consumable,unitVolume:d.unitVolume,legality:d.legality,revision:d.revision});
+export const publicItem=d=>({...(d.shipModule?{shipModule:{code:d.shipModule.code,size:d.shipModule.size}}:{}),...(d.laserRecharge?{laserRecharge:{pelletsPerUnit:d.laserRecharge.pelletsPerUnit}}:{}),...mediaFields(d,['illustration']),id:d.id,name:d.name,pillable:d.pillable??false,pickpocketable:d.pickpocketable??false,description:d.description,category:d.category,unit:d.unit,kind:d.kind,consumable:d.consumable,unitVolume:d.unitVolume,legality:d.legality,revision:d.revision});
 export function itemQuantity(definition,value,allowZero=false){
   const quantity=whole(value,'INVALID_QUANTITY');requireThat((allowZero||quantity>0)&&(definition.kind!=='INDIVIDUAL'||quantity<=1),'INVALID_QUANTITY');return quantity;
 }

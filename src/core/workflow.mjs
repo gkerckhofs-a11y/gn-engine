@@ -4,6 +4,7 @@ import {createModuleWorkService,moduleWorkActions} from './space-module-work.mjs
 import {createModuleMandateService,moduleMandateActions} from './space-module-mandates.mjs';
 import {createBoardingCargoService,boardingCargoActions} from './space-boarding-cargo.mjs';
 import {createSoLearningService,soLearningActions} from './space-outlaws-learning.mjs';
+import {createSoPickpocketService,soPickpocketActions} from './space-pickpocket.mjs';
 import {createSpaceOutlawsSuccessionService,spaceOutlawsSuccessionActions} from './space-outlaws-succession.mjs';
 import {rewardsOpen} from './space-outlaws-mission-rewards.mjs';
 import {createSpaceMaintenanceService,spaceMaintenanceActions} from './space-maintenance.mjs';
@@ -176,6 +177,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,readSoEntryVersion,now,uuid});
   const admissionService=createAdmissionService({store,signed,isAdmin,checkSession,now,uuid});
   const learningService=createSoLearningService({store,signed,checkSession,now,uuid});
+  const pickpocketService=createSoPickpocketService({store,signed,now,uuid});
   const successionService=createSpaceOutlawsSuccessionService({store,signed,checkSession,now,uuid});
   const entryService=createSpaceOutlawsEntryService({store,signed,isAdmin,checkSession,now,uuid});
   const centralMasterService=createCentralMasterService({store,signed,isAdmin,now,uuid});
@@ -205,6 +207,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   async function dispatch(action,actor,input={}) {
     if(shopActions.includes(action))return shopService(action,actor,input);
     if(soLearningActions.includes(action))return learningService(action,actor,input);
+    if(soPickpocketActions.includes(action))return pickpocketService(action,actor,input);
     if(spaceOutlawsSuccessionActions.includes(action))return successionService(action,actor,input);
     if(spaceOutlawsEntryActions.includes(action))return entryService(action,actor,input);
     if(admissionAction(action))return admissionService(action,actor,input);
