@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## INF-03 — Remise contrôlée d'un faux (candidat du 10 novembre 2026)
+
+Une remise consentie d'un document INF-03 individuel, identifié et accompagné de son registre MJ privé, conserve le même lot et sa chaîne d'historique. Les autres remises de lots Space Outlaws demeurent fermées par cette capacité. Les anomalies et la qualité ne sont consultables que via la régie MJ ; le joueur ne voit qu'un droit de remise du lot, sans révélation de provenance. Tests ciblés de transfert à deux joueurs, refus des kits initiaux et contrôle de registre altéré. **CI du commit exact à confirmer ; recette physique non réalisée.** Voir [SO-INF-03](SO-INF-03.md).
+
 ## Candidat INF-03 — 9 novembre 2026
 
 Atelier M6 FORGERY préparé, modèle de faux document fictif, formulaire vierge depuis M1/inventaire, PA et modèle réservés, D6 + niveau, durée, récupération et un document de fiction suivi au seul succès. Échec : formulaire consommé sans document. Dossiers privés de qualité et anomalies distincts des objets visibles. Pas de vraie habilitation ni de modification de transpondeur. **CI du SHA candidat à vérifier** ; contrôle terrain, qualité douanière et cas avancés hors périmètre. Voir [SO-INF-03](SO-INF-03.md).

@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {soForgeryHtml,soForgeryInspectionHtml} from '../web/space-forgery.mjs';
 import {centralFieldTargetPayload} from '../web/central-field-targets.mjs';
+import {createInventoryUi} from '../web/inventory.mjs';
 const d={enabled:true,level:2,session:{stage:'EN_JEU'},target:{id:'forge',
  title:'<script>',description:'Atelier en décor',category:'RECEIPT',minLevel:1,
  threshold:6,busy:false,blankItemId:'form'},cooldownMs:0,active:null,
@@ -32,4 +33,28 @@ test('INF-03 : contrôle MJ échappe les données et n’accorde aucune permissi
  assert.ok(html.includes('&lt;script&gt;'));
  assert.ok(!html.includes('<script>'));
  assert.doesNotMatch(html,/grantAdmin|permissionsGranted/);
+});
+
+test('INF-03 : historique MJ affiché sans insertion HTML non fiable',()=>{
+ const html=soForgeryInspectionHtml({lotId:'lot',documentName:'Reçu',quality:2,
+ templateId:'model',templateRevision:1,anomalies:'Faux tampon',holderId:'bob',
+ transfers:[{transferId:'handover',sourceName:'<script>',recipientName:'Bob',at:123}]},'s','lot');
+ assert.match(html,/handover/);
+ assert.ok(html.includes('&lt;script&gt;'));assert.ok(!html.includes('<script>'));
+});
+test('INF-03 : seule la remise éligible apparaît dans le sac Space Outlaws',()=>{
+ const button=(label)=>'<button>'+label+'</button>';
+ const link=(label)=>'<a>'+label+'</a>';
+ const inventory=createInventoryUi({button,link});
+ const lot={id:'doc1',item:{id:'forged',name:'Document',description:'Fiction',
+ category:'Document de fiction',kind:'INDIVIDUAL',unit:'document',revision:1,
+ consumable:false,unitVolume:null,legality:'UNSPECIFIED'},quantity:1,status:'AVAILABLE',
+ pillable:true,canTransferByHand:true};
+ const d={session:{id:'session',stage:'EN_JEU',spaceOutlaws:{inf03Version:1}},
+ character:{name:'Infiltrateur'},lots:[lot],transfers:[],stored:[],installed:[],
+ preview:false,canTransfer:false,canSell:false,economyEnabled:false,healthEnabled:false,sales:[]};
+ const html=inventory.page(d);
+ assert.match(html,/Remettre à un joueur/);
+ const other=inventory.page({...d,lots:[{...lot,id:'normal',canTransferByHand:false}]});
+ assert.doesNotMatch(other,/Remettre à un joueur/);
 });

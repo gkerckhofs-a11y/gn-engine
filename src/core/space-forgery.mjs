@@ -41,12 +41,19 @@ export function createSoForgeryService({store,signed,checkSession,now,uuid,rollD
     requireThat(s?.spaceOutlaws?.inf03Version===1,'SO_INF03_CLOSED');
     const lotId=documentId(input.lotId),lot=await tx.get(invPath(sid,lotId));
     const evidence=await tx.get(base(sid)+'/forgeryRecords/'+lotId);
-    requireThat(lot&&evidence&&lot.origin?.kind==='SO_FORGERY'&&lot.origin?.actionId===evidence.actionId,'SO_INF03_RECORD');
+    requireThat(lot&&evidence&&lot.origin?.kind==='SO_FORGERY'&&lot.origin?.actionId===evidence.actionId
+      &&evidence.id===lotId&&lot.item?.kind==='INDIVIDUAL'&&lot.quantity===1
+      &&evidence.templateId===lot.origin.templateId
+      &&evidence.templateRevision===lot.origin.templateRevision,'SO_INF03_RECORD');
+    const transfers=(await tx.list(invPath(sid,lotId)+'/history',null,{limit:101}))
+      .filter(e=>e.kind==='TRANSFER'&&e.receivedLotId===lotId&&e.quantity===1)
+      .sort((a,b)=>b.at-a.at).slice(0,20)
+      .map(e=>({transferId:e.transferId,at:e.at,sourceName:e.sourceName,recipientName:e.recipientName}));
     return {lotId,documentName:lot.item.name,documentText:lot.item.description,
      holderId:lot.holderId,ownerId:lot.ownerId,status:lot.status,
      templateId:evidence.templateId,templateRevision:evidence.templateRevision,
      quality:evidence.quality,anomalies:evidence.anomalies,createdAt:evidence.at,
-     originActionId:evidence.actionId};
+     originActionId:evidence.actionId,transfers};
    }
    const {s,c,r}=await access(tx,actor,sid),tid=documentId(input.targetId);
    const target=await tx.get(targetPath(sid,tid)),field=await tx.get(statePath(sid,tid));

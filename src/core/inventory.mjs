@@ -41,7 +41,12 @@ export function createInventoryService({store,signed,checkSession,checkScenario,
         requireThat(['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s.stage),'BRIEFING_CLOSED');
         requireThat(c.publicationState==='PUBLISHED'&&c.public?.publicationState==='PUBLISHED','CONTENT_UNPUBLISHED');
         const lots=(await tx.list(`sessions/${sid}/inventory`,['holderId',c.id])).filter(l=>l.ownerType!=='GROUP').map(l=>effectiveLot(l,at)),owned=(await tx.list(`sessions/${sid}/inventory`,['ownerId',c.id])).filter(l=>l.ownerType!=='GROUP').map(l=>effectiveLot(l,at));
-        return {session:{id:sid,stage:s.stage,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{})},healthEnabled:s.healthRules?.enabled===true,economyEnabled:s.economyRules?.enabled===true,preview,character:{id:c.id,name:c.public.displayName},lots:lots.filter(l=>personalLot(l,c.id)).map(publicLot),
+        // Opaque transfer affordance: no authenticity, quality, origin or MJ evidence
+        // is sent to the player inventory projection.
+        const playerLot=l=>({...publicLot(l),...(s.spaceOutlaws?.inf03Version===1
+          ?{canTransferByHand:l.origin?.kind==='SO_FORGERY'&&l.transferable===true
+            &&l.item?.kind==='INDIVIDUAL'&&l.quantity===1}:{})});
+        return {session:{id:sid,stage:s.stage,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{})},healthEnabled:s.healthRules?.enabled===true,economyEnabled:s.economyRules?.enabled===true,preview,character:{id:c.id,name:c.public.displayName},lots:lots.filter(l=>personalLot(l,c.id)).map(playerLot),
           installed:owned.filter(l=>l.status==='INSTALLED'&&l.location?.kind==='SHIP_MODULE').map(publicLot),stored:owned.filter(l=>['WAREHOUSE','HOLD'].includes(l.location?.kind)&&l.quantity>0).map(publicLot),ownedElsewhere:owned.filter(l=>l.holderId!==c.id&&l.location?.kind!=='SHIP_MODULE').map(publicLot),heldForOthers:lots.filter(l=>l.ownerId!==c.id).map(publicLot),sales:await listLotSales(tx,s,c,at,preview),
           canSell:!s.spaceOutlaws&&!preview&&s.stage==='EN_JEU'&&s.economyRules?.enabled===true&&canGameAction(s,c,'transfer'),canTransfer:!s.spaceOutlaws&&!preview&&s.stage==='EN_JEU'&&canGameAction(s,c,'transfer'),transfers:await listLotTransfers(tx,s,c,preview,at)};
       }

@@ -31,3 +31,12 @@ La première livraison du lot n'inclut **aucun déploiement**.
 ## Extension : contrôle des faux par le MJ (candidat)
 
 Une régie INF-03 permet au MJ autorisé de saisir l'identifiant du lot présenté et de consulter sa provenance, la qualité de fabrication et les anomalies préparées. La vérification lit le registre privé `forgeryRecords` et ne révèle jamais ces données au joueur. Le lot reste un objet fictif ; aucun droit informatique, mandat ou résultat douanier automatique n'en découle. Contrôler la CI du SHA exact avant validation.
+
+## Complément : remise traçable des faux (candidat)
+
+- Le transfert de lot dans Space Outlaws reste **fermé par défaut**. Une capacité serveur circonscrite à `FORGERY_TRANSFER` autorise uniquement les lots individuels issus d'INF-03 et pourvus d'un registre privé cohérent ; aucun autre kit ou objet n'est libéré par cette extension.
+- La remise complète conserve l'identifiant de lot, l'origine du faux, la qualité et les anomalies privées, quel que soit le détenteur. Aucun partage ni duplication du registre MJ.
+- Dans le sac, la commande « Remettre à un joueur » ne s'affiche que pour un lot éligible à la remise ; la projection ne révèle ni qualité, ni anomalies, ni provenance secrète.
+- Les remises existantes demandent toujours accord explicite du destinataire, restent annulables et sont journalisées. Un lot avec registre manquant ou incohérent ne peut pas être transmis.
+- Le MJ peut consulter les vingt dernières remises du lot dans le contrôle INF-03, avec détenteur actuel, qualité et anomalies. Cela ne produit **aucune décision automatique de police, de douane ou de légalité**.
+- Tests ciblés de création/remise/refus/confidentialité sur deux joueurs et un MJ ; tests sur appareils réels et recette d'animation encore nécessaires. CI du SHA exact à vérifier.
