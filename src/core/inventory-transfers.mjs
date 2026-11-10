@@ -1,6 +1,7 @@
 import {documentId,requireThat} from './validation.mjs';
 import {inventoryHash as hash,itemQuantity,publicItem,personalLot,readLot} from './inventory-state.mjs';
 import {canGameAction,requireGameAction} from './health-state.mjs';
+import {forgedLotIntegrity} from './space-forgery-evidence.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 
 const actions=new Set(['prepareLotTransfer','proposeLotTransfer','lotTransferDetail','acceptLotTransfer','declineLotTransfer','cancelLotTransfer']);
@@ -28,20 +29,11 @@ const view=p=>({id:p.id,status:p.status,revision:p.revision,createdAt:p.createdA
   item:publicItem(p.item),quantity:p.quantity,lotId:p.lotId,receivedLotId:p.receivedLotId??null});
 const confirmation=p=>hash(JSON.stringify(view(p)));
 const movement=l=>({quantity:l.quantity,status:l.status,revision:l.revision,ownerId:l.ownerId,holderId:l.holderId,location:l.location});
-// Forged documents are single identifiable objects. Their private evidence remains
-// in the original session record, irrespective of later ownership.
-async function forgedLotValid(tx,sid,lot){
- if(lot?.origin?.kind!=='SO_FORGERY')return true;
- const record=await tx.get(`sessions/${sid}/forgeryRecords/${lot.id}`);
- return lot.item?.kind==='INDIVIDUAL'&&lot.quantity===1&&lot.transferable===true&&
-  record?.id===lot.id&&record.actionId===lot.origin.actionId&&
-  record.templateId===lot.origin.templateId&&record.templateRevision===lot.origin.templateRevision;
-}
 
 async function current(tx,s,p,at){
   const source=await party(tx,s.id,p.sourceId),recipient=await party(tx,s.id,p.recipientId);
   const lot=await readLot(tx,s.id,p.lotId,at);
-  const forgedValid=await forgedLotValid(tx,s.id,lot);
+  const forgedValid=await forgedLotIntegrity(tx,s.id,lot);
   const valid=forgedValid&&(!s.spaceOutlaws||(s.spaceOutlaws.inf03Version===1
     &&p.forgeryTransfer===true&&lot?.origin?.kind==='SO_FORGERY'))&&source.active&&recipient.active&&source.version===p.sourceVersion&&recipient.version===p.recipientVersion&&
     !!lot&&personalLot(lot,p.sourceId)&&lot.status==='AVAILABLE'&&lot.revision===p.lotRevision&&lot.quantity>=p.quantity;
@@ -66,7 +58,7 @@ export function createLotTransferService({store,signed,now,uuid}){
     const recipient=await party(tx,s.id,recipientId);requireThat(recipient.active,'INVALID_RECIPIENT');
     const lot=await readLot(tx,s.id,documentId(input.lotId),at);
     requireThat(lot&&personalLot(lot,c.id),'FORBIDDEN');
-    requireThat(await forgedLotValid(tx,s.id,lot),'SO_INF03_RECORD');
+    requireThat(await forgedLotIntegrity(tx,s.id,lot),'SO_INF03_RECORD');
     const quantity=itemQuantity(lot.item,input.quantity);requireThat(lot.status==='AVAILABLE'&&lot.quantity>=quantity,'INSUFFICIENT_STOCK');
     const result={source:{id:c.id,name:c.public.displayName},recipient:{id:recipientId,name:recipient.c.public.displayName},
       item:publicItem(lot.item),lotId:lot.id,quantity,before:lot.quantity,remaining:lot.quantity-quantity};
@@ -112,7 +104,7 @@ export function createLotTransferService({store,signed,now,uuid}){
         if(action==='acceptLotTransfer'){
           requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireThat(input.received===true,'HANDOVER_REQUIRED');
           const x=await current(tx,s,p,at);
-          requireThat(await forgedLotValid(tx,s.id,x.lot),'SO_INF03_RECORD');
+          requireThat(await forgedLotIntegrity(tx,s.id,x.lot),'SO_INF03_RECORD');
           requireThat(x.valid,'STALE_TRANSFER');
           requireGameAction(s,x.source.c,'transfer');requireGameAction(s,x.recipient.c,'transfer');
           const whole=x.lot.quantity===p.quantity,receivedId=whole?x.lot.id:newId;

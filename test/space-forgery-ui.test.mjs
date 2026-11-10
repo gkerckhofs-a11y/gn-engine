@@ -69,3 +69,20 @@ test('INF-03 : seule la remise éligible apparaît dans le sac Space Outlaws',()
  const other=inventory.page({...d,lots:[{...lot,id:'normal',canTransferByHand:false}]});
  assert.doesNotMatch(other,/Remettre à un joueur/);
 });
+
+test('INF-03 : état saisi et pièce détruite restent lisibles uniquement dans la régie MJ',()=>{
+ const html=soForgeryInspectionHtml({lotId:'doc',documentName:'Faux manifeste',
+  quality:2,templateId:'M6',templateRevision:1,anomalies:'Filigrane incorrect',
+  holderId:'holder',status:'DESTROYED',quantity:0,locationKind:'CUSTOMS',locationId:'desk',
+  transfers:[],otherMovements:[],inventoryEvents:[
+   {at:10200,beforeStatus:'SEIZED',status:'DESTROYED',quantity:0,reason:'<script>motif privé</script>'},
+   {at:10100,beforeStatus:'AVAILABLE',status:'SEIZED',quantity:1,reason:'Contrôle de fiction'}
+  ]},'s','doc');
+ assert.match(html,/Document retiré du jeu/);
+ assert.match(html,/SEIZED/);
+ assert.match(html,/DESTROYED/);
+ assert.match(html,/Filigrane incorrect/);
+ assert.ok(html.includes('&lt;script&gt;motif privé&lt;/script&gt;'));
+ assert.ok(!html.includes('<script>'));
+ assert.match(html,/ni saisie formelle ni transfert en entrepôt/);
+});

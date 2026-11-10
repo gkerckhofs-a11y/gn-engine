@@ -54,6 +54,44 @@ export function soForgerySuite(makeStore,prefix='INF-03'){
   assert.doesNotMatch(JSON.stringify(r),/FIBRE_PAPIER|DOCUMENT_DE_FICTION/);
  });
 
+ test(prefix+' : régie MJ conserve la preuve de documents saisis ou détruits, sans pouvoir douanier',async()=>{
+  const f=await forgeryFixture(makeStore,{second:true});
+  const recipient=(await f.actionRead('mySession',{},f.other)).character.id;
+  const work=await f.start();f.advance(270000);f.setDie(4);
+  const lotId=(await f.finish(work.id)).documentId;
+  const lotPath='sessions/'+f.sid+'/inventory/'+lotId;
+  await f.store.runTransaction(async tx=>{
+   const lot=await tx.get(lotPath);
+   tx.set(lotPath,{...lot,status:'SEIZED',revision:lot.revision+1,
+    location:{kind:'CUSTOMS',id:'desk-test'}});
+   tx.set(lotPath+'/history/seized-event',{id:'seized-event',kind:'correctLot',at:10100,
+    before:{quantity:1,status:'AVAILABLE'},after:{quantity:1,status:'SEIZED'},
+    reason:'Statut administratif de test, non une saisie officielle'});
+  });
+  const seized=await f.actionRead('inspectSoForgery',{lotId},f.owner);
+  assert.equal(seized.status,'SEIZED');
+  assert.equal(seized.quantity,1);
+  assert.equal(seized.locationKind,'CUSTOMS');
+  assert.equal(seized.quality,2);
+  assert.equal(seized.inventoryEvents[0].status,'SEIZED');
+  await assert.rejects(f.actionRead('prepareLotTransfer',{lotId,recipientId:recipient,quantity:1}),
+   {code:'INSUFFICIENT_STOCK'});
+  await f.store.runTransaction(async tx=>{
+   const lot=await tx.get(lotPath);
+   tx.set(lotPath,{...lot,status:'DESTROYED',quantity:0,revision:lot.revision+1});
+   tx.set(lotPath+'/history/destroyed-event',{id:'destroyed-event',kind:'correctLot',at:10200,
+    before:{quantity:1,status:'SEIZED'},after:{quantity:0,status:'DESTROYED'},
+    reason:'Pièce retirée, historique conservé'});
+  });
+  const archived=await f.actionRead('inspectSoForgery',{lotId},f.owner);
+  assert.equal(archived.status,'DESTROYED');assert.equal(archived.quantity,0);
+  assert.equal(archived.inventoryEvents[0].status,'DESTROYED');
+  assert.equal(archived.inventoryEvents[1].status,'SEIZED');
+  assert.match(archived.anomalies,/FIBRE_PAPIER/);
+  await assert.rejects(f.actionRead('inspectSoForgery',{lotId},f.other),{code:'FORBIDDEN'});
+  await assert.rejects(f.actionRead('prepareLotTransfer',{lotId,recipientId:recipient,quantity:1}),
+   {code:'SO_INF03_RECORD'});
+ });
  test(prefix+' : remise d’un faux à un autre joueur conserve l’identifiant, le registre privé et la chaîne MJ',async()=>{
   const f=await forgeryFixture(makeStore,{second:true});
   const second=(await f.actionRead('mySession',{},f.other)).character.id;

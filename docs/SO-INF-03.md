@@ -48,3 +48,13 @@ Un faux individuel reconnu par l'application garde son identifiant et son regist
 Le journal du lot conserve les identifiants fictifs de la victime et du voleur. Dans la régie INF-03, le MJ voit les derniers vols et les éventuels pillages historiques du lot, en plus des remises consenties, sans exposer la qualité ni les anomalies aux joueurs.
 
 Le pillage générique n'est **pas activé dans Space Outlaws** par ce lot. La saisie formelle et le dépôt en entrepôt ne sont pas non plus ouverts ici : ils réclament leur propre recette et ne doivent pas être annoncés comme jouables. Tests et CI du SHA exact à vérifier, ainsi que recette multi-téléphones.
+
+## Extension de traçabilité — preuve conservée après retrait (candidat, 10 novembre 2026)
+
+Le contrôle de provenance est centralisé : INF-03, les remises et ROG-02 partagent les mêmes vérifications. Une pièce individuelle active conserve sa quantité 1 et ses références d'origine cohérentes avec le registre MJ pour être transférée ou volée.
+
+**Consultation d'archives :** un document dont la quantité est devenue 0 et le statut DESTROYED ou CONSUMED reste vérifiable par le MJ seulement, sans redevenir transférable. Les incohérences de quantité, statut, modèle ou registre sont refusées.
+
+L'écran MJ présente statut, quantité, emplacement déclaré et corrections d'inventaire enregistrées, en complément des remises et vols. L'état SEIZED peut être constaté ; cette lecture n'active pas une procédure douanière de saisie, ni retenue de quinze minutes, dépôt officiel ou restitution.
+
+Tests : états disponibles/saisis/détruits, provenance altérée, refus des remises d'une pièce retirée, historique MJ et confidentialité. Vérifier la CI du SHA exact et réaliser une recette physique.

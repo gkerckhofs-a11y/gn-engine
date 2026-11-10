@@ -32,13 +32,23 @@ export function soForgeryHtml(d,sid){
 }
 
 export function soForgeryInspectionHtml(d,sid,lotId=''){
- const content=d?'<section class="panel"><h2>Contrôle MJ — document de fiction</h2><p>'+esc(d.documentName)+'</p><p>Qualité : '+esc(d.quality)+' · modèle : '+esc(d.templateId)+' (révision '+esc(d.templateRevision)+')</p><p>Anomalies préparées : '+esc(d.anomalies)+'</p><p>Possesseur actuel : '+esc(d.holderId)+'</p><p>Identifiant du document : '+esc(d.lotId)+'</p><h3>Remises enregistrées</h3>'
+ const content=d?'<section class="panel"><h2>Contrôle MJ — document de fiction</h2><p>'+esc(d.documentName)+'</p><p>Qualité : '+esc(d.quality)+' · modèle : '+esc(d.templateId)+' (révision '+esc(d.templateRevision)+')</p><p>Anomalies préparées : '+esc(d.anomalies)+'</p><p>Possesseur actuel : '+esc(d.holderId)+'</p><p>Identifiant du document : '+esc(d.lotId)+'</p>'
+  +'<p>État du lot : '+esc(d.status??'inconnu')+' · quantité : '+esc(d.quantity??'?')
+  +' · emplacement enregistré : '+esc(d.locationKind??'inconnu')+' ('+esc(d.locationId??'—')+')</p>'
+  +(d.quantity===0?'<p>Document retiré du jeu : la preuve historique reste consultable par le MJ.</p>':'')
+  +'<h3>Remises enregistrées</h3>'
  +(d.transfers?.length?'<ul>'+d.transfers.map(t=>'<li>'+esc(t.sourceName)+' → '+esc(t.recipientName)+' · '+esc(t.transferId)+'</li>').join('')+'</ul>':'<p>Aucune remise enregistrée pour ce document.</p>')
  +'<h3>Vols et pillages consignés</h3>'
   +(d.otherMovements?.length
     ?'<ul>'+d.otherMovements.map(e=>'<li>'+esc(e.kind==='SO_PICKPOCKET'?'Vol à la tire':'Pillage')
       +' · '+esc(e.sourceId??'inconnu')+' → '+esc(e.destinationId??'inconnu')+'</li>').join('')+'</ul>'
     :'<p>Aucun mouvement de ce type.</p>')
-  +'<p>Les derniers mouvements du même lot sont affichés. Ce résultat ne constitue aucune autorisation informatique ou douanière automatique.</p></section>':'<p>Renseignez l’identifiant de lot du document présenté par le joueur.</p>';
+  +'<h3>Corrections du lot consignées</h3>'
+  +(d.inventoryEvents?.length
+    ?'<ul>'+d.inventoryEvents.map(e=>'<li>'+esc(e.beforeStatus??'inconnu')
+      +' → '+esc(e.status)+' · quantité : '+esc(e.quantity)
+      +' · motif MJ : '+esc(e.reason)+'</li>').join('')+'</ul>'
+    :'<p>Aucune correction de lot enregistrée.</p>')
+  +'<p>Ce contrôle ne réalise ni saisie formelle ni transfert en entrepôt. Il conserve les faits enregistrés, sans accorder de droit technique.</p></section>':'<p>Renseignez l’identifiant de lot du document présenté par le joueur.</p>';
  return '<div class="narrow"><h1>Contrôle MJ — faux documents INF-03</h1><form data-form="soForgeryInspect" data-sid="'+esc(sid)+'"><label>Identifiant de lot<input name="lotId" value="'+esc(lotId)+'" maxlength="128" required></label><button>Vérifier la provenance</button></form>'+content+'</div>';
 }

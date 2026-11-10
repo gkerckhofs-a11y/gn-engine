@@ -213,7 +213,7 @@ targetedProfiles['infiltrator-forgery']={...targetedProfiles['infiltrator-intrus
  ].includes(p)),'test/space-forgery.test.mjs','test/space-forgery-ui.test.mjs'])],
  suites:[...new Set([...targetedProfiles['infiltrator-intrusion'].suites,'space-forgery'])],
  files:[...targetedProfiles['infiltrator-intrusion'].files,
-  'src/core/space-forgery.mjs','web/space-forgery.mjs','src/core/inventory-transfers.mjs','src/core/inventory.mjs','src/core/space-outlaws-entry-guard.mjs','web/inventory.mjs',
+  'src/core/space-forgery.mjs','src/core/space-forgery-evidence.mjs','web/space-forgery.mjs','src/core/inventory-transfers.mjs','src/core/inventory.mjs','src/core/space-outlaws-entry-guard.mjs','web/inventory.mjs',
   'test/support/space-forgery-suite.mjs','test/space-forgery.test.mjs','test/space-forgery-ui.test.mjs'],
 };
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');

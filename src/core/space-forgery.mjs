@@ -2,6 +2,7 @@ import {createHash,randomInt} from 'node:crypto';
 import {abilityLevel} from './abilities.mjs';
 import {actionPointPath,actionPointState,actionPointMaximum,reserveActionPoints,resolveActionPoints,releaseActionPoints} from './action-point-state.mjs';
 import {readLot,personalLot,lotState,newLot} from './inventory-state.mjs';
+import {validForgeryEvidence} from './space-forgery-evidence.mjs';
 import {gameTime} from './clock.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {documentId,requireThat} from './validation.mjs';
@@ -41,23 +42,30 @@ export function createSoForgeryService({store,signed,checkSession,now,uuid,rollD
     requireThat(s?.spaceOutlaws?.inf03Version===1,'SO_INF03_CLOSED');
     const lotId=documentId(input.lotId),lot=await tx.get(invPath(sid,lotId));
     const evidence=await tx.get(base(sid)+'/forgeryRecords/'+lotId);
-    requireThat(lot&&evidence&&lot.origin?.kind==='SO_FORGERY'&&lot.origin?.actionId===evidence.actionId
-      &&evidence.id===lotId&&lot.item?.kind==='INDIVIDUAL'&&lot.quantity===1
-      &&evidence.templateId===lot.origin.templateId
-      &&evidence.templateRevision===lot.origin.templateRevision,'SO_INF03_RECORD');
-    const transfers=(await tx.list(invPath(sid,lotId)+'/history',null,{limit:101}))
+    requireThat(validForgeryEvidence(lot,evidence,{allowArchived:true}),'SO_INF03_RECORD');
+    // Read one bounded MJ-only history page; no secret is projected to players.
+    const history=(await tx.list(invPath(sid,lotId)+'/history',null,{limit:101}))
+      .sort((a,b)=>(b.at??0)-(a.at??0));
+    const transfers=history
       .filter(e=>e.kind==='TRANSFER'&&e.receivedLotId===lotId&&e.quantity===1)
-      .sort((a,b)=>b.at-a.at).slice(0,20)
+      .slice(0,20)
       .map(e=>({transferId:e.transferId,at:e.at,sourceName:e.sourceName,recipientName:e.recipientName}));
-    const otherMovements=(await tx.list(invPath(sid,lotId)+'/history',null,{limit:101}))
+    const otherMovements=history
       .filter(e=>['SO_PICKPOCKET','LOOT'].includes(e.kind)&&e.quantity===1)
-      .sort((a,b)=>b.at-a.at).slice(0,20)
+      .slice(0,20)
       .map(e=>({kind:e.kind,at:e.at,sourceId:e.sourceId??null,destinationId:e.destinationId??null}));
+    // Existing administrative inventory corrections, not a new customs power.
+    const inventoryEvents=history
+      .filter(e=>e.kind==='correctLot'&&e.after?.status)
+      .slice(0,20)
+      .map(e=>({at:e.at,beforeStatus:e.before?.status??null,
+        status:e.after.status,quantity:e.after.quantity,reason:e.reason??''}));
     return {lotId,documentName:lot.item.name,documentText:lot.item.description,
-     holderId:lot.holderId,ownerId:lot.ownerId,status:lot.status,
+     holderId:lot.holderId,ownerId:lot.ownerId,status:lot.status,quantity:lot.quantity,
+     locationKind:lot.location?.kind??null,locationId:lot.location?.id??null,
      templateId:evidence.templateId,templateRevision:evidence.templateRevision,
      quality:evidence.quality,anomalies:evidence.anomalies,createdAt:evidence.at,
-     originActionId:evidence.actionId,transfers,otherMovements};
+     originActionId:evidence.actionId,transfers,otherMovements,inventoryEvents};
    }
    const {s,c,r}=await access(tx,actor,sid),tid=documentId(input.targetId);
    const target=await tx.get(targetPath(sid,tid)),field=await tx.get(statePath(sid,tid));
