@@ -93,3 +93,9 @@ La vérification doit inclure le cas de non-réécriture du champ `discoveredAt`
 Ni délivrance, ni validation de documents INF-03, ni quittance, ni compte, ni permission, ni mouvement d'inventaire, ni taxe de fret n'est modifié. Un devis ne constitue pas une licence valide. Le futur parcours d'émission devra exiger titulaire, émetteur, validité et périmètre, preuve du financement réel, contrôle d'unicité/transaction, révocation, continuité des épisodes et contrôle documentaire effectif. Cette tranche prépare le barème sans confondre estimation et paiement.
 
 Régression prévue : droits MJ, ancien Master non activé, entrée strictement validée, borne de calcul, centimes non arrondis et absence d'écriture de fonds/registre. Exécuter `[ci full]` si le cumul non fusionné interdit un profil ciblé. Aucune recette terrain n'est certifiée.
+
+## Liste préparatoire des justificatifs de licence — 10 novembre 2026
+
+Le devis MJ affiche maintenant une liste **non validée** de justificatifs nécessaires avant émission : titulaire et émetteur pour les trois licences ; activité commerciale et révocation pour LIC-01 ; cargaison réelle, voyage, valeur des lots et paiement pour LIC-02 ; mission, biens, durée et décision tarifaire MJ pour LIC-03. Cette liste est une aide de régie, non une preuve ou un titre. Aucun dossier de licence n'est encore créé et aucun contrôle documentaire ne la considère comme autorisation réelle.
+
+Une valeur de référence saisie pour LIC-01 ou LIC-03 est refusée au lieu d'être ignorée silencieusement ; seule LIC-02 utilise une base numérique. Tests de projection, d'échappement HTML et de rejet des champs superflus. Aucun changement de fonds, stock, droits, paiements ou habilitations.

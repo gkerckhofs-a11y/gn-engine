@@ -60,15 +60,21 @@ export function hiddenCargoSuite(makeStore,prefix='Fret caché et MOD-04 SO'){
   const first=await f.read('customsLicenseQuote',{code:'LIC-01'},f.owner);
   assert.equal(first.exactFeeCr,'100');
   assert.equal(first.issued,false);
+  assert.ok(first.requiredEvidence.includes('Paiement réel à vérifier'));
+  assert.ok(first.requiredEvidence.includes('Révocation éventuelle à contrôler'));
   const min=await f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000},f.owner);
   assert.equal(min.exactFeeCr,'50');
   assert.equal(min.minimumCr,50);
+  assert.ok(min.requiredEvidence.includes('Cargaison réelle identifiée'));
+  assert.ok(min.requiredEvidence.includes('Voyage autorisé identifié'));
   const fractional=await f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2501},f.owner);
   assert.equal(fractional.exactFeeCr,'50.02');
   assert.equal(fractional.scope,'Cargaison et voyage autorisés');
   const exceptional=await f.read('customsLicenseQuote',{code:'LIC-03'},f.owner);
   assert.equal(exceptional.exactFeeCr,null);
   assert.equal(exceptional.issued,false);
+  assert.ok(exceptional.requiredEvidence.includes('Début et fin de validité définis'));
+  assert.ok(exceptional.requiredEvidence.includes('Tarif et paiement éventuel décidés par le MJ'));
   assert.deepEqual(await f.store.list(`sessions/${f.sid}/accounts`),accounts);
   assert.deepEqual(await f.store.list(`sessions/${f.sid}/audit`),auditBefore);
   assert.deepEqual(await f.store.list(`sessions/${f.sid}/customsLicenses`),[]);
@@ -81,6 +87,9 @@ export function hiddenCargoSuite(makeStore,prefix='Fret caché et MOD-04 SO'){
   for(const code of ['LIC-04','FAKE','']){
    await assert.rejects(f.read('customsLicenseQuote',{code},f.owner),{code:'SO_CUSTOMS_LICENSE_KIND'});
   }
+  for(const code of ['LIC-01','LIC-03'])await assert.rejects(
+   f.read('customsLicenseQuote',{code,referenceValue:2000},f.owner),
+   {code:'SO_CUSTOMS_LICENSE_VALUE'});
   for(const referenceValue of [0,-1,1.5,Number.MAX_SAFE_INTEGER+1,'2000',null]){
    await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-02',referenceValue},f.owner),
      {code:'SO_CUSTOMS_LICENSE_VALUE'});

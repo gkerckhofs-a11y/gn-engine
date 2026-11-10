@@ -103,3 +103,12 @@ test('Douanes UI : estimation LIC-03 en lecture seule, sans écriture ni reçu t
  assert.match(calls[1][1],/à fixer par le MJ/);
  assert.match(calls[1][1],/aucun titre n’a été délivré/i);
 });
+
+test('Douanes UI : devis de licence affiche les justificatifs sans certifier leur vérification',()=>{
+ const html=customsLicenseQuoteHtml({code:'LIC-03',title:'Autorisation exceptionnelle',
+  exactFeeCr:null,scope:'Mission',requiredEvidence:['Mission <script>interdite</script>']});
+ assert.match(html,/Éléments à vérifier avant toute délivrance/);
+ assert.match(html,/aucun élément n’est automatiquement vérifié/);
+ assert.ok(html.includes('&lt;script&gt;interdite'));
+ assert.doesNotMatch(html,/<script>|Délivrer la licence|Paiement confirmé/);
+});

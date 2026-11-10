@@ -30,17 +30,23 @@ const jobs=['prepareCustomsInspection','startCustomsInspection','prepareCustomsI
 // Keep decimal hundredths exactly: no unapproved rounding rule is applied.
 export function customsLicenseReferenceQuote(code,referenceValue){
  requireThat(['LIC-01','LIC-02','LIC-03'].includes(code),'SO_CUSTOMS_LICENSE_KIND');
+ // Only LIC-02 has a numeric reference base. A stray value must not be
+ // mistaken for a settled fee or a permitted exceptional authorization.
+ requireThat(code==='LIC-02'||referenceValue===undefined,'SO_CUSTOMS_LICENSE_VALUE');
  if(code==='LIC-01')return {code,title:'Licence commerciale',exactFeeCr:'100',
-  scope:'Activité marchande régulière ; permanente sauf révocation',requiresPayment:true,issued:false};
+  scope:'Activité marchande régulière ; permanente sauf révocation',requiresPayment:true,issued:false,
+  requiredEvidence:['Titulaire identifié','Émetteur MJ identifié','Activité marchande régulière','Paiement réel à vérifier','Révocation éventuelle à contrôler']};
  if(code==='LIC-03')return {code,title:'Autorisation exceptionnelle',exactFeeCr:null,
-  scope:'Mission, biens et durée à définir expressément par le MJ',requiresPayment:null,issued:false};
+  scope:'Mission, biens et durée à définir expressément par le MJ',requiresPayment:null,issued:false,
+  requiredEvidence:['Titulaire identifié','Émetteur MJ identifié','Mission explicitement désignée','Biens concernés identifiés','Début et fin de validité définis','Tarif et paiement éventuel décidés par le MJ']};
  requireThat(Number.isSafeInteger(referenceValue)&&referenceValue>0,'SO_CUSTOMS_LICENSE_VALUE');
  const cents=BigInt(referenceValue)*2n>5000n?BigInt(referenceValue)*2n:5000n;
  const units=cents/100n,decimal=cents%100n;
  return {code,title:'Permis de marchandises réglementées',referenceValue,
   exactFeeCr:String(units)+(decimal?'.'+String(decimal).padStart(2,'0'):''),
   ratePercent:2,minimumCr:50,scope:'Cargaison et voyage autorisés',
-  requiresPayment:true,issued:false};
+  requiresPayment:true,issued:false,
+  requiredEvidence:['Titulaire identifié','Émetteur MJ identifié','Cargaison réelle identifiée','Voyage autorisé identifié','Valeur réelle des lots recoupée','Paiement réel à vérifier']};
 }
 export function createHiddenCargoService({store,signed,checkSession,now,uuid,rollD6=()=>randomInt(1,7)}){
  return async(action,actor,input)=>{

@@ -28,6 +28,9 @@ export function customsLicenseQuoteHtml(q){
   +'<p>Tarif de référence : <strong>'+(q.exactFeeCr===null?'à fixer par le MJ':esc(q.exactFeeCr.replace('.',','))+' Cr')+'</strong>.</p>'
   +(q.referenceValue?'<p>Valeur de référence utilisée : '+esc(q.referenceValue)+' Cr.</p>':'')
   +'<p>Portée : '+esc(q.scope)+'</p>'
+  +'<h3>Éléments à vérifier avant toute délivrance</h3><ul>'
+  +(q.requiredEvidence??[]).map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'
+  +'<p>Cette liste est indicative : aucun élément n’est automatiquement vérifié ou validé par ce devis.</p>'
   +'<p>Aucun crédit n’a été prélevé et aucun titre n’a été délivré. '
   +'Pour LIC-02, les fractions de crédit sont affichées sans arrondi : le règlement et '
   +'la quittance restent à raccorder selon les règles de transaction validées.</p></div>';
