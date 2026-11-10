@@ -75,7 +75,7 @@ export function soForgerySuite(makeStore,prefix='INF-03'){
   assert.equal(seized.quality,2);
   assert.equal(seized.inventoryEvents[0].status,'SEIZED');
   await assert.rejects(f.actionRead('prepareLotTransfer',{lotId,recipientId:recipient,quantity:1}),
-   {code:'INSUFFICIENT_STOCK'});
+   {code:'FORBIDDEN'});
   await f.store.runTransaction(async tx=>{
    const lot=await tx.get(lotPath);
    tx.set(lotPath,{...lot,status:'DESTROYED',quantity:0,revision:lot.revision+1});
@@ -90,7 +90,7 @@ export function soForgerySuite(makeStore,prefix='INF-03'){
   assert.match(archived.anomalies,/FIBRE_PAPIER/);
   await assert.rejects(f.actionRead('inspectSoForgery',{lotId},f.other),{code:'FORBIDDEN'});
   await assert.rejects(f.actionRead('prepareLotTransfer',{lotId,recipientId:recipient,quantity:1}),
-   {code:'SO_INF03_RECORD'});
+   {code:'FORBIDDEN'});
  });
  test(prefix+' : remise d’un faux à un autre joueur conserve l’identifiant, le registre privé et la chaîne MJ',async()=>{
   const f=await forgeryFixture(makeStore,{second:true});
