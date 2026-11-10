@@ -27,3 +27,7 @@ Raccorder une fabrication de documents de jeu à partir des **modèles M6** et d
 Les suites doivent couvrir succès, échec, D6/PA, durée, formulaire de départ historique, annulation/réessai, niveau minimal, catégories, droits, STOP, création unique, absence de divulgation de la qualité et des anomalies, historique, transactions concurrentes et anciennes versions.
 
 La première livraison du lot n'inclut **aucun déploiement**.
+
+## Extension : contrôle des faux par le MJ (candidat)
+
+Une régie INF-03 permet au MJ autorisé de saisir l'identifiant du lot présenté et de consulter sa provenance, la qualité de fabrication et les anomalies préparées. La vérification lit le registre privé `forgeryRecords` et ne révèle jamais ces données au joueur. Le lot reste un objet fictif ; aucun droit informatique, mandat ou résultat douanier automatique n'en découle. Contrôler la CI du SHA exact avant validation.

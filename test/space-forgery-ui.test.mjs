@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {soForgeryHtml} from '../web/space-forgery.mjs';
+import {soForgeryHtml,soForgeryInspectionHtml} from '../web/space-forgery.mjs';
 import {centralFieldTargetPayload} from '../web/central-field-targets.mjs';
 const d={enabled:true,level:2,session:{stage:'EN_JEU'},target:{id:'forge',
  title:'<script>',description:'Atelier en décor',category:'RECEIPT',minLevel:1,
@@ -23,4 +23,13 @@ test('INF-03 : éditeur M6 propose une référence modèle, sans habilitation r�
   forgeryAnomalies:'Erreur de tampon'},[]);
  assert.equal(model.kind,'FORGERY');assert.deepEqual(model.profiles,{});
  assert.equal(model.forgery.blankItemId,'form');assert.equal(model.forgery.threshold,6);
+});
+
+test('INF-03 : contrôle MJ échappe les données et n’accorde aucune permission',()=>{
+ const html=soForgeryInspectionHtml({lotId:'lot',documentName:'<script>',quality:2,templateId:'M6',templateRevision:1,
+  anomalies:'Tampon incorrect',holderId:'c',status:'AVAILABLE'},'sid','lot');
+ assert.match(html,/Contrôle MJ/);
+ assert.ok(html.includes('&lt;script&gt;'));
+ assert.ok(!html.includes('<script>'));
+ assert.doesNotMatch(html,/grantAdmin|permissionsGranted/);
 });

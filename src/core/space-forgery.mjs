@@ -15,11 +15,11 @@ const invPath=(sid,id)=>base(sid)+'/inventory/'+id;
 const statePath=(sid,id)=>base(sid)+'/fieldStates/'+id;
 const durations=[null,300,270,240,210,180],cooldownMs=600000;
 const isBlank=(lot,itemId)=>lot?.item?.id===itemId&&(lot.item.consumable===true||lot.origin?.kind==='SO_BIRTH'&&lot.origin?.slotId==='blank-forms');
-export const soForgeryActions=['mySoForgery','startSoForgery','finishSoForgery','cancelSoForgery'];
+export const soForgeryActions=['inspectSoForgery','mySoForgery','startSoForgery','finishSoForgery','cancelSoForgery'];
 const view=a=>({id:a.id,targetId:a.targetId,status:a.status,durationSeconds:a.durationSeconds,
  remainingMs:a.remainingMs??0,roll:a.roll??null,total:a.total??null,threshold:a.threshold??null,
  success:a.success??null,documentId:a.documentId??null});
-export function createSoForgeryService({store,signed,now,uuid,rollD6=()=>randomInt(1,7)}){
+export function createSoForgeryService({store,signed,checkSession,now,uuid,rollD6=()=>randomInt(1,7)}){
  async function access(tx,actor,sid){
   signed(actor);const s=await tx.get(base(sid));requireThat(s?.spaceOutlaws?.inf03Version===1,'SO_INF03_CLOSED');
   const r=await tx.get(base(sid)+'/registrations/'+hash(actor.uid));
@@ -36,6 +36,18 @@ export function createSoForgeryService({store,signed,now,uuid,rollD6=()=>randomI
  return async function dispatch(action,actor,input){
   const sid=documentId(input.sessionId),at=now(),roll=action==='finishSoForgery'?rollD6():null;
   return store.runTransaction(async tx=>{
+   if(action==='inspectSoForgery'){
+    const s=await checkSession(tx,actor,sid,'content',true);
+    requireThat(s?.spaceOutlaws?.inf03Version===1,'SO_INF03_CLOSED');
+    const lotId=documentId(input.lotId),lot=await tx.get(invPath(sid,lotId));
+    const evidence=await tx.get(base(sid)+'/forgeryRecords/'+lotId);
+    requireThat(lot&&evidence&&lot.origin?.kind==='SO_FORGERY'&&lot.origin?.actionId===evidence.actionId,'SO_INF03_RECORD');
+    return {lotId,documentName:lot.item.name,documentText:lot.item.description,
+     holderId:lot.holderId,ownerId:lot.ownerId,status:lot.status,
+     templateId:evidence.templateId,templateRevision:evidence.templateRevision,
+     quality:evidence.quality,anomalies:evidence.anomalies,createdAt:evidence.at,
+     originActionId:evidence.actionId};
+   }
    const {s,c,r}=await access(tx,actor,sid),tid=documentId(input.targetId);
    const target=await tx.get(targetPath(sid,tid)),field=await tx.get(statePath(sid,tid));
    requireThat(target?.publicationState==='PUBLISHED'&&target.kind==='FORGERY'&&target.forgery&&field,'SO_INF03_TARGET');

@@ -185,7 +185,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const escapeService=createSoEscapeService({store,signed,checkSession,now,uuid});
   const decryptionService=createSoDecryptionService({store,signed,now,uuid,rollD6});
   const intrusionService=createSoIntrusionService({store,signed,now,uuid,rollD6});
-  const forgeryService=createSoForgeryService({store,signed,now,uuid,rollD6});
+  const forgeryService=createSoForgeryService({store,signed,checkSession,now,uuid,rollD6});
   const successionService=createSpaceOutlawsSuccessionService({store,signed,checkSession,now,uuid});
   const entryService=createSpaceOutlawsEntryService({store,signed,isAdmin,checkSession,now,uuid});
   const centralMasterService=createCentralMasterService({store,signed,isAdmin,now,uuid});

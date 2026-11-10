@@ -46,6 +46,11 @@ export function soForgerySuite(makeStore,prefix='INF-03'){
   assert.equal(forged.forgeryEvidence,undefined);
   const evidence=await f.store.get('sessions/'+f.sid+'/forgeryRecords/'+r.documentId);
   assert.equal(evidence.quality,2);assert.match(evidence.anomalies,/FIBRE_PAPIER/);
+  const inspection=await f.actionRead('inspectSoForgery',{lotId:r.documentId},f.owner);
+  assert.equal(inspection.quality,2);assert.match(inspection.anomalies,/FIBRE_PAPIER/);
+  assert.equal(inspection.documentName,forged.item.name);
+  await assert.rejects(f.actionRead('inspectSoForgery',{lotId:r.documentId}),{code:'FORBIDDEN'});
+  await assert.rejects(f.actionRead('inspectSoForgery',{lotId:'missing'},f.owner),{code:'SO_INF03_RECORD'});
   assert.doesNotMatch(JSON.stringify(r),/FIBRE_PAPIER|DOCUMENT_DE_FICTION/);
  });
  test(prefix+' : échec consomme un formulaire et un PA sans créer de faux',async()=>{

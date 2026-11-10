@@ -9,6 +9,7 @@ export const soForgeryErrors={
  SO_INF03_BUSY:'Une autre action ou un autre participant utilise cet atelier.',
  SO_INF03_COOLDOWN:'Dix minutes de récupération sont encore nécessaires.',
  SO_INF03_STALE:'L’action ou le modèle a changé. Actualisez.',
+ SO_INF03_RECORD:'Aucun document falsifié suivi ne correspond à cet identifiant.',
  SO_INF03_TOO_EARLY:'La durée de falsification n’est pas écoulée.',
 };
 const seconds=n=>Math.ceil(n/1000)+' s';
@@ -28,4 +29,9 @@ export function soForgeryHtml(d,sid){
  }
  return '<div class="narrow"><nav class="breadcrumb"><a href="#/action/'+esc(sid)+'">Mes actions</a></nav><h1>'+esc(target.title)+'</h1><p class="prose">'+esc(target.description)+'</p>'+body+
   '<p class="muted">Une réussite crée un seul document fictif suivi dans votre sac. Un échec détruit le formulaire. Les vérifications de conformité douanière et d’identité des vaisseaux utilisent des protocoles distincts.</p></div>';
+}
+
+export function soForgeryInspectionHtml(d,sid,lotId=''){
+ const content=d?'<section class="panel"><h2>Contrôle MJ — document de fiction</h2><p>'+esc(d.documentName)+'</p><p>Qualité : '+esc(d.quality)+' · modèle : '+esc(d.templateId)+' (révision '+esc(d.templateRevision)+')</p><p>Anomalies préparées : '+esc(d.anomalies)+'</p><p>Possesseur actuel : '+esc(d.holderId)+'</p><p>Identifiant du document : '+esc(d.lotId)+'</p><p>Ce résultat ne constitue aucune autorisation informatique ou douanière automatique.</p></section>':'<p>Renseignez l’identifiant de lot du document présenté par le joueur.</p>';
+ return '<div class="narrow"><h1>Contrôle MJ — faux documents INF-03</h1><form data-form="soForgeryInspect" data-sid="'+esc(sid)+'"><label>Identifiant de lot<input name="lotId" value="'+esc(lotId)+'" maxlength="128" required></label><button>Vérifier la provenance</button></form>'+content+'</div>';
 }
