@@ -46,3 +46,11 @@ Le MJ autorisé consulte les contestations reçues dans sa régie. Les demandes 
 Les identités techniques, secrets INF-03 et notes douanières privées ne sont pas transmis au joueur. Les anciennes sessions non activées conservent leurs permissions inchangées.
 
 Cette tranche n'intègre pas encore la décision MJ sur la contestation, les créances, les amendes, un appel hiérarchique ou un tribunal scénarisé. Tests ciblés du dossier personnel, doublons, accès aux données et anciennes versions, CI sur le SHA exact et recette multi-smartphones à effectuer.
+
+## Décision MJ sur contestation — extension candidate
+
+Après le dépôt d'une contestation par le propriétaire, un MJ autorisé peut enregistrer une décision motivée : maintien de la saisie (MAINTAINED) ou recommandation de restitution (RETURN_RECOMMENDED). Une réponse écrite destinée au joueur est distincte des notes privées MJ.
+
+La recommandation ne déplace aucun objet, ne libère pas le stock officiel, ne paie aucune indemnité et ne change pas la quittance : la remise physique doit encore être effectuée par le parcours distinct returnCustomsSeizure. Une demande déjà décidée ne peut être réécrite par une seconde décision ; une saisie déjà restituée est close.
+
+Les joueurs ne voient que leur propre demande et la réponse publique. Les notes privées MJ, identités techniques et justificatifs internes restent hors de leur projection. STOP SÉCURITÉ suspend la décision. Les tests automatisés et la CI du SHA exact sont requis ; la médiation financière et les tribunaux de fiction restent hors de cette tranche.

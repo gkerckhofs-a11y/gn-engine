@@ -40,6 +40,49 @@ export function customsAppealSuite(makeStore,prefix='Douanes SO : contestation')
   await assert.rejects(f.actionCmd('submitCustomsAppeal',{...payload,reason:' '}),
    {code:'SO_CUSTOMS_APPEAL_REASON'});
  });
+ test(prefix+' : décision MJ motivée sans déplacement de lot, retour distinct',async()=>{
+  const f=await fixture();
+  await f.actionCmd('submitCustomsAppeal',{seizureId:f.seized.id,reason:'Le document du port serait valable.'});
+  const command={seizureId:f.seized.id,outcome:'RETURN_RECOMMENDED',
+    publicReply:'Présentez-vous au MJ pour une remise éventuelle.',
+    privateReason:'Indice de fiction vérifié en régie'};
+  await assert.rejects(f.actionCmd('decideCustomsAppeal',command),{code:'FORBIDDEN'});
+  const result=await f.actionCmd('decideCustomsAppeal',command,f.owner);
+  assert.equal(result.status,'DECIDED');
+  assert.equal(result.outcome,'RETURN_RECOMMENDED');
+  assert.doesNotMatch(JSON.stringify(result),/Indice de fiction vérifié|decidedBy/);
+  const read=(await f.actionRead('myCustomsAppeals')).appeals[0];
+  assert.equal(read.status,'DECIDED');
+  assert.match(read.publicReply,/Présentez-vous/);
+  assert.doesNotMatch(JSON.stringify(read),/Indice de fiction vérifié|sourceUid|decidedBy/);
+  const privateRecord=(await f.actionRead('customsAppealsAdmin',{},f.owner)).appeals[0];
+  assert.match(privateRecord.privateReason,/Indice de fiction/);
+  assert.equal((await f.store.get('sessions/'+f.sid+'/inventory/'+f.lotId)).status,'SEIZED');
+  assert.equal((await f.actionRead('myCustomsSeizures')).receipts[0].status,'SEIZED');
+  await assert.rejects(f.actionCmd('decideCustomsAppeal',command,f.owner),
+    {code:'SO_CUSTOMS_APPEAL_DECIDED'});
+  await f.actionCmd('returnCustomsSeizure',{
+    seizureId:f.seized.id,reasonText:'Retour physique effectué par le MJ',
+    authorized:true,physicalReturnConfirmed:true
+  },f.owner);
+  assert.equal((await f.actionRead('myCustomsAppeals')).appeals[0].status,'CLOSED_RETURNED');
+ });
+ test(prefix+' : décision refusée sans réponse valide ou sur une saisie déjà restituée',async()=>{
+  const f=await fixture();
+  await f.actionCmd('submitCustomsAppeal',{seizureId:f.seized.id,reason:'Demande de contrôle'});
+  const command={seizureId:f.seized.id,outcome:'MAINTAINED',
+    publicReply:'Décision motivée',privateReason:'Faits du dossier'};
+  await assert.rejects(f.actionCmd('decideCustomsAppeal',{...command,outcome:'GRANT_ADMIN'},f.owner),
+    {code:'SO_CUSTOMS_APPEAL_DECISION'});
+  await assert.rejects(f.actionCmd('decideCustomsAppeal',{...command,publicReply:' '},f.owner),
+    {code:'SO_CUSTOMS_APPEAL_REPLY'});
+  await f.actionCmd('returnCustomsSeizure',{
+    seizureId:f.seized.id,reasonText:'Décision distincte de remise',
+    authorized:true,physicalReturnConfirmed:true
+  },f.owner);
+  await assert.rejects(f.actionCmd('decideCustomsAppeal',command,f.owner),
+    {code:'SO_CUSTOMS_APPEAL_CLOSED'});
+ });
  test(prefix+' : la restitution clôt une demande dans les vues, sans effacer la requête',async()=>{
   const f=await fixture();
   const input={seizureId:f.seized.id,reason:'Demande de restitution motivée'};

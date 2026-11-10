@@ -84,6 +84,9 @@ export const customsAppealErrors={
  SO_CUSTOMS_APPEAL_CLOSED:'Cette saisie est close : la contestation n’est plus ouverte.',
  SO_CUSTOMS_APPEAL_EXISTS:'Une contestation est déjà enregistrée pour cette saisie.',
  SO_CUSTOMS_APPEAL_REASON:'Expliquez votre contestation (1 à 1000 caractères).',
+ SO_CUSTOMS_APPEAL_DECISION:'Choisissez maintien de la saisie ou recommandation de restitution.',
+ SO_CUSTOMS_APPEAL_REPLY:'Expliquez la décision au joueur (1 à 1000 caractères).',
+ SO_CUSTOMS_APPEAL_DECIDED:'Cette demande a déjà reçu une décision.',
 };
 export function customsAppealsPlayerHtml(d,receipts,sid){
  const own=new Set((d.appeals??[]).map(a=>a.seizureId));
@@ -96,6 +99,7 @@ export function customsAppealsPlayerHtml(d,receipts,sid){
  const history=(d.appeals??[]).map(a=>'<article class="panel"><h3>'+esc(a.itemName)+'</h3>'
   +'<p>Quittance : '+esc(a.receiptCode)+' · statut : '+esc(a.status)+'</p>'
   +'<p>Votre motif : '+esc(a.reason)+'</p>'
+  +(a.outcome?'<p>Décision du MJ : '+esc(a.outcome)+' · '+esc(a.publicReply)+'</p>':'')
   +'<p>Cette demande ne libère aucun lot automatiquement.</p></article>').join('');
  return '<section class="narrow"><h2>Contestations de saisie</h2>'
   +'<p>La contestation signale une demande au MJ ; elle ne rembourse rien et ne transfère aucun objet.</p>'
@@ -104,9 +108,17 @@ export function customsAppealsPlayerHtml(d,receipts,sid){
 export function customsAppealsAdminHtml(d){
  const appeals=d.appeals??[];
  return '<section class="narrow"><h2>Demandes de contestation · MJ</h2>'
-  +'<p>Réception seulement : aucune décision automatique de restitution, de sanction ou de paiement.</p>'
+  +'<p>Une décision motivée peut maintenir la saisie ou recommander sa restitution. La remise physique demeure distincte et jamais automatique.</p>'
   +(appeals.map(a=>'<article class="panel"><h3>'+esc(a.itemName)+'</h3>'
     +'<p>Quittance : '+esc(a.receiptCode)+' · personnage : '+esc(a.ownerId)+'</p>'
     +'<p>Statut : '+esc(a.status)+' · demande : '+esc(a.reason)+'</p>'
+    +(a.status==='PENDING'?'<form data-form="customsAppealDecide" data-sid="'+esc(d.session.id)+'" data-id="'+esc(a.seizureId)+'">'
+      +'<label>Décision MJ<select name="outcome"><option value="MAINTAINED">Maintenir la saisie</option>'
+      +'<option value="RETURN_RECOMMENDED">Recommander la restitution (sans la déclencher)</option></select></label>'
+      +'<label>Réponse communiquée au personnage<textarea name="publicReply" maxlength="1000" required></textarea></label>'
+      +'<label>Note privée de décision<textarea name="privateReason" maxlength="1000" required></textarea></label>'
+      +'<button type="submit">Enregistrer la décision sans déplacer le lot</button></form>'
+      :a.outcome?'<p>Décision : '+esc(a.outcome)+' · réponse : '+esc(a.publicReply)
+        +' · note MJ : '+esc(a.privateReason??'')+'</p>':'')
     +'</article>').join('')||'<p>Aucune contestation déposée.</p>')+'</section>';
 }

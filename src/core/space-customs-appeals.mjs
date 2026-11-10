@@ -6,9 +6,10 @@ const hash=value=>createHash('sha256').update(value).digest('hex');
 const root=sid=>'sessions/'+sid;
 const appealPath=(sid,id)=>root(sid)+'/customsSeizureAppeals/'+id;
 const seizurePath=(sid,id)=>root(sid)+'/customsSeizures/'+id;
-export const customsAppealActions=['myCustomsAppeals','customsAppealsAdmin','submitCustomsAppeal'];
+export const customsAppealActions=['myCustomsAppeals','customsAppealsAdmin','submitCustomsAppeal','decideCustomsAppeal'];
 const playerView=a=>({id:a.id,seizureId:a.seizureId,receiptCode:a.receiptCode,
- itemName:a.itemName,reason:a.reason,at:a.at,status:a.status});
+ itemName:a.itemName,reason:a.reason,at:a.at,status:a.status,
+ ...(a.outcome?{outcome:a.outcome,publicReply:a.publicReply,decidedAt:a.decidedAt}: {})});
 export function createCustomsAppealService({store,signed,checkSession,now}){
  return async function dispatch(action,actor,input){
   signed(actor);
@@ -25,6 +26,30 @@ export function createCustomsAppealService({store,signed,checkSession,now}){
       return {...a,status:seizure?.status==='RETURNED'?'CLOSED_RETURNED':a.status};
     }));
     return {session:{id:sid,stage:s.stage},appeals:projected};
+   }
+   if(action==='decideCustomsAppeal'){
+    await checkSession(tx,actor,sid,'content',true);
+    requireThat(['EN_JEU','PAUSE'].includes(s.stage)&&!s.safetyStop?.active,'SESSION_NOT_RUNNING');
+    requireThat(['MAINTAINED','RETURN_RECOMMENDED'].includes(input.outcome),'SO_CUSTOMS_APPEAL_DECISION');
+    requireThat(typeof input.publicReply==='string'&&input.publicReply.trim()
+      &&input.publicReply.length<=1000,'SO_CUSTOMS_APPEAL_REPLY');
+    requireThat(typeof input.privateReason==='string'&&input.privateReason.trim()
+      &&input.privateReason.length<=1000,'SO_CUSTOMS_APPEAL_REASON');
+    const rid=documentId(input.requestId),op='operations/'+hash(actor.uid+':'+rid);
+    const fingerprint=hash(JSON.stringify([action,input])),prior=await tx.get(op);
+    if(prior){requireThat(prior.fingerprint===fingerprint,'REQUEST_ID_REUSED');return prior.result;}
+    const id=documentId(input.seizureId),a=await tx.get(appealPath(sid,id));
+    requireThat(a?.status==='PENDING','SO_CUSTOMS_APPEAL_DECIDED');
+    const seizure=await tx.get(seizurePath(sid,id));
+    requireThat(seizure?.status==='SEIZED'&&seizure.ownerId===a.ownerId,'SO_CUSTOMS_APPEAL_CLOSED');
+    const next={...a,status:'DECIDED',outcome:input.outcome,
+      publicReply:input.publicReply.trim(),privateReason:input.privateReason.trim(),
+      decidedAt:at,decidedBy:actor.uid};
+    authorizeSpaceOutlaws(tx,s,'CUSTOMS_APPEAL');
+    tx.set(appealPath(sid,id),next);
+    const result=playerView(next);
+    tx.set(op,{fingerprint,result,at});
+    return result;
    }
    const r=await tx.get(root(sid)+'/registrations/'+hash(actor.uid));
    requireThat(r?.status==='ACCEPTED'&&r.accessActive&&r.characterId

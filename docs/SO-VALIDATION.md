@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Contestation douanière — décision MJ (candidat)
+
+Décision privée et motivée de maintien ou de recommandation de restitution sur une contestation encore en attente. Réponse publique propre au personnage, notes internes invisibles ; aucun effet automatique sur lot, quittance, crédit ou droits du joueur. La restitution exige toujours son contrôle physique MJ séparé. CI et recette sur le SHA exact à vérifier.
+
 ## Douanes — dépôt de contestation (candidat)
 
 Le propriétaire d'un bien saisi peut demander une contestation personnelle depuis sa quittance ; le MJ reçoit une liste privée des demandes PENDING. Le dépôt reste idempotent, sans saisie supplémentaire, remboursement, droit douanier ou modification de stock. Aucune décision de recours n'est encore automatisée. CI ciblée sur le nouveau SHA, recette mobile et procédures de jugement à confirmer.

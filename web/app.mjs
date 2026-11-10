@@ -634,6 +634,10 @@ document.addEventListener('submit',async event=>{
   const form=event.target.closest('[data-form]');if(!form)return;event.preventDefault();if(busy)return;
   busy=true;const b=form.querySelector('button[type="submit"],button:not([type])');if(b)b.disabled=true;
   try{const v=formValues(form),kind=form.dataset.form;let destination,successMessage='Enregistré.';const submitVersion=routeVersion;
+    if(kind==='customsAppealDecide'){const r=await mutate('decideCustomsAppeal',{
+      sessionId:form.dataset.sid,seizureId:form.dataset.id,outcome:v.outcome,
+      publicReply:v.publicReply,privateReason:v.privateReason
+    });notice('Décision MJ enregistrée. Aucune restitution automatique.');await route();return;}
     if(kind==='customsAppealFile'){await mutate('submitCustomsAppeal',{sessionId:form.dataset.sid,seizureId:form.dataset.id,reason:v.reason});notice('Votre contestation de fiction a été transmise au MJ.');await route();return;}
     if(kind==='customsSeizureReturn'){const r=await mutate('returnCustomsSeizure',{
       sessionId:form.dataset.sid,seizureId:form.dataset.id,reasonText:v.reasonText,
