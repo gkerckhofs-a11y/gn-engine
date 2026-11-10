@@ -109,7 +109,7 @@ export function hiddenCargoSuite(makeStore,prefix='Fret caché et MOD-04 SO'){
   assert.equal(quote.exactFeeCr,'50.02');
   assert.equal(quote.issued,false);
   assert.equal(quote.cargoContext.ship.id,'ship');
-  assert.equal(quote.cargoContext.journey,null);
+  assert.equal(quote.cargoContext.voyage,null);
   assert.equal(quote.cargoContext.referenceValueVerified,false);
   assert.equal(quote.cargoContext.regulatedStatusVerified,false);
   const shown=quote.cargoContext.lots.find(l=>l.id===f.lotId);
