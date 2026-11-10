@@ -100,6 +100,65 @@ export function soForgerySuite(makeStore,prefix='INF-03'){
   assert.doesNotMatch(JSON.stringify(recipient),/FIBRE_PAPIER_INCORRECTE_SECRET_MJ|quality|anomalies|SO_FORGERY/);
   await assert.rejects(f.actionRead('inspectSoForgery',{lotId:forged},f.other),{code:'FORBIDDEN'});
  });
+ test(prefix+' : vol ROG-02 d’un faux conserve le lot et la preuve MJ',async()=>{
+  const f=await forgeryFixture(makeStore,{second:true});
+  const thief=(await f.actionRead('mySession',{},f.other)).character.id;
+  const crafted=await f.start();f.advance(270000);f.setDie(4);
+  const lotId=(await f.finish(crafted.id)).documentId;
+  const path='sessions/'+f.sid+'/characters/'+thief;
+  await f.store.runTransaction(async tx=>{
+   const c=await tx.get(path);
+   tx.set(path,{...c,abilityProfile:{...c.abilityProfile,skills:[
+    ...c.abilityProfile.skills,{id:'ROG-02',name:'Vol à la tire',kind:'PASSIVE',level:2}
+   ]}});
+  });
+  const started=await f.actionCmd('startSoPickpocket',{
+   targetId:f.cid,firstName:'Ari',lastName:'Test',present:true
+  },f.other);
+  assert.equal(started.status,'RUNNING');
+  f.advance(45000);
+  const stolen=await f.actionCmd('finishSoPickpocket',{actionId:started.id},f.other);
+  assert.equal(stolen.status,'SUCCESS');
+  const after=await f.store.get('sessions/'+f.sid+'/inventory/'+lotId);
+  assert.equal(after.ownerId,thief);
+  assert.equal(after.holderId,thief);
+  assert.equal(after.origin.kind,'SO_FORGERY');
+  const inspected=await f.actionRead('inspectSoForgery',{lotId},f.owner);
+  assert.equal(inspected.quality,2);
+  assert.match(inspected.anomalies,/FIBRE_PAPIER/);
+  assert.equal(inspected.holderId,thief);
+  assert.equal(inspected.otherMovements[0].kind,'SO_PICKPOCKET');
+  assert.equal(inspected.otherMovements[0].sourceId,f.cid);
+  assert.equal(inspected.otherMovements[0].destinationId,thief);
+  const pocket=await f.actionRead('myInventory',{},f.other);
+  assert.equal(pocket.lots.find(l=>l.id===lotId).id,lotId);
+  assert.doesNotMatch(JSON.stringify(pocket),/FIBRE_PAPIER_INCORRECTE_SECRET_MJ|quality|anomalies|SO_FORGERY/);
+  await assert.rejects(f.actionRead('inspectSoForgery',{lotId},f.other),{code:'FORBIDDEN'});
+ });
+ test(prefix+' : faux au registre falsifié exclu du vol sans révélation ni dépense de PA',async()=>{
+  const f=await forgeryFixture(makeStore,{second:true});
+  const thief=(await f.actionRead('mySession',{},f.other)).character.id;
+  const crafted=await f.start();f.advance(270000);f.setDie(4);
+  const lotId=(await f.finish(crafted.id)).documentId;
+  const actorPath='sessions/'+f.sid+'/characters/'+thief;
+  const evidencePath='sessions/'+f.sid+'/forgeryRecords/'+lotId;
+  await f.store.runTransaction(async tx=>{
+   const c=await tx.get(actorPath),e=await tx.get(evidencePath);
+   tx.set(actorPath,{...c,abilityProfile:{...c.abilityProfile,skills:[
+    ...c.abilityProfile.skills,{id:'ROG-02',name:'Vol à la tire',kind:'PASSIVE',level:2}
+   ]}});
+   tx.set(evidencePath,{...e,templateRevision:999});
+  });
+  const attempt=await f.actionCmd('startSoPickpocket',{
+   targetId:f.cid,firstName:'Ari',lastName:'Test',present:true
+  },f.other);
+  f.advance(45000);
+  const result=await f.actionCmd('finishSoPickpocket',{actionId:attempt.id},f.other);
+  assert.equal(result.status,'EMPTY');
+  assert.equal((await f.points(f.other)).available,5);
+  assert.equal((await f.store.get('sessions/'+f.sid+'/inventory/'+lotId)).holderId,f.cid);
+  await assert.rejects(f.actionRead('inspectSoForgery',{lotId},f.owner),{code:'SO_INF03_RECORD'});
+ });
  test(prefix+' : une provenance de faux altérée interdit la remise, sans réécrire son registre',async()=>{
   const f=await forgeryFixture(makeStore,{second:true});
   const second=(await f.actionRead('mySession',{},f.other)).character.id;

@@ -49,11 +49,15 @@ export function createSoForgeryService({store,signed,checkSession,now,uuid,rollD
       .filter(e=>e.kind==='TRANSFER'&&e.receivedLotId===lotId&&e.quantity===1)
       .sort((a,b)=>b.at-a.at).slice(0,20)
       .map(e=>({transferId:e.transferId,at:e.at,sourceName:e.sourceName,recipientName:e.recipientName}));
+    const otherMovements=(await tx.list(invPath(sid,lotId)+'/history',null,{limit:101}))
+      .filter(e=>['SO_PICKPOCKET','LOOT'].includes(e.kind)&&e.quantity===1)
+      .sort((a,b)=>b.at-a.at).slice(0,20)
+      .map(e=>({kind:e.kind,at:e.at,sourceId:e.sourceId??null,destinationId:e.destinationId??null}));
     return {lotId,documentName:lot.item.name,documentText:lot.item.description,
      holderId:lot.holderId,ownerId:lot.ownerId,status:lot.status,
      templateId:evidence.templateId,templateRevision:evidence.templateRevision,
      quality:evidence.quality,anomalies:evidence.anomalies,createdAt:evidence.at,
-     originActionId:evidence.actionId,transfers};
+     originActionId:evidence.actionId,transfers,otherMovements};
    }
    const {s,c,r}=await access(tx,actor,sid),tid=documentId(input.targetId);
    const target=await tx.get(targetPath(sid,tid)),field=await tx.get(statePath(sid,tid));

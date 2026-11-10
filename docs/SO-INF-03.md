@@ -40,3 +40,11 @@ Une régie INF-03 permet au MJ autorisé de saisir l'identifiant du lot présent
 - Les remises existantes demandent toujours accord explicite du destinataire, restent annulables et sont journalisées. Un lot avec registre manquant ou incohérent ne peut pas être transmis.
 - Le MJ peut consulter les vingt dernières remises du lot dans le contrôle INF-03, avec détenteur actuel, qualité et anomalies. Cela ne produit **aucune décision automatique de police, de douane ou de légalité**.
 - Tests ciblés de création/remise/refus/confidentialité sur deux joueurs et un MJ ; tests sur appareils réels et recette d'animation encore nécessaires. CI du SHA exact à vérifier.
+
+## Extension candidate — continuité après vol à la tire ROG-02
+
+Un faux individuel reconnu par l'application garde son identifiant et son registre MJ privé lorsqu'il est volé dans le parcours ROG-02. Avant de présenter un faux comme butin possible, le serveur vérifie que l'identifiant du lot, la catégorie individuelle, la quantité et les références de création concordent avec le registre de falsification. Un faux au registre manquant ou incohérent est exclu des butins possibles, sans donner au voleur d'information sur son authenticité. Le PA reste remboursé si aucun butin éligible n'existe.
+
+Le journal du lot conserve les identifiants fictifs de la victime et du voleur. Dans la régie INF-03, le MJ voit les derniers vols et les éventuels pillages historiques du lot, en plus des remises consenties, sans exposer la qualité ni les anomalies aux joueurs.
+
+Le pillage générique n'est **pas activé dans Space Outlaws** par ce lot. La saisie formelle et le dépôt en entrepôt ne sont pas non plus ouverts ici : ils réclament leur propre recette et ne doivent pas être annoncés comme jouables. Tests et CI du SHA exact à vérifier, ainsi que recette multi-téléphones.

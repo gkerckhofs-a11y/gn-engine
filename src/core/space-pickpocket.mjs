@@ -23,6 +23,16 @@ export const soPickpocketActions=commands;
 const eligible=lot=>lot?.status==='AVAILABLE'&&lot.quantity>0&&lot.item?.pickpocketable===true&&lot.transferable!==false
  &&!lot.item?.shipModule&&!lot.boardingCustody&&!lot.hiddenCargo&&!lot.isHidden
  &&!['SO_BIRTH','SO_INITIAL'].includes(lot.origin?.kind);
+// A forged fictional document remains a single lot linked to its private MJ
+// registry. An invalid registry never becomes a source of pickpocket loot.
+async function validForgeryForTheft(tx,sid,lot){
+ if(lot?.origin?.kind!=='SO_FORGERY')return true;
+ const record=await tx.get(prefix(sid)+'/forgeryRecords/'+lot.id);
+ return lot.item?.kind==='INDIVIDUAL'&&lot.quantity===1&&lot.transferable===true
+  &&record?.id===lot.id&&record.actionId===lot.origin.actionId
+  &&record.templateId===lot.origin.templateId
+  &&record.templateRevision===lot.origin.templateRevision;
+}
 const compact=a=>({id:a.id,status:a.status,targetId:a.targetId,level:a.level,durationSeconds:a.durationSeconds,
   startedAtGameMs:a.startedAtGameMs,readyAtGameMs:a.readyAtGameMs,finishedAtGameMs:a.finishedAtGameMs??null,
   ...(a.status==='CHOOSING'?{choices:a.choices}:{}),...(a.result?{result:a.result}:{})});
@@ -49,7 +59,7 @@ export function createSoPickpocketService({store,signed,now,uuid}){
   const byType=new Map();
   for(const raw of lots){
    const l=await readLot(tx,sid,raw.id,at);
-   if(!eligible(l)||!personalLot(l,targetId))continue;
+   if(!eligible(l)||!personalLot(l,targetId)||!await validForgeryForTheft(tx,sid,l))continue;
    if(!byType.has(l.item.id))byType.set(l.item.id,{itemId:l.item.id,name:l.item.name});
   }
   return [...byType.values()];
@@ -58,7 +68,7 @@ export function createSoPickpocketService({store,signed,now,uuid}){
   const lots=await tx.list(prefix(sid)+'/inventory',['holderId',targetId]);
   for(const raw of lots){
    const l=await readLot(tx,sid,raw.id,at);
-   if(l.item?.id===itemId&&eligible(l)&&personalLot(l,targetId))return l;
+   if(l.item?.id===itemId&&eligible(l)&&personalLot(l,targetId)&&await validForgeryForTheft(tx,sid,l))return l;
   }
   return null;
  }
@@ -79,7 +89,7 @@ export function createSoPickpocketService({store,signed,now,uuid}){
   const moved=lot.quantity===1?sourceNext:{...lot,id:destination,quantity:1,ownerId:rogue.id,holderId:rogue.id,location:{kind:'CHARACTER',id:rogue.id},revision:1,origin:{kind:'SO_PICKPOCKET',sourceLotId:lot.id}};
   tx.set(base+'/inventory/'+lot.id,sourceNext);
   if(destination!==lot.id)tx.set(base+'/inventory/'+destination,moved);
-  tx.set(base+'/inventory/'+lot.id+'/history/'+a.id,{id:a.id,at,kind:'SO_PICKPOCKET',before:lotState(lot),after:lotState(sourceNext)});
+  tx.set(base+'/inventory/'+lot.id+'/history/'+a.id,{id:a.id,at,kind:'SO_PICKPOCKET',sourceId:a.targetId,destinationId:rogue.id,quantity:1,before:lotState(lot),after:lotState(sourceNext)});
   if(destination!==lot.id)tx.set(base+'/inventory/'+destination+'/history/'+a.id,{id:a.id,at,kind:'SO_PICKPOCKET',before:null,after:lotState(moved)});
   tx.set(actionPointPath(s.id,rogue.id),resolveActionPoints(points,1));
   tx.set(victimPath(s.id,a.targetId),{...quota,success:true,activeId:null});

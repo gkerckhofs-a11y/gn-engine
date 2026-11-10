@@ -1,5 +1,10 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## INF-03 : vol à la tire et traçabilité des faux — candidat
+
+Continuité des faux individuels sous ROG-02 : même identifiant lors d'un vol réussi ; contrôle préalable du registre privé ; refus sans divulgation quand les métadonnées sont incohérentes ; historique des mouvements réservé au MJ. Aucun nouveau parcours de pillage, saisie ou stockage n'est ouvert. Les tests applicatifs et Firestore sur le nouveau commit restent à confirmer.
+
+
 ## INF-03 — Remise contrôlée d'un faux (candidat du 10 novembre 2026)
 
 Une remise consentie d'un document INF-03 individuel, identifié et accompagné de son registre MJ privé, conserve le même lot et sa chaîne d'historique. Les autres remises de lots Space Outlaws demeurent fermées par cette capacité. Les anomalies et la qualité ne sont consultables que via la régie MJ ; le joueur ne voit qu'un droit de remise du lot, sans révélation de provenance. Tests ciblés de transfert à deux joueurs, refus des kits initiaux et contrôle de registre altéré. **CI du commit exact à confirmer ; recette physique non réalisée.** Voir [SO-INF-03](SO-INF-03.md).

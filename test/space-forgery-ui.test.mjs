@@ -35,6 +35,17 @@ test('INF-03 : contrôle MJ échappe les données et n’accorde aucune permissi
  assert.doesNotMatch(html,/grantAdmin|permissionsGranted/);
 });
 
+test('INF-03 : le MJ voit le vol fictif avec identifiants échappés',()=>{
+ const html=soForgeryInspectionHtml({
+  lotId:'lot',documentName:'Faux document',quality:2,templateId:'M6',
+  templateRevision:1,anomalies:'Date fausse',holderId:'rogue',
+  transfers:[],otherMovements:[{kind:'SO_PICKPOCKET',
+   sourceId:'<script>',destinationId:'rogue',at:10}]
+ },'session','lot');
+ assert.match(html,/Vol à la tire/);
+ assert.ok(html.includes('&lt;script&gt;'));
+ assert.doesNotMatch(html,/<script>/);
+});
 test('INF-03 : historique MJ affiché sans insertion HTML non fiable',()=>{
  const html=soForgeryInspectionHtml({lotId:'lot',documentName:'Reçu',quality:2,
  templateId:'model',templateRevision:1,anomalies:'Faux tampon',holderId:'bob',
