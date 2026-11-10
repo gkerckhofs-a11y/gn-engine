@@ -75,16 +75,26 @@ test('Douanes UI : devis LIC-02 distinct du paiement et sans données joueur',as
  assert.match(html,/LIC-01/);
  assert.match(html,/LIC-02/);
  assert.match(html,/LIC-03/);
+ assert.match(html,/name="shipId"/);
  assert.doesNotMatch(customsAdminHtml({...admin,session:{...session,safetyStopped:true}}),/customsLicenseQuote/);
  assert.doesNotMatch(customsDeskHtml(desk),/customsLicenseQuote/);
  const payload=hiddenCargoRequest('customsLicenseQuote',{sessionId:'s'},
   {code:'LIC-02',referenceValue:'2501',die:'6',fee:'1'});
  assert.deepEqual(payload,{sessionId:'s',code:'LIC-02',referenceValue:2501});
+ assert.deepEqual(hiddenCargoRequest('customsLicenseQuote',{sessionId:'s'},
+  {code:'LIC-02',referenceValue:'2501',shipId:'ship'}),{sessionId:'s',code:'LIC-02',referenceValue:2501,shipId:'ship'});
  const output=customsLicenseQuoteHtml({code:'LIC-02',title:'Permis réglementé',
   exactFeeCr:'50.02',referenceValue:2501,scope:'Cargaison et voyage autorisés'});
  assert.match(output,/50,02 Cr/);
  assert.match(output,/Aucun crédit n’a été prélevé/);
  assert.doesNotMatch(output,/name="fee"|name="die"|<script>/);
+ const linked=customsLicenseQuoteHtml({code:'LIC-02',title:'Permis',exactFeeCr:'50.02',scope:'Fret',
+  cargoContext:{ship:{id:'ship',name:'<img src=x>',portId:'home'},journey:null,
+   lots:[{id:'lot',name:'<script>secret</script>',quantity:2,unit:'caisse',status:'AVAILABLE'}]}});
+ assert.match(linked,/Fret réel rattaché/);
+ assert.match(linked,/Aucun voyage engagé/);
+ assert.doesNotMatch(linked,/<img|<script>/);
+ assert.match(linked,/&lt;img/);
 });
 test('Douanes UI : estimation LIC-03 en lecture seule, sans écriture ni reçu trompeur',async()=>{
  const calls=[];

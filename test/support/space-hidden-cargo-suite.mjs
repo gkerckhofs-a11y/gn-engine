@@ -101,6 +101,37 @@ export function hiddenCargoSuite(makeStore,prefix='Fret caché et MOD-04 SO'){
   await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-01'},f.owner),{code:'SO_GAMEPLAY_NOT_OPEN'});
   await f.edit('',()=>current);
  });
+ test(`${prefix} : devis LIC-02 rattaché à la soute serveur, sans certification ni mouvement`,async()=>{
+  const f=await hiddenCargoFixture(makeStore),base=`sessions/${f.sid}`;
+  const accounts=await f.store.list(`${base}/accounts`),audit=await f.store.list(`${base}/audit`);
+  const lot=await f.get(`inventory/${f.lotId}`);
+  const quote=await f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2501,shipId:'ship'},f.owner);
+  assert.equal(quote.exactFeeCr,'50.02');
+  assert.equal(quote.issued,false);
+  assert.equal(quote.cargoContext.ship.id,'ship');
+  assert.equal(quote.cargoContext.journey,null);
+  assert.equal(quote.cargoContext.referenceValueVerified,false);
+  assert.equal(quote.cargoContext.regulatedStatusVerified,false);
+  const shown=quote.cargoContext.lots.find(l=>l.id===f.lotId);
+  assert.equal(shown.quantity,lot.quantity);
+  assert.equal(shown.status,'AVAILABLE');
+  assert.equal(shown.ownerId,lot.ownerId);
+  await f.edit('ships/ship',s=>({...s,journey:{id:'real-journey',routeId:'out',fromPort:'home',toPort:'away',manifest:[{id:'secret-passenger'}]}}));
+  const travelling=await f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2501,shipId:'ship'},f.owner);
+  assert.deepEqual(travelling.cargoContext.voyage,{id:'real-journey',routeId:'out',fromPort:'home',toPort:'away'});
+  assert.doesNotMatch(JSON.stringify(travelling),/secret-passenger|manifest/);
+  assert.deepEqual(await f.store.list(`${base}/accounts`),accounts);
+  assert.deepEqual(await f.store.list(`${base}/audit`),audit);
+  assert.deepEqual(await f.store.list(`${base}/customsLicenses`),[]);
+ });
+ test(`${prefix} : devis lié refuse vaisseau absent, rôle joueur et code hors LIC-02`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);
+  await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000,shipId:'introuvable'},f.owner),{code:'SO_CUSTOMS_LICENSE_SHIP'});
+  await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000,shipId:'../ship'},f.owner),{code:'INVALID_ID'});
+  for(const code of ['LIC-01','LIC-03'])await assert.rejects(
+   f.read('customsLicenseQuote',{code,shipId:'ship'},f.owner),{code:'SO_CUSTOMS_LICENSE_SHIP'});
+  await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000,shipId:'ship'},f.player),{code:'FORBIDDEN'});
+ });
  test(`${prefix} : capacité serveur limitée, comptes, connaissances, contrats et marqueur interdits`,()=>{
   const s={id:'session',spaceOutlaws:{actionsVersion:1,hiddenCargoVersion:1}},scope=new Set(['HIDDEN_CARGO']);
   for(const path of ['ships/ship','inventory/lot','inventory/lot/history/event','characters/agent','characters/agent/resources/actionPoints','shipMaintenance/job','logisticsHistory/event'])assert.equal(guardSpaceOutlawsEntry(s,new Map([[`sessions/session/${path}`,{}]]),false,scope),true);

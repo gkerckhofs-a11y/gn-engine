@@ -21,7 +21,7 @@ export function hiddenCargoCapacity(ship,time){
 const visit=ship=>ship.portVisitId??`INITIAL:${ship.id}`;
 const idle=ship=>ship?.enabled&&ship.docked&&!ship.journey&&!ship.operation&&!ship.combatId&&!ship.rescueId&&!ship.maintenanceId&&!ship.convoy&&!ship.convoyOffer;
 const fit=(c,time,id=null)=>c?.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeNavigationId&&!c.activeVoyageId&&!c.activeCargoId&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&(!c.activeMaintenanceId||c.activeMaintenanceId===id)&&!(c.convalescentUntilGameMs>time);
-const fields={customsDesk:[],customsLicenseQuote:['code','referenceValue'],hiddenCargo:['shipId'],prepareCargoConcealment:['shipId','lotId','conceal'],setCargoConcealment:['shipId','lotId','conceal','confirmation','present'],customsAdmin:[],setCustomsAuthority:['characterId','level','portId','authorityRevision','reason'],authorizeCustomsRetry:['shipId','confirmation','reason'],prepareCustomsInspection:['shipId','kind'],startCustomsInspection:['shipId','kind','confirmation','present'],prepareCustomsInspectionAdmin:['shipId','kind','agentId'],startCustomsInspectionAdmin:['shipId','kind','agentId','confirmation','present'],customsInspection:['inspectionId'],customsInspectionAdmin:['inspectionId'],finishCustomsInspection:['inspectionId','confirmation','present','performed'],finishCustomsInspectionAdmin:['inspectionId','confirmation','present','performed'],cancelCustomsInspection:['inspectionId','confirmation','reason'],cancelCustomsInspectionAdmin:['inspectionId','confirmation','reason']};
+const fields={customsDesk:[],customsLicenseQuote:['code','referenceValue','shipId'],hiddenCargo:['shipId'],prepareCargoConcealment:['shipId','lotId','conceal'],setCargoConcealment:['shipId','lotId','conceal','confirmation','present'],customsAdmin:[],setCustomsAuthority:['characterId','level','portId','authorityRevision','reason'],authorizeCustomsRetry:['shipId','confirmation','reason'],prepareCustomsInspection:['shipId','kind'],startCustomsInspection:['shipId','kind','confirmation','present'],prepareCustomsInspectionAdmin:['shipId','kind','agentId'],startCustomsInspectionAdmin:['shipId','kind','agentId','confirmation','present'],customsInspection:['inspectionId'],customsInspectionAdmin:['inspectionId'],finishCustomsInspection:['inspectionId','confirmation','present','performed'],finishCustomsInspectionAdmin:['inspectionId','confirmation','present','performed'],cancelCustomsInspection:['inspectionId','confirmation','reason'],cancelCustomsInspectionAdmin:['inspectionId','confirmation','reason']};
 export const hiddenCargoActions=Object.keys(fields);
 const reads=new Set(['customsDesk','customsLicenseQuote','hiddenCargo','prepareCargoConcealment','customsAdmin','prepareCustomsInspection','prepareCustomsInspectionAdmin','customsInspection','customsInspectionAdmin']);
 const admins=new Set(['customsAdmin','customsLicenseQuote','setCustomsAuthority','authorizeCustomsRetry','prepareCustomsInspectionAdmin','startCustomsInspectionAdmin','customsInspectionAdmin','finishCustomsInspectionAdmin','cancelCustomsInspectionAdmin']);
@@ -62,7 +62,21 @@ export function createHiddenCargoService({store,signed,checkSession,now,uuid,rol
    const running=()=>{requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');};
    const write=(result,before,after,reason='')=>{authorizeSpaceOutlaws(tx,s,'HIDDEN_CARGO');tx.set(`${base}/logisticsHistory/${id}`,{id,kind:action,at,actorUid:actor.uid,before,after,reason});tx.set(`${base}/audit/${id}`,{id,action,at,actorUid:actor.uid});tx.set(op,{fingerprint,guard:version??null,result,at});return result;};
    if(action==='customsLicenseQuote'){
-    return customsLicenseReferenceQuote(input.code,input.referenceValue);
+    const quote=customsLicenseReferenceQuote(input.code,input.referenceValue);
+    requireThat(input.code==='LIC-02'||input.shipId===undefined,'SO_CUSTOMS_LICENSE_SHIP');
+    if(input.shipId===undefined)return quote;
+    const ship=await tx.get(`${base}/ships/${documentId(input.shipId)}`);
+    requireThat(ship?.soProfile,'SO_CUSTOMS_LICENSE_SHIP');
+    const stock=await warehouseStock(tx,s.id,ship.id,'HOLD');
+    // Physical inventory and an active voyage are evidence, not proof of
+    // legal category, reference valuation or a valid issued permit.
+    return {...quote,cargoContext:{
+     ship:{id:ship.id,name:ship.name,portId:ship.portId??null,portVisitId:ship.portVisitId??null,docked:ship.docked,revision:ship.revision},
+     voyage:ship.journey?{id:ship.journey.id,routeId:ship.journey.routeId,fromPort:ship.journey.fromPort??null,toPort:ship.journey.toPort??null}:null,
+     lots:stock.map(l=>({id:l.id,name:l.item.name,quantity:l.quantity,unit:l.item.unit??'unité',status:l.status,
+      ownerType:l.ownerType??'CHARACTER',ownerId:l.ownerId,concealed:concealedIn(l,ship.id)})),
+     referenceValueVerified:false,regulatedStatusVerified:false
+    }};
    }
    if(action==='customsAdmin'){
     const ships=await tx.list(`${base}/ships`),characters=await tx.list(`${base}/characters`),ports=await tx.list(`${base}/ports`),records=await tx.list(`${base}/shipMaintenance`);

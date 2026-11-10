@@ -10,16 +10,18 @@ const active=d=>d.session.stage==='EN_JEU'&&!d.session.safetyStopped;
 const refresh='<button class="quiet" data-action="refresh">Actualiser</button>';
 const stop=d=>d.session.safetyStopped?'<p role="status">STOP SÉCURITÉ : attendez la reprise du MJ.</p>':d.session.stage==='PAUSE'?'<p role="status">En pause : les délais de jeu sont suspendus.</p>':'';
 const cargoRows=lots=>lots.length?`<ul>${lots.map(l=>`<li>${esc(l.item.name)} · ${esc(l.quantity)} ${esc(l.item.unit??'')}</li>`).join('')}</ul>`:'<p>Aucun nouveau lot découvert par ce contrôle.</p>';
-const licenseQuoteForm=sid=>'<section class="panel"><h2>Licences douanières · estimation</h2>'
+const licenseQuoteForm=d=>'<section class="panel"><h2>Licences douanières · estimation</h2>'
  +'<p>LIC-01 : 100 Cr, licence commerciale permanente sous réserve de révocation. '
  +'LIC-02 : 2 % de la valeur de référence, minimum 50 Cr, pour une cargaison et un voyage. '
  +'LIC-03 : tarif fixé par le MJ pour une mission, des biens et une durée déterminés.</p>'
  +'<p>Cette consultation n’émet pas de licence, ne vérifie pas les documents et ne débite aucun compte. '
  +'Vérifiez la valeur de référence réelle du chargement, pas celle d’un manifeste éventuellement sous-déclaré.</p>'
- +form('customsLicenseQuote',{sessionId:sid},
+ +form('customsLicenseQuote',{sessionId:d.session.id},
   select('code','Type de licence',[{id:'LIC-01',name:'LIC-01 · Commerciale'},
    {id:'LIC-02',name:'LIC-02 · Marchandises réglementées'},
    {id:'LIC-03',name:'LIC-03 · Exception MJ'}])
+  +'<label>Vaisseau réel (facultatif, LIC-02 uniquement)<select name="shipId"><option value="">Sans rattachement</option>'
+  +d.ships.map(s=>'<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>').join('')+'</select></label>'
   +'<label>Valeur de référence en Cr (obligatoire uniquement pour LIC-02)'
   +'<input type="number" name="referenceValue" step="1" min="1" inputmode="numeric"></label>',
   'Consulter le tarif canonique')+'</section>';
@@ -28,6 +30,11 @@ export function customsLicenseQuoteHtml(q){
   +'<p>Tarif de référence : <strong>'+(q.exactFeeCr===null?'à fixer par le MJ':esc(q.exactFeeCr.replace('.',','))+' Cr')+'</strong>.</p>'
   +(q.referenceValue?'<p>Valeur de référence utilisée : '+esc(q.referenceValue)+' Cr.</p>':'')
   +'<p>Portée : '+esc(q.scope)+'</p>'
+  +(q.cargoContext?'<section class="panel"><h3>Fret réel rattaché · lecture MJ</h3>'
+    +'<p>Vaisseau : '+esc(q.cargoContext.ship.name)+' · port '+esc(q.cargoContext.ship.portId??'non renseigné')+'.</p>'
+    +(q.cargoContext.voyage?'<p>Voyage engagé : '+esc(q.cargoContext.voyage.id)+' · route '+esc(q.cargoContext.voyage.routeId??'non renseignée')+'.</p>':'<p>Aucun voyage engagé : la portée du permis reste à vérifier.</p>')
+    +(q.cargoContext.lots.length?'<ul>'+q.cargoContext.lots.map(l=>'<li>'+esc(l.name)+' · '+esc(l.quantity)+' '+esc(l.unit)+' · '+esc(l.status)+'</li>').join('')+'</ul>':'<p>Aucun lot réel présent en soute.</p>')
+    +'<p>La liste brute inclut éventuellement des biens non réglementés. Classification, valeur de référence et autorisation du voyage restent à vérifier. Aucun titre n’est délivré.</p></section>':'')
   +'<h3>Éléments à vérifier avant toute délivrance</h3><ul>'
   +(q.requiredEvidence??[]).map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'
   +'<p>Cette liste est indicative : aucun élément n’est automatiquement vérifié ou validé par ce devis.</p>'
@@ -37,7 +44,7 @@ export function customsLicenseQuoteHtml(q){
 }
 const controlForm=(d,admin)=>form(admin?'prepareCustomsInspectionAdmin':'prepareCustomsInspection',{sessionId:d.session.id},select('shipId','Vaisseau présent au port',d.ships.filter(s=>s.canInspect!==false))+(admin?select('agentId','Agent PNJ habilité',d.characters.filter(c=>!c.player&&c.authority?.level>=1)):'' )+select('kind','Contrôle',[{id:'ORDINARY',name:'Documentaire · 2 min · 0 PA'},{id:'DEEP',name:`Approfondi · 2 min · ${admin?'0':'1'} PA`}]),'Vérifier le contrôle');
 
-export const hiddenCargoErrors={HIDDEN_CARGO_FULL:'Le volume du lot entier dépasse la place disponible dans le compartiment.',INVALID_CUSTOMS_AUTHORITY:'Choisissez un poste et un niveau de contrôle de 0 à 5.',INVALID_CUSTOMS_KIND:'Choisissez un contrôle documentaire ou une inspection approfondie.',CUSTOMS_ATTEMPT_USED:'Une inspection approfondie a déjà été résolue pour ce vaisseau à cette escale. Une nouvelle tentative exige une décision motivée du MJ.',CUSTOMS_ATTEMPT_UNAVAILABLE:'Aucune tentative à renouveler pour cette escale.',CUSTOMS_INSPECTION_CLOSED:'Ce contrôle est fermé ou ses réservations ont changé. Actualisez.',CUSTOMS_NOT_READY:'Le délai de deux minutes de jeu n’est pas terminé.',CUSTOMS_RESERVATION:'La réservation de PA ne correspond plus au contrôle. Faites vérifier le dossier par le MJ.',SO_CUSTOMS_LICENSE_KIND:'Choisissez une licence LIC-01, LIC-02 ou LIC-03.',SO_CUSTOMS_LICENSE_VALUE:'LIC-02 exige une valeur de référence entière positive en crédits.'};
+export const hiddenCargoErrors={HIDDEN_CARGO_FULL:'Le volume du lot entier dépasse la place disponible dans le compartiment.',INVALID_CUSTOMS_AUTHORITY:'Choisissez un poste et un niveau de contrôle de 0 à 5.',INVALID_CUSTOMS_KIND:'Choisissez un contrôle documentaire ou une inspection approfondie.',CUSTOMS_ATTEMPT_USED:'Une inspection approfondie a déjà été résolue pour ce vaisseau à cette escale. Une nouvelle tentative exige une décision motivée du MJ.',CUSTOMS_ATTEMPT_UNAVAILABLE:'Aucune tentative à renouveler pour cette escale.',CUSTOMS_INSPECTION_CLOSED:'Ce contrôle est fermé ou ses réservations ont changé. Actualisez.',CUSTOMS_NOT_READY:'Le délai de deux minutes de jeu n’est pas terminé.',CUSTOMS_RESERVATION:'La réservation de PA ne correspond plus au contrôle. Faites vérifier le dossier par le MJ.',SO_CUSTOMS_LICENSE_KIND:'Choisissez une licence LIC-01, LIC-02 ou LIC-03.',SO_CUSTOMS_LICENSE_VALUE:'LIC-02 exige une valeur de référence entière positive en crédits.',SO_CUSTOMS_LICENSE_SHIP:'Le rattachement à un vaisseau réel est réservé à LIC-02. Choisissez un vaisseau existant dans cette session.'};
 
 export function hiddenCargoHtml(d){
  const sid=d.session.id;
@@ -49,7 +56,7 @@ export function customsDeskHtml(d){
 function inspectionLinks(d,admin){return `<section class="panel"><h2>Contrôles suivis</h2>${d.inspections.map(r=>link(`customs-inspection${admin?'-admin':''}/${d.session.id}/${r.id}`,`${r.shipName} · ${kinds[r.kind]} · ${statuses[r.status]}`)).join('')||'<p>Aucun contrôle enregistré.</p>'}</section>`;}
 export function customsAdminHtml(d){
  const sid=d.session.id,enabled=!d.session.safetyStopped;
- return `<div class="narrow cargo-customs"><h1>Régie des douanes</h1>${stop(d)}${refresh}<p>L’habilitation organisation N1 à N5 est indépendante des classes et des XP. Le niveau 0 la révoque. Pour un PNJ, le poste choisi détermine le port de ses contrôles.</p>${d.characters.map(c=>`<section class="panel"><h2>${esc(c.name)} · ${c.player?'joueur':'PNJ'}</h2><p>Habilitation : N${esc(c.authority?.level??0)}.</p>${enabled?form('setCustomsAuthority',{sessionId:sid,characterId:c.id,authorityRevision:c.authority?.revision??0},select('level','Niveau',[{id:0,name:'0 · Révoquer'},...Array.from({length:5},(_,i)=>({id:i+1,name:`N${i+1}`}))])+select('portId','Poste douanier',d.ports)+reason,'Enregistrer l’habilitation'):''}</section>`).join('')}${active(d)&&d.ships.some(s=>s.canInspect!==false)&&d.characters.some(c=>!c.player&&c.authority?.level>=1)?`<section class="panel"><h2>Contrôle par un PNJ</h2>${controlForm(d,true)}</section>`:''}<section class="panel"><h2>Nouvelles tentatives</h2><p>Une nouvelle inspection approfondie nécessite un indice nouveau ou une décision MJ motivée. Changer d’agent ne renouvelle pas la tentative.</p>${enabled?d.ships.filter(s=>s.canRetry&&s.attempt?.used&&!s.attempt.retryAuthorized).map(s=>`<article><h3>${esc(s.name)}</h3>${form('authorizeCustomsRetry',{sessionId:sid,shipId:s.id,confirmation:s.confirmation},reason,'Autoriser une nouvelle tentative')}</article>`).join(''):''}</section>${inspectionLinks(d,true)}${enabled?licenseQuoteForm(sid):''}${link(`cargo-admin/${sid}`,'Régie du fret')}</div>`;
+ return `<div class="narrow cargo-customs"><h1>Régie des douanes</h1>${stop(d)}${refresh}<p>L’habilitation organisation N1 à N5 est indépendante des classes et des XP. Le niveau 0 la révoque. Pour un PNJ, le poste choisi détermine le port de ses contrôles.</p>${d.characters.map(c=>`<section class="panel"><h2>${esc(c.name)} · ${c.player?'joueur':'PNJ'}</h2><p>Habilitation : N${esc(c.authority?.level??0)}.</p>${enabled?form('setCustomsAuthority',{sessionId:sid,characterId:c.id,authorityRevision:c.authority?.revision??0},select('level','Niveau',[{id:0,name:'0 · Révoquer'},...Array.from({length:5},(_,i)=>({id:i+1,name:`N${i+1}`}))])+select('portId','Poste douanier',d.ports)+reason,'Enregistrer l’habilitation'):''}</section>`).join('')}${active(d)&&d.ships.some(s=>s.canInspect!==false)&&d.characters.some(c=>!c.player&&c.authority?.level>=1)?`<section class="panel"><h2>Contrôle par un PNJ</h2>${controlForm(d,true)}</section>`:''}<section class="panel"><h2>Nouvelles tentatives</h2><p>Une nouvelle inspection approfondie nécessite un indice nouveau ou une décision MJ motivée. Changer d’agent ne renouvelle pas la tentative.</p>${enabled?d.ships.filter(s=>s.canRetry&&s.attempt?.used&&!s.attempt.retryAuthorized).map(s=>`<article><h3>${esc(s.name)}</h3>${form('authorizeCustomsRetry',{sessionId:sid,shipId:s.id,confirmation:s.confirmation},reason,'Autoriser une nouvelle tentative')}</article>`).join(''):''}</section>${inspectionLinks(d,true)}${enabled?licenseQuoteForm(d):''}${link(`cargo-admin/${sid}`,'Régie du fret')}</div>`;
 }
 export function customsInspectionHtml(d,admin=false){
  const r=d.inspection,sid=d.session.id,p={sessionId:sid,inspectionId:r.id,confirmation:d.confirmation},suffix=admin?'Admin':'',result=r.result;
@@ -66,7 +73,7 @@ const commands=['prepareCargoConcealment','setCargoConcealment','prepareCustomsI
 export function hiddenCargoRequest(action,p,values){
  if(!commands.includes(action))throw Error('Commande de douane inconnue.');
  const next={...p};
- if(action==='customsLicenseQuote'){next.code=values.code;if(values.referenceValue!==undefined&&values.referenceValue!=='')next.referenceValue=Number(values.referenceValue);}
+ if(action==='customsLicenseQuote'){next.code=values.code;if(values.referenceValue!==undefined&&values.referenceValue!=='')next.referenceValue=Number(values.referenceValue);if(values.shipId!==undefined&&values.shipId!=='')next.shipId=values.shipId;}
  if(action.startsWith('prepareCustomsInspection')){next.shipId=values.shipId;next.kind=values.kind;if(action.endsWith('Admin'))next.agentId=values.agentId;}
  if(action==='setCustomsAuthority'){if(!/^[0-5]$/.test(String(values.level??'')))throw Error('Choisissez un niveau de 0 à 5.');next.level=Number(values.level);next.portId=values.portId;}
  if(action.startsWith('cancel')||['setCustomsAuthority','authorizeCustomsRetry'].includes(action))next.reason=values.reason;

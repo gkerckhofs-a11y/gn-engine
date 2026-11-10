@@ -99,3 +99,11 @@ Régression prévue : droits MJ, ancien Master non activé, entrée strictement 
 Le devis MJ affiche maintenant une liste **non validée** de justificatifs nécessaires avant émission : titulaire et émetteur pour les trois licences ; activité commerciale et révocation pour LIC-01 ; cargaison réelle, voyage, valeur des lots et paiement pour LIC-02 ; mission, biens, durée et décision tarifaire MJ pour LIC-03. Cette liste est une aide de régie, non une preuve ou un titre. Aucun dossier de licence n'est encore créé et aucun contrôle documentaire ne la considère comme autorisation réelle.
 
 Une valeur de référence saisie pour LIC-01 ou LIC-03 est refusée au lieu d'être ignorée silencieusement ; seule LIC-02 utilise une base numérique. Tests de projection, d'échappement HTML et de rejet des champs superflus. Aucun changement de fonds, stock, droits, paiements ou habilitations.
+
+## Consultation du fret réel dans un devis LIC-02 — 10 novembre 2026
+
+La régie MJ peut sélectionner, **facultativement et pour LIC-02 seulement**, un vaisseau de la session en demandant le devis canonique. Le service relit alors la soute physique `HOLD` : lots réellement présents (y compris dissimulés ou sous garde), quantités, détenteurs/propriétaires, statuts, port et identifiant de voyage engagé lorsqu'il existe. La projection n'expose ni passagers ni manifeste privé. Le devis sans vaisseau conserve son comportement historique.
+
+**Limite explicite :** le catalogue M1 actuel ne comporte pas encore de valeur de référence canonique par marchandise ni de statut « réglementée » fiable ; le montant saisi par le MJ reste indicatif et **n'est pas validé par le stock réel**. La présence d'un voyage n'atteste pas qu'il soit autorisé pour la licence. L'UI affiche ces écarts ; aucun permis, compte, taxe, quittance, changement d'inventaire ou droit joueur n'est ajouté.
+
+Régressions partagées mémoire/Firestore : vaisseau réel, lot/quantité/propriétaire, voyage projeté sans manifeste, absence d'écriture, refus vaisseau inconnu et acteur joueur, valeurs non confirmées. Régression UI : sélection, transmission stricte et échappement du contenu arbitraire. CI ciblée `hidden-ui` à contrôler sur le SHA du candidat ; une validation automatisée ne remplace pas le test terrain.
