@@ -88,7 +88,7 @@ export function hiddenCargoSuite(makeStore,prefix='Fret caché et MOD-04 SO'){
   await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000,fee:0},f.owner),
     {code:'INVALID_ADMISSION'});
   const current=await f.get('');
-  await f.edit('',s=>({...s,spaceOutlaws:{...s.spaceOutlaws,hiddenCargoVersion:undefined}}));
+  await f.edit('',s=>{const {hiddenCargoVersion,...older}=s.spaceOutlaws;return {...s,spaceOutlaws:older};});
   await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-01'},f.owner),{code:'SO_GAMEPLAY_NOT_OPEN'});
   await f.edit('',()=>current);
  });
