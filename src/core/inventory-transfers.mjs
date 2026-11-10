@@ -66,8 +66,6 @@ export function createLotTransferService({store,signed,now,uuid}){
     const recipient=await party(tx,s.id,recipientId);requireThat(recipient.active,'INVALID_RECIPIENT');
     const lot=await readLot(tx,s.id,documentId(input.lotId),at);
     requireThat(lot&&personalLot(lot,c.id),'FORBIDDEN');
-    if(s.spaceOutlaws)requireThat(s.spaceOutlaws.inf03Version===1
-      &&lot.origin?.kind==='SO_FORGERY','SO_GAMEPLAY_NOT_OPEN');
     requireThat(await forgedLotValid(tx,s.id,lot),'SO_INF03_RECORD');
     const quantity=itemQuantity(lot.item,input.quantity);requireThat(lot.status==='AVAILABLE'&&lot.quantity>=quantity,'INSUFFICIENT_STOCK');
     const result={source:{id:c.id,name:c.public.displayName},recipient:{id:recipientId,name:recipient.c.public.displayName},
@@ -90,14 +88,18 @@ export function createLotTransferService({store,signed,now,uuid}){
       const op=`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`,fingerprint=hash(JSON.stringify([action,input]));
       const previous=await tx.get(op);
       if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');requireThat(previous.partyVersion===version,'FORBIDDEN');return previous.result;}
-      if(s.spaceOutlaws){
-        requireThat(s.spaceOutlaws.inf03Version===1
-          &&(action==='proposeLotTransfer'||p?.forgeryTransfer===true),'SO_GAMEPLAY_NOT_OPEN');
+      if(s.spaceOutlaws&&action!=='proposeLotTransfer'){
+        requireThat(s.spaceOutlaws.inf03Version===1&&p?.forgeryTransfer===true,'SO_GAMEPLAY_NOT_OPEN');
         authorizeSpaceOutlaws(tx,s,'FORGERY_TRANSFER');
       }
       let result;
       if(action==='proposeLotTransfer'){
-        const x=await prepare(tx,ctx,input,at);requireThat(input.confirmation===x.result.confirmation,'STALE_REVISION');
+        const x=await prepare(tx,ctx,input,at);
+        if(s.spaceOutlaws){
+          requireThat(s.spaceOutlaws.inf03Version===1&&x.lot.origin?.kind==='SO_FORGERY','SO_GAMEPLAY_NOT_OPEN');
+          authorizeSpaceOutlaws(tx,s,'FORGERY_TRANSFER');
+        }
+        requireThat(input.confirmation===x.result.confirmation,'STALE_REVISION');
         p={id:newId,status:'PENDING',revision:1,createdAt:at,updatedAt:at,sourceId:c.id,sourceName:c.public.displayName,sourceVersion:version,
           recipientId:x.recipient.c.id,recipientName:x.recipient.c.public.displayName,recipientVersion:x.recipient.version,
           lotId:x.lot.id,lotRevision:x.lot.revision,item:publicItem(x.lot.item),quantity:x.result.quantity,
