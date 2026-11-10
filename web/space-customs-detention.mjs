@@ -79,3 +79,34 @@ export function customsSeizuresPlayerHtml(d,sid){
     ||'<p>Aucune saisie formelle enregistrée pour ce personnage.</p>')
   +'</div>';
 }
+
+export const customsAppealErrors={
+ SO_CUSTOMS_APPEAL_CLOSED:'Cette saisie est close : la contestation n’est plus ouverte.',
+ SO_CUSTOMS_APPEAL_EXISTS:'Une contestation est déjà enregistrée pour cette saisie.',
+ SO_CUSTOMS_APPEAL_REASON:'Expliquez votre contestation (1 à 1000 caractères).',
+};
+export function customsAppealsPlayerHtml(d,receipts,sid){
+ const own=new Set((d.appeals??[]).map(a=>a.seizureId));
+ const forms=(receipts??[]).filter(r=>r.status==='SEIZED'&&!own.has(r.id)).map(r=>
+  '<form class="panel" data-form="customsAppealFile" data-sid="'+esc(sid)+'" data-id="'+esc(r.id)+'">'
+  +'<h3>Contester la saisie : '+esc(r.itemName)+'</h3>'
+  +'<p>Quittance : '+esc(r.receiptCode)+'</p>'
+  +'<label>Motif de votre contestation fictive<textarea name="reason" maxlength="1000" required></textarea></label>'
+  +'<button type="submit">Déposer une contestation au MJ</button></form>').join('');
+ const history=(d.appeals??[]).map(a=>'<article class="panel"><h3>'+esc(a.itemName)+'</h3>'
+  +'<p>Quittance : '+esc(a.receiptCode)+' · statut : '+esc(a.status)+'</p>'
+  +'<p>Votre motif : '+esc(a.reason)+'</p>'
+  +'<p>Cette demande ne libère aucun lot automatiquement.</p></article>').join('');
+ return '<section class="narrow"><h2>Contestations de saisie</h2>'
+  +'<p>La contestation signale une demande au MJ ; elle ne rembourse rien et ne transfère aucun objet.</p>'
+  +(forms||'')+(history||'<p>Aucune contestation enregistrée.</p>')+'</section>';
+}
+export function customsAppealsAdminHtml(d){
+ const appeals=d.appeals??[];
+ return '<section class="narrow"><h2>Demandes de contestation · MJ</h2>'
+  +'<p>Réception seulement : aucune décision automatique de restitution, de sanction ou de paiement.</p>'
+  +(appeals.map(a=>'<article class="panel"><h3>'+esc(a.itemName)+'</h3>'
+    +'<p>Quittance : '+esc(a.receiptCode)+' · personnage : '+esc(a.ownerId)+'</p>'
+    +'<p>Statut : '+esc(a.status)+' · demande : '+esc(a.reason)+'</p>'
+    +'</article>').join('')||'<p>Aucune contestation déposée.</p>')+'</section>';
+}

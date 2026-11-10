@@ -36,3 +36,13 @@ Le registre du stock officiel est **historisé** avec le statut `RETURNED` et ne
 Cette restitution n'est ni une annulation rétroactive de la saisie ni un règlement d'appel : elle ne crée aucun crédit, ne change pas les mandats, ne juge pas une faute et n'habilite aucun joueur. La décision de remise physique est prise par le MJ.
 
 Les recours juridiques scénarisés, confiscations définitives, amendes et transferts de titre restent distincts. Validation sur le SHA exact par tests applicatifs, Firestore et HTTP, puis recette humaine Android/iOS avant production.
+
+## Contester une saisie — dépôt de demande (candidat)
+
+Le propriétaire initial d'un lot encore saisi peut déposer **une contestation écrite unique** depuis sa quittance, avec motif de fiction. Le serveur vérifie l'inscription personnelle, la saisie en cours, l'appartenance du bien et l'absence de demande préalable.
+
+Le MJ autorisé consulte les contestations reçues dans sa régie. Les demandes restent des dossiers `PENDING` : ce module ne prononce aucun jugement, n'ouvre aucune remise forcée, ne crée aucun crédit et ne modifie ni le stock officiel ni la propriété du bien. Toute restitution reste soumise à la procédure distincte de remise physique confirmée.
+
+Les identités techniques, secrets INF-03 et notes douanières privées ne sont pas transmis au joueur. Les anciennes sessions non activées conservent leurs permissions inchangées.
+
+Cette tranche n'intègre pas encore la décision MJ sur la contestation, les créances, les amendes, un appel hiérarchique ou un tribunal scénarisé. Tests ciblés du dossier personnel, doublons, accès aux données et anciennes versions, CI sur le SHA exact et recette multi-smartphones à effectuer.

@@ -245,6 +245,16 @@ targetedProfiles['customs-seizure']={
   'src/core/space-customs-seizure.mjs','test/support/space-customs-seizure-suite.mjs',
   'test/space-customs-seizure.test.mjs','test/space-customs-seizure-ui.test.mjs'],
 };
+// Contestation de saisie : dépôt personnel et lecture MJ, sans mouvement de lots.
+targetedProfiles['customs-appeal']={
+ ...targetedProfiles['customs-seizure'],
+ tests:[...targetedProfiles['customs-seizure'].tests,
+  'test/space-customs-appeal.test.mjs','test/space-customs-appeal-ui.test.mjs'],
+ suites:[...targetedProfiles['customs-seizure'].suites,'space-customs-appeal'],
+ files:[...targetedProfiles['customs-seizure'].files,
+  'src/core/space-customs-appeals.mjs','test/support/space-customs-appeal-suite.mjs',
+  'test/space-customs-appeal.test.mjs','test/space-customs-appeal-ui.test.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

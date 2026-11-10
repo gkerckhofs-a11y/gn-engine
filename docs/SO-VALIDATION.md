@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Douanes — dépôt de contestation (candidat)
+
+Le propriétaire d'un bien saisi peut demander une contestation personnelle depuis sa quittance ; le MJ reçoit une liste privée des demandes PENDING. Le dépôt reste idempotent, sans saisie supplémentaire, remboursement, droit douanier ou modification de stock. Aucune décision de recours n'est encore automatisée. CI ciblée sur le nouveau SHA, recette mobile et procédures de jugement à confirmer.
+
 ## Saisie douanière — restitution contrôlée (candidat du 10 novembre 2026)
 
 Décision MJ de remise du lot saisi à son propriétaire initial ; garde stricte sur la saisie, le stock officiel, la quantité et le lieu, confirmation de la remise physique, quittance mise à jour, registre historique conservé, provenance INF-03 inchangée. Opération impossible en STOP et après restitution. Aucun nouveau pouvoir de confiscation, taxe ou tribunal. CI du commit candidat et recette mobile encore à vérifier. Voir [SO-CUSTOMS-SEIZURE](SO-CUSTOMS-SEIZURE.md).

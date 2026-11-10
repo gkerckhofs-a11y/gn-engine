@@ -68,6 +68,8 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(scopes.has('FIELD')&&/^(fieldActions\/[^/]+|fieldStates\/[^/]+|aidOffers\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/(?:resources\/actionPoints|fieldCooldowns\/[^/]+|knowledge\/[^/]+))?)$/.test(relative))continue;
   if(scopes.has('FORGERY_TRANSFER')&&session.spaceOutlaws.inf03Version===1
     &&/^(lotTransfers\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?)$/.test(relative))continue;
+  if(scopes.has('CUSTOMS_APPEAL')&&session.spaceOutlaws.customsDetentionVersion===1
+    &&/^customsSeizureAppeals\/[^/]+$/.test(relative))continue;
   if(scopes.has('CUSTOMS_SEIZURE')&&session.spaceOutlaws.customsDetentionVersion===1
     &&/^(customsDetentions\/[^/]+|customsSeizures\/[^/]+|customsOfficialInventory\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?)$/.test(relative))continue;
   if(scopes.has('CUSTOMS_DETENTION')&&session.spaceOutlaws.customsDetentionVersion===1
