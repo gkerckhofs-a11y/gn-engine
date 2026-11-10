@@ -25,8 +25,15 @@ export function itemQuantity(definition,value,allowZero=false){
 }
 // Reservations expire on server time. The virtual revision invalidates old consent even before a write persists the release.
 export function effectiveLot(l,at){
-  return l?.status==='RESERVED'&&Number.isSafeInteger(l.marketReservation?.expiresAt)&&at>=l.marketReservation.expiresAt
-    ?{...l,status:'AVAILABLE',revision:l.revision+1,marketReservation:null}:l;
+  // Customs custody ends after fifteen *real* minutes, even if the game clock
+  // is paused or the organizer has not reopened their dashboard. Retain the
+  // separate MJ case for audit, but never keep the item blocked after expiry.
+  const available=l?.status==='CUSTOMS_HELD'
+    &&Number.isSafeInteger(l.customsDetention?.expiresAt)&&at>=l.customsDetention.expiresAt
+      ?{...l,status:'AVAILABLE',revision:l.revision+1,customsDetention:null}:l;
+  return available?.status==='RESERVED'
+    &&Number.isSafeInteger(available.marketReservation?.expiresAt)&&at>=available.marketReservation.expiresAt
+      ?{...available,status:'AVAILABLE',revision:available.revision+1,marketReservation:null}:available;
 }
 export const readLot=async(tx,sid,id,at)=>effectiveLot(await tx.get(`sessions/${sid}/inventory/${id}`),at);
 export const lotState=l=>({quantity:l.quantity,status:l.status,revision:l.revision});

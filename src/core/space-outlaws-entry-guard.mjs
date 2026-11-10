@@ -68,6 +68,8 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(scopes.has('FIELD')&&/^(fieldActions\/[^/]+|fieldStates\/[^/]+|aidOffers\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/(?:resources\/actionPoints|fieldCooldowns\/[^/]+|knowledge\/[^/]+))?)$/.test(relative))continue;
   if(scopes.has('FORGERY_TRANSFER')&&session.spaceOutlaws.inf03Version===1
     &&/^(lotTransfers\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?)$/.test(relative))continue;
+  if(scopes.has('CUSTOMS_DETENTION')&&session.spaceOutlaws.customsDetentionVersion===1
+    &&/^(customsDetentions\/[^/]+|customsDetentionByLot\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?)$/.test(relative))continue;
   if(scopes.has('INF03')&&session.spaceOutlaws.inf03Version===1&&/^(inf03Actions\/[^/]+|inf03Actors\/[^/]+|forgeryRecords\/[^/]+|fieldStates\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/resources\/actionPoints)?)$/.test(relative))continue;
   if(scopes.has('INF01')&&session.spaceOutlaws.inf01Version===1&&/^(inf01Actions\/[^/]+|inf01Actors\/[^/]+|fieldStates\/[^/]+|characters\/[^/]+(?:\/resources\/actionPoints)?)$/.test(relative))continue;
   if(scopes.has('INF02')&&session.spaceOutlaws.inf02Version===1&&/^(inf02Actions\/[^/]+|inf02Actors\/[^/]+|inf02Attempts\/[^/]+|characters\/[^/]+(?:\/(?:knowledge\/[^/]+|resources\/actionPoints))?)$/.test(relative))continue;

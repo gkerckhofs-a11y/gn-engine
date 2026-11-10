@@ -1,6 +1,7 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {"id":"space-customs-detention","module":"../support/space-customs-detention-suite.mjs","exportName":"customsDetentionSuite","label":"Retenue fictive douanière 15 minutes sur Firestore","seconds":65},
   {"id":"space-forgery","module":"../support/space-forgery-suite.mjs","exportName":"soForgerySuite","label":"Falsification INF-03 sur Firestore","seconds":65},
   {"id":"space-intrusion","module":"../support/space-intrusion-suite.mjs","exportName":"soIntrusionSuite","label":"Intrusion fictive INF-01 sur Firestore","seconds":60},
   {"id":"space-decryption","module":"../support/space-decryption-suite.mjs","exportName":"soDecryptionSuite","label":"Déchiffrement INF-02 sur Firestore","seconds":55},

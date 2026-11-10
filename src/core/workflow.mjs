@@ -9,6 +9,7 @@ import {createSoEscapeService,soEscapeActions} from './space-escape.mjs';
 import {createSoDecryptionService,soDecryptionActions} from './space-decryption.mjs';
 import {createSoIntrusionService,soIntrusionActions} from './space-intrusion.mjs';
 import {createSoForgeryService,soForgeryActions} from './space-forgery.mjs';
+import {createCustomsDetentionService,customsDetentionActions} from './space-customs-detention.mjs';
 import {createSpaceOutlawsSuccessionService,spaceOutlawsSuccessionActions} from './space-outlaws-succession.mjs';
 import {rewardsOpen} from './space-outlaws-mission-rewards.mjs';
 import {createSpaceMaintenanceService,spaceMaintenanceActions} from './space-maintenance.mjs';
@@ -186,6 +187,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const decryptionService=createSoDecryptionService({store,signed,now,uuid,rollD6});
   const intrusionService=createSoIntrusionService({store,signed,now,uuid,rollD6});
   const forgeryService=createSoForgeryService({store,signed,checkSession,now,uuid,rollD6});
+  const customsDetentionService=createCustomsDetentionService({store,signed,checkSession,now,uuid});
   const successionService=createSpaceOutlawsSuccessionService({store,signed,checkSession,now,uuid});
   const entryService=createSpaceOutlawsEntryService({store,signed,isAdmin,checkSession,now,uuid});
   const centralMasterService=createCentralMasterService({store,signed,isAdmin,now,uuid});
@@ -220,6 +222,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(soDecryptionActions.includes(action))return decryptionService(action,actor,input);
     if(soIntrusionActions.includes(action))return intrusionService(action,actor,input);
     if(soForgeryActions.includes(action))return forgeryService(action,actor,input);
+    if(customsDetentionActions.includes(action))return customsDetentionService(action,actor,input);
     if(spaceOutlawsSuccessionActions.includes(action))return successionService(action,actor,input);
     if(spaceOutlawsEntryActions.includes(action))return entryService(action,actor,input);
     if(admissionAction(action))return admissionService(action,actor,input);

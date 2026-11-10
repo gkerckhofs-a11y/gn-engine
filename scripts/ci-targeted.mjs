@@ -216,6 +216,20 @@ targetedProfiles['infiltrator-forgery']={...targetedProfiles['infiltrator-intrus
   'src/core/space-forgery.mjs','src/core/space-forgery-evidence.mjs','web/space-forgery.mjs','src/core/inventory-transfers.mjs','src/core/inventory.mjs','src/core/space-outlaws-entry-guard.mjs','web/inventory.mjs',
   'test/support/space-forgery-suite.mjs','test/space-forgery.test.mjs','test/space-forgery-ui.test.mjs'],
 };
+// Temporary fictional customs hold: strict 15-minute real-time expiry, no
+// formal seizure or new sale/ownership powers.
+targetedProfiles['customs-detention']={...targetedProfiles['infiltrator-forgery'],
+ tests:[...new Set([...targetedProfiles['infiltrator-forgery'].tests.filter(p=>![
+  'test/space-towing-combat.test.mjs','test/space-towing-recovery.test.mjs'
+ ].includes(p)), 'test/space-customs-detention.test.mjs','test/space-customs-detention-ui.test.mjs'])],
+ suites:[...new Set([...targetedProfiles['infiltrator-forgery'].suites,'space-customs-detention'])],
+ files:[...targetedProfiles['infiltrator-forgery'].files,
+  'src/core/space-customs-detention.mjs','src/core/inventory-state.mjs',
+  'src/core/space-outlaws-entry.mjs','src/core/space-outlaws-entry-guard.mjs',
+  'src/core/workflow.mjs','web/app.mjs','web/space-customs-detention.mjs',
+  'web/inventory.mjs','test/support/space-customs-detention-suite.mjs',
+  'test/space-customs-detention.test.mjs','test/space-customs-detention-ui.test.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

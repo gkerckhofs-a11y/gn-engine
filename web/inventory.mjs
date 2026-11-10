@@ -2,7 +2,7 @@ import {mediaFigure,mediaPickerButton} from './media.mjs';
 import {createSaleUi} from './sales.mjs';
 import {createTransferUi} from './transfers.mjs';
 import {escapeHtml as esc} from './groups.mjs';
-export const lotLabels={CARGO_RESERVED:'Réservé pour un chargement',FIELD_RESERVED:'Réservé pour une action en cours',AVAILABLE:'Disponible',RESERVED:'Réservé pour le marché',SEIZED:'Saisi · inutilisable',CONSUMED:'Consommé',DESTROYED:'Détruit'};
+export const lotLabels={CUSTOMS_HELD:'Retenu provisoirement par la douane (15 minutes réelles maximum)',CARGO_RESERVED:'Réservé pour un chargement',FIELD_RESERVED:'Réservé pour une action en cours',AVAILABLE:'Disponible',RESERVED:'Réservé pour le marché',SEIZED:'Saisi · inutilisable',CONSUMED:'Consommé',DESTROYED:'Détruit'};
 const publication={DRAFT:'Brouillon',READY:'Prêt',PUBLISHED:'Publié'};
 const legality={UNSPECIFIED:'Non précisé',LEGAL:'Légal',ILLEGAL:'Illégal'};
 const attrs=(c,scope)=>`data-scope="${scope}" data-parent="${esc(c.id)}" data-revision="${c.revision}"`;

@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Candidat : retenue douanière fictive provisoire (10 novembre 2026)
+
+Contrôle MJ de biens réglementés sans permis ; consignation d'un lot disponible détenu personnellement, blocage numérique pour 15 minutes **réelles** maximum, libération anticipée ou expiration effective indépendante de l'horloge de jeu. Un seul incident autorisé par lot et session empêche le renouvellement en chaîne. Aucun transfert de propriété, amende, saisie formelle, inventaire douanier officiel, contrainte physique ou déploiement. CI ciblée et recette terrain à valider. Voir [SO-CUSTOMS-DETENTION.md](SO-CUSTOMS-DETENTION.md).
+
 ## Candidat INF-03 — preuve historique après saisie ou destruction (10 novembre 2026)
 
 Provenance vérifiée de manière cohérente dans les transferts, le vol et la régie INF-03. Le contrôle MJ reste possible après retrait d'un faux (quantité 0, état DESTROYED ou CONSUMED), sans permettre sa remise. Les corrections du lot sont affichées au MJ ; aucun pouvoir de saisie ni d'entreposage douanier n'est ouvert. CI ciblée du SHA exact à confirmer et recette terrain encore nécessaire.
