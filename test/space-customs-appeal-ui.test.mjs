@@ -14,7 +14,7 @@ test('Contestation douanière : seule la saisie non contestée offre le dépôt'
 test('Contestation douanière : auteur malveillant échappé, notes privées non projetées',()=>{
  const item={seizureId:'s1',itemName:'<script>',receiptCode:'r',
   ownerId:'c',reason:'<script>secret</script>',status:'PENDING',at:100};
- const admin=customsAppealsAdminHtml({appeals:[item]});
+ const admin=customsAppealsAdminHtml({session:{id:'sid'},appeals:[item]});
  assert.ok(admin.includes('&lt;script&gt;'));
  assert.ok(!admin.includes('<script>'));
  const player=customsAppealsPlayerHtml({appeals:[item]},[],'sid');
