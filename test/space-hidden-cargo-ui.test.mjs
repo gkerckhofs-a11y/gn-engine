@@ -56,3 +56,15 @@ test('Douanes UI : contrôleur ignore un aperçu ou reçu arrivé après navigat
 test('Douanes UI : interruption secondaire séparée de la fin et attestations tactiles',()=>{
  const h=customsInspectionHtml({session,confirmation:'proof',inspection:{id:'job',shipName:'Ship',kind:'DEEP',status:'ACTIVE',canFinish:true,canCancel:true,remainingSeconds:0,pnj:false}});assert.match(h,/class="customs-cancel"/);assert.match(h,/Aucun résultat ne sera appliqué/);assert.match(h,/<button class="quiet">Interrompre le contrôle/);assert.match(h,/<button class="primary">Confirmer le contrôle/);const css=readFileSync(new URL('../web/galactic.css',import.meta.url),'utf8');assert.match(css,/\.cargo-customs \.check\{min-height:44px/);
 });
+
+test('Douanes UI : une seconde inspection distingue les anciens lots des nouvelles découvertes',()=>{
+ const known={...lot,id:'old',item:{...lot.item,name:'<script>ancien</script>'}};
+ const d={session,inspection:{id:'job',shipName:'Ship',kind:'DEEP',
+  status:'COMPLETED',result:{roll:6,level:5,total:11,success:true,discovered:[],knownCargo:[known]}}};
+ const html=customsInspectionHtml(d);
+ assert.match(html,/Nouveaux lots découverts/);
+ assert.match(html,/Aucun nouveau lot découvert/);
+ assert.match(html,/Lots déjà découverts lors d’un contrôle antérieur/);
+ assert.ok(html.includes('&lt;script&gt;ancien'));
+ assert.doesNotMatch(html,/<script>/);
+});

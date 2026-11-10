@@ -192,6 +192,36 @@ export function hiddenCargoSuite(makeStore,prefix='Fret caché et MOD-04 SO'){
   const ship=await f.ship(),lot=await f.get(`inventory/${f.lotId}`),points=await f.points(f.other),waiting=await f.inspect(r);assert.equal(waiting.inspection.canFinish,false);assert.equal(waiting.inspection.canCancel,true);assert.equal((await f.read('customsAdmin',{},f.owner)).inspections.find(x=>x.id===r.id).pnj,false);assert.equal((await f.inspect(r,f.owner)).inspection.canFinish,false);assert.deepEqual(await f.ship(),ship);assert.deepEqual(await f.get(`inventory/${f.lotId}`),lot);assert.deepEqual(await f.points(f.other),points);
   f.advance(120000);const ready=await f.inspect(r);assert.equal(ready.inspection.canFinish,true);assert.equal((await f.inspect(r,f.owner)).inspection.canFinish,false);await f.cmd('finishCustomsInspection',hiddenCargoRequest('finishCustomsInspection',{sessionId:f.sid,inspectionId:r.id,confirmation:ready.confirmation},{present:'on',performed:'on',die:1}),f.other);const closed=await f.inspect(r);assert.equal(closed.inspection.canFinish,false);assert.equal(closed.inspection.canCancel,false);assert.equal(closed.inspection.result.success,true);
  });
+
+ test(`${prefix} : nouvelle inspection autorisée ne réécrit pas une découverte antérieure`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);
+  await f.conceal();await f.grant(5);
+  const first=await f.start();f.advance(120000);f.setDie(6);
+  const initial=await f.close(first);
+  assert.equal(initial.result.success,true);
+  assert.equal(initial.result.discovered.length,1);
+  assert.deepEqual(initial.result.knownCargo,[]);
+  const original=await f.get(`inventory/${f.lotId}`);
+  assert.equal(original.hiddenCargo.discovered,true);
+  assert.ok(original.hiddenCargo.discoveredAt);
+  const admin=await f.read('customsAdmin',{},f.owner);
+  const ship=admin.ships.find(x=>x.id==='ship');
+  await f.cmd('authorizeCustomsRetry',{shipId:ship.id,confirmation:ship.confirmation,
+    reason:'Indice nouveau vérifié par le MJ'},f.owner);
+  f.advance(300000);
+  const second=await f.start();f.advance(120000);f.setDie(6);
+  const repeated=await f.close(second);
+  assert.equal(repeated.result.success,true);
+  assert.deepEqual(repeated.result.discovered,[]);
+  assert.equal(repeated.result.knownCargo.length,1);
+  assert.equal(repeated.result.knownCargo[0].id,f.lotId);
+  const after=await f.get(`inventory/${f.lotId}`);
+  assert.equal(after.hiddenCargo.discoveredAt,original.hiddenCargo.discoveredAt);
+  assert.equal(after.revision,original.revision);
+  const history=await f.store.list(`sessions/${f.sid}/inventory/${f.lotId}/history`);
+  assert.equal(history.filter(e=>e.kind==='finishCustomsInspection').length,1);
+  await assert.rejects(f.start(),{code:'CUSTOMS_ATTEMPT_USED'});
+ });
  test(`${prefix} : projections pause, STOP et révocation permettent la restitution MJ sans nouvelle action`,async()=>{
   const f=await hiddenCargoFixture(makeStore);await f.grant(5);const r=await f.start();f.advance(120000);await f.edit('ships/ship',s=>({...s,moduleNeutralizations:[{lotId:f.moduleId,untilGameMs:90000000}]}));assert.equal((await f.inspect(r)).inspection.canFinish,true);assert.equal((await f.inspect(r)).inspection.canCancel,true);await f.edit('ships/ship',s=>({...s,moduleNeutralizations:[]}));await f.stage('PAUSE');assert.equal((await f.inspect(r)).inspection.canFinish,false);assert.equal((await f.inspect(r)).inspection.canCancel,true);assert.equal((await f.read('hiddenCargo',{shipId:'ship'})).canMove,false);await f.stage('EN_JEU');await f.cmd('stopSafety',{reason:'Sécurité'});const stopped=await f.inspect(r);assert.equal(stopped.session.safetyStopped,true);assert.equal(stopped.inspection.canFinish,false);assert.equal(stopped.inspection.canCancel,false);const s=await f.read('session',{},f.owner);await f.cmd('resumeSafety',{revision:s.revision,reason:'Reprise'},f.owner);await f.grant(0);const regie=await f.inspect(r,f.owner);assert.equal(regie.inspection.canFinish,false);assert.equal(regie.inspection.canCancel,true);await f.close(r,{cancel:true,actor:f.owner});assert.equal((await f.points(f.other)).reserved,0);
  });
