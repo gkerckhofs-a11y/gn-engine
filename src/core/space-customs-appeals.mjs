@@ -10,6 +10,11 @@ export const customsAppealActions=['myCustomsAppeals','customsAppealsAdmin','sub
 const playerView=a=>({id:a.id,seizureId:a.seizureId,receiptCode:a.receiptCode,
  itemName:a.itemName,reason:a.reason,at:a.at,status:a.status,
  ...(a.outcome?{outcome:a.outcome,publicReply:a.publicReply,decidedAt:a.decidedAt}: {})});
+// The MJ needs the fictional case and private decision note, not real authentication identifiers.
+const adminView=a=>({...playerView(a),ownerId:a.ownerId,
+ ...(a.outcome?{privateReason:a.privateReason}:{})});
+const appealAuditPath=(sid,actorUid,requestId)=>
+ root(sid)+'/audit/'+hash('SO_CUSTOMS_APPEAL:'+actorUid+':'+requestId);
 export function createCustomsAppealService({store,signed,checkSession,now}){
  return async function dispatch(action,actor,input){
   signed(actor);
@@ -23,7 +28,7 @@ export function createCustomsAppealService({store,signed,checkSession,now}){
     requireThat(appeals.length<=1000,'SO_RELEASE_LIMIT');
     const projected=await Promise.all(appeals.sort((a,b)=>b.at-a.at).slice(0,80).map(async a=>{
       const seizure=await tx.get(seizurePath(sid,a.seizureId));
-      return {...a,status:seizure?.status==='RETURNED'?'CLOSED_RETURNED':a.status};
+      return adminView({...a,status:seizure?.status==='RETURNED'?'CLOSED_RETURNED':a.status});
     }));
     return {session:{id:sid,stage:s.stage},appeals:projected};
    }
@@ -47,6 +52,11 @@ export function createCustomsAppealService({store,signed,checkSession,now}){
       decidedAt:at,decidedBy:actor.uid};
     authorizeSpaceOutlaws(tx,s,'CUSTOMS_APPEAL');
     tx.set(appealPath(sid,id),next);
+    tx.set(appealAuditPath(sid,actor.uid,rid),{
+      id:hash('SO_CUSTOMS_APPEAL:'+actor.uid+':'+rid),
+      kind:'SO_CUSTOMS_APPEAL_DECIDED',at,actorUid:actor.uid,
+      seizureId:id,characterId:a.ownerId,outcome:input.outcome,
+    });
     const result=playerView(next);
     tx.set(op,{fingerprint,result,at});
     return result;
@@ -84,6 +94,11 @@ export function createCustomsAppealService({store,signed,checkSession,now}){
      sourceUid:actor.uid,sourceAccessVersion:r.accessVersion};
    authorizeSpaceOutlaws(tx,s,'CUSTOMS_APPEAL');
    tx.set(appealPath(sid,seizureId),appeal);
+   tx.set(appealAuditPath(sid,actor.uid,rid),{
+     id:hash('SO_CUSTOMS_APPEAL:'+actor.uid+':'+rid),
+     kind:'SO_CUSTOMS_APPEAL_FILED',at,actorUid:actor.uid,
+     seizureId,characterId:c.id,
+   });
    const result=playerView(appeal);
    tx.set(op,{fingerprint,result,at,ownerId:c.id,accessVersion:r.accessVersion});
    return result;

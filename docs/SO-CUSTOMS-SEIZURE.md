@@ -60,3 +60,11 @@ Les joueurs ne voient que leur propre demande et la réponse publique. Les notes
 Lorsque le MJ restitue physiquement le lot par le parcours natif `returnCustomsSeizure`, les lectures des contestations présentent l’état dérivé `CLOSED_RETURNED` sans altérer la demande, la décision antérieure ni l’historique du dossier. La régie et le joueur voient explicitement que la saisie est close ; un recours encore en attente n’affiche plus de formulaire de jugement. Si une décision existe, elle reste visible comme décision **historique** et ne contredit pas la restitution actuelle.
 
 L’interface joueur ne reçoit aucune note MJ privée et aucune opération d’argent, de déplacement ou de nouvelle sanction ne découle de ce changement d’affichage. Le libellé de la régie des retenues mentionne désormais correctement la saisie formelle déjà raccordée. Tests d’interface ciblés et CI sur le commit exact à vérifier ; recette terrain multi-appareils restant à effectuer.
+
+## Journal des contestations et projection minimale en régie — 10 novembre 2026
+
+Chaque dépôt de contestation et chaque décision MJ écrit, dans la **même transaction** que le dossier et le reçu de réessai, un événement de session `SO_CUSTOMS_APPEAL_FILED` ou `SO_CUSTOMS_APPEAL_DECIDED`. L'événement référence la saisie, le personnage fictif, l'acteur, la date et, pour une décision, sa nature. Aucun paiement, mouvement de lot ni sanction supplémentaire n'est déclenché par cette journalisation. Le même `requestId` rejoué ne crée pas une seconde entrée.
+
+La lecture MJ des dossiers conserve le motif fictionnel, la décision et la note interne autorisée, mais ne transmet plus les identifiants d'authentification `sourceUid`, `sourceAccessVersion` ou `decidedBy` inutiles à cette interface. La vue du joueur reste limitée à sa demande et la réponse publique ; l'accès aux événements de journal n'est pas ouvert au joueur.
+
+Validation requise : deux cas applicatifs (rejeu et confidentialité), leurs équivalents sur émulateur Firestore, contrôles de droits et CI ciblée sur le SHA exact. Aucun téléphone réel n'a encore servi à cette recette.

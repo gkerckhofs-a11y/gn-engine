@@ -106,4 +106,47 @@ export function customsAppealSuite(makeStore,prefix='Douanes SO : contestation')
    seizureId:f.seized.id,reason:'Contestation tardive'
   }),{code:'SO_CUSTOMS_APPEAL_CLOSED'});
  });
+ test(prefix+' : dépôt et décision ont chacun une trace immuable, sans doublon au réessai',async()=>{
+  const f=await fixture();
+  const seizureId=f.seized.id,reason='Contestation motivée';
+  const command={seizureId,reason,requestId:'customs-appeal-filing-1'};
+  const first=await f.actionCmd('submitCustomsAppeal',command);
+  const replay=await f.actionCmd('submitCustomsAppeal',command);
+  assert.deepEqual(replay,first);
+  const decision={seizureId,outcome:'RETURN_RECOMMENDED',
+    publicReply:'Une remise peut être organisée séparément.',
+    privateReason:'Dossier examiné en régie',
+    requestId:'customs-appeal-decision-1'};
+  const judged=await f.actionCmd('decideCustomsAppeal',decision,f.owner);
+  assert.deepEqual(await f.actionCmd('decideCustomsAppeal',decision,f.owner),judged);
+  const events=(await f.store.list('sessions/'+f.sid+'/audit'))
+    .filter(e=>['SO_CUSTOMS_APPEAL_FILED','SO_CUSTOMS_APPEAL_DECIDED'].includes(e.kind)
+      &&e.seizureId===seizureId);
+  assert.equal(events.length,2);
+  assert.deepEqual(events.map(e=>e.kind).sort(),
+    ['SO_CUSTOMS_APPEAL_DECIDED','SO_CUSTOMS_APPEAL_FILED']);
+  assert.ok(events.every(e=>e.characterId===f.cid&&e.actorUid));
+  assert.equal(events.find(e=>e.kind==='SO_CUSTOMS_APPEAL_DECIDED').outcome,'RETURN_RECOMMENDED');
+  assert.equal((await f.store.get('sessions/'+f.sid+'/inventory/'+f.lotId)).status,'SEIZED');
+  assert.equal((await f.actionRead('myCustomsSeizures')).receipts[0].status,'SEIZED');
+ });
+ test(prefix+' : la vue de régie exclut les identifiants techniques, mais garde la note de fiction',async()=>{
+  const f=await fixture();
+  await f.actionCmd('submitCustomsAppeal',{
+    seizureId:f.seized.id,reason:'Je demande examen.'
+  });
+  const before=(await f.actionRead('customsAppealsAdmin',{},f.owner)).appeals[0];
+  assert.equal(before.ownerId,f.cid);
+  assert.doesNotMatch(JSON.stringify(before),/sourceUid|sourceAccessVersion|decidedBy|accessVersion/);
+  await f.actionCmd('decideCustomsAppeal',{
+    seizureId:f.seized.id,outcome:'MAINTAINED',
+    publicReply:'Décision notifiée.',privateReason:'Justification interne MJ.'
+  },f.owner);
+  const after=(await f.actionRead('customsAppealsAdmin',{},f.owner)).appeals[0];
+  assert.equal(after.privateReason,'Justification interne MJ.');
+  assert.doesNotMatch(JSON.stringify(after),/sourceUid|sourceAccessVersion|decidedBy|accessVersion/);
+  assert.doesNotMatch(JSON.stringify((await f.actionRead('myCustomsAppeals')).appeals[0]),
+    /Justification interne MJ|sourceUid|sourceAccessVersion|decidedBy/);
+ });
+
 }
