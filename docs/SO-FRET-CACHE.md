@@ -79,3 +79,5 @@ Correction ciblée de la résolution existante `finishCustomsInspection` et de s
 ### Vérification CI de cette correction
 
 Le profil ciblé `hidden-ui` a été rejeté par le planificateur de CI : le cumul non encore validé par une référence globale fiable comprend notamment `src/core/campaigns.mjs`, hors périmètre de ce profil. Il ne s'agit pas d'un échec des assertions de la correction. Un contrôle intégral est donc demandé sur le candidat suivant (`[ci full]`) plutôt que d'élargir artificiellement la liste blanche d'un profil ciblé. Sa réussite devra être vérifiée sur le SHA exact ; aucun résultat n'est présumé à ce stade.
+
+La vérification doit inclure le cas de non-réécriture du champ `discoveredAt` et du journal de lot après une seconde inspection approfondie autorisée. Le commentaire de PR doit citer la conclusion du run complet et non un ancien run ciblé.
