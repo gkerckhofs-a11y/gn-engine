@@ -46,6 +46,10 @@ export const customsSeizureErrors={
  SO_CUSTOMS_HOLD_EXPIRED:'Les quinze minutes sont écoulées : impossible de saisir rétroactivement. Restituez l’objet.',
  SO_CUSTOMS_HOLD_STALE:'La retenue ou le lot n’est plus dans l’état attendu.',
  SO_CUSTOMS_SEIZURE_DUPLICATE:'Ce document de fiction a déjà été saisi.',
+ SO_CUSTOMS_RETURN_DECISION:'Une restitution exige la décision MJ et une remise physique confirmée.',
+ SO_CUSTOMS_SEIZURE_FINISHED:'Cette saisie est déjà close ou absente.',
+ SO_CUSTOMS_RETURN_OWNER:'Le propriétaire initial n’est pas disponible dans la session.',
+ SO_CUSTOMS_RETURN_STALE:'Le lot ou le stock officiel a changé, actualisez.',
 };
 export function customsSeizuresAdminHtml(d,sid){
  const rows=d.officialStock??[];
@@ -55,7 +59,13 @@ export function customsSeizuresAdminHtml(d,sid){
    +'<p>Lot : '+esc(s.lotId)+' · propriétaire initial : '+esc(s.ownerId)+'</p>'
    +'<p>Référence de quittance : '+esc(s.receiptCode)+'</p>'
    +'<p>Décision et motif MJ : '+esc(s.reasonText??'')+'</p>'
-   +'<p>Statut : '+esc(s.status)+'</p></article>').join('')||'<p>Aucune saisie formelle enregistrée.</p>')
+   +'<p>Statut : '+esc(s.status)+'</p>'
+   +(s.status==='SEIZED'?'<form data-form="customsSeizureReturn" data-sid="'+esc(sid)+'" data-id="'+esc(s.id)+'">'
+     +'<label>Motif de restitution au propriétaire initial<input name="reasonText" maxlength="500" required></label>'
+     +'<label><input name="authorized" type="checkbox" required>Restitution expressément autorisée par le MJ</label>'
+     +'<label><input name="physicalReturnConfirmed" type="checkbox" required>Accessoire rendu physiquement au propriétaire initial</label>'
+     +'<button type="submit">Restituer le lot et actualiser la quittance</button></form>':'')
+   +'</article>').join('')||'<p>Aucune saisie formelle enregistrée.</p>')
   +'</section>';
 }
 export function customsSeizuresPlayerHtml(d,sid){
@@ -65,7 +75,7 @@ export function customsSeizuresPlayerHtml(d,sid){
    +'<p>Quantité saisie : '+esc(r.quantity)+' · référence du lot : '+esc(r.lotId)+'</p>'
    +'<p>Quittance : '+esc(r.receiptCode)+'</p>'
    +'<p>Motif de fiction : marchandise réglementée sans permis, régularisation non obtenue.</p>'
-   +'<p>Statut : '+esc(r.status)+'</p></article>').join('')
+   +'<p>Statut : '+esc(r.status)+'</p>'+(r.returnedAt?'<p>Restitution enregistrée.</p>':'')+'</article>').join('')
     ||'<p>Aucune saisie formelle enregistrée pour ce personnage.</p>')
   +'</div>';
 }

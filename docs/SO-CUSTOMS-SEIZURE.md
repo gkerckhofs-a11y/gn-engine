@@ -25,3 +25,14 @@ Date : 10 novembre 2026. Référence canonique : `docs/source/SO_Regles_V07.txt`
 Décision MJ avant délai, refus d'une saisie échue, refus sans motifs/consignation, droits MJ versus joueur, reçu propriétaire sans notes privées, garde de lot et originalité du registre, inventaire officiel unique, passage du statut détenu à saisi, STOP SÉCURITÉ, compatibilité des anciens Masters. CI avec profil `customs-seizure` (11 fichiers de tests applicatifs et 7 suites Firestore) ; vérifier le SHA exact.
 
 Aucun déploiement, fusion `main` ou migration de session.
+## Tranche complémentaire — restitution après saisie formelle (candidat)
+
+Le MJ autorisé peut restituer **au propriétaire initial** un lot encore saisi et inscrit dans l'inventaire officiel fictif. Cette opération exige une décision motivée et la confirmation que l'accessoire a effectivement été remis.
+
+La transaction conserve l'identifiant du lot, sa quantité, sa propriété, son origine et les preuves de falsification INF-03. Elle rétablit le détenteur initial dans son sac, inscrit un événement `SO_CUSTOMS_RETURNED`, clôt le dossier de saisie avec l'état `RETURNED` et conserve la quittance d'origine, désormais marquée restituée.
+
+Le registre du stock officiel est **historisé** avec le statut `RETURNED` et ne représente plus un bien disponible en douane. Une seconde restitution est refusée, comme toute tentative sans autorisation, pendant un STOP SÉCURITÉ, ou si le lot et le registre divergent.
+
+Cette restitution n'est ni une annulation rétroactive de la saisie ni un règlement d'appel : elle ne crée aucun crédit, ne change pas les mandats, ne juge pas une faute et n'habilite aucun joueur. La décision de remise physique est prise par le MJ.
+
+Les recours juridiques scénarisés, confiscations définitives, amendes et transferts de titre restent distincts. Validation sur le SHA exact par tests applicatifs, Firestore et HTTP, puis recette humaine Android/iOS avant production.

@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Saisie douanière — restitution contrôlée (candidat du 10 novembre 2026)
+
+Décision MJ de remise du lot saisi à son propriétaire initial ; garde stricte sur la saisie, le stock officiel, la quantité et le lieu, confirmation de la remise physique, quittance mise à jour, registre historique conservé, provenance INF-03 inchangée. Opération impossible en STOP et après restitution. Aucun nouveau pouvoir de confiscation, taxe ou tribunal. CI du commit candidat et recette mobile encore à vérifier. Voir [SO-CUSTOMS-SEIZURE](SO-CUSTOMS-SEIZURE.md).
+
 ## Candidat : saisie formelle après retenue (10 novembre 2026)
 
 Décision MJ motivée avant échéance des 15 minutes réelles ; transfert du détenteur matériel vers l'inventaire officiel fictif, **sans changer le propriétaire d'origine**, registre de saisie et quittance personnelle. Échec de régularisation attesté explicitement et présence du lot sous contrôle MJ obligatoire ; aucune saisie rétroactive ni automatique. Nouvelle CI ciblée `customs-seizure` (tests applicatifs proches et 7 suites Firestore). Voir [SO-CUSTOMS-SEIZURE.md](SO-CUSTOMS-SEIZURE.md).

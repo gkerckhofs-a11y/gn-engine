@@ -45,6 +45,61 @@ export function customsSeizureSuite(makeStore,prefix='Douanes SO : saisie formel
   await assert.rejects(f.actionCmd('seizeCustomsDetention',decision(f.detention.id),f.owner),
    {code:'SO_CUSTOMS_HOLD_FINISHED'});
  });
+ test(prefix+' : restitution après saisie et quittance actualisée',async()=>{
+  const f=await fixture();
+  const seized=await f.actionCmd('seizeCustomsDetention',decision(f.detention.id),f.owner);
+  const before=await f.store.get('sessions/'+f.sid+'/inventory/'+f.lotId);
+  const input={seizureId:seized.id,reasonText:'Recours accepté par le MJ',
+    authorized:true,physicalReturnConfirmed:true};
+  const returned=await f.actionCmd('returnCustomsSeizure',input,f.owner);
+  assert.equal(returned.status,'RETURNED');
+  assert.equal(returned.receiptCode,seized.receiptCode);
+  const lot=await f.store.get('sessions/'+f.sid+'/inventory/'+f.lotId);
+  assert.equal(lot.status,'AVAILABLE');assert.equal(lot.id,f.lotId);
+  assert.equal(lot.ownerId,before.ownerId);
+  assert.equal(lot.holderId,before.ownerId);
+  assert.deepEqual(lot.location,{kind:'CHARACTER',id:before.ownerId});
+  assert.equal(lot.origin.kind,'SO_FORGERY');
+  const official=await f.store.get('sessions/'+f.sid+'/customsOfficialInventory/'+f.lotId);
+  assert.equal(official.status,'RETURNED');
+  assert.equal(official.quantity,1);
+  const receipt=(await f.actionRead('myCustomsSeizures')).receipts[0];
+  assert.equal(receipt.status,'RETURNED');
+  assert.equal(receipt.receiptCode,seized.receiptCode);
+  assert.doesNotMatch(JSON.stringify(receipt),/Recours accepté|FIBRE_PAPIER|returnedBy/);
+  assert.equal((await f.actionRead('inspectSoForgery',{lotId:f.lotId},f.owner)).quality,2);
+  const events=await f.store.list('sessions/'+f.sid+'/inventory/'+f.lotId+'/history');
+  assert.equal(events.filter(e=>e.kind==='SO_CUSTOMS_RETURNED').length,1);
+  await assert.rejects(f.actionCmd('returnCustomsSeizure',input,f.owner),
+    {code:'SO_CUSTOMS_SEIZURE_FINISHED'});
+  await assert.rejects(f.actionCmd('returnCustomsSeizure',input),
+    {code:'FORBIDDEN'});
+ });
+ test(prefix+' : restitution refuse absence d’autorisation, remise physique et stock altéré',async()=>{
+  const f=await fixture();
+  const seized=await f.actionCmd('seizeCustomsDetention',decision(f.detention.id),f.owner);
+  const input={seizureId:seized.id,reasonText:'Clôture motivée',
+    authorized:true,physicalReturnConfirmed:true};
+  await assert.rejects(f.actionCmd('returnCustomsSeizure',{...input,authorized:false},f.owner),
+    {code:'SO_CUSTOMS_RETURN_DECISION'});
+  await assert.rejects(f.actionCmd('returnCustomsSeizure',{...input,physicalReturnConfirmed:false},f.owner),
+    {code:'SO_CUSTOMS_RETURN_DECISION'});
+  assert.equal((await f.store.get('sessions/'+f.sid+'/inventory/'+f.lotId)).status,'SEIZED');
+  const path='sessions/'+f.sid+'/customsOfficialInventory/'+f.lotId;
+  await f.store.runTransaction(async tx=>{const stock=await tx.get(path);tx.set(path,{...stock,quantity:2});});
+  await assert.rejects(f.actionCmd('returnCustomsSeizure',input,f.owner),
+    {code:'SO_CUSTOMS_RETURN_STALE'});
+  assert.equal((await f.store.get('sessions/'+f.sid+'/inventory/'+f.lotId)).status,'SEIZED');
+ });
+ test(prefix+' : STOP SÉCURITÉ refuse une restitution',async()=>{
+  const f=await fixture();
+  const seized=await f.actionCmd('seizeCustomsDetention',decision(f.detention.id),f.owner);
+  await f.actionCmd('stopSafety',{reason:'Priorité sécurité'});
+  await assert.rejects(f.actionCmd('returnCustomsSeizure',{
+    seizureId:seized.id,reasonText:'Décision interrompue',
+    authorized:true,physicalReturnConfirmed:true
+  },f.owner),{code:'SESSION_NOT_RUNNING'});
+ });
  test(prefix+' : expiration à 15 min interdit une saisie rétroactive',async()=>{
   const f=await fixture();
   f.advance(900000);

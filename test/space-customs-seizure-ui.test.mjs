@@ -9,6 +9,18 @@ test('Saisie douanière : décision uniquement tant que la retenue est active',(
  assert.doesNotMatch(expired,/customsHoldSeize/);
  assert.match(expired,/Restituer immédiatement/);
 });
+test('Restitution douanière : formulaire uniquement pour lot saisi, quittance à jour',()=>{
+ const seized={id:'s',lotId:'lot',ownerId:'player',itemName:'Faux document',
+  receiptCode:'ref',reasonText:'Note MJ',quantity:1,status:'SEIZED',at:100};
+ const active=customsSeizuresAdminHtml({officialStock:[seized]},'sid');
+ assert.match(active,/customsSeizureReturn/);
+ assert.match(active,/physicalReturnConfirmed/);
+ const closed=customsSeizuresAdminHtml({officialStock:[{...seized,status:'RETURNED'}]},'sid');
+ assert.doesNotMatch(closed,/customsSeizureReturn/);
+ const receipt=customsSeizuresPlayerHtml({receipts:[{...seized,status:'RETURNED',returnedAt:123}]},'sid');
+ assert.match(receipt,/Restitution enregistrée/);
+ assert.doesNotMatch(receipt,/Note MJ|returnedBy|returnReason/);
+});
 test('Saisie douanière : liste réservée MJ, reçu joueur sans motifs privés ni accès',()=>{
  const item={id:'seizure',lotId:'lot',ownerId:'character',itemName:'<script>',
   receiptCode:'fiction-123',reasonText:'Information privée',quantity:1,status:'SEIZED',at:100};

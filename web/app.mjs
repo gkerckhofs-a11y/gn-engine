@@ -634,6 +634,10 @@ document.addEventListener('submit',async event=>{
   const form=event.target.closest('[data-form]');if(!form)return;event.preventDefault();if(busy)return;
   busy=true;const b=form.querySelector('button[type="submit"],button:not([type])');if(b)b.disabled=true;
   try{const v=formValues(form),kind=form.dataset.form;let destination,successMessage='Enregistré.';const submitVersion=routeVersion;
+    if(kind==='customsSeizureReturn'){const r=await mutate('returnCustomsSeizure',{
+      sessionId:form.dataset.sid,seizureId:form.dataset.id,reasonText:v.reasonText,
+      authorized:v.authorized==='on',physicalReturnConfirmed:v.physicalReturnConfirmed==='on'
+    });notice('Lot restitué. Quittance mise à jour : '+r.receiptCode);await route();return;}
     if(kind==='customsHoldSeize'){const r=await mutate('seizeCustomsDetention',{sessionId:form.dataset.sid,detentionId:form.dataset.id,decision:'REGULARIZATION_FAILED',reasonText:v.reasonText,authorized:v.authorized==='on',officialCustodyConfirmed:v.officialCustodyConfirmed==='on'});notice('Saisie formelle consignée. Quittance : '+r.receiptCode);await route();return;}
     if(kind==='customsHoldStart'){await mutate('startCustomsDetention',{sessionId:form.dataset.sid,lotId:v.lotId,reason:'REGULATED_NO_LICENSE',reasonText:v.reasonText,secured:v.secured==='on'});notice('Retenue enregistrée pour 15 minutes réelles maximum.');await route();return;}
     if(kind==='customsHoldRelease'){await mutate('releaseCustomsDetention',{sessionId:form.dataset.sid,detentionId:form.dataset.id,reasonText:v.reasonText});notice('Retenue clôturée. Restituez l’accessoire de jeu en sécurité.');await route();return;}
