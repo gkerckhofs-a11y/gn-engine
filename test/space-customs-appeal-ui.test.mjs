@@ -38,3 +38,33 @@ test('Contestation douanière : décision MJ uniquement en attente, secret non p
  assert.match(player,/Refus motivé/);
  assert.doesNotMatch(player,/Note du MJ|privateReason|decidedBy/);
 });
+
+test('Contestation restituée avant jugement : affichage clos et aucune commande de décision',()=>{
+ const closed={id:'s2',seizureId:'s2',itemName:'Manifeste',receiptCode:'q2',
+  ownerId:'owner',reason:'Je sollicite un contrôle',status:'CLOSED_RETURNED',at:40};
+ const admin=customsAppealsAdminHtml({session:{id:'sid'},appeals:[closed]});
+ assert.match(admin,/Saisie restituée/);
+ assert.match(admin,/Contestation close/);
+ assert.doesNotMatch(admin,/customsAppealDecide|CLOSED_RETURNED/);
+ const player=customsAppealsPlayerHtml({appeals:[closed]},[],'sid');
+ assert.match(player,/contestation close/);
+ assert.doesNotMatch(player,/customsAppealFile|CLOSED_RETURNED|En attente de décision/);
+});
+
+test('Décision historique suivie de restitution : le joueur voit la clôture, pas les notes MJ',()=>{
+ const closed={id:'s3',seizureId:'s3',itemName:'Faux',receiptCode:'q3',
+  ownerId:'owner',reason:'Examen demandé',status:'CLOSED_RETURNED',at:50,
+  outcome:'MAINTAINED',publicReply:'Décision initiale de maintien',
+  privateReason:'Secret douanier interne <script>test</script>'};
+ const player=customsAppealsPlayerHtml({appeals:[closed]},[],'sid');
+ assert.match(player,/Saisie restituée/);
+ assert.match(player,/Décision antérieure/);
+ assert.match(player,/Maintien de la saisie/);
+ assert.doesNotMatch(player,/Secret douanier|privateReason|<script>|CLOSED_RETURNED/);
+ const admin=customsAppealsAdminHtml({session:{id:'sid'},appeals:[closed]});
+ assert.match(admin,/Décision antérieure/);
+ assert.match(admin,/Saisie restituée/);
+ assert.match(admin,/Secret douanier interne/);
+ assert.ok(admin.includes('&lt;script&gt;'));
+ assert.doesNotMatch(admin,/customsAppealDecide|<script>/);
+});

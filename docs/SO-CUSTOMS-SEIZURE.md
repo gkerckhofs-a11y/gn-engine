@@ -54,3 +54,9 @@ Après le dépôt d'une contestation par le propriétaire, un MJ autorisé peut 
 La recommandation ne déplace aucun objet, ne libère pas le stock officiel, ne paie aucune indemnité et ne change pas la quittance : la remise physique doit encore être effectuée par le parcours distinct returnCustomsSeizure. Une demande déjà décidée ne peut être réécrite par une seconde décision ; une saisie déjà restituée est close.
 
 Les joueurs ne voient que leur propre demande et la réponse publique. Les notes privées MJ, identités techniques et justificatifs internes restent hors de leur projection. STOP SÉCURITÉ suspend la décision. Les tests automatisés et la CI du SHA exact sont requis ; la médiation financière et les tribunaux de fiction restent hors de cette tranche.
+
+## Présentation des contestations après restitution — 10 novembre 2026
+
+Lorsque le MJ restitue physiquement le lot par le parcours natif `returnCustomsSeizure`, les lectures des contestations présentent l’état dérivé `CLOSED_RETURNED` sans altérer la demande, la décision antérieure ni l’historique du dossier. La régie et le joueur voient explicitement que la saisie est close ; un recours encore en attente n’affiche plus de formulaire de jugement. Si une décision existe, elle reste visible comme décision **historique** et ne contredit pas la restitution actuelle.
+
+L’interface joueur ne reçoit aucune note MJ privée et aucune opération d’argent, de déplacement ou de nouvelle sanction ne découle de ce changement d’affichage. Le libellé de la régie des retenues mentionne désormais correctement la saisie formelle déjà raccordée. Tests d’interface ciblés et CI sur le commit exact à vérifier ; recette terrain multi-appareils restant à effectuer.

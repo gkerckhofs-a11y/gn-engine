@@ -29,7 +29,7 @@ export function customsDetentionsAdminHtml(d,sid){
     +'<button type="submit">Prononcer la saisie et créer la quittance</button></form>':'')
   +'</article>').join('');
  return '<div class="narrow"><h1>Retenues douanières provisoires · MJ</h1>'
-  +'<p>Première tranche : bien réglementé sans permis, lot disponible dans le sac du personnage. Aucune saisie formelle, amende ni transfert de propriété.</p>'
+  +'<p>Bien réglementé sans permis, lot initialement disponible dans le sac du personnage. La saisie formelle exige une décision MJ et une consignation officielle réelle ; aucune amende ni cession de propriété.</p>'
   +'<p><strong>15 minutes réelles maximum</strong>, y compris en pause. Le blocage numérique cesse automatiquement à l’échéance. Ne jamais retenir physiquement une personne.</p>'
   +'<form data-form="customsHoldStart" data-sid="'+esc(sid)+'" class="panel"><h2>Consigner un lot de fiction</h2>'
   +'<label>Identifiant du lot<input name="lotId" maxlength="128" required></label>'
@@ -88,6 +88,15 @@ export const customsAppealErrors={
  SO_CUSTOMS_APPEAL_REPLY:'Expliquez la décision au joueur (1 à 1000 caractères).',
  SO_CUSTOMS_APPEAL_DECIDED:'Cette demande a déjà reçu une décision.',
 };
+const appealStatusText={
+ PENDING:'En attente de décision MJ',
+ DECIDED:'Décision MJ enregistrée',
+ CLOSED_RETURNED:'Close après restitution au propriétaire',
+};
+const appealOutcomeText={
+ MAINTAINED:'Maintien de la saisie',
+ RETURN_RECOMMENDED:'Restitution recommandée (sans remise automatique)',
+};
 export function customsAppealsPlayerHtml(d,receipts,sid){
  const own=new Set((d.appeals??[]).map(a=>a.seizureId));
  const forms=(receipts??[]).filter(r=>r.status==='SEIZED'&&!own.has(r.id)).map(r=>
@@ -97,10 +106,11 @@ export function customsAppealsPlayerHtml(d,receipts,sid){
   +'<label>Motif de votre contestation fictive<textarea name="reason" maxlength="1000" required></textarea></label>'
   +'<button type="submit">Déposer une contestation au MJ</button></form>').join('');
  const history=(d.appeals??[]).map(a=>'<article class="panel"><h3>'+esc(a.itemName)+'</h3>'
-  +'<p>Quittance : '+esc(a.receiptCode)+' · statut : '+esc(a.status)+'</p>'
+  +'<p>Quittance : '+esc(a.receiptCode)+' · statut : '+esc(appealStatusText[a.status]??a.status)+'</p>'
   +'<p>Votre motif : '+esc(a.reason)+'</p>'
-  +(a.outcome?'<p>Décision du MJ : '+esc(a.outcome)+' · '+esc(a.publicReply)+'</p>':'')
-  +'<p>Cette demande ne libère aucun lot automatiquement.</p></article>').join('');
+  +(a.status==='CLOSED_RETURNED'?'<p>Saisie restituée au propriétaire par le MJ ; contestation close. Toute décision antérieure reste historique.</p>':'')
+  +(a.outcome?'<p>Décision '+(a.status==='CLOSED_RETURNED'?'antérieure':'du MJ')+' : '+esc(appealOutcomeText[a.outcome]??a.outcome)+' · '+esc(a.publicReply)+'</p>':'')
+  +(a.status==='CLOSED_RETURNED'?'':'<p>Une contestation ou sa décision ne libère aucun lot automatiquement.</p>')+'</article>').join('');
  return '<section class="narrow"><h2>Contestations de saisie</h2>'
   +'<p>La contestation signale une demande au MJ ; elle ne rembourse rien et ne transfère aucun objet.</p>'
   +(forms||'')+(history||'<p>Aucune contestation enregistrée.</p>')+'</section>';
@@ -111,14 +121,15 @@ export function customsAppealsAdminHtml(d){
   +'<p>Une décision motivée peut maintenir la saisie ou recommander sa restitution. La remise physique demeure distincte et jamais automatique.</p>'
   +(appeals.map(a=>'<article class="panel"><h3>'+esc(a.itemName)+'</h3>'
     +'<p>Quittance : '+esc(a.receiptCode)+' · personnage : '+esc(a.ownerId)+'</p>'
-    +'<p>Statut : '+esc(a.status)+' · demande : '+esc(a.reason)+'</p>'
+    +'<p>Statut : '+esc(appealStatusText[a.status]??a.status)+' · demande : '+esc(a.reason)+'</p>'
+    +(a.status==='CLOSED_RETURNED'?'<p>Saisie restituée par le MJ. Contestation close ; les décisions antérieures restent conservées.</p>':'')
     +(a.status==='PENDING'?'<form data-form="customsAppealDecide" data-sid="'+esc(d.session.id)+'" data-id="'+esc(a.seizureId)+'">'
       +'<label>Décision MJ<select name="outcome"><option value="MAINTAINED">Maintenir la saisie</option>'
       +'<option value="RETURN_RECOMMENDED">Recommander la restitution (sans la déclencher)</option></select></label>'
       +'<label>Réponse communiquée au personnage<textarea name="publicReply" maxlength="1000" required></textarea></label>'
       +'<label>Note privée de décision<textarea name="privateReason" maxlength="1000" required></textarea></label>'
       +'<button type="submit">Enregistrer la décision sans déplacer le lot</button></form>'
-      :a.outcome?'<p>Décision : '+esc(a.outcome)+' · réponse : '+esc(a.publicReply)
+      :a.outcome?'<p>Décision '+(a.status==='CLOSED_RETURNED'?'antérieure':'enregistrée')+' : '+esc(appealOutcomeText[a.outcome]??a.outcome)+' · réponse : '+esc(a.publicReply)
         +' · note MJ : '+esc(a.privateReason??'')+'</p>':'')
     +'</article>').join('')||'<p>Aucune contestation déposée.</p>')+'</section>';
 }
