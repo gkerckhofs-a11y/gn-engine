@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {hiddenCargoHtml,customsDeskHtml,customsAdminHtml,customsInspectionHtml,hiddenCargoConfirmHtml,hiddenCargoRequest,hiddenCargoErrors,submitHiddenCargo} from '../web/space-hidden-cargo.mjs';
+import {hiddenCargoHtml,customsDeskHtml,customsAdminHtml,customsInspectionHtml,hiddenCargoConfirmHtml,customsLicenseQuoteHtml,hiddenCargoRequest,hiddenCargoErrors,submitHiddenCargo} from '../web/space-hidden-cargo.mjs';
 import {playerRoute} from '../web/player-spaces.mjs';
 
 const session={id:'s',stage:'EN_JEU'},ship={id:'ship',name:'<img src=x>',capacity:20},lot={id:'lot',item:{name:'<script>Objet</script>',unit:'caisses',unitVolume:1},quantity:5,status:'AVAILABLE',concealed:false,discovered:true};
@@ -67,4 +67,39 @@ test('Douanes UI : une seconde inspection distingue les anciens lots des nouvell
  assert.match(html,/Lots déjà découverts lors d’un contrôle antérieur/);
  assert.ok(html.includes('&lt;script&gt;ancien'));
  assert.doesNotMatch(html,/<script>/);
+});
+
+test('Douanes UI : devis LIC-02 distinct du paiement et sans données joueur',async()=>{
+ const html=customsAdminHtml(admin);
+ assert.match(html,/customsLicenseQuote/);
+ assert.match(html,/LIC-01/);
+ assert.match(html,/LIC-02/);
+ assert.match(html,/LIC-03/);
+ assert.doesNotMatch(customsAdminHtml({...admin,session:{...session,safetyStopped:true}}),/customsLicenseQuote/);
+ assert.doesNotMatch(customsDeskHtml(desk),/customsLicenseQuote/);
+ const payload=hiddenCargoRequest('customsLicenseQuote',{sessionId:'s'},
+  {code:'LIC-02',referenceValue:'2501',die:'6',fee:'1'});
+ assert.deepEqual(payload,{sessionId:'s',code:'LIC-02',referenceValue:2501});
+ const output=customsLicenseQuoteHtml({code:'LIC-02',title:'Permis réglementé',
+  exactFeeCr:'50.02',referenceValue:2501,scope:'Cargaison et voyage autorisés'});
+ assert.match(output,/50,02 Cr/);
+ assert.match(output,/Aucun crédit n’a été prélevé/);
+ assert.doesNotMatch(output,/name="fee"|name="die"|<script>/);
+});
+test('Douanes UI : estimation LIC-03 en lecture seule, sans écriture ni reçu trompeur',async()=>{
+ const calls=[];
+ const hooks={read:async(name,p)=>{calls.push(['read',name,p]);return {
+  code:'LIC-03',title:'Autorisation exceptionnelle',exactFeeCr:null,
+  scope:'Mission, biens et durée définis par le MJ'};},
+  write:()=>{throw Error('Aucune écriture pour un devis');},
+  isCurrent:()=>true,confirm:html=>calls.push(['confirm',html]),
+  close:()=>{throw Error('Pas de clôture de transaction');},
+  announce:()=>{throw Error('Pas de succès de transaction');},
+  refresh:()=>{throw Error('Pas de mutation')},
+ };
+ await submitHiddenCargo('customsLicenseQuote',{sessionId:'s'},{code:'LIC-03'},hooks);
+ assert.equal(calls[0][0],'read');
+ assert.equal(calls[1][0],'confirm');
+ assert.match(calls[1][1],/à fixer par le MJ/);
+ assert.match(calls[1][1],/aucun titre n’a été délivré/i);
 });

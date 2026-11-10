@@ -81,3 +81,15 @@ Correction ciblée de la résolution existante `finishCustomsInspection` et de s
 Le profil ciblé `hidden-ui` a été rejeté par le planificateur de CI : le cumul non encore validé par une référence globale fiable comprend notamment `src/core/campaigns.mjs`, hors périmètre de ce profil. Il ne s'agit pas d'un échec des assertions de la correction. Un contrôle intégral est donc demandé sur le candidat suivant (`[ci full]`) plutôt que d'élargir artificiellement la liste blanche d'un profil ciblé. Sa réussite devra être vérifiée sur le SHA exact ; aucun résultat n'est présumé à ce stade.
 
 La vérification doit inclure le cas de non-réécriture du champ `discoveredAt` et du journal de lot après une seconde inspection approfondie autorisée. Le commentaire de PR doit citer la conclusion du run complet et non un ancien run ciblé.
+
+## Prévisualisation des licences canoniques — 10 novembre 2026
+
+**Première tranche, lecture seule dans Régie des douanes** : le MJ peut demander un devis de référence LIC-01, LIC-02 ou LIC-03 sans enregistrer de titre et sans débiter un compte. L'action `customsLicenseQuote` reprend les contrôles de rôle MJ et l'activation `hiddenCargoVersion=1` du parcours douanier existant. La même interface ne donne aucun droit douanier supplémentaire aux agents joueurs.
+
+- **LIC-01** : 100 Cr ; activité marchande régulière ; permanente sauf révocation.
+- **LIC-02** : maximum entre 2 % de la **valeur de référence réelle** et 50 Cr ; pour la cargaison et le voyage autorisés. La valeur de référence est saisie par le MJ lors de ce devis : elle n'est **pas encore recoupée automatiquement avec les lots**. La formule calcule les centièmes de crédit exacts et **n'invente aucun arrondi** de paiement.
+- **LIC-03** : mission, biens et durée spécifiés ; tarif à fixer par le MJ, aucun montant automatique.
+
+Ni délivrance, ni validation de documents INF-03, ni quittance, ni compte, ni permission, ni mouvement d'inventaire, ni taxe de fret n'est modifié. Un devis ne constitue pas une licence valide. Le futur parcours d'émission devra exiger titulaire, émetteur, validité et périmètre, preuve du financement réel, contrôle d'unicité/transaction, révocation, continuité des épisodes et contrôle documentaire effectif. Cette tranche prépare le barème sans confondre estimation et paiement.
+
+Régression prévue : droits MJ, ancien Master non activé, entrée strictement validée, borne de calcul, centimes non arrondis et absence d'écriture de fonds/registre. Exécuter `[ci full]` si le cumul non fusionné interdit un profil ciblé. Aucune recette terrain n'est certifiée.

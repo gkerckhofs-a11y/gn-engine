@@ -52,6 +52,46 @@ export async function hiddenRemovalFixture(makeStore,options={}){
  return {...f,removalInput:input,previewRemovalOffer:previewOffer,offerRemoval:offer,approveRemoval:approve,startRemoval:start,previewRemoval:preview,finishRemoval:finish,cancelRemoval:cancel};
 }
 export function hiddenCargoSuite(makeStore,prefix='Fret caché et MOD-04 SO'){
+
+ test(`${prefix} : devis LIC-01/02/03 en lecture seule, sans délivrance ni débit`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);
+  const accounts=await f.store.list(`sessions/${f.sid}/accounts`);
+  const auditBefore=await f.store.list(`sessions/${f.sid}/audit`);
+  const first=await f.read('customsLicenseQuote',{code:'LIC-01'},f.owner);
+  assert.equal(first.exactFeeCr,'100');
+  assert.equal(first.issued,false);
+  const min=await f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000},f.owner);
+  assert.equal(min.exactFeeCr,'50');
+  assert.equal(min.minimumCr,50);
+  const fractional=await f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2501},f.owner);
+  assert.equal(fractional.exactFeeCr,'50.02');
+  assert.equal(fractional.scope,'Cargaison et voyage autorisés');
+  const exceptional=await f.read('customsLicenseQuote',{code:'LIC-03'},f.owner);
+  assert.equal(exceptional.exactFeeCr,null);
+  assert.equal(exceptional.issued,false);
+  assert.deepEqual(await f.store.list(`sessions/${f.sid}/accounts`),accounts);
+  assert.deepEqual(await f.store.list(`sessions/${f.sid}/audit`),auditBefore);
+  assert.deepEqual(await f.store.list(`sessions/${f.sid}/customsLicenses`),[]);
+ });
+ test(`${prefix} : devis réservé au MJ, refuse barèmes ou valeurs imposés par le joueur`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);
+  await f.grant(5);
+  await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-01'},f.other),{code:'FORBIDDEN'});
+  await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-01'},f.player),{code:'FORBIDDEN'});
+  for(const code of ['LIC-04','FAKE','']){
+   await assert.rejects(f.read('customsLicenseQuote',{code},f.owner),{code:'SO_CUSTOMS_LICENSE_KIND'});
+  }
+  for(const referenceValue of [0,-1,1.5,Number.MAX_SAFE_INTEGER+1,'2000',null]){
+   await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-02',referenceValue},f.owner),
+     {code:'SO_CUSTOMS_LICENSE_VALUE'});
+  }
+  await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000,fee:0},f.owner),
+    {code:'INVALID_ADMISSION'});
+  const current=await f.get('');
+  await f.edit('',s=>({...s,spaceOutlaws:{...s.spaceOutlaws,hiddenCargoVersion:undefined}}));
+  await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-01'},f.owner),{code:'SO_GAMEPLAY_NOT_OPEN'});
+  await f.edit('',()=>current);
+ });
  test(`${prefix} : capacité serveur limitée, comptes, connaissances, contrats et marqueur interdits`,()=>{
   const s={id:'session',spaceOutlaws:{actionsVersion:1,hiddenCargoVersion:1}},scope=new Set(['HIDDEN_CARGO']);
   for(const path of ['ships/ship','inventory/lot','inventory/lot/history/event','characters/agent','characters/agent/resources/actionPoints','shipMaintenance/job','logisticsHistory/event'])assert.equal(guardSpaceOutlawsEntry(s,new Map([[`sessions/session/${path}`,{}]]),false,scope),true);

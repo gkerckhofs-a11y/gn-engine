@@ -21,11 +21,27 @@ export function hiddenCargoCapacity(ship,time){
 const visit=ship=>ship.portVisitId??`INITIAL:${ship.id}`;
 const idle=ship=>ship?.enabled&&ship.docked&&!ship.journey&&!ship.operation&&!ship.combatId&&!ship.rescueId&&!ship.maintenanceId&&!ship.convoy&&!ship.convoyOffer;
 const fit=(c,time,id=null)=>c?.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeNavigationId&&!c.activeVoyageId&&!c.activeCargoId&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&(!c.activeMaintenanceId||c.activeMaintenanceId===id)&&!(c.convalescentUntilGameMs>time);
-const fields={customsDesk:[],hiddenCargo:['shipId'],prepareCargoConcealment:['shipId','lotId','conceal'],setCargoConcealment:['shipId','lotId','conceal','confirmation','present'],customsAdmin:[],setCustomsAuthority:['characterId','level','portId','authorityRevision','reason'],authorizeCustomsRetry:['shipId','confirmation','reason'],prepareCustomsInspection:['shipId','kind'],startCustomsInspection:['shipId','kind','confirmation','present'],prepareCustomsInspectionAdmin:['shipId','kind','agentId'],startCustomsInspectionAdmin:['shipId','kind','agentId','confirmation','present'],customsInspection:['inspectionId'],customsInspectionAdmin:['inspectionId'],finishCustomsInspection:['inspectionId','confirmation','present','performed'],finishCustomsInspectionAdmin:['inspectionId','confirmation','present','performed'],cancelCustomsInspection:['inspectionId','confirmation','reason'],cancelCustomsInspectionAdmin:['inspectionId','confirmation','reason']};
+const fields={customsDesk:[],customsLicenseQuote:['code','referenceValue'],hiddenCargo:['shipId'],prepareCargoConcealment:['shipId','lotId','conceal'],setCargoConcealment:['shipId','lotId','conceal','confirmation','present'],customsAdmin:[],setCustomsAuthority:['characterId','level','portId','authorityRevision','reason'],authorizeCustomsRetry:['shipId','confirmation','reason'],prepareCustomsInspection:['shipId','kind'],startCustomsInspection:['shipId','kind','confirmation','present'],prepareCustomsInspectionAdmin:['shipId','kind','agentId'],startCustomsInspectionAdmin:['shipId','kind','agentId','confirmation','present'],customsInspection:['inspectionId'],customsInspectionAdmin:['inspectionId'],finishCustomsInspection:['inspectionId','confirmation','present','performed'],finishCustomsInspectionAdmin:['inspectionId','confirmation','present','performed'],cancelCustomsInspection:['inspectionId','confirmation','reason'],cancelCustomsInspectionAdmin:['inspectionId','confirmation','reason']};
 export const hiddenCargoActions=Object.keys(fields);
-const reads=new Set(['customsDesk','hiddenCargo','prepareCargoConcealment','customsAdmin','prepareCustomsInspection','prepareCustomsInspectionAdmin','customsInspection','customsInspectionAdmin']);
-const admins=new Set(['customsAdmin','setCustomsAuthority','authorizeCustomsRetry','prepareCustomsInspectionAdmin','startCustomsInspectionAdmin','customsInspectionAdmin','finishCustomsInspectionAdmin','cancelCustomsInspectionAdmin']);
+const reads=new Set(['customsDesk','customsLicenseQuote','hiddenCargo','prepareCargoConcealment','customsAdmin','prepareCustomsInspection','prepareCustomsInspectionAdmin','customsInspection','customsInspectionAdmin']);
+const admins=new Set(['customsAdmin','customsLicenseQuote','setCustomsAuthority','authorizeCustomsRetry','prepareCustomsInspectionAdmin','startCustomsInspectionAdmin','customsInspectionAdmin','finishCustomsInspectionAdmin','cancelCustomsInspectionAdmin']);
 const jobs=['prepareCustomsInspection','startCustomsInspection','prepareCustomsInspectionAdmin','startCustomsInspectionAdmin'];
+// Read-only reference quotation. This neither issues a permit nor settles a fee.
+// Keep decimal hundredths exactly: no unapproved rounding rule is applied.
+export function customsLicenseReferenceQuote(code,referenceValue){
+ requireThat(['LIC-01','LIC-02','LIC-03'].includes(code),'SO_CUSTOMS_LICENSE_KIND');
+ if(code==='LIC-01')return {code,title:'Licence commerciale',exactFeeCr:'100',
+  scope:'Activité marchande régulière ; permanente sauf révocation',requiresPayment:true,issued:false};
+ if(code==='LIC-03')return {code,title:'Autorisation exceptionnelle',exactFeeCr:null,
+  scope:'Mission, biens et durée à définir expressément par le MJ',requiresPayment:null,issued:false};
+ requireThat(Number.isSafeInteger(referenceValue)&&referenceValue>0,'SO_CUSTOMS_LICENSE_VALUE');
+ const cents=BigInt(referenceValue)*2n>5000n?BigInt(referenceValue)*2n:5000n;
+ const units=cents/100n,decimal=cents%100n;
+ return {code,title:'Permis de marchandises réglementées',referenceValue,
+  exactFeeCr:String(units)+(decimal?'.'+String(decimal).padStart(2,'0'):''),
+  ratePercent:2,minimumCr:50,scope:'Cargaison et voyage autorisés',
+  requiresPayment:true,issued:false};
+}
 export function createHiddenCargoService({store,signed,checkSession,now,uuid,rollD6=()=>randomInt(1,7)}){
  return async(action,actor,input)=>{
   signed(actor);admissionKeys(input,['sessionId',...fields[action],...(reads.has(action)?[]:['requestId'])]);const at=now(),id=uuid();let die;
@@ -39,6 +55,9 @@ export function createHiddenCargoService({store,signed,checkSession,now,uuid,rol
    const replay=()=>{if(!prior)return null;requireThat(prior.fingerprint===fingerprint,'REQUEST_ID_REUSED');requireThat(admin||prior.guard===version,'FORBIDDEN');return prior.result;};
    const running=()=>{requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');};
    const write=(result,before,after,reason='')=>{authorizeSpaceOutlaws(tx,s,'HIDDEN_CARGO');tx.set(`${base}/logisticsHistory/${id}`,{id,kind:action,at,actorUid:actor.uid,before,after,reason});tx.set(`${base}/audit/${id}`,{id,action,at,actorUid:actor.uid});tx.set(op,{fingerprint,guard:version??null,result,at});return result;};
+   if(action==='customsLicenseQuote'){
+    return customsLicenseReferenceQuote(input.code,input.referenceValue);
+   }
    if(action==='customsAdmin'){
     const ships=await tx.list(`${base}/ships`),characters=await tx.list(`${base}/characters`),ports=await tx.list(`${base}/ports`),records=await tx.list(`${base}/shipMaintenance`);
     return {session,ships:ships.filter(x=>x.soProfile).map(x=>({id:x.id,name:x.name,portId:x.portId,canInspect:idle(x),canRetry:idle(x)&&x.customsAttempt?.visitId===visit(x)&&!x.customsAttempt.retryAuthorized,attempt:x.customsAttempt??null,confirmation:token(x)})),characters:characters.map(x=>({id:x.id,name:x.public.displayName,player:!!x.birth||!!x.assignedUid,authority:x.customsAuthorization??null})),ports:ports.map(x=>({id:x.id,name:x.name})),inspections:records.filter(r=>r.customsInspectionVersion===1).map(r=>({id:r.id,shipName:r.shipName,kind:r.kind,status:r.status,pnj:r.pnj}))};
