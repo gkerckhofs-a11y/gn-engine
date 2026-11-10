@@ -20,6 +20,13 @@ export function customsDetentionsAdminHtml(d,sid){
   +'<p>Motif MJ : '+esc(c.reasonText??'')+'</p>'
   +(['ACTIVE','EXPIRED'].includes(c.status)
    ?'<form data-form="customsHoldRelease" data-sid="'+esc(sid)+'" data-id="'+esc(c.id)+'"><label>Motif de clôture<input name="reasonText" maxlength="500" required></label><button type="submit">'+(c.status==='EXPIRED'?'Constater la fin et la restitution':'Libérer avant échéance')+'</button></form>':'')
+  +(c.status==='ACTIVE'
+   ?'<form data-form="customsHoldSeize" data-sid="'+esc(sid)+'" data-id="'+esc(c.id)+'">'
+    +'<h4>Saisie formelle : décision MJ avant échéance</h4>'
+    +'<label>Motif de décision écrit<input name="reasonText" maxlength="500" required></label>'
+    +'<label><input name="authorized" type="checkbox" required>Échec de régularisation constaté, saisie autorisée par le MJ</label>'
+    +'<label><input name="officialCustodyConfirmed" type="checkbox" required>Accessoire réellement déposé dans la réserve officielle du jeu</label>'
+    +'<button type="submit">Prononcer la saisie et créer la quittance</button></form>':'')
   +'</article>').join('');
  return '<div class="narrow"><h1>Retenues douanières provisoires · MJ</h1>'
   +'<p>Première tranche : bien réglementé sans permis, lot disponible dans le sac du personnage. Aucune saisie formelle, amende ni transfert de propriété.</p>'
@@ -32,4 +39,33 @@ export function customsDetentionsAdminHtml(d,sid){
   +'<h2>Retenues à suivre</h2>'+(cards(current)||'<p>Aucune retenue en cours.</p>')
   +'<details><summary>Historique récent</summary>'+(cards(past)||'<p>Aucune clôture enregistrée.</p>')+'</details>'
   +'<p>Une seule retenue de ce lot par session, sans prolongation artificielle.</p></div>';
+}
+
+export const customsSeizureErrors={
+ SO_CUSTOMS_SEIZURE_DECISION:'Confirmez la décision motivée, l’échec de régularisation et la garde officielle de l’objet.',
+ SO_CUSTOMS_HOLD_EXPIRED:'Les quinze minutes sont écoulées : impossible de saisir rétroactivement. Restituez l’objet.',
+ SO_CUSTOMS_HOLD_STALE:'La retenue ou le lot n’est plus dans l’état attendu.',
+ SO_CUSTOMS_SEIZURE_DUPLICATE:'Ce document de fiction a déjà été saisi.',
+};
+export function customsSeizuresAdminHtml(d,sid){
+ const rows=d.officialStock??[];
+ return '<section class="panel narrow"><h2>Inventaire officiel fictif · saisies formelles</h2>'
+  +'<p>Les biens restent la propriété du personnage d’origine, mais sont placés hors de son sac. Une quittance numérique est délivrée au personnage concerné.</p>'
+  +(rows.map(s=>'<article class="card"><h3>'+esc(s.itemName)+'</h3>'
+   +'<p>Lot : '+esc(s.lotId)+' · propriétaire initial : '+esc(s.ownerId)+'</p>'
+   +'<p>Référence de quittance : '+esc(s.receiptCode)+'</p>'
+   +'<p>Décision et motif MJ : '+esc(s.reasonText??'')+'</p>'
+   +'<p>Statut : '+esc(s.status)+'</p></article>').join('')||'<p>Aucune saisie formelle enregistrée.</p>')
+  +'</section>';
+}
+export function customsSeizuresPlayerHtml(d,sid){
+ return '<div class="narrow"><h1>Mes quittances de douane</h1>'
+  +'<p>Ces reçus concernent uniquement les biens du scénario. Ils ne constituent pas des documents officiels ou une sanction réelle.</p>'
+  +((d.receipts??[]).map(r=>'<article class="panel"><h2>'+esc(r.itemName)+'</h2>'
+   +'<p>Quantité saisie : '+esc(r.quantity)+' · référence du lot : '+esc(r.lotId)+'</p>'
+   +'<p>Quittance : '+esc(r.receiptCode)+'</p>'
+   +'<p>Motif de fiction : marchandise réglementée sans permis, régularisation non obtenue.</p>'
+   +'<p>Statut : '+esc(r.status)+'</p></article>').join('')
+    ||'<p>Aucune saisie formelle enregistrée pour ce personnage.</p>')
+  +'</div>';
 }

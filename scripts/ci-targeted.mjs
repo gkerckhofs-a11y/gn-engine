@@ -230,6 +230,21 @@ targetedProfiles['customs-detention']={...targetedProfiles['infiltrator-forgery'
   'web/inventory.mjs','test/support/space-customs-detention-suite.mjs',
   'test/space-customs-detention.test.mjs','test/space-customs-detention-ui.test.mjs'],
 };
+// Official, MJ-authorized confiscation after a temporary hold. This deliberately
+// limits CI to adjacent inventory, forgery, customs, and authentication contracts.
+targetedProfiles['customs-seizure']={
+ tests:['test/space-customs-detention.test.mjs','test/space-customs-detention-ui.test.mjs',
+  'test/space-customs-seizure.test.mjs','test/space-customs-seizure-ui.test.mjs',
+  'test/space-forgery.test.mjs','test/space-forgery-ui.test.mjs',
+  'test/space-pickpocket.test.mjs','test/inventory.test.mjs',
+  'test/space-outlaws-entry.test.mjs','test/ci-targeted.test.mjs','test/ci-selection.test.mjs'],
+ suites:['space-customs-detention','space-customs-seizure','space-forgery',
+  'space-pickpocket','inventory','space-outlaws-entry','customs'],
+ httpPattern:targetedProfiles['customs-detention'].httpPattern,
+ files:[...targetedProfiles['customs-detention'].files,
+  'src/core/space-customs-seizure.mjs','test/support/space-customs-seizure-suite.mjs',
+  'test/space-customs-seizure.test.mjs','test/space-customs-seizure-ui.test.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;
