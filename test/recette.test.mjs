@@ -103,6 +103,7 @@ test('Recette pilote : dix cas non exécutés, sans autorisation de publication'
  assert.equal(rows.length,10);
  const report=acceptanceReport(metadata,{},rows);
  assert.equal(report.scope,'LOCAL_PILOT_SUBSET');
+ for(const c of pilotCases){const row=report.results.find(x=>x.id===c.id);assert.equal(row.title,c.title);assert.equal(row.steps,c.steps);assert.equal(row.expected,c.expected);assert.deepEqual(row.refs,c.refs);}
  assert.equal(report.canonicalAcceptance,'NOT_CERTIFIED');
  assert.equal(report.deploymentAuthorized,false);
  const html=guideHtml(metadata,{pilot:true,sessionId:'abc',otherSessionId:'other'});
