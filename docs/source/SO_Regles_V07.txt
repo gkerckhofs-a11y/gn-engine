@@ -1664,6 +1664,7 @@ Inventaire réel et manifeste présenté
 Le manifeste décrit le vaisseau, le responsable, le voyage, les marchandises déclarées, leur valeur et les autorisations. Il est distinct de la cargaison réelle. Un faux document ne modifie ni la quantité serveur ni le propriétaire des lots.
 Une soute clandestine dissimule une partie du volume existant : 5 unités sur un cargo, 10 sur un transport, dans les capacités totales 20 et 50. Aucun fret supplémentaire. Les biens cachés restent présents, propriétaires identifiés et transferts possibles selon les droits.
 Protection validée : le compartiment clandestin masque son contenu aux contrôles ordinaires ; une inspection approfondie au D6 peut le découvrir. Une marchandise déjà découverte ne redevient pas inconnue simplement parce qu’elle est replacée dans le compartiment.
+Décision utilisateur B — 4 novembre 2026 : pendant une neutralisation temporaire de MOD-04, les biens déjà rangés restent cachés. Seul le rangement de nouveaux lots est bloqué. Les contrôles documentaires et inspections approfondies habituels restent possibles ; aucune découverte ou perte de contenu automatique.
 Fiscalité validée
 Situation
 Taux de référence

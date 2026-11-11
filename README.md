@@ -1,5 +1,15 @@
 # GN Engine
 
+Suivi courant : [recherche des personnages et réserves](docs/SO-RECHERCHE-PERSONNAGES.md), catalogue privé sans incarnation automatique.
+
+Suivi courant : [souhaits privés de groupe en régie](docs/SO-SOUHAITS-GROUPES.md), lecture MJ et affectation explicite.
+
+Suivi courant : [groupes M2 vers la session](docs/SO-GROUPES-M2.md), activation explicite des appartenances.
+
+Suivi courant : [première régie des groupes SO](docs/SO-GROUPES-SESSION.md), avec périmètre et limites explicites.
+
+**Point fonctionnel du 6 novembre 2026 :** [audit global V3.5/V3.6 et travaux restants](docs/AUDIT-GLOBAL-2026-11-06.md). Le candidat de PR #2 raccorde le remorquage individuel et la récupération PNJ ; les limites de flotte, propriété/épaves, personnages et recette sont détaillées dans le rapport. Le développement n’est pas une certification de mise en service.
+
 État courant SPACE OUTLAWS : [suivi de validation](docs/SO-VALIDATION.md). [Kit de recette locale](docs/SO-RECETTE-LOCALE.md) : `npm run recette:check`, puis `npm run recette` sur un poste avec Java 21. Émulateurs, identités fictives et relevé manuel ; aucune publication ni recette terrain certifiée. Les jalons ci-dessous sont historiques.
 
 **C2q — Excel des lieux et informations M6.** [Guide du contrat versionné](docs/SO-06-C2Q-EXCEL-LIEUX.md). Aperçu et lot commun, profils/récompenses natifs, anciens fichiers M6 conservés. Compilation et 1477 tests applicatifs locaux réussis le 25 octobre 2026 ; preuves finales des deux CI dans la [PR #1](https://github.com/gkerckhofs-a11y/gn-engine/pull/1). Aucune activation ni publication.

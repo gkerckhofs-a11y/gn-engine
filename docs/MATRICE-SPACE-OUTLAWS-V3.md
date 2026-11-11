@@ -1,12 +1,553 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
-## État courant — publication de recette autorisée sur gn-engine
+## INF-03 — Falsification (candidat, CI à vérifier)
+
+| Référence | Parcours candidat | Limites |
+|---|---|---|
+| V0.7 chapitre 14 / CDC §5.1 | Modèle M6 de catégorie N1–N5, formulaire M1 dans l'inventaire, durée canonique, PA réservé puis dépensé à la résolution, D6 + niveau, création d'un objet documentaire suivi si succès et consommation du formulaire même en cas d'échec. | Contrôle documentaire TRA-03 / douanes à intégrer séparément, pas d'habilitation technique réelle |
+| Secrets et versions | Anomalies et qualité dans un registre privé ; faux transférable comme objet narratif, révision Master figée ; refus des anciens profils et sessions. | Recette transfert/pillage, smartphones et vérification MJ requise |
+
+Voir [SO-INF-03](SO-INF-03.md).
+
+
+## INF-01 — Mini-jeu à code (extension candidate)
+
+| Règle V0.7 | Résultat implémenté dans le candidat | Limite |
+|---|---|---|
+| Défi spécial sans second jet | Énigme M6, durée propre, solution hachée, comparaison serveur sans D6, un PA consommé à la résolution, récupération de dix minutes de jeu avant nouvelle tentative | Pas d'indices à consultation unique ni de mini-jeux graphiques complexes ; recette mobile requise |
+
+## INF-01 — Intrusion fictive (candidat, CI à confirmer)
+
+| Exigence | Parcours préparé | Réserves |
+|---|---|---|
+| §5.1 et V0.7 chapitre 14 | M6 cible INTRUSION, QR dédié, contrôle niveau, D6 + niveau, 1 PA à la résolution, durée N1–N5, récupération, résultat narratif privé. | Mini-jeu à code décrit dans l’extension ci-dessus ; bonus matériels/aide, autres effets et recette physique non inclus. |
+| Sécurité des lieux | Aucun déverrouillage, contrôle informatique ou commande réelle ; validation côté serveur. | Présence physique déclarative à contrôler par l'organisateur. |
+
+Voir [INF-01](SO-INF-01.md).
+
+## INF-02 — Déchiffrement (candidat, CI non encore validée)
+
+| Exigence | Réalisation candidate | Limite |
+|---|---|---|
+| §5.1, règle V0.7 | Document M6 obtenu, niveau, texte clair réservé, D6 + niveau contre seuil, 1 PA, une tentative par personnage et version, annulation et récupération. | Le transfert d'un document physique par inventaire ne confère pas encore automatiquement le reçu de connaissance. Mini-jeu distinct non raccordé. |
+| Confidentialité | Texte clair absent des projections avant succès ; reçu personnel actualisé après succès. | Recette multicomptes et téléphones réels encore requise. |
+
+Voir [INF-02](SO-INF-02.md).
+
+## ROG-03 — Évasion (première tranche, CI à confirmer)
+
+| Exigence | Parcours candidat | Limites |
+|---|---|---|
+| §4.5, REC-SO-08 | Captivité MJ, QR, niveau, surveillance, minuterie, annulation/découverte, PA et récupération. | Surveillance physique et sortie sûre à confirmer par MJ, pas de déverrouillage réel. |
+| Captivité 20 minutes réelles | Échéance serveur indépendante de l'horloge de jeu. | La libération physique doit être assurée par le MJ. |
+
+Voir [détail ROG-03](SO-ROG-03.md).
+
+## ROG-02 — vol à la tire (candidat, validation CI à confirmer)
+
+| Exigence | Implémentation candidate | Réserve |
+|---|---|---|
+| REC-SO-06/07, §4.4, V0.7 | Accès Rogue, QR public de cible, nom et prénom fictifs, délais, quota par victime, réussite une seule fois, choix selon niveau, PA uniquement sur transfert, notification différée. | Présence au poste organisation attestée seulement ; remise d'accessoire physique à contrôler par le MJ, recette téléphone/humaine à faire. |
+
+Voir [périmètre et limites](SO-ROG-02.md). Une CI ciblée ne certifie pas une session réelle.
+
+
+## Résolution des conflits de reprise — 9 novembre 2026
+
+| Exigence | Parcours raccordé | Vérifications ciblées |
+|---|---|---|
+| §3.6 étapes 2–4 | Choix explicite pour chaque définition en conflit. Nouvel aperçu avant confirmation. | Choix incomplet, dupliqué ou hors conflit refusé. Sélection et aperçu périmés refusés. |
+| §3.6 étapes 5–6 | Reprise transactionnelle et journal des décisions. | Choix mixtes, modifications compatibles conservées, droits, réessai et contrôle HTTP. |
+
+## Reprise d’un brouillon suspendu — 9 novembre 2026
+
+| Exigence | Parcours raccordé | Vérifications ciblées |
+|---|---|---|
+| §3.6 étapes 2–4 | Aperçu depuis un instantané de la dernière révision suspendue. Comparaison des définitions avec leur base d’origine et le brouillon courant. | Préservation des changements courants, détection des doublons et conflits par définition, refus sans écriture partielle. |
+| §3.6 étapes 5–7 | Reprise transactionnelle réservée au propriétaire et séparée de la publication. | Droits, aperçu périmé, réessais concurrents, provenance Excel et publication ultérieure du brouillon repris. |
+
+## Retour à la version parente du Master — 9 novembre 2026
+
+| Exigence | Parcours raccordé | Vérifications ciblées |
+|---|---|---|
+| §3.6 étapes 5–6 | Réactivation transactionnelle du parent vérifié, avec confirmation du propriétaire, motif et journal. | Droits refusés, page du parent altérée, instantané périmé, réessai concurrent, nouvelle publication après le retour. |
+| §3.6 étape 7 | Brouillon suspendu en lecture seule. Sessions et copies engagées conservent leur version. | Relecture de l’instantané, naissance déjà confirmée et copie d’épisode préservées, retrait d’une réserve libre dans un épisode ultérieur. |
+
+## Kits de relève M1 dans les nouveaux épisodes — 9 novembre 2026
+
+| Exigence | Parcours raccordé | Vérifications ciblées |
+|---|---|---|
+| §3.6 étape 7 et A08–A10 | Adoption de nouveaux modèles de matériel ordinaire pour les kits de relève. La dotation lit le Master choisi à la préparation. | Le nouveau lot est attribué une seule fois lors de la relève. Les lots repris conservent leur contenu et leurs droits. |
+| §3.6 étape 7 | Blocage des changements touchant aux références de jeu ou aux soins, avec possibilité de reprendre sur le Master précédent. | Lien vers une analyse M6, modèle M1 hors kit, aperçu et refus de création, reprise sur version conservée. |
+
+## Adoption du Master pour un nouvel épisode — 9 novembre 2026
+
+| Exigence | Parcours raccordé | Vérifications ciblées |
+|---|---|---|
+| §3.6 étape 7 | Proposition du dernier Master pour les réserves M2 sans lien avec les acquis. Choix conservé dans la préparation de l’épisode et journalisé. | Réserve disponible en régie puis à la relève, copie figée malgré une nouvelle publication, ancien épisode inchangé. |
+| §3.6 étape 7 | Blocage des changements touchant les incarnations ou les autres ateliers. Aperçu distinct pour conserver le Master de l’épisode clôturé. | Aperçu périmé, blocage M1 et M2, conservation explicite, contrôle HTTP des droits et du réessai. |
+
+## Publication du Master Vn+1 — 9 novembre 2026
+
+| Exigence | Parcours raccordé | Vérifications ciblées |
+|---|---|---|
+| §3.6 étapes 5 et 6 | Publication du brouillon contrôlé par le propriétaire. Manifeste immuable, pointeur et journal écrits ensemble. | Refus sans changement, blocage M5, aperçu périmé, refus au délégué, concurrence, réessais et héritage V3. |
+| §3.6 étape 7 | Première naissance, relève, apprentissage et régie liés à la version de leur session. | Confirmation de naissance V1 après publication V2, lecture de la régie V1, instantanés du brouillon publié toujours accessibles. |
+
+Le rattachement d’une nouvelle session ou d’un épisode au Master révisé, le contrôle de migration et le retour de version restent ouverts. [PR #2](https://github.com/gkerckhofs-a11y/gn-engine/pull/2).
+
+## Contrôles de mise en jeu du Master Vn+1 — 8 novembre 2026
+
+| Exigence | Parcours raccordé | Vérifications ciblées |
+|---|---|---|
+| §3.6 étape 4, dépendances de la future session | Même garde que la première publication pour groupes, offres PNJ, modules, kits et domaines raccordés. Diagnostics situés dans les ateliers. | Installation hors périmètre, archivage, provenance M5, offre héritée bloquée après modification M1. |
+| §3.6 étape 5, bornes du stockage | Vérification des limites de création des données et de la pagination du manifeste. Résultat conservé dans les nouveaux instantanés. | Seuil de 440 écritures, rejet des manifestes hors limites, version et session de départ conservées. |
+
+Périmètre de cette tranche limité à la préparation d’une future session. L’activation et le retour de version nécessitent leur propre commande. La migration d’une session active relève d’un contrôle distinct. Preuves dans la [PR #2](https://github.com/gkerckhofs-a11y/gn-engine/pull/2).
+
+## Excel du Master Vn+1 — 7 novembre 2026
+
+Les sept ateliers réutilisent leurs formats Excel existants sur le brouillon après publication. Un export de sélection ou un gabarit porte l’identifiant du brouillon, sa révision et sa version de base. Un fichier de première préparation ou d’un autre brouillon est refusé. Les formats gardent leur périmètre, notamment les kits M1 et les groupes M2 édités sur le web.
+
+L’aperçu compare les valeurs héritées et les éditions en cours. Il vérifie les références des ateliers dont la lecture est accordée et localise les diagnostics dans le classeur. L’application revérifie les droits, le manifeste, la révision et le lot. Elle écrit les seules lignes modifiées en une transaction, avec historique et provenance. Une ligne omise conserve la définition existante. Le manifeste publié et les sessions restent sur leur version.
+
+Périmètre §3.6–3.8 pour l’import/export par atelier. Les instantanés du Vn+1, les contrôles sur les données de jeu, la publication et le retour de version restent à raccorder. Preuves du commit exact dans [PR #2](https://github.com/gkerckhofs-a11y/gn-engine/pull/2).
+
+## Comparaison et contrôle du Master Vn+1 — 7 novembre 2026
+
+Le rapport du brouillon compare la base publiée vérifiée et les modifications web. Il distingue les ajouts, modifications, archivages et restaurations. Une définition revenue à son état publié disparaît du diff net. Le rapport indique les champs modifiés, y compris ceux liés à la confidentialité, à la visibilité et aux QR, sans afficher leurs valeurs privées.
+
+Le graphe vérifie les définitions héritées et modifiées ensemble. Il identifie les liens ajoutés, retirés ou dont la cible a changé d’état, par exemple un kit intact dont un objet est archivé dans le brouillon. Les diagnostics gardent la provenance des définitions. Le propriétaire et les délégués explicitement habilités au contrôle global y accèdent avec l’identifiant et la révision du brouillon. Le rapport est en lecture seule et respecte les limites centrales de 1 809 définitions effectives, 16 Mio d’entrées et 4 Mio de sortie.
+
+Périmètre §3.6, aperçu du diff et contrôle des références raccordées. Les vérifications sur les données opérationnelles et les références signalées comme non contrôlées restent à compléter. Excel, instantanés, publication et retour de version Vn+1 restent à raccorder. Preuves du commit exact dans [PR #2](https://github.com/gkerckhofs-a11y/gn-engine/pull/2).
+
+## Brouillon du Master après publication — 7 novembre 2026
+
+Le propriétaire ouvre depuis le tableau de bord un brouillon commun Vn+1 rattaché au manifeste publié et à la révision de son pointeur. Les ateliers héritent des définitions figées. Ils enregistrent seulement les ajouts, modifications et archivages web dans ce brouillon. Les droits de lecture et d’édition restent distincts par atelier. Chaque modification conserve le motif, l’auteur et la définition précédente.
+
+Le brouillon utilise l’époque du pointeur comme identifiant. L’ouverture ne modifie ni le pointeur, ni les pages publiées, ni les sessions et leurs confirmations en cours. L’édition vérifie l’identité et la révision du brouillon, ainsi que la révision de la définition. Sauvegarder ensemble le manifeste et ses pages, le brouillon et ses changements, historiques, délégations et reçus.
+
+Périmètre §3.6, étapes 1 et 2 pour l’édition web. L’import/export Excel, les instantanés, le diff et les contrôles globaux du Vn+1, sa publication et le retour de version restent à raccorder. Preuves du commit exact dans [PR #2](https://github.com/gkerckhofs-a11y/gn-engine/pull/2).
+
+## Recherche unifiée des personnages — 6 novembre 2026
+
+Base `918e68f0afad1b55de7da1f904dad42c32c23c85`, [CI 42237060772](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42237060772) completed/success : 1 082 applicatifs, 858 Firestore et 25 HTTP. [Parcours, sources et limites](SO-RECHERCHE-PERSONNAGES.md).
+
+La régie propriétaire/MJ réunit instances actives, premières naissances à préparer, réserves non incarnées, décès et remplacements. Définitions de la version figée de session ; un dossier même retiré conserve sa définition réservée. Liens prédécesseur/successeur seulement réciproques. Recherche par nom courant, nom lié et souhait privé courant. Aucun UID ni secret de fiche dans la projection.
+
+Lecture seule : aucune incarnation, attribution de ressources ou permission ajoutée. Réserves, décès, remplacés, incohérences, STOP et clôture n’ouvrent pas de formulaire d’affectation. Les parcours natifs de naissance/relève restent requis. Anciens marqueurs et sessions génériques conservés ; aucun nouveau marqueur ni migration.
+
+Validation locale ciblée : 136/136 tests dans neuf fichiers et build réussis ; dix parcours Chromium bureau/petit écran simulé réussis, capture petit écran inspectée. Profil CI targeted-roster-search : 87 fichiers applicatifs, 52 suites Firestore et 26 HTTP sélectionnés, périmètre cumulé des dépendances non fusionnées ; aucun complet. Consigner le résultat du commit exact dans PR #2 après CI. Aucun appareil réel ou test humain certifié.
+
+Restent mandats collectifs, nouvelle version Master et recette. Même branche/PR #2, sans merge ni déploiement Firebase.
+
+## Souhaits privés d’amis en régie — 6 novembre 2026
+
+Base `b8625fac61405db8c213a007e1e83821129444c6`, [CI 42226337186](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42226337186) completed/success : 1 068 applicatifs / 846 Firestore / 24 HTTP, huit jobs réussis. [Parcours et limites](SO-SOUHAITS-GROUPES.md).
+
+Lecture privée du champ natif admission.proposal.friends dans groupManagement, propriétaire/MJ courants seulement, après autorisation et sous groupsVersion=1. Aucun marqueur de jeu ou stockage supplémentaire. Projection bornée des seuls dossiers approuvés avec souhait courant ; pas d’UID/courriel/métadonnées d’inscription, ni de texte dans M2/groupe/historique/joueur/public. Le texte libre peut contenir les coordonnées saisies par l’auteur, jamais interprétées. Aucun lien ou consentement entre personnes déduit.
+
+Recherche commune nom fictif/souhait et bouton vers le formulaire natif, sans groupe/permission/autorisation présélectionnés. Avant naissance, décès, STOP et clôture : consultation sans affectation. Le rattachement au personnage courant est vérifié ; la relève n’hérite pas d’un ancien souhait depuis l’historique, les épisodes conservent uniquement le dossier courant. Affectation et ressources restent sous commandes natives.
+
+Validation locale explicitement ciblée : build et 127/127 tests dans huit fichiers, douze nouveaux cas partagés ; huit parcours Chromium bureau/petit écran simulé réussis, captures inspectées. CI targeted-friend-requests : 86 fichiers applicatifs / 51 suites Firestore / 25 HTTP, périmètre cumulé des dépendances non fusionnées, aucun complet. Résultat du commit exact à consigner dans PR #2 après CI Node 22/Java 21. Aucun appareil réel ou recette humaine certifiés.
+
+Restent recherche unifiée de toutes réserves/remplacés, mandats collectifs, Master Vn+1 et recette ; pas de réseau d’invitations entre amis ajouté. Conserver rôles, dossier privé courant/projection, commandes/reçus/historiques, relève et épisodes. Aucune copie du souhait dans la fiction ni reconstruction pour un successeur. Même branche/PR #2 ; aucun merge, déploiement Firebase ou migration.
+
+
+## Groupes M2 vers la session — 6 novembre 2026
+
+Base `a5e33fd6e3bc85c33c4f29373675692d5ce88c7a`, [CI 42220814560](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42220814560) completed/success : huit jobs, 1 027 applicatifs, 811 Firestore et 23 HTTP. [Périmètre, preuves et reprise](SO-GROUPES-M2.md).
+
+Les définitions group M2 deviennent publiables sous groupDefinitionsVersion=1 et groupsVersion=1. Forme native, références même inactives, droits raccordés, 50 groupes et budget des définitions contrôlés avant publication et lecture de version. La publication ne crée aucune instance. Première naissance seulement : groupes avec contenu natif, membres vides, sans roster/type/capacité inventés ; provenance vers le manifeste, aucune dotation. Les naissances suivantes ne rejouent pas les groupes.
+
+Les appartenances prévues, dont réserves, sont relues depuis la version de session en régie propriétaire/MJ. Configuration puis aperçu et confirmation par les commandes de session existantes ; autorisation de droits jamais précochée. Les propositions ne donnent aucun accès ni affiliation de badge avant validation. Droits non raccordés bloqués à la publication avec champ précis, sans suppression silencieuse. Réserve et successeur sans héritage automatique ; groupes/choix conservés entre épisodes. Anciens manifestes non enrichis.
+
+Local : build, 1 068 applicatifs ciblés réussis, douze nouveaux cas partagés et six parcours Chromium bureau/petit écran simulé réussis, captures inspectées. Profil targeted-group-definitions : 85 fichiers applicatifs, 50 suites Firestore, 24 HTTP sélectionnés ; aucun complet. Résultat du commit exact à consigner dans PR #2 après émulateurs CI Node 22/Java 21. Pas de téléphone réel ni recette humaine certifiés.
+
+Permissions limitées à readBriefing/readMembers ; restent demandes d’amis intégrées, recherche unifiée, mandats collectifs et Master Vn+1. Conserver code/marqueurs/version/pages, provenance/groupes/rosters/mandats, accès, décès/relève, épisodes, historiques et reçus cohérents. Aucun marqueur rétroactif ou réapplication de M2 à une incarnation. Même branche/PR #2, aucun merge ou déploiement Firebase.
+
+
+## Groupes SO — première régie en session — 6 novembre 2026
+
+Base `f40023ab225295a7cdf7241a16e0c7758ee582f9`, [CI 42206813645](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42206813645) completed/success : huit jobs, 957 applicatifs, 750 Firestore, 22 HTTP. [Parcours, limites et reprise](SO-GROUPES-SESSION.md).
+
+`groupsVersion=1` publié/propagé à la naissance seulement ; espaces de groupe activés pour les nouvelles versions compatibles. Commandes natives de régie : création/configuration, affectation/retrait/transfert, responsable, archivage/restauration et contre-opération. Un TEAM principal, factions cumulables, capacités explicites ; limite technique de 50 groupes alignée sur décès/relève. Capacité GROUP_MANAGEMENT limitée aux groupes/historiques, aucun droit d’actifs ou de personnage ; le garde de révision de session reste en place. Propriétaire/MJ courants avant ancien reçu, STOP et clôture respectés.
+
+Premier raccord limité aux permissions readBriefing/readMembers ; autres cases masquées et attributions refusées au serveur. Transfert révoque tous les anciens droits sans redistribution ; décès et relève réutilisent leur révocation native, nouvelle incarnation sans héritage, nouvelle affectation explicite. Lectures des secrets fermées au défunt. Groupes/mandats conservés dans l’épisode suivant. Anciennes sessions fermées sans enrichissement manuel. Publication des définitions group M2, demandes d’amis/réserves intégrées et opérations collectives restent à livrer ; §4.11/INS-09/10 seulement partiels.
+
+Build et 1 027 tests applicatifs ciblés locaux réussis (82 fichiers), onze nouveaux cas partagés, quatre parcours Chromium bureau/petit écran simulé réussis et captures inspectées. Nouveau HTTP/Auth de création/affectation/transfert/révocation ; 48 suites Firestore et 23 HTTP dans targeted-space-groups. Sélecteur borné à 96 fichiers afin de conserver la couverture cumulée ; aucun complet. Émulateurs CI Node 22/Java 21 : résultat du commit exact à consigner dans PR #2 avant le lot suivant. Aucun appareil réel, recette humaine, fusion ou déploiement Firebase revendiqué.
+
+Reprise : code/manifeste/marqueur/modules, groupes/mandats/responsables/révisions/historiques, accès courants, décès/relève, épisodes/sauvegardes/reçus à conserver ensemble. Aucun marqueur ajouté aux anciennes sessions ni adhésion copiée vers un successeur. Même branche/PR #2.
+
+
+## Remorquage individuel et récupération PNJ — candidat du 6 novembre 2026
+
+Base exacte `05c1eec4afe3ed4fbde294c3a50de149e41b08f5`, [CI 42201564805](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42201564805) terminée/success, huit jobs requis. Le parcours individuel peut désormais publier/acheter/monter MOD-05 via les services natifs, atteler, remplir, partir, conserver/larguer en duel compatible, attendre la panne B, être dépanné en carburant, arriver, repartir sur un autre tronçon et retirer le même module après détachement à quai. Carburant ×2 et Manœuvrabilité −1 minimum 0 ; coûts, PA, exemplaires et titres restent natifs.
+
+Les six marqueurs towingWork/Attachment/Flight/Combat/Outage/Recovery sont émis ensemble dans les nouveaux manifestes et propagés/recontrôlés à la naissance. MOD-05 porte requiresTowing ; commerce et atelier exigent la chaîne complète courante. Aucun enrichissement des anciens manifestes ou activation manuelle en partie. Les fixtures de composants fermés retirent explicitement ces marqueurs pour conserver leur périmètre historique ; les tests de chaîne complète prouvent publication/achat/remise/montage natifs. Qualifications et dégâts de scénario restent des données contrôlées de test, pas des attributions de jeu nouvelles.
+
+Récupération PNJ dans shipMaintenance : devis régie avec prestataire disponible, prix canonique 5 % et carburant compris, payeur volontaire qui réserve le solde ordinaire, puis confirmation régie de la prestation réellement effectuée. Le bâtiment et les fonds sont réservés ; aucun minuteur de PNJ, exemplaire, déplacement ou paiement automatique. Retour au même quai refusé, affrontement du largage clos requis, Coque/Bouclier/fret/tiers/propriété conservés. Bâtiment immobilisé en voyage : équipage libéré au port et même voyage conservé comme RECOVERED. Annulation libère les réserves ; pause/STOP/révocation, accès courant, concurrence et rollback contrôlés. Capacité TOWING_RECOVERY bornée aux comptes/ledger, vaisseaux/voyages/équipage/dossier/audit, sans droit d’inventaire ni de PA. Les dossiers PNJ ne sont pas pris pour de l’entretien technique.
+
+Limites explicites : remorqueur victime seul contre pirate seul ; attaque pirate remorqueur, flottes/convois/alliance avec attelage et abordage/capture restent fermés. La récupération spatiale par un remorqueur joueur n’est pas livrée : la voie PNJ est raccordée. Caution/revendication S+1, prime spontanée, titre, identité/casse et crédits protégés du service restent distincts/non livrés. Aucun « chapitre 22 complet » ni recette intégrale REC-SO-19 revendiqués.
+
+Validation locale du candidat : build, **957/957 applicatifs ciblés** dans 76 fichiers ; trois nouveaux cas métier de chaîne complète, six de récupération partagés mémoire/Firestore, un test de périmètre de capacité, deux UI et un sélecteur. Deux HTTP/Auth nouveaux préparés : voyage avec module réellement acquis/monté, puis récupération payée une fois, refus tiers et révocation. Profil targeted-towing-complete : 44 suites Firestore, 22 HTTP, navigateur global désactivé. Les émulateurs restent réservés à la CI Node 22/Java 21 ; résultat exact du commit à consigner dans PR #2 avant la suite. Vérification visuelle locale : 8/8 cas Chromium 153.0.8010.0 (1280×900 / 360×800 tactile simulé), puis deux cas de récupération revérifiés ; workflow natif MemoryStore, captures inspectées, pas de réseau ni débordement horizontal. Pas de recette Firebase navigateur, appareil réel ou validation humaine revendiquée.
+
+À la demande de l’utilisateur, [audit fonctionnel global](AUDIT-GLOBAL-2026-11-06.md) établi après implémentation du candidat : grille V3.5, 55 recettes, V3.6 (12), sécurité (10), code/tests et manques. Sondes locales natives : groupe après naissance refusé SO_GAMEPLAY_NOT_OPEN ; atelier après publication refusé CENTRAL_PREPARATION_REQUIRED. Ces manques ne sont pas corrigés en retirant les gardes. Audit ≠ certification opérationnelle ni campagne prête.
+
+Compatibilité/reprise : conserver ensemble code, version publiée et six marqueurs, membres/versions d’accès, PA et réserves, vaisseaux/modules/lots/fret/tiers, dossier/accords/liens, voyage/événement/dette/horloges, panne B/combat/positions, comptes réservés/prestataire/ledger et reçus/historiques. Les nouveaux dossiers PNJ requièrent ce code pour règlement/annulation ; pas de retour logiciel seul ou suppression de marqueur pour forcer une reprise. Aucun déploiement, fusion main, migration ou restauration externe. Même branche/PR #2 ; envoi GitHub des modifications et de l’audit explicitement autorisé par l’utilisateur le 6 novembre.
+
+
+## Remorquage — commandes de navigation attachée — 6 novembre 2026
+
+Reprise demandée : terminer le remorquage puis produire un audit global des fonctions réalisées/restantes. Base `ef2d7def38e525371647c6611aef783bedc17ac3`, CI 42093021370 réussie. Cette étape corrige le raccord de navigation ; elle ne termine pas encore la récupération spatiale ou l’ouverture de MOD-05.
+
+Le plein natif (préparation, réservation du lot, interruption et finalisation) fonctionne sur le remorqueur attaché à quai. Le contexte vérifie toujours les liens réciproques et le dossier ; un vrai verrou technique reste bloquant. Projection publique `towingAttached`/`towingWreck` sans lot/binding : l’interface n’assimile plus le remorqueur attaché à une réparation active, permet les commandes normales et l’arrivée joueur/régie, et garde fermées les commandes de convoi/embuscade non raccordées. Une épave larguée n’est plus annoncée à quai à cause de son ancien port. Aucun déplacement, coût ou propriété arbitraire ajouté.
+
+Validation locale : build et **944/944 tests applicatifs ciblés**, 73 fichiers du profil towing-desk ; deux nouveaux cas partagés mémoire/Firestore (plein, interruption, arrivée MJ, verrou incohérent et STOP), un cas UI des commandes pilote/régie, HTTP du trajet enrichi avec le plein attaché. Tests Firestore/HTTP réservés à la CI Java 21 ; résultat exact à consigner dans la PR avant le prochain lot. Installation du Chromium Playwright échouée (archive distante vide/invalide) ; aucune recette visuelle de cette étape revendiquée à ce stade. Node 24.22.1 local, cible CI Node 22.
+
+Conserver ensemble deux vaisseaux, dossier/liens, module/lot/fret, équipage, PA/réserves, voyage/événement/dette/horloge, panne B et reçus/historiques. Anciennes sessions inchangées ; aucun marqueur émis, MOD-05 reste preparationOnly jusqu’à sa chaîne complète. Suite : secours en panne sèche sous attelage, récupération spatiale, ouverture cohérente et recette visuelle. Puis audit global demandé, fondé sur le code et les preuves courantes. Même branche/PR #2 brouillon ; aucune fusion ni publication Firebase.
+
+
+## MOD-05 — bureau d’attelage à quai, rôles et confirmations — 5 novembre 2026
+
+Base vérifiée : `60039f509254aab3c14abd90afd56bfb60157221`, [CI 42030868030](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/42030868030) completed/success : huit jobs, build, 927 applicatifs, 732 Firestore, dix-neuf HTTP ; preuve finale présente dans PR #2. Source métier : V0.7 chapitre 22 et services d’attelage déjà implantés ; décision B du 5 novembre conservée. Aucun audit historique repris.
+
+Nouveaux accès de lecture towingDesk/towingDeskAdmin, sous towingWorkVersion=1 et ses dépendances existantes. Joueur : seuls dossiers où son accord de propriétaire ou sa désignation de Mécano correspond encore à sa version d’accès et à la propriété actuelle. Aucun choix de régie, source, motif privé, lot, binding ou version technique dans la liste joueur. Régie : dossiers et préselection des remorqueurs/épaves libres à quai et Mécanos actifs MEC-02 N2, avec noms de ports. Les demandes déjà ouvertes retirent les bâtiments des choix. La préselection ne remplace pas la validation complète de la proposition.
+
+Les lectures produisent les droits courants canApprove/canStart/canFinish/canCancel/canRelease ; même projection sur dossier direct et liste. Demandes avant démarrage revalidées par le validateur natif ; une situation périmée ferme l’accord/démarrage mais reste annulable selon les droits existants. Finalisation limitée au Mécano courant, disponible et local, avec ses réservations propres et les cinq minutes échues. Annulation en pause conservée, STOP prioritaire. Interruption de l’attelage proposée à la régie uniquement pour les deux mêmes bâtiments à quai, au port courant du dossier, avec les liens/verrous attendus ; jamais pendant le vol. Les commandes natives revalident intégralement chaque situation, y compris après aperçu.
+
+Interface Mes attelages dans le Terminal et Régie des attelages depuis le spatioport compatible. Parcours : préselection physique et aperçu régie ; proposition aux propriétaires ; accord personnel de chacun (un seul si même propriétaire) ; aperçu/démarrage du Mécano avec 1 PA réservé ; attente de cinq minutes de jeu ; aperçu final et double attestation présence/travail effectué ; 1 PA consommé, Mécano libéré, deux bâtiments liés et verrouillés. Aucun départ, réparation ou transfert de propriété automatique. Annulation avant confirmation rend seulement les réserves natives ; interruption à quai après confirmation ne rend pas le PA consommé. Dossier largué dans l’espace en lecture seule, sans action de récupération ajoutée.
+
+Contrôleur dédié towingCommand : protocole borné par action, présence jamais héritée d’un ancien aperçu, contrôle séparé performed pour fin/interruption. Aucun coût, dé, propriétaire ou résultat choisi côté client. Handler natif api/mutate, garde busy et reçus existants. Les réponses et erreurs tardives après navigation ne rouvrent pas une confirmation et ne remplacent pas la nouvelle page. Les commandes personnelles ne sont jamais rendues dans l’écran régie. Noms et attributs échappés, confirmation et attestation avant chaque étape de consommation ; aucun droit dérivé de la seule classe du personnage.
+
+Validation locale : build et **941/941 applicatifs ciblés**, puis treize vérifications ciblées du nouveau bureau et six UI après le dernier ajustement de libellé. Sept nouveaux cas partagés mémoire/Firestore : préselection/permissions, filtrage d’un participant sans lien, rôle courant et parcours complet, état physique du Mécano, pause/STOP, dossier périmé, interruption seulement à quai après vol, révocation. Six cas UI/contrôleur et un sélecteur. HTTP/Auth ajouté : proposition, deux accords, démarrage, délai, finalisation par le Mécano seul, interruption régie, PA consommé une fois et accès révoqué. SDK Firestore sans commit : 213 documents sérialisables après attelage confirmé.
+
+Profil targeted-towing-desk : 73 fichiers applicatifs, 42 suites Firestore, vingt HTTP, 108 chemins depuis la base globale 70afa57. Navigateur global/régression intégrale désactivés ; émulateurs réservés à CI Java 21. Preuve finale de cette tête à consigner dans PR #2 avant la suite. Recette DOM dédiée préparée : deux scénarios × bureau/petit écran (parcours à plusieurs rôles, STOP), mais non exécutée : lancement de Chromium impossible, binaire attendu absent. Syntaxe des fichiers de recette vérifiée ; aucune preuve visuelle actuelle, téléphone réel ou recette humaine revendiquée. Styles 44 px définis pour les contrôles du bureau et des confirmations, sans mesure DOM actuelle.
+
+Aucun nouveau marqueur de métier émis ni activation manuelle en partie. Les marqueurs towingWork/Attachment/Flight/Combat/Outage restent fermés à la publication/naissance ; les autres modules conservent leurs marqueurs déjà émis. MOD-05 preparationOnly, achat/montage/publication jouables fermés. Cette étape s’arrête à l’attelage et à son interruption à quai : tous les contrôles de navigation ne sont pas encore raccordés aux verrous propres de l’attelage. Suite : raccord de navigation compatible, récupération spatiale, ouverture versionnée cohérente et recette visuelle. Aucune alliance, capture ou appropriation nouvelle.
+
+Reprise : conserver code/projections compatibles, mêmes participants et versions d’accès, PA/réserves, deux bâtiments, module/lot/fret, liens/dossier, voyage/événement/dette/horloge, panne/décision B, combat/historique/reçus et éventuelle position spatiale. Ne pas supprimer un verrou ou déplacer un bâtiment pour rendre un formulaire utilisable. Aucune restauration externe exécutée. Même branche et PR #2 brouillon ; aucune fusion main ni publication/déploiement Firebase.
+
+
+## MOD-05 — décision B : attelage conservé pendant neutralisation — 5 novembre 2026
+
+Décision explicite de l’utilisateur le 5 novembre : **B, attelage conservé ; le voyage attend le rétablissement de MOD-05**. Ce complément remplace « neutralisation à arbitrer » pour ce cas précis, sans modifier l’archive brute des règles V0.7. Source générale : V0.7 chapitres 19 et 22 ; choix B pour leur articulation. Base vérifiée : `e0d0c8f3eb3e0b092d2772b54a4e43cd3b09e9cb`, [CI 41903330353](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41903330353) completed/success : huit jobs, build, 911 applicatifs, 720 Firestore, dix-huit HTTP ; preuve finale présente dans PR #2. Aucun audit historique repris.
+
+Capacité fermée towingOutageVersion=1, dépendante de towingCombat et de toute la chaîne towingFlight/attachment/work/modules/navigation. Aucun marqueur émis à publication/naissance et aucune activation manuelle en partie. MOD-05 reste preparationOnly ; achat, montage et publication jouables toujours fermés. Les routes DANGEROUS/HOSTILE sont permises au seul composant explicitement compatible ; sans cette capacité, le trajet remorqué reste SECURED uniquement. Routes, tirage, sélection du module, surcharge, événements MJ et dette restent natifs ; aucun événement parallèle ou immunité.
+
+L’événement natif neutralisant le même MOD-05 installé crée une attente de 900 000 ms de jeu sur le voyage existant. L’attelage, les liens/verrous réciproques, le dossier, le même module, l’épave, son propriétaire, sa Coque et son fret restent conservés. Le coût de départ déjà débité et le PA pilote restent consommés une seule fois ; aucune consommation supplémentaire pour l’attente. Manœuvrabilité –1 minimum 0 conservée tant que l’attelage reste en place. Pas de dommage durable, largage automatique à cause de la seule panne, réparation ou transfert de propriété.
+
+Reprise déterministe au terme de la panne : un premier accès tardif ne recommence pas quinze minutes et n’ajoute pas un délai depuis l’actualisation. Le temps de trajet restant repart à l’expiration exacte ; l’arrivée doit toujours être confirmée. Lecture normalisée sans écriture implicite ni tâche de fond ; la mutation native suivante conserve l’état cohérent du vaisseau/voyage. Pause et STOP figent l’horloge commune. Combat, autre verrou, immobilisation, événement MJ ou dette de carburant restent bloquants : l’expiration ne les efface pas. Une clôture MJ avant l’échéance peut résoudre son événement, sans avancer le trajet pendant la panne. Une paix avant échéance conserve l’attente ; une paix après échéance reprend seulement après le combat. Aucun contournement par reprise régie.
+
+Le largage volontaire en combat reste possible selon les droits courants : il retire l’attente liée à cet attelage, sans réactiver le module ; l’épave reste dans la zone et le voyage attend encore la clôture du combat. L’interruption à zéro Coque reste régie par le combat et conserve la propriété. Route revalidée après préparation si la capacité a été retirée, même sans tirage de panne. Anciennes capacités/manifestes fermés avant reprise d’un reçu ; marqueur du voyage et reçu de navigation contrôlés. Aucune permission d’écriture nouvelle : capacités NAVIGATION/SPACE_COMBAT/TOWING_FLIGHT existantes, sans nouveau portefeuille, stock ou moteur d’équipage.
+
+Affichage navigation/régie : délai d’attente, conservation de l’attelage et reprise conditionnée aux autres blocages. Le message n’exige pas une clôture MJ pour la seule panne. Projection towingWait sans identifiant interne de lot ni état technique towingOutage ; identifiant de module neutralisé également masqué dans l’événement public comme auparavant. Pas d’ouverture d’un parcours complet d’attelage/récupération spatiale ou d’un nouveau contrôle régie de téléportation.
+
+Validation locale : build et **927/927 applicatifs ciblés** ; douze nouveaux cas partagés mémoire/Firestore, un test pur des autres modules, deux UI et un sélecteur. Départ natif DANGEROUS/HOSTILE, limite exacte, lecture tardive, pause/STOP, dette/MJ, paix avant/après échéance, largage et zéro Coque pendant panne, concurrence/réessai, confirmation périmée et rollback après écritures couverts. Des blocages MJ/dette combinés à la panne sont injectés en fixture pour vérifier leur indépendance ; le tirage canonique n’est pas modifié. HTTP/Auth ajouté : événement créé par fixture core native déterministe, puis lectures authentifiées, arrivée anticipée refusée, expiration tardive, arrivée atomique et révocation ; aucune prétention de tirage HTTP déterministe. SDK Firestore sans commit : 228 documents pendant l’attente, 232 après arrivée.
+
+Profil targeted-towing-outage : 71 fichiers applicatifs, 41 suites Firestore, dix-neuf HTTP, 102 chemins depuis la base globale 70afa57 ; navigateur global/régression intégrale désactivés. Émulateurs réservés à CI Java 21 ; preuve finale de cette tête à consigner dans PR #2 avant la suite. Recette DOM ciblée préparée : dix scénarios bureau/petit écran dans la config dédiée existante, mais **non exécutés : échec de lancement, binaire Chromium absent ; téléchargement indisponible dans cet environnement**. Les huit cas visuels du 4 novembre restent une preuve antérieure uniquement. Aucune validation visuelle actuelle, téléphone réel ou recette humaine revendiquée.
+
+Reprise/sauvegarde : conserver ensemble code compatible, marqueurs, vaisseaux/module/lot/fret, liens/dossier, voyage unique avec towing.outageVersion/towingOutage/horodatages, moduleNeutralizations, combat/towingDrops/reçus, événements/dette, horloge, équipage et PA. Ne pas retirer un marqueur ou réécrire un instant pour forcer une reprise, ni effacer une dette ou déplacer l’épave à quai. Récupération spatiale et ouverture jouable cohérente restent à traiter. Aucune restauration externe exécutée ; même branche et PR #2 brouillon, aucune fusion main ou publication/déploiement Firebase.
+
+
+## MOD-05 — interface du largage et résultat conservé — 4 novembre 2026
+
+Cette étape complète l’interface du composant fermé et remplace les mentions historiques « interface non ouverte » pour le seul écran de combat. Base vérifiée : `b9439a3b50078400c62e2b51b23c548b54e6263b`, [CI 41897013559](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41897013559) completed/success : huit jobs, build, 905 applicatifs, 720 Firestore, dix-huit HTTP ; preuve finale présente dans PR #2. Aucun audit historique repris. Source métier : règles V0.7 chapitre 22 ; services de combat et navigation existants.
+
+L’écran natif des rencontres affiche au pilote du remorqueur les conséquences du maintien/largage, le coût nul, le retour immédiat à la manœuvrabilité normale, la conservation de l’ordre déjà déposé et l’impossibilité de raccrocher pendant cette rencontre. Une attestation de présence est obligatoire avant la commande dropTowedWreck. Aucun calcul de résultat, dé, PA ou propriété côté client. Payload session/combat/vaisseau/confirmation courants et présence seulement ; parser et handler natifs, garde busy, désactivation du bouton, reçus et contrôles serveur existants. Message de succès explicite, erreurs d’attelage lisibles. L’expiration des 90 secondes laisse le largage possible tant que le round n’a pas réellement été résolu ; aucune rétroactivité après résolution.
+
+Affichage conditionné à la projection serveur towing : aucun bouton pour pirate, équipage observateur ou régie ; bouton indisponible si canDrop/canOrder faux. Pause/STOP et état courant continuent d’être contrôlés au serveur. Pas d’inférence du droit à partir du catalogue, de MOD-05 ou d’un champ client. Dans un historique clos, un nouvel attelage ultérieur ne peut pas faire apparaître une nouvelle commande de largage.
+
+Résultat conservé dans towingDrops sur le combat : motif volontaire TOWING_DROPPED ou automatique TOWING_INTERRUPTED_ZERO_HULL. Projection towingReleases limitée au pilote du bâtiment concerné et à la régie, sans dossier, épave/lot internes, cargo ou bindings. Anciennes entrées volontaires sans reason gardent le sens de largage ; aucune réécriture d’historique. Résultat toujours lisible après fermeture du duel et arrivée du remorqueur, sans dépendre du voyage courant. Le serveur reste seul responsable de l’interruption à zéro Coque et de la position de l’épave. Propriété, état et fret conservés ; aucune récupération spatiale, prime ou réparation ajoutée.
+
+Validation locale : build et **911/911 applicatifs ciblés** (cinq nouveaux tests UI et un sélecteur ; douze cas métier partagés enrichis pour vérifier projection, rôle et historique). HTTP/Auth existant enrichi pour le résultat du largage et son absence chez l’autre pilote. Profil targeted-towing-ui : 70 fichiers applicatifs, 40 suites Firestore, dix-huit HTTP, 98 chemins depuis la base globale 70afa57 ; navigateur global/régression intégrale désactivés. Émulateurs en CI Java 21, preuve de tête à consigner dans PR #2 avant la suite. SDK Firestore : 279 documents sérialisables après largage, sans commit.
+
+Recette locale de composants : **8/8 cas Chromium 156.0.8078.4**, quatre scénarios × bureau 1280×900 et petit écran tactile simulé 360×800 : présence native, double clic, round échu non résolu, zéro Coque, pause, pirate/régie sans commande. Workflow natif MemoryStore et rendu réel des composants/shell ; aucun accès réseau, aucune erreur JS, aucun débordement horizontal, cibles du bloc ≥44 px. Captures petit écran inspectées. Config test/browser/towing-combat.config.mjs uniquement ; pas de recette globale, authentification Firebase navigateur, téléphone réel ou validation humaine revendiquée. Les résultats DOM sont locaux, sur arbre de travail ; ils ne remplacent pas la CI.
+
+Toujours towingCombatVersion=1 et dépendances fermées, aucun marqueur émis à la publication/naissance, aucune activation manuelle en partie. MOD-05 reste preparationOnly : achat/montage/publication jouables fermés. Victime seule contre pirate seul, SECURED uniquement ; pirate remorqueur, alliances, convois et abordage/capture hors périmètre. Neutralisation MOD-05 pendant remorquage et récupération dans l’espace restent à traiter selon source/arbitrage, sans règle inventée.
+
+Reprise : conserver ensemble code/projections compatibles, marqueurs, bâtiments/modules/lots/fret, dossier, combat/towingDrops/rounds/reçus, wreckSpacePosition/releasedTowing, voyage/événement/dette/horloge, équipage et PA. Ne pas déduire une récupération du simple résultat affiché ni déplacer l’épave à quai. Aucune restauration externe exécutée ; même branche et PR #2 brouillon, aucune fusion main ou publication/déploiement Firebase.
+
+
+## MOD-05 — interception et largage sous capacité fermée — 4 novembre 2026
+
+Cette section remplace les limitations « sans interception/largage » des étapes historiques ci-dessous. Base vérifiée : `da0f8ba3fcd9e54e130379e9f4f425d8bc174eed`, [CI 41892086884](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41892086884) completed/success : huit jobs, build, 891 applicatifs, 708 Firestore, dix-sept HTTP. Preuve finale consignée dans PR #2. Source métier : règles V0.7, chapitre 22, `docs/source/SO_Regles_V07.txt` ; combat, PA, horloge et voyage natifs.
+
+Composant supplémentaire `towingCombatVersion=1`, dépendant de toute la chaîne towingFlight/towingAttachment/towingWork/modules/vol/navigation. Aucun marqueur émis à la publication/naissance ; ne pas activer manuellement en partie. MOD-05 reste preparationOnly : publication, commerce et montage jouables fermés. Les fixtures utilisent personnages/vaisseaux/carburant natifs mais module monté, dégâts et marqueurs synthétiques ; elles ne prouvent aucune ouverture jouable.
+
+Périmètre : interception native d’un remorqueur victime seul par un pirate seul, sur le trajet SECURED déjà compatible. L’épave reste hors participants, sans pilote, ordre, événement ou PA supplémentaire. Liens réciproques, propriétaires personnels, dossier, module, fret et voyage courant sont revalidés avant action ; leur état entre dans les confirmations joueur/MJ. Le dossier conserve le lien au combat. Les combats historiques clos ne sont pas revalidés contre un nouvel attelage ultérieur. Pirate remorqueur, alliances, convois et abordage/capture restent fermés dans ce premier composant ; absence de boardingVersion sur ces rencontres, sans en faire une immunité métier publiée. Routes dangereuses/hostiles toujours fermées : neutralisation MOD-05 pendant remorquage non arbitrée dans la source.
+
+`dropTowedWreck` : seul pilote courant du remorqueur, présence attestée, rencontre avant premier round ou round non encore résolu, session EN_JEU sans STOP. Aucun PA ni dé ; ordre déjà déposé et réserves conservés. Confirmation périmée après résolution refuse toute rétroactivité. Manœuvrabilité canonique restaurée immédiatement avant le prochain calcul ; Coque/Bouclier, carburant, module, fret et propriété inchangés. L’épave existante perd les liens et verrous, demeure docked=false dans la zone de route enregistrée par wreckSpacePosition (route, ports, voyage, combat, dossier, instant). Son ancien portId ne représente pas un retour à quai. Dossier TOWING_RELEASED_IN_SPACE et historique conservés. Aucun transfert de propriété, récompense ou restitution du PA d’attelage.
+
+Si le round natif réduit le remorqueur à zéro Coque, même interruption atomique avec motif TOWING_INTERRUPTED_ZERO_HULL, avant les écritures natives de résolution. Une victoire ne transfère jamais l’épave. Si le pilote garde l’attelage, fermeture native du duel reprend le même voyage avec pénalité –1 minimum 0 et verrous réciproques conservés ; l’épave suit l’arrivée. Après largage, elle ne suit pas cette arrivée et ne peut être raccrochée pendant la rencontre. Sa position est conservée pour une récupération future ; aucune procédure de récupération dans l’espace n’est ouverte ici. Ni réparation, retour forcé, nouveau bâtiment ou changement implicite de propriétaire.
+
+Capacité additionnelle TOWING_COMBAT limitée aux vaisseaux, dossier et historique ; voyage, combat, PA et reçus utilisent les capacités natives existantes. Droits/marqueurs courants contrôlés avant anciens reçus. Réessais, concurrence, pause/STOP, données réciproques corrompues, confirmation périmée et rollback après écritures couverts. Lecture publique sans lot, identité technique, codes secrets ou bindings. Sérialisation SDK Firestore sans commit : 276 documents après largage, 283 après interruption à zéro Coque.
+
+Validation locale : build et **905/905 tests applicatifs ciblés**. Profil targeted-towing-combat : 69 fichiers applicatifs, 40 suites Firestore, dix-huit HTTP sélectionnés ; douze nouveaux cas partagés mémoire/Firestore, un cas pur de capacité, un sélecteur et un HTTP/Auth. Émulateurs en CI Java 21 uniquement ; preuve de cette tête à consigner dans PR #2 avant la suite. Aucun test navigateur global, régression intégrale ou recette humaine revendiqué.
+
+Reprise/sauvegarde : conserver ensemble code compatible, marqueurs, deux vaisseaux, module/lot/fret, dossier, combat/rounds/reçus, voyage unique/événement/dette/horloge, équipage et PA. Après largage conserver aussi wreckSpacePosition, releasedTowing, historique et propriétaire ; ne pas effacer une position pour simuler une récupération ou forcer l’épave à quai. Une restauration doit garder cet ensemble cohérent ; aucun retour logiciel seul ni sauvegarde/restauration externe exécutée. Les fermetures avec voyage/combat actif restent soumises aux blocages natifs. Suite : arbitrage neutralisation MOD-05, récupération de l’épave, ouverture versionnée cohérente et interface selon périmètre validé. Même branche et PR #2 brouillon ; aucune fusion main ni publication/déploiement Firebase.
+
+
+## MOD-05 — trajet natif sécurisé sous capacité fermée — 4 novembre 2026
+
+Base vérifiée : `9ccabccaa2701875be2f05ef3aca5e72554348d7`, [CI 41861450804](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41861450804) completed/success : build, 876 applicatifs, 696 Firestore, seize HTTP et huit jobs requis. Attente du contrôle final levée et preuve dans PR #2. Aucun audit historique repris. Source métier : règles V0.7 chapitre 22 ; moteur natif de navigation/événements/PA/horloge.
+
+`towingFlightVersion=1` dépend de towingAttachment/towingWork et de la chaîne modules/vol/navigation. Aucun de ces marqueurs n’est émis à la publication/naissance ; ne pas les activer manuellement en partie. MOD-05 reste preparationOnly au catalogue : publication/achat/montage fermés. Profil installé MOD-05 permis seulement au calcul du composant explicitement compatible, jamais au devis jouable/commerce. Fixtures natives pour personnages/vaisseaux/carburant, mais marqueurs, MOD-05 monté et dégâts synthétiques ; aucune preuve d’achat/montage MOD-05 jouable.
+
+Premier périmètre : un trajet solo par attelage confirmé, sur route SECURED uniquement. Deux mêmes bâtiments, propriétaires personnels connus, même MOD-05, accords courants, liens réciproques et verrous, gabarit et état de l’épave, volume/fret ouverts revalidés. L’épave est non pilotable pendant ce transport. Ni convoi, détour, réapprovisionnement attaché, alliance ni interception : commandes non raccordées refusées et verrous conservés. Routes dangereuses/hostiles fermées avant réservation pour ne pas inventer l’effet d’une neutralisation MOD-05 en cours de remorquage.
+
+Parcours natif prepareVoyage/departShip/finishSoPreparation/arriveShip : PIL-02 et son PA de préparation, route et durée natives, un seul tirage d’événement et un seul voyage. Coût de trajet ×2 (cargo court 4 unités, transport court 6), carburant insuffisant refusé avant réservation. Le doublement est également appliqué à la surcharge consommée pendant le trajet : surcharge ordinaire 1 devient 2 ; reliquat partiel consommé et dette native conservée, sans carburant gratuit ni arrivée forcée. Événements sécurisés et éventuelle résolution MJ restent natifs ; dette non réglée garde le voyage suspendu. Les routes et préparations restent immuables suivant le parcours natif.
+
+Départ atomique : PA pilote consommé une fois, carburant débité une fois, voyage du remorqueur lié au dossier/épave/lot ; épave docked=false avec towingTransit référant ce même voyage, sans second équipage, événement, PA ou voyage. Manœuvrabilité effective –1 minimum 0 durant le voyage, recalculée depuis le profil canonique sans cumul/soin ; pas de pénalité avant départ ou après arrivée. Pause/STOP figent le voyage et les deux positions ; liens et état restent conservés. Annulation avant départ restitue seulement le PA pilote réservé, jamais le PA d’attelage déjà consommé.
+
+Arrivée native atomique : même épave au même port d’arrivée que le remorqueur, sans déplacer implicitement son propriétaire ou son pilote. Propriété, Coque/Bouclier, fret et module conservés ; seule la position suit le transport. Dossier TOWING_ARRIVED, currentPortId et liens/verrous conservés. Interruption administrative à ce port possible suivant la procédure précédente, sans restitution du PA consommé ; nouveau trajet sur le même attelage refusé dans ce premier composant. Pas de détachement joueur, largage en combat, prime, transfert de propriété ou PNJ ajouté.
+
+Capacité TOWING_FLIGHT limitée aux deux vaisseaux, dossier et historiques ; écritures pilote/voyage/carburant par les capacités natives existantes seulement. Confirmation des lectures joueur et régie liée à l’état courant du dossier, épave, module, propriétaires et fret. Droits/marqueurs/propriété revalidés avant anciens reçus de départ ; réessai/concurrence et rollback après écritures au départ et à l’arrivée couverts. Sérialisation SDK Firestore vérifiée sans commit : 228 documents après départ, 232 après arrivée, 235 après interruption administrative.
+
+Validation locale : build et **891/891 tests applicatifs ciblés**, profil targeted-towing-flight : 68 fichiers, 39 suites Firestore et dix-sept HTTP ; navigateur global/régression intégrale désactivés, 90 chemins depuis 70afa57. Douze nouveaux cas métier partagés mémoire/Firestore, deux cas purs de capacité/profil, un sélecteur et un HTTP/Auth natif. Émulateurs en CI Java 21 seulement. Consigner la CI exacte dans PR #2 avant la suite. Aucune recette humaine/navigateur revendiquée.
+
+Conserver ensemble code compatible, manifestes/marqueurs, mêmes vaisseaux/modules/lots/fret, liens réciproques/towingTransit/dossier, voyage unique/événement/dette/horloges, équipage, PA/réserves/consommations, droits et reçus/historiques. Pas d’effacement de lien ou dette, déplacement forcé ou retour logiciel seul. Interrompre une préparation avant départ sous code compatible, ou terminer le trajet et interrompre l’attelage à quai ; sinon restauration cohérente approuvée. Aucune sauvegarde/restauration externe exécutée. Suite : interception/largage/interruption à 0 Coque et neutralisation MOD-05, puis ouverture versionnée cohérente et interface. Même branche/PR #2 brouillon ; aucune fusion main ni publication/déploiement Firebase.
+
+
+## MOD-05 — finalisation personnelle de l’attelage à quai — 4 novembre 2026
+
+Base vérifiée : `be9ce08ce262a1909980942d0d7f0f63b582ef0c`, [CI 41853950901](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41853950901) completed/success : build, 866 applicatifs, 687 Firestore, quinze HTTP et huit jobs requis. Aucun audit historique repris. Sources : règles V0.7 chapitre 22 et composant de mandats/travail existant.
+
+Finalisation sous `towingAttachmentVersion=1`, dépendant de towingWorkVersion et des capacités modules/vol/navigation déjà requises. Aucun de ces deux marqueurs n’est émis par publication ou naissance ; ne pas les activer manuellement en partie. MOD-05 reste preparationOnly : publication/achat/montage/vol toujours fermés. Aucun écran nouveau, aucun trajet ouvert. Personnages/vaisseaux natifs mais marqueurs, MOD-05 monté et dégâts synthétiques en tests ; pas de preuve d’achat/montage MOD-05 jouable.
+
+Après cinq minutes de jeu, seul le même Mécano actif/local MEC-02 N2 peut confirmer présence et travail réellement effectué. Revalidation des deux propriétaires et accords, versions/droits, verrous, révisions, état physique, gabarit, port et même lot MOD-05 installé non neutralisé. Le validateur initial est réutilisé en normalisant uniquement les réservations prouvées de ce travail. Aperçu sans écriture, confirmation liée à l’état courant ; concurrence et réessai ne consomment pas deux fois le PA.
+
+La confirmation consomme le PA réservé et libère l’activité du Mécano. Dossier TOWING_ATTACHED avec marqueur et date de jeu ; liens réciproques versionnés towingAttachment sur les deux vaisseaux (dossier, autre exemplaire, rôle, lot). Les deux maintenanceId sont conservés : aucun départ, modification concurrente ni clôture pendant cette préparation attachée. Propriété, Coque/Bouclier, module, fret, carburant, argent et position inchangés. Délai expiré ne finalise rien ; pause/STOP ferment la confirmation.
+
+Interruption administrative du composant uniquement à quai : MJ, motif et attestation performed requis, mêmes liens réciproques/verrous prouvés, même port, aucun trajet/combat/opération/convoi. Retire seulement les liens et verrous de ce dossier, sans rendre le PA déjà consommé ni modifier le personnage. Annulation de travail ordinaire ne peut pas rembourser un attelage confirmé. Possible après révocation du Mécano et en pause, jamais sous STOP. Cette opération technique de régie ne constitue pas le largage en combat ni une règle de détachement joueur ; ces parcours restent à raccorder avec le trajet.
+
+Capacité TOWING_ATTACHMENT distincte, bornée aux dossiers, vaisseaux, personnage/PA, historiques/audit/reçus ; pas de comptes/ledger, stock, contrats ou voyages. Lecture des dossiers attachés refusée sans marqueur compatible. Conserver les mêmes données, liens réciproques, identités/droits, horloges, réserves, consommations et reçus. Annulation compatible avant confirmation ou interruption administrative attestée après confirmation avant retour approuvé ; sinon restauration cohérente, aucun effacement de marqueur/lien/verrou/PA ni retour logiciel seul. Aucune sauvegarde/restauration externe exécutée.
+
+Validation locale : build et **876/876 applicatifs ciblés**, 67 fichiers. Neuf nouveaux cas partagés mémoire/Firestore, un sélecteur, capacité renforcée et un HTTP/Auth supplémentaire. Le test de rollback du démarrage a aussi été corrigé pour interrompre après les écritures plutôt que pendant l’aperçu. Sérialisation SDK Firestore validée sans commit : 213 documents après attelage, 216 après interruption administrative. Profil targeted-towing-attachment : 38 suites Firestore, seize HTTP, navigateur global/régression intégrale désactivés ; 87 chemins contrôlés depuis 70afa57. Émulateurs en CI Java 21 seulement. Consigner la CI du commit exact dans PR #2 avant la suite. Aucune recette humaine/navigateur revendiquée.
+
+Suite : trajet remorqué, carburant ×2, Manœuvrabilité –1 minimum 0, largage/interception, interruption à 0 Coque et neutralisation MOD-05, puis ouverture versionnée cohérente et interface. Aucune prime, propriété, prestation PNJ, revendication ou casse implicite. Même branche work/space-pilot-handover, PR #2 brouillon ; aucune fusion main ni publication/déploiement Firebase.
+
+
+## MOD-05 — mandats et démarrage du travail d’attelage — 4 novembre 2026
+
+Base vérifiée : `ce3cc6f47b6e4b34c75bbf4d37845d4a6474b82f`, [CI 41848791517](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41848791517) completed/success : build, 850 applicatifs, 673 Firestore, quatorze HTTP, huit jobs requis. Aucun audit historique repris. Sources : règles V0.7 chapitres 17/22 et parcours natifs de mandats, PA, entretien et épisodes.
+
+Composant serveur fermé `towingWorkVersion=1`, dépendant de moduleFlight/removal/installation/work/mandates/purchases/navigation/logistics/combat/convoy. Ce marqueur n’est émis ni à la publication ni à la naissance ; ne pas l’activer manuellement en partie. MOD-05 reste preparationOnly : publication, commerce, montage et vol toujours fermés. Aucun écran ni lien public ajouté. Les fixtures publient/provisionnent les personnages et vaisseaux par les parcours natifs, mais injectent le marqueur, le MOD-05 monté et les dégâts : elles ne prouvent pas un achat/montage MOD-05 jouable.
+
+Périmètre initial : remorqueur cargo/transport opérationnel à quai et épave à 0 Coque, au même port, gabarit du remorqueur au moins égal. Propriétaires personnels connus et actifs seulement, pas de groupe, propriétaire inconnu, capture ni prestataire PNJ. Une épave par dossier ; une demande ouverte par vaisseau. Même lot MOD-05 ordinaire monté, identité/propriété/emplacement/calibration/état et neutralisation contrôlés ; cargaison ouverte et autres occupations refusées.
+
+MJ propose un mandat attesté, sans ressource. Chaque propriétaire donne personnellement son accord (un seul accord s’il possède les deux bâtiments) ; MJ ou technicien ne le remplace pas. Mécano personnel actif, local et MEC-02 N2. Le démarrage revalide accord, versions/droits courants, deux vaisseaux et lot, réserve 1 PA, pose maintenanceId sur les deux vaisseaux et activeMaintenanceId sur le Mécano, puis fixe cinq minutes de temps de jeu. Réponses périmées, double clic et courses ne doublent pas les réserves. Aucun changement de propriété, Coque, Bouclier, module, fret, carburant ou crédit.
+
+Fin de délai : aucune résolution automatique, aucun attelage final, aucun PA consommé. `canFinish=false` ; aucune commande de finalisation ajoutée. Pause/STOP figent le délai ; nouvelle action en pause et interruption sous STOP refusées. Annulation motivée par un participant autorisé ou MJ, y compris après révocation du Mécano, libère les deux verrous et le PA dans le plafond sans écraser un verrou étranger. Droits et marqueur vérifiés avant reçu ; propriété courante et niveau du Mécano avant ancien reçu de démarrage. Les dossiers sont exclus de l’entretien générique. Clôture bloquée par les verrous vaisseaux/personnage ; aucune nouvelle collection.
+
+Capacité TOWING_WORK limitée à shipMaintenance, ships, characters/PA, logisticsHistory et audit/reçus natifs ; aucun accès inventory, comptes, ledger, contrats ou voyages. Validation locale : build et **866/866 applicatifs ciblés** dans 67 fichiers. Quatorze nouveaux cas partagés mémoire/Firestore, un cas de capacité, un sélecteur et un HTTP/Auth borné. Profil targeted-towing-work : 38 suites Firestore, quinze HTTP, navigateur global et régression intégrale désactivés ; 87 chemins depuis l’ancêtre global 70afa57. Émulateurs uniquement en CI Java 21. Consigner le résultat du commit exact dans PR #2 avant la suite ; aucune recette humaine/navigateur revendiquée.
+
+Suite : finalisation personnelle attestée de l’attelage, réserves/détachement et intégration cohérente trajet/carburant ×2/Manœuvrabilité –1, largage/interception et neutralisation, puis ouverture versionnée MOD-05. Pas de propriété, prime, paiement PNJ, revendication ou casse implicite.
+
+Compatibilité : conserver ensemble manifeste/marqueurs, dossiers/bindings/accords/révisions, identités/droits, deux mêmes vaisseaux, même lot monté, horloge/échéance, PA/verrous et reçus/historiques. Ancien binaire ne gère pas ces dossiers : annulation compatible ou restauration cohérente approuvée, aucun retour logiciel seul ni effacement de verrou/réserve. Aucune sauvegarde/restauration externe exécutée. Même branche work/space-pilot-handover et PR #2 brouillon, aucune fusion main ni publication/déploiement Firebase.
+
+
+## MOD-05 — catalogue préparatoire — 4 novembre 2026
+
+Base vérifiée : `e6b67d1e072668892f2167c9c56a71457871b883`, [CI 41842333259](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41842333259) completed/success : build, 843 applicatifs, 669 Firestore, quatorze HTTP et huit jobs requis. Aucun audit historique repris. Sources métier : règles V0.7 chapitres 17 et 22, `docs/source/SO_Regles_V07.txt`.
+
+MOD-05 Remorquage peut être défini dans le brouillon M1 : objet individuel non consommable, calibration stricte code/gabarit. Chasseur refusé ; cargo 1 000 Cr et transport 2 000 Cr (10 % de la référence). Profils préparatoires : installation MEC-03 N2, dix minutes, 1 PA ; retrait MEC-03 N2, cinq minutes, 1 PA. Interface affichant explicitement préparation uniquement et absence de remorquage créé. Aucun tarif ou effet réglable dans le formulaire.
+
+`preparationOnly=true` : publication bloquée par SO_SHIP_MODULE_EFFECT_NOT_OPEN, même avec offre canonique ; offre diagnostiquée comme fermée, sans faux conseil de corriger le prix. Lecture d’une version contenant MOD-05 refusée même si ses empreintes sont cohérentes. Commerce, mandat et profil installé/vol refusent ce module. Aucun marqueur towingVersion émis, activation manuelle, stock, monnaie, PA, capacité ou vaisseau créé. Archiver modèle et offre permet de publier les autres domaines ; MOD-04 et sa décision B restent compatibles.
+
+Validation locale : build et 850/850 tests applicatifs ciblés dans 66 fichiers. Preuves nouvelles : quatre cas partagés mémoire/Firestore (définition stricte/réessai, publication/offre puis archivage, injection commerce/mandat/vol sans mutation, manifeste avec empreintes recalculées), un test de devis/profil, un UI et un sélecteur. HTTP M1 existant renforcé avec MOD-05 privé et diagnostic d’effet fermé. Profil targeted-towing-catalog : 66 fichiers applicatifs, 37 suites Firestore, quatorze HTTP ; navigateur global et régression intégrale désactivés. Java 21 et émulateurs en CI seulement. Vérifier le commit exact et consigner la CI dans PR #2 avant la suite. Aucune nouvelle recette DOM ni humaine sur téléphone revendiquée.
+
+Suite : attelage MEC-02 N2/cinq minutes/1 PA, droits et épave compatible unique, trajet à carburant doublé et Manœuvrabilité –1 (minimum 0), largage/interception et interruption, puis ouverture versionnée cohérente. PNJ, primes, revendication et casse sont des parcours distincts à raccorder selon le chapitre 22 ; ne pas attribuer de propriété ou récompense au clic. Garder achat/montage/vol MOD-05 fermés tant que les effets ne sont pas raccordés.
+
+Sauvegarder ensemble code compatible, définitions/calibrations, brouillon/révisions/historiques/délégations et offres. Aucun changement de donnée active, collection ou migration. Ancien binaire refuse ces définitions : archivage sous code compatible ou restauration cohérente approuvée, pas d’effacement partiel. Aucune sauvegarde/restauration externe exécutée. Même branche work/space-pilot-handover et PR #2 brouillon ; aucune fusion main ni publication/déploiement Firebase.
+
+
+## Fret/douane — contrôle DOM borné — 4 novembre 2026
+
+Base 2e1c1ef : [CI 41836026173](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41836026173) réussie, 840 applicatifs, 669 Firestore, quatorze HTTP et build.
+
+| Contrôle | Preuve automatisée locale | Limite |
+| --- | --- | --- |
+| Propriétaire et rangement | Aperçu sans mutation, présence requise, même lot rangé | Workflow natif en mémoire, pas de connexion réelle |
+| Agent et découverte | Délai/PA, attestations requises, résultat persistant | DOM de composants, pas l’app entière |
+| Régie après révocation | Fin joueur absente, annulation motivée et restitution PA | Identités fictives établies dans le fixture |
+| Panne B | Ancien contenu protégé et nouveau rangement absent | Règles métier inchangées |
+| Ergonomie | Pas de débordement 360/1280 px, attestations ≥44 px, interruption secondaire séparée | Émulation Chromium, aucun appareil Android/iOS réel |
+| Réponse obsolète | Contrôleur partagé app/test, aperçu/reçu ignorés après navigation | Test unitaire de routeVersion distinct du DOM |
+
+Local : 843/843 ciblés et build ; 8/8 DOM (quatre scénarios × deux viewports). Chromium 156.0.8078.4. hidden-visual : 66 fichiers, 37 suites Firestore, quatorze HTTP ; navigateur global désactivé. CI exacte dans PR #2. Recette humaine et authentification UI complète restent distinctes. Aucune fusion ou publication.
+
+## MOD-04 — ouverture versionnée et décision B — 4 novembre 2026
+
+Base 6ebf2f2, [CI 41831727543](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41831727543) réussie : 829 applicatifs, 660 Firestore, treize HTTP et build. Décision utilisateur B du 4 novembre consignée dans les règles V0.7 chapitre 24.
+
+| Exigence | État du code proposé | Preuve |
+| --- | --- | --- |
+| Nouveaux manifestes uniquement | hiddenCargoVersion=1, dépendances/digests/naissance contrôlés | Ancien non enrichi, MOD-04 sans marqueur/inconnu/dépendance refusé |
+| Achat/montage MOD-04 | Offre canonique, provision réelle, paiement/réception puis mandat/atelier | Cargo/transport achetés, reçus et montés réellement |
+| Vol équipé et panne 15 min | Profil et lot natifs, aucune capacité totale ajoutée | Solo/convoi, un événement commun et appareil choisi |
+| B : protection conservée | Ancien contenu caché, nouveau rangement bloqué | Contrôle ordinaire sans révélation pendant panne |
+| Approfondie pendant panne | Règles usuelles, découverte durable | D6+N, PA/délai, sortie/rangement puis retrait réel vidé |
+| Expiration/PAUSE/STOP | Nouveau rangement à échéance, pas de déplacement automatique | Échéance exacte, pause/STOP, stock/module inchangés |
+| Persistance | Même module, fret caché, échéance et marqueur | Documents de l’épisode restauré contrôlés |
+| Production et recette humaine | Non effectuées | Aucune fusion/déploiement, rendu mobile à vérifier |
+
+Local : 840/840 ciblés dans 66 fichiers et build. hidden-flight : 37 suites Firestore, quatorze HTTP bornés, aucun navigateur ou suite complète. CI exacte dans PR #2. Les mentions historiques « MOD-04 préparatoire/fermé » ne s’appliquent plus aux nouveaux manifestes compatibles.
+
+## Interface fret/douane sous garde — 4 novembre 2026
+
+Base 678dffc, [CI 41827691829](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41827691829) réussie : build, 813 applicatifs, 657 Firestore, treize HTTP.
+
+| Exigence | État du composant | Preuve |
+| --- | --- | --- |
+| Propriétaire : volume inclus, lot entier, découverte | Rangement/sortie avec aperçu et présence, manutention existante | UI et protocole exécuté au serveur |
+| Agent habilité : deux contrôles distincts | Choix, coûts, seuil, délai, fin personnelle et annulation | Projections/protocole mémoire-Firestore et HTTP |
+| Régie : habilitation et PNJ | Niveau/poste/motif/révision, nouvelle tentative, suivi | UI et capacités de suivi serveur |
+| Pas de finalisation MJ pour joueur | Uniquement suivi/annulation côté régie | UI et HTTP, service strict inchangé |
+| Pas de fuite ou conclusion abusive | Lots du résultat seulement, échec distinct d’absence de fraude | Textes échappés, droits propriétaire/pilote/agent |
+| Pause, STOP, panne | Boutons indisponibles selon état serveur ; délai manuel | UI et cas partagés |
+| Compatibilité | Pas de lien ni activation sans marqueur | Gardes et anciens manifestes conservés |
+| Rendu mobile/visuel | Non validé dans ce lot, Chromium local absent | Recette humaine encore distincte |
+
+Local : 829/829 ciblés dans 66 fichiers et build ; hidden-ui : 37 suites Firestore, treize HTTP, aucun navigateur ou suite complète. MOD-04 montage/commerce/vol/publication toujours fermés, aucune migration ou publication. [Détail](SO-FRET-CACHE.md).
+
+## MOD-04 — retrait vidé, composant fermé — 4 novembre 2026
+
+Base ecd29a8 : [CI 41823800629](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41823800629) réussie, 799 applicatifs, 645 Firestore, treize HTTP et build. Source : V0.7 chapitre 17.
+
+| Exigence | État courant | Preuve |
+| --- | --- | --- |
+| Pas de démontage avec contenu | Contrôle des lots encore dissimulés à proposition/accord/démarrage/finalisation | Lots connus/inconnus/autres propriétaires ; injection entre aperçu et confirmation |
+| Transfert préalable explicite | Sortie du compartiment vers soute ordinaire ou déchargement natif vers sac | Biens et découverte inchangés ; aucun champ de consignation déclaratif |
+| MEC-03 N2, cinq minutes, 1 PA | Mandat personnel et travaux natifs | Délai, PAUSE/STOP, présence/atelier, réserves et panne |
+| Même module rendu | Restitution au propriétaire, fret/autre module/dommages conservés | Cargo/transport, concurrence, réessai, rollback, reprise |
+| Annulation après révocation | Régie peut restituer les réserves en gardant le module monté | Cas partagé sans finalisation à la place du Mécano |
+| Ouverture MOD-04 en partie | Toujours fermée, marqueur et équipement synthétiques | Montage/commerce/vol/publication inchangés, anciens manifestes non enrichis |
+| Panne, profil/vol et interface | Restent avant ouverture versionnée | Aucun comportement de visibilité en panne supposé |
+
+Local : 813/813 ciblés dans 64 fichiers et build. hidden-removal : 37 suites Firestore, treize HTTP bornés, aucun Chromium ni suite complète. CI exacte consignée dans PR #2. [Détail](SO-FRET-CACHE.md).
+
+## MOD-04 — composant de fret caché fermé — 4 novembre 2026
+
+Base b4b21f5, [CI 41818695160](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41818695160) réussie : 748 applicatifs, 595 Firestore, douze HTTP et build. Source : V0.7 chapitre 24.
+
+| Exigence | État dans ce lot | Preuve |
+| --- | --- | --- |
+| 5/20 ou 10/50 unités, propriété réelle | Composant serveur, lots entiers, aucun volume créé | Cas partagés cargo/transport, droits et capacité |
+| Découverte durable | Métadonnée du même lot, fractionnement/transfert/reprise conservés | Cas partagés et abordage ordinaire refusé avant découverte |
+| Ordinaire 2 min / 0 PA | Attestation documentaire sans nouvelle révélation | Cas partagé ; aucune validation fiscale/licence/manifeste |
+| Approfondie 2 min / 1 PA joueur | Habilitation organisation N1–N5, D6+N≥7 | Seuils, PNJ 0 PA, délai, pause/STOP |
+| Une tentative par vaisseau/escale | Commune aux agents ; autorisation MJ motivée | Concurrence, réessai, nouvel agent, nouvelle escale |
+| Persistance et restitution | Verrous, PA, annulation après révocation, reprise | Rollback et instantané natif |
+| Achat/montage/vol MOD-04 | Toujours fermés, module et marqueur synthétiques en tests | Garde de publication/catalogue maintenue |
+| Retrait vidé/consigné, panne et interface | À raccorder avant ouverture | Contrôles en panne refusés, aucun nouvel écran |
+
+Local : build et 799/799 ciblés dans 64 fichiers. hidden-inspection : 37 suites Firestore, treize HTTP, aucun navigateur ni suite complète. CI exacte dans PR #2. [Détail](SO-FRET-CACHE.md).
+
+## MOD-04 préparatoire — 4 novembre 2026
+
+Base : 880da94, [CI 41816277785](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41816277785) réussie : 742 applicatifs, 592 Firestore, douze HTTP et build.
+
+| Exigence | État | Preuve |
+| --- | --- | --- |
+| MOD-04, cargo/transport, 10 % du gabarit | Définition M1 : 1 000/2 000 Cr ; chasseur refusé | Cas partagé et pur |
+| 5/20 ou 10/50 unités, aucun volume ajouté | Description canonique préparatoire ; aucun fret caché créé | UI et absence de ressources en session |
+| Aucun équipement incomplet en partie | Publication bloquée malgré offre exacte ; commerce/mandat/profil installé refusés | Archivage puis publication sans MOD-04 ; injection synthétique refusée |
+| Fret caché, inspections et découvertes persistantes | À développer avant ouverture du montage | Limite explicite ; aucun nouveau marqueur actif |
+
+Local : 748/748 ciblés dans 61 fichiers et build. hidden-catalog : 34 suites Firestore, douze HTTP bornés. CI exacte dans PR #2 ; aucun verdict humain ou déploiement.
+
+
+## Vols équipés et panne temporaire — 4 novembre 2026
+
+Base : 49e2b86, [CI 41813287248](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41813287248) réussie : 675 applicatifs, 535 Firestore, onze HTTP et build.
+
+| Exigence V0.7 | État de cette tranche | Preuve |
+| --- | --- | --- |
+| Vols équipés MOD-01/02/03/06 | Nouveau moduleFlightVersion=1 ; mêmes lots montés revalidés jusqu’au départ | Quatre parcours achat/montage/départ réels, HTTP/Auth |
+| Quinze minutes de neutralisation, sans casse | Horloge de jeu, PAUSE/STOP, même module, expiration sans soin | Cas partagés mémoire/Firestore |
+| Maximums, manœuvrabilité et canon lourd courants | Profil recalculé, points plafonnés, bonus restauré sans points | Entretien et combat avant/après expiration ; combat synthétique |
+| Événement commun de convoi | Un appareil admissible, un module ; retard commun sans module | Convoi équipé réel et repli natif conservé |
+| Droits, réessai, concurrence et rollback | Aucun double débit, effet ou exemplaire ; marqueur avant reçu | Lots incohérents, courses, révocation, interruption |
+| Épisodes et versions historiques | Échéances/événement conservés ; ancien manifeste non enrichi | Snapshot/reprise et garde historique |
+
+Local : 742/742 tests ciblés dans 61 fichiers et build ; profil module-flight, 34 suites Firestore/douze HTTP. CI exacte dans PR #2 ; aucune recette terrain ni publication. Les limites des sections historiques ci-dessous sont remplacées par cet état pour les seuls nouveaux manifestes compatibles.
+
+
+## Raccordement préparatoire du canon lourd — 4 novembre 2026
+
+Base vérifiée : `a80a80551c35446edb127375149757cbeb4bebaa`, [CI ciblée 41810124019](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41810124019) completed/success : build, 516 applicatifs, 417 Firestore (132 + 89 + 111 + 85), huit HTTP. Verdict exact consigné dans PR #2 avant cette tranche.
+
+| Exigence V0.7 chapitre 17 / combat | État | Preuve |
+| --- | --- | --- |
+| MOD-06 : une attaque, 5+, deux dégâts | Profil natif transmis au résolveur duel et flotte | Cas partagés encounters/convoi ; HTTP duel renforcé |
+| Défense, cumul et dégâts persistants | Résolveurs natifs conservés ; aucune réparation ni casse de module ajoutée | Seuils, défense, dégâts, concurrence/réessai ; équipement synthétique après départ |
+| Vol équipé, neutralisation 15 min et événement commun de convoi | Toujours à développer ; départ équipé bloqué | Tests de garde précédents conservés |
+
+Local : 675/675 tests ciblés dans 56 fichiers et build. Profil module-combat : 31 suites Firestore, onze HTTP ; CI exacte dans PR #2. Aucun nouveau manifeste, migration, recette humaine ou déploiement.
+
+
+## Complément atelier — 4 novembre 2026
+
+| Exigence V0.7 chapitre 17 | État courant | Preuve |
+| --- | --- | --- |
+| Retrait MOD-01/02/03/06, MEC-03 N2, cinq minutes, 1 PA | Raccordé au mandat propriétaire et travail Mécano natifs | space-module-removal-suite, mémoire/Firestore ; HTTP/Auth ciblé |
+| Même identité, état opérationnel et gabarit ; réduction des maximums sans points rendus | Même lot au sac, profil recalculé, points plafonnés ; interruption conserve l’équipement | Quinze nouveaux cas partagés, deux UI |
+| Vols équipés/combats et neutralisation en voyage | À développer ; départ équipé toujours bloqué | Vol nu après retrait du dernier module testé |
+
+Local : 516/516 ciblés dans 39 fichiers et build. Profil module-removal, 24 suites Firestore/huit HTTP ; CI exacte à consigner dans PR #2. moduleRemovalVersion=1 sur nouveaux manifestes seulement. Aucun verdict de recette humaine ou publication.
+
+
+## Finalisation du montage à quai — 2 novembre 2026
+
+Base réelle : `065329a438d69afd9f579b712ebfbfd4ce44fc61`, [CI ciblée 41515892870](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/41515892870) réussie, huit jobs requis : build, 455 applicatifs, 373 Firestore (95 + 82 + 54 + 142), six HTTP. Pas de reprise d’audit historique. Source métier : [règles V0.7, chapitre 17](source/SO_Regles_V07.txt), montage et maximums sans effacer les dégâts.
+
+Le Mécano désigné ouvre un aperçu après le délai puis confirme présence, atelier et montage réellement effectué. Ni propriétaire ni MJ ne finalisent à sa place. Mandat personnel, droits/versions d’identité, propriétaire vivant, qualification MEC-03, port, atelier, même lot ordinaire, calibration, emplacement/doublon et réservations sont recontrôlés. Validation partagée du mandat, avec retrait des seuls verrous de ce dossier pour le contrôle ; révisions du lot et du vaisseau strictement liées au démarrage. PAUSE/STOP bloquent la finalisation. Pas de montage à l’échéance sans confirmation.
+
+Une seule transaction consomme le PA réservé, libère les verrous, ferme le dossier MODULE_INSTALLED et attache le même exemplaire : inventaire INSTALLED, emplacement SHIP_MODULE, quantité/propriété/code/gabarit inchangés ; aucune monnaie ni nouvelle collection. Le profil natif soProfile est recalculé depuis la base canonique et les modules montés : MOD-01 +1 maximum Bouclier, MOD-02 +1 maximum Coque, MOD-03 +1 Manœuvrabilité (plafond permanent 3), MOD-06 canon lourd préparé. Points actuels Coque/Bouclier conservés, aucune réparation implicite. Les réparations natives voient les nouveaux maximums. MODULE_WORK conserve sa capacité existante, sans accès aux comptes/ledger/contrats/connaissances. Réessai, concurrence avec confirmation/annulation et rollback ne doublent ni PA ni exemplaire.
+
+Périmètre explicitement **limité à quai** : retrait, effets en combat et neutralisation en voyage restent à développer. Les départs solo et en convoi avec module monté sont bloqués au serveur (aperçu, démarrage et ultime confirmation, y compris partenaire du convoi), et l’interface masque le formulaire de départ équipé. Le plein reste possible. Ne pas ouvrir les vols équipés tant que canon lourd, dommages/maximums, neutralisation temporaire de quinze minutes et convoi commun ne sont pas raccordés ensemble. Le module monté est affiché séparément du sac, de la soute et des biens à récupérer au comptoir ; référence du même lot et accès privé au vaisseau conservés. Aucun transfert/rachat/pillage ajouté.
+
+Nouveaux manifestes uniquement : moduleInstallationVersion=1 dépend de moduleWorkVersion=1 ; transmis à la naissance, conservé entre épisodes. Ancien manifeste/session reste aux travaux avec interruption, sans finalisation ajoutée implicitement. Données montées conservées par le snapshot/reprise natif, sans nouvelle attribution ; PA renouvelés selon le cycle natif. Sauvegarder ensemble manifeste/pages et marqueurs, dossiers/mandats/versions, identités/droits, vaisseaux/profils/modules, mêmes lots/emplacements/historiques, réservations PA/horloges et operations/logisticsHistory. **Ancien binaire non équivalent** : il ignore INSTALLED/SHIP_MODULE et la garde de départ. Aucun retour de binaire seul, suppression d’un marqueur, libération forcée ou effacement partiel ; restauration seulement d’un ensemble cohérent selon procédure approuvée. Aucune migration ou remise à zéro implicite.
+
+Validation locale : **498/498 tests ciblés dans 38 fichiers**, zéro échec/annulé/ignoré/todo, Node 24.22.1 / npm 11.9.0. Treize nouveaux cas partagés mémoire/Firestore, un cas pur du profil, trois UI et un HTTP/Auth ; ciblage explicite et dépendances voyages/convois inclus. Profil `[ci targeted:module-installation]` : 23 suites Firestore, sept parcours HTTP bornés, aucun Chromium ni suite complète. Émulateurs non exécutés localement (Java 17, CI Java 21). Build réussi ; preuves du commit exact dans PR #2 avant le lot suivant. Résultat ciblé distinct d’une régression intégrale et d’une recette humaine.
+
+Même branche `work/space-pilot-handover`, PR #2 brouillon. Aucune fusion main, publication ou modification d’environnement Firebase. Suite : retrait chronométré du même module puis raccordement complet des voyages équipés/combats/neutralisation avant de retirer le verrou de départ.
+
+
+## État courant — démarrage et interruption des travaux modules, tests ciblés, 2 novembre 2026
 
 L’état évolutif autoritaire et les preuves actuelles sont dans [SO-VALIDATION](SO-VALIDATION.md). Les sections C2 ci-dessous sont historiques. CI adaptée le 27 octobre à la demande utilisateur : tous les tests applicatifs, intégration ciblée sur PR brouillon avec repli complet, Firestore réparti en lots indépendants et HTTP/Auth complet lorsque requis. Avant fusion/publication, suite complète sur le candidat. Aucun acquis fonctionnel supplémentaire ni recette terrain revendiqués par cette optimisation.
 
 | Exigence | Couverture ajoutée | Limite |
 | --- | --- | --- |
-| Autorisation utilisateur du 28 octobre, conservation des acquis | Publication de recette sur le projet existant `gn-engine` ; garde du workflow exigeant la CI complète du SHA main exact, trois tests de garde | Publication à vérifier dans la PR ; aucune migration/IAM/seed, aucune recette humaine ni CDC complet certifiés |
+| V0.7 chapitre 17, démarrage Mécano et réserves | Accord revalidé → démarrage personnel → module/1 PA réservés, vaisseau/Mécano verrouillés → temps de jeu 10/15 min → interruption avec restitution atomique. Douze cas partagés, capacité sans finances, deux UI et un HTTP ; local 455/455 ciblés et build ; CI exacte dans PR #2 | moduleWorkVersion nouveau seulement. Aucun montage ou débit automatique à échéance ; finalisation/équipement/retrait et effets en voyage restent à livrer. Un travail actif bloque la clôture jusqu’à interruption |
+| V0.7 chapitre 17, accord du propriétaire pour le montage | Proposition MJ liée au vaisseau/module reçu/Mécano/port → aperçu privé → accord ou refus personnel → annulation. Droits et état courant, concurrence/réessais/rollback, séparation de l’entretien et continuité testés. Local 413/413 ciblés et build ; CI exacte dans PR #2 | Accord préparatoire sans réservation, PA, paiement ou effet spatial. moduleMandatesVersion nouveau seulement, collection shipMaintenance discriminée. Démarrage Mécano, montage/retrait et effets en voyage restent à livrer |
+| V0.7 chapitre 17, achat de modules standards | M1 calibré → offre au tarif canonique → stock réel MJ → paiement ordinaire → propriété → remise/réception du même lot non monté. Douze cas partagés, un UI, un HTTP ; local 299/299 ciblés et build. CI exacte dans PR #2 | modulePurchasesVersion nouveau seulement, aucune dotation initiale, crédit protégé ou installation. Un exemplaire par stock d’offre. Mandat/MEC-03, effets et neutralisation en voyage restent à livrer ; aucune publication |
+| V0.7 chapitre 17, catalogue des modules standards | MOD-01/02/03/06 : code/gabarit M1 stricts, douze tarifs fixes, profils MEC-03, métadonnées figées dans le contrat des lots. Sept cas partagés, deux purs, un UI, un HTTP ; local 205/205 ciblés et build. Profil module-catalog : neuf suites Firestore et trois HTTP ; CI exacte dans PR #2 | Préparation seulement, publication bloquée tant que l’atelier et les effets de voyage ne sont pas raccordés. Excel même brouillon conserve, transfert de calibration vers un autre Master non pris en charge. Aucun montage, achat ou marqueur de session actif |
+| Demande organisateur du 2 novembre : tests ciblés uniquement | Profils explicites ci/diagnostic sur PR brouillon, fichiers applicatifs/suites Firestore/HTTP bornés ; sélection invalide/hors périmètre refusée. Succès ciblé exclu des références ancestrales, complet prioritaire avant fusion. Local 145/145 ciblés et build ; CI exacte dans PR #2 | Résultat partiel, aucune nouvelle couverture métier globale ou recette humaine. Profil diagnostic : quinze fichiers, sept suites Firestore et un parcours HTTP, pas de Chromium |
+| V0.7 chapitre 11, MEC-01 | Cible/panne préparée M6 → QR privé → aperçu → 60 s/1 PA → informations garanties selon niveau → carnet natif. Récupération dix minutes et une tentative par personnage/version, état conservé entre épisodes. Douze cas partagés, deux UI, un HTTP ; local 2300/2300 et build | technicalAnalysisVersion nouveau seulement ; pas de défaut à test, réparation, accès caché ou lecture technique native automatique. CI exacte dans PR #2, aucune publication |
+| V0.7 chapitres 17/21, même exemplaire et identité permanente distincte | Propriétaire vivant présent à quai → aperçu → confirmation du nom d’usage → anciens noms et transpondeur conservés dans ships et historique natif. Aucun effet sur biens/fonds/PA/contrats/pilote/propriété. Dix cas partagés, deux UI, HTTP enrichi ; local 2286/2286 et build | shipNamingVersion nouveau seulement, pas de migration ; cent changements maximum, borne technique. Aucun faux papier, transpondeur modifié ou titre. CI exacte dans PR #2, aucune publication |
+| V0.7 chapitre 21, refus sans débit | Demande minimale → refus personnel → sponsor supprimé, ancien paiement interdit, accusé privé et décision MJ. Autre paiement embarqué/libération indépendants ; nouvelle demande explicite avec confirmation neuve. Huit cas partagés, deux UI, HTTP à quatre enrichi | Marqueurs existants, aucune migration. STOP, révocation, état périmé, concurrence, rollback et continuité ; CI exacte dans PR #2, aucune publication |
+| V0.7 chapitre 21, rançon libre, refus sans débit et libération distincte | MJ propose sans montant à un membre d’origine d’un autre appareil de la rencontre → demande minimale privée → libre montant/confirmation personnelle → même TRANSFER et reçu lié. Aucun droit de scène, stock ou voyage modifié ; un seul paiement concurrent. Douze cas partagés, deux UI, HTTP à quatre enrichi ; local 2264/2264 et build | boardingRansomSponsorVersion/sponsorVersion nouveaux seulement. Un soutien actif, pas de tiers extérieur/caisses/versements multiples ; autres alliés sans dossier. CI exacte dans PR #2 ; aucune publication |
+| V0.7 chapitre 21, garde et propriété distinctes, retour PNJ natif | Fret sous garde → receveur au port d’origine → retour MJ au comptoir propriétaire en trois minutes/tranche → réserves et remise en stock traitées séparément par mission native. Possible sans transporteur décédé/révoqué, sans héritage ; quantités/références conservées. Dix cas partagés, deux UI, un HTTP ; local 2250/2250 et build | boardingShopReturnVersion/shopReturnVersion nouveaux seulement. Aucun autre port/comptoir, salaire/livraison/fusion commerciale ou succession automatique. CI exacte dans PR #2 ; aucune publication |
+| V0.7 chapitre 21, fret sous garde sans livraison/propriété implicite | Fret PNJ contractuel identifié → transbordement supervisé → garde/voyage du receveur → restitution à la soute du transporteur d’origine au même port → livraison et règlement natifs seulement. Contrat, propriétaire, références et réserves conservés ; régie/bilan adaptés. Dix cas partagés, deux UI, un HTTP ; local 2238/2238 et build | boardingFreightVersion/freightVersion nouveaux seulement. Aucun sac/tiers/groupe hors contrat, accès caché, salaire/usage/vente ou titre automatique. CI exacte dans PR #2 ; aucune publication |
+| V0.7 chapitre 21, garde/propriété distinctes et continuité | Même projection en lecture seule dans régie du fret et bilan : lots reçus encore détenus, volume réel, propriétaire/gardien, alertes et liens natifs ; restitution partielle/annulation, libération et épisode suivant. Dix cas partagés, deux UI, HTTP enrichi ; local 2226/2226 et build | Propriétaire/MJ courant seulement ; aucune écriture, succession, autorisation ou réserve nouvelle. Anciens marqueurs non enrichis, règles de clôture inchangées. CI exacte dans PR #2 ; aucune publication |
+| V0.7 chapitre 21, transbordement cinq unités/trois minutes, REC-SO-18 partiel | Lot personnel ordinaire identifié MJ → réservation native → délai complet → réception sous garde, propriétaire conservé → restitution supervisée au propriétaire vivant présent au port. Capacité, interruption, concurrence/rollback, STOP/pause et continuité. Quinze cas partagés, deux UI, HTTP enrichi ; local 2214/2214 et build réussis | boardingCargoVersion/cargoVersion nouveaux seulement. Aucun accès caché/coffre, fret confié, usage/vente ni titre définitif ; terminer/annuler les tranches ouvertes avant libération/clôture. CI exacte dans PR #2 ; recette humaine distincte, aucune publication |
+| V0.7 chapitre 21, rançon libre et libération distincte, REC-SO-18 partiel | Contrôle de passerelle → montant libre saisi par un équipier visé → aperçu → confirmation personnelle → même registre TRANSFER et reçu lié au dossier ; aucun débit au refus, réserves/protection et verrous conservés. 13 cas partagés, deux UI, HTTP enrichi | Nouveau boardingRansomVersion/ransomVersion ; anciens dossiers fermés. Un paiement personnel par dossier, pas de versements multiples/caisses/tiers ni libération automatique. CI exacte dans PR #2 ; aucune publication |
+| V0.7 chapitre 21, V3.5 §6.5/A.7, REC-SO-18 partiel | Rencontre fermée à trois/quatre → paire de camps opposés → arrimage et scène MJ natifs → contrôle/libération de deux seulement ; redditions/Coques zéro antérieures conservées, fuyards exclus, dossiers privés à leurs équipages, continuité. 15 cas partagés, un UI, HTTP à quatre enrichi | Nouveau fleetBoardingVersion ; anciens manifestes/rencontres non enrichis, duel historique conservé. Une scène active par rencontre ; fret/propriété/rançon/remorquage et recette humaine distincts. CI exacte dans PR #2, aucune publication |
+| V0.7 chapitre 21, V3.5 §6.5/A.7 | Duel fermé → Coque zéro ou reddition acceptée précise → arrimage deux minutes → scène jouée/ordres MJ annoncés → résultat sans contrôle ou contrôle temporaire puis libération ; équipages/trajets d’origine, verrous et continuité. 19 cas partagés, trois UI, un HTTP/Auth | Nouveau boardingVersion, anciennes publications/rencontres non enrichies. Deux vaisseaux seulement ; fret/propriété/rançon/remorquage distincts. CI exacte dans PR #2 ; aucune publication |
+| V0.7 chapitres 19/20, déclaration préalable et sorties individuelles | Un indépendant contre deux alliés consentants, même camp normalisé, rencontre native à trois, poursuite/défenses désignées, remboursements et continuité ; 15 cas partagés, trois UI et un HTTP/Auth | Nouveau allianceDefenseVersion et portée defenseVersion explicite ; anciens accords non élargis. Groupes plus grands et abordage distincts. CI exacte dans PR #2, aucune publication |
+| V0.7 chapitres 19/20, déclarations préalables et choix individuels | Deux accords de camp, même aperçu quel que soit le membre visé, quatre positions traitées atomiquement sans faux convoi, décrochage/sorties individuels, concurrence croisée et continuité ; 15 cas partagés, trois UI et un HTTP/Auth | Nouveau allianceDuelVersion et portée défensive explicite. Ancien parcours cargo/escorte conservé ; pirate indépendant contre alliance et groupes plus grands distincts. CI exacte dans PR #2, aucune publication |
+| V0.7 chapitres 19/20, PIL-03 et ESC-01 | Deux pirates déclarés contre cargo/escorte : équipes correctes, jets stables à quatre, tirs simultanés et défense désignée, poursuite sans remplacement, N4 et sorties/paix individuelles, continuité ; 15 cas partagés, trois UI et un HTTP/Auth | Nouveau allianceConvoyVersion ; rôle initial du meneur explicite à l’accord. Anciennes rencontres à trois conservées ; entre alliances, groupes plus grands et abordage distincts. CI exacte dans PR #2, aucune publication |
+| V0.7 chapitres 19/20, déclaration préalable et combat par camps | Invitation puis accord personnel sur deux positions réelles, une position principale au tirage, participation commune à trois, poursuite coordonnée, paix/reddition/fuite individuelles et continuité ; 15 cas partagés, trois UI et un HTTP/Auth | Nouveau pirateAllianceVersion ; modèle borné meneur/second face à un vaisseau seul. Convoi escorté, quatre vaisseaux, rencontres entre alliances et coalitions plus grandes restent fermés ; CI exacte dans PR #2, aucune publication |
+| V0.7 chapitre 19, positions ciblées et priorité | Reçu personnel M6 acquis → position native sur liaison réelle → priorité au voyage admissible, tirage journalisé et rencontre unique ; cible cargo/escorte et décrochage, anciens documents sans suivi/alerte, continuité ; 15 cas partagés, trois UI et un HTTP/Auth | Nouveau targetedAmbushVersion, anciens manifestes fermés au ciblage. Sources PNJ personnelles, un pirate/convoi natif ; transmission de capacité et coalitions distinctes. CI exacte dans PR #2, aucune publication |
+| V0.7 chapitre 19, renseignements préparés et non traceurs | Proposition MJ d’un M6 privé, trois prix fixes 50/150/300 Cr, paiement ordinaire atomique vers caisse PNJ, carnet figé, refus/annulation, concurrence/réessai et continuité ; 16 cas partagés, quatre UI et un HTTP/Auth | Nouveau intelligenceVersion ; service local existant, contenu préparé sans garantie. Voyage lié privé, aucune embuscade ciblée ni actualisation/alerte automatique. Anciens manifestes fermés ; CI exacte dans PR #2, aucune publication |
+| V3.5 §6.4/A.8, V0.7 chapitres 17/23 | Sélection ordonnée de plusieurs lots du même objet, aperçu du payeur lié à toutes les sources, réservation/consommation atomiques et reliquat conservé ; un PA Mécano ou une prestation PNJ par intervention. Neuf cas partagés, deux UI et un HTTP/Auth ; 2034 applicatifs/build locaux réussis | Nouveau maintenanceLotsVersion ; 20 sources maximum technique, même objet à 50 Cr. Fractions/mélanges de références distincts ; CI exacte dans PR #2, aucune publication |
+| V3.5 §6.4/A.8, V0.7 chapitre 17 | Prestataire PNJ sur pièces personnelles : seule prestation de 0,5 % réservée/payée une fois au premier point, annulation avant/après effet, caisse native et pièces non refacturées ; neuf cas partagés, un UI et un HTTP/Auth ; 2023 applicatifs/build locaux réussis | Nouveau maintenancePnjVersion ; lots entiers 50 Cr, désormais combinables selon la ligne précédente ; service présent attesté MJ. Fractions/mélanges et rémunération privée distincts ; CI exacte dans PR #2, aucune publication |
+| V3.5 §6.4/A.8, V0.7 chapitres 17/23 | Pièces personnelles existantes, devis MJ et accords payeur/Mécano, réservation/consommation par point sans second paiement, PA au premier effet, interruption et continuité ; neuf cas partagés, un UI et un HTTP/Auth | Nouveau maintenanceSuppliesVersion ; Mécano joueur, lots entiers de 50 Cr référencés M5. PNJ complété par la ligne précédente ; fractions et mélanges distincts ; CI exacte dans PR #2, aucune publication |
+| V3.5 §6.1–6.2/A.8, V0.7 chapitres 12/21 | Régie : relève du pilote à quai, aperçu et attestation du mandat/accord/présence ; contrôle PIL-02, accès/localisation/disponibilité, propriété et ressources conservées, reçu/historique atomiques. Cinq cas partagés, un UI et HTTP/Auth enrichi ; 2003 applicatifs/build locaux réussis | Sans opérations, convoi, fret sous garde ou obligations contractuelles ouvertes ; délégation autonome, service PNJ et remplacement en vol distincts. CI exacte dans la nouvelle PR, aucune publication de cette tranche |
+| Autorisation utilisateur du 28 octobre, conservation des acquis | Publication de recette sur le projet existant `gn-engine` ; garde du workflow exigeant la CI complète du SHA main exact, trois tests de garde | Publication 0.37.0 réussie sur main d83226f (CI 40649361336, déploiement 40649361423 tentative 2) ; aucune migration/IAM/seed, aucune recette humaine ni CDC complet certifiés |
 | Consignes de recette finale, V3.5 §7.2/§8, SEC-SO partiels | Paquet local Firebase de recette : Auth réelle ciblée, serveur et médias dédiés, règles/index/Storage et plan sans exécution ; sept tests préparatoires | Cible réelle, IAM/OAuth, provisionnement, publication et recette humaine non exécutés ; aucune couverture métier nouvelle. [Guide](SO-RECETTE-FIREBASE.md) |
 | V3.5 §9.2, SEC-SO-01 et LOCAL-05 partiels | Régie MJ : suspension, liens invalidés, invitation de réouverture native ; confirmation ancienne refusée, autre compte/authentification ancienne refusés, reprise du même personnage et des mêmes biens | Sept parcours Chromium au total ; anciens contrats toujours bloqués après réouverture, réserves conservées ; pas d’effacement distant des données déjà vues, pas de nouvelle dotation, Google réel et recette humaine non exécutés |
 | V3.5 §3.9 et §9.2, SEC-SO-02 partiel, boutique native et STOP | Dialogue de confirmation incertaine ; deux parcours Chromium ajoutés : STOP/devis périmé sans débit, réponse perdue après achat puis reçu tronqué/réessai avec un paiement et une réception uniques | Six parcours au jalon cb72d9d ; page conservée ouverte, remise déclarée fictive. Ni concurrence entre appareils, ni rechargement complet, ni récompense de mission après délai, ni verdict humain certifiés |

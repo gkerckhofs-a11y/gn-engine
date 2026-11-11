@@ -1,7 +1,8 @@
-import {isPlaceSearch} from './space-outlaws-search-state.mjs';
+import {soGroupDefinitionBlockers,seedSoGroupDefinitions} from './space-outlaws-group-state.mjs';
+import {standardShipModuleQuote,towingVersionKeys} from '../shared/space-ship-modules.mjs';
 import {seedSoMissions} from './space-outlaws-mission-state.mjs';
 import {seedSoNavigation} from './space-outlaws-navigation-state.mjs';
-import {shopBlockers,seedSoShops} from './space-outlaws-shop-state.mjs';
+import {seedSoShops} from './space-outlaws-shop-state.mjs';
 import {soCareProfiles} from './space-outlaws-health-state.mjs';
 import {createHash} from 'node:crypto';
 import {requireThat,documentId} from './validation.mjs';
@@ -13,7 +14,9 @@ import {approvedAdmissionM2,admissionM2Fiction} from './admission-m2.mjs';
 import {admissionOccupancy,admissionKeys,admissionText} from './admission-state.mjs';
 import {initialCharacterProfile} from '../shared/initial-character-profile.mjs';
 import {initialClassKit} from '../shared/initial-class-kit.mjs';
-import {campaignPagesFor,campaignLimits} from './campaigns.mjs';
+import {campaignLimits} from './campaigns.mjs';
+import {soEpisodeMasterId} from './space-outlaws-episodes.mjs';
+import {soReleaseDefinitionChecks,soReleaseManifest} from './space-outlaws-release-check.mjs';
 import {portBrecheActionPoints,actionPointPath,actionPointState} from './action-point-state.mjs';
 import {accountId,openWallet,writeLedger,moneyState} from './economy-state.mjs';
 import {newLot,lotState} from './inventory-state.mjs';
@@ -28,8 +31,8 @@ const digest=v=>hash(JSON.stringify(canonical(v)));
 const regPath=(sid,uid)=>`sessions/${sid}/registrations/${hash(uid)}`;
 const reads=['spaceOutlawsEntry','mySpaceOutlawsEntry','previewSpaceOutlawsRelease','previewSpaceOutlawsBirth'];
 export const spaceOutlawsEntryActions=[...reads,'releaseSpaceOutlaws','birthSpaceOutlaws'];
-const supported=new Set(['speciesCatalogue','item','classKit','character','knowledge','fieldTarget','shop','offer','shipModel','port','route','mission']);
 const versionKind='SPACE_OUTLAWS_ENTRY_V1';
+const releaseCapabilities={customsDetentionVersion:1,inf03Version:1,inf01Version:1,inf02Version:1,escapeVersion:1,pickpocketVersion:1,groupDefinitionsVersion:1,groupsVersion:1,groupWalletVersion:1,groupStockVersion:1,groupPilotVersion:1,...Object.fromEntries(towingVersionKeys.map(k=>[k,1])),hiddenCargoVersion:1,moduleFlightVersion:1,moduleRemovalVersion:1,moduleInstallationVersion:1,moduleWorkVersion:1,moduleMandatesVersion:1,modulePurchasesVersion:1,technicalAnalysisVersion:1,shipNamingVersion:1,boardingRansomSponsorVersion:1,boardingShopReturnVersion:1,boardingFreightVersion:1,boardingCargoVersion:1,boardingRansomVersion:1,fleetBoardingVersion:1,boardingVersion:1,allianceDefenseVersion:1,allianceDuelVersion:1,allianceConvoyVersion:1,pirateAllianceVersion:1,targetedAmbushVersion:1,intelligenceVersion:1,maintenanceLotsVersion:1,maintenancePnjVersion:1,maintenanceSuppliesVersion:1,bountyVersion:1,appealFinanceVersion:1,routeAnalysisVersion:1,detourVersion:1,escortManeuverVersion:1,escortAmendmentVersion:1,escortVersion:1,convoyVersion:1,transportVersion:1,learningVersion:1,successionVersion:1,searchVersion:1,mediaVersion:1,episodesVersion:1,missionExecutionVersion:1,missionsVersion:1,logisticsVersion:1,combatVersion:1,navigationVersion:1,shopsVersion:1,healthVersion:1};
 const publicSession=s=>({id:s.id,title:s.title,date:s.date,time:s.time,place:s.place});
 
 async function context(tx,s,c){
@@ -37,8 +40,8 @@ async function context(tx,s,c){
  const [draft,policy,counts,species]=await Promise.all([tx.get(base),tx.get(`sessions/${s.id}/admission/settings`),tx.get(`sessions/${s.id}/admission/occupancy`),tx.get(`${base}/changes/speciesCatalogue_player`)]);
  return {c,s,draft,policy,occupancy:admissionOccupancy(counts,s.accepted),settings:policy?{...policy,species:species?.data??[]}:null};
 }
-export async function readSoEntryVersion(tx,c){
- const id=c.master?.activeVersionId;requireThat(id,'SO_RELEASE_REQUIRED');
+export async function readSoEntryVersion(tx,c,id=c.master?.activeVersionId){
+ requireThat(id,'SO_RELEASE_REQUIRED');
  const base=`campaigns/${c.id}/versions/${id}`,h=await tx.get(base);
  requireThat(h?.kind===versionKind&&h.status==='READY'&&h.id===id&&h.campaignId===c.id&&h.ruleProfile===spaceOutlawsProfile&&Array.isArray(h.pages)&&h.pages.length<=100,'SO_VERSION_INVALID');
  const {manifestDigest,...manifest}=h;requireThat(digest(manifest)===manifestDigest,'SO_VERSION_INVALID');
@@ -57,34 +60,91 @@ export async function readSoEntryVersion(tx,c){
  requireThat(h.transportVersion===undefined||h.transportVersion===1&&h.missionsVersion===1&&h.logisticsVersion===1&&h.navigationVersion===1,'SO_VERSION_INVALID');
  requireThat(h.learningVersion===undefined||h.learningVersion===1&&h.episodesVersion===1,'SO_VERSION_INVALID');
  requireThat(h.successionVersion===undefined||h.successionVersion===1&&h.episodesVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.groupDefinitionsVersion===undefined||h.groupDefinitionsVersion===1&&h.groupsVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.groupDefinitionsVersion===1||!changes.some(c=>c.operation==='UPSERT'&&c.type==='group'),'SO_VERSION_INVALID');
+ if(h.groupDefinitionsVersion===1)requireThat(soGroupDefinitionBlockers(changes).length===0,'SO_VERSION_INVALID');
+ requireThat(h.pickpocketVersion===undefined||h.pickpocketVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.escapeVersion===undefined||h.escapeVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.inf02Version===undefined||h.inf02Version===1,'SO_VERSION_INVALID');
+ requireThat(h.inf01Version===undefined||h.inf01Version===1,'SO_VERSION_INVALID');
+ requireThat(h.customsDetentionVersion===undefined||h.customsDetentionVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.inf03Version===undefined||h.inf03Version===1,'SO_VERSION_INVALID');
+ requireThat(h.inf03Version===1||!changes.some(ch=>ch.operation==='UPSERT'&&ch.type==='fieldTarget'&&ch.data?.kind==='FORGERY'),'SO_VERSION_INVALID');
+ requireThat(h.inf01Version===1||!changes.some(ch=>ch.operation==='UPSERT'&&ch.type==='fieldTarget'&&ch.data?.kind==='INTRUSION'),'SO_VERSION_INVALID');
+ requireThat(h.groupsVersion===undefined||h.groupsVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.groupWalletVersion===undefined||h.groupWalletVersion===1&&h.groupsVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.groupStockVersion===undefined||h.groupStockVersion===1&&h.groupsVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.groupPilotVersion===undefined||h.groupPilotVersion===1&&h.groupsVersion===1,'SO_VERSION_INVALID');
  requireThat(h.searchVersion===undefined||h.searchVersion===1,'SO_VERSION_INVALID');
  requireThat(h.mediaVersion===undefined||h.mediaVersion===1,'SO_VERSION_INVALID');
  requireThat(h.episodesVersion===undefined||h.episodesVersion===1&&h.healthVersion===1,'SO_VERSION_INVALID');
  requireThat(h.missionExecutionVersion===undefined||h.missionExecutionVersion===1&&h.missionsVersion===1,'SO_VERSION_INVALID');
  requireThat(h.missionsVersion===undefined||h.missionsVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.allianceDefenseVersion===undefined||h.allianceDefenseVersion===1&&h.allianceDuelVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.allianceDuelVersion===undefined||h.allianceDuelVersion===1&&h.allianceConvoyVersion===1&&h.pirateAllianceVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.allianceConvoyVersion===undefined||h.allianceConvoyVersion===1&&h.pirateAllianceVersion===1&&h.convoyVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.pirateAllianceVersion===undefined||h.pirateAllianceVersion===1&&h.combatVersion===1&&h.convoyVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.targetedAmbushVersion===undefined||h.targetedAmbushVersion===1&&h.intelligenceVersion===1&&h.combatVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.intelligenceVersion===undefined||h.intelligenceVersion===1&&h.shopsVersion===1&&h.navigationVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.maintenanceLotsVersion===undefined||h.maintenanceLotsVersion===1&&h.maintenanceSuppliesVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.maintenancePnjVersion===undefined||h.maintenancePnjVersion===1&&h.maintenanceSuppliesVersion===1&&h.shopsVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.maintenanceSuppliesVersion===undefined||h.maintenanceSuppliesVersion===1&&h.logisticsVersion===1,'SO_VERSION_INVALID');
  requireThat(h.logisticsVersion===undefined||h.logisticsVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.boardingShopReturnVersion===undefined||h.boardingShopReturnVersion===1&&h.boardingFreightVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.boardingFreightVersion===undefined||h.boardingFreightVersion===1&&h.boardingCargoVersion===1&&h.transportVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.boardingCargoVersion===undefined||h.boardingCargoVersion===1&&h.boardingVersion===1&&h.logisticsVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.boardingRansomSponsorVersion===undefined||h.boardingRansomSponsorVersion===1&&h.boardingRansomVersion===1&&h.fleetBoardingVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.boardingRansomVersion===undefined||h.boardingRansomVersion===1&&h.boardingVersion===1&&h.shopsVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.fleetBoardingVersion===undefined||h.fleetBoardingVersion===1&&h.boardingVersion===1&&h.convoyVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.boardingVersion===undefined||h.boardingVersion===1&&h.combatVersion===1&&h.navigationVersion===1,'SO_VERSION_INVALID');
  requireThat(h.combatVersion===undefined||h.combatVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.technicalAnalysisVersion===undefined||h.technicalAnalysisVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.technicalAnalysisVersion===1||!changes.some(c=>c.operation==='UPSERT'&&c.type==='fieldTarget'&&c.data?.profiles?.ANALYZE?.skillId==='MEC-01'),'SO_VERSION_INVALID');
+ requireThat(h.shipNamingVersion===undefined||h.shipNamingVersion===1&&h.navigationVersion===1,'SO_VERSION_INVALID');
  requireThat(h.navigationVersion===undefined||h.navigationVersion===1,'SO_VERSION_INVALID');
  requireThat(h.shopsVersion===undefined||h.shopsVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.hiddenCargoVersion===undefined||h.hiddenCargoVersion===1&&['moduleFlight','moduleRemoval','moduleInstallation','moduleWork','moduleMandates','modulePurchases','navigation','logistics','combat','convoy','shops'].every(k=>h[`${k}Version`]===1),'SO_VERSION_INVALID');
+ requireThat(h.moduleFlightVersion===undefined||h.moduleFlightVersion===1&&h.moduleRemovalVersion===1&&h.combatVersion===1&&h.convoyVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.moduleRemovalVersion===undefined||h.moduleRemovalVersion===1&&h.moduleInstallationVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.moduleInstallationVersion===undefined||h.moduleInstallationVersion===1&&h.moduleWorkVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.moduleWorkVersion===undefined||h.moduleWorkVersion===1&&h.moduleMandatesVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.moduleMandatesVersion===undefined||h.moduleMandatesVersion===1&&h.modulePurchasesVersion===1&&h.navigationVersion===1&&h.logisticsVersion===1,'SO_VERSION_INVALID');
+ requireThat(h.modulePurchasesVersion===undefined||h.modulePurchasesVersion===1&&h.shopsVersion===1,'SO_VERSION_INVALID');
+ const completeTowing=towingVersionKeys.every(k=>h[k]===1)&&['moduleFlight','moduleRemoval','moduleInstallation','moduleWork','moduleMandates','modulePurchases','navigation','logistics','combat','convoy','shops'].every(k=>h[`${k}Version`]===1);
+ requireThat(!towingVersionKeys.some(k=>h[k]!==undefined)||completeTowing,'SO_VERSION_INVALID');
+ requireThat(completeTowing||!changes.some(c=>c.operation==='UPSERT'&&c.type==='item'&&c.data?.shipModule?.code==='MOD-05'),'SO_VERSION_INVALID');
+ requireThat(h.hiddenCargoVersion===1||!changes.some(c=>c.operation==='UPSERT'&&c.type==='item'&&c.data?.shipModule?.code==='MOD-04'),'SO_VERSION_INVALID');
+ requireThat(h.modulePurchasesVersion===1||!changes.some(c=>c.operation==='UPSERT'&&c.type==='item'&&c.data?.shipModule),'SO_VERSION_INVALID');
  requireThat(h.healthVersion===undefined||h.healthVersion===1,'SO_VERSION_INVALID');
  if(h.healthVersion===1)requireThat(digest(h.careProfiles)===digest(soCareProfiles(changes)),'SO_VERSION_INVALID');
  return {header:h,changes};
+}
+// Runtime records retain their original version. A compatible episode can
+// freeze a newer reserve catalogue independently of those records.
+export async function readSoEpisodeMaster(tx,c,s,runtime){
+ const id=soEpisodeMasterId(s);
+ return id===runtime.header.id?runtime:readSoEntryVersion(tx,c,id??null);
+}
+
+export function writeSoReleaseVersion(tx,{campaignId,confirmation,entries,pages:contentPages,...metadata}){
+ const id=`so_${confirmation}`,base=`campaigns/${campaignId}/versions/${id}`;
+ const pages=contentPages.map((entries,i)=>({id:String(i),versionId:id,entries}));
+ const manifest={id,kind:versionKind,status:'READY',ruleProfile:spaceOutlawsProfile,campaignId,confirmation,...metadata,
+  ...releaseCapabilities,careProfiles:soCareProfiles(entries.map(e=>e.data)),records:entries.length,
+  contentDigest:digest(entries),pages:pages.map(p=>({id:p.id,digest:digest(p)}))};
+ for(const p of pages)tx.set(`${base}/pages/${p.id}`,p);
+ tx.set(base,{...manifest,manifestDigest:digest(manifest)});
+ return id;
 }
 async function releasePlan(tx,actor,ctx,authority,at){
  requireCentralPreparation(ctx.c,ctx.s,ctx.draft);
  const changes=await tx.list(`campaigns/${ctx.c.id}/masterDrafts/initial/changes`,null,{limit:centralCheckLimits.records+1});
  const report=centralDraftCheck({campaign:ctx.c,session:ctx.s,draft:ctx.draft,changes,actorUid:actor.uid,authority:{kind:'OWNER',revision:null},at});
  const admissions=await checkAdmissionM2({tx,ctx,actor,authority,at});
- const blockers=[...shopBlockers(changes),...report.diagnostics.filter(d=>d.code!=='REWARD_SOURCE_PENDING').map(d=>({code:d.code,message:d.message,entityId:d.entityId})),...admissions.diagnostics.map(d=>({code:d.code,message:'Reprendre ce dossier dans les candidatures.',entityId:d.characterId??''}))];
- for(const ch of changes)if(ch.operation==='UPSERT'&&!supported.has(ch.type))blockers.push({code:'SO_DOMAIN_NOT_CONNECTED',entityId:ch.entityId,message:`${ch.workshop} : ${ch.type} doit être raccordé au jeu avant publication. Le brouillon reste intact.`});
- for(const ch of changes)if(ch.operation==='UPSERT'&&ch.type==='fieldTarget'&&ch.data?.kind!=='ANALYSIS'&&!isPlaceSearch(ch.data))blockers.push({code:'SO_DOMAIN_NOT_CONNECTED',entityId:ch.entityId,message:'Seules les analyses V0.7 et les fouilles de lieux V3.6 sont raccordées au jeu.'});
- const active=changes.filter(ch=>ch.operation==='UPSERT'),knowledge=active.filter(ch=>ch.type==='knowledge'),targets=active.filter(ch=>ch.type==='fieldTarget');
- const maxInitial=Math.max(0,...active.filter(ch=>ch.type==='character').map(ch=>knowledge.filter(k=>Array.isArray(k.data?.initialCharacterIds)&&k.data.initialCharacterIds.includes(ch.entityId)).length));
- if(knowledge.length+2*targets.length+maxInitial+active.filter(ch=>['shop','offer','shipModel','port','route','item','mission'].includes(ch.type)).length>440)blockers.push({code:'SO_RUNTIME_LIMIT',entityId:'M6',message:'Trop de définitions et informations initiales pour une activation atomique (440 écritures de définitions maximum). Réduire la version de départ.'});
- const entries=changes.sort((a,b)=>a.id.localeCompare(b.id)).map(data=>({path:`changes/${data.id}`,data}));
- requireThat(Buffer.byteLength(JSON.stringify(entries))<=campaignLimits.bytes,'SO_RELEASE_LIMIT');
- const pages=campaignPagesFor(entries);requireThat(pages.length>0&&pages.length<=100,'SO_RELEASE_LIMIT');
- const confirmation=digest({bountyVersion:1,appealFinanceVersion:1,routeAnalysisVersion:1,detourVersion:1,escortManeuverVersion:1,escortAmendmentVersion:1,escortVersion:1,convoyVersion:1,transportVersion:1,learningVersion:1,successionVersion:1,searchVersion:1,mediaVersion:1,episodesVersion:1,missionExecutionVersion:1,missionsVersion:1,logisticsVersion:1,combatVersion:1,navigationVersion:1,shopsVersion:1,healthVersion:1,actorUid:actor.uid,c:ctx.c,s:ctx.s,draft:ctx.draft,entries,admissions:admissions.fingerprint});
+ const {groupAndShop,definitions}=soReleaseDefinitionChecks(changes);
+ const blockers=[...groupAndShop.map(({changeId,detailField,...d})=>d),...report.diagnostics.filter(d=>d.code!=='REWARD_SOURCE_PENDING').map(d=>({code:d.code,message:d.message,entityId:d.entityId})),...admissions.diagnostics.map(d=>({code:d.code,message:'Reprendre ce dossier dans les candidatures.',entityId:d.characterId??''})),...definitions.map(({changeId,detailField,...d})=>d)];
+ const {entries,pages}=soReleaseManifest(changes);
+ const confirmation=digest({...releaseCapabilities,actorUid:actor.uid,c:ctx.c,s:ctx.s,draft:ctx.draft,entries,admissions:admissions.fingerprint});
  return {entries,pages,confirmation,blockers,draftRevision:ctx.draft.revision,characters:changes.filter(c=>c.type==='character'&&c.operation==='UPSERT').length,approved:admissions.totals.approved};
 }
 export function soBirthOptions(v){
@@ -110,7 +170,7 @@ async function birthPlan(tx,actor,ctx,version,uid,options){
  requireThat(r.status==='RECEIVED'&&!r.characterId&&!r.accessActive,'SO_BIRTH_CONFLICT');
  requireThat(!(await tx.list(`sessions/${s.id}/characters`,['assignedUid',uid],{limit:1})).length,'SO_BIRTH_CONFLICT');
  const {profile,lots}=await planSoBirthAssets(tx,s,version,id,proposal.classId,proposal.secondaryId,options);
- return {r,definition:d,characterId:id,profile,lots,options,confirmation:digest({actorUid:actor.uid,s,c,admission:r.admission,policy:ctx.policy,occupancy:ctx.occupancy,version:version.header.manifestDigest,options})};
+ return {r,definition:d,characterId:id,profile,lots,options,confirmation:digest({actorUid:actor.uid,s,campaign:{id:c.id,ownerUid:c.ownerUid,preparationSessionId:c.preparationSessionId,activeSessionId:c.activeSessionId,activeBuildId:c.activeBuildId},admission:r.admission,policy:ctx.policy,occupancy:ctx.occupancy,version:version.header.manifestDigest,options})};
 }
 
 // Shared by the first birth and the explicitly validated successor transaction.
@@ -123,7 +183,7 @@ export async function planSoBirthAssets(tx,s,version,id,classId,secondaryId,opti
  for(const slot of spec.slots){
   if(slot.id==='weapon'&&!options.weaponApplicable)continue;
   const binding=kit.data.bindings.find(b=>b.slotId===slot.id),item=version.changes.find(ch=>ch.type==='item'&&ch.entityId===binding?.itemId&&ch.operation==='UPSERT')?.data;
-  requireThat(item&&(!slot.requiresConsumable||item.consumable),'CLASS_KIT_INCOMPLETE');
+  requireThat(item&&!item.shipModule&&(!slot.requiresConsumable||item.consumable),'CLASS_KIT_INCOMPLETE');
   const count=item.kind==='INDIVIDUAL'?slot.quantity:1;
   for(let n=0;n<count;n++){
    const lotId=hash(`so-birth:${s.id}:${id}:${slot.id}:${n}`);requireThat(!await tx.get(`sessions/${s.id}/inventory/${lotId}`),'SO_BIRTH_CONFLICT');
@@ -147,7 +207,7 @@ export function writeSoBirthAssets({tx,s,character,lots,version,at,actor,reason,
    const wallet=openWallet(tx,sid,character,0,at,actor.uid,'SO_BIRTH'),protectedWallet={...wallet,protectedCredits:200,protectedOrigin:{kind:'SO_BIRTH',characterId:id,sessionId:sid},revision:2};
    tx.set(`${base}/accounts/${wallet.id}`,protectedWallet);
    writeLedger(tx,sid,{id:eventId,at,kind:'SO_PROTECTED_GRANT',actorUid:actor.uid,memo:'200 Cr de création protégés',reason,createdCurrency:200,removedCurrency:0,entries:[{accountId:wallet.id,characterId:id,delta:0,protectedDelta:200,before:moneyState(wallet),after:moneyState(protectedWallet)}]});
-   for(const l of lots){const lot={...newLot(l.id,{...l.item,pillable:false},l.quantity,id,at,{kind:'SO_BIRTH',slotId:l.slotId,versionId:version.header.id}),pillable:false,transferable:false,resellable:false};tx.set(`${base}/inventory/${l.id}`,lot);tx.set(`${base}/inventory/${l.id}/history/${eventId}`,{id:eventId,kind:'SO_BIRTH',at,actorUid:actor.uid,reason,before:null,after:lotState(lot)});}
+   for(const l of lots){const lot={...newLot(l.id,{...l.item,pillable:false},l.quantity,id,at,{kind:'SO_BIRTH',slotId:l.slotId,versionId:version.header.id,...(character.birth.masterVersionId?{masterVersionId:character.birth.masterVersionId}:{})}),pillable:false,transferable:false,resellable:false};tx.set(`${base}/inventory/${l.id}`,lot);tx.set(`${base}/inventory/${l.id}/history/${eventId}`,{id:eventId,kind:'SO_BIRTH',at,actorUid:actor.uid,reason,before:null,after:lotState(lot)});}
 }
 
 export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSession,now,uuid}){
@@ -164,10 +224,11 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
    const authority=await centralAuthority(tx,actor,c,isAdmin),publishing=['previewSpaceOutlawsRelease','releaseSpaceOutlaws'].includes(action);
    if(publishing)requireThat(authority.owner,'FORBIDDEN');
    const ctx=await context(tx,s,c);
+   const sessionVersionId=s.spaceOutlaws?s.versionId??null:ctx.draft?.publishedVersionId??null;
    if(action==='spaceOutlawsEntry'){
-    admissionKeys(input,['sessionId']);const version=c.master?.activeVersionId?await readSoEntryVersion(tx,c):null;
+    admissionKeys(input,['sessionId']);const version=sessionVersionId?await readSoEntryVersion(tx,c,sessionVersionId):null;
     const registrations=await tx.list(`sessions/${sid}/registrations`,null,{limit:1001});requireThat(registrations.length<=1000,'SO_RELEASE_LIMIT');
-    return {session:{...publicSession(s),revision:s.revision},campaignId:c.id,campaignEpisode:s.campaignEpisode,learningReady:s.spaceOutlaws?.learningVersion===1,successionReady:s.spaceOutlaws?.successionVersion===1,episodesReady:s.spaceOutlaws?.episodesVersion===1,stage:s.stage,canRelease:authority.owner,actionsReady:s.spaceOutlaws?.actionsVersion===1,missionsReady:s.spaceOutlaws?.missionsVersion===1,bountiesReady:s.spaceOutlaws?.bountyVersion===1,navigationReady:s.spaceOutlaws?.navigationVersion===1,shopsReady:s.spaceOutlaws?.shopsVersion===1,healthReady:s.spaceOutlaws?.healthVersion===1,safetyStopped:s.safetyStop?.active===true,versionId:version?.header.id??null,draftRevision:ctx.draft?.revision??0,
+    return {session:{...publicSession(s),revision:s.revision},campaignId:c.id,campaignEpisode:s.campaignEpisode,learningReady:s.spaceOutlaws?.learningVersion===1,successionReady:s.spaceOutlaws?.successionVersion===1,episodesReady:s.spaceOutlaws?.episodesVersion===1,groupsReady:s.spaceOutlaws?.groupsVersion===1,stage:s.stage,canRelease:authority.owner,actionsReady:s.spaceOutlaws?.actionsVersion===1,missionsReady:s.spaceOutlaws?.missionsVersion===1,bountiesReady:s.spaceOutlaws?.bountyVersion===1,intelligenceReady:s.spaceOutlaws?.intelligenceVersion===1,navigationReady:s.spaceOutlaws?.navigationVersion===1,shopsReady:s.spaceOutlaws?.shopsVersion===1,healthReady:s.spaceOutlaws?.healthVersion===1,safetyStopped:s.safetyStop?.active===true,versionId:version?.header.id??null,draftRevision:ctx.draft?.revision??0,
      targets:(version?.changes??[]).filter(ch=>ch.type==='fieldTarget'&&ch.operation==='UPSERT').map(ch=>({id:ch.entityId,title:ch.data.title})),
      registrations:registrations.filter(r=>r.admission?.status==='APPROVED').map(r=>({uid:r.uid,name:`${r.admission.proposal.firstName} ${r.admission.proposal.lastName}`,classId:r.admission.proposal.classId,characterId:r.characterId??null,accessActive:r.accessActive,m2Prepared:!!r.admission.m2Preparation}))};
    }
@@ -175,21 +236,18 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
    if(op){const receipt=await tx.get(op);if(receipt){requireThat(receipt.fingerprint===fingerprint,'REQUEST_ID_REUSED');return receipt.result;}}
    if(publishing){
     admissionKeys(input,['sessionId',...(read?[]:['requestId','confirmation','reason'])]);
-    if(c.master?.activeVersionId){const version=await readSoEntryVersion(tx,c);requireThat(!read&&version.header.confirmation===input.confirmation,'SO_ALREADY_RELEASED');return {versionId:version.header.id};}
+    if(c.master?.activeVersionId){const version=await readSoEntryVersion(tx,c,ctx.draft?.publishedVersionId??null);requireThat(!read&&version.header.confirmation===input.confirmation,'SO_ALREADY_RELEASED');return {versionId:version.header.id};}
     const plan=await releasePlan(tx,actor,ctx,authority,at);
     if(read)return {careProfiles:plan.blockers.length?[]:soCareProfiles(plan.entries.map(e=>e.data)).map(p=>({name:p.name,itemId:p.consumable?.itemId??null})),confirmation:plan.confirmation,blockers:plan.blockers,canRelease:!plan.blockers.length,draftRevision:plan.draftRevision,characters:plan.characters,approved:plan.approved};
     const reason=admissionText(input.reason,500,true);requireThat(!plan.blockers.length,'SO_RELEASE_BLOCKED');requireThat(plan.confirmation===input.confirmation,'SO_ENTRY_STALE');
-    const id=`so_${plan.confirmation}`,base=`campaigns/${c.id}/versions/${id}`,pages=plan.pages.map((entries,i)=>({id:String(i),versionId:id,entries}));
-    const manifest={id,kind:versionKind,status:'READY',ruleProfile:spaceOutlawsProfile,campaignId:c.id,sessionId:sid,draftRevision:plan.draftRevision,confirmation:plan.confirmation,createdAt:at,actorUid:actor.uid,reason,bountyVersion:1,appealFinanceVersion:1,routeAnalysisVersion:1,detourVersion:1,escortManeuverVersion:1,escortAmendmentVersion:1,escortVersion:1,convoyVersion:1,transportVersion:1,learningVersion:1,successionVersion:1,searchVersion:1,mediaVersion:1,episodesVersion:1,missionExecutionVersion:1,missionsVersion:1,logisticsVersion:1,combatVersion:1,navigationVersion:1,shopsVersion:1,healthVersion:1,careProfiles:soCareProfiles(plan.entries.map(e=>e.data)),records:plan.entries.length,contentDigest:digest(plan.entries),pages:pages.map(p=>({id:p.id,digest:digest(p)}))};
-    for(const p of pages)tx.set(`${base}/pages/${p.id}`,p);
-    tx.set(base,{...manifest,manifestDigest:digest(manifest)});
+    const id=writeSoReleaseVersion(tx,{campaignId:c.id,sessionId:sid,draftRevision:plan.draftRevision,confirmation:plan.confirmation,createdAt:at,actorUid:actor.uid,reason,entries:plan.entries,pages:plan.pages});
     tx.set(`campaigns/${c.id}`,{...c,revision:c.revision+1,master:{...c.master,activeVersionId:id,pointerRevision:1,openDraftId:null}});
     tx.set(`campaigns/${c.id}/masterDrafts/initial`,{...ctx.draft,status:'SEALED',publishedVersionId:id,updatedAt:at});
     const eventId=uuid();tx.set(`campaigns/${c.id}/history/${eventId}`,{id:eventId,action,actorUid:actor.uid,at,reason,versionId:id,draftRevision:plan.draftRevision});
     const result={versionId:id};tx.set(op,{fingerprint,result,at});return result;
    }
    admissionKeys(input,['sessionId','uid','options',...(read?[]:['requestId','confirmation','reason'])]);
-   const uid=documentId(input.uid),options=soBirthOptions(input.options),version=await readSoEntryVersion(tx,c),plan=await birthPlan(tx,actor,ctx,version,uid,options);
+   const uid=documentId(input.uid),options=soBirthOptions(input.options),version=await readSoEntryVersion(tx,c,sessionVersionId),plan=await birthPlan(tx,actor,ctx,version,uid,options);
    if(plan.alreadyBorn)return {characterId:plan.characterId,alreadyBorn:true,accessActive:plan.accessActive};
    if(read)return {characterId:plan.characterId,name:plan.definition.public.displayName,profile:plan.profile,hp:plan.profile.classId==='COM'?4:3,protection:plan.profile.classId==='COM'?1:0,actionPoints:5,protectedCredits:200,kit:plan.lots.map(l=>({name:l.item.name,quantity:l.quantity})),options,confirmation:plan.confirmation};
    const reason=admissionText(input.reason,500,true);requireThat(plan.confirmation===input.confirmation,'SO_ENTRY_STALE');
@@ -206,12 +264,26 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
    requireThat(!s.spaceOutlaws||!!s.spaceOutlaws.navigationVersion===navigationEnabled,'SO_VERSION_INVALID');
    requireThat(!s.spaceOutlaws||!!s.spaceOutlaws.shopsVersion===shopsEnabled,'SO_VERSION_INVALID');
    requireThat(!s.spaceOutlaws||!!s.spaceOutlaws.healthVersion===healthEnabled,'SO_VERSION_INVALID');
-   const nextSession={...prior,...(episodesEnabled?{campaignEpisode:1}:{}),...(healthEnabled?{vitalClock:s.vitalClock??{elapsedMs:at,runningSince:at},safetyStop:s.safetyStop??{active:false}}:{}),stage:'BRIEFING',revision:s.revision+1,versionId:version.header.id,spaceOutlaws:{ruleProfile:spaceOutlawsProfile,entryVersion:1,actionsVersion:1,...(version.header.bountyVersion===1?{bountyVersion:1}:{}),...(version.header.appealFinanceVersion===1?{appealFinanceVersion:1}:{}),...(version.header.routeAnalysisVersion===1?{routeAnalysisVersion:1}:{}),...(version.header.detourVersion===1?{detourVersion:1}:{}),...(version.header.escortManeuverVersion===1?{escortManeuverVersion:1}:{}),...(version.header.escortAmendmentVersion===1?{escortAmendmentVersion:1}:{}),...(version.header.escortVersion===1?{escortVersion:1}:{}),...(version.header.convoyVersion===1?{convoyVersion:1}:{}),...(version.header.transportVersion===1?{transportVersion:1}:{}),...(version.header.learningVersion===1?{learningVersion:1}:{}),...(version.header.successionVersion===1?{successionVersion:1}:{}),...(version.header.searchVersion===1?{searchVersion:1}:{}),...(version.header.mediaVersion===1?{mediaVersion:1}:{}),...(episodesEnabled?{episodesVersion:1}:{}),...(missionsEnabled?{missionsVersion:1}:{}),...(missionExecutionEnabled?{missionExecutionVersion:1}:{}),...(healthEnabled?{healthVersion:1}:{}),...(shopsEnabled?{shopsVersion:1}:{}),...(navigationEnabled?{navigationVersion:1}:{}),...(combatEnabled?{combatVersion:1}:{}),...(logisticsEnabled?{logisticsVersion:1}:{}),versionId:version.header.id},
+   for(const k of towingVersionKeys)requireThat(!s.spaceOutlaws||s.spaceOutlaws[k]===version.header[k],'SO_VERSION_INVALID');
+   requireThat(!s.spaceOutlaws||s.spaceOutlaws.hiddenCargoVersion===version.header.hiddenCargoVersion,'SO_VERSION_INVALID');
+   requireThat(!s.spaceOutlaws||s.spaceOutlaws.moduleFlightVersion===version.header.moduleFlightVersion,'SO_VERSION_INVALID');
+   requireThat(!s.spaceOutlaws||s.spaceOutlaws.moduleRemovalVersion===version.header.moduleRemovalVersion,'SO_VERSION_INVALID');
+   requireThat(!s.spaceOutlaws||s.spaceOutlaws.moduleInstallationVersion===version.header.moduleInstallationVersion,'SO_VERSION_INVALID');
+   requireThat(!s.spaceOutlaws||s.spaceOutlaws.moduleWorkVersion===version.header.moduleWorkVersion,'SO_VERSION_INVALID');
+   requireThat(!s.spaceOutlaws||s.spaceOutlaws.moduleMandatesVersion===version.header.moduleMandatesVersion,'SO_VERSION_INVALID');
+   requireThat(!s.spaceOutlaws||s.spaceOutlaws.modulePurchasesVersion===version.header.modulePurchasesVersion,'SO_VERSION_INVALID');
+   requireThat(!s.spaceOutlaws||s.spaceOutlaws.groupDefinitionsVersion===version.header.groupDefinitionsVersion,'SO_VERSION_INVALID');
+   requireThat(!s.spaceOutlaws||s.spaceOutlaws.groupsVersion===version.header.groupsVersion,'SO_VERSION_INVALID');
+   requireThat(!s.spaceOutlaws||s.spaceOutlaws.groupWalletVersion===version.header.groupWalletVersion,'SO_VERSION_INVALID');
+   requireThat(!s.spaceOutlaws||s.spaceOutlaws.groupStockVersion===version.header.groupStockVersion,'SO_VERSION_INVALID');
+   requireThat(!s.spaceOutlaws||s.spaceOutlaws.groupPilotVersion===version.header.groupPilotVersion,'SO_VERSION_INVALID');
+   const nextSession={...prior,...(version.header.groupsVersion===1?{modules:{...s.modules,groups:true}}:{}),...(episodesEnabled?{campaignEpisode:1}:{}),...(healthEnabled?{vitalClock:s.vitalClock??{elapsedMs:at,runningSince:at},safetyStop:s.safetyStop??{active:false}}:{}),stage:'BRIEFING',revision:s.revision+1,versionId:version.header.id,spaceOutlaws:{ruleProfile:spaceOutlawsProfile,entryVersion:1,actionsVersion:1,...(version.header.customsDetentionVersion===1?{customsDetentionVersion:1}:{}),...(version.header.inf03Version===1?{inf03Version:1}:{}),...(version.header.inf01Version===1?{inf01Version:1}:{}),...(version.header.inf02Version===1?{inf02Version:1}:{}),...(version.header.escapeVersion===1?{escapeVersion:1}:{}),...(version.header.pickpocketVersion===1?{pickpocketVersion:1}:{}),...(version.header.groupDefinitionsVersion===1?{groupDefinitionsVersion:1}:{}),...(version.header.groupsVersion===1?{groupsVersion:1}:{}),...(version.header.groupWalletVersion===1?{groupWalletVersion:1}:{}),...(version.header.groupStockVersion===1?{groupStockVersion:1}:{}),...(version.header.groupPilotVersion===1?{groupPilotVersion:1}:{}),...Object.fromEntries(towingVersionKeys.filter(k=>version.header[k]===1).map(k=>[k,1])),...(version.header.hiddenCargoVersion===1?{hiddenCargoVersion:1}:{}),...(version.header.moduleFlightVersion===1?{moduleFlightVersion:1}:{}),...(version.header.moduleRemovalVersion===1?{moduleRemovalVersion:1}:{}),...(version.header.moduleInstallationVersion===1?{moduleInstallationVersion:1}:{}),...(version.header.moduleWorkVersion===1?{moduleWorkVersion:1}:{}),...(version.header.moduleMandatesVersion===1?{moduleMandatesVersion:1}:{}),...(version.header.modulePurchasesVersion===1?{modulePurchasesVersion:1}:{}),...(version.header.technicalAnalysisVersion===1?{technicalAnalysisVersion:1}:{}),...(version.header.shipNamingVersion===1?{shipNamingVersion:1}:{}),...(version.header.boardingShopReturnVersion===1?{boardingShopReturnVersion:1}:{}),...(version.header.boardingFreightVersion===1?{boardingFreightVersion:1}:{}),...(version.header.boardingCargoVersion===1?{boardingCargoVersion:1}:{}),...(version.header.boardingRansomSponsorVersion===1?{boardingRansomSponsorVersion:1}:{}),...(version.header.boardingRansomVersion===1?{boardingRansomVersion:1}:{}),...(version.header.fleetBoardingVersion===1?{fleetBoardingVersion:1}:{}),...(version.header.boardingVersion===1?{boardingVersion:1}:{}),...(version.header.allianceDefenseVersion===1?{allianceDefenseVersion:1}:{}),...(version.header.allianceDuelVersion===1?{allianceDuelVersion:1}:{}),...(version.header.allianceConvoyVersion===1?{allianceConvoyVersion:1}:{}),...(version.header.pirateAllianceVersion===1?{pirateAllianceVersion:1}:{}),...(version.header.targetedAmbushVersion===1?{targetedAmbushVersion:1}:{}),...(version.header.intelligenceVersion===1?{intelligenceVersion:1}:{}),...(version.header.maintenanceLotsVersion===1?{maintenanceLotsVersion:1}:{}),...(version.header.maintenancePnjVersion===1?{maintenancePnjVersion:1}:{}),...(version.header.maintenanceSuppliesVersion===1?{maintenanceSuppliesVersion:1}:{}),...(version.header.bountyVersion===1?{bountyVersion:1}:{}),...(version.header.appealFinanceVersion===1?{appealFinanceVersion:1}:{}),...(version.header.routeAnalysisVersion===1?{routeAnalysisVersion:1}:{}),...(version.header.detourVersion===1?{detourVersion:1}:{}),...(version.header.escortManeuverVersion===1?{escortManeuverVersion:1}:{}),...(version.header.escortAmendmentVersion===1?{escortAmendmentVersion:1}:{}),...(version.header.escortVersion===1?{escortVersion:1}:{}),...(version.header.convoyVersion===1?{convoyVersion:1}:{}),...(version.header.transportVersion===1?{transportVersion:1}:{}),...(version.header.learningVersion===1?{learningVersion:1}:{}),...(version.header.successionVersion===1?{successionVersion:1}:{}),...(version.header.searchVersion===1?{searchVersion:1}:{}),...(version.header.mediaVersion===1?{mediaVersion:1}:{}),...(episodesEnabled?{episodesVersion:1}:{}),...(missionsEnabled?{missionsVersion:1}:{}),...(missionExecutionEnabled?{missionExecutionVersion:1}:{}),...(healthEnabled?{healthVersion:1}:{}),...(shopsEnabled?{shopsVersion:1}:{}),...(navigationEnabled?{navigationVersion:1}:{}),...(combatEnabled?{combatVersion:1}:{}),...(logisticsEnabled?{logisticsVersion:1}:{}),versionId:version.header.id},
     actionPointRules:{...portBrecheActionPoints},economyRules:{enabled:true,name:'Crédits',unit:'Cr'},healthRules:{enabled:true,defaultMaxHp:3,returnMode:'HP_POSITIVE',allowed:{discover:false,share:false,publish:false,heal:false,transfer:false,pay:false}}};
    if(episodesEnabled&&!s.spaceOutlaws){requireThat(!c.activeSessionId&&!c.activeBuildId,'CAMPAIGN_EPISODE_ACTIVE');tx.set(`campaigns/${c.id}`,{...c,episodesVersion:1,activeSessionId:sid,episodeCount:1,revision:c.revision+1});}
    tx[spaceOutlawsTransaction](sid);tx.set(base,nextSession);tx.set(`${base}/characters/${id}`,character);
    const knowledge=version.changes.filter(ch=>ch.type==='knowledge'&&ch.operation==='UPSERT').map(ch=>({...ch.data,publicationState:'PUBLISHED'}));
    if(!s.spaceOutlaws){
+    if(version.header.groupDefinitionsVersion===1)seedSoGroupDefinitions(tx,sid,version.changes,version.header.id);
     if(missionsEnabled)seedSoMissions(tx,sid,version.changes,version.header.id);
     if(navigationEnabled)seedSoNavigation(tx,sid,version.changes,version.header.id);
     if(shopsEnabled)seedSoShops(tx,sid,version.changes,version.header.id);

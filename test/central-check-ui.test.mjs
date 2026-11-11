@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createCentralCheckUi} from '../web/central-check.mjs';
 import {createCentralUi} from '../web/central-master.mjs';
+import {entryFixture} from './support/space-outlaws-entry-suite.mjs';
 import {centralCheckFixture} from './support/central-check-suite.mjs';
 import {MemoryStore} from './support/memory.mjs';
 const link=(label,path,cls)=>`<a class="${cls}" href="#/${path}">${label}</a>`;
@@ -18,4 +19,28 @@ test('C2a UI : provenance, diagnostics et références échappés, secrets non r
  const f=await centralCheckFixture(()=>new MemoryStore());await f.saveCharacter();const r=await f.check(1);
  r.campaign.title='<script>bad</script>';r.diff[0].name='<img onerror=bad>';r.diagnostics[0].fileName='<svg onload=bad>';r.diagnostics[0].sheet='Recettes';r.diagnostics[0].row=8;r.diagnostics[0].column='produit_id';r.diagnostics[0].batchId='batch';
  const html=createCentralCheckUi({link}).page(r);assert.doesNotMatch(html,/<script|<img|<svg|Secret de fiction|Biographie fictive/);assert.match(html,/&lt;script&gt;/);assert.match(html,/ligne 8/);assert.match(html,/produit_id/);assert.match(html,/cible absente/);assert.match(html,/Contenus réservés/);assert.ok(html.includes(`central/${f.cid}/M2`));
+});
+
+
+test('Master Vn+1 UI : différences et références affectées visibles sans action de publication',async()=>{
+ const f=await entryFixture(()=>new MemoryStore()),{versionId}=await f.release(await f.releasePreview());
+ const {id:draftId}=await f.cc('openCentralRevision',{baseVersionId:versionId,pointerRevision:1,reason:'Comparer'});
+ const check=draftRevision=>f.central('checkCentralDraft',{draftId,draftRevision});
+ const ui=createCentralCheckUi({link}),empty=ui.page(await check(0));
+ assert.match(empty,/Comparaison avec le Master publié V1/);
+ assert.match(empty,/Aucune différence de définition/);
+ assert.match(empty,/Préparation d’une future session/);
+ assert.match(empty,/Le manifeste respecte les limites/);
+ const {changes}=await f.central('centralMaster',{workshop:'M1'}),item=changes.find(c=>c.type==='item');
+ await f.cc('archiveCentralItem',{draftId,draftRevision:0,itemId:item.entityId,itemRevision:item.data.revision,reason:'Archiver'});
+ const r=await check(1);
+ r.diff[0].name='<img onerror=bad>';
+ const html=ui.page(r);
+ assert.match(html,/Différences avec la version publiée/);
+ assert.match(html,/migration sur les QR actifs/);
+ assert.match(html,/Archivé/);
+ assert.match(html,/Références qui changent/);
+ assert.match(html,/cible présente → cible archivée/);
+ assert.match(html,/&lt;img/);
+ assert.doesNotMatch(html,/<img|<form|<button|Note MJ cachée/);
 });

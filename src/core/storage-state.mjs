@@ -1,16 +1,25 @@
 import {requireThat,whole} from './validation.mjs';
 import {groupVisible,memberFor} from './groups.mjs';
+import {hasSoGroupStock,soStockPermissions} from '../shared/space-outlaws-groups.mjs';
 
-export function warehouseInput(input,id,old={}){
+export function warehouseInput(input,id,old={},{assigned=false}={}){
   const positive=v=>{whole(v,'INVALID_WAREHOUSE');requireThat(v>0,'INVALID_WAREHOUSE');return v;};
   const name=input.name,description=input.description??'';
   requireThat(typeof name==='string'&&name.trim()&&name.length<=150&&typeof description==='string'&&description.length<=4000&&typeof input.enabled==='boolean','INVALID_WAREHOUSE');
-  const periodMinutes=positive(input.periodMinutes);whole(periodMinutes*60000,'INVALID_WAREHOUSE');
-  return {id,name:name.trim(),description:description.trim(),capacity:positive(input.capacity),rent:whole(input.rent,'INVALID_WAREHOUSE'),periodMinutes,enabled:input.enabled,rentAccountId:input.rentAccountId??null,revision:(old.revision??0)+1};
+  const periodMinutes=assigned?null:positive(input.periodMinutes);
+  if(!assigned)whole(periodMinutes*60000,'INVALID_WAREHOUSE');
+  return {id,name:name.trim(),description:description.trim(),capacity:positive(input.capacity),rent:assigned?null:whole(input.rent,'INVALID_WAREHOUSE'),periodMinutes,enabled:input.enabled,rentAccountId:input.rentAccountId??null,revision:(old.revision??0)+1};
 }
 export const stockPermissions=['readStock','depositStock','withdrawStock','manageStorage'];
-export function storageGroups(s,groups,cid){
-  return s.modules?.groups===true?groups.filter(g=>groupVisible(g,cid)).map(g=>({id:g.id,name:g.name,revision:g.revision,permissions:Object.fromEntries([...stockPermissions,'pilotShip'].map(k=>[k,memberFor(g,cid).permissions[k]===true]))})):[];
+export function storageGroups(s,groups,cid,{factionStock=false}={}){
+  if(s.modules?.groups!==true)return [];
+  // Space Outlaws warehouse grants do not open the legacy hold and voyage paths.
+  const permissions=s.spaceOutlaws&&factionStock?soStockPermissions:[...stockPermissions,'pilotShip'];
+  const grantsEnabled=!s.spaceOutlaws||factionStock&&hasSoGroupStock(s);
+  return groups.filter(g=>groupVisible(g,cid)).map(g=>({
+    id:g.id,name:g.name,revision:g.revision,
+    permissions:Object.fromEntries(permissions.map(k=>[k,grantsEnabled&&memberFor(g,cid).permissions[k]===true]))
+  }));
 }
 export function warehouseAccess(w,cid,groups){
   if(!w.tenantId)return {access:false,read:false,deposit:false,withdraw:false,manage:false,group:null};

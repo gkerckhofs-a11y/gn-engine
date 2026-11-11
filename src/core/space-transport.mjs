@@ -52,7 +52,7 @@ export function transportProgress(c,lots){
  return {index:indices[0]??0,unanimous:indices.every(i=>i===indices[0])};
 }
 export function transportDeliveryState(c,lots,transfers){
- const delivered=lots.filter(l=>l.transportDelivered&&l.location.kind==='PORT'&&l.location.id===c.terms.transport.toPort),quantity=delivered.reduce((n,l)=>n+l.quantity,0);
+ const delivered=lots.filter(l=>!l.boardingCustody&&l.transportDelivered&&l.location.kind==='PORT'&&l.location.id===c.terms.transport.toPort),quantity=delivered.reduce((n,l)=>n+l.quantity,0);
  return {delivered:quantity,complete:quantity===c.terms.transport.quantity&&transfers.length===0,deliveredGameMs:quantity===c.terms.transport.quantity?Math.max(...delivered.map(l=>l.transportDeliveredGameMs)):null};
 }
 export async function transportView(tx,s,c){
@@ -94,6 +94,7 @@ export async function transportCargoAccess(tx,s,lot,cid,admin=false){
  requireThat(t&&(admin||c.characterId===cid)&&c.acceptedAt!=null,'FORBIDDEN');
  if(!admin)requireThat((await participantCurrent(tx,s,c)).current,'FORBIDDEN');
  requireThat(lot.ownerType==='SHOP'&&lot.ownerId===t.shopId&&lot.item.id===t.item.id,'SO_TRANSPORT_INVALID');
+ requireThat(!lot.boardingCustody,'BOARDING_CARGO_REGIE');
  const ship=await tx.get(`${base(s)}/ships/${t.shipId}`),voyage=lot.transportVoyageId?await tx.get(`${base(s)}/voyages/${lot.transportLastVoyageId??lot.transportVoyageId}`):null;
  const active=c.status==='ACTIVE',returnOnly=['SUBMITTED','REVIEWED','DISPUTED'].includes(c.status),local=idle(ship)&&(admin||ship.ownerId===cid&&ship.pilotId===cid);
  const routeId=s.spaceOutlaws.detourVersion===1&&lot.transportDetour&&lot.transportDetour.voyageId===voyage?.id&&voyage?.toPort===lot.transportDetour.toPort?lot.transportDetour.routeId:voyage?.routeId;
@@ -102,7 +103,9 @@ export async function transportCargoAccess(tx,s,lot,cid,admin=false){
 }
 export function transportPlaceAllowed(grant,loc){return !!grant&&(loc.kind==='SHOP'&&loc.id===grant.t.shopId||loc.kind==='PORT'&&loc.id===grant.t.toPort||loc.kind==='HOLD'&&loc.id===grant.t.shipId);}
 export async function transportDeparture(tx,s,ship,route,journeyId,at){
- const lots=(await warehouseStock(tx,s.id,ship.id,'HOLD')).filter(l=>l.transportContractId);if(!lots.length)return [];
+ const held=(await warehouseStock(tx,s.id,ship.id,'HOLD')).filter(l=>l.transportContractId);
+ for(const lot of held.filter(l=>l.boardingCustody)){const custody=lot.boardingCustody,r=await tx.get(`${base(s)}/spaceCombats/${documentId(custody.combatId)}/boardings/${documentId(custody.boardingId)}`);requireThat(s.spaceOutlaws.boardingFreightVersion===1&&r?.freightVersion===1&&r.status==='RELEASED'&&r.attackerShipId===ship.id&&custody.receiverShipId===ship.id&&r.targetShipId===custody.sourceShipId&&lot.status==='AVAILABLE','SO_TRANSPORT_CUSTODY');}
+ const lots=held.filter(l=>!l.boardingCustody);if(!lots.length)return [];
  requireThat(hasSoTransport(s),'SO_GAMEPLAY_NOT_OPEN');const manifest=[],updates=[];
  for(const cid of new Set(lots.map(l=>l.transportContractId))){
   const c=await tx.get(`${base(s)}/contracts/${cid}`),t=c?.terms.transport,rows=lots.filter(l=>l.transportContractId===cid);

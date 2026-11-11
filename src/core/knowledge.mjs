@@ -1,3 +1,4 @@
+import {createKnowledgeSalesService,knowledgeSaleActions} from './knowledge-sales.mjs';
 import {requireGameAction,canGameAction} from './health-state.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {abilityLevel} from './abilities.mjs';
@@ -21,7 +22,16 @@ export function knowledgeInput(input,id,old={}) {
   const skillId=input.qrSkillId===undefined?(old.qrSkillId??null):(input.qrSkillId?documentId(input.qrSkillId):null);
   const skillLevel=skillId?(input.qrSkillLevel??old.qrSkillLevel??1):null;
   requireThat(!skillId||(Number.isSafeInteger(skillLevel)&&skillLevel>0),'INVALID_KNOWLEDGE');
-  return {id,qrSkillId:skillId,qrSkillLevel:skillLevel,title:text(input.title,150,true),body:text(input.body,20000,true),origin:text(input.origin??'',300),
+  const sourceCipher=input.cipher===undefined?(old.cipher??null):input.cipher;
+  requireThat(sourceCipher===null||sourceCipher&&typeof sourceCipher==='object'&&!Array.isArray(sourceCipher),'INVALID_KNOWLEDGE');
+  const cipher=sourceCipher===null?null:(()=>{
+   requireThat(input.kind==='DOCUMENT'&&Number.isSafeInteger(sourceCipher.minLevel)&&sourceCipher.minLevel>=1&&sourceCipher.minLevel<=5
+    &&Number.isSafeInteger(sourceCipher.threshold)&&sourceCipher.threshold>=2&&sourceCipher.threshold<=12,'INVALID_KNOWLEDGE');
+   const plaintext=text(sourceCipher.plaintext,20000,true);
+   requireThat(input.body!==plaintext,'INVALID_KNOWLEDGE');
+   return {minLevel:sourceCipher.minLevel,threshold:sourceCipher.threshold,plaintext};
+  })();
+  return {id,...(cipher?{cipher}:{}),qrSkillId:skillId,qrSkillLevel:skillLevel,title:text(input.title,150,true),body:text(input.body,20000,true),origin:text(input.origin??'',300),
     kind:input.kind,publicationState:input.publicationState,shareMode:input.shareMode,
     gmTruth:text(input.gmTruth??'',10000),gmNotes:text(input.gmNotes??'',10000),
     initialCharacterIds:ids(input.initialCharacterIds??[]),qrEnabled:input.qrEnabled===true,
@@ -39,9 +49,10 @@ export function seedKnowledge(tx,sid,knowledge,at){
 }
 const reads=new Set(['myKnowledge','previewKnowledge','knowledgeDetail','previewKnowledgeDetail','prepareKnowledgeShare','knowledgeHistory','knowledgeRecipients']);
 const mutations=new Set(['saveKnowledge','saveSessionKnowledge','grantKnowledge','discoverKnowledge','shareKnowledge','markKnowledgeRead']);
-export const knowledgeAction=action=>reads.has(action)||mutations.has(action);
+export const knowledgeAction=action=>reads.has(action)||mutations.has(action)||knowledgeSaleActions.includes(action);
 
 export function createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid}) {
+  const sales=createKnowledgeSalesService({store,signed,checkSession,now,uuid,knowledgeSnapshot});
   const context=async(tx,actor,input,preview=false)=>{
     signed(actor);const sid=documentId(input.sessionId);
     const s=preview?await checkSession(tx,actor,sid):await tx.get(`sessions/${sid}`);
@@ -77,6 +88,7 @@ export function createKnowledgeService({store,signed,checkSession,checkScenario,
     return {parent,base:`${scenario?'scenarios':'sessions'}/${id}`};
   };
   return async function dispatch(action,actor,input){
+    if(knowledgeSaleActions.includes(action))return sales(action,actor,input);
     signed(actor);const at=now();
     if(reads.has(action))return store.runTransaction(async tx=>{
       if(action==='knowledgeHistory'||action==='knowledgeRecipients'){

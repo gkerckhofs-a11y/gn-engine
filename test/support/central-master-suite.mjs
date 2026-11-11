@@ -4,7 +4,7 @@ import {randomUUID} from 'node:crypto';
 import {preparationFixture} from './preparations-suite.mjs';
 import {admissionTestSettings} from './admissions-suite.mjs';
 import {centralStaffPath,centralLimits} from '../../src/core/central-master.mjs';
-import {itemInput} from '../../src/core/inventory-state.mjs';
+import {itemInput,publicItem,newLot} from '../../src/core/inventory-state.mjs';
 
 export const centralTestItem={name:'Ingrédient synthétique',description:'Exemple non canonique',category:'Ingrédient',unit:'unité',kind:'STACKABLE',consumable:true,unitVolume:1,legality:'UNSPECIFIED',pillable:false,gmNotes:'Note M1 privée'};
 export async function centralFixture(makeStore){
@@ -30,6 +30,23 @@ export function centralMasterSuite(makeStore,prefix='Master central C1b'){
   assert.deepEqual(await f.store.get(`sessions/${f.sid}`),before);
   for(const kind of ['items','characters','groups','inventory','accounts','ledger','actionPoints','knowledge','ships','fieldTargets'])assert.deepEqual(await f.store.list(`sessions/${f.sid}/${kind}`),[],kind);
   assert.deepEqual(await f.store.list('scenarios',['ownerUid',f.owner.uid]),[]);
+ });
+ test(`${prefix} : référence M1 facultative, versionnée, conservée et effaçable sans stock`,async()=>{
+  const f=await centralFixture(makeStore),item={...centralTestItem,referenceUnitValueCr:320};
+  await f.save({item});
+  assert.equal((await f.view()).changes[0].data.referenceUnitValueCr,320);
+  const next=await f.save({draftRevision:1,itemRevision:1,item:{...centralTestItem,name:'Variante'}});
+  assert.equal(next.itemRevision,2);
+  assert.equal((await f.view()).changes[0].data.referenceUnitValueCr,320);
+  await f.save({draftRevision:2,itemRevision:2,item:{...centralTestItem,referenceUnitValueCr:null}});
+  assert.equal((await f.view()).changes[0].data.referenceUnitValueCr,undefined);
+  for(const value of [0,-1,1.25,'320',Number.MAX_SAFE_INTEGER+1])await assert.rejects(
+   f.save({draftRevision:3,itemRevision:3,item:{...centralTestItem,referenceUnitValueCr:value}}),{code:'INVALID_REFERENCE_VALUE'});
+  const published=itemInput({...centralTestItem,publicationState:'PUBLISHED',referenceUnitValueCr:320},'bacta');
+  const lot=newLot('lot',publicItem(published),2,'player',100,{kind:'TEST'});
+  assert.equal(lot.item.referenceUnitValueCr,320);
+  assert.equal(lot.quantity,2);
+  assert.deepEqual(await f.store.list(`sessions/${f.sid}/inventory`),[]);
  });
  test(`${prefix} : M1 puis inscriptions M2 partagent le même brouillon sans copie`,async()=>{
   const f=await centralFixture(makeStore);await f.save();await f.configure(1);

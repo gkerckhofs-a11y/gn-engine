@@ -1,4 +1,9 @@
+import {boardingCustodyReport} from './space-boarding-custody.mjs';
 import {missionObligations} from './space-mission-obligations.mjs';
+import {isDeepStrictEqual} from 'node:util';
+import {admissionIdentity} from './admission-state.mjs';
+import {centralFieldTargetReferences} from './central-field-targets.mjs';
+import {centralMissionReferences} from './central-missions.mjs';
 import {createHash} from 'node:crypto';
 import {requireThat,documentId,whole} from './validation.mjs';
 import {preparationInput} from './preparation-state.mjs';
@@ -8,12 +13,13 @@ import {personOpen} from './person-state.mjs';
 import {actionPointMaximum,actionPointState} from './action-point-state.mjs';
 import {moneyState,writeLedger} from './economy-state.mjs';
 
+export const soEpisodeMasterId=s=>s.spaceOutlaws.masterVersionId??s.versionId;
 export const hasSoEpisodes=s=>s?.spaceOutlaws?.episodesVersion===1;
 const hash=v=>createHash('sha256').update(v).digest('hex');
 // Runtime collections of the connected SO services. Global request receipts and
 // invitations stay attached to their original session; histories retain IDs.
-const roots=['characters','registrations','groups','knowledge','skills','classes','items','accounts','inventory','masterRows','fieldTargets','fieldStates','personProfiles','warehouses','ships','routes','commodityPrices','priceEvents','cargoTariffs','recipes','shops','shopProvisions','shipModels','ports','missions','announcements','applications','contracts','lotSales','lotTransfers','marketListings','bounties','fieldActions','personActions','aidOffers','cargoTransfers','voyages','spaceAmbushes','spaceCombats','spaceRescues','shipMaintenance','ledger','logisticsHistory','audit'];
-const children={registrations:['successionHistory'],characters:['history','knowledge','healthHistory','mediaHistory'],items:['mediaHistory'],ships:['mediaHistory'],fieldTargets:['history'],inventory:['history','mediaHistory'],accounts:['history'],shops:['offers'],announcements:['history','mediaHistory'],applications:['messages'],contracts:['history'],bounties:['history','claims'],spaceCombats:['rounds'],groups:['updates','history']};
+const roots=['knowledgeDeals','characters','registrations','groups','knowledge','skills','classes','items','accounts','inventory','masterRows','fieldTargets','fieldStates','personProfiles','warehouses','ships','routes','commodityPrices','priceEvents','cargoTariffs','recipes','shops','shopProvisions','shipModels','ports','missions','announcements','applications','contracts','lotSales','lotTransfers','marketListings','bounties','fieldActions','personActions','aidOffers','cargoTransfers','voyages','spaceAmbushes','spaceCombats','spaceRescues','shipMaintenance','ledger','logisticsHistory','audit'];
+const children={registrations:['successionHistory'],characters:['history','knowledge','healthHistory','mediaHistory'],items:['mediaHistory'],ships:['mediaHistory'],fieldTargets:['history'],inventory:['history','mediaHistory'],accounts:['history'],shops:['offers'],announcements:['history','mediaHistory'],applications:['messages'],contracts:['history'],bounties:['history','claims'],spaceCombats:['rounds','boardings'],groups:['updates','history']};
 const limits={records:5000,bytes:6*1024*1024};
 export async function readSoEpisode(tx,s){
  const base=`sessions/${s.id}`,entries=[],data={};
@@ -76,18 +82,88 @@ export function soClosure(s,data,input,at){
  });
  if(changes.length>200)block('TOO_MANY_PARTICIPANTS',[{id:s.id}]);
  const time=gameTime(s.clock,at);
- const continuity={participants,bounties:data.bounties.filter(b=>b.terms.spaceOutlaws).map(b=>({id:b.id,title:b.terms.title,status:b.status,reserved:b.status==='OPEN'?(b.terms.quota-b.awardedCount)*b.terms.amount:0,awardedCount:b.awardedCount,pending:data.entries.filter(e=>e.path.startsWith(`bounties/${b.id}/claims/`)&&/^bounties\/[^/]+\/claims\/[^/]+$/.test(e.path)&&e.data.status==='SUBMITTED').length})),contracts:data.contracts.map(c=>({c,obligations:missionObligations(s,c,at,data)})).filter(({c,obligations})=>!['CANCELLED','DECLINED'].includes(c.status)||obligations?.pending).map(({c,obligations})=>({id:c.id,title:c.terms.title,status:c.status,reserved:obligations?.reserved??(['ACTIVE','SUBMITTED','REVIEWED','DISPUTED'].includes(c.status)?Math.max(0,c.terms.amount-(c.paidAmount??0)):0),deadlineMs:c.deadlineGameMs==null?null:Math.max(0,c.deadlineGameMs-time),appeal:c.appeal?.status??null,...(obligations?{obligations}:{})})),
+ const boardingCustody=boardingCustodyReport(s,data,time);
+ const continuity={...(boardingCustody?{boardingCustody}:{}),participants,bounties:data.bounties.filter(b=>b.terms.spaceOutlaws).map(b=>({id:b.id,title:b.terms.title,status:b.status,reserved:b.status==='OPEN'?(b.terms.quota-b.awardedCount)*b.terms.amount:0,awardedCount:b.awardedCount,pending:data.entries.filter(e=>e.path.startsWith(`bounties/${b.id}/claims/`)&&/^bounties\/[^/]+\/claims\/[^/]+$/.test(e.path)&&e.data.status==='SUBMITTED').length})),contracts:data.contracts.map(c=>({c,obligations:missionObligations(s,c,at,data)})).filter(({c,obligations})=>!['CANCELLED','DECLINED'].includes(c.status)||obligations?.pending).map(({c,obligations})=>({id:c.id,title:c.terms.title,status:c.status,reserved:obligations?.reserved??(['ACTIVE','SUBMITTED','REVIEWED','DISPUTED'].includes(c.status)?Math.max(0,c.terms.amount-(c.paidAmount??0)):0),deadlineMs:c.deadlineGameMs==null?null:Math.max(0,c.deadlineGameMs-time),appeal:c.appeal?.status??null,...(obligations?{obligations}:{})})),
   voyages:data.ships.filter(sh=>sh.journey).map(sh=>({id:sh.id,name:sh.name,hull:sh.hull,shield:sh.shield,fuel:sh.fuel,remainingMs:sh.journey.suspended?sh.journey.remainingMs:Math.max(0,sh.journey.arrivesAtGameMs-time),combatId:sh.combatId??null})),
   pickups:data.lotSales.filter(x=>x.status==='SOLD'&&x.pickupStatus!=='RECEIVED').length+data.contracts.reduce((n,c)=>n+(c.rewardPickups??[]).filter(x=>x.pickupStatus!=='RECEIVED').length,0),gameTimeMs:time};
  return {changes,blocks,continuity,cancelled:{market:0,sales:0,transfers:0},canClose:blocks.length===0};
 }
-export function soEpisodeHeader(input,source,c,id,at){
+function kitItemReferences(changes){
+ const linked=new Set();
+ for(const {type,operation,data} of changes){
+  if(operation!=='UPSERT')continue;
+  if(type==='offer')linked.add(data.itemId);
+  if(type==='recipe'){
+   linked.add(data.productItemId);
+   for(const component of data.components)linked.add(component.itemId);
+  }
+  const refs=type==='fieldTarget'?centralFieldTargetReferences(data):type==='mission'?centralMissionReferences(data):[];
+  for(const ref of refs)if(ref.type==='item')linked.add(ref.id);
+ }
+ return linked;
+}
+
+function planEpisodeKitChanges(before,after,changes,data,careUnchanged){
+ const kits=new Set(),items=new Set();
+ if(!careUnchanged||!changes.some(([old])=>old?.type==='classKit'))return {kits,items};
+ const ordinary=record=>record?.operation==='UPSERT'&&!record.data.consumable&&!record.data.shipModule;
+ const carriedIds=new Set([...data.items.map(item=>item.id),...data.inventory.map(lot=>lot.item.id)]);
+ const linked=kitItemReferences(after.values());
+ for(const [old,next] of changes){
+  if(old?.type!=='classKit'||old.operation!=='UPSERT'||next?.operation!=='UPSERT')continue;
+  const previousSlots=new Map(old.data.bindings.map(b=>[b.slotId,b.itemId]));
+  const replacements=next.data.bindings.filter(b=>previousSlots.get(b.slotId)!==b.itemId);
+  if(next.data.bindings.length!==previousSlots.size||replacements.length===0)continue;
+  if(!replacements.every(({slotId,itemId})=>{
+   const oldId=previousSlots.get(slotId);
+   return ordinary(before.get(`item_${oldId}`))&&ordinary(after.get(`item_${itemId}`))
+    &&!before.has(`item_${itemId}`)&&!carriedIds.has(itemId)&&!linked.has(oldId)&&!linked.has(itemId);
+  }))continue;
+  kits.add(next.id);
+  for(const {itemId} of replacements)items.add(`item_${itemId}`);
+ }
+ return {kits,items};
+}
+
+export async function planSoEpisodeMaster(tx,c,source,data,readVersion,policy='LATEST'){
+ requireThat(['LATEST','KEEP'].includes(policy),'INVALID_CAMPAIGN');
+ const sourceId=soEpisodeMasterId(source),latestId=c.master?.activeVersionId;
+ if(policy==='KEEP'||!latestId||latestId===sourceId)return {status:'KEEP',sourceId,versionId:sourceId};
+ const [previous,latest]=await Promise.all([readVersion(tx,c,sourceId??null),readVersion(tx,c,latestId)]);
+ const capabilities=h=>Object.fromEntries(Object.entries(h).filter(([key])=>key.endsWith('Version')));
+ const blockers=[];
+ if(!isDeepStrictEqual(capabilities(previous.header),capabilities(latest.header)))blockers.push({code:'CAPABILITIES'});
+ const lockedIds=new Set([...data.characters.map(ch=>ch.id),...data.registrations.flatMap(r=>[r.characterId,r.admission?.m2Preparation?.characterId]),
+  ...data.groups.flatMap(g=>(g.members??[]).map(m=>m.characterId))]);
+ const displayKey=name=>admissionIdentity({firstName:name,lastName:'display'});
+ const usedNames=new Set(data.characters.map(ch=>displayKey(ch.public.displayName)));
+ const before=new Map(previous.changes.map(ch=>[ch.id,ch])),after=new Map(latest.changes.map(ch=>[ch.id,ch]));
+ const changes=[...new Set([...before.keys(),...after.keys()])].map(id=>[before.get(id),after.get(id)]).filter(([old,next])=>!isDeepStrictEqual(old,next));
+ const {kits,items}=planEpisodeKitChanges(before,after,changes,data,isDeepStrictEqual(previous.header.careProfiles,latest.header.careProfiles));
+ let reserves=0;
+ for(const [old,next] of changes){
+  const ch=next??old,detail={workshop:ch.workshop,entityId:ch.entityId};
+  if(kits.has(ch.id)||items.has(ch.id))continue;
+  if(ch.type==='classKit'){
+   blockers.push({code:'KIT_INCOMPATIBLE',...detail});
+  }else if(ch.type!=='character'||(next&&!next.data.creationPlan)||(old&&!old.data.creationPlan)){
+   blockers.push({code:'DEFINITION',...detail});
+  }else if(lockedIds.has(ch.entityId)||next?.operation==='UPSERT'&&usedNames.has(displayKey(next.data.public.displayName))){
+   blockers.push({code:'CHARACTER_IN_USE',...detail});
+  }else reserves++;
+ }
+ return {status:blockers.length?'BLOCKED':'ADOPT',sourceId,versionId:latestId,number:latest.header.pointerRevision??1,reserves,
+  ...(kits.size?{kits:kits.size,kitItems:items.size}:{}),blockers};
+}
+
+export function soEpisodeHeader(input,source,c,id,at,master){
  requireThat(hasSoEpisodes(source),'SO_GAMEPLAY_NOT_OPEN');
  requireThat(input.healthPolicy==='PRESERVE'&&!(input.fields?.length),'SO_EPISODE_PRESERVE_REQUIRED');
  const metadata=preparationInput(Object.fromEntries(['title','summary','date','time','place','practical','privacy','capacity'].map(k=>[k,input[k]??(['title','privacy','capacity'].includes(k)?source[k]:'')])));
  requireThat(metadata.capacity>=source.accepted,'INVALID_CAPACITY');
  const {campaignClosedAt,...prior}=source;
- return {...prior,...metadata,id,previousSessionId:source.id,campaignEpisode:c.episodeCount+1,campaignSealed:false,campaignHealthPolicy:'PRESERVE',stage:'BRIEFING',registrationOpen:false,revision:1,createdAt:at,
+ const masterOverride=master?.status==='ADOPT'?{spaceOutlaws:{...source.spaceOutlaws,masterVersionId:master.versionId}}:{};
+ return {...prior,...metadata,...masterOverride,id,previousSessionId:source.id,campaignEpisode:c.episodeCount+1,campaignSealed:false,campaignHealthPolicy:'PRESERVE',stage:'BRIEFING',registrationOpen:false,revision:1,createdAt:at,
   actionPointSchedule:{nextAtGameMs:whole(source.clock.elapsedMs+source.actionPointRules.renewalMinutes*60000,'CLOCK_OVERFLOW')}};
 }
 export function soEpisodeEntries(data,source,s,actor,at){

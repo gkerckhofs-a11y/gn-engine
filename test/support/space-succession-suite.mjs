@@ -9,8 +9,8 @@ import {initialClassKit} from '../../src/shared/initial-class-kit.mjs';
 import {centralTestItem} from './central-master-suite.mjs';
 const hash=v=>createHash('sha256').update(v).digest('hex');
 export const successorProposal={firstName:'Cora',lastName:'Relève',speciesId:'species-test',classId:'COM',secondaryId:'MED-02',background:'Une nouvelle histoire privée.',friends:''};
-export async function successionFixture(makeStore,{helper=false,dead=true}={}){
- const f=await actionsFixture(makeStore,{helper,release:false});
+export async function successionFixture(makeStore,{helper=false,dead=true,friends,otherFriends,material=false}={}){
+ const f=await actionsFixture(makeStore,{helper,release:false,friends,otherFriends,material,...(material?{skillId:'TRA-01'}:{})});
  const bindings=[];for(const slot of initialClassKit('ROG').slots){const itemId=`rog_${slot.id}`;bindings.push({slotId:slot.id,itemId});const d=await f.view();await f.cc('saveCentralItem',{itemId,itemRevision:0,draftRevision:d.draft.revision,item:{...centralTestItem,name:slot.label,kind:slot.requiresConsumable?'STACKABLE':'INDIVIDUAL',consumable:slot.requiresConsumable},reason:'Kit publié pour la relève'});}
  await f.cc('saveCentralClassKit',{classKitId:'ROG',classKitRevision:0,draftRevision:(await f.view()).draft.revision,classKit:{bindings,gmNotes:''},reason:'Kit publié pour la relève'});
  for(const [id,name] of [['reserve','Dana Réserve'],['reserve2','Eli Réserve']]){const d=await f.view();await f.cc('saveCentralCharacter',{characterId:id,characterRevision:0,draftRevision:d.draft.revision,character:{...centralTestCharacter,displayName:name,nature:'HUMANOID',creationPlan:{classId:'COM',speciesId:'species-test',secondaryId:'MED-02'},objectives:[],relations:[]},reason:'Réserve jamais incarnée'});}
@@ -27,7 +27,143 @@ export async function successionFixture(makeStore,{helper=false,dead=true}={}){
  const submit=async(proposal=successorProposal,actor=f.player)=>{const r=await get(`registrations/${hash(actor.uid)}`);return cmd('submitSpaceOutlawsSuccessor',{predecessorId:r.characterId,revision:r.succession.revision,proposal},actor);};
  return {...f,cid,otherId,get,edit,death,readSuccession:read,cmdSuccession:cmd,input,previewSuccession:preview,succeed,open,submit};
 }
+export async function publishReserveRevision(f,changes){
+ const {baseVersionId,pointerRevision}=(await f.view()).draft;
+ const {id:draftId}=await f.cc('openCentralRevision',{
+  baseVersionId,pointerRevision,reason:'Réserves de l’épisode suivant',
+ });
+ for(const [index,{characterId,displayName,characterRevision=0}] of changes.entries()){
+  await f.cc('saveCentralCharacter',{draftId,draftRevision:index,characterId,characterRevision,
+   character:{...centralTestCharacter,displayName,nature:'HUMANOID',creationPlan:{classId:'COM',speciesId:'species-test',secondaryId:'MED-02'},objectives:[],relations:[]},
+   reason:'Préparer la réserve M2'});
+ }
+ const scope={draftId,draftRevision:changes.length},p=await f.central('previewCentralRelease',scope);
+ assert.equal(p.canRelease,true);
+ return f.cc('publishCentralRevision',{...scope,confirmation:p.confirmation,reason:'Révision M2 publiée'});
+}
+
+export async function publishKitRevision(f){
+ const {baseVersionId,pointerRevision}=(await f.view()).draft;
+ const {id:draftId}=await f.cc('openCentralRevision',{baseVersionId,pointerRevision,reason:'Équipement de relève'});
+ const kit=(await f.central('centralMaster',{workshop:'M1'})).changes.find(ch=>ch.type==='classKit'&&ch.entityId==='COM');
+ await f.cc('saveCentralItem',{draftId,draftRevision:0,itemId:'communicator-next',itemRevision:0,
+  item:{...centralTestItem,name:'Communicateur de relève',kind:'INDIVIDUAL',consumable:false},reason:'Nouveau modèle indépendant'});
+ await f.cc('saveCentralClassKit',{draftId,draftRevision:1,classKitId:'COM',classKitRevision:kit.data.revision,
+  classKit:{bindings:kit.data.bindings.map(b=>b.slotId==='communicator'?{...b,itemId:'communicator-next'}:b),gmNotes:kit.data.gmNotes},reason:'Réviser le kit COM'});
+ const scope={draftId,draftRevision:2},preview=await f.central('previewCentralRelease',scope);
+ assert.equal(preview.canRelease,true);
+ return f.cc('publishCentralRevision',{...scope,confirmation:preview.confirmation,reason:'Révision M1 publiée'});
+}
+
 export function spaceSuccessionSuite(makeStore,prefix='Succession SO'){
+ test(`${prefix} : le retour de version laisse la copie engagée sur le Master confirmé`,async()=>{
+  const f=await successionFixture(makeStore),e=await episodeHarness(f),v1=(await e.get('')).versionId;
+  await e.close({participantUids:[f.player.uid]});
+  const {versionId:v2}=await publishReserveRevision(f,[{characterId:'temporary-reserve',displayName:'Zora Réserve'}]);
+  const build=await e.begin(),p=await f.central('previewCentralRollback');
+  await f.cc('rollbackCentralRelease',{confirmation:p.confirmation,reason:'Restaurer le Master parent'});
+  await e.resume(build);
+  assert.equal((await e.get('')).spaceOutlaws.masterVersionId,v2);
+  assert.ok((await e.read('groupManagement')).characters.some(ch=>ch.id==='temporary-reserve'));
+  await e.stage('EN_JEU');
+  await e.close({participantUids:[]});
+  const plan=await e.read('prepareCampaignEpisode',e.nextInput());
+  assert.equal(plan.master.status,'ADOPT');
+  assert.equal(plan.master.versionId,v1);
+  await e.resume(await e.begin());
+  assert.equal((await e.get('')).spaceOutlaws.masterVersionId,v1);
+  assert.ok(!(await e.read('groupManagement')).characters.some(ch=>ch.id==='temporary-reserve'));
+ });
+
+ test(`${prefix} : un kit M1 révisé équipe la relève et conserve les lots hérités`,async()=>{
+  const f=await successionFixture(makeStore),e=await episodeHarness(f),v1=(await e.get('')).versionId;
+  await e.close({participantUids:[f.player.uid]});
+  const before=await f.store.list(`sessions/${e.sid}/inventory`);
+  const v2=await publishKitRevision(f);
+  const p=await e.read('prepareCampaignEpisode',e.nextInput());
+  assert.deepEqual(p.master,{status:'ADOPT',sourceId:v1,versionId:v2.versionId,number:2,reserves:0,kits:1,kitItems:1,blockers:[]});
+  await e.resume(await e.begin());
+  assert.equal((await e.get('')).versionId,v1);
+  assert.equal((await e.get('')).spaceOutlaws.masterVersionId,v2.versionId);
+  assert.equal((await f.store.list(`sessions/${e.sid}/inventory`)).length,before.length);
+  for(const l of before)assert.deepEqual(await e.get(`inventory/${l.id}`),l);
+  const input=f.input(),q=await e.read('prepareSpaceOutlawsSuccession',input);
+  assert.ok(q.kit.some(item=>item.name==='Communicateur de relève'&&item.quantity===1));
+  const command={...input,confirmation:q.confirmation,reason:'Relève équipée',requestId:randomUUID()};
+  const born=await e.cmd('succeedSpaceOutlawsCharacter',command);
+  assert.deepEqual(await e.cmd('succeedSpaceOutlawsCharacter',command),born);
+  const lots=(await f.store.list(`sessions/${e.sid}/inventory`)).filter(l=>l.item.id==='communicator-next');
+  assert.equal(lots.length,1);
+  assert.equal(lots[0].ownerId,born.characterId);
+  assert.equal(lots[0].quantity,1);
+  assert.equal(lots[0].transferable,false);
+  assert.equal(lots[0].origin.versionId,v1);
+  assert.equal(lots[0].origin.masterVersionId,v2.versionId);
+  for(const l of before)assert.deepEqual(await e.get(`inventory/${l.id}`),l);
+ });
+
+ test(`${prefix} : un objet de kit référencé par une action M6 bloque la reprise du kit`,async()=>{
+  const f=await successionFixture(makeStore,{material:true}),e=await episodeHarness(f);
+  await e.close({participantUids:[f.player.uid]});
+  await publishKitRevision(f);
+  const p=await e.read('prepareCampaignEpisode',e.nextInput());
+  assert.equal(p.confirmation,null);
+  assert.ok(p.master.blockers.some(b=>b.code==='KIT_INCOMPATIBLE'&&b.workshop==='M1'&&b.entityId==='COM'));
+  await assert.rejects(e.cmd('beginCampaignEpisode',{...e.nextInput(),confirmation:null}),{code:'SO_EPISODE_MASTER_BLOCKED'});
+  assert.equal((await e.read('prepareCampaignEpisode',e.nextInput({masterPolicy:'KEEP'}))).master.status,'KEEP');
+ });
+
+ test(`${prefix} : un épisode adopte et fige les réserves du Master révisé`,async()=>{
+  const f=await successionFixture(makeStore),e=await episodeHarness(f),v1=(await e.get('')).versionId;
+  await e.close({participantUids:[f.player.uid]});
+  const oldRoster=await e.read('groupManagement'),oldPreview=await e.read('prepareCampaignEpisode',e.nextInput());
+  const v2=await publishReserveRevision(f,[{characterId:'reserve-new',displayName:'Zora Réserve'}]);
+  await assert.rejects(e.cmd('beginCampaignEpisode',{...e.nextInput(),confirmation:oldPreview.confirmation}),{code:'STALE_REVISION'});
+  const p=await e.read('prepareCampaignEpisode',e.nextInput());
+  assert.deepEqual(p.master,{status:'ADOPT',sourceId:v1,versionId:v2.versionId,number:2,reserves:1,blockers:[]});
+  const b=await e.cmd('beginCampaignEpisode',{...e.nextInput(),confirmation:p.confirmation});
+  assert.equal(await f.store.get(`sessions/${b.id}`),null);
+  await publishReserveRevision(f,[{characterId:'reserve-later',displayName:'Nora Réserve'}]);
+  await e.resume(b);
+  const s=await e.get(''),roster=await e.read('groupManagement');
+  assert.equal(s.versionId,v1);
+  assert.equal(s.spaceOutlaws.masterVersionId,v2.versionId);
+  assert.equal(roster.characters.find(ch=>ch.id==='reserve-new').rosterState,'RESERVE');
+  assert.ok(!roster.characters.some(ch=>ch.id==='reserve-later'));
+  assert.deepEqual((await f.readSuccession('groupManagement')).characters,oldRoster.characters);
+  const input=f.input({reserveId:'reserve-new'}),q=await e.read('prepareSpaceOutlawsSuccession',input);
+  const done=await e.cmd('succeedSpaceOutlawsCharacter',{...input,confirmation:q.confirmation,reason:'Relève de l’épisode'});
+  assert.equal(done.characterId,'reserve-new');
+  const born=await e.get('characters/reserve-new');
+  assert.equal(born.birth.versionId,v1);
+  assert.equal(born.birth.masterVersionId,v2.versionId);
+  assert.equal((await e.read('groupManagement')).characters.find(ch=>ch.id==='reserve-new').rosterState,'ACTIVE');
+ });
+
+ test(`${prefix} : une définition déjà incarnée bloque l’adoption, le propriétaire peut conserver la version`,async()=>{
+  const f=await successionFixture(makeStore),e=await episodeHarness(f);
+  await f.succeed(await f.previewSuccession());
+  await e.close({participantUids:[f.player.uid]});
+  const v1=(await e.get('')).versionId;
+  await publishReserveRevision(f,[{characterId:'reserve',displayName:'Dana Révisée',characterRevision:1}]);
+  const p=await e.read('prepareCampaignEpisode',e.nextInput());
+  assert.equal(p.confirmation,null);
+  assert.deepEqual(p.master.blockers,[{code:'CHARACTER_IN_USE',workshop:'M2',entityId:'reserve'}]);
+  await assert.rejects(e.cmd('beginCampaignEpisode',{...e.nextInput(),confirmation:null}),{code:'SO_EPISODE_MASTER_BLOCKED'});
+  const {baseVersionId,pointerRevision}=(await f.view()).draft;
+  const {id:draftId}=await f.cc('openCentralRevision',{baseVersionId,pointerRevision,reason:'Autre atelier'});
+  await f.cc('saveCentralItem',{draftId,draftRevision:0,itemId:'new-model',itemRevision:0,item:centralTestItem,reason:'Définition M1'});
+  const scope={draftId,draftRevision:1},release=await f.central('previewCentralRelease',scope);
+  await f.cc('publishCentralRevision',{...scope,confirmation:release.confirmation,reason:'Publication M1'});
+  const blocked=await e.read('prepareCampaignEpisode',e.nextInput());
+  assert.ok(blocked.master.blockers.some(b=>b.code==='DEFINITION'&&b.workshop==='M1'&&b.entityId==='new-model'));
+
+  await e.resume(await e.begin({masterPolicy:'KEEP'}));
+  assert.equal((await e.get('')).versionId,v1);
+  assert.equal((await e.get('')).spaceOutlaws.masterVersionId,undefined);
+  assert.equal((await e.get('characters/reserve')).public.displayName,'Dana Réserve');
+ });
+
  test(`${prefix} : décès confirmé, réserve publiée, nouvelle fiche et dotation unique`,async()=>{
   const f=await successionFixture(makeStore),before=await f.get(''),oldWallet=await f.get(`accounts/${accountId(f.cid)}`),oldLots=await f.store.list(`sessions/${f.sid}/inventory`);
   await f.edit(`characters/${f.cid}`,c=>({...c,earnedXp:38,xp:1,inheritedXp:9}));await f.edit(`registrations/${hash(f.player.uid)}`,r=>({...r,progression:{completedSessions:4,pendingXp:3}}));

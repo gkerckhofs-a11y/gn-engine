@@ -2,6 +2,8 @@ import {documentId,requireThat,whole} from './validation.mjs';
 import {inventoryHash as hash} from './inventory-state.mjs';
 import {groupVisible,memberFor} from './groups.mjs';
 import {canGameAction,requireGameAction} from './health-state.mjs';
+import {hasSoGroupWallets} from '../shared/space-outlaws-groups.mjs';
+import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {accountId,groupAccountId,amountInput,currencyView,moneyState,moneyText,openGroupWallet,projectEntry,writeLedger} from './economy-state.mjs';
 const actions=new Set(['prepareGroupWallet','setGroupWallet','myAccounts','readAccount','previewAccount','prepareAccountPayment','payFromAccount']);
 export const collectiveAction=a=>actions.has(a);
@@ -10,7 +12,9 @@ const identity=(c,r)=>hash(JSON.stringify([c.id,c.assignedUid,r?.accessVersion??
 const metadata=x=>({id:x.a.id,kind:x.a.ownerType,name:x.name,canRead:x.read,canSpend:x.spend});
 export const accountParty=x=>({id:x.a.ownerType==='SHOP'?x.a.shopId:x.a.ownerType==='GROUP'?x.a.id:x.a.characterId,kind:x.a.ownerType,name:x.name});
 export const accountEntry=(a,delta,next)=>({accountId:a.id,characterId:a.characterId??null,groupId:a.groupId??null,delta,before:moneyState(a),after:moneyState(next)});
-export async function accessAccount(tx,ctx,id){
+const groupWalletsAvailable=({s,c})=>!s.spaceOutlaws||hasSoGroupWallets(s)&&
+ !!c.birth&&c.birth.versionId===s.versionId&&!c.survival?.dead&&!c.successorId;
+export async function accessAccount(tx,ctx,id,{allowSoGroup=false}={}){
     const {s,c,guard}=ctx,a=await tx.get(`sessions/${s.id}/accounts/${documentId(id)}`);
     requireThat(a?.sessionId===s.id,'FORBIDDEN');
     if(a.ownerType==='CHARACTER'){
@@ -18,6 +22,7 @@ export async function accessAccount(tx,ctx,id){
       return {a,name:c.public.displayName,read:true,spend:true,guard};
     }
     requireThat(a.ownerType==='GROUP'&&s.modules?.groups===true&&a.id===groupAccountId(a.groupId),'FORBIDDEN');
+    if(s.spaceOutlaws)requireThat(allowSoGroup&&groupWalletsAvailable(ctx),'FORBIDDEN');
     const g=await tx.get(`sessions/${s.id}/groups/${a.groupId}`);requireThat(groupVisible(g,c.id)&&g.walletConfig,'FORBIDDEN');
     const m=memberFor(g,c.id),read=m.permissions.readWallet===true,spend=m.permissions.payWallet===true;
     requireThat(read||spend,'FORBIDDEN');moneyState(a);requireThat(a.label===g.walletConfig.label,'INVALID_ACCOUNT');
@@ -34,10 +39,18 @@ export function createCollectiveService({store,signed,checkSession,checkScenario
     requireThat(['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s.stage),'BRIEFING_CLOSED');requireThat(s.economyRules?.enabled,'ECONOMY_DISABLED');
     return {s,c,r,guard:identity(c,r)};
   }
-  const access=accessAccount;
+  const access=(tx,ctx,id)=>accessAccount(tx,ctx,id,{allowSoGroup:true});
+  const paymentStage=s=>{
+    if(s.spaceOutlaws){
+      requireThat(hasSoGroupWallets(s),'SO_GAMEPLAY_NOT_OPEN');
+      requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
+      requireThat(!s.campaignSealed,'SESSION_CLOSED');
+    }
+    requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');
+  };
   async function available(tx,ctx){
     const result=[metadata(await access(tx,ctx,accountId(ctx.c.id)))];
-    if(ctx.s.modules?.groups===true){
+    if(ctx.s.modules?.groups===true&&groupWalletsAvailable(ctx)){
       const groups=await tx.list(`sessions/${ctx.s.id}/groups`);
       for(const g of groups){
         const m=memberFor(g,ctx.c.id);if(!groupVisible(g,ctx.c.id)||!g.walletConfig||!(m.permissions.readWallet||m.permissions.payWallet))continue;
@@ -56,8 +69,9 @@ export function createCollectiveService({store,signed,checkSession,checkScenario
     return {a,name:c.public.displayName,read:false,spend:false,guard:identity(c,r)};
   }
   async function payment(tx,ctx,from,input){
-    requireThat(from.spend,'FORBIDDEN');requireThat(ctx.s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(ctx.s,ctx.c,'pay');
+    requireThat(from.spend,'FORBIDDEN');paymentStage(ctx.s);requireGameAction(ctx.s,ctx.c,'pay');
     const to=await recipient(tx,ctx,input);requireThat(from.a.id!==to.a.id,'INVALID_RECIPIENT');
+    if(ctx.s.spaceOutlaws)requireThat(from.a.ownerType==='GROUP'||to.a.ownerType==='GROUP','SO_GAMEPLAY_NOT_OPEN');
     const amount=amountInput(input.amount),memo=moneyText(input.memo),before=moneyState(from.a);requireThat(before.available>=amount,'INSUFFICIENT_FUNDS');whole(to.a.balance+amount,'BALANCE_OVERFLOW');
     const after={...before,balance:before.balance-amount,available:before.available-amount,revision:before.revision+1};
     const result={source:accountParty(from),recipient:accountParty(to),currency:currencyView(ctx.s.economyRules),amount,memo,...(from.read?{before,after}:{})};
@@ -67,11 +81,18 @@ export function createCollectiveService({store,signed,checkSession,checkScenario
   async function configure(tx,action,actor,input,at,id){
     requireThat(!!input.sessionId!==!!input.scenarioId,'INVALID_ECONOMY');const scenario=!!input.scenarioId,pid=documentId(scenario?input.scenarioId:input.sessionId),base=`${scenario?'scenarios':'sessions'}/${pid}`;
     const p=scenario?await checkScenario(tx,actor,pid):await checkSession(tx,actor,pid);requireThat(p.stage!=='ARCHIVED','SESSION_CLOSED');
+    if(!scenario&&p.spaceOutlaws){
+      requireThat(hasSoGroupWallets(p),'SO_GAMEPLAY_NOT_OPEN');
+      requireThat(p.economyRules?.enabled,'ECONOMY_DISABLED');
+      requireThat(!p.safetyStop?.active,'SO_SAFETY_STOP');
+      requireThat(!p.campaignSealed&&['BRIEFING','EN_JEU','PAUSE'].includes(p.stage),'SESSION_CLOSED');
+    }
     let op,fingerprint;if(action==='setGroupWallet'){
       op=`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`;fingerprint=hash(JSON.stringify([action,input]));const old=await tx.get(op);if(old){requireThat(old.fingerprint===fingerprint,'REQUEST_ID_REUSED');return old.result;}
     }
     requireThat(p.revision===input.revision,'STALE_REVISION');requireThat(!!p.economyRules,'ECONOMY_DISABLED');
     const gid=documentId(input.groupId),g=await tx.get(`${base}/groups/${gid}`);requireThat(g,'NOT_FOUND');
+    if(!scenario&&p.spaceOutlaws)requireThat(g.roster&&!g.roster.archived,'INVALID_GROUP_ROSTER');
     const label=moneyText(input.label,100),reason=scenario?'Configuration du scénario':moneyText(input.reason);
     if(!scenario)requireThat(input.amount===undefined,'INVALID_AMOUNT');
     const amount=scenario?whole(input.amount,'INVALID_AMOUNT'):0,previous=g.walletConfig??null;
@@ -79,6 +100,7 @@ export function createCollectiveService({store,signed,checkSession,checkScenario
     const a=scenario?null:await tx.get(`${base}/accounts/${groupAccountId(gid)}`);if(a){requireThat(a.ownerType==='GROUP'&&a.groupId===gid&&a.sessionId===pid,'INVALID_ACCOUNT');moneyState(a);}
     const prepared={group:{id:gid,name:g.name},currency:currencyView(p.economyRules),scenario,before:previous,after:config,opening:!scenario&&!a,confirmation:hash(JSON.stringify([p.revision,g.revision,previous,config,a?.revision??null,reason]))};
     if(action==='prepareGroupWallet')return prepared;requireThat(input.confirmation===prepared.confirmation,'STALE_REVISION');
+    if(!scenario&&p.spaceOutlaws)authorizeSpaceOutlaws(tx,p,'GROUP_WALLET_CONFIG');
     const next={...g,walletConfig:config,revision:g.revision+1};
     if(!scenario){if(a)tx.set(`${base}/accounts/${a.id}`,{...a,label,revision:a.revision+1});else openGroupWallet(tx,pid,next,0,at,actor.uid,'OPENING');}
     tx.set(`${base}/groups/${gid}`,next);tx.set(`${base}/groups/${gid}/history/${id}`,{id,at,actorUid:actor.uid,actorEmail:actor.email,reason,before:g,after:next});
@@ -91,12 +113,30 @@ export function createCollectiveService({store,signed,checkSession,checkScenario
       const preview=action==='previewAccount',ctx=await context(tx,actor,input,preview),{s,c}=ctx;
       if(action==='myAccounts')return {session:{id:s.id,stage:s.stage},character:{id:c.id,name:c.public.displayName},currency:currencyView(s.economyRules),accounts:await available(tx,ctx)};
       const from=await access(tx,ctx,action==='readAccount'||preview?input.accountId:input.fromAccountId);
-      if(action==='readAccount'||preview)return {session:{id:s.id,stage:s.stage},character:{id:c.id,name:c.public.displayName},currency:currencyView(s.economyRules),preview,account:metadata(from),canRead:from.read,canPay:!preview&&from.spend&&s.stage==='EN_JEU'&&canGameAction(s,c,'pay'),...(from.read?{balances:moneyState(from.a),entries:(await tx.list(`sessions/${s.id}/accounts/${from.a.id}/history`,null,{orderBy:'at',direction:'desc',limit:30})).map(projectEntry)}:{})};
+      if(action==='readAccount'||preview){
+        const canPay=!preview&&from.spend&&s.stage==='EN_JEU'&&groupWalletsAvailable(ctx)&&
+          (!s.spaceOutlaws||!s.safetyStop?.active&&!s.campaignSealed)&&canGameAction(s,c,'pay');
+        const historyPath=`sessions/${s.id}/accounts/${from.a.id}/history`;
+        const entries=from.read?await tx.list(historyPath,null,{orderBy:'at',direction:'desc',limit:30}):null;
+        return {
+          session:{id:s.id,stage:s.stage},
+          character:{id:c.id,name:c.public.displayName},
+          currency:currencyView(s.economyRules),preview,account:metadata(from),canRead:from.read,canPay,
+          ...(s.spaceOutlaws?{groupTransfersOnly:true}:{}),
+          ...(entries?{balances:moneyState(from.a),entries:entries.map(projectEntry)}:{})
+        };
+      }
       requireThat(from.spend,'FORBIDDEN');
       if(action==='prepareAccountPayment')return (await payment(tx,ctx,from,input)).result;
       const op=`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`,fingerprint=hash(JSON.stringify([action,input])),previous=await tx.get(op);
-      if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');requireThat(previous.guard===from.guard,'FORBIDDEN');return previous.result;}
+      if(previous){
+        requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');
+        requireThat(previous.guard===from.guard,'FORBIDDEN');
+        if(s.spaceOutlaws){paymentStage(s);if(input.toAccountId)await access(tx,ctx,input.toAccountId);}
+        return previous.result;
+      }
       const x=await payment(tx,ctx,from,input);requireThat(x.result.confirmation===input.confirmation,'STALE_REVISION');
+      if(s.spaceOutlaws)authorizeSpaceOutlaws(tx,s,'PAYMENT');
       const amount=x.result.amount,a=from.a,b=x.to.a,fromNext={...a,balance:a.balance-amount,revision:a.revision+1},toNext={...b,balance:b.balance+amount,revision:b.revision+1};
       tx.set(`sessions/${s.id}/accounts/${a.id}`,fromNext);tx.set(`sessions/${s.id}/accounts/${b.id}`,toNext);
       writeLedger(tx,s.id,{id,kind:'TRANSFER',at,actorUid:actor.uid,operatorCharacterId:c.id,memo:x.result.memo,reason:'Paiement confirmé par un titulaire autorisé',source:accountParty(from),recipient:accountParty(x.to),createdCurrency:0,removedCurrency:0,entries:[accountEntry(a,-amount,fromNext),accountEntry(b,amount,toNext)]});

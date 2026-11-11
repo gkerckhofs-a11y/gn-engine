@@ -26,3 +26,7 @@ test('Carburant UI : création explicite, catégorie commerciale et absence de c
  const html=inventory.page({session:{id:sid},character:{id:'c',name:'Joueur'},lots:[{...lot,item:{...lot.item,kind:'STACKABLE',consumable:true},location:{kind:'CHARACTER',id:'c'}}],canSell:true,canTransfer:true});
  assert.match(html,/Publier au marché/);assert.match(html,/consommation des voyages seront gérés/);assert.match(html,/#\/cargo\/session\/lot/);
 });
+
+test('Fret UI : liens douaniers et compartiment uniquement après décision du serveur',()=>{
+ const d={session:{id:sid,spaceOutlaws:true},holds:[],transfers:[]};assert.doesNotMatch(ui.overview(d),/customs\//);assert.match(ui.overview({...d,customsReady:true}),/#\/customs\/session/);const h={...d,hold:{...p,description:'Soute',docked:true},stock:[],canRead:true};assert.doesNotMatch(ui.hold(h),/hidden-cargo/);assert.match(ui.hold({...h,hold:{...h.hold,hiddenCargoReady:true}}),/#\/hidden-cargo\/session\/hold/);assert.doesNotMatch(ui.admin({...d,ships:[]}),/customs-admin/);assert.match(ui.admin({...d,ships:[],customsReady:true}),/#\/customs-admin\/session/);
+});

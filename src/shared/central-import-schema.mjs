@@ -9,7 +9,7 @@ export const centralImportSchema=workshop=>workshop==='M6'?2:1;
 export const centralImportContracts=(workshop,schemaVersion=1)=>{if(schemaVersion===2&&workshop==='M6')return [{type:'knowledge',sheet:'Informations'},{type:'fieldTarget',sheet:'Lieux'}];if(schemaVersion!==1)return [];const c=Object.hasOwn(centralImportTypes,workshop)?centralImportTypes[workshop]:null;return c?.sheets??(c?[c]:[]);};
 export const centralImportSelection=(workshop,c,schemaVersion=1)=>centralImportContracts(workshop,schemaVersion).length>1?`${c.type}_${c.entityId}`:c.entityId;
 export const centralFieldColumns=['nature','titre','description','notes_mj','profils_json','recompenses_json','dependance_installation_id','indisponibilite_secondes','verrou_echec_secondes','protection_reparation_secondes'];
-export const centralSpaceColumns={shipModel:['nom','description','profil_id','notes_mj'],port:['nom','description','code_navigation','lieu_id','notes_mj'],route:['nom','description','origine_port_id','destination_port_id','distance_id','risque_id','code_navigation','notes_mj']};
+export const centralSpaceColumns={shipModel:['nom','description','profil_id','notes_mj'],port:['nom','description','code_navigation','lieu_id','statuts_douane','notes_mj'],route:['nom','description','origine_port_id','destination_port_id','distance_id','risque_id','code_navigation','notes_mj']};
 export const centralShopColumns={shop:['nom','description','vendeur_personnage_id','lieu_id','notes_mj'],offer:['nom','boutique_id','objet_id','prix_vente_cr','prix_rachat_cr','conditions','notes_mj']};
 export const centralCharacterColumns=['nom','profession','description','nature','biographie','interpretation','secrets_joueur','notes_mj','objectifs_json','relations_json','profil_initial','classe_id','espece_id','initiation_id'];
 export const centralCharacterCellLimit=32000;
@@ -20,7 +20,7 @@ export const centralStoryColumns={
 };
 export const centralImportSheets={
  Meta:['format','version','schema_version','type','campaign_id','scenario_id','rule_profile','central_base_version','draft_id','draft_revision','module_type','import_batch_id'],
- Objets:masterSheets.Objets.filter(x=>!['version','image_media_id','publication'].includes(x)),
+ Objets:[...masterSheets.Objets.filter(x=>!['version','image_media_id','publication'].includes(x)),'prix_reference_unitaire_cr'],
  Recettes:masterSheets.Recettes.filter(x=>!['version','publication'].includes(x)),
  Modeles:['id','operation','revision',...centralSpaceColumns.shipModel],
  Ports:['id','operation','revision',...centralSpaceColumns.port],

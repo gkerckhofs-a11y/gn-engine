@@ -15,3 +15,17 @@ test('Épisodes SO UI : régie de campagne après première naissance et reprise
  const c={id:'c',title:'Campagne',episodeCount:1,episodesVersion:1,preparationSessionId:'old',activeSessionId:'s',checkpoints:[]};assert.match(ui.page(c),/session\/s/);assert.doesNotMatch(ui.page(c),/Aucun épisode joué/);
  const page=createEntryUi(helpers).page({session:{id:'s',title:'Épisode 2',revision:1},campaignEpisode:2,episodesReady:true,versionId:'v',actionsReady:true,stage:'PAUSE',registrations:[{uid:'u',name:'Joueur',classId:'PIL',m2Prepared:true}]});assert.doesNotMatch(page,/soBirthOptions|data-stage="FINISHED"/);assert.match(page,/Épisode 2/);
 });
+
+test('Épisodes SO UI : la version révisée est indiquée et un blocage exige un autre aperçu',()=>{
+ const form=ui.episodeForm({id:'c',title:'Campagne',episodeCount:1,episodesVersion:1});
+ assert.match(form,/name="masterPolicy".*value="LATEST".*value="KEEP"/);
+ const summary={characters:[],accounts:[],groups:0,lots:0,receipts:0},p={campaignId:'c',title:'Suite'};
+ const d={summary,healthPolicy:'PRESERVE',campaign:{episodesVersion:1}};
+ const ready=ui.episodePreview({...d,master:{status:'ADOPT',number:2,reserves:1,kits:1,kitItems:1}},p);
+ assert.match(ready,/Master V2.*réserves M2.*kit\(s\) M1/);
+ assert.match(ready,/data-command="beginCampaignEpisode"/);
+ const blocked=ui.episodePreview({...d,master:{status:'BLOCKED',number:2,blockers:[{code:'DEFINITION',workshop:'M5',entityId:'<script>'}]}},p);
+ assert.match(blocked,/M5 · &lt;script&gt;/);
+ assert.match(blocked,/data-form="campaignEpisodeKeep"/);
+ assert.doesNotMatch(blocked,/data-command="beginCampaignEpisode"|<script>/);
+});

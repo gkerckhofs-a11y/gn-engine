@@ -56,6 +56,26 @@ export function centralImportSuite(makeStore,prefix='Excel central C1d'){
   let d=await f.view();assert.equal(d.changes[0].data.name,'Ingrédient synthétique');assert.equal(d.changes[0].data.description,'');assert.equal(d.changes[0].data.unitVolume,null);assert.equal(d.changes[0].data.gmNotes,'');
   const empty=await f.file('M1',[]);await f.apply(empty,await f.prepare(empty));d=await f.view();assert.equal(d.changes.length,1);assert.equal(d.draft.revision,2);
  });
+ test(`${prefix} : valeur M1 en Excel, blanc conservé, effacement explicite et validation`,async()=>{
+  const f=await importFixture(makeStore);
+  const input=await f.file('M1',[{...centralItemRow,prix_reference_unitaire_cr:320}]);
+  const preview=await f.prepare(input);assert.deepEqual(preview.errors,[]);
+  await f.apply(input,preview);
+  assert.equal((await f.view()).changes[0].data.referenceUnitValueCr,320);
+  const exported=await f.exportFile('M1',['ingredient']);
+  assert.equal(exported.sheets.Objets[0].prix_reference_unitaire_cr,320);
+  const keep=await f.file('M1',[{id:'ingredient',operation:'MODIFIER',revision:1,nom:'Nouveau nom',prix_reference_unitaire_cr:''}]);
+  await f.apply(keep,await f.prepare(keep));
+  assert.equal((await f.view()).changes[0].data.referenceUnitValueCr,320);
+  const clear=await f.file('M1',[{id:'ingredient',operation:'MODIFIER',revision:2,prix_reference_unitaire_cr:'!EFFACER'}]);
+  await f.apply(clear,await f.prepare(clear));
+  assert.equal((await f.view()).changes[0].data.referenceUnitValueCr,undefined);
+  for(const value of [0,-1,1.5,'INCONNU',Number.MAX_SAFE_INTEGER+1]){
+   const bad=await f.file('M1',[{...centralItemRow,id:'autre',prix_reference_unitaire_cr:value}]);
+   const checked=await f.prepare(bad);
+   assert.ok(checked.errors.some(e=>e.column==='prix_reference_unitaire_cr'),String(value));
+  }
+ });
  test(`${prefix} : archive et restauration explicites, export archivé neutre`,async()=>{
   const f=await importFixture(makeStore);await f.save();const input=await f.file('M1',[{id:'ingredient',operation:'ARCHIVER',revision:1}]);await f.apply(input,await f.prepare(input));let d=await f.view();assert.equal(d.changes[0].operation,'ARCHIVE');
   const e=await f.exportFile('M1',['ingredient']),neutral={campaignId:f.cid,workshop:'M1',fileName:'archive.xlsx',sheets:readCentralXlsx(writeCentralXlsx(e.sheets))};assert.equal((await f.prepare(neutral)).changes[0].operation,'INCHANGE');

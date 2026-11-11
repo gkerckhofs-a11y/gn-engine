@@ -21,3 +21,12 @@ test('caisses UI : droits de groupe indépendants et portefeuilles MJ séparés 
   const groups=createGroupsUi(helpers),row=groups.memberRow({permissions:{readWallet:true,payWallet:false}},{id:'c',public:{displayName:'Alias'}},'SECRET');assert.match(row,/data-member-field="readWallet" checked/);assert.doesNotMatch(row,/data-member-field="payWallet" checked/);
   const c={id:'s',revision:1,economyRules:currency,characters:[],groups:[{id:'g',name:evil,walletConfig:{label:'Caisse',amount:0}}],accounts:[{ownerType:'GROUP',id:'group-account',groupId:'g',balance:100,reserved:0}]};assert.doesNotMatch(createEconomyUi(helpers).admin(c,'session'),/Ajouter \/ retirer|Personnage<\/h3>/);assert.match(ui.admin(c,'session'),/groupCreditAdjustment/);assert.doesNotMatch(ui.admin(c,'session'),/<img/);
 });
+
+test('Caisses SO : le portefeuille personnel propose seulement les caisses accessibles',()=>{
+ const personal={...d,groupTransfersOnly:true,account:{id:'personal',kind:'CHARACTER',name:'Alias'}};
+ const html=ui.payment(personal,[personal.account,a,{id:'other',kind:'CHARACTER',name:'Autre personnage'}]);
+ assert.match(html,/value="group-account"/);
+ assert.doesNotMatch(html,/name="badgeUrl"|value="other"|<img/);
+ assert.doesNotMatch(ui.payment(personal,[personal.account]),/<form/);
+ assert.match(ui.payment({...d,groupTransfersOnly:true},[personal.account]),/name="badgeUrl"/);
+});

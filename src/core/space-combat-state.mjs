@@ -2,6 +2,8 @@ import {requireThat} from './validation.mjs';
 import {admissionKeys} from './admission-state.mjs';
 
 export const hasSoCombat=s=>s.spaceOutlaws?.combatVersion===1&&s.spaceOutlaws?.navigationVersion===1;
+// Fleet boardings are additive: older duel manifests keep their original scope.
+export const boardingEncounterEnabled=(s,e)=>s.spaceOutlaws?.boardingVersion===1&&e?.boardingVersion===1&&e.status==='CLOSED'&&(e.shipIds?.length===2||s.spaceOutlaws.fleetBoardingVersion===1&&e.fleetBoardingVersion===1&&e.shipIds?.length>=3&&e.shipIds.length<=4&&new Set(e.shipIds).size===e.shipIds.length&&e.shipIds.every(id=>typeof e.teams?.[id]==='string')&&new Set(e.shipIds.map(id=>e.teams[id])).size===2);
 export const spaceOrderKinds=['ATTACK','DEFEND','FLEE','PURSUE','PASSIVE','SURRENDER','PIL03_2','PIL03_3','PIL03_4','PIL03_5','ESC01'];
 export function spaceOrderInput(v,targets=false){
  admissionKeys(v,['kind','fallback','acceptSurrender','ceasefire',...(targets?['targetId','defenseIds']:[])]);
@@ -18,7 +20,7 @@ export function pauseSpaceJourney(ship,time){
 }
 export function resumeSpaceJourney(ship,time){
  const j=ship.journey;if(!j)return ship;
- const suspended=!!ship.convoy&&j.suspended||!!ship.combatId||!!ship.rescueId||!!ship.maintenanceId||ship.hull===0||j.immobilized&&ship.revisionRequired||j.event.needsMJ||j.event.fuelDebt>0;
+ const suspended=!!j.towing&&j.towingOutage?.state==='WAITING'&&time<j.towingOutage.untilGameMs||!!ship.convoy&&j.suspended||!!ship.combatId||!!ship.rescueId||!!ship.maintenanceId||ship.hull===0||j.immobilized&&ship.revisionRequired||j.event.needsMJ||j.event.fuelDebt>0;
  return {...ship,journey:{...j,suspended,immobilized:ship.hull===0||!!j.immobilized&&ship.revisionRequired,arrivesAtGameMs:suspended?j.arrivesAtGameMs:time+j.remainingMs,remainingMs:suspended?j.remainingMs:null}};
 }
 const damage=(s,n)=>{const shield=Math.max(0,s.shield-n);return {...s,shield,hull:Math.max(0,s.hull-Math.max(0,n-s.shield))};};
@@ -28,7 +30,8 @@ export function resolveSpaceDuel(ships,orders,dice,quietRounds=0){
  const before=ships.map(s=>({...s})),after=ships.map(s=>({...s})),used=[false,false],fuelSpent=[0,0],rolls=[],shots=[],escaped=[];
  const close=(reason,hostile=false)=>({after,used,fuelSpent,rolls,shots,escaped,hostile,quietRounds:hostile?0:quietRounds+1,closed:true,reason});
  if(orders.every(o=>o.ceasefire))return close('CEASEFIRE');
- if(orders.some((o,i)=>o.kind==='SURRENDER'&&orders[1-i].acceptSurrender))return close('SURRENDER');
+ const acceptedSurrenderIds=orders.flatMap((o,i)=>o.kind==='SURRENDER'&&orders[1-i].acceptSurrender?[before[i].id]:[]);
+ if(acceptedSurrenderIds.length)return {...close('SURRENDER'),acceptedSurrenderIds};
  const kinds=orders.map((o,i)=>before[i].hull>0?(o.kind==='SURRENDER'?o.fallback:o.kind):'PASSIVE');
  const shooting=k=>['ATTACK','PIL03_3','PIL03_5'].includes(k),defending=k=>['DEFEND','PIL03_2','PIL03_5'].includes(k),fleeing=k=>['FLEE','PIL03_4'].includes(k);
  let hostile=false;const incoming=[0,0];

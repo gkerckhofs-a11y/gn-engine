@@ -11,7 +11,10 @@ test('Central UI : six domaines, sept ateliers et aucune édition pour la lectur
 test('Central UI : intention stable, révisions et absence de stock ou publication dans le formulaire',()=>{
  const h=ui.itemForm(model,'stable-id');assert.match(h,/data-id="stable-id"/);assert.match(h,/data-draft="3"/);assert.match(h,/data-revision="0"/);assert.doesNotMatch(h,/name="(stock|credits|publicationState|quantity|ownerId)"/);
  const payload=centralItemPayload({name:'Test',description:'',category:'Bien',unit:'unité',kind:'STACKABLE',consumable:'on',pillable:'on',unitVolume:'0',legality:'LEGAL',gmNotes:'',pelletsPerUnit:'3'});
- assert.equal(payload.unitVolume,0);assert.equal(payload.consumable,true);assert.equal(payload.pillable,true);assert.deepEqual(payload.laserRecharge,{pelletsPerUnit:3});assert.equal('publicationState' in payload,false);
+ assert.equal(payload.unitVolume,0);
+ assert.match(h,/name="referenceUnitValueCr"/);
+ assert.equal(centralItemPayload({...payload,referenceUnitValueCr:'320'}).referenceUnitValueCr,320);
+ assert.equal(centralItemPayload({...payload,referenceUnitValueCr:''}).referenceUnitValueCr,null);assert.equal(payload.consumable,true);assert.equal(payload.pillable,true);assert.deepEqual(payload.laserRecharge,{pelletsPerUnit:3});assert.equal('publicationState' in payload,false);
 });
 test('Central UI : espèces M2 échappées et délégations sans pouvoir de publication',()=>{
  const h=ui.page({...model,workshop:'M2',changes:[{id:'speciesCatalogue_player',data:[{id:'human',label:'<b>Human</b>',nature:'HUMANOID',description:'<img src=x>',available:true}]}]});assert.match(h,/&lt;b&gt;Human/);assert.doesNotMatch(h,/<img/);
@@ -20,4 +23,66 @@ test('Central UI : espèces M2 échappées et délégations sans pouvoir de publ
 test('Central UI : archive et restauration restent des modifications de brouillon',()=>{
  const c={entityId:'item',type:'item',operation:'ARCHIVE',data:{name:'<i>Item</i>',description:'',unit:'unité',revision:2}},d={...model,rights:{...model.rights,editWorkshops:['M1']},changes:[c]};
  assert.match(ui.page(d),/Restaurer \/ modifier/);assert.doesNotMatch(ui.page(d),/data-action="centralArchive"/);assert.match(ui.archiveForm(d,c),/data-revision="2"/);assert.match(ui.archiveForm(d,c),/&lt;i&gt;Item/);
+});
+test('Central UI : module calibré, prix fixe et limites de préparation visibles',()=>{
+ const c={entityId:'module',type:'item',operation:'UPSERT',data:{name:'<b>Bouclier</b>',shipModule:{code:'MOD-01',size:2},kind:'INDIVIDUAL',consumable:false,revision:1}},h=ui.itemForm(model,'module',c);
+ assert.match(h,/name="shipModuleCode"/);assert.match(h,/value="MOD-01" selected/);assert.match(h,/value="2" selected/);assert.match(h,/1500 Cr/);assert.match(h,/MEC-03 N2, 10 min/);assert.match(h,/L’achat ne monte pas le module/);assert.match(h,/colonnes Excel/);assert.doesNotMatch(h,/name="(modulePrice|moduleBonus|moduleSlots|installed)"/);
+ assert.doesNotMatch(h,/<b>Bouclier/);assert.match(ui.page({...model,changes:[c]}),/1500 Cr/);
+ const values={name:'Module',kind:'INDIVIDUAL',unitVolume:'',pelletsPerUnit:'',shipModuleCode:'MOD-06',shipModuleSize:'3'};
+ assert.deepEqual(centralItemPayload(values).shipModule,{code:'MOD-06',size:3});assert.equal(centralItemPayload({...values,shipModuleCode:''}).shipModule,null);
+ const {shipModuleCode,shipModuleSize,...old}=values;assert.equal('shipModule' in centralItemPayload(old),false);
+});
+
+test('Central UI : soute clandestine versionnée, capacité dans le volume existant',()=>{
+ const c={type:'item',entityId:'hidden',operation:'UPSERT',data:{name:'Soute <script>',description:'',revision:1,shipModule:{code:'MOD-04',size:3}}},h=ui.page({...model,changes:[c]});assert.match(h,/2000 Cr/);assert.match(h,/Cache 10 unités dans les 50 existantes/);assert.match(h,/biens déjà rangés restent cachés/);assert.doesNotMatch(h,/<script>/);const form=ui.itemForm(model,'hidden',c);assert.match(form,/MOD-04.*nouvelle version compatible/);assert.match(form,/cargo ou transport seulement/);assert.doesNotMatch(form,/name="hiddenCargoCapacity"|name="price"/);
+});
+
+test('Central UI : MOD-05 préparatoire, prix non éditable et remorquage explicitement fermé',()=>{
+ const c={type:'item',entityId:'tow',operation:'UPSERT',data:{name:'Treuil <script>',description:'',revision:1,shipModule:{code:'MOD-05',size:2}}},h=ui.itemForm(model,'tow',c);assert.match(h,/1000 Cr/);assert.match(h,/MEC-03 N2, 10 min/);assert.match(h,/MOD-05 : nécessite une nouvelle version compatible remorquage/);assert.match(h,/Achat, montage et attelage sont distincts/);assert.match(h,/MOD-05 · Remorquage/);assert.doesNotMatch(h,/<script>|name="(towedShipId|towFuel|modulePrice)"/);assert.match(ui.page({...model,changes:[c]}),/ce modèle ne crée aucun remorquage/);
+});
+
+test('Central UI : ouvre la version suivante puis montre les éditeurs web',()=>{
+ const base={id:'revision-1',baseVersionId:'v1',pointerRevision:1};
+ const published=ui.page({...model,draft:{status:'PUBLISHED',...base}});
+ assert.match(published,/data-form="centralRevision" data-cid="campaign" data-version="v1" data-pointer="1"/);
+ assert.match(published,/Ouvrir le brouillon V2/);
+ assert.doesNotMatch(published,/data-action="centralItem"|data-action="centralImport"/);
+ const draft=ui.page({...model,draft:{...base,status:'DRAFT',revision:0},rights:{...model.rights,editWorkshops:['M1'],checkCentral:true,manageStaff:true}});
+ assert.match(draft,/brouillon V2/);
+ assert.match(draft,/data-action="centralItem"/);
+ assert.match(draft,/#\/central-check\/campaign\/0\/revision-1/);
+ assert.match(draft,/data-action="centralImport"/);
+ assert.match(draft,/data-action="centralExport"/);
+ assert.match(ui.exportForm({...model,draft:{...base,revision:3}}),/data-draft-id="revision-1" data-draft="3"/);
+ assert.match(draft,/data-action="centralSnapshotPreview"/);
+ assert.match(draft,/central-snapshots\/campaign\/revision-1/);
+});
+
+test('Central UI : le propriétaire confirme la publication d’un brouillon Vn+1 contrôlé',()=>{
+ const draft={id:'revision-1',baseVersionId:'v1',pointerRevision:1,revision:3,status:'DRAFT'};
+ assert.doesNotMatch(ui.page({...model,draft}),/centralReleasePreview/);
+ assert.match(ui.page({...model,draft,rights:{...model.rights,manageStaff:true}}),/centralReleasePreview/);
+ const preview={campaignId:'campaign',draftId:draft.id,draftRevision:3,pointerRevision:2,confirmation:'confirm'};
+ assert.doesNotMatch(ui.releasePreview(preview),/data-form="centralRelease"/);
+ const ready=ui.releasePreview({...preview,canRelease:true});
+ assert.match(ready,/data-form="centralRelease".*data-draft-id="revision-1".*data-draft="3".*data-confirmation="confirm"/);
+ assert.match(ready,/name="confirmed" required/);
+ assert.match(ready,/Publier V2/);
+});
+
+test('Central UI : retour explicite au Master parent et accès au brouillon suspendu',()=>{
+ const draft={status:'PUBLISHED',baseVersionId:'v1',pointerRevision:3};
+ const page=ui.page({...model,draft,activeVersionNumber:1,suspendedDraftId:'revision-2'});
+ assert.match(page,/version publiée V1/);
+ assert.match(page,/central-snapshots\/campaign\/revision-2/);
+ assert.match(page,/Ouvrir le brouillon V4/);
+ assert.doesNotMatch(page,/centralRollbackPreview/);
+ assert.match(ui.page({...model,draft,canPreviewRollback:true}),/centralRollbackPreview/);
+ const preview={campaignId:'campaign',fromNumber:2,toNumber:1,draftId:'revision-2',confirmation:'token'};
+ assert.doesNotMatch(ui.rollbackPreview(preview),/data-form="centralRollback"/);
+ const ready=ui.rollbackPreview({...preview,canRollback:true,snapshotId:'saved'});
+ assert.match(ready,/Réactiver le Master V1/);
+ assert.match(ready,/instantané restera consultable/);
+ assert.match(ready,/data-form="centralRollback".*data-confirmation="token"/);
+ assert.match(ready,/name="confirmed" required/);
 });

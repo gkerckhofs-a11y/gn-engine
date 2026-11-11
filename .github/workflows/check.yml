@@ -23,6 +23,9 @@ jobs:
       suites: ${{ steps.scope.outputs.suites }}
       matrix: ${{ steps.scope.outputs.matrix }}
       http: ${{ steps.scope.outputs.http }}
+      applicationTests: ${{ steps.scope.outputs.applicationTests }}
+      httpPattern: ${{ steps.scope.outputs.httpPattern }}
+      browser: ${{ steps.scope.outputs.browser }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -55,7 +58,11 @@ jobs:
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm run build
-      - run: npm test
+      - name: Tests applicatifs sélectionnés
+        env:
+          GN_CI_PROFILE: ${{ needs.plan.outputs.profile }}
+          GN_APPLICATION_TESTS: ${{ needs.plan.outputs.applicationTests }}
+        run: node scripts/ci-run-tests.mjs application
 
   firestore:
     needs: plan
@@ -104,14 +111,20 @@ jobs:
           distribution: temurin
           java-version: '21'
       - run: npm ci --no-audit --no-fund
-      - run: npm run test:emulator:http
+      - name: Tests HTTP sélectionnés
+        env:
+          GN_CI_PROFILE: ${{ needs.plan.outputs.profile }}
+          GN_HTTP_PATTERN: ${{ needs.plan.outputs.httpPattern }}
+        run: npx --no-install firebase emulators:exec --project demo-gn-engine --only firestore,auth,storage 'node scripts/ci-run-tests.mjs http'
       - name: Installer Chromium pour les parcours de recette
+        if: needs.plan.outputs.browser == 'true'
         timeout-minutes: 5
         run: npx --no-install playwright install --only-shell chromium
       - name: Parcours navigateur sur le kit local isolé
+        if: needs.plan.outputs.browser == 'true'
         run: npm run test:recette:browser
       - uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && needs.plan.outputs.browser == 'true'
         with:
           name: recette-browser
           path: dist/recette-browser/

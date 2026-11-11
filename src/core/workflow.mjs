@@ -1,12 +1,26 @@
+import {createTowingWorkService,towingWorkActions} from './space-towing-work.mjs';
+import {createHiddenCargoService,hiddenCargoActions} from './space-hidden-cargo.mjs';
+import {createModuleWorkService,moduleWorkActions} from './space-module-work.mjs';
+import {createModuleMandateService,moduleMandateActions} from './space-module-mandates.mjs';
+import {createBoardingCargoService,boardingCargoActions} from './space-boarding-cargo.mjs';
 import {createSoLearningService,soLearningActions} from './space-outlaws-learning.mjs';
+import {createSoPickpocketService,soPickpocketActions} from './space-pickpocket.mjs';
+import {createSoEscapeService,soEscapeActions} from './space-escape.mjs';
+import {createSoDecryptionService,soDecryptionActions} from './space-decryption.mjs';
+import {createSoIntrusionService,soIntrusionActions} from './space-intrusion.mjs';
+import {createSoForgeryService,soForgeryActions} from './space-forgery.mjs';
+import {createCustomsDetentionService,customsDetentionActions} from './space-customs-detention.mjs';
+import {createCustomsSeizureService,customsSeizureActions} from './space-customs-seizure.mjs';
+import {createCustomsAppealService,customsAppealActions} from './space-customs-appeals.mjs';
 import {createSpaceOutlawsSuccessionService,spaceOutlawsSuccessionActions} from './space-outlaws-succession.mjs';
 import {rewardsOpen} from './space-outlaws-mission-rewards.mjs';
 import {createSpaceMaintenanceService,spaceMaintenanceActions} from './space-maintenance.mjs';
 import {createSpaceCombatService,spaceCombatActions} from './space-combat.mjs';
+import {createSpaceBoardingService,spaceBoardingActions} from './space-boarding.mjs';
 import {createSpaceRescueService,spaceRescueActions} from './space-rescue.mjs';
 import {createShopService,shopActions} from './shops.mjs';
 import {hasSoHealth,survival} from './space-outlaws-health-state.mjs';
-import {createSpaceOutlawsEntryService,spaceOutlawsEntryActions} from './space-outlaws-entry.mjs';
+import {createSpaceOutlawsEntryService,spaceOutlawsEntryActions,readSoEntryVersion} from './space-outlaws-entry.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {characterInput} from './character-state.mjs';
 import {recipeInput,validateRecipeReferences} from './recipe-state.mjs';
@@ -122,6 +136,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     requireThat(c && (preview||c.assignedUid===actor.uid),'FORBIDDEN');
     requireThat(['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s.stage),'BRIEFING_CLOSED');
     requireThat(c.publicationState==='PUBLISHED' && c.public.publicationState==='PUBLISHED','CONTENT_UNPUBLISHED');
+    requireThat(!s.spaceOutlaws||!c.survival?.dead,'FORBIDDEN');
     requireThat(s.modules?.groups===true,'MODULE_DISABLED');
     const gid=documentId(input.groupId),g=await tx.get(`sessions/${sid}/groups/${gid}`);
     requireThat(groupVisible(g,cid),'FORBIDDEN');
@@ -154,15 +169,29 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     return record.mediaImages?.[slot]??null;
   }});
   const priceService=createPriceService({store,signed,checkSession,now,uuid});
+  const towingWorkService=createTowingWorkService({store,signed,checkSession,now,uuid});
+  const moduleWorkService=createModuleWorkService({store,signed,checkSession,now,uuid});
+  const moduleMandateService=createModuleMandateService({store,signed,checkSession,now,uuid});
   const spaceMaintenanceService=createSpaceMaintenanceService({store,signed,checkSession,now,uuid});
   const spaceCombatService=createSpaceCombatService({store,signed,checkSession,now,uuid,rollD6});
+  const boardingCargoService=createBoardingCargoService({store,signed,checkSession,now,uuid});
+  const spaceBoardingService=createSpaceBoardingService({store,signed,checkSession,now,uuid});
   const spaceRescueService=createSpaceRescueService({store,signed,checkSession,now,uuid});
   const voyageService=createVoyageService({store,signed,checkSession,now,uuid,rollD6});
+  const hiddenCargoService=createHiddenCargoService({store,signed,checkSession,now,uuid,rollD6});
   const cargoService=createCargoService({store,signed,checkSession,now,uuid});
   const logisticsService=createLogisticsService({store,signed,checkSession,now,uuid});
-  const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,now,uuid});
+  const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,readSoEntryVersion,now,uuid});
   const admissionService=createAdmissionService({store,signed,isAdmin,checkSession,now,uuid});
   const learningService=createSoLearningService({store,signed,checkSession,now,uuid});
+  const pickpocketService=createSoPickpocketService({store,signed,now,uuid});
+  const escapeService=createSoEscapeService({store,signed,checkSession,now,uuid});
+  const decryptionService=createSoDecryptionService({store,signed,now,uuid,rollD6});
+  const intrusionService=createSoIntrusionService({store,signed,now,uuid,rollD6});
+  const forgeryService=createSoForgeryService({store,signed,checkSession,now,uuid,rollD6});
+  const customsDetentionService=createCustomsDetentionService({store,signed,checkSession,now,uuid});
+  const customsSeizureService=createCustomsSeizureService({store,signed,checkSession,now,uuid});
+  const customsAppealService=createCustomsAppealService({store,signed,checkSession,now});
   const successionService=createSpaceOutlawsSuccessionService({store,signed,checkSession,now,uuid});
   const entryService=createSpaceOutlawsEntryService({store,signed,isAdmin,checkSession,now,uuid});
   const centralMasterService=createCentralMasterService({store,signed,isAdmin,now,uuid});
@@ -192,16 +221,30 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   async function dispatch(action,actor,input={}) {
     if(shopActions.includes(action))return shopService(action,actor,input);
     if(soLearningActions.includes(action))return learningService(action,actor,input);
+    if(soPickpocketActions.includes(action))return pickpocketService(action,actor,input);
+    if(soEscapeActions.includes(action))return escapeService(action,actor,input);
+    if(soDecryptionActions.includes(action))return decryptionService(action,actor,input);
+    if(soIntrusionActions.includes(action))return intrusionService(action,actor,input);
+    if(soForgeryActions.includes(action))return forgeryService(action,actor,input);
+    if(customsDetentionActions.includes(action))return customsDetentionService(action,actor,input);
+    if(customsSeizureActions.includes(action))return customsSeizureService(action,actor,input);
+    if(customsAppealActions.includes(action))return customsAppealService(action,actor,input);
     if(spaceOutlawsSuccessionActions.includes(action))return successionService(action,actor,input);
     if(spaceOutlawsEntryActions.includes(action))return entryService(action,actor,input);
     if(admissionAction(action))return admissionService(action,actor,input);
     if(centralMasterAction(action))return centralMasterService(action,actor,input);
     if(groupManagementAction(action))return groupManagementService(action,actor,input);
     if(priceAction(action))return priceService(action,actor,input);
+    if(towingWorkActions.includes(action))return towingWorkService(action,actor,input);
+    if(moduleWorkActions.includes(action))return moduleWorkService(action,actor,input);
+    if(moduleMandateActions.includes(action))return moduleMandateService(action,actor,input);
     if(spaceMaintenanceActions.includes(action))return spaceMaintenanceService(action,actor,input);
     if(spaceCombatActions.includes(action))return spaceCombatService(action,actor,input);
+    if(boardingCargoActions.includes(action))return boardingCargoService(action,actor,input);
+    if(spaceBoardingActions.includes(action))return spaceBoardingService(action,actor,input);
     if(spaceRescueActions.includes(action))return spaceRescueService(action,actor,input);
     if(voyageAction(action))return voyageService(action,actor,input);
+    if(hiddenCargoActions.includes(action))return hiddenCargoService(action,actor,input);
     if(cargoAction(action))return cargoService(action,actor,input);
     if(logisticsAction(action))return logisticsService(action,actor,input);
     if(personAction(action))return personService(action,actor,input);
@@ -335,7 +378,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       const groups=character && s.modules?.groups===true ? await tx.list(`sessions/${sid}/groups`) : [];
       return {session:publicSession(s),registration:ownRegistration(r),character,economyEnabled:s.economyRules?.enabled===true,actionPoints:rawCharacter&&s.actionPointRules?.enabled?actionPointSummary(s,rawCharacter,await tx.get(actionPointPath(sid,rawCharacter.id)),at):null,health:healthSummary(s,rawCharacter,at),reason,gameTimeMs:gameTime(s.clock,at),
         globalLevel:character?(rawCharacter.globalLevel??1):null,...(character&&s.spaceOutlaws?.episodesVersion===1?{progression:{xp:rawCharacter.xp??0,earnedXp:rawCharacter.earnedXp??0,completedSessions:r?.progression?.completedSessions??0,pendingXp:r?.progression?.pendingXp??0}}:{}),playerRules:character?playerRules(s):null,
-        groups:groups.filter(g=>groupVisible(g,cid)).map(g=>groupSummary(g,cid))};
+        groups:groups.filter(g=>(!s.spaceOutlaws||!rawCharacter?.survival?.dead)&&groupVisible(g,cid)).map(g=>groupSummary(g,cid))};
     });
     signed(actor);
     // Invitation redemption deliberately refuses every second consumption.
@@ -485,6 +528,9 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
               requireThat(!(await tx.list(`sessions/${sid}/cargoTransfers`)).some(t=>t.status==='LOADING'),'CARGO_TRANSFERS_OPEN');
               requireThat(!(await tx.list(`sessions/${sid}/ships`)).some(x=>x.journey||x.operation||x.combatId||x.rescueId||x.maintenanceId),'VOYAGES_OPEN');
               requireThat(!(await tx.list(`sessions/${sid}/personActions`)).some(personOpen),'PERSON_ACTIONS_OPEN');
+              if(s.spaceOutlaws.escapeVersion===1)requireThat(!(await tx.list(`sessions/${sid}/soCaptivities`)).some(c=>c.status==='ACTIVE'),'SO_CAPTIVITY_OPEN');
+              if(s.spaceOutlaws.inf01Version===1)requireThat(!(await tx.list(`sessions/${sid}/inf01Actions`)).some(a=>a.status==='RUNNING'),'FIELD_ACTIONS_OPEN');
+              if(s.spaceOutlaws.inf03Version===1)requireThat(!(await tx.list(`sessions/${sid}/inf03Actions`)).some(a=>a.status==='RUNNING'),'FIELD_ACTIONS_OPEN');
               if(hasSoHealth(s))requireThat(!(await tx.list(`sessions/${sid}/characters`)).some(c=>['URGENT','EXPIRED'].includes(survival(s,c,at).status)),'SO_SURVIVAL_OPEN');
             }
           }

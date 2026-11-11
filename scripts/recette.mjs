@@ -6,8 +6,8 @@ import {requireRecetteEnvironment,requireRuntimes,projectId,origin} from './rece
 import {buildRecette,root} from './recette/build.mjs';
 
 export async function launch(args=process.argv.slice(2)){
-  if(args.length&&!(args.length===1&&args[0]==='--check'))throw new Error('Usage : npm run recette [-- --check]');
-  const env=requireRecetteEnvironment(process.env);
+  if(args.length&&!(args.length===1&&['--check','--pilot'].includes(args[0])))throw new Error('Usage : npm run recette [-- --check|--pilot]');
+  const env={...requireRecetteEnvironment(process.env),GN_RECETTE_PILOT_MODE:args[0]==='--pilot'?'1':'0'};
   const java=spawnSync('java',['-version'],{encoding:'utf8'});
   requireRuntimes(process.versions.node,`${java.stdout??''}${java.stderr??''}`);
   if(java.status!==0)throw new Error('Java indisponible');

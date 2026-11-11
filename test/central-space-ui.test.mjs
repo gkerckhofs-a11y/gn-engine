@@ -23,6 +23,19 @@ test('M3 central UI : charges utiles distinctes sans champs privilégiés',()=>{
  const v={...centralTestRoute,profileId:'CARGO',locationTargetId:' place ',fromPort:' a ',toPort:' b ',referencePrice:1,fuel:10,durationSeconds:1,publicationState:'PUBLISHED'};
  assert.deepEqual(Object.keys(centralSpacePayload('shipModel',v)).sort(),['description','gmNotes','name','profileId']);assert.deepEqual(Object.keys(centralSpacePayload('port',v)).sort(),['description','gmNotes','locationTargetId','name','navigationCode']);const route=centralSpacePayload('route',v);assert.equal(route.fromPort,'a');assert.equal(route.toPort,'b');assert.equal(route.profileId,undefined);assert.equal(route.durationSeconds,undefined);assert.equal(route.fuel,undefined);assert.equal(centralSpacePayload('port',{...v,locationTargetId:' '}).locationTargetId,null);assert.throws(()=>centralSpacePayload('unknown',v));
 });
+test("M3 central UI : règles douanières locales sans droits d'émission",()=>{
+ const h=ui.spaceForm(d,'port','port',{data:{...centralTestPort,customsRules:[{itemId:'bacta',status:'REGULATED'}]}});
+ assert.match(h,/name="customsRulesText"/);
+ assert.match(h,/bacta:REGULATED/);
+ assert.match(h,/marchandises absentes restent non classées/);
+ const p=centralSpacePayload('port',{...centralTestPort,customsRulesText:'bacta:REGULATED;artifact:PROHIBITED',fee:1});
+ assert.deepEqual(p.customsRules,[{itemId:'bacta',status:'REGULATED'},{itemId:'artifact',status:'PROHIBITED'}]);
+ assert.equal(p.fee,undefined);
+ assert.throws(()=>centralSpacePayload('port',{...centralTestPort,customsRulesText:'bacta:FAKE'}));
+ const page=ui.page({...d,changes:[{type:'port',entityId:'port',operation:'UPSERT',data:{...centralTestPort,name:'<script>',revision:1,customsRules:[{itemId:'bacta',status:'FREE'}]}}]});
+ assert.match(page,/Marchandises classées dans ce port : 1/);
+ assert.doesNotMatch(page,/<script>/);
+});
 test('M3 central UI : archives et restauration gardent le type et les identifiants',()=>{
  const edit={...d,rights:{...d.rights,editWorkshops:['M3']}};assert.match(ui.page(edit),/data-action="centralSpaceArchive" data-type="port" data-id="port"/);const c={...changes[1],operation:'ARCHIVE'},h=ui.page({...edit,changes:[c]});assert.match(h,/Restaurer \/ modifier/);assert.doesNotMatch(h,/data-action="centralSpaceArchive"/);const form=ui.spaceArchiveForm(d,c);assert.match(form,/data-form="centralSpaceArchive" data-type="port"/);assert.match(form,/data-id="port"/);assert.match(form,/références entrantes seront signalées/);assert.match(form,/&lt;b&gt;Nom/);
 });

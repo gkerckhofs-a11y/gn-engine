@@ -23,6 +23,30 @@ export function centralSpaceImportSuite(makeStore,prefix='Excel spatial C2m'){
  test(`${prefix} : vrai XLSX, trois types atomiques et aucune instance ou ressource`,async()=>{
   const f=await spaceImportFixture(makeStore),before=await f.store.get(`sessions/${f.sid}`),input=await f.file(),p=await f.prepare(input);assert.deepEqual(p.errors,[]);assert.equal(p.changes.length,4);assert.equal(p.diagnostics.filter(d=>d.referenceType==='port').length,0);assert.equal(await f.store.get(f.base),null);const r=await f.apply(input,p),d=await f.view('M3');assert.equal(r.changed,4);assert.equal(r.draftRevision,1);assert.equal(d.history.length,4);for(const c of d.changes){assert.equal(c.source,'XLSX');assert.equal(c.revision,1);assert.equal(c.data.revision,1);assert.equal(c.data.publicationState,'DRAFT');assert.equal(c.provenance.batchId,r.batchId);assert.equal(c.provenance.sheet,contracts.find(([type])=>type===c.type)[1]);assert.ok(c.requestId);}assert.deepEqual(await f.store.get(`sessions/${f.sid}`),before);for(const key of ['ships','ports','routes','journeys','inventory','accounts','ledger','characters','registrations','fieldTargets'])assert.deepEqual(await f.store.list(`sessions/${f.sid}/${key}`),[],key);assert.deepEqual(await f.store.list(`campaigns/${f.cid}/versions`),[]);
  });
+ test(`${prefix} : classifications M3 Excel, conservation, effacement et refus de saisie`,async()=>{
+  const f=await spaceImportFixture(makeStore);
+  const first=await f.file([],[{...centralPortRow,statuts_douane:'ingredient:REGULATED; forbidden:PROHIBITED'}],[]);
+  let preview=await f.prepare(first);
+  assert.deepEqual(preview.errors,[]);
+  assert.equal(preview.diagnostics.filter(x=>x.referenceType==='item').length,2);
+  await f.apply(first,preview);
+  let port=(await f.view('M3')).changes.find(c=>c.type==='port');
+  assert.deepEqual(port.data.customsRules,[{itemId:'ingredient',status:'REGULATED'},{itemId:'forbidden',status:'PROHIBITED'}]);
+  const exported=await f.exportFile(['port_origin']);
+  assert.equal(exported.sheets.Ports[0].statuts_douane,'ingredient:REGULATED;forbidden:PROHIBITED');
+  const keep=await f.file([],[{id:'origin',operation:'MODIFIER',revision:1,nom:'Port édité',statuts_douane:''}],[]);
+  await f.apply(keep,await f.prepare(keep));
+  assert.equal((await f.view('M3')).changes.find(c=>c.type==='port').data.customsRules.length,2);
+  const clear=await f.file([],[{id:'origin',operation:'MODIFIER',revision:2,statuts_douane:'!EFFACER'}],[]);
+  await f.apply(clear,await f.prepare(clear));
+  port=(await f.view('M3')).changes.find(c=>c.type==='port');
+  assert.deepEqual(port.data.customsRules,[]);
+  for(const value of ['ingredient:ILLEGAL','ingredient','ingredient:FREE;ingredient:REGULATED','../bad:FREE']){
+   const invalid=await f.file([],[{...centralPortRow,id:'invalid',statuts_douane:value}],[]);
+   preview=await f.prepare(invalid);
+   assert.ok(preview.errors.some(e=>e.sheet==='Ports'&&e.column==='statuts_douane'),value);
+  }
+ });
  test(`${prefix} : trois profils et neuf couples distance risque dérivés sans coût fixe`,async()=>{
   const f=await spaceImportFixture(makeStore),models=['FIGHTER','CARGO','TRANSPORT'].map(profil_id=>({...centralModelRow,id:profil_id,profil_id})),routes=['SHORT','MEDIUM','LONG'].flatMap(distance_id=>['SECURED','DANGEROUS','HOSTILE'].map(risque_id=>({...centralRouteRow,id:`${distance_id}-${risque_id}`,code_navigation:`${distance_id}-${risque_id}`,distance_id,risque_id}))),input=await f.file(models,[],routes);await f.apply(input,await f.prepare(input));const d=await f.view('M3');for(const [id,stats] of [['FIGHTER',[5000,3,1,2,0,1,1,8,1]],['CARGO',[10000,4,2,1,20,6,2,16,2]],['TRANSPORT',[20000,6,3,0,50,15,3,24,3]]]){const c=d.changes.find(c=>c.entityId===id);assert.deepEqual(['referencePrice','hullMax','shieldMax','maneuverability','cargoCapacity','seats','moduleSlots','tankCapacity','size'].map(k=>c.data[k]),stats);}for(const c of d.changes.filter(c=>c.type==='route')){assert.equal(c.data.durationSeconds,({SHORT:300,MEDIUM:600,LONG:900})[c.data.distanceId]);assert.equal(c.data.distanceFactor,({SHORT:1,MEDIUM:2,LONG:3})[c.data.distanceId]);assert.equal(c.data.eventFaces,({SECURED:1,DANGEROUS:2,HOSTILE:3})[c.data.riskId]);assert.equal(c.data.fuelCost,undefined);assert.equal(c.data.enabled,undefined);}assert.equal((await f.check(1)).totals.invalid,0);
  });

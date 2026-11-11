@@ -61,7 +61,7 @@ function setup({runs=[run()],paths=['src/core/space-escort.mjs'],message='change
   const gitCommand=(...args)=>{
     calls.push(args);
     if(args[0]==='rev-parse')return checkout;
-    if(args[0]==='log')return message;
+    if(args[0]==='log')return args.at(-1)===previous?'validated global baseline':message;
     if(args[0]==='merge-base'){if(!ancestor)throw new Error('not ancestor');return '';}
     if(args[0]==='diff')return paths.join('\0');
     throw new Error('unexpected command');

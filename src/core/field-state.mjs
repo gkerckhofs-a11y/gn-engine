@@ -1,4 +1,5 @@
 import {documentId,requireThat,whole} from './validation.mjs';
+import {createHash} from 'node:crypto';
 import {gameTime} from './clock.mjs';
 import {isDeepStrictEqual} from 'node:util';
 import {analysisProfile} from '../shared/space-outlaws-analysis.mjs';
@@ -8,6 +9,14 @@ const check=v=>requireThat(v,'INVALID_FIELD_TARGET');
 const text=(v,max,required=false)=>{check(typeof v==='string'&&v.length<=max&&(!required||v.trim()));return v.trim();};
 const num=(v,max=1000000)=>{whole(v,'INVALID_FIELD_TARGET');check(v<=max);return v;};
 export const fieldKinds=['SEARCH','SABOTAGE','REPAIR','ANALYZE'];
+const normalizeIntrusionCode=code=>{
+ check(typeof code==='string');
+ const value=code.normalize('NFKC').trim().toUpperCase().replace(/\s+/g,' ');
+ check(value.length>=4&&value.length<=64&&/^[\p{L}\p{N} -]+$/u.test(value));
+ return value;
+};
+export const intrusionAnswerDigest=code=>createHash('sha256').update(normalizeIntrusionCode(code)).digest('hex');
+
 export function fieldProfile(v,kind){
  check(v&&typeof v==='object'&&!Array.isArray(v));check(Array.isArray(v.bonusItems??[]));const skillId=v.skillId?documentId(v.skillId):null;
  const durationByLevel={};check(Object.keys(v.durationByLevel??{}).length<=20);
@@ -22,6 +31,54 @@ export function fieldProfile(v,kind){
 }
 export function fieldTargetInput(v,id,old={}){
  if(isPlaceSearch(v))return searchTargetInput(v,id,old);
+ if(v?.kind==='FORGERY'){
+  check(['DRAFT','READY','PUBLISHED'].includes(v.publicationState));
+  const x=v.forgery;
+  check(x&&typeof x==='object'&&!Array.isArray(x)&&Object.keys(x).every(k=>[
+   'category','minLevel','threshold','blankItemId','documentTitle','documentText','anomalies'
+  ].includes(k)));
+  const categories={RECEIPT:1,MANIFEST:2,LICENSE:3,ORDER:4,EXCEPTIONAL:5};
+  check(Object.hasOwn(categories,x.category));
+  check(Number.isSafeInteger(x.minLevel)&&x.minLevel>=categories[x.category]&&x.minLevel<=5);
+  check(Number.isSafeInteger(x.threshold)&&x.threshold>=2&&x.threshold<=12);
+  check((v.rewards??[]).length===0&&Object.keys(v.profiles??{}).length===0&&!v.dependencyId);
+  return {id,kind:'FORGERY',title:text(v.title,150,true),description:text(v.description??'',6000),
+   gmNotes:text(v.gmNotes??'',10000),publicationState:v.publicationState,profiles:{},rewards:[],
+   forgery:{category:x.category,minLevel:x.minLevel,threshold:x.threshold,
+    blankItemId:documentId(x.blankItemId),documentTitle:text(x.documentTitle,150,true),
+    documentText:text(x.documentText,6000,true),anomalies:text(x.anomalies??'',6000,true)},
+   dependencyId:null,offlineSeconds:0,failureLockSeconds:0,repairProtectionSeconds:0,
+   revision:(old.revision??0)+1};
+ }
+ if(v?.kind==='INTRUSION'){
+  check(v.publicationState==='DRAFT'||v.publicationState==='READY'||v.publicationState==='PUBLISHED');
+  check(v.intrusion&&typeof v.intrusion==='object'&&!Array.isArray(v.intrusion));
+  const i=v.intrusion;
+  check(['LOCK','SAFE','TERMINAL'].includes(i.category));
+  check(Number.isSafeInteger(i.minLevel)&&i.minLevel>=1&&i.minLevel<=5);
+  check(Number.isSafeInteger(i.threshold)&&i.threshold>=2&&i.threshold<=12);
+  check((v.rewards??[]).length===0&&Object.keys(v.profiles??{}).length===0&&!v.dependencyId);
+  const inputChallenge=i.challenge;
+  check(inputChallenge===undefined||inputChallenge&&typeof inputChallenge==='object'&&!Array.isArray(inputChallenge));
+  let challenge;
+  if(inputChallenge){
+   check(inputChallenge.type==='CODE'&&Object.keys(inputChallenge).every(key=>['type','prompt','durationSeconds','answerCode','answerDigest'].includes(key)));
+   const supplied=typeof inputChallenge.answerCode==='string'&&inputChallenge.answerCode.trim()?intrusionAnswerDigest(inputChallenge.answerCode):null;
+   const answerDigest=supplied??inputChallenge.answerDigest??old.intrusion?.challenge?.answerDigest;
+   check(typeof answerDigest==='string'&&/^[a-f0-9]{64}$/.test(answerDigest));
+   const durationSeconds=num(inputChallenge.durationSeconds,3600);
+   check(durationSeconds>0);
+   challenge={type:'CODE',prompt:text(inputChallenge.prompt,3000,true),durationSeconds,answerDigest};
+  }
+  return {id,kind:'INTRUSION',title:text(v.title,150,true),description:text(v.description??'',6000),
+   gmNotes:text(v.gmNotes??'',10000),publicationState:v.publicationState,profiles:{},rewards:[],
+   intrusion:{category:i.category,minLevel:i.minLevel,threshold:i.threshold,
+    successText:text(i.successText,4000,true),failureText:text(i.failureText??'',4000),
+    ...(challenge?{challenge}:{})},
+   dependencyId:null,offlineSeconds:0,failureLockSeconds:0,repairProtectionSeconds:0,
+   revision:(old.revision??0)+1};
+ }
+
  check(v&&['SEARCH','INSTALLATION','ANALYSIS'].includes(v.kind));check(['DRAFT','READY','PUBLISHED'].includes(v.publicationState));
  check(v.profiles&&typeof v.profiles==='object'&&!Array.isArray(v.profiles));check(Array.isArray(v.rewards??[]));
  const analysis=v.kind==='ANALYSIS';

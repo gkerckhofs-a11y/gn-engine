@@ -66,7 +66,7 @@ export function createSoLearningService({store,signed,checkSession,now,uuid}){
    requireThat(s?.spaceOutlaws?.learningVersion===1,'SO_GAMEPLAY_NOT_OPEN');
    const campaign=await tx.get(`campaigns/${s.campaignId}`);
    requireThat(campaign?.activeSessionId===sid&&!campaign.activeBuildId&&!s.campaignSealed,'SO_LEARNING_CLOSED');
-   const version=await readSoEntryVersion(tx,campaign);
+   const version=await readSoEntryVersion(tx,campaign,s.versionId??null);
    requireThat(version.header.learningVersion===1&&version.header.id===s.versionId,'SO_GAMEPLAY_NOT_OPEN');
    if(action==='soLearningAdmin'){
     admissionKeys(input,['sessionId']);const registrations=await tx.list(`sessions/${sid}/registrations`,null,{limit:1001});

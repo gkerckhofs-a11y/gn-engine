@@ -1,0 +1,793 @@
+import {hiddenCargoRequest} from '../../web/space-hidden-cargo.mjs';
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {randomUUID,createHash} from 'node:crypto';
+import {moduleFlightFixture,equippedConvoy} from './space-module-flight-suite.mjs';
+import {soVoyagesFixture} from './space-outlaws-voyages-suite.mjs';
+import {moduleItem} from './space-ship-module-catalog-suite.mjs';
+import {episodeHarness} from './space-episodes-suite.mjs';
+import {hiddenCargoCapacity,publishedCustomsCargoAssessment} from '../../src/core/space-hidden-cargo.mjs';
+import {centralTestItem} from './central-master-suite.mjs';
+import {guardSpaceOutlawsEntry} from '../../src/core/space-outlaws-entry-guard.mjs';
+
+// Full native path: published definition, real purchase, pickup and timed mounting.
+export async function nativeHiddenFlightFixture(makeStore,{profileId='CARGO',convoy=false}={}){
+ const f=await (convoy?equippedConvoy(makeStore,{code:'MOD-04',form:false}):moduleFlightFixture(makeStore,{code:'MOD-04',profileId})),fuel=(await f.read('myInventory')).lots.find(l=>l.item.id==='propellant'),ids=[];
+ for(const quantity of [3,2]){const p={lotId:fuel.id,quantity,destination:{kind:'HOLD',id:'ship'}},q=await f.read('prepareCargoTransfer',p),r=await f.cmd('startCargoTransfer',{...p,confirmation:q.confirmation,present:true});f.advance(180000);const done=await f.read('cargoTransfer',{transferId:r.id});await f.cmd('receiveCargoTransfer',{transferId:r.id,confirmation:done.confirmation,received:true});ids.push(r.lotId);}
+ const conceal=async(conceal=true,lotId=ids[0])=>{const p={shipId:'ship',lotId,conceal},q=await f.read('prepareCargoConcealment',p);return f.cmd('setCargoConcealment',{...p,confirmation:q.confirmation,present:true});};await conceal();if(convoy)await f.formConvoy();
+ const arrive=async()=>{f.advance(300000);await f.cmd('arriveShip',{shipId:'ship',confirmation:(await f.navigation()).confirmation});await f.edit(`characters/${f.otherId}`,c=>({...c,spacePortId:'away'}));f.setDice([]);f.setDie(6);};
+ const grant=async(level=5)=>{const c=await f.get(`characters/${f.otherId}`);return f.cmd('setCustomsAuthority',{characterId:f.otherId,level,portId:'away',authorityRevision:c.customsAuthorization?.revision??0,reason:'Habilitation organisation'},f.owner);};
+ const startInspection=async(kind='DEEP')=>{const p={shipId:'ship',kind},q=await f.read('prepareCustomsInspection',p,f.other);return f.cmd('startCustomsInspection',{...p,confirmation:q.confirmation,present:true},f.other);};
+ const finishInspection=async r=>{const p={inspectionId:r.id},q=await f.read('customsInspection',p,f.other);return f.cmd('finishCustomsInspection',{...p,confirmation:q.confirmation,present:true,performed:true},f.other);};
+ return {...f,lotId:ids[0],extraLotId:ids[1],moduleId:f.sale.purchasedLotId,conceal,arrive,grant,startInspection,finishInspection};
+}
+// Component fixture: native session and physical cargo transfer, but MOD-04
+// is synthetic; version-marker guards are exercised separately. This is NOT a playable mount test.
+export async function hiddenCargoFixture(makeStore,{profileId='CARGO',quantity=5,portCustomsRules=null,referenceUnitValueCr=null}={}){
+ // Native Master preparation + actual birth: the port policy is not injected
+ // into a live session after the fact.
+ const prepareExtra=portCustomsRules!==null||referenceUnitValueCr!==null?async(f,draftStart)=>{
+  let revision=draftStart;
+  if(referenceUnitValueCr!==null)await f.cc('saveCentralItem',{
+   itemId:'propellant',itemRevision:1,draftRevision:revision++,
+   item:{...centralTestItem,name:'Carburant propulsif',kind:'STACKABLE',consumable:true,pillable:true,referenceUnitValueCr},
+   reason:'Prix de référence M1 de test'});
+  if(portCustomsRules!==null)await f.cc('saveCentralPort',{
+   portId:'home',portRevision:1,draftRevision:revision++,
+   port:{name:'home',description:'Port',gmNotes:'SECRET_PORT',navigationCode:'HOME-CODE',locationTargetId:null,customsRules:portCustomsRules},
+   reason:'Statuts de douane M3 publiés pour test'});
+ }:null;
+ const f=await soVoyagesFixture(makeStore,{profileId,prepareExtra}),base=`sessions/${f.sid}`;
+ const get=p=>f.store.get(base+(p?'/'+p:'')),edit=(p,fn)=>f.store.runTransaction(async tx=>{const path=base+(p?'/'+p:'');tx.set(path,fn(await tx.get(path)));});
+ const fuel=(await f.read('myInventory')).lots.find(l=>l.item.id==='propellant'),lotIds=[];
+ for(let remaining=quantity;remaining>0;remaining-=5){const input={lotId:fuel.id,quantity:Math.min(remaining,5),destination:{kind:'HOLD',id:'ship'}},p=await f.read('prepareCargoTransfer',input),transfer=await f.cmd('startCargoTransfer',{...input,confirmation:p.confirmation,present:true});f.advance(180000);const q=await f.read('cargoTransfer',{transferId:transfer.id});await f.cmd('receiveCargoTransfer',{transferId:transfer.id,confirmation:q.confirmation,received:true});lotIds.push(transfer.lotId);}
+ const transfer={lotId:lotIds[0]};
+ const sh=await f.ship(),module={lotId:'synthetic-hidden-module',code:'MOD-04',size:sh.soProfile.size,status:'OPERATIONAL'};
+ await edit('',s=>({...s,spaceOutlaws:{...s.spaceOutlaws,hiddenCargoVersion:1}}));await edit('ships/ship',s=>({...s,modules:[module]}));
+ await edit(`inventory/${module.lotId}`,()=>({id:module.lotId,quantity:1,revision:1,status:'INSTALLED',ownerType:'CHARACTER',ownerId:f.cid,holderId:'ship',location:{kind:'SHIP_MODULE',id:'ship'},transferable:true,resellable:true,item:{...moduleItem,shipModule:{code:'MOD-04',size:module.size}}}));
+ const grant=async(level=1,characterId=f.otherId)=>{const c=await get(`characters/${characterId}`);return f.cmd('setCustomsAuthority',{characterId,level,portId:'home',authorityRevision:c.customsAuthorization?.revision??0,reason:'Habilitation organisation'},f.owner);};
+ const conceal=async(conceal=true,lotId=transfer.lotId,patch={})=>{const i={shipId:'ship',lotId,conceal},q=await f.read('prepareCargoConcealment',i);return f.cmd('setCargoConcealment',{...i,confirmation:q.confirmation,present:true,...patch});};
+ const start=async(kind='DEEP',actor=f.other,agentId)=>{const admin=actor===f.owner,i={shipId:'ship',kind,...(admin?{agentId}:{})},q=await f.read(admin?'prepareCustomsInspectionAdmin':'prepareCustomsInspection',i,actor);return f.cmd(admin?'startCustomsInspectionAdmin':'startCustomsInspection',{...i,confirmation:q.confirmation,present:true},actor);};
+ const inspect=(r,actor=f.other)=>f.read(actor===f.owner?'customsInspectionAdmin':'customsInspection',{inspectionId:r.id},actor);
+ const close=async(r,{cancel=false,actor=f.other,...patch}={})=>{const q=await inspect(r,actor),action=(cancel?'cancel':'finish')+'CustomsInspection'+(actor===f.owner?'Admin':'');return f.cmd(action,{inspectionId:r.id,confirmation:q.confirmation,...(cancel?{reason:'Interruption explicite'}:{present:true,performed:true}),...patch},actor);};
+ return {...f,get,edit,grant,conceal,start,inspect,close,lotId:transfer.lotId,lotIds,moduleId:module.lotId};
+}
+// Removal remains behind the unpublished component marker; no synthetic purchase.
+export async function hiddenRemovalFixture(makeStore,options={}){
+ const f=await hiddenCargoFixture(makeStore,options);await f.edit('ships/ship',s=>({...s,moduleInstallationVersion:1}));
+ await f.edit(`characters/${f.otherId}`,c=>({...c,abilityProfile:{...c.abilityProfile,skills:[...c.abilityProfile.skills.filter(k=>k.id!=='MEC-03'),{id:'MEC-03',level:2}]}}));
+ const input={moduleOperation:'REMOVE',shipId:'ship',lotId:f.moduleId,technicianId:f.otherId,present:true,workshopConfirmed:true,source:'Atelier disponible, compartiment vidé physiquement',reason:'Retrait du même exemplaire'},previewOffer=(patch={})=>f.read('prepareModuleMandateOffer',{...input,...patch},f.owner);
+ const offer=async()=>{const q=await previewOffer();return f.cmd('offerModuleMandate',{...input,confirmation:q.confirmation},f.owner);};
+ const approve=async r=>{const q=await f.read('prepareModuleMandateApproval',{mandateId:r.id});return f.cmd('approveModuleMandate',{mandateId:r.id,confirmation:q.confirmation,present:true});};
+ const start=async r=>{const q=await f.read('prepareModuleWorkStart',{mandateId:r.id},f.other);return f.cmd('startModuleWork',{mandateId:r.id,confirmation:q.confirmation,present:true,workshopConfirmed:true},f.other);};
+ const preview=(r,actor=f.other)=>f.read('prepareModuleRemoval',{mandateId:r.id},actor);
+ const finish=async(r,patch={},actor=f.other)=>{const q=await preview(r,actor);return f.cmd('finishModuleRemoval',{mandateId:r.id,confirmation:q.confirmation,present:true,workshopConfirmed:true,performed:true,...patch},actor);};
+ const cancel=async(r,actor=f.other)=>{const q=await f.read(actor===f.owner?'moduleWorkAdmin':'moduleWork',{mandateId:r.id},actor);return f.cmd(actor===f.owner?'cancelModuleWorkAdmin':'cancelModuleWork',{mandateId:r.id,confirmation:q.confirmation,reason:'Interruption du retrait'},actor);};
+ return {...f,removalInput:input,previewRemovalOffer:previewOffer,offerRemoval:offer,approveRemoval:approve,startRemoval:start,previewRemoval:preview,finishRemoval:finish,cancelRemoval:cancel};
+}
+export function hiddenCargoSuite(makeStore,prefix='Fret caché et MOD-04 SO'){
+
+ test(`${prefix} : devis LIC-01/02/03 en lecture seule, sans délivrance ni débit`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);
+  const accounts=await f.store.list(`sessions/${f.sid}/accounts`);
+  const auditBefore=await f.store.list(`sessions/${f.sid}/audit`);
+  const first=await f.read('customsLicenseQuote',{code:'LIC-01'},f.owner);
+  assert.equal(first.exactFeeCr,'100');
+  assert.equal(first.issued,false);
+  assert.ok(first.requiredEvidence.includes('Paiement réel à vérifier'));
+  assert.ok(first.requiredEvidence.includes('Révocation éventuelle à contrôler'));
+  const min=await f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000},f.owner);
+  assert.equal(min.exactFeeCr,'50');
+  assert.equal(min.minimumCr,50);
+  assert.ok(min.requiredEvidence.includes('Cargaison réelle identifiée'));
+  assert.ok(min.requiredEvidence.includes('Voyage autorisé identifié'));
+  const fractional=await f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2501},f.owner);
+  assert.equal(fractional.exactFeeCr,'50.02');
+  assert.equal(fractional.scope,'Cargaison et voyage autorisés');
+  const exceptional=await f.read('customsLicenseQuote',{code:'LIC-03'},f.owner);
+  assert.equal(exceptional.exactFeeCr,null);
+  assert.equal(exceptional.issued,false);
+  assert.ok(exceptional.requiredEvidence.includes('Début et fin de validité définis'));
+  assert.ok(exceptional.requiredEvidence.includes('Tarif et paiement éventuel décidés par le MJ'));
+  assert.deepEqual(await f.store.list(`sessions/${f.sid}/accounts`),accounts);
+  assert.deepEqual(await f.store.list(`sessions/${f.sid}/audit`),auditBefore);
+  assert.deepEqual(await f.store.list(`sessions/${f.sid}/customsLicenses`),[]);
+ });
+ test(`${prefix} : devis réservé au MJ, refuse barèmes ou valeurs imposés par le joueur`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);
+  await f.grant(5);
+  await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-01'},f.other),{code:'FORBIDDEN'});
+  await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-01'},f.player),{code:'FORBIDDEN'});
+  for(const code of ['LIC-04','FAKE','']){
+   await assert.rejects(f.read('customsLicenseQuote',{code},f.owner),{code:'SO_CUSTOMS_LICENSE_KIND'});
+  }
+  for(const code of ['LIC-01','LIC-03'])await assert.rejects(
+   f.read('customsLicenseQuote',{code,referenceValue:2000},f.owner),
+   {code:'SO_CUSTOMS_LICENSE_VALUE'});
+  for(const referenceValue of [0,-1,1.5,Number.MAX_SAFE_INTEGER+1,'2000',null]){
+   await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-02',referenceValue},f.owner),
+     {code:'SO_CUSTOMS_LICENSE_VALUE'});
+  }
+  await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000,fee:0},f.owner),
+    {code:'INVALID_ADMISSION'});
+  const current=await f.get('');
+  await f.edit('',s=>{const {hiddenCargoVersion,...older}=s.spaceOutlaws;return {...s,spaceOutlaws:older};});
+  await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-01'},f.owner),{code:'SO_GAMEPLAY_NOT_OPEN'});
+  await f.edit('',()=>current);
+ });
+ test(`${prefix} : devis LIC-02 rattaché à la soute serveur, sans certification ni mouvement`,async()=>{
+  const f=await hiddenCargoFixture(makeStore),base=`sessions/${f.sid}`;
+  const accounts=await f.store.list(`${base}/accounts`),audit=await f.store.list(`${base}/audit`);
+  const lot=await f.get(`inventory/${f.lotId}`);
+  const quote=await f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2501,shipId:'ship'},f.owner);
+  assert.equal(quote.exactFeeCr,'50.02');
+  assert.equal(quote.issued,false);
+  assert.equal(quote.cargoContext.ship.id,'ship');
+  assert.equal(quote.cargoContext.voyage,null);
+  assert.equal(quote.cargoContext.referenceValueVerified,false);
+  assert.equal(quote.cargoContext.regulatedStatusVerified,false);
+  const shown=quote.cargoContext.lots.find(l=>l.id===f.lotId);
+  assert.equal(shown.quantity,lot.quantity);
+  assert.equal(shown.status,'AVAILABLE');
+  assert.equal(shown.ownerId,lot.ownerId);
+  await f.edit('ships/ship',s=>({...s,journey:{id:'real-journey',routeId:'out',fromPort:'home',toPort:'away',manifest:[{id:'secret-passenger'}]}}));
+  const travelling=await f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2501,shipId:'ship'},f.owner);
+  assert.deepEqual(travelling.cargoContext.voyage,{id:'real-journey',routeId:'out',fromPort:'home',toPort:'away'});
+  assert.doesNotMatch(JSON.stringify(travelling),/secret-passenger|manifest/);
+  assert.deepEqual(await f.store.list(`${base}/accounts`),accounts);
+  assert.deepEqual(await f.store.list(`${base}/audit`),audit);
+  assert.deepEqual(await f.store.list(`${base}/customsLicenses`),[]);
+ });
+ test(`${prefix} : valeur M1 du lot visible au MJ mais estimation toujours non certifiée`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);
+  await f.edit(`inventory/${f.lotId}`,l=>({...l,item:{...l.item,referenceUnitValueCr:320},revision:l.revision+1}));
+  const q=await f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2501,shipId:'ship'},f.owner);
+  const entry=q.cargoContext.lots.find(l=>l.id===f.lotId);
+  assert.equal(entry.referenceUnitValueCr,320);
+  assert.equal(q.referenceValue,2501);
+  assert.equal(q.exactFeeCr,'50.02');
+  assert.equal(q.cargoContext.referenceValueVerified,false);
+  assert.equal(q.cargoContext.regulatedStatusVerified,false);
+  assert.equal(q.issued,false);
+  assert.doesNotMatch(JSON.stringify(q),/Note M1 privée|gmNotes|playerEmail/);
+ });
+ test(`${prefix} : classification M3 réellement publiée et valeur M1 figée, sans transfert ni taxe`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{quantity:10,referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]}),base=`sessions/${f.sid}`;
+  const port=await f.get('ports/home'),session=await f.get('');
+  assert.equal(port.versionId,session.versionId);
+  assert.equal(port.customsRules[0].status,'REGULATED');
+  const stock=await f.store.list(`${base}/inventory`),accounts=await f.store.list(`${base}/accounts`),audit=await f.store.list(`${base}/audit`);
+  const q=await f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2501,shipId:'ship'},f.owner);
+  assert.equal(q.cargoContext.portPolicy.status,'PUBLISHED');
+  assert.equal(q.cargoContext.regulatedLots,2);
+  assert.equal(q.cargoContext.regulatedKnownSubtotalCr,'3200');
+  assert.equal(q.cargoContext.regulatedMissingReference,0);
+  assert.equal(q.cargoContext.unclassifiedLots,0);
+  assert.ok(q.cargoContext.lots.every(l=>l.customsStatus==='REGULATED'&&l.referenceUnitValueCr===320&&l.referenceTotalCr==='1600'));
+  assert.equal(q.referenceValue,2501);
+  assert.equal(q.exactFeeCr,'50.02'); // The MJ estimate is deliberately not recalculated.
+  assert.equal(q.cargoContext.referenceValueVerified,false);
+  assert.equal(q.cargoContext.regulatedStatusVerified,false);
+  assert.equal(q.issued,false);
+  assert.doesNotMatch(JSON.stringify(q),/SECRET_PORT|gmNotes|SECRET_FUEL|manifest/);
+  assert.deepEqual(await f.store.list(`${base}/inventory`),stock);
+  assert.deepEqual(await f.store.list(`${base}/accounts`),accounts);
+  assert.deepEqual(await f.store.list(`${base}/audit`),audit);
+  assert.deepEqual(await f.store.list(`${base}/customsLicenses`),[]);
+ });
+ test(`${prefix} : douanes locales, licence refusée si version ou classification non fiable`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'FREE'}]});
+  const read=()=>f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000,shipId:'ship'},f.owner);
+  let q=await read();
+  assert.equal(q.cargoContext.portPolicy.status,'PUBLISHED');
+  assert.equal(q.cargoContext.lots[0].customsStatus,'FREE');
+  assert.equal(q.cargoContext.regulatedKnownSubtotalCr,'0');
+  await f.edit('ports/home',p=>({...p,customsRules:[{itemId:'propellant',status:'PROHIBITED'}]}));
+  q=await read();assert.equal(q.cargoContext.lots[0].customsStatus,'PROHIBITED');assert.equal(q.cargoContext.prohibitedLots,1);
+  await f.edit('ports/home',p=>({...p,customsRules:[]}));
+  q=await read();assert.equal(q.cargoContext.lots[0].customsStatus,'UNKNOWN');assert.equal(q.cargoContext.unclassifiedLots,1);
+  await f.edit('ports/home',p=>({...p,versionId:'stale',customsRules:[{itemId:'propellant',status:'REGULATED'}]}));
+  q=await read();assert.equal(q.cargoContext.portPolicy.status,'VERSION_MISMATCH');assert.equal(q.cargoContext.lots[0].customsStatus,'UNKNOWN');
+  const versionId=(await f.get('')).versionId;
+  await f.edit('ports/home',p=>({...p,versionId,customsRules:[{itemId:'propellant',status:'REGULATED'},{itemId:'propellant',status:'FREE'}]}));
+  q=await read();assert.equal(q.cargoContext.portPolicy.status,'INVALID_POLICY');assert.equal(q.cargoContext.lots[0].customsStatus,'UNKNOWN');
+  await f.edit('ports/home',p=>({...p,customsRules:[{itemId:'propellant',status:'REGULATED'}]}));
+  await f.edit('ships/ship',s=>({...s,docked:false}));
+  q=await read();assert.equal(q.cargoContext.portPolicy.status,'SHIP_NOT_DOCKED');assert.equal(q.cargoContext.lots[0].customsStatus,'UNKNOWN');
+  await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000,shipId:'ship'},f.player),{code:'FORBIDDEN'});
+ });
+ test(`${prefix} : référence absente reste inconnue, grands montants exacts sans arrondi`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const q=await f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000,shipId:'ship'},f.owner);
+  assert.equal(q.cargoContext.portPolicy.status,'PUBLISHED');
+  assert.equal(q.cargoContext.regulatedLots,1);
+  assert.equal(q.cargoContext.regulatedMissingReference,1);
+  assert.equal(q.cargoContext.regulatedKnownSubtotalCr,'0');
+  assert.equal(q.cargoContext.lots[0].referenceTotalCr,null);
+  assert.equal(q.cargoContext.referenceValueVerified,false);
+  const max=Number.MAX_SAFE_INTEGER;
+  const analysis=publishedCustomsCargoAssessment({ship:{id:'ship',portId:'home',docked:true,journey:null},
+   port:{id:'home',versionId:'published',customsRules:[{itemId:'ore',status:'REGULATED'}]},
+   sessionVersionId:'published',stock:[{id:'lot',item:{id:'ore',name:'Minerai',unit:'caisses',referenceUnitValueCr:max},
+    quantity:max,status:'AVAILABLE',ownerId:'owner',location:{kind:'HOLD',id:'ship'}}]});
+  assert.equal(analysis.regulatedKnownSubtotalCr,String(BigInt(max)*BigInt(max)));
+  assert.equal(analysis.lots[0].referenceTotalCr,analysis.regulatedKnownSubtotalCr);
+ });
+ test(`${prefix} : LIC-02 sélection exacte de lots réglementés et de liaison, aucun reçu ni débit`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{quantity:10,referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const base=`sessions/${f.sid}`;
+  const quote=await f.read('customsLicenseQuote',{code:'LIC-02',shipId:'ship',referenceValue:2501},f.owner);
+  assert.deepEqual(quote.cargoContext.routeChoices.map(r=>r.id),['out']);
+  assert.ok(quote.cargoContext.routeChoices.every(r=>!('navigationCode' in r)));
+  assert.equal(quote.cargoContext.sessionId,f.sid);
+  const before={accounts:await f.store.list(`${base}/accounts`),inventory:await f.store.list(`${base}/inventory`),
+   audit:await f.store.list(`${base}/audit`),operations:await f.store.list('operations')};
+  const select=lotIds=>f.read('customsLicenseScopePreview',{shipId:'ship',routeId:'out',lotIds},f.owner);
+  const first=await select([f.lotIds[0]]);
+  assert.equal(first.code,'LIC-02');assert.equal(first.totalReferenceCr,'1600');assert.equal(first.exactFeeCr,'50');
+  assert.equal(first.selectedLots.length,1);assert.equal(first.selectedLots[0].ownerId,f.cid);
+  const both=await select(f.lotIds);
+  assert.equal(both.totalReferenceCr,'3200');assert.equal(both.exactFeeCr,'64');
+  assert.equal(both.route.fromPort,'home');assert.equal(both.route.toPort,'away');
+  assert.equal(both.route.id,'out');
+  assert.equal(both.issued,false);assert.equal(both.referenceValueVerified,false);
+  assert.equal(both.scopeAuthorized,false);assert.equal(both.voyageAuthorizationVerified,false);
+  assert.equal(both.ownerMandatesVerified,false);assert.equal(both.amountPaid,false);
+  assert.doesNotMatch(JSON.stringify(both),/OUT-SECRET|HOME-CODE|AWAY-CODE|SECRET_PORT|gmNotes|manifest|playerEmail/);
+  assert.deepEqual(await f.store.list(`${base}/accounts`),before.accounts);
+  assert.deepEqual(await f.store.list(`${base}/inventory`),before.inventory);
+  assert.deepEqual(await f.store.list(`${base}/audit`),before.audit);
+  assert.deepEqual(await f.store.list('operations'),before.operations);
+  assert.deepEqual(await f.store.list(`${base}/customsLicenses`),[]);
+ });
+ test(`${prefix} : LIC-02 titulaire actif, propriété directe et escale sans mandat`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const quote=await f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2501,shipId:'ship'},f.owner);
+  assert.ok(quote.cargoContext.applicantChoices.some(c=>c.id===f.cid));
+  assert.ok(quote.cargoContext.applicantChoices.some(c=>c.id===f.otherId));
+  assert.doesNotMatch(JSON.stringify(quote.cargoContext.applicantChoices),/assignedUid|playerEmail|accessVersion|SECRET_PORT/);
+  const base=`sessions/${f.sid}`,before={
+   inventory:await f.store.list(`${base}/inventory`),
+   accounts:await f.store.list(`${base}/accounts`),
+   audit:await f.store.list(`${base}/audit`),
+   operations:await f.store.list('operations')};
+  const payload={shipId:'ship',routeId:'out',lotIds:[f.lotId],applicantCharacterId:f.cid};
+  const r=await f.read('customsLicenseScopePreview',payload,f.owner);
+  assert.equal(r.applicant.id,f.cid);
+  assert.equal(r.applicant.name,(await f.get(`characters/${f.cid}`)).public.displayName);
+  assert.deepEqual(r.ownershipEvidence,[{lotId:f.lotId,ownerType:'CHARACTER',ownerId:f.cid,relation:'DIRECT_OWNER',consentVerified:false,mandateVerified:false}]);
+  assert.equal(r.shipOwnershipEvidence.relation,'DIRECT_OWNER');
+  assert.equal(r.shipOwnershipEvidence.mandateVerified,false);
+  assert.equal(r.voyageScopeEvidence.sourcePortVisitId,'INITIAL:ship');
+  assert.equal(r.voyageScopeEvidence.routeId,'out');
+  assert.equal(r.voyageScopeEvidence.fromPort,'home');
+  assert.equal(r.voyageScopeEvidence.toPort,'away');
+  assert.equal(r.voyageScopeEvidence.masterVersionId,(await f.get('')).versionId);
+  assert.equal(r.voyageScopeEvidence.actualVoyageId,null);
+  assert.equal(r.voyageScopeEvidence.validityWindowDefined,false);
+  assert.equal(r.voyageScopeEvidence.departureAuthorized,false);
+  assert.equal(r.ownerMandatesVerified,false);
+  assert.equal(r.issued,false);
+  await f.edit('ships/ship',ship=>({...ship,portVisitId:'visited-123',revision:ship.revision+1}));
+  const current=await f.read('customsLicenseScopePreview',payload,f.owner);
+  assert.equal(current.voyageScopeEvidence.sourcePortVisitId,'visited-123');
+  assert.equal(current.voyageScopeEvidence.departureAuthorized,false);
+  for(const k of ['inventory','accounts','audit'])assert.deepEqual(await f.store.list(`${base}/${k}`),before[k],k);
+  assert.deepEqual(await f.store.list('operations'),before.operations);
+  assert.deepEqual(await f.store.list(`${base}/customsLicenses`),[]);
+ });
+ test(`${prefix} : LIC-02 propriétaire tiers et groupe ne créent aucun mandat`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const payload={shipId:'ship',routeId:'out',lotIds:[f.lotId]},read=p=>f.read('customsLicenseScopePreview',p,f.owner);
+  let r=await read(payload);
+  assert.equal(r.applicant,null);
+  assert.equal(r.ownershipEvidence[0].relation,'NOT_EVALUATED');
+  assert.equal(r.shipOwnershipEvidence.relation,'NOT_EVALUATED');
+  r=await read({...payload,applicantCharacterId:f.otherId});
+  assert.equal(r.ownershipEvidence[0].relation,'THIRD_PARTY');
+  assert.equal(r.shipOwnershipEvidence.relation,'THIRD_PARTY');
+  assert.equal(r.ownershipEvidence[0].mandateVerified,false);
+  await f.edit(`inventory/${f.lotId}`,lot=>({...lot,ownerType:'GROUP',ownerId:'group-a',revision:lot.revision+1}));
+  await f.edit('ships/ship',ship=>({...ship,ownerType:'GROUP',ownerId:'group-a',revision:ship.revision+1}));
+  r=await read({...payload,applicantCharacterId:f.cid});
+  assert.equal(r.ownershipEvidence[0].relation,'NON_PERSONAL_OWNER');
+  assert.equal(r.shipOwnershipEvidence.relation,'NON_PERSONAL_OWNER');
+  assert.equal(r.ownerMandatesVerified,false);
+  assert.equal(r.amountPaid,false);
+ });
+ test(`${prefix} : LIC-02 refuse les titulaires étrangers, inactifs ou définitivement morts`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const payload={shipId:'ship',routeId:'out',lotIds:[f.lotId]},read=id=>f.read('customsLicenseScopePreview',{...payload,applicantCharacterId:id},f.owner);
+  await assert.rejects(read('absent'),{code:'SO_CUSTOMS_LICENSE_APPLICANT'});
+  await assert.rejects(read('../person'),{code:'INVALID_ID'});
+  await assert.rejects(f.read('customsLicenseScopePreview',{...payload,applicantCharacterId:f.cid},f.player),{code:'FORBIDDEN'});
+  await f.edit(`characters/${f.otherId}`,c=>({...c,assignedUid:null}));
+  await assert.rejects(read(f.otherId),{code:'SO_CUSTOMS_LICENSE_APPLICANT'});
+  await f.edit(`characters/${f.cid}`,c=>({...c,survival:{...c.survival,dead:true}}));
+  await assert.rejects(read(f.cid),{code:'SO_CUSTOMS_LICENSE_APPLICANT'});
+ });
+ test(`${prefix} : consentement LIC-02 propre au lot et au titulaire, relecture MJ et révocation`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{quantity:10,referenceUnitValueCr:320,
+   portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]}),base=`sessions/${f.sid}`;
+  const input={shipId:'ship',lotId:f.lotIds[0],routeId:'out',applicantCharacterId:f.otherId};
+  const list=await f.read('myCustomsConsents',{},f.player);
+  assert.equal(list.eligible.length,2);
+  assert.ok(list.eligible.every(l=>f.lotIds.includes(l.lotId)&&l.routeChoices.some(r=>r.id==='out')));
+  assert.ok(list.applicantChoices.some(a=>a.id===f.otherId));
+  assert.doesNotMatch(JSON.stringify(list),/SECRET_PORT|HOME-CODE|assignedUid|gmNotes|SECRET_FUEL/);
+  const p=await f.read('prepareCustomsLotConsent',input,f.player);
+  assert.equal(p.binding.ownerId,f.cid);
+  assert.equal(p.binding.lotId,input.lotId);
+  assert.equal(p.binding.routeId,'out');
+  assert.equal(p.binding.portVisitId,'INITIAL:ship');
+  assert.equal(p.binding.applicantId,f.otherId);
+  const before={inventory:await f.store.list(`${base}/inventory`),accounts:await f.store.list(`${base}/accounts`),
+   ledger:await f.store.list(`${base}/ledger`),ships:await f.store.list(`${base}/ships`),
+   characters:await f.store.list(`${base}/characters`)};
+  const requestId=randomUUID(),cmd={...input,confirmation:p.confirmation,consent:true,requestId};
+  const granted=await f.cmd('grantCustomsLotConsent',cmd,f.player);
+  assert.equal(granted.status,'GRANTED');
+  assert.deepEqual(await f.cmd('grantCustomsLotConsent',cmd,f.player),granted);
+  let record=await f.get(`customsConsents/${input.lotId}`);
+  assert.equal(record.customsConsentVersion,1);
+  assert.equal(record.ownerId,f.cid);
+  assert.equal(record.applicantId,f.otherId);
+  assert.equal(record.lotRevision,(await f.get(`inventory/${input.lotId}`)).revision);
+  let preview=await f.read('customsLicenseScopePreview',{
+   shipId:'ship',routeId:'out',lotIds:f.lotIds,applicantCharacterId:f.otherId},f.owner);
+  assert.equal(preview.ownershipEvidence.find(x=>x.lotId===input.lotId).consentVerified,true);
+  assert.equal(preview.ownershipEvidence.find(x=>x.lotId===f.lotIds[1]).consentVerified,false);
+  assert.equal(preview.ownerMandatesVerified,false);
+  assert.ok(preview.ownershipEvidence.every(x=>x.mandateVerified===false));
+  const v=(await f.read('myCustomsConsents',{},f.player)).consents.find(x=>x.lotId===input.lotId);
+  assert.equal(v.status,'GRANTED');
+  assert.equal(v.validity,'RECHECK_ON_USE');
+  await assert.rejects(f.cmd('revokeCustomsLotConsent',{
+   lotId:input.lotId,confirmation:v.confirmation,confirmed:true},f.other),{code:'FORBIDDEN'});
+  const revoked=await f.cmd('revokeCustomsLotConsent',{
+   lotId:input.lotId,confirmation:v.confirmation,confirmed:true},f.player);
+  assert.equal(revoked.status,'REVOKED');
+  preview=await f.read('customsLicenseScopePreview',{
+   shipId:'ship',routeId:'out',lotIds:[input.lotId],applicantCharacterId:f.otherId},f.owner);
+  assert.equal(preview.ownershipEvidence[0].consentVerified,false);
+  record=await f.get(`customsConsents/${input.lotId}`);
+  assert.equal(record.status,'REVOKED');
+  for(const key of ['inventory','accounts','ledger','ships','characters'])
+   assert.deepEqual(await f.store.list(`${base}/${key}`),before[key],key);
+  assert.deepEqual(await f.store.list(`${base}/customsLicenses`),[]);
+ });
+ test(`${prefix} : accord personnel rejeté pour un autre propriétaire, un groupe ou une valeur absente`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const input={shipId:'ship',lotId:f.lotId,routeId:'out',applicantCharacterId:f.otherId};
+  await assert.rejects(f.read('prepareCustomsLotConsent',input,f.other),{code:'SO_CUSTOMS_CONSENT_LOT'});
+  await assert.rejects(f.read('prepareCustomsLotConsent',{...input,applicantCharacterId:'bad-actor'},f.player),{code:'SO_CUSTOMS_CONSENT_APPLICANT'});
+  await assert.rejects(f.read('prepareCustomsLotConsent',{...input,routeId:'back'},f.player),{code:'SO_CUSTOMS_CONSENT_ROUTE'});
+  await assert.rejects(f.read('prepareCustomsLotConsent',{...input,shipId:'bad-ship'},f.player),{code:'SO_CUSTOMS_CONSENT_SHIP'});
+  await f.edit(`inventory/${f.lotId}`,l=>({...l,ownerType:'GROUP',ownerId:'collective',revision:l.revision+1}));
+  await assert.rejects(f.read('prepareCustomsLotConsent',input,f.player),{code:'SO_CUSTOMS_CONSENT_LOT'});
+  const g=await hiddenCargoFixture(makeStore,{portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  await assert.rejects(g.read('prepareCustomsLotConsent',{
+   shipId:'ship',lotId:g.lotId,routeId:'out',applicantCharacterId:g.otherId},g.player),{code:'SO_CUSTOMS_CONSENT_POLICY'});
+ });
+ test(`${prefix} : accord caduc au changement de lot, route, escale ou accès du propriétaire`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const input={shipId:'ship',lotId:f.lotId,routeId:'out',applicantCharacterId:f.otherId};
+  const p=await f.read('prepareCustomsLotConsent',input,f.player);
+  await assert.rejects(f.cmd('grantCustomsLotConsent',{...input,confirmation:p.confirmation,consent:false},f.player),{code:'SO_CUSTOMS_CONSENT_CONFIRMATION'});
+  await f.edit(`inventory/${f.lotId}`,l=>({...l,revision:l.revision+1}));
+  await assert.rejects(f.cmd('grantCustomsLotConsent',{...input,confirmation:p.confirmation,consent:true},f.player),{code:'STALE_REVISION'});
+  const fresh=await f.read('prepareCustomsLotConsent',input,f.player);
+  await f.cmd('grantCustomsLotConsent',{...input,confirmation:fresh.confirmation,consent:true},f.player);
+  const view=async()=>f.read('customsLicenseScopePreview',{shipId:'ship',routeId:'out',
+   lotIds:[f.lotId],applicantCharacterId:f.otherId},f.owner);
+  assert.equal((await view()).ownershipEvidence[0].consentVerified,true);
+  await f.edit(`inventory/${f.lotId}`,l=>({...l,revision:l.revision+1}));
+  assert.equal((await view()).ownershipEvidence[0].consentVerified,false);
+  const revoke=(await f.read('myCustomsConsents',{},f.player)).consents[0];
+  await f.cmd('revokeCustomsLotConsent',{lotId:f.lotId,confirmation:revoke.confirmation,confirmed:true},f.player);
+  const regrant=await f.read('prepareCustomsLotConsent',input,f.player);
+  await f.cmd('grantCustomsLotConsent',{...input,confirmation:regrant.confirmation,consent:true},f.player);
+  await f.edit('ships/ship',sh=>({...sh,portVisitId:'new-visit-42',revision:sh.revision+1}));
+  assert.equal((await view()).ownershipEvidence[0].consentVerified,false);
+  await f.edit('ships/ship',sh=>({...sh,portVisitId:null,revision:sh.revision+1}));
+  await f.edit('routes/out',r=>({...r,fromPort:'away'}));
+  await assert.rejects(view(),{code:'SO_CUSTOMS_LICENSE_ROUTE'});
+  await f.edit('routes/out',r=>({...r,fromPort:'home'}));
+  const record=await f.get(`customsConsents/${f.lotId}`);
+  await f.edit(`customsConsents/${f.lotId}`,r=>({...r,ownerVersion:'obsolete'}));
+  assert.equal((await view()).ownershipEvidence[0].consentVerified,false);
+  await f.edit(`customsConsents/${f.lotId}`,()=>record);
+ });
+ test(`${prefix} : garde dédiée refuse absolument les writes de stocks, comptes et vaisseaux`,()=>{
+  const s={id:'sess',spaceOutlaws:{hiddenCargoVersion:1}},scope=new Set(['CUSTOMS_CONSENT']);
+  assert.equal(guardSpaceOutlawsEntry(s,new Map([['sessions/sess/customsConsents/lot',{}]]),false,scope),true);
+  for(const path of ['accounts/a','ledger/a','inventory/lot','ships/ship','customsLicenses/permit'])
+   assert.throws(()=>guardSpaceOutlawsEntry(s,new Map([[`sessions/sess/${path}`,{}]]),false,scope),{code:'SO_GAMEPLAY_NOT_OPEN'});
+  assert.throws(()=>guardSpaceOutlawsEntry({id:'sess',spaceOutlaws:{}},new Map([['sessions/sess/customsConsents/lot',{}]]),false,scope),{code:'SO_GAMEPLAY_NOT_OPEN'});
+ });
+ test(`${prefix} : propriétaire du vaisseau accorde puis révoque son accord, distinct du fret`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320,
+   portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]}),base=`sessions/${f.sid}`;
+  const input={shipId:'ship',routeId:'out',applicantCharacterId:f.otherId};
+  const owner=await f.read('myCustomsConsents',{},f.player);
+  assert.ok(owner.eligibleShips.some(sh=>sh.id==='ship'&&sh.routeChoices.some(r=>r.id==='out')));
+  assert.deepEqual(owner.shipConsents,[]);
+  const other=await f.read('myCustomsConsents',{},f.other);
+  assert.equal(other.eligibleShips.some(sh=>sh.id==='ship'),false);
+  assert.doesNotMatch(JSON.stringify(owner),/OUT-SECRET|HOME-CODE|SECRET_PORT|assignedUid|gmNotes/);
+  const ready=await f.read('prepareCustomsShipConsent',input,f.player);
+  assert.equal(ready.binding.ownerId,f.cid);
+  assert.equal(ready.binding.applicantId,f.otherId);
+  assert.equal(ready.binding.shipRevision,(await f.ship()).revision);
+  assert.equal(ready.binding.routeRevision,(await f.get('routes/out')).revision);
+  assert.equal(ready.binding.portVisitId,'INITIAL:ship');
+  const before={inventory:await f.store.list(`${base}/inventory`),
+   ships:await f.store.list(`${base}/ships`),accounts:await f.store.list(`${base}/accounts`),
+   ledger:await f.store.list(`${base}/ledger`),characters:await f.store.list(`${base}/characters`)};
+  const command={...input,confirmation:ready.confirmation,consent:true,requestId:randomUUID()};
+  const accepted=await f.cmd('grantCustomsShipConsent',command,f.player);
+  assert.deepEqual(accepted,{shipId:'ship',status:'GRANTED',revision:1});
+  assert.deepEqual(await f.cmd('grantCustomsShipConsent',command,f.player),accepted);
+  const record=await f.get('customsShipConsents/ship');
+  assert.equal(record.customsShipConsentVersion,1);
+  assert.equal(record.shipRevision,(await f.ship()).revision);
+  assert.equal(record.ownerId,f.cid);
+  assert.equal(record.applicantId,f.otherId);
+  const mjInput={shipId:'ship',routeId:'out',lotIds:[f.lotId],applicantCharacterId:f.otherId};
+  let preview=await f.read('customsLicenseScopePreview',mjInput,f.owner);
+  assert.equal(preview.shipOwnershipEvidence.consentVerified,true);
+  assert.equal(preview.shipOwnershipEvidence.mandateVerified,false);
+  assert.equal(preview.ownerMandatesVerified,false);
+  assert.equal(preview.ownershipEvidence[0].consentVerified,false);
+  assert.equal(preview.issued,false);
+  assert.equal(preview.voyageScopeEvidence.departureAuthorized,false);
+  const list=(await f.read('myCustomsConsents',{},f.player)).shipConsents;
+  assert.equal(list.length,1);
+  assert.equal(list[0].status,'GRANTED');
+  assert.equal(list[0].validity,'RECHECK_ON_USE');
+  await assert.rejects(f.cmd('revokeCustomsShipConsent',{
+   shipId:'ship',confirmation:list[0].confirmation,confirmed:true},f.other),{code:'FORBIDDEN'});
+  const revoked=await f.cmd('revokeCustomsShipConsent',{
+   shipId:'ship',confirmation:list[0].confirmation,confirmed:true},f.player);
+  assert.equal(revoked.status,'REVOKED');
+  preview=await f.read('customsLicenseScopePreview',mjInput,f.owner);
+  assert.equal(preview.shipOwnershipEvidence.consentVerified,false);
+  assert.equal((await f.get('customsShipConsents/ship')).status,'REVOKED');
+  assert.deepEqual(await f.store.list(`${base}/customsLicenses`),[]);
+  for(const key of Object.keys(before))assert.deepEqual(await f.store.list(`${base}/${key}`),before[key],key);
+ });
+ test(`${prefix} : consentement de vaisseau réservé au propriétaire individuel, sans action de groupe`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320,
+   portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const input={shipId:'ship',routeId:'out',applicantCharacterId:f.otherId};
+  await assert.rejects(f.read('prepareCustomsShipConsent',input,f.other),{code:'SO_CUSTOMS_SHIP_CONSENT_SHIP'});
+  await assert.rejects(f.read('prepareCustomsShipConsent',{...input,routeId:'back'},f.player),{code:'SO_CUSTOMS_SHIP_CONSENT_ROUTE'});
+  await assert.rejects(f.read('prepareCustomsShipConsent',{...input,applicantCharacterId:'nobody'},f.player),{code:'SO_CUSTOMS_SHIP_CONSENT_APPLICANT'});
+  await assert.rejects(f.read('prepareCustomsShipConsent',{...input,shipId:'missing'},f.player),{code:'SO_CUSTOMS_SHIP_CONSENT_SHIP'});
+  await f.edit('ships/ship',s=>({...s,ownerType:'GROUP',ownerId:'group-one',revision:s.revision+1}));
+  assert.equal((await f.read('myCustomsConsents',{},f.player)).eligibleShips.some(sh=>sh.id==='ship'),false);
+  await assert.rejects(f.read('prepareCustomsShipConsent',input,f.player),{code:'SO_CUSTOMS_SHIP_CONSENT_SHIP'});
+  const g=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320});
+  await assert.rejects(g.read('prepareCustomsShipConsent',{
+   shipId:'ship',routeId:'out',applicantCharacterId:g.otherId},g.player),{code:'SO_CUSTOMS_SHIP_CONSENT_POLICY'});
+ });
+ test(`${prefix} : accord du vaisseau caduc après révision, escale, route ou accès`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320,
+   portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const input={shipId:'ship',routeId:'out',applicantCharacterId:f.otherId},preview=async()=>
+   f.read('customsLicenseScopePreview',{...input,lotIds:[f.lotId]},f.owner);
+  const p=await f.read('prepareCustomsShipConsent',input,f.player);
+  await assert.rejects(f.cmd('grantCustomsShipConsent',{
+   ...input,confirmation:p.confirmation,consent:false},f.player),{code:'SO_CUSTOMS_SHIP_CONSENT_CONFIRMATION'});
+  await f.edit('ships/ship',sh=>({...sh,revision:sh.revision+1}));
+  await assert.rejects(f.cmd('grantCustomsShipConsent',{
+   ...input,confirmation:p.confirmation,consent:true},f.player),{code:'STALE_REVISION'});
+  const fresh=await f.read('prepareCustomsShipConsent',input,f.player);
+  await f.cmd('grantCustomsShipConsent',{...input,confirmation:fresh.confirmation,consent:true},f.player);
+  assert.equal((await preview()).shipOwnershipEvidence.consentVerified,true);
+  const baseline=await f.get('ships/ship');
+  await f.edit('ships/ship',s=>({...s,revision:s.revision+1}));
+  assert.equal((await preview()).shipOwnershipEvidence.consentVerified,false);
+  await f.edit('ships/ship',()=>baseline);
+  await f.edit('ships/ship',s=>({...s,portVisitId:'journey-new'}));
+  assert.equal((await preview()).shipOwnershipEvidence.consentVerified,false);
+  await f.edit('ships/ship',()=>baseline);
+  const route=await f.get('routes/out');
+  await f.edit('routes/out',r=>({...r,revision:r.revision+1}));
+  assert.equal((await preview()).shipOwnershipEvidence.consentVerified,false);
+  await f.edit('routes/out',()=>route);
+  const port=await f.get('ports/home');
+  await f.edit('ports/home',r=>({...r,revision:r.revision+1}));
+  assert.equal((await preview()).shipOwnershipEvidence.consentVerified,false);
+  await f.edit('ports/home',()=>port);
+  const dest=await f.get('ports/away');
+  await f.edit('ports/away',r=>({...r,revision:r.revision+1}));
+  assert.equal((await preview()).shipOwnershipEvidence.consentVerified,false);
+  await f.edit('ports/away',()=>dest);
+  const ch=await f.get(`characters/${f.otherId}`);
+  await f.edit(`characters/${f.otherId}`,c=>({...c,assignedUid:null}));
+  await assert.rejects(preview(),{code:'SO_CUSTOMS_LICENSE_APPLICANT'});
+  await f.edit(`characters/${f.otherId}`,()=>ch);
+  const own=await f.get(`characters/${f.cid}`);
+  await f.edit(`characters/${f.cid}`,c=>({...c,survival:{...c.survival,dead:true}}));
+  assert.equal((await preview()).shipOwnershipEvidence.consentVerified,false);
+  await f.edit(`characters/${f.cid}`,()=>own);
+  const list=(await f.read('myCustomsConsents',{},f.player)).shipConsents[0];
+  await f.cmd('revokeCustomsShipConsent',{shipId:'ship',confirmation:list.confirmation,confirmed:true},f.player);
+  assert.equal((await preview()).shipOwnershipEvidence.consentVerified,false);
+ });
+ test(`${prefix} : garde du consentement vaisseau refuse stock, comptes, permis et anciens manifests`,()=>{
+  const s={id:'sess',spaceOutlaws:{hiddenCargoVersion:1}},scope=new Set(['CUSTOMS_SHIP_CONSENT']);
+  assert.equal(guardSpaceOutlawsEntry(s,new Map([['sessions/sess/customsShipConsents/ship',{}]]),false,scope),true);
+  for(const path of ['accounts/account','ledger/event','inventory/lot','ships/ship','customsConsents/lot','customsLicenses/permit'])
+   assert.throws(()=>guardSpaceOutlawsEntry(s,new Map([[`sessions/sess/${path}`,{}]]),false,scope),{code:'SO_GAMEPLAY_NOT_OPEN'});
+  assert.throws(()=>guardSpaceOutlawsEntry({id:'sess',spaceOutlaws:{}},
+   new Map([['sessions/sess/customsShipConsents/ship',{}]]),false,scope),{code:'SO_GAMEPLAY_NOT_OPEN'});
+ });
+ test(`${prefix} : LIC-02 choisit uniquement des lots courants, disponibles et réglementés`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{quantity:10,referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const payload=patch=>({shipId:'ship',routeId:'out',lotIds:[f.lotIds[0]],...patch});
+  const attempt=(p,actor=f.owner)=>f.read('customsLicenseScopePreview',p,actor);
+  for(const lotIds of [[],[f.lotIds[0],f.lotIds[0]],Array.from({length:101},(_,i)=>'lot'+i)])
+   await assert.rejects(attempt(payload({lotIds})),{code:'SO_CUSTOMS_LICENSE_SCOPE'});
+  await assert.rejects(attempt(payload({lotIds:['unknown-lot']})),{code:'SO_CUSTOMS_LICENSE_LOT'});
+  await assert.rejects(attempt(payload({lotIds:['../lot']})),{code:'INVALID_ID'});
+  await assert.rejects(attempt({...payload(),fee:0}),{code:'INVALID_ADMISSION'});
+  await assert.rejects(attempt(payload(),f.player),{code:'FORBIDDEN'});
+  await f.edit('ports/home',p=>({...p,customsRules:[{itemId:'propellant',status:'FREE'}]}));
+  await assert.rejects(attempt(payload()),{code:'SO_CUSTOMS_LICENSE_NOT_REGULATED'});
+  await f.edit('ports/home',p=>({...p,customsRules:[]}));
+  await assert.rejects(attempt(payload()),{code:'SO_CUSTOMS_LICENSE_NOT_REGULATED'});
+  await f.edit('ports/home',p=>({...p,customsRules:[{itemId:'propellant',status:'PROHIBITED'}]}));
+  await assert.rejects(attempt(payload()),{code:'SO_CUSTOMS_LICENSE_NOT_REGULATED'});
+  await f.edit('ports/home',p=>({...p,customsRules:[{itemId:'propellant',status:'REGULATED'}]}));
+  await f.edit(`inventory/${f.lotIds[0]}`,l=>({...l,status:'CARGO_RESERVED',cargoTransferId:'ongoing'}));
+  await assert.rejects(attempt(payload()),{code:'SO_CUSTOMS_LICENSE_LOT_UNAVAILABLE'});
+  await f.edit(`inventory/${f.lotIds[0]}`,l=>({...l,status:'AVAILABLE',cargoTransferId:null,location:{kind:'CHARACTER',id:f.cid}}));
+  await assert.rejects(attempt(payload()),{code:'SO_CUSTOMS_LICENSE_LOT'});
+ });
+ test(`${prefix} : LIC-02 vérifie port de départ, liaison, destination et version publiée`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const input={shipId:'ship',routeId:'out',lotIds:[f.lotId]},call=(p=input)=>f.read('customsLicenseScopePreview',p,f.owner);
+  await assert.rejects(call({...input,routeId:'back'}),{code:'SO_CUSTOMS_LICENSE_ROUTE'});
+  await assert.rejects(call({...input,routeId:'not-known'}),{code:'SO_CUSTOMS_LICENSE_ROUTE'});
+  await f.edit('routes/out',r=>({...r,versionId:'obsolete'}));
+  await assert.rejects(call(),{code:'SO_CUSTOMS_LICENSE_ROUTE'});
+  const versionId=(await f.get('')).versionId;
+  await f.edit('routes/out',r=>({...r,versionId}));
+  await f.edit('ports/away',p=>({...p,versionId:'obsolete'}));
+  await assert.rejects(call(),{code:'SO_CUSTOMS_LICENSE_ROUTE'});
+  await f.edit('ports/away',p=>({...p,versionId}));
+  await f.edit('ports/home',p=>({...p,versionId:'obsolete'}));
+  await assert.rejects(call(),{code:'SO_CUSTOMS_LICENSE_POLICY'});
+  await f.edit('ports/home',p=>({...p,versionId}));
+  await f.edit('ships/ship',s=>({...s,docked:false}));
+  await assert.rejects(call(),{code:'SO_CUSTOMS_LICENSE_SHIP'});
+ });
+ test(`${prefix} : LIC-02 refuse toute valeur M1 manquante et conserve les centièmes exacts des grands montants`,async()=>{
+  const missing=await hiddenCargoFixture(makeStore,{portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  await assert.rejects(missing.read('customsLicenseScopePreview',{shipId:'ship',routeId:'out',lotIds:[missing.lotId]},missing.owner),
+   {code:'SO_CUSTOMS_LICENSE_VALUE_MISSING'});
+  const max=Number.MAX_SAFE_INTEGER,big=await hiddenCargoFixture(makeStore,{
+   referenceUnitValueCr:max,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const result=await big.read('customsLicenseScopePreview',{shipId:'ship',routeId:'out',lotIds:[big.lotId]},big.owner);
+  const total=BigInt(max)*5n,cents=total*2n;
+  assert.equal(result.totalReferenceCr,String(total));
+  assert.equal(result.exactFeeCr,String(cents/100n)+'.'+String(cents%100n).padStart(2,'0'));
+  assert.equal(result.amountPaid,false);
+ });
+ test(`${prefix} : devis lié refuse vaisseau absent, rôle joueur et code hors LIC-02`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);
+  await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000,shipId:'introuvable'},f.owner),{code:'SO_CUSTOMS_LICENSE_SHIP'});
+  await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000,shipId:'../ship'},f.owner),{code:'INVALID_ID'});
+  for(const code of ['LIC-01','LIC-03'])await assert.rejects(
+   f.read('customsLicenseQuote',{code,shipId:'ship'},f.owner),{code:'SO_CUSTOMS_LICENSE_SHIP'});
+  await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000,shipId:'ship'},f.player),{code:'FORBIDDEN'});
+ });
+ test(`${prefix} : capacité serveur limitée, comptes, connaissances, contrats et marqueur interdits`,()=>{
+  const s={id:'session',spaceOutlaws:{actionsVersion:1,hiddenCargoVersion:1}},scope=new Set(['HIDDEN_CARGO']);
+  for(const path of ['ships/ship','inventory/lot','inventory/lot/history/event','characters/agent','characters/agent/resources/actionPoints','shipMaintenance/job','logisticsHistory/event'])assert.equal(guardSpaceOutlawsEntry(s,new Map([[`sessions/session/${path}`,{}]]),false,scope),true);
+  for(const path of ['accounts/account','ledger/event','characters/agent/knowledge/secret','contracts/contract','registrations/person'])assert.throws(()=>guardSpaceOutlawsEntry(s,new Map([[`sessions/session/${path}`,{}]]),false,scope),{code:'SO_GAMEPLAY_NOT_OPEN'});
+  assert.throws(()=>guardSpaceOutlawsEntry(s,new Map([['sessions/session',s]]),false,scope),{code:'SO_GAMEPLAY_NOT_OPEN'});
+ });
+ test(`${prefix} : marqueur absent fermé, champs stricts et habilitation MJ indépendante des classes`,async()=>{
+  const f=await hiddenCargoFixture(makeStore),s=await f.get('');await f.edit('',s=>{const {hiddenCargoVersion,...old}=s.spaceOutlaws;return {...s,spaceOutlaws:old};});
+  await assert.rejects(f.read('hiddenCargo',{shipId:'ship'}),{code:'SO_GAMEPLAY_NOT_OPEN'});await f.edit('',()=>s);
+  await assert.rejects(f.read('customsDesk',{},f.other),{code:'FORBIDDEN'});await assert.rejects(f.cmd('setCustomsAuthority',{characterId:f.otherId,level:5,portId:'home',authorityRevision:0,reason:'Auto habilitation'},f.other),{code:'FORBIDDEN'});
+  for(const level of [-1,6,1.5,'2'])await assert.rejects(f.grant(level));await f.grant(1);assert.equal((await f.read('customsDesk',{},f.other)).level,1);
+  await assert.rejects(f.read('prepareCustomsInspection',{shipId:'ship',kind:'DEEP',level:5},f.other),{code:'INVALID_ADMISSION'});
+ });
+ test(`${prefix} : cinq et dix unités dans le volume existant, même propriété et aucun crédit`,async()=>{
+  for(const [profileId,quantity,capacity] of [['CARGO',5,20],['TRANSPORT',10,50]]){
+   const f=await hiddenCargoFixture(makeStore,{profileId,quantity}),lot=await f.get(`inventory/${f.lotId}`),accounts=await f.store.list(`sessions/${f.sid}/accounts`),points=await f.points();for(const id of f.lotIds)await f.conceal(true,id);const v=await f.read('hiddenCargo',{shipId:'ship'});assert.equal(v.hiddenUsed,quantity);assert.equal(v.hiddenCapacity,quantity);assert.equal(v.ship.capacity,capacity);const after=await f.get(`inventory/${f.lotId}`);assert.equal(after.quantity,lot.quantity);assert.equal(after.ownerId,lot.ownerId);assert.deepEqual(after.location,lot.location);assert.deepEqual(await f.points(),points);assert.deepEqual(await f.store.list(`sessions/${f.sid}/accounts`),accounts);
+  }
+ });
+ test(`${prefix} : dépassement, lot monté incohérent, pilote sans propriété et mauvaise escale refusés`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{quantity:6});await f.conceal();await assert.rejects(f.conceal(true,f.lotIds[1]),{code:'HIDDEN_CARGO_FULL'});await f.conceal(false);
+  await assert.rejects(f.read('hiddenCargo',{shipId:'ship'},f.other),{code:'FORBIDDEN'});await f.edit('ships/ship',s=>({...s,pilotId:f.otherId}));await assert.rejects(f.read('hiddenCargo',{shipId:'ship'},f.other),{code:'FORBIDDEN'});
+  const m=await f.get(`inventory/${f.moduleId}`);for(const patch of [{fieldActionId:'other'},{ownerId:f.otherId},{status:'AVAILABLE'},{location:{kind:'CHARACTER',id:f.cid}}]){await f.edit(`inventory/${f.moduleId}`,()=>({...m,...patch}));await assert.rejects(f.conceal(),{code:'MODULE_LOT_UNAVAILABLE'});}await f.edit(`inventory/${f.moduleId}`,()=>m);
+  await f.edit(`characters/${f.cid}`,c=>({...c,spacePortId:'away'}));await assert.rejects(f.conceal(),{code:'SHIP_NOT_LOCAL'});
+ });
+ test(`${prefix} : aperçu sans écriture, confirmation périmée et présence obligatoire`,async()=>{
+  const f=await hiddenCargoFixture(makeStore),i={shipId:'ship',lotId:f.lotId,conceal:true},before=await f.get(`inventory/${f.lotId}`),q=await f.read('prepareCargoConcealment',i);assert.deepEqual(await f.get(`inventory/${f.lotId}`),before);await assert.rejects(f.conceal(true,f.lotId,{present:false}),{code:'FIELD_PRESENCE_REQUIRED'});await f.edit(`inventory/${f.lotId}`,l=>({...l,revision:l.revision+1}));await assert.rejects(f.cmd('setCargoConcealment',{...i,confirmation:q.confirmation,present:true}),{code:'STALE_REVISION'});
+ });
+ test(`${prefix} : ordinaire deux minutes sans PA ni divulgation du fret inconnu`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);await f.conceal();await f.grant(5);const before=await f.points(f.other),r=await f.start('ORDINARY');assert.deepEqual(await f.points(f.other),before);await assert.rejects(f.close(r),{code:'CUSTOMS_NOT_READY'});f.advance(120000);const out=await f.close(r);assert.deepEqual(out.result,{documentsChecked:true,hiddenCargoRevealed:false,knownCargo:[]});assert.doesNotMatch(JSON.stringify(out),new RegExp(f.lotId+'|Carburant'));assert.equal((await f.points(f.other)).available,before.available);assert.equal((await f.points(f.other)).reserved,0);assert.equal((await f.ship()).customsAttempt,undefined);
+ });
+ test(`${prefix} : seuils N1 et N5, un PA réservé puis consommé et découverte persistante`,async()=>{
+  for(const [level,die,success] of [[1,5,false],[1,6,true],[5,1,false],[5,2,true]]){
+   const f=await hiddenCargoFixture(makeStore);await f.conceal();await f.grant(level);const before=await f.points(f.other),r=await f.start();assert.equal((await f.points(f.other)).available,before.available-1);assert.equal((await f.points(f.other)).reserved,1);f.advance(120000);f.setDie(die);const out=await f.close(r);assert.equal(out.result.total,level+die);assert.equal(out.result.success,success);assert.equal(out.result.discovered.length,Number(success));assert.equal((await f.points(f.other)).reserved,0);assert.equal((await f.points(f.other)).available,before.available-1);assert.equal((await f.get(`inventory/${f.lotId}`)).hiddenCargo.discovered,success);
+  }
+ });
+ test(`${prefix} : retirer et recacher un lot découvert conserve sa connaissance au contrôle ordinaire`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);await f.conceal();await f.grant(5);const r=await f.start();f.advance(120000);await f.close(r);const original=await f.get(`inventory/${f.lotId}`);await f.conceal(false);await f.conceal(true);assert.equal((await f.get(`inventory/${f.lotId}`)).hiddenCargo.discoveredAt,original.hiddenCargo.discoveredAt);const ordinary=await f.start('ORDINARY');f.advance(120000);assert.equal((await f.close(ordinary)).result.knownCargo[0].id,f.lotId);
+ });
+ test(`${prefix} : une tentative commune à tous les agents et nouvelle autorisation MJ motivée`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);await f.grant(1);await f.grant(1,f.cid);const r=await f.start();f.advance(120000);f.setDie(1);await f.close(r);await assert.rejects(f.start('DEEP',f.player),{code:'CUSTOMS_ATTEMPT_USED'});
+  const sh=(await f.read('customsAdmin',{},f.owner)).ships.find(x=>x.id==='ship');await assert.rejects(f.cmd('authorizeCustomsRetry',{shipId:'ship',confirmation:sh.confirmation,reason:''},f.owner));await f.cmd('authorizeCustomsRetry',{shipId:'ship',confirmation:sh.confirmation,reason:'Nouvel indice physique vérifié'},f.owner);const second=await f.start('DEEP',f.player);f.advance(120000);await f.close(second,{actor:f.player});await assert.rejects(f.start(),{code:'CUSTOMS_ATTEMPT_USED'});
+ });
+ test(`${prefix} : PAUSE et STOP figent le délai, aucun effet à échéance`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);await f.grant();const r=await f.start();f.advance(10000);await f.stage('PAUSE');f.advance(300000);assert.equal((await f.inspect(r)).inspection.remainingSeconds,110);await assert.rejects(f.close(r),{code:'SESSION_NOT_RUNNING'});await f.stage('EN_JEU');await f.cmd('stopSafety',{reason:'Sécurité'});f.advance(300000);assert.equal((await f.inspect(r)).inspection.remainingSeconds,110);await assert.rejects(f.close(r,{cancel:true}),{code:'SO_SAFETY_STOP'});assert.equal((await f.get(`shipMaintenance/${r.id}`)).status,'ACTIVE');
+ });
+ test(`${prefix} : annulation rend le PA dans son plafond, sans utiliser la tentative`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);await f.grant();const r=await f.start();f.advance(6*3600000);await f.close(r,{cancel:true});assert.equal((await f.points(f.other)).reserved,0);assert.equal((await f.points(f.other)).available,5);assert.equal((await f.ship()).customsAttempt,undefined);assert.equal((await f.ship()).maintenanceId,null);assert.equal((await f.get(`characters/${f.otherId}`)).activeMaintenanceId,null);await f.start();
+ });
+ test(`${prefix} : révocation de l’habilitation bloque la fin, restitution MJ reste possible`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);await f.grant();const r=await f.start();f.advance(120000);await f.grant(0);await assert.rejects(f.inspect(r),{code:'FORBIDDEN'});await assert.rejects(f.close(r),{code:'FORBIDDEN'});await f.close(r,{cancel:true,actor:f.owner});assert.equal((await f.points(f.other)).reserved,0);assert.deepEqual((await f.read('spaceMaintenance',{},f.other)).jobs,[]);
+ });
+ test(`${prefix} : agent PNJ habilité par la régie, même délai et aucun PA joueur`,async()=>{
+  const f=await hiddenCargoFixture(makeStore),agentId='synthetic-customs-agent';await f.edit(`characters/${agentId}`,()=>({id:agentId,public:{displayName:'Agent PNJ'}}));await f.grant(5,agentId);const points=await f.points(),r=await f.start('DEEP',f.owner,agentId);assert.equal((await f.get(`characters/${agentId}`)).activeMaintenanceId,r.id);await assert.rejects(f.close(r,{actor:f.owner}),{code:'CUSTOMS_NOT_READY'});f.advance(120000);const out=await f.close(r,{actor:f.owner});assert.equal(out.result.success,true);assert.equal((await f.points()).available,points.available);assert.equal((await f.points()).reserved,0);assert.equal((await f.get(`characters/${agentId}`)).activeMaintenanceId,null);
+ });
+ test(`${prefix} : concurrence et réessai ne doublent ni PA ni découverte, droits avant reçu`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);await f.conceal();await f.grant(5);const r=await f.start();f.advance(120000);const q=await f.inspect(r),p={inspectionId:r.id,confirmation:q.confirmation,present:true,performed:true,requestId:randomUUID()},inputs=[p,{...p,requestId:randomUUID()}],results=await Promise.allSettled(inputs.map(p=>f.cmd('finishCustomsInspection',p,f.other)));assert.equal(results.filter(x=>x.status==='fulfilled').length,1);const n=results.findIndex(x=>x.status==='fulfilled'),lot=await f.get(`inventory/${f.lotId}`);f.setDie(1);assert.deepEqual(await f.cmd('finishCustomsInspection',inputs[n],f.other),results[n].value);assert.deepEqual(await f.get(`inventory/${f.lotId}`),lot);assert.equal((await f.points(f.other)).available,4);await f.cmd('revokeAccess',{uid:f.other.uid},f.owner);await assert.rejects(f.cmd('finishCustomsInspection',inputs[n],f.other),{code:'FORBIDDEN'});
+ });
+ test(`${prefix} : deux agents concurrents réservent un seul contrôle et marqueur courant avant reçu`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);await f.grant(1);await f.grant(1,f.cid);const i={shipId:'ship',kind:'DEEP'},a=await f.read('prepareCustomsInspection',i,f.other),b=await f.read('prepareCustomsInspection',i,f.player),inputs=[{...i,confirmation:a.confirmation,present:true,requestId:randomUUID()},{...i,confirmation:b.confirmation,present:true,requestId:randomUUID()}],actors=[f.other,f.player],results=await Promise.allSettled(inputs.map((p,n)=>f.cmd('startCustomsInspection',p,actors[n])));assert.equal(results.filter(r=>r.status==='fulfilled').length,1);assert.equal((await f.points(f.other)).reserved+(await f.points()).reserved,1);const n=results.findIndex(r=>r.status==='fulfilled');assert.deepEqual(await f.cmd('startCustomsInspection',inputs[n],actors[n]),results[n].value);await f.edit('',s=>{const {hiddenCargoVersion,...old}=s.spaceOutlaws;return {...s,spaceOutlaws:old};});await assert.rejects(f.cmd('startCustomsInspection',inputs[n],actors[n]),{code:'SO_GAMEPLAY_NOT_OPEN'});
+ });
+ test(`${prefix} : annulation de transfert garde le lot caché, escale suivante ouvre une nouvelle tentative`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);await f.conceal();const i={lotId:f.lotId,quantity:5,destination:{kind:'CHARACTER',id:f.cid}},q=await f.read('prepareCargoTransfer',i),t=await f.cmd('startCargoTransfer',{...i,confirmation:q.confirmation,present:true}),p=await f.read('cargoTransfer',{transferId:t.id});await f.cmd('cancelCargoTransfer',{transferId:t.id,confirmation:p.confirmation});assert.equal((await f.get(`inventory/${f.lotId}`)).hiddenCargo.concealed,true);await f.grant();const r=await f.start();f.advance(120000);await f.close(r);await assert.rejects(f.start(),{code:'CUSTOMS_ATTEMPT_USED'});
+  // Arrival ID is synthetic here; the separate native-voyage test proves its creation.
+  await f.edit('ships/ship',s=>({...s,portVisitId:'next-native-journey'}));await f.start();
+ });
+ test(`${prefix} : verrous bloquent cargaison, entretien ordinaire et clôture`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);await f.grant();const r=await f.start();await assert.rejects(f.read('prepareCargoTransfer',{lotId:f.lotId,quantity:1,destination:{kind:'CHARACTER',id:f.cid}}));assert.deepEqual((await f.read('spaceMaintenance',{},f.other)).jobs,[]);await assert.rejects(f.read('prepareSpaceMaintenance',{maintenanceId:r.id},f.other),{code:'FORBIDDEN'});const e=await episodeHarness(f);await e.stage('PAUSE');const q=await e.read('prepareCampaignClosure',e.closeInput());assert.equal(q.canClose,false);assert.ok(q.blocks.some(b=>b.kind==='SHIP_OPERATION'));assert.ok(q.blocks.some(b=>b.kind==='CHARACTER_OPERATION'));await f.close(r,{cancel:true,actor:f.owner});
+ });
+ test(`${prefix} : transfert natif fractionné garde la découverte, réception retire seulement la dissimulation`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);await f.conceal();await f.grant(5);const r=await f.start();f.advance(120000);await f.close(r);const i={lotId:f.lotId,quantity:2,destination:{kind:'CHARACTER',id:f.cid}},q=await f.read('prepareCargoTransfer',i),t=await f.cmd('startCargoTransfer',{...i,confirmation:q.confirmation,present:true});assert.notEqual(t.lotId,f.lotId);assert.equal((await f.get(`inventory/${t.lotId}`)).hiddenCargo.discovered,true);f.advance(180000);const p=await f.read('cargoTransfer',{transferId:t.id});await f.cmd('receiveCargoTransfer',{transferId:t.id,confirmation:p.confirmation,received:true});const moved=await f.get(`inventory/${t.lotId}`),kept=await f.get(`inventory/${f.lotId}`);assert.equal(moved.hiddenCargo.concealed,false);assert.equal(moved.hiddenCargo.discovered,true);assert.equal(kept.hiddenCargo.concealed,true);assert.equal(moved.quantity+kept.quantity,5);assert.equal(moved.ownerId,kept.ownerId);
+ });
+ test(`${prefix} : rollback atomique et reprise des lots, habilitations et tentatives entre épisodes`,async()=>{
+  const raw=makeStore();let fail=false;const store={get:raw.get.bind(raw),list:raw.list.bind(raw),runTransaction:cb=>raw.runTransaction(async tx=>{const result=await cb(tx);if(fail)throw Error('INTERRUPTION');return result;})},f=await hiddenCargoFixture(()=>store);await f.conceal();await f.grant(5);const r=await f.start();f.advance(120000);const before=await f.ship();fail=true;await assert.rejects(f.close(r),/INTERRUPTION/);fail=false;assert.deepEqual(await f.ship(),before);assert.equal((await f.points(f.other)).reserved,1);await f.close(r);const lot=await f.get(`inventory/${f.lotId}`),ship=await f.ship(),agent=await f.get(`characters/${f.otherId}`),e=await episodeHarness(f);await e.close();await e.resume(await e.begin());assert.deepEqual(await e.get(`inventory/${f.lotId}`),lot);assert.deepEqual(await e.get('ships/ship'),ship);assert.deepEqual((await e.get(`characters/${f.otherId}`)).customsAuthorization,agent.customsAuthorization);assert.equal((await e.get('')).spaceOutlaws.hiddenCargoVersion,1);
+ });
+ test(`${prefix} : capacité nulle pendant neutralisation, sans suppression du fret ni de la découverte`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);await f.conceal();await f.grant();const ship=await f.ship(),neutral={...ship,moduleNeutralizations:[{lotId:f.moduleId,untilGameMs:900000}]};assert.equal(hiddenCargoCapacity(neutral,1),0);assert.equal(hiddenCargoCapacity(neutral,900000),5);assert.equal((await f.get(`inventory/${f.lotId}`)).hiddenCargo.concealed,true);await f.edit('ships/ship',()=>neutral);const inspection=await f.start();assert.equal(inspection.status,'ACTIVE');
+ });
+ test(`${prefix} : nouveau passage natif identifié à l’arrivée sans enrichir les anciens manifestes`,async()=>{
+  const f=await soVoyagesFixture(makeStore);await f.refuel(4);await f.store.runTransaction(async tx=>{const path=`sessions/${f.sid}`,s=await tx.get(path);tx.set(path,{...s,spaceOutlaws:{...s.spaceOutlaws,hiddenCargoVersion:1}});});await f.fly();const journey=(await f.ship()).journey;f.advance(300000);await f.cmd('arriveShip',{shipId:'ship',confirmation:(await f.navigation()).confirmation});assert.equal((await f.ship()).portVisitId,journey.id);const s=await f.store.get(`sessions/${f.sid}`),header=await f.store.get(`campaigns/${s.campaignId}/versions/${s.versionId}`);assert.equal(header.hiddenCargoVersion,1);
+ });
+ test(`${prefix} : retrait refuse tout lot encore dissimulé, connu ou d’un autre propriétaire`,async()=>{
+  const f=await hiddenRemovalFixture(makeStore),original=await f.get(`inventory/${f.lotId}`);
+  for(const [ownerId,discovered]of [[f.cid,false],[f.cid,true],[f.otherId,true]]){await f.edit(`inventory/${f.lotId}`,l=>({...l,ownerId,hiddenCargo:{shipId:'ship',concealed:true,discovered}}));await assert.rejects(f.previewRemovalOffer(),{code:'MODULE_CONTENT_NOT_EMPTY'});assert.equal((await f.points(f.other)).reserved,0);}
+  await f.edit(`inventory/${f.lotId}`,()=>original);await assert.rejects(f.previewRemovalOffer({contentConsigned:true}),{code:'INVALID_ADMISSION'});assert.equal((await f.get(`inventory/${f.moduleId}`)).status,'INSTALLED');
+ });
+ test(`${prefix} : vidage explicite puis retrait cargo/transport, cinq minutes et même exemplaire rendu`,async()=>{
+  for(const profileId of ['CARGO','TRANSPORT']){
+   const f=await hiddenRemovalFixture(makeStore,{profileId,quantity:profileId==='CARGO'?5:10});for(const id of f.lotIds)await f.conceal(true,id);await assert.rejects(f.offerRemoval(),{code:'MODULE_CONTENT_NOT_EMPTY'});for(const id of f.lotIds)await f.conceal(false,id);
+   const stock=await Promise.all(f.lotIds.map(id=>f.get(`inventory/${id}`))),module=await f.get(`inventory/${f.moduleId}`),accounts=await f.store.list(`sessions/${f.sid}/accounts`),r=await f.offerRemoval();assert.equal((await f.get(`shipMaintenance/${r.id}`)).hiddenCargoVersion,1);await f.approveRemoval(r);await f.startRemoval(r);assert.equal((await f.read('moduleWork',{mandateId:r.id},f.other)).remainingSeconds,300);assert.equal((await f.get(`inventory/${f.moduleId}`)).status,'FIELD_RESERVED');await assert.rejects(f.previewRemoval(r),{code:'MODULE_WORK_NOT_READY'});f.advance(300000);assert.equal((await f.ship()).modules.length,1);await f.finishRemoval(r);
+   const restored=await f.get(`inventory/${f.moduleId}`);assert.equal(restored.id,module.id);assert.deepEqual(restored.item,module.item);assert.equal(restored.quantity,1);assert.equal(restored.ownerId,module.ownerId);assert.equal(restored.status,'AVAILABLE');assert.deepEqual(restored.location,{kind:'CHARACTER',id:f.cid});assert.equal((await f.ship()).modules.length,0);assert.equal((await f.ship()).capacity,profileId==='CARGO'?20:50);assert.equal((await f.points(f.other)).available,4);assert.equal((await f.points(f.other)).reserved,0);assert.deepEqual(await Promise.all(f.lotIds.map(id=>f.get(`inventory/${id}`))),stock);assert.deepEqual(await f.store.list(`sessions/${f.sid}/accounts`),accounts);
+   assert.ok((await f.read('moduleMandatesAdmin',{},f.owner)).lots.some(l=>l.id===f.moduleId));assert.equal((await f.previewRemovalOffer({moduleOperation:'INSTALL'})).install.seconds,600);await assert.rejects(f.conceal(),{code:'MODULE_LOT_UNAVAILABLE'});
+  }
+ });
+ test(`${prefix} : retrait après déchargement natif préserve découverte et permet le vol nu`,async()=>{
+  const f=await hiddenRemovalFixture(makeStore);await f.conceal();await f.grant(5);const inspection=await f.start();f.advance(120000);await f.close(inspection);const input={lotId:f.lotId,quantity:5,destination:{kind:'CHARACTER',id:f.cid}},p=await f.read('prepareCargoTransfer',input),t=await f.cmd('startCargoTransfer',{...input,confirmation:p.confirmation,present:true});await assert.rejects(f.previewRemovalOffer(),{code:'INVALID_MODULE_OWNER'});f.advance(180000);const q=await f.read('cargoTransfer',{transferId:t.id});await f.cmd('receiveCargoTransfer',{transferId:t.id,confirmation:q.confirmation,received:true});
+  const moved=await f.get(`inventory/${t.lotId}`),r=await f.offerRemoval();await f.approveRemoval(r);await f.startRemoval(r);f.advance(300000);await f.finishRemoval(r);assert.deepEqual(await f.get(`inventory/${t.lotId}`),moved);assert.equal(moved.hiddenCargo.discovered,true);await f.refuel(4);await f.fly();assert.equal((await f.ship()).docked,false);assert.equal((await f.ship()).modules.length,0);
+ });
+ test(`${prefix} : contenu ajouté après accord ou pendant retrait bloque démarrage et finalisation`,async()=>{
+  const f=await hiddenRemovalFixture(makeStore),r=await f.offerRemoval();await f.approveRemoval(r);await f.conceal();await assert.rejects(f.startRemoval(r),{code:'MODULE_MANDATE_STALE'});assert.equal((await f.points(f.other)).reserved,0);
+  const g=await hiddenRemovalFixture(makeStore),job=await g.offerRemoval();await g.approveRemoval(job);await g.startRemoval(job);g.advance(300000);await g.edit(`inventory/${g.lotId}`,l=>({...l,hiddenCargo:{shipId:'ship',concealed:true,discovered:true},revision:l.revision+1}));await assert.rejects(g.previewRemoval(job),{code:'MODULE_MANDATE_STALE'});assert.equal((await g.points(g.other)).reserved,1);await g.cancelRemoval(job);assert.equal((await g.get(`inventory/${g.moduleId}`)).status,'INSTALLED');assert.equal((await g.get(`inventory/${g.lotId}`)).hiddenCargo.concealed,true);assert.equal((await g.points(g.other)).available,5);
+ });
+ test(`${prefix} : retrait revalide le contenu à l’ultime confirmation sans effet partiel`,async()=>{
+  const f=await hiddenRemovalFixture(makeStore),r=await f.offerRemoval();await f.approveRemoval(r);await f.startRemoval(r);f.advance(300000);const q=await f.previewRemoval(r);await f.edit(`inventory/${f.lotId}`,l=>({...l,hiddenCargo:{shipId:'ship',concealed:true,discovered:false}}));await assert.rejects(f.cmd('finishModuleRemoval',{mandateId:r.id,confirmation:q.confirmation,present:true,workshopConfirmed:true,performed:true},f.other),{code:'MODULE_MANDATE_STALE'});assert.equal((await f.get(`inventory/${f.moduleId}`)).status,'FIELD_RESERVED');assert.equal((await f.ship()).modules.length,1);assert.equal((await f.points(f.other)).reserved,1);
+ });
+ test(`${prefix} : retrait personnel MEC-03 N2, atelier et présence, réserves étrangères et panne refusés`,async()=>{
+  const f=await hiddenRemovalFixture(makeStore),lot=await f.get(`inventory/${f.moduleId}`);for(const patch of [{fieldActionId:'other'},{cargoTransferId:'other'},{ownerId:f.otherId}]){await f.edit(`inventory/${f.moduleId}`,()=>({...lot,...patch}));await assert.rejects(f.previewRemovalOffer(),{code:patch.ownerId?'INVALID_MODULE_CALIBRATION':'MODULE_LOT_UNAVAILABLE'});}await f.edit(`inventory/${f.moduleId}`,()=>lot);await f.edit('ships/ship',s=>({...s,moduleNeutralizations:[{lotId:f.moduleId,untilGameMs:90000000}]}));await assert.rejects(f.previewRemovalOffer(),{code:'SPACE_SHIP_BUSY'});await f.edit('ships/ship',s=>({...s,moduleNeutralizations:[]}));
+  const r=await f.offerRemoval();await f.approveRemoval(r);await f.startRemoval(r);f.advance(300000);for(const actor of [f.owner,f.player])await assert.rejects(f.previewRemoval(r,actor),{code:'FORBIDDEN'});for(const patch of [{present:false},{workshopConfirmed:false},{performed:false}])await assert.rejects(f.finishRemoval(r,patch),{code:'FIELD_PRESENCE_REQUIRED'});await f.edit(`characters/${f.otherId}`,c=>({...c,abilityProfile:{...c.abilityProfile,skills:[{id:'MEC-03',level:1}]}}));await assert.rejects(f.previewRemoval(r),{code:'MODULE_TECH_REQUIRED'});
+ });
+ test(`${prefix} : retrait sous marqueur courant avant reçu, aucun MOD-04 ajouté aux anciens manifestes`,async()=>{
+  const f=await hiddenRemovalFixture(makeStore),s=await f.get('');await f.edit('',s=>{const {hiddenCargoVersion,...old}=s.spaceOutlaws;return {...s,spaceOutlaws:old};});await assert.rejects(f.previewRemovalOffer(),{code:'INVALID_MODULE_CALIBRATION'});await f.edit('',()=>s);const r=await f.offerRemoval();await f.approveRemoval(r);const q=await f.read('prepareModuleWorkStart',{mandateId:r.id},f.other),input={mandateId:r.id,confirmation:q.confirmation,present:true,workshopConfirmed:true,requestId:randomUUID()};await f.cmd('startModuleWork',input,f.other);await f.edit('',s=>{const {hiddenCargoVersion,...old}=s.spaceOutlaws;return {...s,spaceOutlaws:old};});await assert.rejects(f.cmd('startModuleWork',input,f.other),{code:'SO_GAMEPLAY_NOT_OPEN'});await assert.rejects(f.read('moduleWorkAdmin',{mandateId:r.id},f.owner),{code:'SO_GAMEPLAY_NOT_OPEN'});await f.edit('',()=>s);const job=await f.get(`shipMaintenance/${r.id}`);await f.edit(`shipMaintenance/${r.id}`,r=>{const {hiddenCargoVersion,...old}=r;return old;});await assert.rejects(f.previewRemoval(r),{code:'SO_GAMEPLAY_NOT_OPEN'});await f.edit(`shipMaintenance/${r.id}`,()=>job);await f.cancelRemoval(r);const header=await f.store.get(`campaigns/${s.campaignId}/versions/${s.versionId}`);assert.equal(header.hiddenCargoVersion,1);
+ });
+ test(`${prefix} : retrait PAUSE/STOP, annulation après révocation conserve le module monté`,async()=>{
+  const f=await hiddenRemovalFixture(makeStore),r=await f.offerRemoval();await f.approveRemoval(r);await f.startRemoval(r);f.advance(10000);await f.stage('PAUSE');f.advance(900000);assert.equal((await f.read('moduleWork',{mandateId:r.id},f.other)).remainingSeconds,290);await f.stage('EN_JEU');await f.cmd('stopSafety',{reason:'Sécurité'});f.advance(900000);await assert.rejects(f.cancelRemoval(r,f.owner),{code:'SO_SAFETY_STOP'});const s=await f.read('session',{},f.owner);await f.cmd('resumeSafety',{revision:s.revision,reason:'Reprise'},f.owner);await f.cmd('revokeAccess',{uid:f.other.uid},f.owner);await assert.rejects(f.previewRemoval(r),{code:'FORBIDDEN'});await f.cancelRemoval(r,f.owner);assert.equal((await f.get(`inventory/${f.moduleId}`)).status,'INSTALLED');assert.equal((await f.ship()).modules.length,1);assert.equal((await f.store.get(`sessions/${f.sid}/characters/${f.otherId}/resources/actionPoints`)).reserved,0);
+ });
+ test(`${prefix} : retrait concurrent et réessai consomment un PA et rendent un seul exemplaire`,async()=>{
+  const f=await hiddenRemovalFixture(makeStore),r=await f.offerRemoval();await f.approveRemoval(r);await f.startRemoval(r);f.advance(300000);const q=await f.previewRemoval(r),p={mandateId:r.id,confirmation:q.confirmation,present:true,workshopConfirmed:true,performed:true,requestId:randomUUID()},inputs=[p,{...p,requestId:randomUUID()}],out=await Promise.allSettled(inputs.map(p=>f.cmd('finishModuleRemoval',p,f.other)));assert.equal(out.filter(r=>r.status==='fulfilled').length,1);const n=out.findIndex(r=>r.status==='fulfilled');assert.deepEqual(await f.cmd('finishModuleRemoval',inputs[n],f.other),out[n].value);assert.equal((await f.points(f.other)).available,4);assert.equal((await f.get(`inventory/${f.moduleId}`)).quantity,1);assert.equal((await f.ship()).modules.length,0);
+ });
+ test(`${prefix} : retrait rollback puis reprise conservent module rendu et découverte`,async()=>{
+  const raw=makeStore();let fail=false;const store={get:raw.get.bind(raw),list:raw.list.bind(raw),runTransaction:cb=>raw.runTransaction(async tx=>{const r=await cb(tx);if(fail)throw Error('INTERRUPTION');return r;})},f=await hiddenRemovalFixture(()=>store);await f.edit(`inventory/${f.lotId}`,l=>({...l,hiddenCargo:{shipId:'ship',concealed:false,discovered:true,discoveredAt:1}}));const r=await f.offerRemoval();await f.approveRemoval(r);await f.startRemoval(r);f.advance(300000);const ship=await f.ship();fail=true;await assert.rejects(f.finishRemoval(r),/INTERRUPTION/);fail=false;assert.deepEqual(await f.ship(),ship);assert.equal((await f.points(f.other)).reserved,1);await f.finishRemoval(r);const module=await f.get(`inventory/${f.moduleId}`),cargo=await f.get(`inventory/${f.lotId}`),e=await episodeHarness(f);await e.close();await e.resume(await e.begin());assert.deepEqual(await e.get(`inventory/${f.moduleId}`),module);assert.deepEqual(await e.get(`inventory/${f.lotId}`),cargo);assert.equal((await e.get(`shipMaintenance/${r.id}`)).status,'MODULE_REMOVED');
+ });
+
+ test(`${prefix} : fin du retrait face à une interruption choisit un seul état cohérent`,async()=>{
+  const f=await hiddenRemovalFixture(makeStore),r=await f.offerRemoval();await f.approveRemoval(r);await f.startRemoval(r);f.advance(300000);const q=await f.previewRemoval(r),w=await f.read('moduleWork',{mandateId:r.id},f.other),out=await Promise.allSettled([f.cmd('finishModuleRemoval',{mandateId:r.id,confirmation:q.confirmation,present:true,workshopConfirmed:true,performed:true},f.other),f.cmd('cancelModuleWork',{mandateId:r.id,confirmation:w.confirmation,reason:'Annulation concurrente'},f.other)]);assert.equal(out.filter(x=>x.status==='fulfilled').length,1);const lot=await f.get(`inventory/${f.moduleId}`),mounted=(await f.ship()).modules.length===1;assert.equal(lot.status,mounted?'INSTALLED':'AVAILABLE');assert.equal(lot.location.kind,mounted?'SHIP_MODULE':'CHARACTER');assert.equal(lot.quantity,1);assert.equal((await f.points(f.other)).reserved,0);assert.equal((await f.points(f.other)).available,mounted?5:4);
+ });
+
+ test(`${prefix} : retirer MOD-04 conserve l’autre module et les dommages du vaisseau`,async()=>{
+  const f=await hiddenRemovalFixture(makeStore),other={lotId:'synthetic-shield-module',code:'MOD-01',size:2,status:'OPERATIONAL'},module=await f.get(`inventory/${f.moduleId}`);await f.edit(`inventory/${other.lotId}`,()=>({...module,id:other.lotId,item:{...module.item,shipModule:{code:'MOD-01',size:2}}}));await f.edit('ships/ship',s=>({...s,modules:[...s.modules,other],soProfile:{...s.soProfile,shieldMax:3},shield:1,hull:2}));const r=await f.offerRemoval();await f.approveRemoval(r);await f.startRemoval(r);f.advance(300000);await f.finishRemoval(r);const sh=await f.ship();assert.deepEqual(sh.modules,[other]);assert.equal(sh.soProfile.shieldMax,3);assert.equal(sh.shield,1);assert.equal(sh.hull,2);assert.equal((await f.get(`inventory/${other.lotId}`)).status,'INSTALLED');assert.equal((await f.navigation()).ship.profile.shieldMax,3);
+ });
+
+ test(`${prefix} : liens de navigation sous marqueur, propriétaire et habilitation courants uniquement`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);assert.equal((await f.read('shipHold',{shipId:'ship'})).hold.hiddenCargoReady,true);assert.equal((await f.read('cargoAdmin',{},f.owner)).customsReady,true);assert.equal((await f.read('myCargo',{},f.other)).customsReady,undefined);await f.grant();assert.equal((await f.read('myCargo',{},f.other)).customsReady,true);await f.grant(0);assert.equal((await f.read('myCargo',{},f.other)).customsReady,undefined);
+  await f.edit('ships/ship',s=>({...s,pilotId:f.otherId}));const pilot=await f.read('shipHold',{shipId:'ship'},f.other);assert.equal(pilot.hold.hiddenCargoReady,undefined);assert.equal(pilot.canRead,false);assert.deepEqual(pilot.stock,[]);
+  await f.edit('',s=>{const {hiddenCargoVersion,...old}=s.spaceOutlaws;return {...s,spaceOutlaws:old};});assert.equal((await f.read('shipHold',{shipId:'ship'})).hold.hiddenCargoReady,undefined);assert.equal((await f.read('cargoAdmin',{},f.owner)).customsReady,undefined);
+ });
+ test(`${prefix} : protocole UI exécuté par le serveur, régie sans finalisation joueur et lectures sans écriture`,async()=>{
+  const f=await hiddenCargoFixture(makeStore),input={sessionId:f.sid,shipId:'ship',lotId:f.lotId,conceal:true},p=await f.read('prepareCargoConcealment',hiddenCargoRequest('prepareCargoConcealment',input,{}));await f.cmd('setCargoConcealment',hiddenCargoRequest('setCargoConcealment',{...input,confirmation:p.confirmation},{present:'on'}));await f.grant(5);
+  const prepare=hiddenCargoRequest('prepareCustomsInspection',{sessionId:f.sid},{shipId:'ship',kind:'DEEP',level:5,die:6}),q=await f.read('prepareCustomsInspection',prepare,f.other),r=await f.cmd('startCustomsInspection',hiddenCargoRequest('startCustomsInspection',{...prepare,confirmation:q.confirmation},{present:'on'}),f.other);
+  const ship=await f.ship(),lot=await f.get(`inventory/${f.lotId}`),points=await f.points(f.other),waiting=await f.inspect(r);assert.equal(waiting.inspection.canFinish,false);assert.equal(waiting.inspection.canCancel,true);assert.equal((await f.read('customsAdmin',{},f.owner)).inspections.find(x=>x.id===r.id).pnj,false);assert.equal((await f.inspect(r,f.owner)).inspection.canFinish,false);assert.deepEqual(await f.ship(),ship);assert.deepEqual(await f.get(`inventory/${f.lotId}`),lot);assert.deepEqual(await f.points(f.other),points);
+  f.advance(120000);const ready=await f.inspect(r);assert.equal(ready.inspection.canFinish,true);assert.equal((await f.inspect(r,f.owner)).inspection.canFinish,false);await f.cmd('finishCustomsInspection',hiddenCargoRequest('finishCustomsInspection',{sessionId:f.sid,inspectionId:r.id,confirmation:ready.confirmation},{present:'on',performed:'on',die:1}),f.other);const closed=await f.inspect(r);assert.equal(closed.inspection.canFinish,false);assert.equal(closed.inspection.canCancel,false);assert.equal(closed.inspection.result.success,true);
+ });
+
+ test(`${prefix} : nouvelle inspection autorisée ne réécrit pas une découverte antérieure`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);
+  await f.conceal();await f.grant(5);
+  const first=await f.start();f.advance(120000);f.setDie(6);
+  const initial=await f.close(first);
+  assert.equal(initial.result.success,true);
+  assert.equal(initial.result.discovered.length,1);
+  assert.deepEqual(initial.result.knownCargo,[]);
+  const original=await f.get(`inventory/${f.lotId}`);
+  assert.equal(original.hiddenCargo.discovered,true);
+  assert.ok(original.hiddenCargo.discoveredAt);
+  const admin=await f.read('customsAdmin',{},f.owner);
+  const ship=admin.ships.find(x=>x.id==='ship');
+  await f.cmd('authorizeCustomsRetry',{shipId:ship.id,confirmation:ship.confirmation,
+    reason:'Indice nouveau vérifié par le MJ'},f.owner);
+  f.advance(300000);
+  const second=await f.start();f.advance(120000);f.setDie(6);
+  const repeated=await f.close(second);
+  assert.equal(repeated.result.success,true);
+  assert.deepEqual(repeated.result.discovered,[]);
+  assert.equal(repeated.result.knownCargo.length,1);
+  assert.equal(repeated.result.knownCargo[0].id,f.lotId);
+  const after=await f.get(`inventory/${f.lotId}`);
+  assert.equal(after.hiddenCargo.discoveredAt,original.hiddenCargo.discoveredAt);
+  assert.equal(after.revision,original.revision);
+  const history=await f.store.list(`sessions/${f.sid}/inventory/${f.lotId}/history`);
+  assert.equal(history.filter(e=>e.kind==='finishCustomsInspection').length,1);
+  await assert.rejects(f.start(),{code:'CUSTOMS_ATTEMPT_USED'});
+ });
+ test(`${prefix} : projections pause, STOP et révocation permettent la restitution MJ sans nouvelle action`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);await f.grant(5);const r=await f.start();f.advance(120000);await f.edit('ships/ship',s=>({...s,moduleNeutralizations:[{lotId:f.moduleId,untilGameMs:90000000}]}));assert.equal((await f.inspect(r)).inspection.canFinish,true);assert.equal((await f.inspect(r)).inspection.canCancel,true);await f.edit('ships/ship',s=>({...s,moduleNeutralizations:[]}));await f.stage('PAUSE');assert.equal((await f.inspect(r)).inspection.canFinish,false);assert.equal((await f.inspect(r)).inspection.canCancel,true);assert.equal((await f.read('hiddenCargo',{shipId:'ship'})).canMove,false);await f.stage('EN_JEU');await f.cmd('stopSafety',{reason:'Sécurité'});const stopped=await f.inspect(r);assert.equal(stopped.session.safetyStopped,true);assert.equal(stopped.inspection.canFinish,false);assert.equal(stopped.inspection.canCancel,false);const s=await f.read('session',{},f.owner);await f.cmd('resumeSafety',{revision:s.revision,reason:'Reprise'},f.owner);await f.grant(0);const regie=await f.inspect(r,f.owner);assert.equal(regie.inspection.canFinish,false);assert.equal(regie.inspection.canCancel,true);await f.close(r,{cancel:true,actor:f.owner});assert.equal((await f.points(f.other)).reserved,0);
+ });
+
+ test(`${prefix} : MOD-04 cargo et transport achetés, reçus et montés par les parcours natifs`,async()=>{
+  for(const profileId of ['CARGO','TRANSPORT']){const f=await nativeHiddenFlightFixture(makeStore,{profileId}),s=await f.get(''),header=await f.store.get(`campaigns/${s.campaignId}/versions/${s.versionId}`),ship=await f.ship(),lot=await f.get(`inventory/${f.moduleId}`);assert.equal(header.hiddenCargoVersion,1);assert.equal(s.spaceOutlaws.hiddenCargoVersion,1);assert.equal(lot.status,'INSTALLED');assert.equal(lot.ownerId,f.cid);assert.deepEqual(lot.location,{kind:'SHIP_MODULE',id:'ship'});assert.equal(ship.modules[0].lotId,lot.id);assert.equal(ship.capacity,profileId==='CARGO'?20:50);assert.equal((await f.read('hiddenCargo',{shipId:'ship'})).hiddenCapacity,profileId==='CARGO'?5:10);assert.equal((await f.navigation()).ship.moduleFlightBlocked,false);assert.equal((await f.points(f.other)).available,4);}
+ });
+ test(`${prefix} : décision B, panne native conserve le fret caché et ordinaire sans découverte ni PA`,async()=>{
+  const f=await nativeHiddenFlightFixture(makeStore),lot=await f.get(`inventory/${f.lotId}`),module=await f.get(`inventory/${f.moduleId}`);await f.launch();assert.equal((await f.ship()).journey.event.neutralizedModule.code,'MOD-04');await f.arrive();await assert.rejects(f.conceal(true,f.extraLotId),{code:'HIDDEN_CARGO_FULL'});await f.grant();const points=await f.points(f.other),r=await f.startInspection('ORDINARY');f.advance(120000);const out=await f.finishInspection(r);assert.deepEqual(out.result,{documentsChecked:true,hiddenCargoRevealed:false,knownCargo:[]});assert.deepEqual(await f.get(`inventory/${f.lotId}`),lot);assert.deepEqual(await f.get(`inventory/${f.moduleId}`),module);assert.equal((await f.points(f.other)).available,points.available);assert.equal((await f.read('hiddenCargo',{shipId:'ship'})).hiddenCapacity,0);
+ });
+ test(`${prefix} : décision B, inspection approfondie pendant panne puis retrait réel après vidage`,async()=>{
+  const f=await nativeHiddenFlightFixture(makeStore);await f.launch();await f.arrive();await f.grant();const r=await f.startInspection();f.advance(120000);assert.equal((await f.finishInspection(r)).result.success,true);const before=await f.get(`inventory/${f.lotId}`);assert.equal(before.hiddenCargo.discovered,true);f.advance(600000);await f.conceal(false);await f.conceal(true);assert.equal((await f.get(`inventory/${f.lotId}`)).hiddenCargo.discoveredAt,before.hiddenCargo.discoveredAt);await assert.rejects(f.read('prepareModuleMandateOffer',{...f.input,moduleOperation:'REMOVE'},f.owner),{code:'MODULE_CONTENT_NOT_EMPTY'});await f.conceal(false);const job=await f.offer({moduleOperation:'REMOVE'});await f.approve(job);const q=await f.read('prepareModuleWorkStart',{mandateId:job.id},f.other);await f.cmd('startModuleWork',{mandateId:job.id,confirmation:q.confirmation,present:true,workshopConfirmed:true},f.other);f.advance(300000);const done=await f.read('prepareModuleRemoval',{mandateId:job.id},f.other);await f.cmd('finishModuleRemoval',{mandateId:job.id,confirmation:done.confirmation,present:true,workshopConfirmed:true,performed:true},f.other);assert.equal((await f.get(`inventory/${f.moduleId}`)).status,'AVAILABLE');assert.equal((await f.get(`inventory/${f.lotId}`)).hiddenCargo.discovered,true);assert.equal((await f.ship()).modules.length,0);
+ });
+ test(`${prefix} : expiration exacte autorise un nouveau rangement sans déplacer le contenu existant`,async()=>{
+  const f=await nativeHiddenFlightFixture(makeStore);await f.launch();await f.arrive();const before=await f.get(`inventory/${f.lotId}`);f.advance(599999);assert.equal((await f.read('hiddenCargo',{shipId:'ship'})).hiddenCapacity,0);await assert.rejects(f.conceal(true,f.extraLotId),{code:'HIDDEN_CARGO_FULL'});f.advance(1);assert.equal((await f.read('hiddenCargo',{shipId:'ship'})).hiddenCapacity,5);await f.conceal(true,f.extraLotId);assert.equal((await f.read('hiddenCargo',{shipId:'ship'})).hiddenUsed,5);assert.deepEqual(await f.get(`inventory/${f.lotId}`),before);assert.equal((await f.get(`inventory/${f.extraLotId}`)).quantity,2);
+ });
+ test(`${prefix} : panne B, PAUSE et STOP conservent délai et contenu, aucune révélation automatique`,async()=>{
+  const f=await nativeHiddenFlightFixture(makeStore);await f.launch();await f.arrive();const before=await f.get(`inventory/${f.lotId}`);await f.stage('PAUSE');f.advance(900000);assert.equal((await f.read('hiddenCargo',{shipId:'ship'})).hiddenCapacity,0);await f.stage('EN_JEU');await f.cmd('stopSafety',{reason:'Sécurité'});f.advance(900000);assert.equal((await f.read('hiddenCargo',{shipId:'ship'})).hiddenCapacity,0);assert.deepEqual(await f.get(`inventory/${f.lotId}`),before);
+ });
+ test(`${prefix} : convoi équipé MOD-04, un événement commun et seul appareil choisi neutralisé`,async()=>{
+  const f=await nativeHiddenFlightFixture(makeStore,{convoy:true}),before=await f.get(`inventory/${f.lotId}`);await f.depart();const a=await f.ship(),b=await f.get('ships/escort');assert.deepEqual(a.journey.event,b.journey.event);assert.equal(a.journey.event.affectedShipId,'ship');assert.equal(a.moduleNeutralizations[0].code,'MOD-04');assert.equal(b.moduleNeutralizations,undefined);assert.deepEqual(await f.get(`inventory/${f.lotId}`),before);assert.equal((await f.read('hiddenCargo',{shipId:'ship'})).hiddenCapacity,0);assert.equal((await f.navigation('escort',f.other)).ship.journey.event.neutralizedModule.lotId,undefined);
+ });
+ test(`${prefix} : ancien manifeste sans marqueur non enrichi et MOD-04 refusé sans droits de version courants`,async()=>{
+  const f=await soVoyagesFixture(makeStore,{release:false}),out=await f.release(await f.releasePreview()),path=`campaigns/${f.campaignId}/versions/${out.versionId}`,canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;await f.store.runTransaction(async tx=>{const {towingWorkVersion,towingAttachmentVersion,towingFlightVersion,towingCombatVersion,towingOutageVersion,towingRecoveryVersion,hiddenCargoVersion,manifestDigest,...old}=await tx.get(path);tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});await f.birth(await f.birthPreview());assert.equal((await f.read('mySession')).session.spaceOutlaws.hiddenCargoVersion,undefined);
+  const g=await nativeHiddenFlightFixture(makeStore),ship=await g.ship();await g.edit('',s=>{const {hiddenCargoVersion,...old}=s.spaceOutlaws;return {...s,spaceOutlaws:old};});await assert.rejects(g.navigation(),{code:'INVALID_MODULE_CALIBRATION'});await assert.rejects(g.read('prepareShopPurchase',{shopId:'counter',offerId:'module-offer',quantity:1,useProtected:false}),{code:'INVALID_SHIP_MODULE_OFFER'});await assert.rejects(g.read('hiddenCargo',{shipId:'ship'}),{code:'SO_GAMEPLAY_NOT_OPEN'});assert.deepEqual(await g.ship(),ship);
+ });
+ test(`${prefix} : reprise après panne B conserve marqueur, même module et cargaison cachée`,async()=>{
+  const f=await nativeHiddenFlightFixture(makeStore);await f.launch();await f.arrive();const lot=await f.get(`inventory/${f.lotId}`),module=await f.get(`inventory/${f.moduleId}`),ship=await f.ship(),e=await episodeHarness(f);await e.close();await e.resume(await e.begin());assert.equal((await e.get('')).spaceOutlaws.hiddenCargoVersion,1);assert.deepEqual(await e.get(`inventory/${f.lotId}`),lot);assert.deepEqual(await e.get(`inventory/${f.moduleId}`),module);assert.deepEqual(await e.get('ships/ship'),ship);assert.equal((await e.read('hiddenCargo',{shipId:'ship'},f.player)).hiddenCapacity,0);
+ });
+
+ test(`${prefix} : manifeste MOD-04 sans marqueur, inconnu ou sans dépendance refusé avant naissance`,async()=>{
+  const f=await soVoyagesFixture(makeStore,{release:false,prepareExtra:async(f,rev)=>{await f.cc('saveCentralItem',{itemId:'hidden',itemRevision:0,draftRevision:rev++,item:{...moduleItem,shipModule:{code:'MOD-04',size:2}},reason:'Module compatible'});await f.cc('saveCentralOffer',{offerId:'hidden-offer',offerRevision:0,draftRevision:rev++,offer:{name:'Soute',shopId:'counter',itemId:'hidden',unitPrice:1000,buybackPrice:null,conditions:'Atelier séparé',gmNotes:''},reason:'Tarif canonique'});}}),out=await f.release(await f.releasePreview()),path=`campaigns/${f.campaignId}/versions/${out.versionId}`,original=await f.store.get(path),canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
+  for(const mode of ['MISSING','UNKNOWN','DEPENDENCY']){const {manifestDigest,...h}=original;if(mode==='MISSING')delete h.hiddenCargoVersion;if(mode==='UNKNOWN')h.hiddenCargoVersion=2;if(mode==='DEPENDENCY')delete h.moduleFlightVersion;await f.store.runTransaction(async tx=>tx.set(path,{...h,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(h))).digest('hex')}));await assert.rejects(f.birthPreview(),{code:'SO_VERSION_INVALID'});assert.equal((await f.store.get(`sessions/${f.sid}`)).versionId,null);}
+  await f.store.runTransaction(async tx=>tx.set(path,original));await f.birth(await f.birthPreview());assert.equal((await f.read('mySession')).session.spaceOutlaws.hiddenCargoVersion,1);
+ });
+
+}
