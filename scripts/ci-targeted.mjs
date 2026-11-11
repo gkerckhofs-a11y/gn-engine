@@ -275,12 +275,12 @@ targetedProfiles['pilot-recette']={
   'test/recette.test.mjs','test/space-search.test.mjs','test/space-outlaws-voyages.test.mjs',
   'test/space-outlaws-entry.test.mjs','test/space-outlaws-shops.test.mjs'])],
  suites:[...new Set([...targetedProfiles['customs-port'].suites,'space-search',
-  'space-outlaws-voyages','space-outlaws-entry','space-outlaws-shops'])],
+  'space-outlaws-voyages','space-outlaws-entry','space-outlaws-shops','space-pilot-journey'])],
  files:[...targetedProfiles['customs-port'].files,
   'package.json','scripts/recette.mjs','scripts/recette/scenario.mjs','scripts/recette/pilot.mjs',
   'scripts/recette/serve.mjs','scripts/recette/cases.mjs','scripts/recette/guide.mjs',
   'test/recette.test.mjs','test/support/space-search-suite.mjs',
-  'test/support/space-pilot-journey-suite.mjs']
+  'test/support/space-pilot-journey-suite.mjs','test/support/firestore-suites.mjs']
 };
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
