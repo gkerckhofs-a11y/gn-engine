@@ -88,7 +88,7 @@ export function customsConsentsHtml(d){
     +(granted.has(l.lotId)?'<p>Un accord existe déjà pour ce lot : révoquez-le avant de modifier le bénéficiaire ou la liaison.</p>':
       enabled&&d.applicantChoices.length?form('prepareCustomsLotConsent',{sessionId:sid,shipId:l.shipId,lotId:l.lotId},
        select('applicantCharacterId','Titulaire pressenti',d.applicantChoices)
-       +select('routeId','Liaison publiée',l.routeChoices),'Examiner mon autorisation'):'<p>Nouvel accord indisponible pendant la pause ou sans bénéficiaire.</p>'))
+       +select('routeId','Liaison publiée',l.routeChoices),'Examiner mon autorisation'):'<p>Nouvel accord indisponible pendant la pause ou sans bénéficiaire.</p>')
     +'</article>').join(''):'<p>Aucun lot personnel réglementé et valorisé disponible pour cet accord.</p>')
   +'</section><section class="panel"><h2>Accords enregistrés</h2>'
   +(d.consents.length?d.consents.map(r=>'<article class="card"><p>Lot '+esc(r.lotId)+' · bénéficiaire '+esc(r.applicantId)+' · route '+esc(r.routeId)+' · '+esc(r.status==='GRANTED'?'accord donné':'révoqué')+'.</p>'
