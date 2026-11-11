@@ -29,6 +29,9 @@ export async function preparePilotMaster(central,revision){
   await save('saveCentralRoute',{routeId:id,routeRevision:0,route:{
    name:id==='out'?'Liaison aller':'Liaison retour',description:'Liaison sécurisée',
    gmNotes:'SECRET_PILOT_ROUTE',fromPort,toPort,navigationCode:code,distanceId:'SHORT',riskId:'SECURED'}});
+ await save('saveCentralOffer',{offerId:'loot',offerRevision:0,offer:{
+  name:'Réserve physique de fouille',shopId:'counter',itemId:'kit_medical-supplies',
+  unitPrice:30,buybackPrice:null,conditions:'Stock transférable pour fouille',gmNotes:'SECRET_PILOT_LOOT'}});
  await save('saveCentralOffer',{offerId:'fuel',offerRevision:0,offer:{
   name:'Carburant de recette',shopId:'counter',itemId:'propellant',unitPrice:25,buybackPrice:null,
   conditions:'Remise physique fictive',gmNotes:'SECRET_PILOT_OFFER'}});
@@ -45,6 +48,10 @@ export async function provisionPilotShip(read,cmd,confirm){
  await confirm('prepareShopProvision','provisionShop',{shopId:'counter',offerId:'fuel',
   provisionId:randomUUID(),quantity:8,restricted:true,
   source:'Huit unités fictives de carburant apportées au comptoir',reason:'Stock initial de recette'});
+ await confirm('prepareShopProvision','provisionShop',{shopId:'counter',offerId:'loot',
+  provisionId:randomUUID(),quantity:2,restricted:false,
+  source:'Deux trousses physiques fictives distinctes du stock de missions protégées',
+  reason:'Stock transférable réservé aux trouvailles de la recette'});
 }
 export async function fundPilotFinds(read,cmd){
  const revision=async()=>{
@@ -53,7 +60,7 @@ export async function fundPilotFinds(read,cmd){
   return state.revision;
  };
  await cmd('provisionFieldFind',{targetId:'pilot-cache',findId:'item',revision:await revision(),
-  sourceLotId:shopStockId('supply'),reason:'Affectation d’une trousse issue du stock du comptoir'},'owner');
+  sourceLotId:shopStockId('loot'),reason:'Affectation d’une trousse issue du stock du comptoir'},'owner');
  await cmd('provisionFieldFind',{targetId:'pilot-cache',findId:'cash',revision:await revision(),
   sourceAccountId:shopAccountId('counter'),reason:'Réservation de vingt crédits de la caisse existante'},'owner');
 }

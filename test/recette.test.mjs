@@ -88,7 +88,8 @@ test('Recette pilote : Master publié, classes, vaisseau et fouille financée',a
  const shops=await f.call('shopAdmin',{sessionId:sid},'owner');
  const offers=shops.shops.find(sh=>sh.id==='counter').offers;
  assert.equal(offers.find(o=>o.id==='fuel').stock,8);
- assert.equal(offers.find(o=>o.id==='supply').stock,1);
+ assert.equal(offers.find(o=>o.id==='supply').stock,2);
+ assert.equal(offers.find(o=>o.id==='loot').stock,1);
  const contract=(await f.call('sessionContracts',{sessionId:sid})).contracts[0];
  assert.equal(contract.obligations.salaryReserved,100);
  assert.equal(contract.obligations.rewards[0].remaining,3);
