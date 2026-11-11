@@ -405,6 +405,125 @@ export function hiddenCargoSuite(makeStore,prefix='Fret caché et MOD-04 SO'){
    assert.throws(()=>guardSpaceOutlawsEntry(s,new Map([[`sessions/sess/${path}`,{}]]),false,scope),{code:'SO_GAMEPLAY_NOT_OPEN'});
   assert.throws(()=>guardSpaceOutlawsEntry({id:'sess',spaceOutlaws:{}},new Map([['sessions/sess/customsConsents/lot',{}]]),false,scope),{code:'SO_GAMEPLAY_NOT_OPEN'});
  });
+ test(`${prefix} : propriétaire du vaisseau accorde puis révoque son accord, distinct du fret`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320,
+   portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]}),base=`sessions/${f.sid}`;
+  const input={shipId:'ship',routeId:'out',applicantCharacterId:f.otherId};
+  const owner=await f.read('myCustomsConsents',{},f.player);
+  assert.ok(owner.eligibleShips.some(sh=>sh.id==='ship'&&sh.routeChoices.some(r=>r.id==='out')));
+  assert.deepEqual(owner.shipConsents,[]);
+  const other=await f.read('myCustomsConsents',{},f.other);
+  assert.equal(other.eligibleShips.some(sh=>sh.id==='ship'),false);
+  assert.doesNotMatch(JSON.stringify(owner),/OUT-SECRET|HOME-CODE|SECRET_PORT|assignedUid|gmNotes/);
+  const ready=await f.read('prepareCustomsShipConsent',input,f.player);
+  assert.equal(ready.binding.ownerId,f.cid);
+  assert.equal(ready.binding.applicantId,f.otherId);
+  assert.equal(ready.binding.shipRevision,(await f.ship()).revision);
+  assert.equal(ready.binding.routeRevision,(await f.get('routes/out')).revision);
+  assert.equal(ready.binding.portVisitId,'INITIAL:ship');
+  const before={inventory:await f.store.list(`${base}/inventory`),
+   ships:await f.store.list(`${base}/ships`),accounts:await f.store.list(`${base}/accounts`),
+   ledger:await f.store.list(`${base}/ledger`),characters:await f.store.list(`${base}/characters`)};
+  const command={...input,confirmation:ready.confirmation,consent:true,requestId:randomUUID()};
+  const accepted=await f.cmd('grantCustomsShipConsent',command,f.player);
+  assert.deepEqual(accepted,{shipId:'ship',status:'GRANTED',revision:1});
+  assert.deepEqual(await f.cmd('grantCustomsShipConsent',command,f.player),accepted);
+  const record=await f.get('customsShipConsents/ship');
+  assert.equal(record.customsShipConsentVersion,1);
+  assert.equal(record.shipRevision,(await f.ship()).revision);
+  assert.equal(record.ownerId,f.cid);
+  assert.equal(record.applicantId,f.otherId);
+  const mjInput={shipId:'ship',routeId:'out',lotIds:[f.lotId],applicantCharacterId:f.otherId};
+  let preview=await f.read('customsLicenseScopePreview',mjInput,f.owner);
+  assert.equal(preview.shipOwnershipEvidence.consentVerified,true);
+  assert.equal(preview.shipOwnershipEvidence.mandateVerified,false);
+  assert.equal(preview.ownerMandatesVerified,false);
+  assert.equal(preview.ownershipEvidence[0].consentVerified,false);
+  assert.equal(preview.issued,false);
+  assert.equal(preview.voyageScopeEvidence.departureAuthorized,false);
+  const list=(await f.read('myCustomsConsents',{},f.player)).shipConsents;
+  assert.equal(list.length,1);
+  assert.equal(list[0].status,'GRANTED');
+  assert.equal(list[0].validity,'RECHECK_ON_USE');
+  await assert.rejects(f.cmd('revokeCustomsShipConsent',{
+   shipId:'ship',confirmation:list[0].confirmation,confirmed:true},f.other),{code:'FORBIDDEN'});
+  const revoked=await f.cmd('revokeCustomsShipConsent',{
+   shipId:'ship',confirmation:list[0].confirmation,confirmed:true},f.player);
+  assert.equal(revoked.status,'REVOKED');
+  preview=await f.read('customsLicenseScopePreview',mjInput,f.owner);
+  assert.equal(preview.shipOwnershipEvidence.consentVerified,false);
+  assert.equal((await f.get('customsShipConsents/ship')).status,'REVOKED');
+  assert.deepEqual(await f.store.list(`${base}/customsLicenses`),[]);
+  for(const key of Object.keys(before))assert.deepEqual(await f.store.list(`${base}/${key}`),before[key],key);
+ });
+ test(`${prefix} : consentement de vaisseau réservé au propriétaire individuel, sans action de groupe`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320,
+   portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const input={shipId:'ship',routeId:'out',applicantCharacterId:f.otherId};
+  await assert.rejects(f.read('prepareCustomsShipConsent',input,f.other),{code:'SO_CUSTOMS_SHIP_CONSENT_SHIP'});
+  await assert.rejects(f.read('prepareCustomsShipConsent',{...input,routeId:'back'},f.player),{code:'SO_CUSTOMS_SHIP_CONSENT_ROUTE'});
+  await assert.rejects(f.read('prepareCustomsShipConsent',{...input,applicantCharacterId:'nobody'},f.player),{code:'SO_CUSTOMS_SHIP_CONSENT_APPLICANT'});
+  await assert.rejects(f.read('prepareCustomsShipConsent',{...input,shipId:'missing'},f.player),{code:'SO_CUSTOMS_SHIP_CONSENT_SHIP'});
+  await f.edit('ships/ship',s=>({...s,ownerType:'GROUP',ownerId:'group-one',revision:s.revision+1}));
+  assert.equal((await f.read('myCustomsConsents',{},f.player)).eligibleShips.some(sh=>sh.id==='ship'),false);
+  await assert.rejects(f.read('prepareCustomsShipConsent',input,f.player),{code:'SO_CUSTOMS_SHIP_CONSENT_SHIP'});
+  const g=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320});
+  await assert.rejects(g.read('prepareCustomsShipConsent',{
+   shipId:'ship',routeId:'out',applicantCharacterId:g.otherId},g.player),{code:'SO_CUSTOMS_SHIP_CONSENT_POLICY'});
+ });
+ test(`${prefix} : accord du vaisseau caduc après révision, escale, route ou accès`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320,
+   portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const input={shipId:'ship',routeId:'out',applicantCharacterId:f.otherId},preview=async()=>
+   f.read('customsLicenseScopePreview',{...input,lotIds:[f.lotId]},f.owner);
+  const p=await f.read('prepareCustomsShipConsent',input,f.player);
+  await assert.rejects(f.cmd('grantCustomsShipConsent',{
+   ...input,confirmation:p.confirmation,consent:false},f.player),{code:'SO_CUSTOMS_SHIP_CONSENT_CONFIRMATION'});
+  await f.edit('ships/ship',sh=>({...sh,revision:sh.revision+1}));
+  await assert.rejects(f.cmd('grantCustomsShipConsent',{
+   ...input,confirmation:p.confirmation,consent:true},f.player),{code:'STALE_REVISION'});
+  const fresh=await f.read('prepareCustomsShipConsent',input,f.player);
+  await f.cmd('grantCustomsShipConsent',{...input,confirmation:fresh.confirmation,consent:true},f.player);
+  assert.equal((await preview()).shipOwnershipEvidence.consentVerified,true);
+  const baseline=await f.get('ships/ship');
+  await f.edit('ships/ship',s=>({...s,revision:s.revision+1}));
+  assert.equal((await preview()).shipOwnershipEvidence.consentVerified,false);
+  await f.edit('ships/ship',()=>baseline);
+  await f.edit('ships/ship',s=>({...s,portVisitId:'journey-new'}));
+  assert.equal((await preview()).shipOwnershipEvidence.consentVerified,false);
+  await f.edit('ships/ship',()=>baseline);
+  const route=await f.get('routes/out');
+  await f.edit('routes/out',r=>({...r,revision:r.revision+1}));
+  assert.equal((await preview()).shipOwnershipEvidence.consentVerified,false);
+  await f.edit('routes/out',()=>route);
+  const port=await f.get('ports/home');
+  await f.edit('ports/home',r=>({...r,revision:r.revision+1}));
+  assert.equal((await preview()).shipOwnershipEvidence.consentVerified,false);
+  await f.edit('ports/home',()=>port);
+  const dest=await f.get('ports/away');
+  await f.edit('ports/away',r=>({...r,revision:r.revision+1}));
+  assert.equal((await preview()).shipOwnershipEvidence.consentVerified,false);
+  await f.edit('ports/away',()=>dest);
+  const ch=await f.get(`characters/${f.otherId}`);
+  await f.edit(`characters/${f.otherId}`,c=>({...c,assignedUid:null}));
+  await assert.rejects(preview(),{code:'SO_CUSTOMS_LICENSE_APPLICANT'});
+  await f.edit(`characters/${f.otherId}`,()=>ch);
+  const own=await f.get(`characters/${f.cid}`);
+  await f.edit(`characters/${f.cid}`,c=>({...c,survival:{...c.survival,dead:true}}));
+  assert.equal((await preview()).shipOwnershipEvidence.consentVerified,false);
+  await f.edit(`characters/${f.cid}`,()=>own);
+  const list=(await f.read('myCustomsConsents',{},f.player)).shipConsents[0];
+  await f.cmd('revokeCustomsShipConsent',{shipId:'ship',confirmation:list.confirmation,confirmed:true},f.player);
+  assert.equal((await preview()).shipOwnershipEvidence.consentVerified,false);
+ });
+ test(`${prefix} : garde du consentement vaisseau refuse stock, comptes, permis et anciens manifests`,()=>{
+  const s={id:'sess',spaceOutlaws:{hiddenCargoVersion:1}},scope=new Set(['CUSTOMS_SHIP_CONSENT']);
+  assert.equal(guardSpaceOutlawsEntry(s,new Map([['sessions/sess/customsShipConsents/ship',{}]]),false,scope),true);
+  for(const path of ['accounts/account','ledger/event','inventory/lot','ships/ship','customsConsents/lot','customsLicenses/permit'])
+   assert.throws(()=>guardSpaceOutlawsEntry(s,new Map([[`sessions/sess/${path}`,{}]]),false,scope),{code:'SO_GAMEPLAY_NOT_OPEN'});
+  assert.throws(()=>guardSpaceOutlawsEntry({id:'sess',spaceOutlaws:{}},
+   new Map([['sessions/sess/customsShipConsents/ship',{}]]),false,scope),{code:'SO_GAMEPLAY_NOT_OPEN'});
+ });
  test(`${prefix} : LIC-02 choisit uniquement des lots courants, disponibles et réglementés`,async()=>{
   const f=await hiddenCargoFixture(makeStore,{quantity:10,referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
   const payload=patch=>({shipId:'ship',routeId:'out',lotIds:[f.lotIds[0]],...patch});

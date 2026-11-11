@@ -198,6 +198,46 @@ test('Douanes UI : terminal du propriétaire, accord révisable et preuve explic
  assert.match(app,/customs-consents/);
  assert.match(app,/myCustomsConsents/);
 });
+test('Douanes UI : accord individuel du propriétaire du vaisseau, confirmation et révocation',()=>{
+ const data={session:{id:'s',stage:'EN_JEU'},eligible:[],applicantChoices:[{id:'person',name:'Ada <script>'}],consents:[],
+  eligibleShips:[{id:'ship',name:'Cargo <img>',portId:'home',portVisitId:'INITIAL:ship',
+   routeChoices:[{id:'out',name:'Route <script>',toPort:'away'}]}],shipConsents:[]};
+ const h=customsConsentsHtml(data);
+ assert.match(h,/Autoriser l’utilisation de mes vaisseaux/);
+ assert.match(h,/prepareCustomsShipConsent/);
+ assert.match(h,/name="applicantCharacterId"/);
+ assert.match(h,/name="routeId"/);
+ assert.doesNotMatch(h,/<script>|<img>/);
+ const pause=customsConsentsHtml({...data,session:{id:'s',stage:'PAUSE'}});
+ assert.doesNotMatch(pause,/prepareCustomsShipConsent/);
+ assert.deepEqual(hiddenCargoRequest('prepareCustomsShipConsent',{sessionId:'s',shipId:'ship'},
+  {routeId:'out',applicantCharacterId:'person',shipRevision:99,fee:0}),
+  {sessionId:'s',shipId:'ship',routeId:'out',applicantCharacterId:'person'});
+ const p={sessionId:'s',shipId:'ship',routeId:'out',applicantCharacterId:'person'};
+ const preview=hiddenCargoConfirmHtml('prepareCustomsShipConsent',{
+  shipName:'Cargo <img>',applicantName:'Ada <script>',routeName:'Route',confirmation:'proof'},p);
+ assert.match(preview,/grantCustomsShipConsent/);
+ assert.match(preview,/name="consent"/);
+ assert.doesNotMatch(preview,/<img>|<script>|name="fee"/);
+ assert.deepEqual(hiddenCargoRequest('grantCustomsShipConsent',{...p,confirmation:'proof'},
+  {consent:'on',amountPaid:'on'}),{...p,confirmation:'proof',consent:true});
+ const granted={...data,shipConsents:[{shipId:'ship',routeId:'out',applicantId:'person',status:'GRANTED',confirmation:'revoke'}]};
+ const visible=customsConsentsHtml(granted);
+ assert.match(visible,/revokeCustomsShipConsent/);
+ assert.match(visible,/name="confirmed"/);
+ assert.deepEqual(hiddenCargoRequest('revokeCustomsShipConsent',{sessionId:'s',shipId:'ship',confirmation:'revoke'},
+  {confirmed:'on',fee:123}),{sessionId:'s',shipId:'ship',confirmation:'revoke',confirmed:true});
+ assert.doesNotMatch(customsConsentsHtml({...granted,shipConsents:[{...granted.shipConsents[0],status:'REVOKED'}]}),/revokeCustomsShipConsent/);
+ const q={code:'LIC-02',ship:{id:'ship',name:'Cargo',portId:'home'},
+  route:{id:'out',name:'Route',fromPort:'home',toPort:'away'},selectedLots:[],
+  shipOwnershipEvidence:{ownerType:'CHARACTER',ownerId:'owner',relation:'THIRD_PARTY',consentVerified:true,mandateVerified:false},
+  totalReferenceCr:'5000',exactFeeCr:'100'};
+ const html=customsLicenseScopeHtml(q);
+ assert.match(html,/accord personnel actuel du propriétaire vérifié/);
+ assert.match(html,/Aucun mandat de pilotage ni permis de voyage n’est attesté/);
+ assert.match(customsLicenseScopeHtml({...q,shipOwnershipEvidence:{...q.shipOwnershipEvidence,consentVerified:false}}),/accord du propriétaire du vaisseau absent, révoqué ou caduc/);
+ assert.doesNotMatch(html,/<form|name="fee"|Paiement confirmé/);
+});
 test('Douanes UI : vérification de l’accord dans le rapport MJ sans confusion avec licence',()=>{
  const q={code:'LIC-02',title:'Permis',scope:'Fret',exactFeeCr:'50',
   ship:{id:'ship',name:'Vaisseau',portId:'home'},route:{id:'out',name:'Route',fromPort:'home',toPort:'away'},
