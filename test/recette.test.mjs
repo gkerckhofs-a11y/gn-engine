@@ -222,9 +222,10 @@ test('Recette pilote : même session, D12 puis prise de crédits financés sans 
  const nextPreview=await f.call('prepareCampaignEpisode',nextInput,'owner');
  let next=await f.call('beginCampaignEpisode',{...nextInput,confirmation:nextPreview.confirmation,
   requestId:'pilot-02-next-begin'},'owner'),step=0;
+ const buildId=next.buildId;
  while(next.status!=='READY'&&step<40){
   step++;
-  next=await f.call('advanceCampaignEpisode',{sessionId:sid,campaignId:s.campaignId,buildId:next.buildId,
+  next=await f.call('advanceCampaignEpisode',{sessionId:sid,campaignId:s.campaignId,buildId,
    requestId:'pilot-02-next-page-'+step},'owner');
  }
  assert.equal(next.status,'READY');
