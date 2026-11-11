@@ -15,11 +15,12 @@ import {recetteApp} from '../scripts/recette/app.mjs';
 import {MemoryStore} from './support/memory.mjs';
 import {createWorkflow} from '../src/core/workflow.mjs';
 
-function fixture(){
+function fixture({pilotClock=false}={}){
+  let clock=Date.now();
   const store=new MemoryStore(),actors=Object.fromEntries(identities.map(p=>[p.id,{uid:p.id,email:p.email,emailVerified:true,provider:'google.com',authTime:Math.floor(Date.now()/1000)}]));
-  const workflow=createWorkflow({store,ownerEmail:actors.owner.email});
+  const workflow=createWorkflow({store,ownerEmail:actors.owner.email,...(pilotClock?{now:()=>clock,rollD12:()=>12}:{})});
   const call=(action,input={},role='owner')=>workflow.dispatch(action,actors[role],input);
-  return {store,call,uids:Object.fromEntries(identities.map(p=>[p.id,p.id]))};
+  return {store,call,uids:Object.fromEntries(identities.map(p=>[p.id,p.id])),advance:ms=>{clock+=ms;}};
 }
 test('Recette : configuration refusée avant connexion hors émulateurs locaux',()=>{
   const env={GCLOUD_PROJECT:projectId,...hosts};assert.equal(requireRecetteEnvironment(env,{running:true}).MEDIA_BUCKET,bucket);assert.equal(env.MEDIA_BUCKET,undefined);
@@ -97,6 +98,32 @@ test('Recette pilote : Master publié, classes, vaisseau et fouille financée',a
  assert.equal(s.humanAcceptance,'NOT_EXECUTED');
  assert.doesNotMatch(JSON.stringify(s),/SECRET_PILOT|PILOT-AWAY-CODE|PRIVATE|token/);
 });
+test('Recette pilote : même session, D12 puis prise de crédits financés sans création de monnaie',async()=>{
+ const f=fixture({pilotClock:true}),s=await seedMissionScenario(f.call,f.uids,{pilot:true}),sid=s.sessionId,base=`sessions/${sid}`;
+ const before=(await f.store.list(`${base}/accounts`)).find(a=>a.ownerType==='SHOP'&&a.shopId==='counter');
+ assert.equal(before.balance,150);assert.equal(before.reserved,120);
+ const session=await f.call('session',{sessionId:sid});
+ await f.call('setStage',{sessionId:sid,stage:'EN_JEU',revision:session.revision,requestId:'pilot-02-start'});
+ const input={sessionId:sid,targetId:'pilot-cache',kind:'SEARCH'};
+ const prepared=await f.call('prepareFieldAction',input,'player');
+ const started=await f.call('startFieldAction',{...input,present:true,confirmation:prepared.confirmation,requestId:'pilot-02-search'},'player');
+ await assert.rejects(f.call('finishFieldAction',{sessionId:sid,actionId:started.id,present:true},'player'));
+ f.advance(60000);
+ const finished=await f.call('finishFieldAction',{sessionId:sid,actionId:started.id,present:true,requestId:'pilot-02-finish'},'player');
+ assert.equal(finished.result.roll,12);
+ assert.ok(finished.result.discoveries.some(x=>x.id==='cash'));
+ const take={sessionId:sid,actionId:started.id,findId:'cash',present:true,requestId:'pilot-02-cash'};
+ const received=await f.call('takeFieldFind',take,'player');
+ assert.equal(received.amount,20);
+ assert.deepEqual(await f.call('takeFieldFind',take,'player'),received);
+ const state=await f.store.get(`${base}/fieldStates/pilot-cache`);
+ assert.equal(state.finds.cash.status,'TAKEN');
+ const after=(await f.store.list(`${base}/accounts`)).find(a=>a.ownerType==='SHOP'&&a.shopId==='counter');
+ assert.equal(after.balance,130);assert.equal(after.reserved,100);
+ assert.equal((await f.call('myWallet',{sessionId:sid},'player')).account.balance,20);
+ assert.equal((await f.call('session',{sessionId:sid})).stage,'EN_JEU');
+});
+
 test('Recette pilote : dix cas non exécutés, sans autorisation de publication',()=>{
  const metadata={pilot:true,commit:'a'.repeat(40),dirty:false};
  const cases=[...localCases,...pilotCases],rows=cases.map(c=>({id:c.id,status:'NOT_EXECUTED'}));
