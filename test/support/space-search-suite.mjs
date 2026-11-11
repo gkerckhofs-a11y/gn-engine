@@ -11,6 +11,7 @@ import {soVoyagesFixture} from './space-outlaws-voyages-suite.mjs';
 import {spaceMissionsFixture} from './space-missions-suite.mjs';
 import {personFixture} from './person-suite.mjs';
 import {episodeHarness} from './space-episodes-suite.mjs';
+import {spacePilotJourneySuite} from './space-pilot-journey-suite.mjs';
 export const searchDefinition=(patch={})=>({kind:'SEARCH',searchVersion:1,title:'Cache balisée',description:'Lieu public',gmNotes:'SECRET_MJ',search:{active:true,difficulty:6,showDifficulty:false,maxAttempts:null,bonuses:[]},finds:[
  {id:'view',kind:'INDICE_A_VOIR',title:'Gravure',active:true,knowledgeId:'ordinary'},
  {id:'take',kind:'INDICE_A_PRENDRE',title:'Datapad',active:true,knowledgeId:'higher'},
@@ -98,4 +99,5 @@ export function spaceSearchSuite(makeStore,prefix='Fouilles V3.6'){
    await assert.rejects(read('prepareMediaAssignments',{targets:[{...targets[0],scope:'session',scopeId:fixture.sid,mediaId:image.id}]},fixture.player),{code:'FORBIDDEN'});
   }
  });
+ spacePilotJourneySuite(makeStore,`${prefix} - PIL-02 intégré`);
 }
