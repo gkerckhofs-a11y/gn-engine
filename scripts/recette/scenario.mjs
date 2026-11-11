@@ -34,7 +34,7 @@ export async function seedMissionScenario(call,uids,{pilot=false}={}){
     createdItems.add(itemId);
     await central('saveCentralItem',{itemId,itemRevision:0,draftRevision:revision++,item:{name:slot.label,description:'Objet fictif de recette',category:'Recette',unit:'unité',kind:slot.requiresConsumable?'STACKABLE':'INDIVIDUAL',consumable:slot.requiresConsumable,unitVolume:1,legality:'UNSPECIFIED',pillable:true,gmNotes:'SECRET_RECETTE_M1'},reason:'Kit natif de recette'});
    }
-   await central('saveCentralClassKit',{classKitId,classKitRevision:0,draftRevision:revision++,classKit:{bindings,gmNotes:'Kit synthétique'},reason:'Kit de classe natif'});
+   await central('saveCentralClassKit',{classKitId:classId,classKitRevision:0,draftRevision:revision++,classKit:{bindings,gmNotes:'Kit synthétique'},reason:'Kit de classe natif'});
   }
   const character={displayName:'Comptoir de recette',profession:'PNJ fictif',description:'Dispensaire synthétique',nature:'HUMANOID',biography:'Fiction de recette',roleplay:'Remettre physiquement les lots',playerSecrets:'SECRET_RECETTE_PNJ',gmNotes:'SECRET_RECETTE_MJ',objectives:[],relations:[]};
   await central('saveCentralCharacter',{characterId:'merchant',characterRevision:0,draftRevision:revision++,character,reason:'Commanditaire fictif'});
