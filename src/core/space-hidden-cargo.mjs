@@ -74,7 +74,8 @@ export function createHiddenCargoService({store,signed,checkSession,now,uuid,rol
      ship:{id:ship.id,name:ship.name,portId:ship.portId??null,portVisitId:ship.portVisitId??null,docked:ship.docked,revision:ship.revision},
      voyage:ship.journey?{id:ship.journey.id,routeId:ship.journey.routeId,fromPort:ship.journey.fromPort??null,toPort:ship.journey.toPort??null}:null,
      lots:stock.map(l=>({id:l.id,name:l.item.name,quantity:l.quantity,unit:l.item.unit??'unité',status:l.status,
-      ownerType:l.ownerType??'CHARACTER',ownerId:l.ownerId,concealed:concealedIn(l,ship.id)})),
+      ownerType:l.ownerType??'CHARACTER',ownerId:l.ownerId,concealed:concealedIn(l,ship.id),
+      referenceUnitValueCr:Number.isSafeInteger(l.item.referenceUnitValueCr)&&l.item.referenceUnitValueCr>0?l.item.referenceUnitValueCr:null})),
      referenceValueVerified:false,regulatedStatusVerified:false
     }};
    }

@@ -124,6 +124,19 @@ export function hiddenCargoSuite(makeStore,prefix='Fret caché et MOD-04 SO'){
   assert.deepEqual(await f.store.list(`${base}/audit`),audit);
   assert.deepEqual(await f.store.list(`${base}/customsLicenses`),[]);
  });
+ test(`${prefix} : valeur M1 du lot visible au MJ mais estimation toujours non certifiée`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);
+  await f.edit(`inventory/${f.lotId}`,l=>({...l,item:{...l.item,referenceUnitValueCr:320},revision:l.revision+1}));
+  const q=await f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2501,shipId:'ship'},f.owner);
+  const entry=q.cargoContext.lots.find(l=>l.id===f.lotId);
+  assert.equal(entry.referenceUnitValueCr,320);
+  assert.equal(q.referenceValue,2501);
+  assert.equal(q.exactFeeCr,'50.02');
+  assert.equal(q.cargoContext.referenceValueVerified,false);
+  assert.equal(q.cargoContext.regulatedStatusVerified,false);
+  assert.equal(q.issued,false);
+  assert.doesNotMatch(JSON.stringify(q),/Note M1 privée|gmNotes|playerEmail/);
+ });
  test(`${prefix} : devis lié refuse vaisseau absent, rôle joueur et code hors LIC-02`,async()=>{
   const f=await hiddenCargoFixture(makeStore);
   await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000,shipId:'introuvable'},f.owner),{code:'SO_CUSTOMS_LICENSE_SHIP'});

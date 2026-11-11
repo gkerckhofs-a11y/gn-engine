@@ -33,7 +33,7 @@ export function customsLicenseQuoteHtml(q){
   +(q.cargoContext?'<section class="panel"><h3>Fret réel rattaché · lecture MJ</h3>'
     +'<p>Vaisseau : '+esc(q.cargoContext.ship.name)+' · port '+esc(q.cargoContext.ship.portId??'non renseigné')+'.</p>'
     +(q.cargoContext.voyage?'<p>Voyage engagé : '+esc(q.cargoContext.voyage.id)+' · route '+esc(q.cargoContext.voyage.routeId??'non renseignée')+'.</p>':'<p>Aucun voyage engagé : la portée du permis reste à vérifier.</p>')
-    +(q.cargoContext.lots.length?'<ul>'+q.cargoContext.lots.map(l=>'<li>'+esc(l.name)+' · '+esc(l.quantity)+' '+esc(l.unit)+' · '+esc(l.status)+'</li>').join('')+'</ul>':'<p>Aucun lot réel présent en soute.</p>')
+    +(q.cargoContext.lots.length?'<ul>'+q.cargoContext.lots.map(l=>'<li>'+esc(l.name)+' · '+esc(l.quantity)+' '+esc(l.unit)+' · '+esc(l.status)+(l.referenceUnitValueCr!=null?' · valeur M1 : '+esc(l.referenceUnitValueCr)+' Cr / unité (instantané du lot)':' · valeur M1 absente')+'</li>').join('')+'</ul>':'<p>Aucun lot réel présent en soute.</p>')
     +'<p>La liste brute inclut éventuellement des biens non réglementés. Classification, valeur de référence et autorisation du voyage restent à vérifier. Aucun titre n’est délivré.</p></section>':'')
   +'<h3>Éléments à vérifier avant toute délivrance</h3><ul>'
   +(q.requiredEvidence??[]).map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'

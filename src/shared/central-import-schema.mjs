@@ -20,7 +20,7 @@ export const centralStoryColumns={
 };
 export const centralImportSheets={
  Meta:['format','version','schema_version','type','campaign_id','scenario_id','rule_profile','central_base_version','draft_id','draft_revision','module_type','import_batch_id'],
- Objets:masterSheets.Objets.filter(x=>!['version','image_media_id','publication'].includes(x)),
+ Objets:[...masterSheets.Objets.filter(x=>!['version','image_media_id','publication'].includes(x)),'prix_reference_unitaire_cr'],
  Recettes:masterSheets.Recettes.filter(x=>!['version','publication'].includes(x)),
  Modeles:['id','operation','revision',...centralSpaceColumns.shipModel],
  Ports:['id','operation','revision',...centralSpaceColumns.port],

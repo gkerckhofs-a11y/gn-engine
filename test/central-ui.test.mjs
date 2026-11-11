@@ -11,7 +11,10 @@ test('Central UI : six domaines, sept ateliers et aucune édition pour la lectur
 test('Central UI : intention stable, révisions et absence de stock ou publication dans le formulaire',()=>{
  const h=ui.itemForm(model,'stable-id');assert.match(h,/data-id="stable-id"/);assert.match(h,/data-draft="3"/);assert.match(h,/data-revision="0"/);assert.doesNotMatch(h,/name="(stock|credits|publicationState|quantity|ownerId)"/);
  const payload=centralItemPayload({name:'Test',description:'',category:'Bien',unit:'unité',kind:'STACKABLE',consumable:'on',pillable:'on',unitVolume:'0',legality:'LEGAL',gmNotes:'',pelletsPerUnit:'3'});
- assert.equal(payload.unitVolume,0);assert.equal(payload.consumable,true);assert.equal(payload.pillable,true);assert.deepEqual(payload.laserRecharge,{pelletsPerUnit:3});assert.equal('publicationState' in payload,false);
+ assert.equal(payload.unitVolume,0);
+ assert.match(h,/name="referenceUnitValueCr"/);
+ assert.equal(centralItemPayload({...payload,referenceUnitValueCr:'320'}).referenceUnitValueCr,320);
+ assert.equal(centralItemPayload({...payload,referenceUnitValueCr:''}).referenceUnitValueCr,null);assert.equal(payload.consumable,true);assert.equal(payload.pillable,true);assert.deepEqual(payload.laserRecharge,{pelletsPerUnit:3});assert.equal('publicationState' in payload,false);
 });
 test('Central UI : espèces M2 échappées et délégations sans pouvoir de publication',()=>{
  const h=ui.page({...model,workshop:'M2',changes:[{id:'speciesCatalogue_player',data:[{id:'human',label:'<b>Human</b>',nature:'HUMANOID',description:'<img src=x>',available:true}]}]});assert.match(h,/&lt;b&gt;Human/);assert.doesNotMatch(h,/<img/);

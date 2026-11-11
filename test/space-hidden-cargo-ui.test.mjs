@@ -90,11 +90,12 @@ test('Douanes UI : devis LIC-02 distinct du paiement et sans données joueur',as
  assert.doesNotMatch(output,/name="fee"|name="die"|<script>/);
  const linked=customsLicenseQuoteHtml({code:'LIC-02',title:'Permis',exactFeeCr:'50.02',scope:'Fret',
   cargoContext:{ship:{id:'ship',name:'<img src=x>',portId:'home'},journey:null,
-   lots:[{id:'lot',name:'<script>secret</script>',quantity:2,unit:'caisse',status:'AVAILABLE'}]}});
+   lots:[{id:'lot',name:'<script>secret</script>',quantity:2,unit:'caisse',status:'AVAILABLE',referenceUnitValueCr:320}]}});
  assert.match(linked,/Fret réel rattaché/);
  assert.match(linked,/Aucun voyage engagé/);
  assert.doesNotMatch(linked,/<img|<script>/);
  assert.match(linked,/&lt;img/);
+ assert.match(linked,/320 Cr \/ unité/);
 });
 test('Douanes UI : estimation LIC-03 en lecture seule, sans écriture ni reçu trompeur',async()=>{
  const calls=[];

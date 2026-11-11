@@ -75,7 +75,10 @@ targetedProfiles['hidden-ui']={
  tests:[...targetedProfiles['hidden-removal'].tests,'test/space-hidden-cargo-ui.test.mjs','test/cargo-ui.test.mjs'],
  suites:[...targetedProfiles['hidden-removal'].suites],
  httpPattern:targetedProfiles['hidden-removal'].httpPattern,
- files:[...targetedProfiles['hidden-removal'].files,'src/core/cargo.mjs','web/cargo.mjs','web/space-hidden-cargo.mjs','test/space-hidden-cargo-ui.test.mjs','test/cargo-ui.test.mjs'],
+ files:[...targetedProfiles['hidden-removal'].files,'src/core/cargo.mjs','web/cargo.mjs','web/space-hidden-cargo.mjs','test/space-hidden-cargo-ui.test.mjs','test/cargo-ui.test.mjs',
+  // The central, Excel and inventory suites are already included in this scope.
+  'src/core/central-import.mjs','src/shared/central-import-schema.mjs',
+  'test/support/central-master-suite.mjs','test/support/central-import-suite.mjs'],
 };
 // Versioned MOD-04 equipment and decision B: no disclosure on outage.
 targetedProfiles['hidden-flight']={...targetedProfiles['hidden-ui'],httpPattern:targetedProfiles['hidden-ui'].httpPattern.replace('fret caché préparatoire,|','MOD-04 équipé,|fret caché préparatoire,|'),files:[...targetedProfiles['hidden-ui'].files,'test/support/space-outlaws-voyages-suite.mjs','test/support/space-logistics-suite.mjs','test/support/space-module-installation-suite.mjs','test/support/space-module-mandates-suite.mjs','test/support/space-module-work-suite.mjs','test/support/space-module-purchases-suite.mjs','test/support/space-module-removal-suite.mjs','test/support/space-module-flight-suite.mjs','test/support/space-encounters-suite.mjs']};
