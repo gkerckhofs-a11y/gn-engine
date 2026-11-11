@@ -270,16 +270,16 @@ targetedProfiles['customs-port']={
   'test/central-space.test.mjs','test/central-space-import.test.mjs']
 };
 targetedProfiles['pilot-recette']={
- tests:['test/recette.test.mjs','test/space-search.test.mjs','test/space-outlaws-voyages.test.mjs',
-  'test/space-outlaws-entry.test.mjs','test/space-outlaws-shops.test.mjs',
-  'test/ci-selection.test.mjs','test/ci-targeted.test.mjs'],
- suites:['space-search','space-outlaws-voyages','space-outlaws-entry','space-outlaws-shops'],
- httpPattern:null,
- files:[...infrastructure,'package.json','scripts/recette.mjs','scripts/recette/scenario.mjs',
-  'scripts/recette/pilot.mjs','scripts/recette/serve.mjs','scripts/recette/cases.mjs',
-  'scripts/recette/guide.mjs','test/recette.test.mjs','test/space-search.test.mjs',
-  'test/space-outlaws-voyages.test.mjs','test/space-outlaws-entry.test.mjs',
-  'test/space-outlaws-shops.test.mjs','docs/SO-RECETTE-LOCALE.md','docs/SO-PILOTE-GEL-V1.md']
+ ...targetedProfiles['customs-port'],
+ tests:[...new Set([...targetedProfiles['customs-port'].tests,
+  'test/recette.test.mjs','test/space-search.test.mjs','test/space-outlaws-voyages.test.mjs',
+  'test/space-outlaws-entry.test.mjs','test/space-outlaws-shops.test.mjs'])],
+ suites:[...new Set([...targetedProfiles['customs-port'].suites,'space-search',
+  'space-outlaws-voyages','space-outlaws-entry','space-outlaws-shops'])],
+ files:[...targetedProfiles['customs-port'].files,
+  'package.json','scripts/recette.mjs','scripts/recette/scenario.mjs','scripts/recette/pilot.mjs',
+  'scripts/recette/serve.mjs','scripts/recette/cases.mjs','scripts/recette/guide.mjs',
+  'test/recette.test.mjs']
 };
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
