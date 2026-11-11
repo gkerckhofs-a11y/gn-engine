@@ -143,7 +143,7 @@ test('Recette pilote : même session, D12 puis prise de crédits financés sans 
  await f.call('refuelShip',{...fuelInput,present:true,confirmation:fuelPreview.confirmation,requestId:'pilot-02-refuel'},'other');
  assert.equal((await f.store.get(base+'/ships/'+shipId)).fuel,0);
  const waitingFuelNav=await f.call('shipNavigation',{sessionId:sid,shipId},'other');
- await assert.rejects(f.call('finishSoRefuel',{sessionId:sid,shipId,present:true,confirmation:waitingFuelNav.confirmation},'other'),{code:'VOYAGE_NOT_READY'});
+ await assert.rejects(f.call('finishSoRefuel',{sessionId:sid,shipId,present:true,confirmation:waitingFuelNav.confirmation,requestId:'pilot-02-refuel-early'},'other'),{code:'VOYAGE_NOT_READY'});
  f.advance(120000);
  const fuelNav=await f.call('shipNavigation',{sessionId:sid,shipId},'other');
  await f.call('finishSoRefuel',{sessionId:sid,shipId,present:true,confirmation:fuelNav.confirmation,requestId:'pilot-02-refuel-finish'},'other');
@@ -154,7 +154,7 @@ test('Recette pilote : même session, D12 puis prise de crédits financés sans 
  assert.equal(voyagePreview.route.fuelCost,2);
  await f.call('departShip',{...voyageInput,present:true,confirmation:voyagePreview.confirmation,requestId:'pilot-02-depart'},'other');
  const waitingDepartureNav=await f.call('shipNavigation',{sessionId:sid,shipId},'other');
- await assert.rejects(f.call('finishSoPreparation',{sessionId:sid,shipId,present:true,confirmation:waitingDepartureNav.confirmation},'other'),{code:'VOYAGE_NOT_READY'});
+ await assert.rejects(f.call('finishSoPreparation',{sessionId:sid,shipId,present:true,confirmation:waitingDepartureNav.confirmation,requestId:'pilot-02-preparation-early'},'other'),{code:'VOYAGE_NOT_READY'});
  f.advance(180000);
  const departNav=await f.call('shipNavigation',{sessionId:sid,shipId},'other');
  const departInput={sessionId:sid,shipId,present:true,confirmation:departNav.confirmation,requestId:'pilot-02-finish-preparation'};
