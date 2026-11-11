@@ -279,7 +279,8 @@ targetedProfiles['pilot-recette']={
  files:[...targetedProfiles['customs-port'].files,
   'package.json','scripts/recette.mjs','scripts/recette/scenario.mjs','scripts/recette/pilot.mjs',
   'scripts/recette/serve.mjs','scripts/recette/cases.mjs','scripts/recette/guide.mjs',
-  'test/recette.test.mjs']
+  'test/recette.test.mjs','test/support/space-search-suite.mjs',
+  'test/support/space-pilot-journey-suite.mjs']
 };
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
