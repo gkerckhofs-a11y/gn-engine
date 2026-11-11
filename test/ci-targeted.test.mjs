@@ -42,6 +42,13 @@ test('CI ciblée : catalogue modules couvre M1, snapshots, inventaire, publicati
  assert.deepEqual(testCommand('http',{GN_CI_PROFILE:'targeted-module-catalog',GN_HTTP_PATTERN:JSON.stringify(profile.httpPattern)}).args,['--test',`--test-name-pattern=${profile.httpPattern}`,'test/integration/http.test.mjs']);
  assert.deepEqual(testCommand('application',{GN_CI_PROFILE:'targeted-module-catalog',GN_APPLICATION_TESTS:JSON.stringify(profile.tests)}).args,['--test',...profile.tests]);
 });
+test('CI ciblée : classification locale M3, M1 et contrôles Excel sont couverts',()=>{
+ const p=targetedScope('customs-port',['src/core/central-space.mjs','src/shared/space-customs-rules.mjs','src/core/central-check.mjs','web/central-space.mjs'],{reliableBase:true});
+ for(const f of ['test/central-space.test.mjs','test/central-space-import.test.mjs','test/central-space-ui.test.mjs','test/central-check.test.mjs'])assert.ok(p.applicationTests.includes(f),f);
+ for(const suite of ['central-space','central-space-import','central-check','space-hidden-cargo'])assert.ok(p.suites.includes(suite),suite);
+ assert.throws(()=>targetedScope('customs-port',['src/core/economy.mjs'],{reliableBase:true}));
+ assert.equal(p.browser,false);
+});
 test('CI ciblée : achat modules garde les dépendances financières, vente, voyages et reprise sans ouvrir le montage',()=>{
  const name='module-purchases',profile=targetedProfiles[name],p=targetedScope(name,['src/core/shops.mjs','src/core/space-outlaws-entry.mjs','web/shops.mjs'],{reliableBase:true});
  assert.equal(requestedTarget('[ci targeted:module-purchases]'),name);assert.throws(()=>targetedScope(name,[],{}));

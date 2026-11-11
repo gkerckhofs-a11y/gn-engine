@@ -5,7 +5,7 @@ import {centralMissionsFixture} from './central-missions-suite.mjs';
 import {centralItemRow} from './central-import-suite.mjs';
 import {centralLimits} from '../../src/core/central-master.mjs';
 import {centralCheckLimits} from '../../src/core/central-check.mjs';
-import {centralSpaceEditable} from '../../src/core/central-space.mjs';
+import {centralSpaceEditable,centralSpaceInput,centralSpaceReferences} from '../../src/core/central-space.mjs';
 
 export const centralTestShipModel={name:'Modèle synthétique',description:'Description privée M3',gmNotes:'Secret modèle M3',profileId:'FIGHTER'};
 export const centralTestPort={name:'Port synthétique',description:'Description privée M3',gmNotes:'Secret port M3',navigationCode:'SECRET-CODE-PORT',locationTargetId:null};
@@ -37,6 +37,35 @@ export function centralSpaceSuite(makeStore,prefix='Spatioport central C2j'){
    const id=`${distanceId}-${riskId}`;await f.saveSpace('route',{routeId:id,draftRevision:revision++,route:{...centralTestRoute,navigationCode:id,distanceId,riskId}});const {data:d}=await f.store.get(`${f.base}/changes/route_${id}`);assert.equal(d.durationSeconds,seconds);assert.equal(d.distanceFactor,factor);assert.equal(d.eventFaces,faces);assert.equal(d.fuelCost,undefined);assert.equal(d.enabled,undefined);
   }
   assert.equal((await f.check(9)).totals.invalid,0);
+ });
+ test(`${prefix} : classification douanière M3 non implicite et graphe M1`,async()=>{
+  const f=await centralSpaceFixture(makeStore);
+  await f.saveSpace('port',{port:{...centralTestPort,customsRules:[{itemId:'ingredient',status:'REGULATED'}]}});
+  let view=await f.view('M3');
+  assert.equal(view.changes[0].data.customsRules[0].status,'REGULATED');
+  assert.equal(view.diagnostics.find(d=>d.referenceType==='item')?.code,'REFERENCE_MISSING');
+  await f.grant({readWorkshops:['M3'],editWorkshops:[]});
+  const delegated=await f.view('M3',f.mj);
+  assert.equal(delegated.diagnostics.find(d=>d.referenceType==='item')?.code,'REFERENCE_NOT_CHECKED');
+  assert.doesNotMatch(JSON.stringify(delegated),/Note M1 privée|Ingrédient synthétique/);
+  await f.save({draftRevision:1});
+  view=await f.view('M3');
+  assert.equal(view.diagnostics.filter(d=>d.referenceType==='item').length,0);
+  assert.equal((await f.check(2)).edges.find(e=>e.field==='customsRules.0.itemId')?.status,'RESOLVED');
+  assert.equal(centralSpaceReferences(view.changes[0])[0].type,'item');
+  await f.saveSpace('port',{draftRevision:2,portRevision:1,port:{...centralTestPort,customsRules:[]}});
+  assert.deepEqual((await f.view('M3')).changes[0].data.customsRules,[]);
+  assert.equal((await f.check(3)).edges.find(e=>e.to.type==='item'),undefined);
+  assert.equal('customsRules' in centralSpaceInput('port',centralTestPort,'legacy'),false);
+ });
+ test(`${prefix} : statut par port strict, sans doublon ni champ privilégié`,()=>{
+  const withRules=rules=>centralSpaceInput('port',{...centralTestPort,customsRules:rules},'p');
+  assert.deepEqual(withRules([{itemId:'one',status:'FREE'},{itemId:'two',status:'PROHIBITED'}]).customsRules,[{itemId:'one',status:'FREE'},{itemId:'two',status:'PROHIBITED'}]);
+  for(const invalid of [[{itemId:'one',status:'REGULATED'},{itemId:'one',status:'FREE'}],
+   [{itemId:'one',status:'ILLEGAL'}],[{itemId:'../bad',status:'FREE'}],[{itemId:'one',status:'FREE',fee:0}],
+   Array.from({length:101},(_,i)=>({itemId:'x'+i,status:'FREE'})),null,{one:'FREE'}]){
+   assert.throws(()=>withRules(invalid),{code:'INVALID_CENTRAL_SPACE'});
+  }
  });
  test(`${prefix} : ports différés résolus sans recopier ni réécrire les routes`,async()=>{
   const f=await centralSpaceFixture(makeStore);await f.saveSpace('route');const before=await f.store.get(`${f.base}/changes/route_route`);assert.equal((await f.view('M3')).diagnostics.filter(x=>x.code==='REFERENCE_MISSING').length,2);await f.ports();assert.deepEqual((await f.view('M3')).diagnostics,[]);assert.deepEqual(await f.store.get(`${f.base}/changes/route_route`),before);const r=await f.check(3);assert.equal(r.edges.length,2);assert.ok(r.edges.every(e=>e.to.type==='port'&&e.status==='RESOLVED'));assert.equal(r.workshops.find(w=>w.id==='M3').coverage,'PARTIAL');assert.equal(r.publicationAvailable,false);
