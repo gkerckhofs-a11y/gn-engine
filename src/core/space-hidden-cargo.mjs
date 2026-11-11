@@ -22,7 +22,7 @@ export function hiddenCargoCapacity(ship,time){
 const visit=ship=>ship.portVisitId??`INITIAL:${ship.id}`;
 const idle=ship=>ship?.enabled&&ship.docked&&!ship.journey&&!ship.operation&&!ship.combatId&&!ship.rescueId&&!ship.maintenanceId&&!ship.convoy&&!ship.convoyOffer;
 const fit=(c,time,id=null)=>c?.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeNavigationId&&!c.activeVoyageId&&!c.activeCargoId&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&(!c.activeMaintenanceId||c.activeMaintenanceId===id)&&!(c.convalescentUntilGameMs>time);
-const fields={customsDesk:[],customsLicenseQuote:['code','referenceValue','shipId'],customsLicenseScopePreview:['shipId','lotIds','routeId'],hiddenCargo:['shipId'],prepareCargoConcealment:['shipId','lotId','conceal'],setCargoConcealment:['shipId','lotId','conceal','confirmation','present'],customsAdmin:[],setCustomsAuthority:['characterId','level','portId','authorityRevision','reason'],authorizeCustomsRetry:['shipId','confirmation','reason'],prepareCustomsInspection:['shipId','kind'],startCustomsInspection:['shipId','kind','confirmation','present'],prepareCustomsInspectionAdmin:['shipId','kind','agentId'],startCustomsInspectionAdmin:['shipId','kind','agentId','confirmation','present'],customsInspection:['inspectionId'],customsInspectionAdmin:['inspectionId'],finishCustomsInspection:['inspectionId','confirmation','present','performed'],finishCustomsInspectionAdmin:['inspectionId','confirmation','present','performed'],cancelCustomsInspection:['inspectionId','confirmation','reason'],cancelCustomsInspectionAdmin:['inspectionId','confirmation','reason']};
+const fields={customsDesk:[],customsLicenseQuote:['code','referenceValue','shipId'],customsLicenseScopePreview:['shipId','lotIds','routeId','applicantCharacterId'],hiddenCargo:['shipId'],prepareCargoConcealment:['shipId','lotId','conceal'],setCargoConcealment:['shipId','lotId','conceal','confirmation','present'],customsAdmin:[],setCustomsAuthority:['characterId','level','portId','authorityRevision','reason'],authorizeCustomsRetry:['shipId','confirmation','reason'],prepareCustomsInspection:['shipId','kind'],startCustomsInspection:['shipId','kind','confirmation','present'],prepareCustomsInspectionAdmin:['shipId','kind','agentId'],startCustomsInspectionAdmin:['shipId','kind','agentId','confirmation','present'],customsInspection:['inspectionId'],customsInspectionAdmin:['inspectionId'],finishCustomsInspection:['inspectionId','confirmation','present','performed'],finishCustomsInspectionAdmin:['inspectionId','confirmation','present','performed'],cancelCustomsInspection:['inspectionId','confirmation','reason'],cancelCustomsInspectionAdmin:['inspectionId','confirmation','reason']};
 export const hiddenCargoActions=Object.keys(fields);
 const reads=new Set(['customsDesk','customsLicenseQuote','customsLicenseScopePreview','hiddenCargo','prepareCargoConcealment','customsAdmin','prepareCustomsInspection','prepareCustomsInspectionAdmin','customsInspection','customsInspectionAdmin']);
 const admins=new Set(['customsAdmin','customsLicenseQuote','customsLicenseScopePreview','setCustomsAuthority','authorizeCustomsRetry','prepareCustomsInspectionAdmin','startCustomsInspectionAdmin','customsInspectionAdmin','finishCustomsInspectionAdmin','cancelCustomsInspectionAdmin']);
@@ -104,11 +104,14 @@ export function createHiddenCargoService({store,signed,checkSession,now,uuid,rol
     const port=ship.docked&&!ship.journey&&portId?await tx.get(`${base}/ports/${portId}`):null;
     const assessment=publishedCustomsCargoAssessment({ship,port,sessionVersionId:s.versionId,stock});
     const routeChoices=assessment.portPolicy.status==='PUBLISHED'?(await tx.list(`${base}/routes`)).filter(r=>r.versionId===s.versionId&&r.fromPort===ship.portId&&r.toPort!==ship.portId&&r.enabled!==false).map(r=>({id:r.id,name:r.name,toPort:r.toPort})):[];
-    // Candidate navigation routes, not customs-approved voyages.
+    // Candidate route and possible applicant identities: neither is an authorization.
+    const applicantChoices=assessment.portPolicy.status==='PUBLISHED'?(await tx.list(`${base}/characters`))
+      .filter(ch=>ch.assignedUid&&ch.publicationState==='PUBLISHED'&&ch.public?.publicationState==='PUBLISHED'&&ch.public?.displayName)
+      .map(ch=>({id:ch.id,name:ch.public.displayName})):[];
     return {...quote,cargoContext:{
      ship:{id:ship.id,name:ship.name,portId:ship.portId??null,portVisitId:ship.portVisitId??null,docked:ship.docked,revision:ship.revision},
      voyage:ship.journey?{id:ship.journey.id,routeId:ship.journey.routeId,fromPort:ship.journey.fromPort??null,toPort:ship.journey.toPort??null}:null,
-     ...assessment,sessionId:s.id,routeChoices,referenceValueVerified:false,regulatedStatusVerified:false
+     ...assessment,sessionId:s.id,routeChoices,applicantChoices,referenceValueVerified:false,regulatedStatusVerified:false
     }};
    }
    if(action==='customsLicenseScopePreview'){
@@ -125,6 +128,12 @@ export function createHiddenCargoService({store,signed,checkSession,now,uuid,rol
     const destination=route?.toPort?await tx.get(`${base}/ports/${documentId(route.toPort)}`):null;
     requireThat(route?.versionId===s.versionId&&route.fromPort===ship.portId&&route.toPort!==ship.portId&&
       route.enabled!==false&&destination?.versionId===s.versionId&&destination.id===route.toPort,'SO_CUSTOMS_LICENSE_ROUTE');
+    // Identity is checked against the native active, published character roster.
+    // It does not grant consent from a third-party owner or a licence.
+    const applicantId=input.applicantCharacterId===undefined?null:documentId(input.applicantCharacterId);
+    const party=applicantId?await inventoryParty(tx,s.id,applicantId):null;
+    requireThat(!party||party.active&&!party.c.survival?.dead,'SO_CUSTOMS_LICENSE_APPLICANT');
+    const applicant=party?{id:party.c.id,name:party.c.public.displayName}:null;
     // Entire lots only. Explicit splits, transport contracts and custody are handled elsewhere.
     const rows=new Map(assessed.lots.map(l=>[l.id,l])),raw=new Map(stock.map(l=>[l.id,l]));
     const selected=lotIds.map(id=>{
@@ -136,12 +145,25 @@ export function createHiddenCargoService({store,signed,checkSession,now,uuid,rol
      requireThat(row.referenceTotalCr!==null,'SO_CUSTOMS_LICENSE_VALUE_MISSING');
      return row;
     });
+    // Factual ownership matrix, not a collection of signed mandates.
+    const ownershipEvidence=selected.map(l=>({lotId:l.id,ownerType:l.ownerType,ownerId:l.ownerId,
+     relation:!applicant?'NOT_EVALUATED':l.ownerType==='CHARACTER'?
+       (l.ownerId===applicant.id?'DIRECT_OWNER':'THIRD_PARTY'):'NON_PERSONAL_OWNER',
+     mandateVerified:false}));
+    const shipOwnershipEvidence={ownerType:ship.ownerType??'CHARACTER',ownerId:ship.ownerId,
+     relation:!applicant?'NOT_EVALUATED':(ship.ownerType??'CHARACTER')==='CHARACTER'?
+       (ship.ownerId===applicant.id?'DIRECT_OWNER':'THIRD_PARTY'):'NON_PERSONAL_OWNER',
+     mandateVerified:false};
+    const voyageScopeEvidence={sourcePortVisitId:visit(ship),fromPort:route.fromPort,toPort:route.toPort,
+     routeId:route.id,masterVersionId:s.versionId,actualVoyageId:null,validityWindowDefined:false,
+     departureAuthorized:false};
     const amount=selected.reduce((sum,lot)=>sum+BigInt(lot.referenceTotalCr),0n);
     requireThat(amount>0n,'SO_CUSTOMS_LICENSE_VALUE_MISSING');
     return {code:'LIC-02',sessionId:s.id,issued:false,referenceValueVerified:false,scopeAuthorized:false,
      voyageAuthorizationVerified:false,ownerMandatesVerified:false,amountPaid:false,
      ship:{id:ship.id,name:ship.name,portId:ship.portId,portVisitId:visit(ship),revision:ship.revision},
      route:{id:route.id,name:route.name,fromPort:route.fromPort,toPort:route.toPort},
+     applicant,ownershipEvidence,shipOwnershipEvidence,voyageScopeEvidence,
      selectedLots:selected,totalReferenceCr:String(amount),exactFeeCr:feeFromReference(amount)};
    }
    if(action==='customsAdmin'){
