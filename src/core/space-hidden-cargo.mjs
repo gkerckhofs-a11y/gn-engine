@@ -9,6 +9,7 @@ import {standardShipModuleQuote} from '../shared/space-ship-modules.mjs';
 import {gameTime} from './clock.mjs';
 import {actionPointPath,actionPointState,reserveActionPoints,resolveActionPoints,releaseActionPoints,actionPointMaximum} from './action-point-state.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
+import {portCustomsStatuses} from '../shared/space-customs-rules.mjs';
 
 // Decision B (4 November 2026): an outage blocks new storage only.
 export {hasHiddenCargo};
@@ -48,6 +49,37 @@ export function customsLicenseReferenceQuote(code,referenceValue){
   requiresPayment:true,issued:false,
   requiredEvidence:['Titulaire identifié','Émetteur MJ identifié','Cargaison réelle identifiée','Voyage autorisé identifié','Valeur réelle des lots recoupée','Paiement réel à vérifier']};
 }
+// The port must belong to the SAME published session version; never assume
+// an unknown category is free or use a diagnostic as a payable licence.
+export function publishedCustomsCargoAssessment({ship,port,sessionVersionId,stock}){
+ let status='PUBLISHED';
+ if(!ship?.docked||ship.journey)status='SHIP_NOT_DOCKED';
+ else if(!port)status='PORT_UNAVAILABLE';
+ else if(!sessionVersionId||port.versionId!==sessionVersionId||port.id!==ship.portId)status='VERSION_MISMATCH';
+ else if(port.customsRules===undefined)status='NOT_CONFIGURED';
+ else{
+  const seen=new Set(),rules=port.customsRules;
+  if(!Array.isArray(rules)||rules.length>100||!rules.every(r=>{
+   if(!r||typeof r!=='object'||Array.isArray(r)||Object.keys(r).length!==2||!Object.hasOwn(r,'itemId')||!Object.hasOwn(r,'status')||
+     typeof r.itemId!=='string'||!/^[A-Za-z0-9_-]{1,128}$/.test(r.itemId)||!portCustomsStatuses.includes(r.status)||seen.has(r.itemId))return false;
+   seen.add(r.itemId);return true;
+  }))status='INVALID_POLICY';
+ }
+ const policies=status==='PUBLISHED'?new Map(port.customsRules.map(r=>[r.itemId,r.status])):new Map();
+ let subtotal=0n,missing=0,unknown=0,prohibited=0,free=0,regulated=0;
+ const lots=stock.map(l=>{
+  const customsStatus=policies.get(l.item?.id)??'UNKNOWN';
+  const referenceUnitValueCr=Number.isSafeInteger(l.item?.referenceUnitValueCr)&&l.item.referenceUnitValueCr>0?l.item.referenceUnitValueCr:null;
+  const referenceTotalCr=referenceUnitValueCr!==null&&Number.isSafeInteger(l.quantity)&&l.quantity>0?String(BigInt(referenceUnitValueCr)*BigInt(l.quantity)):null;
+  if(customsStatus==='REGULATED'){regulated++;if(referenceTotalCr===null)missing++;else subtotal+=BigInt(referenceTotalCr);}
+  else if(customsStatus==='PROHIBITED')prohibited++;else if(customsStatus==='FREE')free++;else unknown++;
+  return {id:l.id,name:l.item.name,quantity:l.quantity,unit:l.item.unit??'unité',status:l.status,
+   ownerType:l.ownerType??'CHARACTER',ownerId:l.ownerId,concealed:concealedIn(l,ship.id),
+   customsStatus,referenceUnitValueCr,referenceTotalCr};
+ });
+ return {portPolicy:{portId:ship.portId??null,status},lots,regulatedKnownSubtotalCr:String(subtotal),
+  regulatedLots:regulated,regulatedMissingReference:missing,unclassifiedLots:unknown,prohibitedLots:prohibited,freeLots:free};
+}
 export function createHiddenCargoService({store,signed,checkSession,now,uuid,rollD6=()=>randomInt(1,7)}){
  return async(action,actor,input)=>{
   signed(actor);admissionKeys(input,['sessionId',...fields[action],...(reads.has(action)?[]:['requestId'])]);const at=now(),id=uuid();let die;
@@ -68,15 +100,14 @@ export function createHiddenCargoService({store,signed,checkSession,now,uuid,rol
     const ship=await tx.get(`${base}/ships/${documentId(input.shipId)}`);
     requireThat(ship?.soProfile,'SO_CUSTOMS_LICENSE_SHIP');
     const stock=await warehouseStock(tx,s.id,ship.id,'HOLD');
-    // Physical inventory and an active voyage are evidence, not proof of
-    // legal category, reference valuation or a valid issued permit.
+    const portId=typeof ship.portId==='string'&&/^[A-Za-z0-9_-]{1,128}$/.test(ship.portId)?ship.portId:null;
+    const port=ship.docked&&!ship.journey&&portId?await tx.get(`${base}/ports/${portId}`):null;
+    const assessment=publishedCustomsCargoAssessment({ship,port,sessionVersionId:s.versionId,stock});
+    // No validation of beneficiary, licensed cargo subset, authorized voyage or payment.
     return {...quote,cargoContext:{
      ship:{id:ship.id,name:ship.name,portId:ship.portId??null,portVisitId:ship.portVisitId??null,docked:ship.docked,revision:ship.revision},
      voyage:ship.journey?{id:ship.journey.id,routeId:ship.journey.routeId,fromPort:ship.journey.fromPort??null,toPort:ship.journey.toPort??null}:null,
-     lots:stock.map(l=>({id:l.id,name:l.item.name,quantity:l.quantity,unit:l.item.unit??'unité',status:l.status,
-      ownerType:l.ownerType??'CHARACTER',ownerId:l.ownerId,concealed:concealedIn(l,ship.id),
-      referenceUnitValueCr:Number.isSafeInteger(l.item.referenceUnitValueCr)&&l.item.referenceUnitValueCr>0?l.item.referenceUnitValueCr:null})),
-     referenceValueVerified:false,regulatedStatusVerified:false
+     ...assessment,referenceValueVerified:false,regulatedStatusVerified:false
     }};
    }
    if(action==='customsAdmin'){

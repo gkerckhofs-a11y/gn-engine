@@ -123,3 +123,11 @@ Une définition privée de port M3 peut désormais associer **chaque identifiant
 Édition web dans le formulaire M3, Excel M3 `Ports.statuts_douane` en syntaxe `item_id:REGULATED;second_id:PROHIBITED`. Import blanc = conserver, `!EFFACER` = vider. Statuts, IDs, unicité et limite de 100 entrées stricts. Les références M1 absentes ou archivées sont signalées au contrôle global ; sans autorisation de lecture M1, seuls les IDs rédigés dans M3 et `REFERENCE_NOT_CHECKED` sont accessibles à l'éditeur. Le contrôle central de publication et les arêtes M3 → M1 restent sources d'autorité.
 
 Aucune taxe, remise, saisie, licence, montant à prélever, compte, titre ou migration automatique ajoutée. Le raccordement de cette classification à une **session publiée** et au calcul douanier vérifié reste distinct ; une estimation n'est jamais une licence valide.
+
+## Diagnostic douanier MJ d'après le port publié — 11 novembre 2026
+
+La lecture `customsLicenseQuote` pour LIC-02 et un vaisseau rattaché consulte le port **réel de la session**, déjà copié depuis la version publiée du Master M3. Le serveur exige `port.versionId === session.versionId`, le bon identifiant et un vaisseau **à quai sans voyage en cours**. Port absent, ancien, incohérent ou sans classification : statut `UNKNOWN` pour chaque lot, jamais FREE par défaut. Les données de brouillon M3 et les notes privées du port ne sont pas exposées.
+
+Les lots réels de soute sont classés selon le port publié : libre, réglementé, interdit ou inconnu. Chaque lot disposant d'un prix de référence M1 figé lors de sa création a un montant calculé par quantité via `BigInt`, sans arrondi ; le sous-total indicatif ne cumule que les lots réglementés **explicitement connus et valorisés**, avec compte des biens sans valeur, non classés et interdits. L'absence d'un prix de référence ne signifie pas une valeur nulle.
+
+Un devis n'est ni un dédouanement ni une licence. Le tarif LIC-02 reste fondé sur l'entrée du MJ et la sortie demeure `issued:false`, `referenceValueVerified:false`, `regulatedStatusVerified:false` car la cargaison sous permis, le titulaire, le voyage et le paiement n'ont pas été certifiés. Aucune mutation de crédit, stock, licence ou permission. Validation ciblée et recette mobile à distinguer.
