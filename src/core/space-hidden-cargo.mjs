@@ -22,9 +22,9 @@ export function hiddenCargoCapacity(ship,time){
 const visit=ship=>ship.portVisitId??`INITIAL:${ship.id}`;
 const idle=ship=>ship?.enabled&&ship.docked&&!ship.journey&&!ship.operation&&!ship.combatId&&!ship.rescueId&&!ship.maintenanceId&&!ship.convoy&&!ship.convoyOffer;
 const fit=(c,time,id=null)=>c?.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeNavigationId&&!c.activeVoyageId&&!c.activeCargoId&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&(!c.activeMaintenanceId||c.activeMaintenanceId===id)&&!(c.convalescentUntilGameMs>time);
-const fields={customsDesk:[],customsLicenseQuote:['code','referenceValue','shipId'],customsLicenseScopePreview:['shipId','lotIds','routeId','applicantCharacterId'],myCustomsConsents:[],prepareCustomsLotConsent:['shipId','lotId','routeId','applicantCharacterId'],grantCustomsLotConsent:['shipId','lotId','routeId','applicantCharacterId','confirmation','consent'],revokeCustomsLotConsent:['lotId','confirmation','confirmed'],hiddenCargo:['shipId'],prepareCargoConcealment:['shipId','lotId','conceal'],setCargoConcealment:['shipId','lotId','conceal','confirmation','present'],customsAdmin:[],setCustomsAuthority:['characterId','level','portId','authorityRevision','reason'],authorizeCustomsRetry:['shipId','confirmation','reason'],prepareCustomsInspection:['shipId','kind'],startCustomsInspection:['shipId','kind','confirmation','present'],prepareCustomsInspectionAdmin:['shipId','kind','agentId'],startCustomsInspectionAdmin:['shipId','kind','agentId','confirmation','present'],customsInspection:['inspectionId'],customsInspectionAdmin:['inspectionId'],finishCustomsInspection:['inspectionId','confirmation','present','performed'],finishCustomsInspectionAdmin:['inspectionId','confirmation','present','performed'],cancelCustomsInspection:['inspectionId','confirmation','reason'],cancelCustomsInspectionAdmin:['inspectionId','confirmation','reason']};
+const fields={customsDesk:[],customsLicenseQuote:['code','referenceValue','shipId'],customsLicenseScopePreview:['shipId','lotIds','routeId','applicantCharacterId'],myCustomsConsents:[],prepareCustomsLotConsent:['shipId','lotId','routeId','applicantCharacterId'],grantCustomsLotConsent:['shipId','lotId','routeId','applicantCharacterId','confirmation','consent'],revokeCustomsLotConsent:['lotId','confirmation','confirmed'],prepareCustomsShipConsent:['shipId','routeId','applicantCharacterId'],grantCustomsShipConsent:['shipId','routeId','applicantCharacterId','confirmation','consent'],revokeCustomsShipConsent:['shipId','confirmation','confirmed'],hiddenCargo:['shipId'],prepareCargoConcealment:['shipId','lotId','conceal'],setCargoConcealment:['shipId','lotId','conceal','confirmation','present'],customsAdmin:[],setCustomsAuthority:['characterId','level','portId','authorityRevision','reason'],authorizeCustomsRetry:['shipId','confirmation','reason'],prepareCustomsInspection:['shipId','kind'],startCustomsInspection:['shipId','kind','confirmation','present'],prepareCustomsInspectionAdmin:['shipId','kind','agentId'],startCustomsInspectionAdmin:['shipId','kind','agentId','confirmation','present'],customsInspection:['inspectionId'],customsInspectionAdmin:['inspectionId'],finishCustomsInspection:['inspectionId','confirmation','present','performed'],finishCustomsInspectionAdmin:['inspectionId','confirmation','present','performed'],cancelCustomsInspection:['inspectionId','confirmation','reason'],cancelCustomsInspectionAdmin:['inspectionId','confirmation','reason']};
 export const hiddenCargoActions=Object.keys(fields);
-const reads=new Set(['customsDesk','customsLicenseQuote','customsLicenseScopePreview','myCustomsConsents','prepareCustomsLotConsent','hiddenCargo','prepareCargoConcealment','customsAdmin','prepareCustomsInspection','prepareCustomsInspectionAdmin','customsInspection','customsInspectionAdmin']);
+const reads=new Set(['customsDesk','customsLicenseQuote','customsLicenseScopePreview','myCustomsConsents','prepareCustomsLotConsent','prepareCustomsShipConsent','hiddenCargo','prepareCargoConcealment','customsAdmin','prepareCustomsInspection','prepareCustomsInspectionAdmin','customsInspection','customsInspectionAdmin']);
 const admins=new Set(['customsAdmin','customsLicenseQuote','customsLicenseScopePreview','setCustomsAuthority','authorizeCustomsRetry','prepareCustomsInspectionAdmin','startCustomsInspectionAdmin','customsInspectionAdmin','finishCustomsInspectionAdmin','cancelCustomsInspectionAdmin']);
 const jobs=['prepareCustomsInspection','startCustomsInspection','prepareCustomsInspectionAdmin','startCustomsInspectionAdmin'];
 // Read-only reference quotation. This neither issues a permit nor settles a fee.
@@ -108,6 +108,26 @@ async function customsConsentBinding(tx,s,owner,ownerVersion,input){
   routeName:route.name,applicantName:applicant.c.public.displayName,
   referenceTotalCr:a.lots[0].referenceTotalCr};
 }
+// The vessel-use agreement is separate from a cargo owner's consent.
+// It neither transfers control of the ship nor supplies a pilot/route permit.
+async function customsShipConsentBinding(tx,s,owner,ownerVersion,input){
+ const base=`sessions/${s.id}`,ship=await tx.get(`${base}/ships/${documentId(input.shipId)}`);
+ requireThat(ship?.soProfile&&(ship.ownerType??'CHARACTER')==='CHARACTER'&&ship.ownerId===owner.id&&idle(ship),
+  'SO_CUSTOMS_SHIP_CONSENT_SHIP');
+ const port=await tx.get(`${base}/ports/${documentId(ship.portId)}`);
+ const status=publishedCustomsCargoAssessment({ship,port,sessionVersionId:s.versionId,stock:[]}).portPolicy.status;
+ requireThat(status==='PUBLISHED','SO_CUSTOMS_SHIP_CONSENT_POLICY');
+ const route=await tx.get(`${base}/routes/${documentId(input.routeId)}`);
+ const dest=route?.toPort?await tx.get(`${base}/ports/${documentId(route.toPort)}`):null;
+ requireThat(route?.versionId===s.versionId&&route.fromPort===ship.portId&&route.toPort!==ship.portId&&
+  route.enabled!==false&&dest?.versionId===s.versionId&&dest.id===route.toPort,'SO_CUSTOMS_SHIP_CONSENT_ROUTE');
+ const applicant=await inventoryParty(tx,s.id,documentId(input.applicantCharacterId));
+ requireThat(applicant.active&&!applicant.c.survival?.dead,'SO_CUSTOMS_SHIP_CONSENT_APPLICANT');
+ const binding={ownerId:owner.id,ownerVersion,shipId:ship.id,shipRevision:ship.revision,
+  portId:ship.portId,portVisitId:visit(ship),routeId:route.id,toPort:route.toPort,
+  masterVersionId:s.versionId,applicantId:applicant.c.id,applicantVersion:applicant.version};
+ return {binding,shipName:ship.name,routeName:route.name,applicantName:applicant.c.public.displayName};
+}
 const consentToken=(s,v,data)=>hash(JSON.stringify([s.id,s.versionId,v,data]));
 export function createHiddenCargoService({store,signed,checkSession,now,uuid,rollD6=()=>randomInt(1,7)}){
  return async(action,actor,input)=>{
@@ -126,6 +146,7 @@ export function createHiddenCargoService({store,signed,checkSession,now,uuid,rol
     const [ships,inventory,ports,routes,people,records]=await Promise.all([
      tx.list(`${base}/ships`),tx.list(`${base}/inventory`),tx.list(`${base}/ports`),
      tx.list(`${base}/routes`),tx.list(`${base}/characters`),tx.list(`${base}/customsConsents`,['ownerId',c.id])]);
+    const shipRecords=await tx.list(`${base}/customsShipConsents`,['ownerId',c.id]);
     const byShip=new Map(ships.filter(idle).map(sh=>[sh.id,sh])),byPort=new Map(ports.map(p=>[p.id,p]));
     const eligible=inventory.filter(l=>(l.ownerType??'CHARACTER')==='CHARACTER'&&l.ownerId===c.id&&
      l.location?.kind==='HOLD'&&byShip.has(l.location.id)&&l.status==='AVAILABLE'&&
@@ -139,7 +160,20 @@ export function createHiddenCargoService({store,signed,checkSession,now,uuid,rol
      return choices.length?[{lotId:l.id,shipId:sh.id,shipName:sh.name,lotName:l.item.name,
       quantity:l.quantity,unit:l.item.unit??'unité',referenceTotalCr:a.lots[0].referenceTotalCr,routeChoices:choices}]:[];
     });
-    return {session,eligible:eligible.slice(0,100),applicantChoices:people.filter(p=>p.assignedUid&&p.publicationState==='PUBLISHED'&&
+    const eligibleShips=ships.filter(sh=>idle(sh)&&(sh.ownerType??'CHARACTER')==='CHARACTER'&&sh.ownerId===c.id&&
+     publishedCustomsCargoAssessment({ship:sh,port:byPort.get(sh.portId),sessionVersionId:s.versionId,stock:[]}).portPolicy.status==='PUBLISHED')
+     .flatMap(sh=>{
+      const routeChoices=routes.filter(r=>r.versionId===s.versionId&&r.fromPort===sh.portId&&
+       r.toPort!==sh.portId&&r.enabled!==false&&byPort.get(r.toPort)?.versionId===s.versionId)
+       .map(r=>({id:r.id,name:r.name,toPort:r.toPort}));
+      return routeChoices.length?[{id:sh.id,name:sh.name,portId:sh.portId,
+       portVisitId:visit(sh),routeChoices}]:[];
+     }).slice(0,100);
+    return {session,eligible:eligible.slice(0,100),eligibleShips,
+     shipConsents:shipRecords.filter(r=>r.ownerId===c.id).slice(0,100).map(r=>({
+      shipId:r.shipId,routeId:r.routeId,applicantId:r.applicantId,status:r.status,
+      revision:r.revision,validity:'RECHECK_ON_USE',confirmation:consentToken(s,version,r)})),
+     applicantChoices:people.filter(p=>p.assignedUid&&p.publicationState==='PUBLISHED'&&
      p.public?.publicationState==='PUBLISHED'&&p.public.displayName).map(p=>({id:p.id,name:p.public.displayName})),
      consents:records.filter(r=>r.ownerId===c.id).slice(0,100).map(r=>({
       lotId:r.lotId,shipId:r.shipId,routeId:r.routeId,applicantId:r.applicantId,
@@ -175,6 +209,37 @@ export function createHiddenCargoService({store,signed,checkSession,now,uuid,rol
     authorizeSpaceOutlaws(tx,s,'CUSTOMS_CONSENT');tx.set(path,next);
     tx.set(`${base}/audit/${id}`,{id,action,at,actorUid:actor.uid,lotId,shipId:r.shipId,applicantId:r.applicantId});
     const result={lotId,status:next.status,revision:next.revision};
+    tx.set(op,{fingerprint,guard:version,result,at});return result;
+   }
+   if(action==='prepareCustomsShipConsent'||action==='grantCustomsShipConsent'){
+    const candidate=await customsShipConsentBinding(tx,s,c,version,input);
+    const path=`${base}/customsShipConsents/${candidate.binding.shipId}`,existing=await tx.get(path);
+    if(action==='grantCustomsShipConsent'&&prior)return replay();
+    requireThat(existing?.status!=='GRANTED','SO_CUSTOMS_SHIP_CONSENT_OPEN');
+    const confirmation=consentToken(s,version,[candidate.binding,existing?.revision??0]);
+    if(action==='prepareCustomsShipConsent')return {...candidate,confirmation,
+     note:'Accord sur ce vaisseau, cette liaison et cette escale, sans droit de pilotage ni permis.'};
+    running();requireThat(input.consent===true,'SO_CUSTOMS_SHIP_CONSENT_CONFIRMATION');
+    requireThat(input.confirmation===confirmation,'STALE_REVISION');
+    const record={id:candidate.binding.shipId,customsShipConsentVersion:1,...candidate.binding,
+     status:'GRANTED',revision:(existing?.revision??0)+1,grantedAt:at,actorUid:actor.uid};
+    authorizeSpaceOutlaws(tx,s,'CUSTOMS_SHIP_CONSENT');tx.set(path,record);
+    tx.set(`${base}/audit/${id}`,{id,action,at,actorUid:actor.uid,shipId:record.shipId,
+     routeId:record.routeId,applicantId:record.applicantId});
+    const result={shipId:record.shipId,status:record.status,revision:record.revision};
+    tx.set(op,{fingerprint,guard:version,result,at});return result;
+   }
+   if(action==='revokeCustomsShipConsent'){
+    const shipId=documentId(input.shipId),path=`${base}/customsShipConsents/${shipId}`,record=await tx.get(path);
+    requireThat(record?.customsShipConsentVersion===1&&record.ownerId===c.id,'FORBIDDEN');
+    if(prior)return replay();
+    requireThat(record.status==='GRANTED','SO_CUSTOMS_SHIP_CONSENT_CLOSED');
+    requireThat(input.confirmation===consentToken(s,version,record),'STALE_REVISION');
+    running();requireThat(input.confirmed===true,'SO_CUSTOMS_SHIP_CONSENT_CONFIRMATION');
+    const next={...record,status:'REVOKED',revision:record.revision+1,revokedAt:at,revokedBy:actor.uid};
+    authorizeSpaceOutlaws(tx,s,'CUSTOMS_SHIP_CONSENT');tx.set(path,next);
+    tx.set(`${base}/audit/${id}`,{id,action,at,actorUid:actor.uid,shipId,applicantId:record.applicantId});
+    const result={shipId,status:next.status,revision:next.revision};
     tx.set(op,{fingerprint,guard:version,result,at});return result;
    }
    if(action==='customsLicenseQuote'){
@@ -248,7 +313,18 @@ export function createHiddenCargoService({store,signed,checkSession,now,uuid,rol
        (l.ownerId===applicant.id?'DIRECT_OWNER':'THIRD_PARTY'):'NON_PERSONAL_OWNER',
       consentVerified,mandateVerified:false});
     }
+    const shipAgreement=applicant&&(ship.ownerType??'CHARACTER')==='CHARACTER'?
+     await tx.get(`${base}/customsShipConsents/${ship.id}`):null;
+    const shipOwner=shipAgreement?.ownerId===ship.ownerId?await inventoryParty(tx,s.id,ship.ownerId):null;
+    const shipUseConsentVerified=!!(shipAgreement?.customsShipConsentVersion===1&&shipAgreement.status==='GRANTED'&&
+     shipOwner?.active&&shipAgreement.ownerId===ship.ownerId&&shipAgreement.ownerVersion===shipOwner.version&&
+     shipAgreement.applicantId===applicant?.id&&shipAgreement.applicantVersion===party?.version&&
+     shipAgreement.shipId===ship.id&&shipAgreement.shipRevision===ship.revision&&
+     shipAgreement.portId===ship.portId&&shipAgreement.portVisitId===visit(ship)&&
+     shipAgreement.routeId===route.id&&shipAgreement.toPort===route.toPort&&
+     shipAgreement.masterVersionId===s.versionId);
     const shipOwnershipEvidence={ownerType:ship.ownerType??'CHARACTER',ownerId:ship.ownerId,
+     consentVerified:shipUseConsentVerified,
      relation:!applicant?'NOT_EVALUATED':(ship.ownerType??'CHARACTER')==='CHARACTER'?
        (ship.ownerId===applicant.id?'DIRECT_OWNER':'THIRD_PARTY'):'NON_PERSONAL_OWNER',
      mandateVerified:false};
