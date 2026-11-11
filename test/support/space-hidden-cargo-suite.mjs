@@ -240,6 +240,72 @@ export function hiddenCargoSuite(makeStore,prefix='Fret caché et MOD-04 SO'){
   assert.deepEqual(await f.store.list('operations'),before.operations);
   assert.deepEqual(await f.store.list(`${base}/customsLicenses`),[]);
  });
+ test(`${prefix} : LIC-02 titulaire actif, propriété directe et escale sans mandat`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const quote=await f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2501,shipId:'ship'},f.owner);
+  assert.ok(quote.cargoContext.applicantChoices.some(c=>c.id===f.cid));
+  assert.ok(quote.cargoContext.applicantChoices.some(c=>c.id===f.otherId));
+  assert.doesNotMatch(JSON.stringify(quote.cargoContext.applicantChoices),/assignedUid|playerEmail|accessVersion|SECRET_PORT/);
+  const base=`sessions/${f.sid}`,before={
+   inventory:await f.store.list(`${base}/inventory`),
+   accounts:await f.store.list(`${base}/accounts`),
+   audit:await f.store.list(`${base}/audit`),
+   operations:await f.store.list('operations')};
+  const payload={shipId:'ship',routeId:'out',lotIds:[f.lotId],applicantCharacterId:f.cid};
+  const r=await f.read('customsLicenseScopePreview',payload,f.owner);
+  assert.equal(r.applicant.id,f.cid);
+  assert.equal(r.applicant.name,(await f.get(`characters/${f.cid}`)).public.displayName);
+  assert.deepEqual(r.ownershipEvidence,[{lotId:f.lotId,ownerType:'CHARACTER',ownerId:f.cid,relation:'DIRECT_OWNER',mandateVerified:false}]);
+  assert.equal(r.shipOwnershipEvidence.relation,'DIRECT_OWNER');
+  assert.equal(r.shipOwnershipEvidence.mandateVerified,false);
+  assert.equal(r.voyageScopeEvidence.sourcePortVisitId,'INITIAL:ship');
+  assert.equal(r.voyageScopeEvidence.routeId,'out');
+  assert.equal(r.voyageScopeEvidence.fromPort,'home');
+  assert.equal(r.voyageScopeEvidence.toPort,'away');
+  assert.equal(r.voyageScopeEvidence.masterVersionId,(await f.get('')).versionId);
+  assert.equal(r.voyageScopeEvidence.actualVoyageId,null);
+  assert.equal(r.voyageScopeEvidence.validityWindowDefined,false);
+  assert.equal(r.voyageScopeEvidence.departureAuthorized,false);
+  assert.equal(r.ownerMandatesVerified,false);
+  assert.equal(r.issued,false);
+  await f.edit('ships/ship',ship=>({...ship,portVisitId:'visited-123',revision:ship.revision+1}));
+  const current=await f.read('customsLicenseScopePreview',payload,f.owner);
+  assert.equal(current.voyageScopeEvidence.sourcePortVisitId,'visited-123');
+  assert.equal(current.voyageScopeEvidence.departureAuthorized,false);
+  for(const k of ['inventory','accounts','audit'])assert.deepEqual(await f.store.list(`${base}/${k}`),before[k],k);
+  assert.deepEqual(await f.store.list('operations'),before.operations);
+  assert.deepEqual(await f.store.list(`${base}/customsLicenses`),[]);
+ });
+ test(`${prefix} : LIC-02 propriétaire tiers et groupe ne créent aucun mandat`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const payload={shipId:'ship',routeId:'out',lotIds:[f.lotId]},read=p=>f.read('customsLicenseScopePreview',p,f.owner);
+  let r=await read(payload);
+  assert.equal(r.applicant,null);
+  assert.equal(r.ownershipEvidence[0].relation,'NOT_EVALUATED');
+  assert.equal(r.shipOwnershipEvidence.relation,'NOT_EVALUATED');
+  r=await read({...payload,applicantCharacterId:f.otherId});
+  assert.equal(r.ownershipEvidence[0].relation,'THIRD_PARTY');
+  assert.equal(r.shipOwnershipEvidence.relation,'THIRD_PARTY');
+  assert.equal(r.ownershipEvidence[0].mandateVerified,false);
+  await f.edit(`inventory/${f.lotId}`,lot=>({...lot,ownerType:'GROUP',ownerId:'group-a',revision:lot.revision+1}));
+  await f.edit('ships/ship',ship=>({...ship,ownerType:'GROUP',ownerId:'group-a',revision:ship.revision+1}));
+  r=await read({...payload,applicantCharacterId:f.cid});
+  assert.equal(r.ownershipEvidence[0].relation,'NON_PERSONAL_OWNER');
+  assert.equal(r.shipOwnershipEvidence.relation,'NON_PERSONAL_OWNER');
+  assert.equal(r.ownerMandatesVerified,false);
+  assert.equal(r.amountPaid,false);
+ });
+ test(`${prefix} : LIC-02 refuse les titulaires étrangers, inactifs ou définitivement morts`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const payload={shipId:'ship',routeId:'out',lotIds:[f.lotId]},read=id=>f.read('customsLicenseScopePreview',{...payload,applicantCharacterId:id},f.owner);
+  await assert.rejects(read('absent'),{code:'SO_CUSTOMS_LICENSE_APPLICANT'});
+  await assert.rejects(read('../person'),{code:'INVALID_ID'});
+  await assert.rejects(f.read('customsLicenseScopePreview',{...payload,applicantCharacterId:f.cid},f.player),{code:'FORBIDDEN'});
+  await f.edit(`characters/${f.otherId}`,c=>({...c,assignedUid:null}));
+  await assert.rejects(read(f.otherId),{code:'SO_CUSTOMS_LICENSE_APPLICANT'});
+  await f.edit(`characters/${f.cid}`,c=>({...c,survival:{...c.survival,dead:true}}));
+  await assert.rejects(read(f.cid),{code:'SO_CUSTOMS_LICENSE_APPLICANT'});
+ });
  test(`${prefix} : LIC-02 choisit uniquement des lots courants, disponibles et réglementés`,async()=>{
   const f=await hiddenCargoFixture(makeStore,{quantity:10,referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
   const payload=patch=>({shipId:'ship',routeId:'out',lotIds:[f.lotIds[0]],...patch});

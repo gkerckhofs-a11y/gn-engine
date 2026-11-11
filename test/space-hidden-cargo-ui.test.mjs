@@ -138,6 +138,32 @@ test('Douanes UI : aperçu de périmètre et contrôle de lecture purement MJ',a
  assert.deepEqual(calls[0],['read','customsLicenseScopePreview',{sessionId:'s',shipId:'ship',routeId:'out',lotIds:['a','b']}]);
  assert.match(calls[1][1],/périmètre proposé/);
 });
+test('Douanes UI : identité du titulaire et droits de tiers affichés sans mandat ni données privées',()=>{
+ const q={code:'LIC-02',title:'Permis',exactFeeCr:'50',scope:'Fret',requiredEvidence:[],
+  cargoContext:{sessionId:'s',ship:{id:'ship',name:'Cargo',portId:'home'},portPolicy:{status:'PUBLISHED'},
+   routeChoices:[{id:'out',name:'Route',toPort:'away'}],applicantChoices:[{id:'player',name:'Ada <script>'}],
+   lots:[{id:'lot',name:'Caisses',status:'AVAILABLE',customsStatus:'REGULATED',quantity:2,unit:'caisse',referenceTotalCr:'640'}]}};
+ const html=customsLicenseQuoteHtml(q);
+ assert.match(html,/name="applicantCharacterId"/);
+ assert.match(html,/Ada &lt;script&gt;/);
+ assert.doesNotMatch(html,/<script>/);
+ assert.deepEqual(hiddenCargoRequest('customsLicenseScopePreview',{sessionId:'s',shipId:'ship'},
+  {lot_lot:'on',routeId:'out',applicantCharacterId:'player',fee:'1',mandateVerified:'on'}),
+  {sessionId:'s',shipId:'ship',routeId:'out',applicantCharacterId:'player',lotIds:['lot']});
+ const display=customsLicenseScopeHtml({code:'LIC-02',ship:{id:'ship',name:'Cargo',portId:'home'},
+  route:{id:'out',name:'Route',fromPort:'home',toPort:'away'},
+  applicant:{id:'player',name:'Ada <script>'},
+  selectedLots:[{id:'lot',name:'Caisses',quantity:2,unit:'caisse',ownerId:'other',referenceTotalCr:'640'}],
+  ownershipEvidence:[{lotId:'lot',ownerType:'CHARACTER',ownerId:'other',relation:'THIRD_PARTY',mandateVerified:false}],
+  shipOwnershipEvidence:{relation:'THIRD_PARTY',mandateVerified:false},
+  voyageScopeEvidence:{sourcePortVisitId:'visited-123',masterVersionId:'v1',actualVoyageId:null,validityWindowDefined:false,departureAuthorized:false},
+  totalReferenceCr:'640',exactFeeCr:'50'});
+ assert.match(display,/Titulaire pressenti actif/);
+ assert.match(display,/propriétaire différent, mandat nécessaire/);
+ assert.match(display,/Période de validité du permis non définie/);
+ assert.match(display,/Escale de référence : visited-123/);
+ assert.doesNotMatch(display,/<script>|mandat validé|Autoriser le voyage/);
+});
 test('Douanes UI : estimation LIC-03 en lecture seule, sans écriture ni reçu trompeur',async()=>{
  const calls=[];
  const hooks={read:async(name,p)=>{calls.push(['read',name,p]);return {
