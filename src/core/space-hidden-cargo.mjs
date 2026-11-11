@@ -112,6 +112,7 @@ async function customsConsentBinding(tx,s,owner,ownerVersion,input){
 // It neither transfers control of the ship nor supplies a pilot/route permit.
 async function customsShipConsentBinding(tx,s,owner,ownerVersion,input){
  const base=`sessions/${s.id}`,ship=await tx.get(`${base}/ships/${documentId(input.shipId)}`);
+ requireThat(!owner.survival?.dead,'SO_CUSTOMS_SHIP_CONSENT_OWNER');
  requireThat(ship?.soProfile&&(ship.ownerType??'CHARACTER')==='CHARACTER'&&ship.ownerId===owner.id&&idle(ship),
   'SO_CUSTOMS_SHIP_CONSENT_SHIP');
  const port=await tx.get(`${base}/ports/${documentId(ship.portId)}`);
@@ -124,7 +125,8 @@ async function customsShipConsentBinding(tx,s,owner,ownerVersion,input){
  const applicant=await inventoryParty(tx,s.id,documentId(input.applicantCharacterId));
  requireThat(applicant.active&&!applicant.c.survival?.dead,'SO_CUSTOMS_SHIP_CONSENT_APPLICANT');
  const binding={ownerId:owner.id,ownerVersion,shipId:ship.id,shipRevision:ship.revision,
-  portId:ship.portId,portVisitId:visit(ship),routeId:route.id,toPort:route.toPort,
+  portId:ship.portId,portRevision:port.revision,portVisitId:visit(ship),routeId:route.id,routeRevision:route.revision,
+  toPort:route.toPort,destinationRevision:dest.revision,
   masterVersionId:s.versionId,applicantId:applicant.c.id,applicantVersion:applicant.version};
  return {binding,shipName:ship.name,routeName:route.name,applicantName:applicant.c.public.displayName};
 }
@@ -317,11 +319,12 @@ export function createHiddenCargoService({store,signed,checkSession,now,uuid,rol
      await tx.get(`${base}/customsShipConsents/${ship.id}`):null;
     const shipOwner=shipAgreement?.ownerId===ship.ownerId?await inventoryParty(tx,s.id,ship.ownerId):null;
     const shipUseConsentVerified=!!(shipAgreement?.customsShipConsentVersion===1&&shipAgreement.status==='GRANTED'&&
-     shipOwner?.active&&shipAgreement.ownerId===ship.ownerId&&shipAgreement.ownerVersion===shipOwner.version&&
+     shipOwner?.active&&!shipOwner.c.survival?.dead&&shipAgreement.ownerId===ship.ownerId&&shipAgreement.ownerVersion===shipOwner.version&&
      shipAgreement.applicantId===applicant?.id&&shipAgreement.applicantVersion===party?.version&&
      shipAgreement.shipId===ship.id&&shipAgreement.shipRevision===ship.revision&&
-     shipAgreement.portId===ship.portId&&shipAgreement.portVisitId===visit(ship)&&
-     shipAgreement.routeId===route.id&&shipAgreement.toPort===route.toPort&&
+     shipAgreement.portId===ship.portId&&shipAgreement.portRevision===port.revision&&shipAgreement.portVisitId===visit(ship)&&
+     shipAgreement.routeId===route.id&&shipAgreement.routeRevision===route.revision&&shipAgreement.toPort===route.toPort&&
+     shipAgreement.destinationRevision===destination.revision&&
      shipAgreement.masterVersionId===s.versionId);
     const shipOwnershipEvidence={ownerType:ship.ownerType??'CHARACTER',ownerId:ship.ownerId,
      consentVerified:shipUseConsentVerified,
