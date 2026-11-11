@@ -208,7 +208,7 @@ test('Douanes UI : vérification de l’accord dans le rapport MJ sans confusion
   totalReferenceCr:'640'};
  const current=customsLicenseScopeHtml(q);
  assert.match(current,/consentement personnel courant vérifié/);
- assert.match(current,/aucun titre n’est émis/);
+ assert.match(current,/aucun titre n’est émis/i);
  const missing=customsLicenseScopeHtml({...q,ownershipEvidence:[{...q.ownershipEvidence[0],consentVerified:false}]});
  assert.match(missing,/consentement absent, révoqué ou caduc/);
  assert.doesNotMatch(current,/<form|Paiement confirmé|Délivrer/);

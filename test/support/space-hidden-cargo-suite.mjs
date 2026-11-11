@@ -255,7 +255,7 @@ export function hiddenCargoSuite(makeStore,prefix='Fret caché et MOD-04 SO'){
   const r=await f.read('customsLicenseScopePreview',payload,f.owner);
   assert.equal(r.applicant.id,f.cid);
   assert.equal(r.applicant.name,(await f.get(`characters/${f.cid}`)).public.displayName);
-  assert.deepEqual(r.ownershipEvidence,[{lotId:f.lotId,ownerType:'CHARACTER',ownerId:f.cid,relation:'DIRECT_OWNER',mandateVerified:false}]);
+  assert.deepEqual(r.ownershipEvidence,[{lotId:f.lotId,ownerType:'CHARACTER',ownerId:f.cid,relation:'DIRECT_OWNER',consentVerified:false,mandateVerified:false}]);
   assert.equal(r.shipOwnershipEvidence.relation,'DIRECT_OWNER');
   assert.equal(r.shipOwnershipEvidence.mandateVerified,false);
   assert.equal(r.voyageScopeEvidence.sourcePortVisitId,'INITIAL:ship');
