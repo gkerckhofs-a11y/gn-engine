@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {hiddenCargoHtml,customsDeskHtml,customsAdminHtml,customsInspectionHtml,hiddenCargoConfirmHtml,customsLicenseQuoteHtml,customsLicenseScopeHtml,hiddenCargoRequest,hiddenCargoErrors,submitHiddenCargo} from '../web/space-hidden-cargo.mjs';
+import {hiddenCargoHtml,customsConsentsHtml,customsDeskHtml,customsAdminHtml,customsInspectionHtml,hiddenCargoConfirmHtml,customsLicenseQuoteHtml,customsLicenseScopeHtml,hiddenCargoRequest,hiddenCargoErrors,submitHiddenCargo} from '../web/space-hidden-cargo.mjs';
 import {playerRoute} from '../web/player-spaces.mjs';
 
 const session={id:'s',stage:'EN_JEU'},ship={id:'ship',name:'<img src=x>',capacity:20},lot={id:'lot',item:{name:'<script>Objet</script>',unit:'caisses',unitVolume:1},quantity:5,status:'AVAILABLE',concealed:false,discovered:true};
@@ -42,7 +42,7 @@ test('Douanes UI : protocole borné, chiffres éditables séparés des droits et
  for(const level of ['',undefined,'9','-1','2.5'])assert.throws(()=>hiddenCargoRequest('setCustomsAuthority',{}, {level}));assert.equal(hiddenCargoRequest('finishCustomsInspection',{},{}).present,false);assert.throws(()=>hiddenCargoRequest('setStage',{},{}));assert.match(hiddenCargoErrors.CUSTOMS_ATTEMPT_USED,/décision motivée/);
 });
 test('Douanes UI : parcours Terminal, routage existant et protection des réponses devenues obsolètes',()=>{
- for(const page of ['hidden-cargo','customs','customs-inspection'])assert.equal(playerRoute(page,'s').space,'terminal');for(const page of ['customs-admin','customs-inspection-admin'])assert.equal(playerRoute(page,'s'),null);
+ for(const page of ['hidden-cargo','customs-consents','customs','customs-inspection'])assert.equal(playerRoute(page,'s').space,'terminal');for(const page of ['customs-admin','customs-inspection-admin'])assert.equal(playerRoute(page,'s'),null);
  const app=readFileSync(new URL('../web/app.mjs',import.meta.url),'utf8');assert.match(app,/async function hiddenCargoPage/);assert.match(app,/submitHiddenCargo\(form.dataset.command,JSON.parse\(form.dataset.payload\),v/);const handler=app.slice(app.indexOf("if(kind==='hiddenCargoCommand')"),app.indexOf("if(kind==='moduleMandateCommand')"));assert.match(handler,/isCurrent:\(\)=>submitVersion===routeVersion/);assert.match(handler,/read:api,write:mutate/);
 });
 
@@ -163,6 +163,55 @@ test('Douanes UI : identité du titulaire et droits de tiers affichés sans mand
  assert.match(display,/Période de validité du permis non définie/);
  assert.match(display,/Escale de référence : visited-123/);
  assert.doesNotMatch(display,/<script>|mandat validé|Autoriser le voyage/);
+});
+test('Douanes UI : terminal du propriétaire, accord révisable et preuve explicite',async()=>{
+ const data={session:{id:'s',stage:'EN_JEU'},eligible:[{lotId:'lot',shipId:'ship',shipName:'Vaisseau <script>',lotName:'Bacta <img>',quantity:2,unit:'caisses',referenceTotalCr:'640',
+  routeChoices:[{id:'out',name:'Route <script>',toPort:'away'}]}],
+  applicantChoices:[{id:'applicant',name:'Ada <img>'}],consents:[]};
+ const html=customsConsentsHtml(data);
+ assert.match(html,/Mes consentements douaniers/);
+ assert.match(html,/prepareCustomsLotConsent/);
+ assert.match(html,/name="applicantCharacterId"/);
+ assert.match(html,/name="routeId"/);
+ assert.doesNotMatch(html,/<script>|<img>/);
+ assert.doesNotMatch(customsConsentsHtml({...data,session:{id:'s',stage:'PAUSE'}}),/prepareCustomsLotConsent/);
+ const payload=hiddenCargoRequest('prepareCustomsLotConsent',{sessionId:'s',lotId:'lot',shipId:'ship'},
+  {applicantCharacterId:'applicant',routeId:'out',referenceValue:'0',consent:'on'});
+ assert.deepEqual(payload,{sessionId:'s',lotId:'lot',shipId:'ship',routeId:'out',applicantCharacterId:'applicant'});
+ const p={sessionId:'s',lotId:'lot',shipId:'ship',routeId:'out',applicantCharacterId:'applicant'};
+ const confirm=hiddenCargoConfirmHtml('prepareCustomsLotConsent',{lotName:'Bacta <script>',referenceTotalCr:'640',shipName:'Vaisseau',
+  applicantName:'Ada',routeName:'Route',confirmation:'proof'},p);
+ assert.match(confirm,/grantCustomsLotConsent/);
+ assert.match(confirm,/name="consent"/);
+ assert.doesNotMatch(confirm,/<script>|name="fee"/);
+ assert.deepEqual(hiddenCargoRequest('grantCustomsLotConsent',{...p,confirmation:'proof'},{
+  consent:'on',amount:'1000'}),{...p,confirmation:'proof',consent:true});
+ const approved={...data,eligible:[],consents:[{lotId:'lot',applicantId:'applicant',routeId:'out',status:'GRANTED',revision:1,confirmation:'revokeProof'}]};
+ const ownerHtml=customsConsentsHtml(approved);
+ assert.match(ownerHtml,/revokeCustomsLotConsent/);
+ assert.match(ownerHtml,/name="confirmed"/);
+ assert.deepEqual(hiddenCargoRequest('revokeCustomsLotConsent',{sessionId:'s',lotId:'lot',confirmation:'revokeProof'},{confirmed:'on'}),
+ {sessionId:'s',lotId:'lot',confirmation:'revokeProof',confirmed:true});
+ const revoked=customsConsentsHtml({...approved,consents:[{...approved.consents[0],status:'REVOKED'}]});
+ assert.doesNotMatch(revoked,/revokeCustomsLotConsent/);
+ const app=readFileSync(new URL('../web/app.mjs',import.meta.url),'utf8');
+ assert.match(app,/customs-consents/);
+ assert.match(app,/myCustomsConsents/);
+});
+test('Douanes UI : vérification de l’accord dans le rapport MJ sans confusion avec licence',()=>{
+ const q={code:'LIC-02',title:'Permis',scope:'Fret',exactFeeCr:'50',
+  ship:{id:'ship',name:'Vaisseau',portId:'home'},route:{id:'out',name:'Route',fromPort:'home',toPort:'away'},
+  applicant:{id:'applicant',name:'Ada'},selectedLots:[{id:'lot',name:'Bacta',quantity:2,unit:'caisses',ownerId:'owner',referenceTotalCr:'640'}],
+  ownershipEvidence:[{lotId:'lot',ownerType:'CHARACTER',ownerId:'owner',relation:'THIRD_PARTY',consentVerified:true,mandateVerified:false}],
+  shipOwnershipEvidence:{relation:'THIRD_PARTY',mandateVerified:false},
+  voyageScopeEvidence:{sourcePortVisitId:'INITIAL:ship',masterVersionId:'v1',actualVoyageId:null,validityWindowDefined:false,departureAuthorized:false},
+  totalReferenceCr:'640'};
+ const current=customsLicenseScopeHtml(q);
+ assert.match(current,/consentement personnel courant vérifié/);
+ assert.match(current,/aucun titre n’est émis/);
+ const missing=customsLicenseScopeHtml({...q,ownershipEvidence:[{...q.ownershipEvidence[0],consentVerified:false}]});
+ assert.match(missing,/consentement absent, révoqué ou caduc/);
+ assert.doesNotMatch(current,/<form|Paiement confirmé|Délivrer/);
 });
 test('Douanes UI : estimation LIC-03 en lecture seule, sans écriture ni reçu trompeur',async()=>{
  const calls=[];
