@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
-import {hiddenCargoHtml,customsDeskHtml,customsAdminHtml,customsInspectionHtml,hiddenCargoConfirmHtml,customsLicenseQuoteHtml,hiddenCargoRequest,hiddenCargoErrors,submitHiddenCargo} from '../web/space-hidden-cargo.mjs';
+import {hiddenCargoHtml,customsDeskHtml,customsAdminHtml,customsInspectionHtml,hiddenCargoConfirmHtml,customsLicenseQuoteHtml,customsLicenseScopeHtml,hiddenCargoRequest,hiddenCargoErrors,submitHiddenCargo} from '../web/space-hidden-cargo.mjs';
 import {playerRoute} from '../web/player-spaces.mjs';
 
 const session={id:'s',stage:'EN_JEU'},ship={id:'ship',name:'<img src=x>',capacity:20},lot={id:'lot',item:{name:'<script>Objet</script>',unit:'caisses',unitVolume:1},quantity:5,status:'AVAILABLE',concealed:false,discovered:true};
@@ -105,6 +105,38 @@ test('Douanes UI : devis LIC-02 distinct du paiement et sans données joueur',as
  assert.match(assessed,/640 Cr/);
  assert.match(assessed,/ne constitue pas une assiette fiscale certifiée/);
  assert.doesNotMatch(assessed,/<script>/);
+});
+test('Douanes UI : sélection des lots entiers réglementés, liaison publiée et valeurs protégées',()=>{
+ const q={code:'LIC-02',title:'Permis',exactFeeCr:'50',scope:'Fret',requiredEvidence:[],
+  cargoContext:{sessionId:'s',ship:{id:'ship',name:'Vaisseau',portId:'home'},portPolicy:{status:'PUBLISHED'},voyage:null,
+   routeChoices:[{id:'out',name:'Route <script>',toPort:'away'}],
+   lots:[{id:'a',name:'Bacta <img>',status:'AVAILABLE',customsStatus:'REGULATED',quantity:2,unit:'caisses',referenceTotalCr:'640',referenceUnitValueCr:320},
+    {id:'b',name:'Libre',status:'AVAILABLE',customsStatus:'FREE',quantity:3,unit:'lot',referenceTotalCr:'150'}],
+   regulatedLots:1,regulatedKnownSubtotalCr:'640',regulatedMissingReference:0,unclassifiedLots:0,prohibitedLots:0}};
+ const h=customsLicenseQuoteHtml(q);
+ assert.match(h,/name="lot_a"/);assert.doesNotMatch(h,/name="lot_b"/);
+ assert.match(h,/name="routeId"/);assert.match(h,/customsLicenseScopePreview/);
+ assert.match(h,/Prévisualiser le périmètre/);assert.doesNotMatch(h,/<script>|<img>/);
+ const payload=hiddenCargoRequest('customsLicenseScopePreview',{sessionId:'s',shipId:'ship'},
+  {routeId:'out',lot_a:'on',lot_b:'',fee:'0',amountPaid:'on'});
+ assert.deepEqual(payload,{sessionId:'s',shipId:'ship',routeId:'out',lotIds:['a']});
+ assert.doesNotMatch(customsLicenseQuoteHtml({...q,cargoContext:{...q.cargoContext,portPolicy:{status:'VERSION_MISMATCH'}}}),/name="lot_a"/);
+});
+test('Douanes UI : aperçu de périmètre et contrôle de lecture purement MJ',async()=>{
+ const result={code:'LIC-02',ship:{id:'ship',name:'<script>Vaisseau</script>',portId:'home'},
+  route:{id:'out',name:'Vers <img>',fromPort:'home',toPort:'away'},selectedLots:[{name:'<script>Bacta</script>',quantity:5,unit:'caisses',ownerId:'owner',referenceTotalCr:'1600'}],
+  totalReferenceCr:'1600',exactFeeCr:'50',issued:false};
+ const html=customsLicenseScopeHtml(result);
+ assert.match(html,/périmètre proposé/);assert.match(html,/1600 Cr/);
+ assert.match(html,/aucun crédit prélevé/);assert.match(html,/Ce n’est pas une autorisation douanière/);
+ assert.doesNotMatch(html,/<script>|<img>|Délivrer|name="fee"/);
+ const calls=[],hooks={read:async(a,p)=>{calls.push(['read',a,p]);return result;},write:()=>{throw Error('No write allowed');},
+  isCurrent:()=>true,confirm:x=>calls.push(['confirm',x]),close:()=>{throw Error('No close');},
+  announce:()=>{throw Error('No success');},refresh:()=>{throw Error('No refresh');}};
+ await submitHiddenCargo('customsLicenseScopePreview',{sessionId:'s',shipId:'ship'},
+  {routeId:'out',lot_a:'on',lot_b:'on',fee:'1'},hooks);
+ assert.deepEqual(calls[0],['read','customsLicenseScopePreview',{sessionId:'s',shipId:'ship',routeId:'out',lotIds:['a','b']}]);
+ assert.match(calls[1][1],/périmètre proposé/);
 });
 test('Douanes UI : estimation LIC-03 en lecture seule, sans écriture ni reçu trompeur',async()=>{
  const calls=[];

@@ -213,6 +213,85 @@ export function hiddenCargoSuite(makeStore,prefix='Fret caché et MOD-04 SO'){
   assert.equal(analysis.regulatedKnownSubtotalCr,String(BigInt(max)*BigInt(max)));
   assert.equal(analysis.lots[0].referenceTotalCr,analysis.regulatedKnownSubtotalCr);
  });
+ test(`${prefix} : LIC-02 sélection exacte de lots réglementés et de liaison, aucun reçu ni débit`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{quantity:10,referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const base=`sessions/${f.sid}`;
+  const quote=await f.read('customsLicenseQuote',{code:'LIC-02',shipId:'ship',referenceValue:2501},f.owner);
+  assert.deepEqual(quote.cargoContext.routeChoices.map(r=>r.id),['out']);
+  assert.ok(quote.cargoContext.routeChoices.every(r=>!('navigationCode' in r)));
+  assert.equal(quote.cargoContext.sessionId,f.sid);
+  const before={accounts:await f.store.list(`${base}/accounts`),inventory:await f.store.list(`${base}/inventory`),
+   audit:await f.store.list(`${base}/audit`),operations:await f.store.list('operations')};
+  const select=lotIds=>f.read('customsLicenseScopePreview',{shipId:'ship',routeId:'out',lotIds},f.owner);
+  const first=await select([f.lotIds[0]]);
+  assert.equal(first.code,'LIC-02');assert.equal(first.totalReferenceCr,'1600');assert.equal(first.exactFeeCr,'50');
+  assert.equal(first.selectedLots.length,1);assert.equal(first.selectedLots[0].ownerId,f.cid);
+  const both=await select(f.lotIds);
+  assert.equal(both.totalReferenceCr,'3200');assert.equal(both.exactFeeCr,'64');
+  assert.equal(both.route.fromPort,'home');assert.equal(both.route.toPort,'away');
+  assert.equal(both.route.id,'out');
+  assert.equal(both.issued,false);assert.equal(both.referenceValueVerified,false);
+  assert.equal(both.scopeAuthorized,false);assert.equal(both.voyageAuthorizationVerified,false);
+  assert.equal(both.ownerMandatesVerified,false);assert.equal(both.amountPaid,false);
+  assert.doesNotMatch(JSON.stringify(both),/OUT-SECRET|HOME-CODE|AWAY-CODE|SECRET_PORT|gmNotes|manifest|playerEmail/);
+  assert.deepEqual(await f.store.list(`${base}/accounts`),before.accounts);
+  assert.deepEqual(await f.store.list(`${base}/inventory`),before.inventory);
+  assert.deepEqual(await f.store.list(`${base}/audit`),before.audit);
+  assert.deepEqual(await f.store.list('operations'),before.operations);
+  assert.deepEqual(await f.store.list(`${base}/customsLicenses`),[]);
+ });
+ test(`${prefix} : LIC-02 choisit uniquement des lots courants, disponibles et réglementés`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{quantity:10,referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const payload=patch=>({shipId:'ship',routeId:'out',lotIds:[f.lotIds[0]],...patch});
+  const attempt=(p,actor=f.owner)=>f.read('customsLicenseScopePreview',p,actor);
+  for(const lotIds of [[],[f.lotIds[0],f.lotIds[0]],Array.from({length:101},(_,i)=>'lot'+i)])
+   await assert.rejects(attempt(payload({lotIds})),{code:'SO_CUSTOMS_LICENSE_SCOPE'});
+  await assert.rejects(attempt(payload({lotIds:['unknown-lot']})),{code:'SO_CUSTOMS_LICENSE_LOT'});
+  await assert.rejects(attempt(payload({lotIds:['../lot']})),{code:'INVALID_ID'});
+  await assert.rejects(attempt({...payload(),fee:0}),{code:'INVALID_ADMISSION'});
+  await assert.rejects(attempt(payload(),f.player),{code:'FORBIDDEN'});
+  await f.edit('ports/home',p=>({...p,customsRules:[{itemId:'propellant',status:'FREE'}]}));
+  await assert.rejects(attempt(payload()),{code:'SO_CUSTOMS_LICENSE_NOT_REGULATED'});
+  await f.edit('ports/home',p=>({...p,customsRules:[]}));
+  await assert.rejects(attempt(payload()),{code:'SO_CUSTOMS_LICENSE_NOT_REGULATED'});
+  await f.edit('ports/home',p=>({...p,customsRules:[{itemId:'propellant',status:'PROHIBITED'}]}));
+  await assert.rejects(attempt(payload()),{code:'SO_CUSTOMS_LICENSE_NOT_REGULATED'});
+  await f.edit('ports/home',p=>({...p,customsRules:[{itemId:'propellant',status:'REGULATED'}]}));
+  await f.edit(`inventory/${f.lotIds[0]}`,l=>({...l,status:'CARGO_RESERVED',cargoTransferId:'ongoing'}));
+  await assert.rejects(attempt(payload()),{code:'SO_CUSTOMS_LICENSE_LOT_UNAVAILABLE'});
+  await f.edit(`inventory/${f.lotIds[0]}`,l=>({...l,status:'AVAILABLE',cargoTransferId:null,location:{kind:'CHARACTER',id:f.cid}}));
+  await assert.rejects(attempt(payload()),{code:'SO_CUSTOMS_LICENSE_LOT'});
+ });
+ test(`${prefix} : LIC-02 vérifie port de départ, liaison, destination et version publiée`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const input={shipId:'ship',routeId:'out',lotIds:[f.lotId]},call=(p=input)=>f.read('customsLicenseScopePreview',p,f.owner);
+  await assert.rejects(call({...input,routeId:'back'}),{code:'SO_CUSTOMS_LICENSE_ROUTE'});
+  await assert.rejects(call({...input,routeId:'not-known'}),{code:'SO_CUSTOMS_LICENSE_ROUTE'});
+  await f.edit('routes/out',r=>({...r,versionId:'obsolete'}));
+  await assert.rejects(call(),{code:'SO_CUSTOMS_LICENSE_ROUTE'});
+  const versionId=(await f.get('')).versionId;
+  await f.edit('routes/out',r=>({...r,versionId}));
+  await f.edit('ports/away',p=>({...p,versionId:'obsolete'}));
+  await assert.rejects(call(),{code:'SO_CUSTOMS_LICENSE_ROUTE'});
+  await f.edit('ports/away',p=>({...p,versionId}));
+  await f.edit('ports/home',p=>({...p,versionId:'obsolete'}));
+  await assert.rejects(call(),{code:'SO_CUSTOMS_LICENSE_POLICY'});
+  await f.edit('ports/home',p=>({...p,versionId}));
+  await f.edit('ships/ship',s=>({...s,docked:false}));
+  await assert.rejects(call(),{code:'SO_CUSTOMS_LICENSE_SHIP'});
+ });
+ test(`${prefix} : LIC-02 refuse toute valeur M1 manquante et conserve les centièmes exacts des grands montants`,async()=>{
+  const missing=await hiddenCargoFixture(makeStore,{portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  await assert.rejects(missing.read('customsLicenseScopePreview',{shipId:'ship',routeId:'out',lotIds:[missing.lotId]},missing.owner),
+   {code:'SO_CUSTOMS_LICENSE_VALUE_MISSING'});
+  const max=Number.MAX_SAFE_INTEGER,big=await hiddenCargoFixture(makeStore,{
+   referenceUnitValueCr:max,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const result=await big.read('customsLicenseScopePreview',{shipId:'ship',routeId:'out',lotIds:[big.lotId]},big.owner);
+  const total=BigInt(max)*5n,cents=total*2n;
+  assert.equal(result.totalReferenceCr,String(total));
+  assert.equal(result.exactFeeCr,String(cents/100n)+'.'+String(cents%100n).padStart(2,'0'));
+  assert.equal(result.amountPaid,false);
+ });
  test(`${prefix} : devis lié refuse vaisseau absent, rôle joueur et code hors LIC-02`,async()=>{
   const f=await hiddenCargoFixture(makeStore);
   await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000,shipId:'introuvable'},f.owner),{code:'SO_CUSTOMS_LICENSE_SHIP'});
