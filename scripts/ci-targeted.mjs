@@ -258,6 +258,17 @@ targetedProfiles['customs-appeal']={
   'src/core/space-customs-appeals.mjs','test/support/space-customs-appeal-suite.mjs',
   'test/space-customs-appeal.test.mjs','test/space-customs-appeal-ui.test.mjs'],
 };
+// Port-specific M3 item classifications plus the reference graph, Excel and UI.
+targetedProfiles['customs-port']={
+ ...targetedProfiles['hidden-ui'],
+ tests:[...new Set([...targetedProfiles['hidden-ui'].tests,'test/central-space.test.mjs','test/central-space-ui.test.mjs','test/central-space-import.test.mjs','test/central-space-import-ui.test.mjs','test/central-check.test.mjs'])],
+ suites:[...new Set([...targetedProfiles['hidden-ui'].suites,'central-space','central-space-import','central-check'])],
+ files:[...targetedProfiles['hidden-ui'].files,'src/shared/space-customs-rules.mjs',
+  'src/core/central-space.mjs','src/core/central-space-import.mjs','src/core/central-check.mjs',
+  'web/central-space.mjs','test/support/central-space-suite.mjs','test/support/central-space-import-suite.mjs',
+  'test/central-space-ui.test.mjs','test/central-space-import-ui.test.mjs',
+  'test/central-space.test.mjs','test/central-space-import.test.mjs']
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;

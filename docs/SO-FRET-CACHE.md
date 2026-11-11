@@ -115,3 +115,11 @@ Le modèle M1 peut désormais déclarer une **valeur de référence facultative,
 Le devis MJ LIC-02 lié à un vaisseau affiche la valeur de référence M1 de chaque lot réel si sa copie en possède une, **sans** déduire une somme douanière réglementée : classification des marchandises par port et périmètre commercial autorisé ne sont pas encore intégrés. `referenceValue` reste une saisie à vérifier et les indicateurs `referenceValueVerified:false`, `regulatedStatusVerified:false`, `issued:false` sont conservés. Aucun paiement, taxe, quittance, mutation de lot, habilitation ni titre ajouté.
 
 Les tests couvrent validation/édition du modèle, conservation après ancienne saisie, Excel export/import/effacement, projection d'un lot, réponse MJ et échappement. Le profil CI ciblé `hidden-ui` sélectionne déjà les suites centrale/inventaire ; sa liste blanche est prolongée uniquement des sources et tests M1 correspondants. Vérifier le SHA exact avant toute conformité ; la recette terrain reste distincte.
+
+## Classification douanière par port M3 — 11 novembre 2026
+
+Une définition privée de port M3 peut désormais associer **chaque identifiant de modèle M1** à un statut local `FREE` (libre), `REGULATED` (réglementée) ou `PROHIBITED` (interdite). Absence de ligne = **non classé**, jamais libre par défaut. Les anciennes définitions de port sans ce champ restent valides. La classification ne modifie pas le champ de légalité général du modèle ni les anciens lots/sessions.
+
+Édition web dans le formulaire M3, Excel M3 `Ports.statuts_douane` en syntaxe `item_id:REGULATED;second_id:PROHIBITED`. Import blanc = conserver, `!EFFACER` = vider. Statuts, IDs, unicité et limite de 100 entrées stricts. Les références M1 absentes ou archivées sont signalées au contrôle global ; sans autorisation de lecture M1, seuls les IDs rédigés dans M3 et `REFERENCE_NOT_CHECKED` sont accessibles à l'éditeur. Le contrôle central de publication et les arêtes M3 → M1 restent sources d'autorité.
+
+Aucune taxe, remise, saisie, licence, montant à prélever, compte, titre ou migration automatique ajoutée. Le raccordement de cette classification à une **session publiée** et au calcul douanier vérifié reste distinct ; une estimation n'est jamais une licence valide.
