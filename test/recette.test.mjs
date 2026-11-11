@@ -18,7 +18,7 @@ import {createWorkflow} from '../src/core/workflow.mjs';
 function fixture({pilotClock=false}={}){
   let clock=Date.now();
   const store=new MemoryStore(),actors=Object.fromEntries(identities.map(p=>[p.id,{uid:p.id,email:p.email,emailVerified:true,provider:'google.com',authTime:Math.floor(Date.now()/1000)}]));
-  const workflow=createWorkflow({store,ownerEmail:actors.owner.email,...(pilotClock?{now:()=>clock,rollD12:()=>12}:{})});
+  const workflow=createWorkflow({store,ownerEmail:actors.owner.email,...(pilotClock?{now:()=>clock,rollD12:()=>12,rollD6:()=>6}:{})});
   const call=(action,input={},role='owner')=>workflow.dispatch(action,actors[role],input);
   return {store,call,uids:Object.fromEntries(identities.map(p=>[p.id,p.id])),advance:ms=>{clock+=ms;}};
 }
@@ -121,6 +121,55 @@ test('Recette pilote : même session, D12 puis prise de crédits financés sans 
  const after=(await f.store.list(`${base}/accounts`)).find(a=>a.ownerType==='SHOP'&&a.shopId==='counter');
  assert.equal(after.balance,130);assert.equal(after.reserved,100);
  assert.equal((await f.call('myWallet',{sessionId:sid},'player')).account.balance,20);
+ // Même session et mêmes ressources : achat du carburant protégé par Bela.
+ const saleInput={sessionId:sid,shopId:'counter',offerId:'fuel',quantity:4,useProtected:true};
+ const quote=await f.call('prepareShopPurchase',saleInput,'other');
+ const saleRequest={...saleInput,quoteAt:quote.quoteAt,confirmation:quote.confirmation,requestId:'pilot-02-fuel-sale'};
+ const sale=await f.call('buyShopOffer',saleRequest,'other');
+ assert.deepEqual(await f.call('buyShopOffer',saleRequest,'other'),sale);
+ const shop=(await f.call('shopAdmin',{sessionId:sid},'owner')).orders.find(o=>o.id===sale.id);
+ await f.call('offerShopPickup',{sessionId:sid,saleId:sale.id,confirmation:shop.confirmation,requestId:'pilot-02-fuel-offer'},'owner');
+ const pickup=(await f.call('shops',{sessionId:sid},'other')).orders.find(o=>o.id===sale.id);
+ const receiptInput={sessionId:sid,saleId:sale.id,confirmation:pickup.confirmation,received:true,requestId:'pilot-02-fuel-received'};
+ const receipt=await f.call('confirmShopPickup',receiptInput,'other');
+ assert.deepEqual(await f.call('confirmShopPickup',receiptInput,'other'),receipt);
+ const fuelLot=(await f.call('myInventory',{sessionId:sid},'other')).lots.find(l=>l.item.id==='propellant');
+ assert.equal(fuelLot.quantity,4);
+ assert.equal((await f.call('myWallet',{sessionId:sid},'other')).account.protectedCredits,100);
+ assert.equal((await f.store.list(base+'/inventory')).filter(l=>l.id===sale.purchasedLotId).length,1);
+ // Le stock acheté n'est pas injecté directement dans le vaisseau : plein natif 2 minutes.
+ const shipId='pilot-cargo',fuelInput={sessionId:sid,shipId,lotId:fuelLot.id,quantity:4};
+ const fuelPreview=await f.call('prepareRefuel',fuelInput,'other');
+ await f.call('refuelShip',{...fuelInput,present:true,confirmation:fuelPreview.confirmation,requestId:'pilot-02-refuel'},'other');
+ assert.equal((await f.store.get(base+'/ships/'+shipId)).fuel,0);
+ await assert.rejects(f.call('finishSoRefuel',{sessionId:sid,shipId,present:true},'other'),{code:'VOYAGE_NOT_READY'});
+ f.advance(120000);
+ const fuelNav=await f.call('shipNavigation',{sessionId:sid,shipId},'other');
+ await f.call('finishSoRefuel',{sessionId:sid,shipId,present:true,confirmation:fuelNav.confirmation,requestId:'pilot-02-refuel-finish'},'other');
+ assert.equal((await f.store.get(base+'/ships/'+shipId)).fuel,4);
+ // Préparation et voyage sur la route réellement publiée, avec jet D6 contrôlé en test.
+ const voyageInput={sessionId:sid,shipId,navigationCode:'PILOT-AWAY-CODE',passengerCodes:[]};
+ const voyagePreview=await f.call('prepareVoyage',voyageInput,'other');
+ assert.equal(voyagePreview.route.fuelCost,2);
+ await f.call('departShip',{...voyageInput,present:true,confirmation:voyagePreview.confirmation,requestId:'pilot-02-depart'},'other');
+ await assert.rejects(f.call('finishSoPreparation',{sessionId:sid,shipId,present:true},'other'),{code:'VOYAGE_NOT_READY'});
+ f.advance(180000);
+ const departNav=await f.call('shipNavigation',{sessionId:sid,shipId},'other');
+ const departInput={sessionId:sid,shipId,present:true,confirmation:departNav.confirmation,requestId:'pilot-02-finish-preparation'};
+ const depart=await f.call('finishSoPreparation',departInput,'other');
+ assert.deepEqual(await f.call('finishSoPreparation',departInput,'other'),depart);
+ assert.equal((await f.store.get(base+'/ships/'+shipId)).fuel,2);
+ f.advance(300000);
+ const arrivalNav=await f.call('shipNavigation',{sessionId:sid,shipId},'other');
+ await f.call('arriveShip',{sessionId:sid,shipId,confirmation:arrivalNav.confirmation,requestId:'pilot-02-arrival'},'other');
+ const arrived=await f.store.get(base+'/ships/'+shipId);
+ assert.equal(arrived.portId,'away');
+ assert.equal(arrived.fuel,2);
+ assert.equal(arrived.revisionRequired,false);
+ assert.equal((await f.call('mySession',{sessionId:sid},'other')).character.activeVoyageId,null);
+ const finalTill=(await f.store.list(base+'/accounts')).find(a=>a.ownerType==='SHOP'&&a.shopId==='counter');
+ assert.equal(finalTill.balance,230);
+ assert.equal(finalTill.reserved,100);
  assert.equal((await f.call('session',{sessionId:sid})).stage,'EN_JEU');
 });
 
