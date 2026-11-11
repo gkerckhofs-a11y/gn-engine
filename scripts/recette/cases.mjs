@@ -28,5 +28,5 @@ export function acceptanceReport(metadata,context,rows,at=new Date().toISOString
   }
   if(rows.some(r=>r.status!=='NOT_EXECUTED')&&(!context.operator?.trim()||!context.performedAt?.trim()))throw new Error('Renseigner l’opérateur et la date des essais');
   if(context.performedAt&&(!Number.isFinite(Date.parse(context.performedAt))||!/(Z|[+-]\d{2}:\d{2})$/.test(context.performedAt)))throw new Error('Date ISO avec fuseau requise');
-  return {schemaVersion:1,scope:metadata.pilot===true?'LOCAL_PILOT_SUBSET':'LOCAL_MISSION_SUBSET',candidate:metadata,context,exportedAt:at,results:rows.map(row=>({...localCases.find(c=>c.id===row.id),...row})),canonicalAcceptance:'NOT_CERTIFIED',deploymentAuthorized:false};
+  return {schemaVersion:1,scope:metadata.pilot===true?'LOCAL_PILOT_SUBSET':'LOCAL_MISSION_SUBSET',candidate:metadata,context,exportedAt:at,results:rows.map(row=>({...cases.find(c=>c.id===row.id),...row})),canonicalAcceptance:'NOT_CERTIFIED',deploymentAuthorized:false};
 }
