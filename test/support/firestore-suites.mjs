@@ -128,4 +128,5 @@ export const firestoreSuites = [
   {"id":"space-detours","module":"../support/space-detours-suite.mjs","exportName":"spaceDetoursSuite","label":"Détours PIL-01 SO sur Firestore","seconds":180},
   {"id":"space-route-analysis","module":"../support/space-route-analysis-suite.mjs","exportName":"spaceRouteAnalysisSuite","label":"Analyses PIL-01 sur Firestore","seconds":130},
   {"id":"space-contract-appeals","module":"../support/space-contract-appeals-suite.mjs","exportName":"spaceContractAppealsSuite","label":"Recours financiers SO sur Firestore","seconds":120},
+  {"id":"space-pilot-journey","module":"../support/space-pilot-journey-suite.mjs","exportName":"spacePilotJourneySuite","label":"Pilote intégré GN Engine sur Firestore","seconds":120},
 ];
