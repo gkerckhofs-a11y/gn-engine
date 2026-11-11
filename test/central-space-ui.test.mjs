@@ -23,7 +23,7 @@ test('M3 central UI : charges utiles distinctes sans champs privilégiés',()=>{
  const v={...centralTestRoute,profileId:'CARGO',locationTargetId:' place ',fromPort:' a ',toPort:' b ',referencePrice:1,fuel:10,durationSeconds:1,publicationState:'PUBLISHED'};
  assert.deepEqual(Object.keys(centralSpacePayload('shipModel',v)).sort(),['description','gmNotes','name','profileId']);assert.deepEqual(Object.keys(centralSpacePayload('port',v)).sort(),['description','gmNotes','locationTargetId','name','navigationCode']);const route=centralSpacePayload('route',v);assert.equal(route.fromPort,'a');assert.equal(route.toPort,'b');assert.equal(route.profileId,undefined);assert.equal(route.durationSeconds,undefined);assert.equal(route.fuel,undefined);assert.equal(centralSpacePayload('port',{...v,locationTargetId:' '}).locationTargetId,null);assert.throws(()=>centralSpacePayload('unknown',v));
 });
-test('M3 central UI : règles douanières locales sans droits d'émission',()=>{
+test("M3 central UI : règles douanières locales sans droits d'émission",()=>{
  const h=ui.spaceForm(d,'port','port',{data:{...centralTestPort,customsRules:[{itemId:'bacta',status:'REGULATED'}]}});
  assert.match(h,/name="customsRulesText"/);
  assert.match(h,/bacta:REGULATED/);
