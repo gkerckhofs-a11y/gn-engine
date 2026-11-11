@@ -6,7 +6,8 @@ import {moduleFlightFixture,equippedConvoy} from './space-module-flight-suite.mj
 import {soVoyagesFixture} from './space-outlaws-voyages-suite.mjs';
 import {moduleItem} from './space-ship-module-catalog-suite.mjs';
 import {episodeHarness} from './space-episodes-suite.mjs';
-import {hiddenCargoCapacity} from '../../src/core/space-hidden-cargo.mjs';
+import {hiddenCargoCapacity,publishedCustomsCargoAssessment} from '../../src/core/space-hidden-cargo.mjs';
+import {centralTestItem} from './central-master-suite.mjs';
 import {guardSpaceOutlawsEntry} from '../../src/core/space-outlaws-entry-guard.mjs';
 
 // Full native path: published definition, real purchase, pickup and timed mounting.
@@ -22,8 +23,21 @@ export async function nativeHiddenFlightFixture(makeStore,{profileId='CARGO',con
 }
 // Component fixture: native session and physical cargo transfer, but MOD-04
 // is synthetic; version-marker guards are exercised separately. This is NOT a playable mount test.
-export async function hiddenCargoFixture(makeStore,{profileId='CARGO',quantity=5}={}){
- const f=await soVoyagesFixture(makeStore,{profileId}),base=`sessions/${f.sid}`;
+export async function hiddenCargoFixture(makeStore,{profileId='CARGO',quantity=5,portCustomsRules=null,referenceUnitValueCr=null}={}){
+ // Native Master preparation + actual birth: the port policy is not injected
+ // into a live session after the fact.
+ const prepareExtra=portCustomsRules!==null||referenceUnitValueCr!==null?async(f,draftStart)=>{
+  let revision=draftStart;
+  if(referenceUnitValueCr!==null)await f.cc('saveCentralItem',{
+   itemId:'propellant',itemRevision:1,draftRevision:revision++,
+   item:{...centralTestItem,name:'Carburant propulsif',kind:'STACKABLE',consumable:true,pillable:true,referenceUnitValueCr},
+   reason:'Prix de référence M1 de test'});
+  if(portCustomsRules!==null)await f.cc('saveCentralPort',{
+   portId:'home',portRevision:1,draftRevision:revision++,
+   port:{name:'home',description:'Port',gmNotes:'SECRET_PORT',navigationCode:'HOME-CODE',locationTargetId:null,customsRules:portCustomsRules},
+   reason:'Statuts de douane M3 publiés pour test'});
+ }:null;
+ const f=await soVoyagesFixture(makeStore,{profileId,prepareExtra}),base=`sessions/${f.sid}`;
  const get=p=>f.store.get(base+(p?'/'+p:'')),edit=(p,fn)=>f.store.runTransaction(async tx=>{const path=base+(p?'/'+p:'');tx.set(path,fn(await tx.get(path)));});
  const fuel=(await f.read('myInventory')).lots.find(l=>l.item.id==='propellant'),lotIds=[];
  for(let remaining=quantity;remaining>0;remaining-=5){const input={lotId:fuel.id,quantity:Math.min(remaining,5),destination:{kind:'HOLD',id:'ship'}},p=await f.read('prepareCargoTransfer',input),transfer=await f.cmd('startCargoTransfer',{...input,confirmation:p.confirmation,present:true});f.advance(180000);const q=await f.read('cargoTransfer',{transferId:transfer.id});await f.cmd('receiveCargoTransfer',{transferId:transfer.id,confirmation:q.confirmation,received:true});lotIds.push(transfer.lotId);}
@@ -136,6 +150,68 @@ export function hiddenCargoSuite(makeStore,prefix='Fret caché et MOD-04 SO'){
   assert.equal(q.cargoContext.regulatedStatusVerified,false);
   assert.equal(q.issued,false);
   assert.doesNotMatch(JSON.stringify(q),/Note M1 privée|gmNotes|playerEmail/);
+ });
+ test(`${prefix} : classification M3 réellement publiée et valeur M1 figée, sans transfert ni taxe`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{quantity:10,referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]}),base=`sessions/${f.sid}`;
+  const port=await f.get('ports/home'),session=await f.get('');
+  assert.equal(port.versionId,session.versionId);
+  assert.equal(port.customsRules[0].status,'REGULATED');
+  const stock=await f.store.list(`${base}/inventory`),accounts=await f.store.list(`${base}/accounts`),audit=await f.store.list(`${base}/audit`);
+  const q=await f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2501,shipId:'ship'},f.owner);
+  assert.equal(q.cargoContext.portPolicy.status,'PUBLISHED');
+  assert.equal(q.cargoContext.regulatedLots,2);
+  assert.equal(q.cargoContext.regulatedKnownSubtotalCr,'3200');
+  assert.equal(q.cargoContext.regulatedMissingReference,0);
+  assert.equal(q.cargoContext.unclassifiedLots,0);
+  assert.ok(q.cargoContext.lots.every(l=>l.customsStatus==='REGULATED'&&l.referenceUnitValueCr===320&&l.referenceTotalCr==='1600'));
+  assert.equal(q.referenceValue,2501);
+  assert.equal(q.exactFeeCr,'50.02'); // The MJ estimate is deliberately not recalculated.
+  assert.equal(q.cargoContext.referenceValueVerified,false);
+  assert.equal(q.cargoContext.regulatedStatusVerified,false);
+  assert.equal(q.issued,false);
+  assert.doesNotMatch(JSON.stringify(q),/SECRET_PORT|gmNotes|SECRET_FUEL|manifest/);
+  assert.deepEqual(await f.store.list(`${base}/inventory`),stock);
+  assert.deepEqual(await f.store.list(`${base}/accounts`),accounts);
+  assert.deepEqual(await f.store.list(`${base}/audit`),audit);
+  assert.deepEqual(await f.store.list(`${base}/customsLicenses`),[]);
+ });
+ test(`${prefix} : douanes locales, licence refusée si version ou classification non fiable`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{referenceUnitValueCr:320,portCustomsRules:[{itemId:'propellant',status:'FREE'}]});
+  const read=()=>f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000,shipId:'ship'},f.owner);
+  let q=await read();
+  assert.equal(q.cargoContext.portPolicy.status,'PUBLISHED');
+  assert.equal(q.cargoContext.lots[0].customsStatus,'FREE');
+  assert.equal(q.cargoContext.regulatedKnownSubtotalCr,'0');
+  await f.edit('ports/home',p=>({...p,customsRules:[{itemId:'propellant',status:'PROHIBITED'}]}));
+  q=await read();assert.equal(q.cargoContext.lots[0].customsStatus,'PROHIBITED');assert.equal(q.cargoContext.prohibitedLots,1);
+  await f.edit('ports/home',p=>({...p,customsRules:[]}));
+  q=await read();assert.equal(q.cargoContext.lots[0].customsStatus,'UNKNOWN');assert.equal(q.cargoContext.unclassifiedLots,1);
+  await f.edit('ports/home',p=>({...p,versionId:'stale',customsRules:[{itemId:'propellant',status:'REGULATED'}]}));
+  q=await read();assert.equal(q.cargoContext.portPolicy.status,'VERSION_MISMATCH');assert.equal(q.cargoContext.lots[0].customsStatus,'UNKNOWN');
+  const versionId=(await f.get('')).versionId;
+  await f.edit('ports/home',p=>({...p,versionId,customsRules:[{itemId:'propellant',status:'REGULATED'},{itemId:'propellant',status:'FREE'}]}));
+  q=await read();assert.equal(q.cargoContext.portPolicy.status,'INVALID_POLICY');assert.equal(q.cargoContext.lots[0].customsStatus,'UNKNOWN');
+  await f.edit('ports/home',p=>({...p,customsRules:[{itemId:'propellant',status:'REGULATED'}]}));
+  await f.edit('ships/ship',s=>({...s,docked:false}));
+  q=await read();assert.equal(q.cargoContext.portPolicy.status,'SHIP_NOT_DOCKED');assert.equal(q.cargoContext.lots[0].customsStatus,'UNKNOWN');
+  await assert.rejects(f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000,shipId:'ship'},f.player),{code:'FORBIDDEN'});
+ });
+ test(`${prefix} : référence absente reste inconnue, grands montants exacts sans arrondi`,async()=>{
+  const f=await hiddenCargoFixture(makeStore,{portCustomsRules:[{itemId:'propellant',status:'REGULATED'}]});
+  const q=await f.read('customsLicenseQuote',{code:'LIC-02',referenceValue:2000,shipId:'ship'},f.owner);
+  assert.equal(q.cargoContext.portPolicy.status,'PUBLISHED');
+  assert.equal(q.cargoContext.regulatedLots,1);
+  assert.equal(q.cargoContext.regulatedMissingReference,1);
+  assert.equal(q.cargoContext.regulatedKnownSubtotalCr,'0');
+  assert.equal(q.cargoContext.lots[0].referenceTotalCr,null);
+  assert.equal(q.cargoContext.referenceValueVerified,false);
+  const max=Number.MAX_SAFE_INTEGER;
+  const analysis=publishedCustomsCargoAssessment({ship:{id:'ship',portId:'home',docked:true,journey:null},
+   port:{id:'home',versionId:'published',customsRules:[{itemId:'ore',status:'REGULATED'}]},
+   sessionVersionId:'published',stock:[{id:'lot',item:{id:'ore',name:'Minerai',unit:'caisses',referenceUnitValueCr:max},
+    quantity:max,status:'AVAILABLE',ownerId:'owner',location:{kind:'HOLD',id:'ship'}}]});
+  assert.equal(analysis.regulatedKnownSubtotalCr,String(BigInt(max)*BigInt(max)));
+  assert.equal(analysis.lots[0].referenceTotalCr,analysis.regulatedKnownSubtotalCr);
  });
  test(`${prefix} : devis lié refuse vaisseau absent, rôle joueur et code hors LIC-02`,async()=>{
   const f=await hiddenCargoFixture(makeStore);

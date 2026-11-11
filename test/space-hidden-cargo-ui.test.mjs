@@ -96,6 +96,15 @@ test('Douanes UI : devis LIC-02 distinct du paiement et sans données joueur',as
  assert.doesNotMatch(linked,/<img|<script>/);
  assert.match(linked,/&lt;img/);
  assert.match(linked,/320 Cr \/ unité/);
+ const assessed=customsLicenseQuoteHtml({code:'LIC-02',title:'Permis',exactFeeCr:'50.02',scope:'Fret',
+  cargoContext:{ship:{id:'ship',name:'<script>Port</script>',portId:'home'},voyage:null,portPolicy:{status:'PUBLISHED'},
+   lots:[{name:'Bacta <script>',quantity:2,unit:'caisses',status:'AVAILABLE',referenceUnitValueCr:320,referenceTotalCr:'640',customsStatus:'REGULATED'}],
+   regulatedKnownSubtotalCr:'640',regulatedLots:1,regulatedMissingReference:0,unclassifiedLots:0,prohibitedLots:0}});
+ assert.match(assessed,/classification publiée du port/);
+ assert.match(assessed,/réglementée/);
+ assert.match(assessed,/640 Cr/);
+ assert.match(assessed,/ne constitue pas une assiette fiscale certifiée/);
+ assert.doesNotMatch(assessed,/<script>/);
 });
 test('Douanes UI : estimation LIC-03 en lecture seule, sans écriture ni reçu trompeur',async()=>{
  const calls=[];
