@@ -8,7 +8,7 @@ const labels={shipModel:'Modèles de vaisseaux',port:'Ports',route:'Routes'};
 export function centralSpacePayload(type,v){
  const common={name:v.name,description:v.description,gmNotes:v.gmNotes};
  if(type==='shipModel')return {...common,profileId:v.profileId};
- if(type==='port')return {...common,navigationCode:v.navigationCode,locationTargetId:v.locationTargetId.trim()||null,...(v.customsRulesText===undefined?{}:{customsRules:parsePortCustomsText(v.customsRulesText)})};
+ if(type==='port')return {...common,navigationCode:v.navigationCode,locationTargetId:(v.locationTargetId??'').trim()||null,...(v.customsRulesText===undefined?{}:{customsRules:parsePortCustomsText(v.customsRulesText)})};
  if(type==='route')return {...common,...(v.analysisTargetId?.trim()?{analysisTargetId:v.analysisTargetId.trim()}:{}),navigationCode:v.navigationCode,fromPort:v.fromPort.trim(),toPort:v.toPort.trim(),distanceId:v.distanceId,riskId:v.riskId};
  throw new Error('Type spatial inconnu.');
 }
