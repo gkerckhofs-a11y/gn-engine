@@ -261,9 +261,9 @@ targetedProfiles['customs-appeal']={
 // Port-specific M3 item classifications plus the reference graph, Excel and UI.
 targetedProfiles['customs-port']={
  ...targetedProfiles['hidden-ui'],
- tests:[...new Set([...targetedProfiles['hidden-ui'].tests,'test/central-space.test.mjs','test/central-space-ui.test.mjs','test/central-space-import.test.mjs','test/central-space-import-ui.test.mjs','test/central-check.test.mjs'])],
+ tests:[...new Set([...targetedProfiles['hidden-ui'].tests,'test/player-spaces.test.mjs','test/central-space.test.mjs','test/central-space-ui.test.mjs','test/central-space-import.test.mjs','test/central-space-import-ui.test.mjs','test/central-check.test.mjs'])],
  suites:[...new Set([...targetedProfiles['hidden-ui'].suites,'central-space','central-space-import','central-check'])],
- files:[...targetedProfiles['hidden-ui'].files,'src/shared/space-customs-rules.mjs',
+ files:[...targetedProfiles['hidden-ui'].files,'web/player-spaces.mjs','web/app.mjs','src/core/space-outlaws-entry-guard.mjs','test/player-spaces.test.mjs','src/shared/space-customs-rules.mjs',
   'src/core/central-space.mjs','src/core/central-space-import.mjs','src/core/central-check.mjs',
   'web/central-space.mjs','test/support/central-space-suite.mjs','test/support/central-space-import-suite.mjs',
   'test/central-space-ui.test.mjs','test/central-space-import-ui.test.mjs',
