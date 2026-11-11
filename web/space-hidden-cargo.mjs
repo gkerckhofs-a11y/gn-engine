@@ -27,6 +27,27 @@ const licenseQuoteForm=d=>'<section class="panel"><h2>Licences douanières · es
   +'<label>Valeur de référence en Cr (obligatoire uniquement pour LIC-02)'
   +'<input type="number" name="referenceValue" step="1" min="1" inputmode="numeric"></label>',
   'Consulter le tarif canonique')+'</section>';
+const scopeForm=q=>{
+ const ctx=q.cargoContext;
+ if(q.code!=='LIC-02'||ctx?.portPolicy?.status!=='PUBLISHED'||!ctx.sessionId||!ctx.routeChoices?.length)return '';
+ const eligible=ctx.lots.filter(l=>l.customsStatus==='REGULATED'&&l.referenceTotalCr!=null&&l.status==='AVAILABLE');
+ if(!eligible.length)return '<p>Aucun lot réglementé disponible et valorisé pour un aperçu de périmètre.</p>';
+ return '<section class="panel"><h3>Préparer le périmètre LIC-02</h3>'
+  +'<p>Sélectionnez les lots entiers présents et une liaison publiée. Un trajet identifié n’est pas encore autorisé par la douane.</p>'
+  +form('customsLicenseScopePreview',{sessionId:ctx.sessionId,shipId:ctx.ship.id},
+   '<fieldset><legend>Lots envisagés</legend>'+eligible.map(l=>'<label class="check"><input type="checkbox" name="lot_'+esc(l.id)+'"> '+esc(l.name)+' · '+esc(l.quantity)+' '+esc(l.unit)+' · '+esc(l.referenceTotalCr)+' Cr</label>').join('')+'</fieldset>'
+   +select('routeId','Liaison publiée envisagée',ctx.routeChoices.map(r=>({id:r.id,name:r.name+' · vers '+r.toPort}))),
+   'Prévisualiser le périmètre')+'</section>';
+};
+export function customsLicenseScopeHtml(q){
+ return '<div class="cargo-customs"><h2>LIC-02 · périmètre proposé (non délivré)</h2>'
+  +'<p>Vaisseau : '+esc(q.ship.name)+' · port '+esc(q.ship.portId)+'.</p>'
+  +'<p>Liaison M3 identifiée : '+esc(q.route.name)+' ('+esc(q.route.fromPort)+' → '+esc(q.route.toPort)+'). Ce n’est pas une autorisation douanière de voyage.</p>'
+  +'<h3>Lots réglementés sélectionnés</h3><ul>'+q.selectedLots.map(l=>'<li>'+esc(l.name)+' · '+esc(l.quantity)+' '+esc(l.unit)+' · propriétaire '+esc(l.ownerId)+' · '+esc(l.referenceTotalCr)+' Cr</li>').join('')+'</ul>'
+  +'<p>Valeur de référence totale envisagée : <strong>'+esc(q.totalReferenceCr)+' Cr</strong>.</p>'
+  +'<p>Tarif LIC-02 indicatif, 2 % avec minimum 50 Cr : <strong>'+esc(q.exactFeeCr.replace('.',','))+' Cr</strong>.</p>'
+  +'<p>Titulaire, mandats des propriétaires, autres marchandises et voyage autorisé restent à vérifier. Aucun titre n’est émis, aucun crédit prélevé et aucun lot réservé.</p></div>';
+}
 export function customsLicenseQuoteHtml(q){
  return '<div class="cargo-customs"><h2>'+esc(q.code)+' · '+esc(q.title)+'</h2>'
   +'<p>Tarif de référence : <strong>'+(q.exactFeeCr===null?'à fixer par le MJ':esc(q.exactFeeCr.replace('.',','))+' Cr')+'</strong>.</p>'
@@ -39,6 +60,7 @@ export function customsLicenseQuoteHtml(q){
     +(q.cargoContext.lots.length?'<ul>'+q.cargoContext.lots.map(l=>'<li>'+esc(l.name)+' · '+esc(l.quantity)+' '+esc(l.unit)+' · '+esc(l.status)+(l.customsStatus?' · régime local : '+esc(customsStatusLabels[l.customsStatus]??'indéterminé'):'')+(l.referenceTotalCr!=null?' · valeur de référence du lot : '+esc(l.referenceTotalCr)+' Cr':'')+(l.referenceUnitValueCr!=null?' · valeur M1 : '+esc(l.referenceUnitValueCr)+' Cr / unité (instantané du lot)':' · valeur M1 absente')+'</li>').join('')+'</ul>':'<p>Aucun lot réel présent en soute.</p>')
     +(q.cargoContext.regulatedKnownSubtotalCr!==undefined?'<p>Lots réglementés explicitement classés : '+esc(q.cargoContext.regulatedLots)+'. Sous-total indicatif des valeurs M1 connues : '+esc(q.cargoContext.regulatedKnownSubtotalCr)+' Cr. '+esc(q.cargoContext.regulatedMissingReference)+' lot(s) réglementé(s) sans valeur ; '+esc(q.cargoContext.unclassifiedLots)+' lot(s) non classé(s) ; '+esc(q.cargoContext.prohibitedLots)+' lot(s) interdit(s).</p>':'')
     +'<p>Ce sous-total ne constitue pas une assiette fiscale certifiée : biens couverts, titulaire, voyage autorisé et paiement restent à vérifier. Aucune licence ni taxe n’est produite.</p></section>':'')
+  +scopeForm(q)
   +'<h3>Éléments à vérifier avant toute délivrance</h3><ul>'
   +(q.requiredEvidence??[]).map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul>'
   +'<p>Cette liste est indicative : aucun élément n’est automatiquement vérifié ou validé par ce devis.</p>'
@@ -48,7 +70,7 @@ export function customsLicenseQuoteHtml(q){
 }
 const controlForm=(d,admin)=>form(admin?'prepareCustomsInspectionAdmin':'prepareCustomsInspection',{sessionId:d.session.id},select('shipId','Vaisseau présent au port',d.ships.filter(s=>s.canInspect!==false))+(admin?select('agentId','Agent PNJ habilité',d.characters.filter(c=>!c.player&&c.authority?.level>=1)):'' )+select('kind','Contrôle',[{id:'ORDINARY',name:'Documentaire · 2 min · 0 PA'},{id:'DEEP',name:`Approfondi · 2 min · ${admin?'0':'1'} PA`}]),'Vérifier le contrôle');
 
-export const hiddenCargoErrors={HIDDEN_CARGO_FULL:'Le volume du lot entier dépasse la place disponible dans le compartiment.',INVALID_CUSTOMS_AUTHORITY:'Choisissez un poste et un niveau de contrôle de 0 à 5.',INVALID_CUSTOMS_KIND:'Choisissez un contrôle documentaire ou une inspection approfondie.',CUSTOMS_ATTEMPT_USED:'Une inspection approfondie a déjà été résolue pour ce vaisseau à cette escale. Une nouvelle tentative exige une décision motivée du MJ.',CUSTOMS_ATTEMPT_UNAVAILABLE:'Aucune tentative à renouveler pour cette escale.',CUSTOMS_INSPECTION_CLOSED:'Ce contrôle est fermé ou ses réservations ont changé. Actualisez.',CUSTOMS_NOT_READY:'Le délai de deux minutes de jeu n’est pas terminé.',CUSTOMS_RESERVATION:'La réservation de PA ne correspond plus au contrôle. Faites vérifier le dossier par le MJ.',SO_CUSTOMS_LICENSE_KIND:'Choisissez une licence LIC-01, LIC-02 ou LIC-03.',SO_CUSTOMS_LICENSE_VALUE:'LIC-02 exige une valeur de référence entière positive en crédits.',SO_CUSTOMS_LICENSE_SHIP:'Le rattachement à un vaisseau réel est réservé à LIC-02. Choisissez un vaisseau existant dans cette session.'};
+export const hiddenCargoErrors={HIDDEN_CARGO_FULL:'Le volume du lot entier dépasse la place disponible dans le compartiment.',INVALID_CUSTOMS_AUTHORITY:'Choisissez un poste et un niveau de contrôle de 0 à 5.',INVALID_CUSTOMS_KIND:'Choisissez un contrôle documentaire ou une inspection approfondie.',CUSTOMS_ATTEMPT_USED:'Une inspection approfondie a déjà été résolue pour ce vaisseau à cette escale. Une nouvelle tentative exige une décision motivée du MJ.',CUSTOMS_ATTEMPT_UNAVAILABLE:'Aucune tentative à renouveler pour cette escale.',CUSTOMS_INSPECTION_CLOSED:'Ce contrôle est fermé ou ses réservations ont changé. Actualisez.',CUSTOMS_NOT_READY:'Le délai de deux minutes de jeu n’est pas terminé.',CUSTOMS_RESERVATION:'La réservation de PA ne correspond plus au contrôle. Faites vérifier le dossier par le MJ.',SO_CUSTOMS_LICENSE_KIND:'Choisissez une licence LIC-01, LIC-02 ou LIC-03.',SO_CUSTOMS_LICENSE_VALUE:'LIC-02 exige une valeur de référence entière positive en crédits.',SO_CUSTOMS_LICENSE_SHIP:'Le périmètre demande un vaisseau existant, libre et à quai.',SO_CUSTOMS_LICENSE_SCOPE:'Sélectionnez 1 à 100 lots distincts.',SO_CUSTOMS_LICENSE_POLICY:'Classification publiée absente ou périmée : actualisez.',SO_CUSTOMS_LICENSE_ROUTE:'Liaison invalide ou port de destination incompatible avec la version.',SO_CUSTOMS_LICENSE_LOT:'Lot introuvable en soute. Actualisez.',SO_CUSTOMS_LICENSE_LOT_UNAVAILABLE:'Lot réservé, détenu ou indisponible.',SO_CUSTOMS_LICENSE_NOT_REGULATED:'Seuls les lots explicitement réglementés sont éligibles à LIC-02.',SO_CUSTOMS_LICENSE_VALUE_MISSING:'La valeur de référence M1 de ce lot est absente.'};
 
 export function hiddenCargoHtml(d){
  const sid=d.session.id;
@@ -73,11 +95,12 @@ export function hiddenCargoConfirmHtml(action,d,p){
 }
 
 // Explicit form protocol: editable fields never include cost, die or authority revision.
-const commands=['prepareCargoConcealment','setCargoConcealment','prepareCustomsInspection','prepareCustomsInspectionAdmin','startCustomsInspection','startCustomsInspectionAdmin','finishCustomsInspection','finishCustomsInspectionAdmin','cancelCustomsInspection','cancelCustomsInspectionAdmin','setCustomsAuthority','authorizeCustomsRetry','customsLicenseQuote'];
+const commands=['prepareCargoConcealment','setCargoConcealment','prepareCustomsInspection','prepareCustomsInspectionAdmin','startCustomsInspection','startCustomsInspectionAdmin','finishCustomsInspection','finishCustomsInspectionAdmin','cancelCustomsInspection','cancelCustomsInspectionAdmin','setCustomsAuthority','authorizeCustomsRetry','customsLicenseQuote','customsLicenseScopePreview'];
 export function hiddenCargoRequest(action,p,values){
  if(!commands.includes(action))throw Error('Commande de douane inconnue.');
  const next={...p};
  if(action==='customsLicenseQuote'){next.code=values.code;if(values.referenceValue!==undefined&&values.referenceValue!=='')next.referenceValue=Number(values.referenceValue);if(values.shipId!==undefined&&values.shipId!=='')next.shipId=values.shipId;}
+ if(action==='customsLicenseScopePreview'){next.routeId=values.routeId;next.lotIds=Object.keys(values).filter(k=>/^lot_[A-Za-z0-9_-]{1,128}$/.test(k)&&values[k]==='on').map(k=>k.slice(4));}
  if(action.startsWith('prepareCustomsInspection')){next.shipId=values.shipId;next.kind=values.kind;if(action.endsWith('Admin'))next.agentId=values.agentId;}
  if(action==='setCustomsAuthority'){if(!/^[0-5]$/.test(String(values.level??'')))throw Error('Choisissez un niveau de 0 à 5.');next.level=Number(values.level);next.portId=values.portId;}
  if(action.startsWith('cancel')||['setCustomsAuthority','authorizeCustomsRetry'].includes(action))next.reason=values.reason;
@@ -89,9 +112,9 @@ export function hiddenCargoRequest(action,p,values){
 // Same controller in the app and bounded DOM tests; authorization stays on the server.
 export async function submitHiddenCargo(action,payload,values,hooks){
  const p=hiddenCargoRequest(action,payload,values);
- if(action==='customsLicenseQuote'){
+ if(action==='customsLicenseQuote'||action==='customsLicenseScopePreview'){
   const result=await hooks.read(action,p);if(!hooks.isCurrent())return;
-  hooks.confirm(customsLicenseQuoteHtml(result));return;
+  hooks.confirm(action==='customsLicenseQuote'?customsLicenseQuoteHtml(result):customsLicenseScopeHtml(result));return;
  }
  if(action.startsWith('prepare')){const d=await hooks.read(action,p);if(!hooks.isCurrent())return;hooks.confirm(hiddenCargoConfirmHtml(action,d,p));return;}
  const r=await hooks.write(action,p);if(!hooks.isCurrent())return;
