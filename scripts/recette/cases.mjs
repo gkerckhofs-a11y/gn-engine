@@ -7,14 +7,26 @@ export const localCases=[
   {id:'LOCAL-06',title:'Clôture et reprise',refs:['REC-SO-02','REC-SO-21','SEC-SO-03'],steps:'Conserver un retrait ou litige en attente. Mettre en pause, préparer le bilan avec les participants réellement joués, clôturer puis reprendre avec conservation. Relire comptes, objets, dossiers et anciennes URLs.',expected:'Bilan et nouvelle session conservent les réserves/retraits sans les payer. Les participants joués gagnent une seule fois 3 XP. L’ancien épisode est fermé ; aucun réapprovisionnement ni soin automatique.'},
   {id:'LOCAL-07',title:'Réponse perdue et double clic',refs:['SEC-SO-02'],steps:'Dans les outils réseau du navigateur, interrompre la réponse d’une commande après envoi, rétablir la connexion puis reprendre. Tester un double clic sur le même versement ou retrait et relever les identifiants des opérations.',expected:'Le reçu natif et les validations courantes empêchent un double effet. Relever les soldes/quantités avant et après ; une coupure observée ne vaut pas preuve de tous les moments de panne.'},
 ];
+export const pilotCases=[
+ {id:'PILOT-01',title:'Master intégré et rôles',refs:['REC-SO-01','REC-SO-16','REC-SO-24'],
+  steps:'Contrôler dans la session fictive publiée que Ari est Médecin et Bela Pilote. Examiner le Master M3 (deux ports, routes, cargo), les définitions M6 de la balise, les lots et la caisse du comptoir. Depuis un tiers, tenter une lecture privée ou une action de pilotage.',
+  expected:'Version de Master unique, un cargo attribué au Pilote, aucune naissance de stock liée au seul Master ; lectures et commandes interdites hors des bons rôles.'},
+ {id:'PILOT-02',title:'Fouille D12 et quatre types de trouvailles',refs:['V36-01','V36-03','V36-05','V36-06','V36-07','V36-08'],
+  steps:'Relancer le jeu. Depuis le QR/code de la balise pilot-cache, faire fouiller Ari puis Bela. Vérifier le D12 serveur, les indices à voir/prendre, puis retirer le lot de trousse et les 20 Cr réservés. Tenter une double prise ou deux prises simultanées.',
+  expected:'Échec neutre sans fuite ; une seule prise réelle du lot et des 20 Cr financés par le comptoir, avec reçus et mouvements équilibrés ; indice à voir conservé.'},
+ {id:'PILOT-03',title:'Carburant et voyage du cargo',refs:['REC-SO-16','REC-SO-17','SEC-SO-02'],
+  steps:'Bela achète puis reçoit au comptoir du carburant sur le stock réel de 8 unités. Réaliser un plein, attendre les deux minutes de jeu, préparer le vol sur la liaison home → away avec le code du port de destination fourni par le MJ, attendre la préparation puis le trajet et confirmer l’arrivée. Si une rencontre suspend le voyage, la résoudre par la régie. Tester STOP/pause et double confirmation.',
+  expected:'Seul le Pilote habilité agit ; le plein et le départ consomment les ressources une seule fois ; route, passagers, durées, événement et arrivée sont tracés, sans propriété de vaisseau transférée.'},
+];
 export function acceptanceReport(metadata,context,rows,at=new Date().toISOString()){
   const statuses=new Set(['NOT_EXECUTED','PASS','FAIL','BLOCKED']);
-  if(rows.length!==localCases.length||new Set(rows.map(x=>x.id)).size!==localCases.length)throw new Error('Liste de cas incomplète');
+  const cases=metadata.pilot===true?[...localCases,...pilotCases]:localCases;
+  if(rows.length!==cases.length||new Set(rows.map(x=>x.id)).size!==cases.length)throw new Error('Liste de cas incomplète');
   for(const row of rows){
-    if(!localCases.some(c=>c.id===row.id)||!statuses.has(row.status))throw new Error('Cas ou statut inconnu');
+    if(!cases.some(c=>c.id===row.id)||!statuses.has(row.status))throw new Error('Cas ou statut inconnu');
     if(row.status!=='NOT_EXECUTED'&&['role','device','browser','network','observed','evidence'].some(key=>!row[key]?.trim()))throw new Error(`${row.id} : renseigner rôle, appareil, navigateur, réseau, constat et preuve/motif du blocage`);
   }
   if(rows.some(r=>r.status!=='NOT_EXECUTED')&&(!context.operator?.trim()||!context.performedAt?.trim()))throw new Error('Renseigner l’opérateur et la date des essais');
   if(context.performedAt&&(!Number.isFinite(Date.parse(context.performedAt))||!/(Z|[+-]\d{2}:\d{2})$/.test(context.performedAt)))throw new Error('Date ISO avec fuseau requise');
-  return {schemaVersion:1,scope:'LOCAL_MISSION_SUBSET',candidate:metadata,context,exportedAt:at,results:rows.map(row=>({...localCases.find(c=>c.id===row.id),...row})),canonicalAcceptance:'NOT_CERTIFIED',deploymentAuthorized:false};
+  return {schemaVersion:1,scope:metadata.pilot===true?'LOCAL_PILOT_SUBSET':'LOCAL_MISSION_SUBSET',candidate:metadata,context,exportedAt:at,results:rows.map(row=>({...localCases.find(c=>c.id===row.id),...row})),canonicalAcceptance:'NOT_CERTIFIED',deploymentAuthorized:false};
 }
