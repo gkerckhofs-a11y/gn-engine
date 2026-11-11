@@ -168,11 +168,78 @@ test('Recette pilote : même session, D12 puis prise de crédits financés sans 
  assert.equal(arrived.portId,'away');
  assert.equal(arrived.fuel,2);
  assert.equal(arrived.revisionRequired,false);
- assert.equal((await f.call('mySession',{sessionId:sid},'other')).character.activeVoyageId,null);
+ const belaId=(await f.call('mySession',{sessionId:sid},'other')).character.id;
+ assert.equal((await f.store.get(base+'/characters/'+belaId)).activeVoyageId,null);
  const finalTill=(await f.store.list(base+'/accounts')).find(a=>a.ownerType==='SHOP'&&a.shopId==='counter');
  assert.equal(finalTill.balance,230);
  assert.equal(finalTill.reserved,100);
- assert.equal((await f.call('session',{sessionId:sid})).stage,'EN_JEU');
+ // Mission M7 sur la même session : preuve, décision, 10 minutes de contestation et paiement réel.
+ const contractId=s.contractId;
+ let missionReceipt=0;
+ const missionCommand=async(previewAction,commandAction,input,role='owner')=>{
+  const args={sessionId:sid,...input},preview=await f.call(previewAction,args,role);
+  return f.call(commandAction,{...args,confirmation:preview.confirmation,requestId:'pilot-02-mission-'+(++missionReceipt)},role);
+ };
+ await missionCommand('prepareContractProof','submitContractProof',
+  {contractId,body:'Contact fictif rencontré et compte rendu remis',completedStepIds:['meet','report']},'player');
+ await missionCommand('prepareContractReview','reviewContract',{contractId,decision:'PAY',reason:'Preuve du pilote vérifiée'});
+ assert.equal((await f.call('myWallet',{sessionId:sid},'player')).account.balance,20);
+ await assert.rejects(missionCommand('prepareContractSettlement','settleContract',
+  {contractId,reason:'Tentative de paiement avant échéance'}),{code:'SO_CONTEST_OPEN'});
+ f.advance(600000);
+ await missionCommand('prepareContractSettlement','settleContract',
+  {contractId,reason:'Délai de contestation écoulé'});
+ assert.equal((await f.call('myWallet',{sessionId:sid},'player')).account.balance,120);
+ const settledTill=(await f.store.list(base+'/accounts')).find(a=>a.ownerType==='SHOP'&&a.shopId==='counter');
+ assert.equal(settledTill.balance,130);
+ assert.equal(settledTill.reserved,0);
+ // Une rémunération payée ne vaut pas remise physique de la récompense matérielle.
+ let reward=(await f.call('sessionContract',{sessionId:sid,contractId},'owner')).rewardPickups[0];
+ assert.equal(reward.quantity,3);
+ assert.equal(reward.pickupStatus,'WAITING');
+ await f.call('offerContractRewardPickup',{sessionId:sid,contractId,pickupId:reward.id,
+  confirmation:reward.confirmation,present:true,requestId:'pilot-02-reward-offer'},'owner');
+ reward=(await f.call('contractDetail',{sessionId:sid,contractId},'player')).rewardPickups[0];
+ assert.equal(reward.pickupStatus,'READY');
+ const rewardRequest={sessionId:sid,contractId,pickupId:reward.id,confirmation:reward.confirmation,
+  received:true,requestId:'pilot-02-reward-received'};
+ const rewardReceived=await f.call('confirmContractRewardPickup',rewardRequest,'player');
+ assert.deepEqual(await f.call('confirmContractRewardPickup',rewardRequest,'player'),rewardReceived);
+ assert.equal((await f.store.get(base+'/inventory/'+reward.id)).quantity,3);
+ assert.equal((await f.call('contractDetail',{sessionId:sid,contractId},'player')).rewardPickups[0].pickupStatus,'RECEIVED');
+ // Après les opérations closes, PIL-02 vérifie la vraie clôture et la copie du prochain épisode.
+ const oldWallet=(await f.call('myWallet',{sessionId:sid},'player')).account;
+ const stop=(await f.call('session',{sessionId:sid})).revision;
+ await f.call('setStage',{sessionId:sid,stage:'PAUSE',revision:stop,requestId:'pilot-02-final-pause'},'owner');
+ const closeInput={sessionId:sid,reason:'Fin du pilote intégré',participantUids:[f.uids.player,f.uids.other]};
+ const closePreview=await f.call('prepareCampaignClosure',closeInput,'owner');
+ assert.equal(closePreview.canClose,true,JSON.stringify(closePreview.blocks));
+ await f.call('closeCampaignSession',{...closeInput,confirmation:closePreview.confirmation,
+  requestId:'pilot-02-close'},'owner');
+ const nextInput={sessionId:sid,campaignId:s.campaignId,title:'Space Outlaws - episode pilote 2',
+  capacity:4,privacy:'Suite fictive sans données réelles',healthPolicy:'PRESERVE',
+  reason:'Conserver les acquis du pilote',fields:[]};
+ const nextPreview=await f.call('prepareCampaignEpisode',nextInput,'owner');
+ let next=await f.call('beginCampaignEpisode',{...nextInput,confirmation:nextPreview.confirmation,
+  requestId:'pilot-02-next-begin'},'owner'),step=0;
+ while(next.status!=='READY'&&step<40){
+  step++;
+  next=await f.call('advanceCampaignEpisode',{sessionId:sid,campaignId:s.campaignId,buildId:next.buildId,
+   requestId:'pilot-02-next-page-'+step},'owner');
+ }
+ assert.equal(next.status,'READY');
+ const successor=(await f.call('mySession',{sessionId:next.id},'other')).character;
+ assert.equal(successor.id,belaId);
+ const nextShip=await f.store.get('sessions/'+next.id+'/ships/pilot-cargo');
+ assert.equal(nextShip.portId,'away');
+ assert.equal(nextShip.fuel,2);
+ const nextAri=(await f.call('mySession',{sessionId:next.id},'player')).character;
+ assert.ok(nextAri.id);
+ const nextWallet=(await f.call('myWallet',{sessionId:next.id},'player')).account;
+ assert.equal(nextWallet.balance,oldWallet.balance+oldWallet.protectedCredits);
+ assert.equal(nextWallet.protectedCredits,0);
+ assert.equal((await f.call('session',{sessionId:sid})).stage,'ARCHIVED');
+
 });
 
 test('Recette pilote : dix cas non exécutés, sans autorisation de publication',()=>{
