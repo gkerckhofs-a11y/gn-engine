@@ -135,7 +135,8 @@ export async function centralImport(tx,action,actor,input,ctx){
    const archive=row.operation==='ARCHIVER';
    if(archive&&columns(type).some(k=>row[k]))fail('operation','Pour archiver, conserver uniquement id, operation et revision.');
    const operation=archive?'ARCHIVE':'UPSERT',data=archive?{...old.data,...(['fieldTarget','recipe','character','knowledge','mission','shop','offer',...centralSpaceTypes].includes(type)?{masterArchived:true}:{}),[revisionKey(type)]:old.data[revisionKey(type)]+1}:dataFor(type,row,old);
-   const changedFields=Object.keys(data).filter(k=>k!==revisionKey(type)&&digest(data[k]??null)!==digest(old?.data[k]??null)).map(field=>({field,before:old?.data[field]??null,after:data[field]}));
+   // Detect removal of optional fields as a real change, not just keys present in the new normalized record.
+    const changedFields=[...new Set([...Object.keys(data),...Object.keys(old?.data??{})])].filter(k=>k!==revisionKey(type)&&digest(data[k]??null)!==digest(old?.data[k]??null)).map(field=>({field,before:old?.data[field]??null,after:data[field]??null}));
    if(old?.operation!==operation)changedFields.push({field:'operation',before:old?.operation??null,after:operation});
    preview.push({id,...(multiple?{type}:{}),row:row._row,sheet,operation:changedFields.length?row.operation:'INCHANGE',fields:changedFields});
    if(changedFields.length){const change={id:`${type}_${id}`,type,entityId:id,workshop,operation,data,revision:revision+1,source:'XLSX',provenance:{schemaVersion,batchId:meta.import_batch_id,fileName:input.fileName,sheet,row:row._row},actorUid:actor.uid,at};planned.push({old:old??null,change});byId.set(recordKey,change);}
