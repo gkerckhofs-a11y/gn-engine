@@ -280,3 +280,23 @@ test('Cockpit connecté : pilote, départ serveur, poste révoqué et petit écr
  await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  revoked=true;await expect(page.locator('main')).toBeHidden();await expect(page.locator('#connection-status')).toContainText('plus disponibles');expect(errors).toEqual([]);
 });
+
+test('Navigateur : messagerie de groupe, brouillon conservé, envoi et révocation',async({browser},info)=>{
+ const {page}=await login(browser,'player'),messages=[],calls=[];let denied=false;
+ await page.route('**/api/command',async route=>{
+  const req=route.request().postDataJSON();
+  if(!['myGroup','groupMessages','sendGroupMessage'].includes(req.action))return route.fallback();
+  calls.push(req);
+  if(denied)return route.fulfill({status:403,json:{error:'FORBIDDEN'}});
+  if(req.action==='myGroup')return route.fulfill({json:{result:{session:{id:scenario.sessionId,stage:'EN_JEU',spaceOutlaws:{groupsVersion:1}},characterName:'Pilote test',group:{id:'chat-test',name:'Équipage test',visibility:'SECRET',description:'',permissions:{}}}}});
+  if(req.action==='sendGroupMessage'){messages.push({id:'sent',at:2000,authorName:'Pilote test',body:req.input.body});return route.fulfill({json:{result:{id:'sent'}}});}
+  return route.fulfill({json:{result:{canSend:true,characterName:'Pilote test',messages}}});
+ });
+ await navigate(page,`group/${scenario.sessionId}/chat-test`,'groupMessages');
+ const form=page.locator('[data-form="groupMessage"]'),body=form.locator('textarea');await expect(form).toBeVisible();await body.fill('Mon brouillon');
+ messages.push({id:'remote',at:1000,authorName:'Mécano',body:'<img src=x onerror=alert(1)> Message reçu'});
+ await expect(page.getByRole('log')).toContainText('Message reçu');await expect(page.getByRole('log').locator('img')).toHaveCount(0);await expect(body).toHaveValue('Mon brouillon');
+ await clickCommand(page,'[data-form="groupMessage"] button','sendGroupMessage');await expect(page.getByRole('log')).toContainText('Mon brouillon');await expect(body).toHaveValue('');expect(calls.filter(r=>r.action==='sendGroupMessage')).toHaveLength(1);
+ await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await capture(page,info,'messagerie-groupe-mobile');
+ denied=true;await expect(page.locator('[data-group-chat]')).toContainText('Impossible de vérifier');await expect(page.getByRole('log')).toHaveCount(0);await expect(form).toHaveCount(0);
+});

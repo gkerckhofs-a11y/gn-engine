@@ -1,3 +1,4 @@
+import {groupChat} from './group-chat.mjs';
 import {createCockpitCommandService} from './cockpit-command.mjs';
 import {createPlayerIdentityService,identityCommands} from './player-identity.mjs';
 import {createTowingWorkService,towingWorkActions} from './space-towing-work.mjs';
@@ -279,6 +280,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(notebookAction(action))return notebookService(action,actor,input);
     if(knowledgeAction(action))return knowledgeService(action,actor,input);
     const at=now(); const sid=input.sessionId ? documentId(input.sessionId) : null;
+    if(['groupMessages','sendGroupMessage'].includes(action))return groupChat({action,actor,input,store,groupContext,hash,uuid,at});
     if(action==='identity') {
       const verified=actor?.uid && actor.emailVerified===true && actor.provider==='google.com';
       const grants=verified && !isAdmin(actor) ? await store.list('sessionStaff',['email',actor.email.toLowerCase()]) : [];

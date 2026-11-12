@@ -24,6 +24,7 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(!path.startsWith(base)&&path!==base.slice(0,-1))continue;
   if(path.startsWith(`${base}audit/`))continue;
   const relative=path.slice(base.length);
+  if(scopes.has('GROUP_CHAT')&&session.spaceOutlaws.groupsVersion===1&&/^groups\/[^/]+\/(?:messages\/[^/]+|inboxes\/[^/]+\/messages\/[^/]+)$/.test(relative))continue;
   if(scopes.has('GROUP_MANAGEMENT')&&session.spaceOutlaws.groupsVersion===1&&/^groups\/[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
   if(scopes.has('GROUP_WALLET_CONFIG')&&hasSoGroupWallets(session)&&/^(groups\/[^/]+(?:\/history\/[^/]+)?|accounts\/[a-f0-9]{64}(?:\/history\/[a-f0-9]{64})?|ledger\/[a-f0-9]{64})$/.test(relative))continue;
   if(scopes.has('GROUP_STOCK_CONFIG')&&hasSoGroupStock(session)&&/^(warehouses\/[^/]+|logisticsHistory\/[^/]+)$/.test(relative))continue;

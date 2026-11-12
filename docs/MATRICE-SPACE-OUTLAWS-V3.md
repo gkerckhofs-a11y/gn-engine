@@ -904,3 +904,8 @@ Les statuts NON TESTÉ des 24 REC-SO complets restent inchangés. Les succès un
 | REC-SO-REC-05 | Rejeter effet absent, antidote universel, N5 sans droit et ingrédient supprimé | **COUVERTURE PARTIELLE AUTOMATISÉE** : toute publication est refusée, références absentes/archivage bloqués. Pas encore de publication valide servant de témoin ni de droits N5 réels |
 
 Les 24 cas initiaux, six FOR et dix SEC complets gardent leurs statuts ci-dessus. Aucune recette humaine, téléphone réel, sécurité terrain, charge ou restauration de production n’est ajoutée aux preuves automatiques.
+
+
+## Messagerie de groupe — 12 novembre 2026
+
+Salon entre membres actifs révélés, réception future uniquement, signature fictive explicite, droits revérifiés et reçus idempotents. Détails, limites et preuves locales : [SO-MESSAGERIE-GROUPES.md](SO-MESSAGERIE-GROUPES.md). Contrôle navigateur ajouté en CI ; aucune publication.
