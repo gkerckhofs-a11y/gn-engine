@@ -1,4 +1,5 @@
 import {initialState,applyVisualEvent,phases} from './state.mjs';
+const connected=document.body.dataset.connected==='true';
 const $=id=>document.getElementById(id),canvas=$('space'),ctx=canvas.getContext('2d');
 let state=initialState(),sequence=0,elapsed=0,phaseTime=0,effectTime=-10,previous=0,audio=null,sound=false,width=1,height=1;
 const preference=matchMedia('(prefers-reduced-motion: reduce)');state.reducedMotion=preference.matches;
@@ -15,10 +16,11 @@ const stars=Array.from({length:230},(_,i)=>({x:Math.sin(i*127.1)*1.5,y:Math.cos(
 function log(text){const li=document.createElement('li');li.textContent=String(++sequence).padStart(2,'0')+' / '+text;$('journal').prepend(li);while($('journal').children.length>6)$('journal').lastChild.remove();}
 function event(type,extra={}){state=applyVisualEvent(state,{id:crypto.randomUUID(),type,...extra});if(type==='phase'){phaseTime=0;effectTime=-10;log(phases[state.phase].label);}if(type==='shot'||type==='impact'){effectTime=elapsed;tone(type);}render();}
 function tone(kind){if(!audio||!sound||state.paused)return;const oscillator=audio.createOscillator(),gain=audio.createGain();oscillator.type=kind==='impact'?'triangle':'sine';const start=audio.currentTime;oscillator.frequency.setValueAtTime(kind==='shot'?600:75,start);oscillator.frequency.exponentialRampToValueAtTime(kind==='shot'?90:35,start+.3);gain.gain.setValueAtTime(0,start);gain.gain.linearRampToValueAtTime(.09,start+.02);gain.gain.exponentialRampToValueAtTime(.001,start+.45);oscillator.connect(gain);gain.connect(audio.destination);oscillator.start();oscillator.stop(start+.5);}
-function render(){const p=phases[state.phase];$('phase').textContent=p.label;$('location').textContent=p.line;$('message').textContent=state.message;$('step').textContent=String(order.indexOf(state.phase)+1).padStart(2,'0')+' / 08';$('next').textContent=steps[state.phase][0]+' ↗';$('hint').textContent=steps[state.phase][1];
+function render(){const p=phases[state.phase];$('phase').textContent=p.label;$('location').textContent=p.line;$('message').textContent=state.message;$('step').textContent=String(order.indexOf(state.phase)+1).padStart(2,'0')+' / 08';if(!connected){$('next').textContent=steps[state.phase][0]+' ↗';$('hint').textContent=steps[state.phase][1];}
  for(const key of ['hull','shield','fuel']){const max=state['max'+key[0].toUpperCase()+key.slice(1)];$(key).textContent=state[key]+' / '+max;$(key+'-meter').value=state[key];}
  const combat=state.phase==='combat',contact=combat||state.phase==='contact';$('combat-controls').hidden=!combat;$('combat-help').hidden=!combat;$('radar-contact').hidden=!contact;$('radar-label').textContent=contact?'Contact détecté':'Zone calme';$('pause-overlay').hidden=!state.paused;$('pause').textContent=state.paused?'▶ Reprendre':'Ⅱ Pause';$('pause').setAttribute('aria-pressed',String(state.paused));$('motion').setAttribute('aria-pressed',String(state.reducedMotion));document.body.classList.toggle('motion-reduced',state.reducedMotion);document.body.classList.toggle('is-paused',state.paused);
- for(const id of ['next','shot','impact'])$(id).disabled=state.paused;
+ for(const id of ['next','shot','impact'])$(id).disabled=connected||state.paused;
+ if(connected){$('combat-controls').hidden=true;$('combat-help').hidden=true;}
  for(const button of $('scenes').children){button.disabled=state.paused;button.setAttribute('aria-pressed',String(button.dataset.phase===state.phase));}
 }
 function reset(){const reducedMotion=state.reducedMotion;state={...initialState(),reducedMotion};phaseTime=0;effectTime=-10;$('journal').replaceChildren();sequence=0;log('Systèmes de démonstration prêts');render();audio?.resume();}
@@ -51,4 +53,23 @@ function draw(now){const dt=Math.min((now-previous)/1000,.05);previous=now;if(!s
 }
 document.addEventListener('visibilitychange',()=>{previous=performance.now();if(document.hidden)audio?.suspend();else if(sound&&!state.paused)audio?.resume();});
 preference.addEventListener('change',e=>{state={...state,reducedMotion:e.matches};render();});
-reset();requestAnimationFrame(draw);
+if(!connected)reset();else state={...state,paused:true};requestAnimationFrame(draw);
+
+// Connected display accepts only the server projection; it never advances the game.
+export function projectCockpit(d){
+ const s=d.ship,j=s.journey,phase=s.combatId?'combat':j?.suspended?'contact':j?(j.remainingSeconds===0?'approach':Date.now()-new Date(j.departedAt).getTime()<6000?'launch':'cruise'):s.operation?'docked':'landed';
+ if(state.phase!==phase)phaseTime=0;
+ state={...state,phase,hull:s.hull,maxHull:s.profile.hullMax,shield:s.shield,maxShield:s.profile.shieldMax,fuel:s.fuel,maxFuel:s.tankCapacity,paused:d.session.stage!=='EN_JEU'||d.session.stopped,message:j?.event?.label??'Équipage prêt. Attente du pilote.'};
+ render();
+ for(const key of ['hull','shield','fuel']){$(key+'-meter').max=state['max'+key[0].toUpperCase()+key.slice(1)];$(key+'-meter').value=state[key];}
+ document.querySelector('h1').textContent=s.name;
+ document.querySelector('.ship-title small').textContent=s.profile.label+' · PILOTAGE';
+ document.querySelector('.view-bottom strong').textContent=j?.toPort??s.operation?.route?.toPort??s.portId??'—';
+ document.querySelector('.coordinates').textContent='ÉTAT DU VOYAGE EN DIRECT';
+ $('location').textContent=j?`${j.fromPort} → ${j.toPort}`:`Port : ${s.portId??'—'}`;
+ document.querySelector('.left-mark').textContent=d.stationId;document.querySelector('.right-mark').textContent=s.profile.label;
+ $('step').textContent=j?`${j.remainingSeconds} s`:s.operation?`${s.operation.remainingSeconds} s`:'';
+ $('combat-controls').hidden=true;$('combat-help').hidden=true;
+ $('next').disabled=true;
+}
+export function lockCockpit(){state={...state,paused:true};$('next').disabled=true;$('pause-overlay').hidden=false;}

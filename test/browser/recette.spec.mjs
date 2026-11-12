@@ -247,3 +247,36 @@ test('Cockpit autonome : scènes, pause, effets sans dépense et petit écran',a
  await page.locator('#reset').click();await expect(page.locator('#phase')).toHaveText('À quai');await expect(page.locator('#sound')).toHaveAttribute('aria-pressed','false');
  expect(errors).toEqual([]);expect(unexpected).toEqual([]);
 });
+
+test('Cockpit connecté : pilote, départ serveur, poste révoqué et petit écran',async({page},testInfo)=>{
+ const {build}=await import('esbuild');
+ const bundle=await build({entryPoints:['web/cockpit/connected.mjs'],bundle:true,write:false,format:'esm',plugins:[{name:'isolated-cockpit-auth',setup(b){
+  b.onResolve({filter:/firebase-client\.mjs$/},()=>({path:'client',namespace:'fake-auth'}));
+  b.onResolve({filter:/^firebase\/auth$/},()=>({path:'auth',namespace:'fake-auth'}));
+  b.onLoad({filter:/.*/,namespace:'fake-auth'},({path})=>({contents:path==='client'?"export default {currentUser:{getIdToken:async()=> 'isolated-test-token'}};":"export class GoogleAuthProvider{};export const browserSessionPersistence={};export const setPersistence=async()=>{};export const signInWithPopup=async()=>{};export const signOut=async()=>{};export const onAuthStateChanged=(auth,fn)=>queueMicrotask(()=>fn(auth.currentUser));",loader:'js'}));
+ }}]});
+ const html=(await readFile('web/cockpit/index.html','utf8')).replace('<body>','<body data-connected="true">').replace('src="./cockpit.mjs"','src="./connected.js"');
+ const calls=[],errors=[];let revoked=false,departed=false;
+ page.on('pageerror',e=>errors.push(e.message));page.on('dialog',dialog=>dialog.accept());
+ const projection=()=>({session:{id:'test-session',stage:'EN_JEU',stopped:false},stationId:'cockpit-1',pilotName:'Pilote test',canAct:true,confirmation:departed?'flight-proof':'ready-proof',ship:{shipId:'ship',name:'Vaisseau connecté',portId:'home',profile:{label:'Cargo',hullMax:4,shieldMax:2},hull:4,shield:2,fuel:departed?2:4,tankCapacity:12,operation:departed?null:{kind:'PREPARE',remainingSeconds:0},journey:departed?{fromPort:'home',toPort:'away',departedAt:Date.now()-10000,remainingSeconds:300,suspended:false,event:{label:'Route libre'}}:null}});
+ await page.route('**/*',async route=>{
+  const u=new URL(route.request().url());
+  if(u.pathname==='/api/command'){
+   const req=route.request().postDataJSON();calls.push(req);
+   if(revoked)return route.fulfill({status:403,json:{error:'COCKPIT_UNAVAILABLE'}});
+   if(req.action==='cockpitStation')return route.fulfill({json:{result:projection()}});
+   expect(req.action).toBe('cockpitCommand');expect(req.input.command).toBe('finishSoPreparation');expect(req.input.stationId).toBe('cockpit-1');expect(req.input.payload.present).toBe(true);departed=true;return route.fulfill({json:{result:{status:'DEPARTED'}}});
+  }
+  if(u.pathname==='/cockpit/live.html')return route.fulfill({contentType:'text/html',body:html});
+  if(u.pathname==='/cockpit/connected.js')return route.fulfill({contentType:'text/javascript',body:bundle.outputFiles[0].text});
+  if(u.pathname==='/cockpit/cockpit.css')return route.fulfill({contentType:'text/css',body:await readFile('web/cockpit/cockpit.css')});
+  return route.abort();
+ });
+ await page.goto('/cockpit/live.html?session=test-session&station=cockpit-1');
+ await expect(page.locator('h1')).toHaveText('Vaisseau connecté');await expect(page.locator('#next')).toHaveText('Décoller');
+ await expect(page.locator('.director')).toBeHidden();await expect(page.locator('#reset')).toBeHidden();await expect(page.locator('#fuel')).toHaveText('4 / 12');
+ await page.locator('#next').click();await expect(page.locator('#fuel')).toHaveText('2 / 12');await expect(page.locator('#next')).toBeDisabled();
+ expect(calls.filter(x=>x.action==='cockpitCommand')).toHaveLength(1);await capture(page,testInfo,'cockpit-connecte');
+ await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ revoked=true;await expect(page.locator('main')).toBeHidden();await expect(page.locator('#connection-status')).toContainText('plus disponibles');expect(errors).toEqual([]);
+});

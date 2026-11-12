@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Cockpit connecté — candidat du 12 novembre 2026
+
+[Parcours et limites](SO-COCKPIT-CONNECTE.md) : demande de départ après préparation, notification dans la régie ouverte, poste exclusif affecté par le MJ, pilote authentifié sur le cockpit, départ et ordres de combat natifs. Vérification atomique de l’affectation et des commandes ; vols parallèles, révocation et réaffectation. Tests ciblés et compilation réussis ; CI exacte et recette humaine distinctes. Pas de publication de cette tranche. Convois liés et autres postes spécialisés restent hors de ce premier raccordement.
+
 ## Cockpit immersif — prototype du 12 novembre 2026
 
 [Démonstration visuelle autonome](SO-COCKPIT-PROTOTYPE.md) : huit scènes, effets spatiaux, instruments, pause et mouvement réduit. Sans raccord de jeu ni écriture en session. Appairage sécurisé, équipage et commandes réelles restent à développer. Validation locale et CI distinctes de la recette humaine.
