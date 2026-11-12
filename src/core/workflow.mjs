@@ -1,3 +1,5 @@
+import {groupChat} from './group-chat.mjs';
+import {createCockpitCommandService} from './cockpit-command.mjs';
 import {createPlayerIdentityService,identityCommands} from './player-identity.mjs';
 import {createTowingWorkService,towingWorkActions} from './space-towing-work.mjs';
 import {createHiddenCargoService,hiddenCargoActions} from './space-hidden-cargo.mjs';
@@ -179,6 +181,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const boardingCargoService=createBoardingCargoService({store,signed,checkSession,now,uuid});
   const spaceBoardingService=createSpaceBoardingService({store,signed,checkSession,now,uuid});
   const spaceRescueService=createSpaceRescueService({store,signed,checkSession,now,uuid});
+  const cockpitCommand=createCockpitCommandService({store,signed,checkSession,now,uuid,rollD6});
   const voyageService=createVoyageService({store,signed,checkSession,now,uuid,rollD6});
   const hiddenCargoService=createHiddenCargoService({store,signed,checkSession,now,uuid,rollD6});
   const cargoService=createCargoService({store,signed,checkSession,now,uuid});
@@ -245,6 +248,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(boardingCargoActions.includes(action))return boardingCargoService(action,actor,input);
     if(spaceBoardingActions.includes(action))return spaceBoardingService(action,actor,input);
     if(spaceRescueActions.includes(action))return spaceRescueService(action,actor,input);
+    if(action==='cockpitCommand')return cockpitCommand(actor,input);
     if(voyageAction(action))return voyageService(action,actor,input);
     if(hiddenCargoActions.includes(action))return hiddenCargoService(action,actor,input);
     if(cargoAction(action))return cargoService(action,actor,input);
@@ -276,6 +280,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(notebookAction(action))return notebookService(action,actor,input);
     if(knowledgeAction(action))return knowledgeService(action,actor,input);
     const at=now(); const sid=input.sessionId ? documentId(input.sessionId) : null;
+    if(['groupMessages','sendGroupMessage'].includes(action))return groupChat({action,actor,input,store,groupContext,hash,uuid,at});
     if(action==='identity') {
       const verified=actor?.uid && actor.emailVerified===true && actor.provider==='google.com';
       const grants=verified && !isAdmin(actor) ? await store.list('sessionStaff',['email',actor.email.toLowerCase()]) : [];

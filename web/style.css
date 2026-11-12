@@ -56,3 +56,9 @@ body:has(.player-shell)>header{display:none}
 @media(max-width:600px){.identity-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.player-vitals{flex-wrap:wrap}.player-vitals .vital-refill,.player-vitals .vital-refresh{display:none}.player-health,.player-protection{flex:1}.player-vitals>span{padding:6px 10px}.player-vitals .vital-level{flex:1}.player-subnav{flex-wrap:wrap}}
 
 .player-session .player-heading{flex:1;min-width:0}.player-name{display:block;font-size:clamp(24px,5vw,34px);line-height:1.15}.player-session .player-profession{display:block;font-size:14px;line-height:1.4;margin-top:4px}
+
+/* Group conversation keeps long text and mobile layouts inside the panel. */
+.group-chat-feed{max-height:28rem;overflow-y:auto;overflow-wrap:anywhere;overscroll-behavior:contain;padding:.5rem;border:1px solid var(--line,#39414b);border-radius:.5rem}
+.group-chat-message{padding:.8rem;margin:.5rem 0;background:rgba(128,160,180,.07);border-radius:.5rem}
+.group-chat-message .prose{white-space:pre-wrap;margin-bottom:0;overflow-wrap:anywhere}
+.group-chat form{display:grid;gap:.7rem;margin-top:1rem}.group-chat textarea{resize:vertical;width:100%;box-sizing:border-box}

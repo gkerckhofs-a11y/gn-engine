@@ -14,3 +14,7 @@ await writeFile('public/version.json',JSON.stringify({version}));
 console.log('Interface compilée dans public/');
 
 await cp('web/cockpit','public/cockpit',{recursive:true});
+
+const cockpitTemplate=await readFile('web/cockpit/index.html','utf8');
+await writeFile('public/cockpit/live.html',cockpitTemplate.replace('<body>','<body data-connected="true">').replace('src="./cockpit.mjs"','src="./connected.js"'));
+await build({entryPoints:['web/cockpit/connected.mjs'],outfile:'public/cockpit/connected.js',bundle:true,minify:true,format:'esm',target:'es2022'});

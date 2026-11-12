@@ -1,6 +1,8 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {id:"group-chat",module:"../support/group-chat-suite.mjs",exportName:"groupChatSuite",label:"Messagerie de groupe sur Firestore",seconds:40},
+  {id:"cockpit-launch",module:"../support/cockpit-launch-suite.mjs",exportName:"cockpitLaunchSuite",label:"Postes cockpit sur Firestore",seconds:30},
   {id:"identity-news-health",module:"../support/identity-news-health-suite.mjs",exportName:"identityNewsHealthSuite",label:"Identité News Santé",seconds:30},
   {id:"player-identity",module:"../support/player-identity-suite.mjs",exportName:"playerIdentitySuite",label:"Identités publiques et portraits joueurs",seconds:25},
   {"id":"space-customs-appeal","module":"../support/space-customs-appeal-suite.mjs","exportName":"customsAppealSuite","label":"Contestations de saisies Space Outlaws sur Firestore","seconds":45},

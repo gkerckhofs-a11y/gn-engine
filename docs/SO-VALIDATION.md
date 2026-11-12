@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Cockpit connecté — candidat du 12 novembre 2026
+
+[Parcours et limites](SO-COCKPIT-CONNECTE.md) : demande de départ après préparation, notification dans la régie ouverte, poste exclusif affecté par le MJ, pilote authentifié sur le cockpit, départ et ordres de combat natifs. Vérification atomique de l’affectation et des commandes ; vols parallèles, révocation et réaffectation. Tests ciblés et compilation réussis ; CI exacte et recette humaine distinctes. Pas de publication de cette tranche. Convois liés et autres postes spécialisés restent hors de ce premier raccordement.
+
 ## Cockpit immersif — prototype du 12 novembre 2026
 
 [Démonstration visuelle autonome](SO-COCKPIT-PROTOTYPE.md) : huit scènes, effets spatiaux, instruments, pause et mouvement réduit. Sans raccord de jeu ni écriture en session. Appairage sécurisé, équipage et commandes réelles restent à développer. Validation locale et CI distinctes de la recette humaine.
@@ -1470,3 +1474,8 @@ Sur un environnement isolé, propriétaire fictif : ouvrir les six vues ; export
 ## Décision
 
 Conserver le candidat sur branche/PR. Aucun merge, aucune production, aucun changement du marqueur de déploiement. La [procédure de sauvegarde/reprise et de déploiement](SO-SAUVEGARDE-DEPLOIEMENT.md) est préparée, non exécutée et non approuvée. G1 à G5 ne sont pas franchis ; G0 dispose d'un audit et d'un plan, pas d'une sauvegarde réelle restaurée.
+
+
+## Messagerie de groupe — 12 novembre 2026
+
+Salon entre membres actifs révélés, réception future uniquement, signature fictive explicite, droits revérifiés et reçus idempotents. Détails, limites et preuves locales : [SO-MESSAGERIE-GROUPES.md](SO-MESSAGERIE-GROUPES.md). Contrôle navigateur ajouté en CI ; aucune publication.
