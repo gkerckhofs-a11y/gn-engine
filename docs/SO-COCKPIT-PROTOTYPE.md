@@ -24,3 +24,7 @@ La démonstration se poursuit au clic : elle ne représente ni les durées, ni l
 ## Vérification
 
 Tests ciblés du moteur visuel : effets sans dépense, répétition d’événements, valeurs reçues et refus des états inconnus. Compilation de l’application. Les contrôles navigateur et le rendu visuel sont distincts : aucune recette sur appareil réel revendiquée. Aucun déploiement de cette tranche.
+
+## Habillage cockpit V2 — 12 novembre 2026
+
+Verrière structurée par montants inclinés et traverse métallique (SVG intégré), éclairage latéral, fixations, panneau supérieur à voyants décoratifs, écrans verts encastrés et boutons en relief. Commandes, scènes et règles inchangées. Adaptation sous 850 px ; décor sans interaction et exclu de l’arbre d’accessibilité. Démonstration autonome régénérée. Compilation et trois tests du moteur visuel réussis localement ; contrôle navigateur du nouveau commit à vérifier séparément.

@@ -3,13 +3,28 @@
 <body>
 <header><a class="brand" href="../">SO<span>SPACE OUTLAWS</span></a><div class="ship-title"><small>TRANSPORT LÉGER · DÉMONSTRATION</small><h1>L’Épervier</h1></div><div class="connection"><i></i> SIMULATION LOCALE</div></header>
 <main>
+<div class="overhead" aria-hidden="true"><span class="engraving">POSTE DE COMMANDE / EP–07</span><div class="overhead-indicators"><span><i></i> NAV</span><span><i></i> COM</span><span><i></i> AUX</span></div><span class="engraving">SYSTÈMES DE BORD</span></div>
 <section class="viewport" aria-label="Vue extérieure du cockpit">
 <canvas id="space" aria-hidden="true"></canvas><div class="glass"></div>
 <div class="view-top"><span id="phase">À quai</span><span id="location">Port-Brèche · baie 07</span></div>
 <div class="reticle" aria-hidden="true"><span>+</span></div>
 <div class="view-bottom"><div><small>DESTINATION</small><strong>Relais des Confins</strong></div><div class="coordinates">SECTEUR 07 / ROUTE DE DÉMONSTRATION</div></div>
 <div class="paused" id="pause-overlay" hidden>SIMULATION EN PAUSE</div>
-<div class="cockpit-frame" aria-hidden="true"></div>
+<div class="cockpit-frame" aria-hidden="true">
+<svg class="canopy" viewBox="0 0 1400 600" preserveAspectRatio="none">
+<defs><linearGradient id="metal" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#607078"/><stop offset=".1" stop-color="#29363e"/><stop offset=".48" stop-color="#121b23"/><stop offset=".9" stop-color="#34414a"/><stop offset="1" stop-color="#080e13"/></linearGradient><linearGradient id="beam"><stop stop-color="#0a1016"/><stop offset=".3" stop-color="#36444e"/><stop offset=".5" stop-color="#48565e"/><stop offset=".58" stop-color="#17222c"/><stop offset="1" stop-color="#080e14"/></linearGradient></defs>
+<path d="M0 0H1400V54L1150 30H250L0 54Z" fill="url(#metal)" stroke="#78868b" stroke-width="2"/>
+<path d="M0 0H180L325 600H252L116 67H0Z M1400 0H1220L1075 600H1148L1284 67H1400Z" fill="url(#beam)" stroke="#53636e" stroke-width="2"/>
+<path d="M0 0H35V600H0Z M1400 0H1365V600H1400Z" fill="url(#beam)"/>
+<path d="M0 555L240 522L410 562H990L1160 522L1400 555V600H0Z" fill="url(#metal)" stroke="#68777f" stroke-width="2"/>
+<path d="M184 55L301 535 M1216 55L1099 535" stroke="#050b10" stroke-width="8"/>
+<path d="M188 55L305 535 M1212 55L1095 535" stroke="#637881" stroke-width="1"/>
+<g fill="#111a20" stroke="#72818a" stroke-width="2"><circle cx="150" cy="35" r="7"/><circle cx="1250" cy="35" r="7"/><circle cx="278" cy="560" r="7"/><circle cx="1122" cy="560" r="7"/><circle cx="50" cy="575" r="7"/><circle cx="1350" cy="575" r="7"/></g>
+<path d="M145 35H155 M1245 35H1255 M273 560H283 M1117 560H1127 M45 575H55 M1345 575H1355" stroke="#a1a8a8" stroke-width="2"/>
+<path d="M440 583H610 M790 583H960" stroke="#dfb56a" stroke-width="3"/>
+</svg><div class="canopy-lamp lamp-left"></div><div class="canopy-lamp lamp-right"></div>
+<div class="window-mark left-mark">PORT-BRÈCHE<br>PB / 07</div><div class="window-mark right-mark">ÉPERVIER<br>TRANSPORT</div>
+</div>
 </section>
 <section class="instruments" aria-label="Instruments de bord">
 <article class="instrument"><small>01 / INTÉGRITÉ</small><h2>Coque</h2><div><strong id="hull">4 / 4</strong><span>STRUCTURE</span></div><meter id="hull-meter" min="0" max="4" value="4">4 sur 4</meter></article>
