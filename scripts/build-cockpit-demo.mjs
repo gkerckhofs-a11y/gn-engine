@@ -7,5 +7,5 @@ const html=(await readFile('web/cockpit/index.html','utf8'))
  .replace('<script type="module" src="./cockpit.mjs"></script>',`<script>${result.outputFiles[0].text.replaceAll('</script','<\\/script')}</script>`)
  .replace('href="../"','href="https://gn-engine.web.app/"');
 await mkdir('docs/demos',{recursive:true});
-await writeFile('docs/demos/Space_Outlaws_Cockpit.html',html);
-console.log('Démonstration autonome : docs/demos/Space_Outlaws_Cockpit.html');
+await writeFile('docs/demos/Space_Outlaws_Cockpit_V2.html',html);
+console.log('Démonstration autonome : docs/demos/Space_Outlaws_Cockpit_V2.html');
