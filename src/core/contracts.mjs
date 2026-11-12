@@ -11,7 +11,7 @@ import {participantOf,participantAllowed,participantAccount,participantAccess,pa
 import {documentId,requireThat,whole} from './validation.mjs';
 import {inventoryHash as hash} from './inventory-state.mjs';
 import {inventoryPlayer,inventoryParty} from './inventory-transfers.mjs';
-import {announcementState,announcementView,announcementReadable} from './announcements.mjs';
+import {announcementClassAllowed,announcementState,announcementView,announcementReadable} from './announcements.mjs';
 import {accountId,amountInput,currencyView,moneyState,writeLedger} from './economy-state.mjs';
 import {accountEntry} from './collective-accounts.mjs';
 import {gameTime} from './clock.mjs';
@@ -36,6 +36,7 @@ export function createContractService({store,signed,checkSession,now,uuid}){
     const t=await tx.get(`sessions/${s.id}/applications/${c.applicationId}`);
     requireThat(t?.contractId===c.id&&['SENT','DISCUSSION'].includes(t.status)&&t.intent==='APPLICATION','STALE_CONTRACT');
     requireThat((await candidate(tx,s,c)).current&&participantAllowed(a,participantOf(c))&&await announcementReadable(tx,s,a,ctx.c.id,at),'STALE_CONTRACT');
+    requireThat(announcementClassAllowed(a,ctx.c),'MISSION_CLASS_REQUIRED');
     await checkSession(tx,c.approvedBy,s.id);
   }
   async function prepare(tx,s,actor,input,at){
@@ -43,10 +44,10 @@ export function createContractService({store,signed,checkSession,now,uuid}){
     const t=await tx.get(`sessions/${s.id}/applications/${documentId(input.applicationId)}`);requireThat(t&&t.intent==='APPLICATION'&&['SENT','DISCUSSION'].includes(t.status),'APPLICATION_CLOSED');
     const a=await tx.get(`sessions/${s.id}/announcements/${t.announcementId}`);requireThat(a?.mode==='ASSIGNMENT','ASSIGNMENT_REQUIRED');
     requireThat(announcementState(a,at)==='OPEN','ANNOUNCEMENT_CLOSED');requireThat((a.assignedCount??0)<a.places,'MISSION_FULL');
-    const p=await candidate(tx,s,t);let eligible=false;for(const cid of p.representatives)if(await announcementReadable(tx,s,a,cid,at))eligible=true;requireThat(p.current&&eligible&&participantAllowed(a,participantOf(t)),'STALE_APPLICATION');
+    const p=await candidate(tx,s,t);requireThat(announcementClassAllowed(a,p.c??{}),'MISSION_CLASS_REQUIRED');let eligible=false;for(const cid of p.representatives)if(await announcementReadable(tx,s,a,cid,at))eligible=true;requireThat(p.current&&eligible&&participantAllowed(a,participantOf(t)),'STALE_APPLICATION');
     if(t.contractId){const old=await tx.get(`sessions/${s.id}/contracts/${t.contractId}`);requireThat(!old||['CANCELLED','EXPIRED','DECLINED'].includes(old.status),'CONTRACT_EXISTS');}
     if(s.spaceOutlaws)requireThat(input.funding==='ACCOUNT'&&participantOf(t).kind==='CHARACTER','SO_MISSION_FUNDING_REQUIRED');
-    const amount=amountInput(input.amount),durationMinutes=whole(input.durationMinutes,'INVALID_CONTRACT');requireThat(durationMinutes>0&&durationMinutes<=10080,'INVALID_CONTRACT');
+    const amount=input.amount===0&&a.sessionMission===true?0:amountInput(input.amount),durationMinutes=whole(input.durationMinutes,'INVALID_CONTRACT');requireThat(durationMinutes>0&&durationMinutes<=10080,'INVALID_CONTRACT');
     requireThat(input.advance===0&&input.guarantee===0,'UNSUPPORTED_CONTRACT');requireThat(['ACCOUNT','GM_EXTERNAL'].includes(input.funding),'INVALID_CONTRACT');
     const to=await wallet(tx,s,participantAccount(participantOf(t)));let source=null,sourceGuard=null,sourceName=null;
     if(input.funding==='ACCOUNT'){

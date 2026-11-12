@@ -21,6 +21,13 @@ export function seedSoMissions(tx,sid,changes,versionId){
 export async function soAnnouncement(tx,s,input,old){
  if(!s.spaceOutlaws)return {};
  requireThat(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)&&!s.safetyStop?.active,'SESSION_NOT_RUNNING');
+ if(input.mode==='BULLETIN'||input.sessionMission===true){
+  requireThat(['BULLETIN','ASSIGNMENT'].includes(input.mode)&&['NPC','AUTHORITY'].includes(input.sponsorKind)&&(input.participation??'PERSONAL')==='PERSONAL'&&input.audience?.kind==='ALL','SO_MISSION_UNSUPPORTED');
+  requireThat(!old||old.sessionMission===true,'SO_MISSION_SOURCE_LOCKED');
+  requireThat(!input.missionId,'SO_MISSION_UNSUPPORTED');
+  return {sessionMission:true,missionId:null,missionVersionId:s.spaceOutlaws.versionId,rewardItems:[],requiredKnowledgeIds:[],missionSteps:input.mode==='BULLETIN'?[]:[{id:'objective',title:input.title,description:input.proofExpected||input.description}],giverCharacterId:null};
+ }
+ requireThat(!old?.sessionMission,'SO_MISSION_SOURCE_LOCKED');
  const bounty=input.mode==='OPEN_BOUNTY'&&s.spaceOutlaws.bountyVersion===1;
  requireThat((input.mode==='ASSIGNMENT'||bounty)&&(input.participation??'PERSONAL')==='PERSONAL'&&(['INFORMATION','MERCENARY','OTHER'].includes(input.category)||bounty&&input.category==='BOUNTY'||!bounty&&hasSoTransport(s)&&input.category==='TRANSPORT'||!bounty&&hasSoEscort(s)&&input.category==='ESCORT')&&['NPC','AUTHORITY'].includes(input.sponsorKind),'SO_MISSION_UNSUPPORTED');
  requireThat(input.audience?.groupIds?.length===0,'SO_MISSION_UNSUPPORTED');

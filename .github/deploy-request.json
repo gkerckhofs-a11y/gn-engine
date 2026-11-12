@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "37a478bbed9d8851a8653f3de81bbac288190aa4",
+  "sourceCommit": "0f3293e720546fca930243f7e04a79ab05723812",
   "version": "0.38.0-rc.1",
-  "requestedAt": "2026-11-12T08:26:54.404Z",
-  "reason": "Autorisation explicite de Guillaume le 12 novembre 2026 : « tu peux mettre en ligne ». Publication du filtrage des actions par compétences, de la présentation RP/HRP, du portrait public et du répertoire paramétrable par le MJ. PV et protection exclus. Aucune migration ni suppression de données. La publication attend la CI complète du commit main."
+  "requestedAt": "2026-11-12T09:47:41.925184+00:00",
+  "reason": "Publication autorisée explicitement le 12 novembre 2026 après corrections : Identité, News, santé/protection, en-tête nom et métier, aide HRP du Terminal et accès soutes de capacité positive. Le commit de fusion inclut ces corrections et doit réussir la CI complète avant publication. Aucune migration ni suppression de données."
 }

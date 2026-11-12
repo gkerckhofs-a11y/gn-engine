@@ -1,5 +1,12 @@
 // Décor vectoriel local : aucune police ni image chargée depuis un service tiers.
 const paths={
+ news:'<path d="M3 4h18v16H3zM7 8h10M7 12h4M7 16h10M15 12h2"/>',
+ skills:'<path d="m12 2 3 6 7 1-5 5 1 7-6-3-6 3 1-7-5-5 7-1z"/>',
+ bag:'<path d="M5 7h14l2 14H3zM8 7V3h8v4M8 12h8M12 10v5"/>',
+ info:'<circle cx="12" cy="12" r="9"/><path d="M12 10v7M12 6v1"/>',
+ mission:'<path d="M5 3h14v18H5zM8 8l2 2 5-5M8 14h8M8 17h6"/>',
+ health:'<path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z"/>',
+ protection:'<path d="m12 2 8 4v7l-3 5-5 4-5-4-3-5V6zM12 6v11"/>',
  character:'<path d="M8 4h8l3 4v10l-4 3H9l-4-3V8zM9 10h6M9 14h6M10 18h4"/><path d="M8 4v3h8V4"/>',
  group:'<path d="m12 3 4 4-4 4-4-4zM5 12l3 3-3 3-3-3zM19 12l3 3-3 3-3-3zM8 21v-4l4-3 4 3v4"/>',
  action:'<path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M12 7v10M7 12h10"/><circle cx="12" cy="12" r="3"/>',

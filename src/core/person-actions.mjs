@@ -36,19 +36,21 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
  async function lootLots(tx,s,t,at){return (await tx.list(`sessions/${s.id}/inventory`,['holderId',t.id])).map(l=>l.status==='RESERVED'&&l.marketReservation?.expiresAt<=at?{...l,status:'AVAILABLE',revision:l.revision+1,marketReservation:null}:l).filter(l=>personalLot(l,t.id)&&l.quantity>0&&l.status==='AVAILABLE'&&(l.pillable??l.item.pillable)===true);}
  function eligible(s,c,t,p,level,at){
   if(s.spaceOutlaws?.navigationVersion)requireThat(!t.activeMaintenanceId&&!t.activeCargoId&&!t.activeNavigationId&&!t.activeVoyageId&&(!t.spacePortId||t.spacePortId===s.transportRules?.homePort),'FIELD_TARGET_BUSY');
-  requireThat(c.id!==t.id||p.kind==='FIELD_CARE','INVALID_RECIPIENT');
+  requireThat(c.id!==t.id||['FIELD_CARE','PROTECTION'].includes(p.kind),'INVALID_RECIPIENT');
   requireGameAction(s,c,isLoot(p)?'discover':'heal',at);requireThat(!convalescent(s,c,at),'OUT_OF_COMBAT');
   if(s.healthRules?.enabled)requireThat(c.hp>0,'OUT_OF_COMBAT');
   if(isLoot(p)){requireThat(lootEligible(s,t,at),'LOOT_TARGET_REQUIRED');requireThat(!encounter(t,at).taken,'LOOT_ENCOUNTER_LIMIT');}
+  else if(p.kind==='PROTECTION'){requireThat(t.hp>0&&!t.survival?.dead,'OUT_OF_COMBAT');requireThat((t.protection??0)===0,'NO_PROTECTION_NEEDED');}
   else {requirePatientNature(p,t);if(hasSoHealth(s)){requireSoPatient(s,t,at);if(p.kind==='STABILIZE')requireThat(t.hp===0&&!t.survival?.stabilized,'SO_NO_STABILIZATION_NEEDED');}requireThat(s.healthRules?.enabled,'HEALTH_DISABLED');healthState(t);requireThat(t.hp<t.maxHp||convalescent(s,t,at),'NO_HEAL_NEEDED');if(p.kind==='FIELD_CARE'){requireThat(t.hp<t.maxHp,'NO_HEAL_NEEDED');requireThat(t.hp>0||level>=p.reviveLevel,'FIELD_SKILL_REQUIRED');requireThat(c.id!==t.id||!convalescent(s,t,at),'OUT_OF_COMBAT');}}
  }
  async function plan(tx,ctx,input,at){
   const {s,c,r}=ctx;
   if(s.spaceOutlaws?.escapeVersion===1){const cap=await tx.get(`sessions/${s.id}/soCaptivities/${c.id}`);requireThat(cap?.status!=='ACTIVE','SO_ESCAPE_CAPTIVE');}requireThat(s.stage==='EN_JEU'||(hasSoHealth(s)&&s.stage==='PAUSE'),'SESSION_NOT_RUNNING');requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(!c.activeFieldActionId&&!c.activePersonActionId,'FIELD_ACTOR_BUSY');
   const p=await tx.get(`sessions/${s.id}/personProfiles/${documentId(input.profileId)}`);requireThat(p?.publicationState==='PUBLISHED','PERSON_PROFILE_UNAVAILABLE');
-  if(s.spaceOutlaws)requireThat(hasSoHealth(s)&&['STABILIZE','FIELD_CARE'].includes(p.kind)&&p.id.startsWith('SO-'),'SO_GAMEPLAY_NOT_OPEN');
+  if(s.spaceOutlaws)requireThat(hasSoHealth(s)&&['STABILIZE','FIELD_CARE','PROTECTION'].includes(p.kind)&&p.id.startsWith('SO-'),'SO_GAMEPLAY_NOT_OPEN');
   const target=await activeCharacter(tx,s.id,input.targetId),t=target.c;requireThat(s.stage==='EN_JEU'||(hasSoHealth(s)&&t.hp===0),'SESSION_NOT_RUNNING');requireThat(!t.activePersonActionId&&!t.activeFieldActionId,'FIELD_TARGET_BUSY');
   const level=p.skillId?abilityLevel(c,p.skillId):0;requireThat(!p.skillId||level>=p.minLevel,'FIELD_SKILL_REQUIRED');for(const req of p.prerequisites)requireThat(abilityLevel(c,req.skillId)>=req.minLevel,'FIELD_SKILL_REQUIRED');eligible(s,c,t,p,level,at);
+  if(p.kind==='PROTECTION'){const equipment=await tx.list(`sessions/${s.id}/inventory`,['holderId',t.id]);requireThat(equipment.some(l=>personalLot(l,t.id)&&l.item.id===p.protectedItemId&&l.quantity>0&&l.status==='AVAILABLE'),'PROTECTION_EQUIPMENT_REQUIRED');}
   const family=isLoot(p)?'FOUILLE':`SKILL:${p.skillId}`,time=gameTime(s.clock,at),use=await tx.get(cooldownPath(s.id,c.id,family));requireThat((use?.readyAtGameMs??0)<=time,'COOLDOWN_ACTIVE');
   const patient=p.kind==='FIELD_CARE'?await tx.get(patientPath(s.id,t.id)):null;requireThat((patient?.readyAtGameMs??0)<=time,'PATIENT_COOLDOWN_ACTIVE');
   const urgent=hasSoHealth(s)&&t.hp===0;
@@ -58,7 +60,7 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
   if(input.bonusLotId){requireThat(p.test==='D6','AID_NOT_ALLOWED');const l=await readLot(tx,s.id,documentId(input.bonusLotId),at),b=p.bonusItems.find(b=>b.itemId===l?.item.id);requireThat(b&&l.quantity>0&&l.status==='AVAILABLE'&&personalLot(l,c.id),'FIELD_EQUIPMENT_UNAVAILABLE');lots.set(l.id,l);bonus=b.bonus;bonusName=l.item.name;}
   for(const supply of [p.consumable,...p.extraConsumables].filter(Boolean)){const lid=input.supplyLots?.[supply.itemId],l=await readLot(tx,s.id,documentId(lid),at);requireThat(l&&personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.item.id===supply.itemId&&l.item.consumable&&l.quantity>=supply.quantity,'FIELD_EQUIPMENT_UNAVAILABLE');lots.set(l.id,l);supplies.push({...supply,lotId:l.id,name:l.item.name});}
   const aid=await prepareAid(tx,s,c,input,p,family,at);requireThat(!aid||aid.character.id!==t.id,'AID_NOT_ALLOWED');
-  const durationSeconds=p.durationByLevel[level]??p.durationSeconds,cooldownSeconds=isLoot(p)?p.cooldownSeconds??s.actionPointRules?.cooldownSeconds??600:0;
+  const durationSeconds=p.durationByLevel[level]??p.durationSeconds,cooldownSeconds=p.kind==='PROTECTION'?600:isLoot(p)?p.cooldownSeconds??s.actionPointRules?.cooldownSeconds??600:0;
   const confirmation=digest({s:s.id,rules:s.actionPointRules??null,p,c,access:r.accessVersion,t,targetAccess:target.r.accessVersion,points,lots:[...lots.values()],aid,patient});
   return {p,t,urgent,tr:target.r,points,lots:[...lots.values()],supplies,aid,family,preview:{name:p.name,kind:p.kind,urgent,safetyStopped:false,target:{id:t.id,name:t.public.displayName},cost,level,bonus,bonusName,aid:aid?1:0,aidName:aid?.character.public.displayName??null,durationSeconds,cooldownSeconds,test:p.test,threshold:p.threshold,continuationSeconds:p.continuationSeconds,instructions:p.instructions,supplies,confirmation}};
  }
@@ -76,7 +78,7 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
    let ctx,org;
    if(admin.includes(action)){const session=!!input.sessionId,sid=documentId(session?input.sessionId:input.scenarioId),s=session?await checkSession(tx,actor,sid):await checkScenario(tx,actor,sid);org={s,session,base:`${session?'sessions':'scenarios'}/${sid}`};}
    else ctx=await player(tx,actor,input);
-   if(action==='personAdmin'){const {s,session,base}=org;return {scope:session?'session':'scenario',parent:{id:s.id,title:s.title,sealed:s.campaignSealed===true},...await catalog(tx,base),actions:session?(await tx.list(`${base}/personActions`)).filter(personOpen).map(a=>view(a,s,a.characterId,at)):[],inventory:session?(await tx.list(`${base}/inventory`)).filter(l=>l.quantity>0).map(l=>({...publicLot(l),pillable:(l.pillable??l.item.pillable)===true})):[]};}
+   if(action==='personAdmin'){const {s,session,base}=org;return {scope:session?'session':'scenario',parent:{id:s.id,title:s.title,spaceOutlaws:!!s.spaceOutlaws,sealed:s.campaignSealed===true},...await catalog(tx,base),actions:session?(await tx.list(`${base}/personActions`)).filter(personOpen).map(a=>view(a,s,a.characterId,at)):[],inventory:session?(await tx.list(`${base}/inventory`)).filter(l=>l.quantity>0).map(l=>({...publicLot(l),pillable:(l.pillable??l.item.pillable)===true})):[]};}
    if(action==='myPersonActions'){
     const {s,c,r}=ctx,all=await tx.list(`sessions/${s.id}/personActions`),actions=[];
     for(const a of all){const identity=c.id===a.characterId?[a.actorUid,a.accessVersion]:c.id===a.targetId?[a.targetUid,a.targetAccessVersion]:c.id===a.aid?.characterId?[a.aid.uid,a.aid.accessVersion]:null;if(!identity||identity[0]!==actor.uid||identity[1]!==r.accessVersion)continue;const v=view(a,s,c.id,at);if(v.canChoose){const t=await tx.get(cp(s.id,a.targetId));v.lootLots=(await lootLots(tx,s,t,at)).map(l=>({id:l.id,name:l.item.name}));}actions.push(v);}
@@ -84,16 +86,17 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
     return {session:{id:s.id,stage:s.stage,...(s.spaceOutlaws?{spaceOutlaws:true,healthReady:hasSoHealth(s)}:{})},character:{id:c.id,name:c.public.displayName},skills:(c.abilityProfile?.published?c.abilityProfile.skills:[]).filter(k=>k.kind==='PASSIVE'&&(!s.spaceOutlaws||analysisProfile(k.id)?.test==='D6'&&(k.id!=='PIL-01'||s.spaceOutlaws.routeAnalysisVersion===1))).map(k=>({id:k.id,name:k.name})),actions:actions.sort((a,b)=>b.startedAt-a.startedAt).slice(0,100),aidOffers:offers.map(o=>({id:o.id,status:o.status,recipientName:o.recipientName,skillId:o.skillId,actionId:o.actionId??null,collection:o.collection??null})),encounter:encounter(c,at),convalescenceMs:Math.max(0,(c.convalescentUntilGameMs??0)-gameTime(s.clock,at)),captureMs:Math.max(0,(c.lootEncounter?.captureUntil??0)-at)};
    }
    if(action==='personTarget'){
-    const {s,c}=ctx,{c:t}=await activeCharacter(tx,s.id,input.targetId),profiles=(await tx.list(`sessions/${s.id}/personProfiles`)).filter(p=>p.publicationState==='PUBLISHED'&&(isLoot(p)||acceptsPatientNature(p,t))&&(!s.spaceOutlaws||(hasSoHealth(s)&&['STABILIZE','FIELD_CARE'].includes(p.kind)&&(!p.skillId||abilityLevel(c,p.skillId)>=p.minLevel)))),lots=(await tx.list(`sessions/${s.id}/inventory`,['holderId',c.id])).filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.quantity>0);
-    return {session:{id:s.id,stage:s.stage,healthReady:hasSoHealth(s),safetyStopped:s.safetyStop?.active===true},urgent:hasSoHealth(s)&&t.hp===0,target:{id:t.id,name:t.public.displayName},profiles:profiles.map(p=>({id:p.id,name:p.name,kind:p.kind,instructions:p.instructions,test:p.test,skillId:p.skillId,bonusItems:p.bonusItems,supplies:[p.consumable,...p.extraConsumables].filter(Boolean)})),lots:lots.map(publicLot),aidOffers:await offeredAid(tx,s.id,c.id)};
+    const {s,c}=ctx,{c:t}=await activeCharacter(tx,s.id,input.targetId),profiles=(await tx.list(`sessions/${s.id}/personProfiles`)).filter(p=>p.publicationState==='PUBLISHED'&&(isLoot(p)||acceptsPatientNature(p,t))&&(!s.spaceOutlaws||(hasSoHealth(s)&&['STABILIZE','FIELD_CARE','PROTECTION'].includes(p.kind)&&(!p.skillId||abilityLevel(c,p.skillId)>=p.minLevel)))),lots=(await tx.list(`sessions/${s.id}/inventory`,['holderId',c.id])).filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.quantity>0);
+    return {session:{id:s.id,stage:s.stage,healthReady:hasSoHealth(s),safetyStopped:s.safetyStop?.active===true},urgent:hasSoHealth(s)&&t.hp===0,target:{id:t.id,name:t.public.displayName,...(hasSoHealth(s)?{hp:t.hp,maxHp:t.maxHp,protection:t.protection??0}: {})},profiles:profiles.map(p=>({id:p.id,name:p.name,kind:p.kind,instructions:p.instructions,test:p.test,skillId:p.skillId,bonusItems:p.bonusItems,supplies:[p.consumable,...p.extraConsumables].filter(Boolean)})),lots:lots.map(publicLot),aidOffers:await offeredAid(tx,s.id,c.id)};
    }
    if(action==='preparePersonAction')return (await plan(tx,ctx,input,at)).preview;
    if((ctx??org).s.spaceOutlaws){
     const aid=['offerAid','cancelAidOffer'].includes(action);
-    requireThat(aid||(hasSoHealth((ctx??org).s)&&['startPersonAction','finishPersonAction','cancelPersonAction','cancelPersonActionMJ'].includes(action)),'SO_GAMEPLAY_NOT_OPEN');
+    const protectionConfig=action==='savePersonProfile'&&input.profile?.kind==='PROTECTION'&&org?.session&&hasSoHealth(org.s);
+    requireThat(protectionConfig||aid||(hasSoHealth((ctx??org).s)&&['startPersonAction','finishPersonAction','cancelPersonAction','cancelPersonActionMJ'].includes(action)),'SO_GAMEPLAY_NOT_OPEN');
     if(action==='offerAid'&&input.skillId==='PIL-01')requireRouteAnalysis((ctx??org).s);
     if(action==='offerAid')requireThat(analysisProfile(input.skillId)?.test==='D6','AID_NOT_ALLOWED');
-    authorizeSpaceOutlaws(tx,(ctx??org).s,aid?'AID':'CARE');
+    authorizeSpaceOutlaws(tx,(ctx??org).s,protectionConfig?'PROTECTION_CONFIG':aid?'AID':'CARE');
    }
    const op=`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`,fingerprint=digest([action,input]),previous=await tx.get(op);
    let a;
@@ -101,7 +104,16 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
    if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');if(ctx)requireThat(previous.characterId===ctx.c.id&&previous.accessVersion===ctx.r.accessVersion,'FORBIDDEN');for(const party of previous.parties??[]){const current=await activeCharacter(tx,(ctx??org).s.id,party.id);requireThat(current.c.assignedUid===party.uid&&current.r.accessVersion===party.version,'FORBIDDEN');}return previous.result;}
    if(org)requireThat(org.s.stage!=='ARCHIVED','SESSION_CLOSED');let result;
    if(action==='savePersonProfile'){
-    const {s,base}=org,pid=input.profileId?documentId(input.profileId):id,old=await tx.get(`${base}/personProfiles/${pid}`);requireThat((old?.revision??0)===(input.revision??0),'STALE_REVISION');const p=personProfileInput(input.profile,pid,old??{}),records=await catalog(tx,base);validatePersonReferences(p,records);requireThat(records.personProfiles.length<100||old,'INVALID_PERSON_PROFILE');tx.set(`${base}/personProfiles/${pid}`,p);tx.set(base,{...s,revision:s.revision+1});tx.set(`${base}/personProfiles/${pid}/history/${id}`,{id,at,actorUid:actor.uid,reason:memo(input.reason),before:old??null,after:p});result={id:pid};
+    const {s,base}=org,repair=s.spaceOutlaws&&input.profile?.kind==='PROTECTION',pid=input.profileId?documentId(input.profileId):repair?`SO-ARMOR-${id}`:id,old=await tx.get(`${base}/personProfiles/${pid}`);requireThat((old?.revision??0)===(input.revision??0),'STALE_REVISION');
+    let p;const records=await catalog(tx,base);
+    if(repair){
+      requireThat(pid.startsWith('SO-ARMOR-')&&(!old||old.kind==='PROTECTION')&&['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)&&!s.safetyStop?.active,'INVALID_PERSON_PROFILE');
+      const equipment=documentId(input.profile.protectedItemId),supply=documentId(input.profile.consumable?.itemId);
+      requireThat(records.items.some(i=>i.id===equipment&&i.versionId===s.spaceOutlaws.versionId&&!i.consumable)&&records.items.some(i=>i.id===supply&&i.versionId===s.spaceOutlaws.versionId&&i.consumable),'FIELD_REFERENCE');
+      requireThat(['DRAFT','PUBLISHED'].includes(input.profile.publicationState),'INVALID_PERSON_PROFILE');
+      p={id:pid,revision:(old?.revision??0)+1,kind:'PROTECTION',name:'Entretien de protection',publicationState:input.profile.publicationState,protectedItemId:equipment,skillId:'ENTRETIEN_PROTECTION',minLevel:1,patientNature:null,test:'AUTO',threshold:0,cost:1,cooldownSeconds:600,bonusItems:[],consumable:{itemId:supply,quantity:1},extraConsumables:[],prerequisites:[],durationSeconds:120,durationByLevel:{1:120,2:105,3:90,4:75,5:60},continuationSeconds:0,healAmount:0,reviveLevel:0,convalescenceSeconds:0,patientCooldownSeconds:0,instructions:'Remplacez la plaque endommagée de cette armure ordinaire. Restaure 1 protection, aucun PV. 1 PA et une plaque ; 120 / 105 / 90 / 75 / 60 secondes selon le niveau. Récupération personnelle : 10 minutes.'};
+    }else{p=personProfileInput(input.profile,pid,old??{});validatePersonReferences(p,records);}
+    requireThat(records.personProfiles.length<100||old,'INVALID_PERSON_PROFILE');tx.set(`${base}/personProfiles/${pid}`,p);if(!repair)tx.set(base,{...s,revision:s.revision+1});tx.set(`${base}/personProfiles/${pid}/history/${id}`,{id,at,actorUid:actor.uid,reason:memo(input.reason),before:old??null,after:p});result={id:pid};
    }else if(action==='setLotPillable'){
     const {s,session}=org;requireThat(session&&typeof input.pillable==='boolean','INVALID_ITEM');const lid=documentId(input.lotId),l=await readLot(tx,s.id,lid,at);requireThat(l?.status==='AVAILABLE'&&l.quantity>0,'INSUFFICIENT_STOCK');requireThat(l.revision===input.revision,'STALE_REVISION');const next={...l,pillable:input.pillable,revision:l.revision+1};tx.set(`sessions/${s.id}/inventory/${lid}`,next);tx.set(`sessions/${s.id}/inventory/${lid}/history/${id}`,{id,at,kind:'PILLABLE_SETTING',actorUid:actor.uid,reason:memo(input.reason),before:l.pillable??l.item.pillable??false,after:input.pillable});result={id:lid};
    }else if(action==='offerAid'){
@@ -141,6 +153,11 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
        const outcome=a.status==='CONTINUING'?{...a.result,completedAfterContinuation:true}: {roll,total,level:a.level,bonus:a.bonus,aid:a.aid?1:0,threshold:a.profile.threshold,success};
        if(a.kind==='STABILIZE'){
         await release(tx,s,a,c,t,at,id,actor,false);next={...a,paid:true,status:'SUCCEEDED',finishedAt:at,result:{stabilized:true,restored:0,hp:0,maxHp:t.maxHp}};unlock(tx,s,a,c,t);
+       }else if(a.kind==='PROTECTION'){
+        const equipment=await tx.list(`sessions/${s.id}/inventory`,['holderId',t.id]);requireThat(equipment.some(l=>personalLot(l,t.id)&&l.item.id===a.profile.protectedItemId&&l.quantity>0&&l.status==='AVAILABLE'),'PROTECTION_EQUIPMENT_REQUIRED');
+        await release(tx,s,a,c,t,at,id,actor,false);target={...t,protection:1,healthRevision:t.healthRevision+1};if(c.id===t.id)source=target;
+        tx.set(`${cp(s.id,t.id)}/healthHistory/${id}`,{id,at,kind:'PROTECTION',sourceName:c.public.displayName,targetName:t.public.displayName,skillName:a.profile.name,before:healthState(t),after:healthState(target),actionId:a.id});
+        next={...a,paid:true,lotIds:[],status:'SUCCEEDED',finishedAt:at,result:{protection:1,restored:0,hp:t.hp,maxHp:t.maxHp}};unlock(tx,s,a,source,target);
        }else if(a.kind==='CLINIC_FAST'&&!success){
         // Spend once at the failed roll; retain only the actor, patient and helper until completion.
         await release(tx,s,a,c,t,at,id,actor,false);

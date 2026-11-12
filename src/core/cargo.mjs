@@ -143,12 +143,12 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
     return audit({id,revision:next.revision},{id:eventId,kind:'SHIP_CONFIGURE',at,actorUid:actor.uid,reason,before:old,after:next});
    }
    if(action==='myCargo'){
-    const holds=[];for(const ship of await tx.list(`${base}/ships`)){const p=await place({kind:'HOLD',id:ship.id});if(p.read||p.deposit||p.withdraw||p.pilot)holds.push({...viewPlace(p),docked:ship.docked,enabled:ship.enabled,portId:ship.portId??null,inTransit:!!ship.journey,local:local(ship)});}
+    const holds=[];for(const ship of await tx.list(`${base}/ships`)){const p=await place({kind:'HOLD',id:ship.id});if((!so||p.capacity>0)&&(p.read||p.deposit||p.withdraw||p.pilot))holds.push({...viewPlace(p),docked:ship.docked,enabled:ship.enabled,portId:ship.portId??null,inTransit:!!ship.journey,local:local(ship)});}
     const transfers=[];for(const t of await tx.list(`${base}/cargoTransfers`)){if(t.status!=='LOADING'||t.destination.kind==='CHARACTER'&&t.destination.id!==c.id)continue;if(t.transportContractId&&t.characterId!==c.id)continue;transport=t.transportContractId?await transportCargoAccess(tx,s,await readLot(tx,sid,t.lotId,at),c.id):null;const p=await place(t.destination);if(p.read)transfers.push(publicTransfer(t));transport=null;}
     return {...(hasHiddenCargo(s)&&c.customsAuthorization?.level>=1?{customsReady:true}:{}),session:{id:sid,stage:s.stage,...(so?{spaceOutlaws:true}:{})},holds,transfers};
    }
    if(action==='shipHold'){
-    const p=await place({kind:'HOLD',id:documentId(input.shipId)});requireThat(p.read||p.deposit||p.withdraw||p.pilot,'FORBIDDEN');
+    const p=await place({kind:'HOLD',id:documentId(input.shipId)});requireThat(p.read||p.deposit||p.withdraw||p.pilot,'FORBIDDEN');requireThat(!so||p.capacity>0,'CARGO_UNAVAILABLE');
     return {session:{id:sid,stage:s.stage,...(so?{spaceOutlaws:true}:{})},hold:{...viewPlace(p),...(hasHiddenCargo(s)&&p.record.ownerType==='CHARACTER'&&p.record.ownerId===c.id&&p.record.modules?.some(m=>m.code==='MOD-04')?{hiddenCargoReady:true}:{}),description:p.record.description,docked:p.record.docked,enabled:p.record.enabled,local:local(p.record),portId:p.record.portId??null,inTransit:!!p.record.journey},stock:p.read?p.stock.map(publicLot):[],canRead:p.read};
    }
    if(action==='cargoLot'){

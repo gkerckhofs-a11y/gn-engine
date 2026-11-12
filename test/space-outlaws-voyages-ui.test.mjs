@@ -62,3 +62,9 @@ test('Vol de groupe SO UI : attribution au groupe et mandat modifié pendant la 
  assert.match(html,/liaison sécurisée/);assert.match(html,/Le mandat a changé/);assert.match(html,/cancelSoNavigation/);
  assert.doesNotMatch(html,/finishSoPreparation|Entretien|Dépannage PNJ/);
 });
+
+test('Vols SO UI : accès soute uniquement pour une capacité positive',()=>{
+ const d={session:{id:'s'},ship,logisticsReady:true,canPilot:false,canAct:false};
+ assert.match(soNavigationHtml(d),/href="#\/hold\/s\/ship"/);
+ assert.doesNotMatch(soNavigationHtml({...d,ship:{...ship,profile:{...profile,cargoCapacity:0}}}),/href="#\/hold\//);
+});
