@@ -139,9 +139,19 @@ export function createHealthService({store,signed,checkSession,checkScenario,now
         const hp=whole(input.hp,'INVALID_HEALTH'),maxHp=whole(input.maxHp,'INVALID_HEALTH');
         requireThat(maxHp>0&&hp<=maxHp&&typeof input.outOfCombat==='boolean'&&(hp!==0||input.outOfCombat),'INVALID_HEALTH');
         requireThat(input.clearConvalescence===undefined||typeof input.clearConvalescence==='boolean','INVALID_HEALTH');
-        const after={hp,maxHp,outOfCombat:input.outOfCombat,revision:before.revision+1};
+        let patch={};
+        if(hasSoHealth(s)){
+          requireThat(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)&&!s.safetyStop?.active,'SESSION_NOT_RUNNING');
+          requireThat(!c.activeFieldActionId&&!c.activePersonActionId,'PERSON_ACTIONS_OPEN');
+          requireThat(!c.survival?.dead,'SO_PATIENT_DEAD');
+          requireThat(maxHp===c.maxHp&&input.outOfCombat===(hp===0),'INVALID_HEALTH');
+          const protection=whole(input.protection??c.protection??0,'INVALID_HEALTH');requireThat(protection<=1,'INVALID_HEALTH');
+          patch={protection,survival:hp>0?null:c.hp===0?c.survival:{deadline:vitalTime(s,at)+300000,stabilized:false}};
+          authorizeSpaceOutlaws(tx,s,'HEALTH_CORRECTION');
+        }
+        const after={...before,...(patch.protection!=null?{protection:patch.protection}:{}),hp,maxHp,outOfCombat:input.outOfCombat,revision:before.revision+1};
         event={...event,kind:'GM',characterId:cid,before,after,...(input.clearConvalescence?{convalescenceCleared:true,previousConvalescentUntilGameMs:c.convalescentUntilGameMs??0}:{})};
-        tx.set(charPath(id,cid),{...c,hp,maxHp,outOfCombat:after.outOfCombat,healthRevision:after.revision,...(after.outOfCombat&&c.lootEncounter?{lootEncounter:{...c.lootEncounter,freeSince:null}}:{}),...(input.clearConvalescence?{convalescentUntilGameMs:0}:{})});
+        tx.set(charPath(id,cid),{...c,...patch,hp,maxHp,outOfCombat:after.outOfCombat,healthRevision:after.revision,...(after.outOfCombat&&c.lootEncounter?{lootEncounter:{...c.lootEncounter,freeSince:null}}:{}),...(input.clearConvalescence?{convalescentUntilGameMs:0}:{})});
         tx.set(`${charPath(id,cid)}/healthHistory/${newId}`,event);result={id:newId,health:after};
       }else{
         const rules=healthRulesInput(input.rules),chars=!scenario&&rules.enabled?await tx.list(`${base}/characters`):[];

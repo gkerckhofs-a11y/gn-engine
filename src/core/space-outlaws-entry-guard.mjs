@@ -81,6 +81,11 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(scopes.has('INF02')&&session.spaceOutlaws.inf02Version===1&&/^(inf02Actions\/[^/]+|inf02Actors\/[^/]+|inf02Attempts\/[^/]+|characters\/[^/]+(?:\/(?:knowledge\/[^/]+|resources\/actionPoints))?)$/.test(relative))continue;
   if(scopes.has('ESCAPE')&&session.spaceOutlaws.escapeVersion===1&&/^(soCaptivities\/[^/]+|soEscapeActions\/[^/]+|soEscapeRogues\/[^/]+|characters\/[^/]+\/resources\/actionPoints)$/.test(relative))continue;
   if(scopes.has('PICKPOCKET')&&session.spaceOutlaws.pickpocketVersion===1&&/^(pickpocketActions\/[^/]+|pickpocketRogues\/[^/]+|pickpocketVictims\/[^/]+|pickpocketAlerts\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+\/resources\/actionPoints)$/.test(relative))continue;
+  if(scopes.has('PROTECTION_CONFIG')&&session.spaceOutlaws.healthVersion===1&&/^personProfiles\/SO-ARMOR-[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
+  if(scopes.has('HEALTH_CORRECTION')&&session.spaceOutlaws.healthVersion===1){
+   if(/^(characters\/[^/]+(?:\/healthHistory\/[^/]+)?|healthHistory\/[^/]+)$/.test(relative))continue;
+   if(path===base.slice(0,-1)){const next=pending.get(path),strip=({revision,...rest})=>rest;requireThat(next.revision===session.revision+1&&isDeepStrictEqual(strip(session),strip(next)),'SO_GAMEPLAY_NOT_OPEN');continue;}
+  }
   if(scopes.has('CARE')&&/^(personActions\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/(?:resources\/actionPoints|fieldCooldowns\/[^/]+|cooldowns\/field-care|healthHistory\/[^/]+))?)$/.test(relative))continue;
   if(scopes.has('HEALTH')&&/^characters\/[^/]+(?:\/healthHistory\/[^/]+)?$/.test(relative))continue;
   if(scopes.has('SAFETY')&&path===base.slice(0,-1)){

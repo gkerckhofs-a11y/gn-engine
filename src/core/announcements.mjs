@@ -1,3 +1,4 @@
+import {admissionClasses} from '../shared/admission-rules.mjs';
 import {missionExecutionOptions} from './space-outlaws-mission-evidence.mjs';
 import {soMissionAccess,soAnnouncement,soMissionReadable} from './space-outlaws-mission-state.mjs';
 import {mediaFields} from './media-state.mjs';
@@ -13,7 +14,8 @@ export const announcementAction=a=>actions.has(a);
 const text=(v,max,required=false)=>{requireThat(typeof v==='string'&&v.length<=max&&(!required||v.trim()),'INVALID_ANNOUNCEMENT');return v.trim();};
 const oneOf=(v,values)=>{requireThat(values.includes(v),'INVALID_ANNOUNCEMENT');return v;};
 const state=(a,at)=>a.publication==='PUBLISHED'?(at<a.opensAt?'SCHEDULED':at>=a.deadline?'EXPIRED':a.mode==='ASSIGNMENT'&&(a.assignedCount??0)>=a.places?'FILLED':'OPEN'):a.publication;
-const view=(a,at)=>({...mediaFields(a,['illustration']),id:a.id,bountyId:a.bountyId??null,revision:a.revision,status:state(a,at),title:a.title,category:a.category,mode:a.mode,participation:participationOf(a),description:a.description,sponsor:{kind:a.sponsorKind,name:a.sponsorName},rewardType:a.rewardType,rewardText:a.rewardText,places:a.places,conditions:a.conditions,proofExpected:a.proofExpected,opensAt:a.opensAt,deadline:a.deadline});
+export const announcementClassAllowed=(a,c)=>!(a.eligibleClassIds?.length)||a.eligibleClassIds.includes(c.birth?.classId??c.abilityProfile?.class?.id);
+const view=(a,at)=>({eligibleClassIds:a.eligibleClassIds??[],...(a.sessionMission?{sessionMission:true}:{}),...mediaFields(a,['illustration']),id:a.id,bountyId:a.bountyId??null,revision:a.revision,status:state(a,at),title:a.title,category:a.category,mode:a.mode,participation:participationOf(a),description:a.description,sponsor:{kind:a.sponsorKind,name:a.sponsorName},rewardType:a.rewardType,rewardText:a.rewardText,places:a.places,conditions:a.conditions,proofExpected:a.proofExpected,opensAt:a.opensAt,deadline:a.deadline});
 const digest=v=>hash(JSON.stringify(v));
 const closed=t=>['DECLINED','WITHDRAWN','ASSIGNED'].includes(t.status);
 const threadId=(a,ctx,actor,p)=>p?.kind==='GROUP'?digest([a.id,'GROUP',p.id]):digest([a.id,actor.uid,ctx.version]);
@@ -25,14 +27,14 @@ async function audienceAllowed(tx,s,a,cid){
   return false;
 }
 const readable=async(tx,s,a,cid,at)=>!!a&&!['DRAFT','SCHEDULED'].includes(state(a,at))&&await audienceAllowed(tx,s,a,cid);
-const responseAllowed=(s,c,a,at)=>state(a,at)==='OPEN'&&s.stage==='EN_JEU'&&canGameAction(s,c,'publish');
+const responseAllowed=(s,c,a,at)=>a.mode!=='BULLETIN'&&announcementClassAllowed(a,c)&&state(a,at)==='OPEN'&&s.stage==='EN_JEU'&&canGameAction(s,c,'publish');
 const summary=(t,a,at,admin=false,ctx=null)=>({id:t.id,revision:t.revision,announcementId:t.announcementId,title:t.terms.title,announcementRevision:a.revision,announcementStatus:state(a,at),reviewedRevision:t.reviewedTerms.revision,status:t.status,intent:t.intent,contractId:t.contractId??null,applicant:participantOf(t),createdAt:t.createdAt,updatedAt:t.updatedAt,unread:!admin&&(missionReadState(t,ctx).revision<t.revision||missionReadState(t,ctx).announcementRevision!==a.revision)});
 const messageView=m=>({id:m.id,sequence:m.sequence,at:m.at,from:m.from,authorName:m.authorName,body:m.body,proposedReward:m.proposedReward,announcementRevision:m.announcementRevision});
 export function createAnnouncementService({store,signed,checkSession,now,uuid}){
   async function prepare(tx,s,input,at){
     const old=input.announcementId?await tx.get(`sessions/${s.id}/announcements/${documentId(input.announcementId)}`):null;
     if(input.announcementId)requireThat(old,'NOT_FOUND');requireThat(!old?.bountyId,'BOUNTY_LOCKED');requireThat((old?.revision??0)===input.revision,'STALE_REVISION');
-    const draft={...mediaFields(old,['illustration','briefing']),id:old?.id??null,assignedCount:old?.assignedCount??0,revision:(old?.revision??0)+1,title:text(input.title,150,true),category:oneOf(input.category,['BOUNTY','MERCENARY','ESCORT','TRANSPORT','INFORMATION','OTHER']),mode:oneOf(input.mode,['ASSIGNMENT','OPEN_BOUNTY']),participation:participationInput(input.participation??old?.participation??'PERSONAL'),description:text(input.description,10000,true),sponsorKind:oneOf(input.sponsorKind,['CHARACTER','GROUP','AUTHORITY','NPC']),sponsorName:text(input.sponsorName,150,true),rewardType:oneOf(input.rewardType,['FIXED','NEGOTIABLE']),rewardText:text(input.rewardText,1000,true),places:whole(input.places,'INVALID_ANNOUNCEMENT'),conditions:text(input.conditions,4000,true),proofExpected:text(input.proofExpected,2000,true),briefing:text(input.briefing??'',12000),gmNotes:text(input.gmNotes??'',12000),publication:oneOf(input.publication,['DRAFT','PUBLISHED','CLOSED','CANCELLED']),opensAt:whole(input.opensAt,'INVALID_ANNOUNCEMENT'),deadline:whole(input.deadline,'INVALID_ANNOUNCEMENT')};
+    const draft={...mediaFields(old,['illustration','briefing']),id:old?.id??null,assignedCount:old?.assignedCount??0,revision:(old?.revision??0)+1,title:text(input.title,150,true),category:oneOf(input.category,['BOUNTY','MERCENARY','ESCORT','TRANSPORT','INFORMATION','OTHER']),mode:oneOf(input.mode,['ASSIGNMENT','OPEN_BOUNTY','BULLETIN']),participation:participationInput(input.participation??old?.participation??'PERSONAL'),description:text(input.description,10000,true),sponsorKind:oneOf(input.sponsorKind,['CHARACTER','GROUP','AUTHORITY','NPC']),sponsorName:text(input.sponsorName,150,true),rewardType:oneOf(input.rewardType,['FIXED','NEGOTIABLE']),rewardText:text(input.rewardText??'',1000),places:whole(input.places,'INVALID_ANNOUNCEMENT'),conditions:text(input.conditions??'',4000),proofExpected:text(input.proofExpected??'',2000,input.mode!=='BULLETIN'),briefing:text(input.briefing??'',12000),gmNotes:text(input.gmNotes??'',12000),publication:oneOf(input.publication,['DRAFT','PUBLISHED','CLOSED','CANCELLED']),opensAt:whole(input.opensAt,'INVALID_ANNOUNCEMENT'),deadline:whole(input.deadline,'INVALID_ANNOUNCEMENT')};
     requireThat(draft.places>0&&draft.places<=1000&&draft.deadline>draft.opensAt&&draft.deadline<=8640000000000000,'INVALID_ANNOUNCEMENT');if(draft.publication==='PUBLISHED')requireThat(draft.deadline>at,'ANNOUNCEMENT_EXPIRED');
     requireThat(draft.places>=draft.assignedCount&&(!draft.assignedCount||(draft.mode===old.mode&&draft.participation===participationOf(old))),'MISSION_PLACES_LOCKED');
     const a=input.audience;requireThat(a&&['ALL','TARGETED'].includes(a.kind)&&Array.isArray(a.characterIds)&&Array.isArray(a.groupIds)&&a.characterIds.length<=200&&a.groupIds.length<=100,'INVALID_AUDIENCE');
@@ -41,6 +43,11 @@ export function createAnnouncementService({store,signed,checkSession,now,uuid}){
     const audienceNames=[];
     for(const id of characterIds){const c=await tx.get(`sessions/${s.id}/characters/${id}`);requireThat(c,'INVALID_AUDIENCE');audienceNames.push(c.public.displayName);}
     for(const id of groupIds){const g=await tx.get(`sessions/${s.id}/groups/${id}`);requireThat(g,'INVALID_AUDIENCE');audienceNames.push(`Groupe : ${g.name}`);}
+    const classes=input.eligibleClassIds??old?.eligibleClassIds??[];
+    requireThat(Array.isArray(classes)&&classes.length<=8&&new Set(classes).size===classes.length&&classes.every(id=>admissionClasses.some(c=>c.id===id)),'INVALID_ANNOUNCEMENT_CLASSES');
+    requireThat(!classes.length||(draft.participation==='PERSONAL'&&draft.mode==='ASSIGNMENT'),'INVALID_ANNOUNCEMENT_CLASSES');
+    draft.eligibleClassIds=[...classes].sort();
+    requireThat(draft.mode!=='BULLETIN'||!classes.length,'INVALID_ANNOUNCEMENT_CLASSES');
     Object.assign(draft,await soAnnouncement(tx,s,input,old));
     draft.audience={kind:a.kind,characterIds,groupIds};const reason=text(input.reason,500,true);
     return {old,draft,reason,result:{preview:view(draft,at),audience:draft.audience,audienceNames,briefing:draft.briefing,gmNotes:draft.gmNotes,confirmation:digest([s.id,draft,reason])}};
@@ -51,7 +58,7 @@ export function createAnnouncementService({store,signed,checkSession,now,uuid}){
     if(!admin)requireThat(await readable(tx,s,a,ctx.c.id,at),'FORBIDDEN');return {t,a};
   }
   async function candidateCurrent(tx,s,t,a,at){
-    const p=await participantCurrent(tx,s,t);if(!p.current||!participantAllowed(a,participantOf(t)))return false;for(const cid of p.representatives)if(await readable(tx,s,a,cid,at))return true;return false;
+    const p=await participantCurrent(tx,s,t);if(!p.current||!participantAllowed(a,participantOf(t))||!announcementClassAllowed(a,p.c??{}))return false;for(const cid of p.representatives)if(await readable(tx,s,a,cid,at))return true;return false;
   }
   async function detail(tx,s,ctx,t,a,at,admin){
     const messages=await tx.list(`sessions/${s.id}/applications/${t.id}/messages`,null,{orderBy:'sequence',direction:'desc',limit:50});
@@ -62,7 +69,7 @@ export function createAnnouncementService({store,signed,checkSession,now,uuid}){
   }
   async function response(tx,s,ctx,actor,input,at){
     const a=await tx.get(`sessions/${s.id}/announcements/${documentId(input.announcementId)}`);requireThat(await readable(tx,s,a,ctx.c.id,at),'FORBIDDEN');
-    requireThat(state(a,at)==='OPEN','ANNOUNCEMENT_CLOSED');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,ctx.c,'publish');
+    requireThat(a.mode!=='BULLETIN'&&state(a,at)==='OPEN','ANNOUNCEMENT_CLOSED');requireThat(announcementClassAllowed(a,ctx.c),'MISSION_CLASS_REQUIRED');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,ctx.c,'publish');
     const selected=await selectParticipant(tx,s,ctx,input,a),id=threadId(a,ctx,actor,selected.participant),t=await tx.get(`sessions/${s.id}/applications/${id}`);requireThat(!t||!closed(t),'APPLICATION_CLOSED');if(t)requireThat(await participantAccess(tx,s,ctx,actor,t),'FORBIDDEN');
     const intent=oneOf(input.intent,['QUESTION','APPLICATION']);requireThat(!(t?.intent==='APPLICATION'&&intent==='QUESTION'),'INVALID_ANNOUNCEMENT');
     const body=text(input.body,5000,true),proposedReward=text(input.proposedReward??'',300);requireThat(!proposedReward||a.rewardType==='NEGOTIABLE','PRICE_PROPOSAL_DISABLED');
@@ -82,8 +89,12 @@ export function createAnnouncementService({store,signed,checkSession,now,uuid}){
       if(s.spaceOutlaws&& !['sessionAnnouncements','announcements','myApplications','announcementDetail','announcementHistory','sessionApplications','applicationDetail','sessionApplication'].includes(action))requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
       if(action==='sessionAnnouncements')return {session:{id:s.id,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{})},...(s.spaceOutlaws?{missions:await tx.list(`${base}/missions`)}:{}),announcements:(await tx.list(`${base}/announcements`)).sort((a,b)=>b.updatedAt-a.updatedAt||a.id.localeCompare(b.id)).map(a=>({...a,status:state(a,at)}))};
       if(action==='announcements'){
-        const announcements=[];for(const a of await tx.list(`${base}/announcements`))if(state(a,at)==='OPEN'&&await audienceAllowed(tx,s,a,ctx.c.id))announcements.push(view(a,at));
-        announcements.sort((a,b)=>a.deadline-b.deadline||a.id.localeCompare(b.id));return {session:{id:s.id,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{})},announcements};
+        const announcements=[];let refreshAfterMs=15000;
+        for(const a of await tx.list(`${base}/announcements`))if(await audienceAllowed(tx,s,a,ctx.c.id)){
+          if(state(a,at)==='OPEN'){announcements.push(view(a,at));refreshAfterMs=Math.min(refreshAfterMs,Math.max(100,a.deadline-at));}
+          else if(state(a,at)==='SCHEDULED')refreshAfterMs=Math.min(refreshAfterMs,Math.max(100,a.opensAt-at));
+        }
+        announcements.sort((a,b)=>b.opensAt-a.opensAt||a.id.localeCompare(b.id));return {refreshAfterMs,session:{id:s.id,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{})},announcements};
       }
       if(action==='myApplications'){
         const applications=[];for(const t of await tx.list(`${base}/applications`)){if(!await participantAccess(tx,s,ctx,actor,t))continue;const a=await tx.get(`${base}/announcements/${t.announcementId}`);if(await readable(tx,s,a,ctx.c.id,at))applications.push(summary(t,a,at,false,ctx));}

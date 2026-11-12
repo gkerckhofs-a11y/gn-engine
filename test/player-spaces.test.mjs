@@ -7,13 +7,13 @@ import {personMineHtml} from '../web/person-actions.mjs';
 const context=()=>({session:{id:'s1',title:'Session <secrète>',stage:'PAUSE',summary:'Une ville',practical:'À lire'},character:{id:'c1',displayName:'Pilote'},globalLevel:2,groups:[],economyEnabled:false,actionPoints:{available:5,maximum:8,reserved:1,nextRefillInMs:60000},health:{hp:2,maxHp:3,outOfCombat:false,convalescenceMs:0}});
 
 test('Navigation joueur : les quatre entrées restent présentes, une seule active, QR et état accessibles',()=>{
- for(const [page,space] of [['play','character'],['groups','group'],['action','action'],['terminal','terminal']]){
+ for(const [page,space] of [['identity','character'],['news','news'],['action','action'],['terminal','terminal']]){
   const html=playerShell(context(),playerRoute(page,'s1'),'<h1>Contenu</h1>');
   const nav=html.match(/<nav class="player-nav"[\s\S]*?<\/nav>/)[0];
   assert.equal((nav.match(/<a /g)??[]).length,4);assert.equal((nav.match(/aria-current="page"/g)??[]).length,1);
   assert.ok(nav.includes(`href="#/${page}/s1" aria-current="page"`));assert.equal(playerRoute(page,'s1').space,space);
-  for(const label of ['Mon personnage','Mon groupe','Action','Terminal'])assert.ok(nav.includes(label));
-  assert.ok(html.includes('Mon QR'));assert.ok(html.includes('Niveau 2'));assert.ok(html.includes('5 / 8 PA'));assert.ok(html.includes('2 / 3 PV'));assert.ok(html.includes('pause'));
+  for(const label of ['Identité','News','Action','Terminal'])assert.ok(nav.includes(label));
+  assert.ok(html.includes('Mon QR'));assert.ok(html.includes('Niveau <strong>2</strong>'));assert.ok(html.includes('5 / 8 PA'));assert.ok(html.includes('2 / 3 PV'));assert.ok(html.includes('pause'));
   assert.ok(html.includes('Session &lt;secrète&gt;'));assert.ok(!html.includes('<secrète>'));
  }
 });
@@ -21,7 +21,7 @@ test('Navigation joueur : routes anciennes conservées, espaces organisateur et 
  for(const page of ['actions','interactions','person','field','discover'])assert.equal(playerRoute(page,'s1').space,'action');
  for(const page of ['bag','wallet','skills','health','knowledge','notes','note'])assert.equal(playerRoute(page,'s1').space,'character');
  assert.equal(playerRoute('contracts','s1','personal').space,'character');assert.equal(playerRoute('contracts','s1').space,'terminal');
- for(const page of ['group','group-missions'])assert.equal(playerRoute(page,'s1').space,'group');
+ for(const page of ['group','group-missions'])assert.equal(playerRoute(page,'s1').space,'character');
  for(const page of ['scenario','session','person-admin','field-admin','badge','invite','join','media','campaign','contracts-admin'])assert.equal(playerRoute(page,'s1'),null);
  assert.equal(playerRoute('play','s1/other'),null);
  assert.equal(playerShell({...context(),character:null},playerRoute('play','s1'),'Accès fermé'),'Accès fermé');
@@ -79,4 +79,11 @@ test('Navigation SO : accès à Mon groupe sur une session compatible',()=>{
  assert.doesNotMatch(playerShell(d,route,''),/href="#\/groups\/s1"/);
  d.session.spaceOutlaws.groupsVersion=1;
  assert.match(playerShell(d,route,''),/href="#\/groups\/s1"/);
+});
+
+test('Identité : huit raccourcis illustrés, groupe secondaire et protection toujours visible',async()=>{
+ const {identityHtml}=await import('../web/player-spaces.mjs'),d=context();d.session.spaceOutlaws={actionsVersion:1,missionsVersion:1,groupsVersion:1,healthVersion:1};d.health.protection=0;
+ const html=identityHtml(d);for(const name of ['Fiche','Compétences','Sac','Information','Mission','Groupe','Santé','Protection'])assert.ok(html.includes(name));
+ assert.equal((html.match(/class="space-icon"/g)??[]).length,8);assert.ok(html.includes('#/contracts/s1/personal'));
+ const shell=playerShell(d,playerRoute('groups','s1'),'');const primary=shell.match(/<nav class="player-nav"[\s\S]*?<\/nav>/)[0];assert.ok(!primary.includes('groups/s1'));assert.ok(primary.includes('identity/s1" aria-current'));assert.ok(primary.includes('news/s1'));assert.ok(shell.includes('0 / 1'));
 });
