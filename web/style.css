@@ -54,3 +54,5 @@ body:has(.player-shell)>header{display:none}
 .touch-counter button{min-width:60px;min-height:60px;font-size:1.6rem}
 .touch-counter input{width:90px;text-align:center;font-size:1.6rem}
 @media(max-width:600px){.identity-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.player-vitals{flex-wrap:wrap}.player-vitals .vital-refill,.player-vitals .vital-refresh{display:none}.player-health,.player-protection{flex:1}.player-vitals>span{padding:6px 10px}.player-vitals .vital-level{flex:1}.player-subnav{flex-wrap:wrap}}
+
+.player-session .player-heading{flex:1;min-width:0}.player-name{display:block;font-size:clamp(24px,5vw,34px);line-height:1.15}.player-session .player-profession{display:block;font-size:14px;line-height:1.4;margin-top:4px}
