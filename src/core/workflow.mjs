@@ -1,3 +1,4 @@
+import {createPlayerIdentityService,identityCommands} from './player-identity.mjs';
 import {createTowingWorkService,towingWorkActions} from './space-towing-work.mjs';
 import {createHiddenCargoService,hiddenCargoActions} from './space-hidden-cargo.mjs';
 import {createModuleWorkService,moduleWorkActions} from './space-module-work.mjs';
@@ -143,6 +144,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     return {s,c,g,m:memberFor(g,cid)};
   };
 
+  const identityService=createPlayerIdentityService({store,signed,checkSession,now,uuid});
   const mediaService=createMediaService({store,signed,admin,isAdmin,checkSession,checkScenario,now,uuid,images,processImage,authorizeRead:async(actor,context,slot)=>{
     requireThat(context&&typeof context==='object','INVALID_MEDIA_TARGET');
     const id=documentId(context.id),scopeId=documentId(context.scopeId);let record;
@@ -252,6 +254,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(masterAction(action))return masterService(action,actor,input);
     if(campaignAction(action))return campaignService(action,actor,input);
     if(archiveAction(action))return archiveService(action,actor,input);
+    if(identityCommands.includes(action))return identityService(action,actor,input);
     if(mediaAction(action))return mediaService(action,actor,input);
     if(action==='setStage'&&['BRIEFING','EN_JEU'].includes(input.stage)){
       const health=await mediaService('mediaHealth',actor,{sessionId:input.sessionId});requireThat(health.issues.length===0,'MEDIA_MISSING');
@@ -376,7 +379,10 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         if(skill.healing){const scope=skill.healing.cooldownScope??'ACTOR';skill.healing={...skill.healing,cooldownScope:scope,cooldownSeconds:scope==='NONE'?0:scope==='PATIENT'?s.actionPointRules.patientCooldownSeconds:s.actionPointRules.cooldownSeconds};}
       }
       const groups=character && s.modules?.groups===true ? await tx.list(`sessions/${sid}/groups`) : [];
-      return {session:publicSession(s),registration:ownRegistration(r),character,economyEnabled:s.economyRules?.enabled===true,actionPoints:rawCharacter&&s.actionPointRules?.enabled?actionPointSummary(s,rawCharacter,await tx.get(actionPointPath(sid,rawCharacter.id)),at):null,health:healthSummary(s,rawCharacter,at),reason,gameTimeMs:gameTime(s.clock,at),
+      const ownShips=character&&s.spaceOutlaws?.navigationVersion?await tx.list(`sessions/${sid}/ships`,['ownerId',character.id]):[];
+      const directorySettings=character?await tx.get(`playerDirectorySettings/${sid}`):null;
+      const directoryAllowed=!!(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)&&!s.campaignSealed&&rawCharacter&&!rawCharacter.survival?.dead&&directorySettings?.classIds?.includes(rawCharacter.birth?.classId??rawCharacter.abilityProfile?.class?.id));
+      return {ownsShip:ownShips.some(ship=>ship.ownerType==='CHARACTER'),directoryAllowed,portraitEditable:!!(character&&!preview&&!rawCharacter.survival?.dead&&!s.campaignSealed&&!s.safetyStop?.active&&['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)&&(!s.spaceOutlaws||s.spaceOutlaws.mediaVersion===1)),session:publicSession(s),registration:ownRegistration(r),character,economyEnabled:s.economyRules?.enabled===true,actionPoints:rawCharacter&&s.actionPointRules?.enabled?actionPointSummary(s,rawCharacter,await tx.get(actionPointPath(sid,rawCharacter.id)),at):null,health:healthSummary(s,rawCharacter,at),reason,gameTimeMs:gameTime(s.clock,at),
         globalLevel:character?(rawCharacter.globalLevel??1):null,...(character&&s.spaceOutlaws?.episodesVersion===1?{progression:{xp:rawCharacter.xp??0,earnedXp:rawCharacter.earnedXp??0,completedSessions:r?.progression?.completedSessions??0,pendingXp:r?.progression?.pendingXp??0}}:{}),playerRules:character?playerRules(s):null,
         groups:groups.filter(g=>(!s.spaceOutlaws||!rawCharacter?.survival?.dead)&&groupVisible(g,cid)).map(g=>groupSummary(g,cid))};
     });

@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "48ee0c99df634700021793422c3236c81937faf3",
+  "sourceCommit": "37a478bbed9d8851a8653f3de81bbac288190aa4",
   "version": "0.38.0-rc.1",
-  "requestedAt": "2026-11-11T16:41:53.553Z",
-  "reason": "Autorisation explicite de Guillaume le 11 novembre 2026 : continuer la publication sur gn-engine puis « Tu peux remplacer et écraser tout ce qui existe » après présentation de l'absence de sauvegarde et de bucket média. Publication de recette, sans certification de restauration ou de recette humaine. Création du stockage média privé nécessaire. Aucune suppression de données requise pour cette publication."
+  "requestedAt": "2026-11-12T08:26:54.404Z",
+  "reason": "Autorisation explicite de Guillaume le 12 novembre 2026 : « tu peux mettre en ligne ». Publication du filtrage des actions par compétences, de la présentation RP/HRP, du portrait public et du répertoire paramétrable par le MJ. PV et protection exclus. Aucune migration ni suppression de données. La publication attend la CI complète du commit main."
 }

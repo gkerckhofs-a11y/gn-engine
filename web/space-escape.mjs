@@ -17,7 +17,7 @@ export const soEscapeErrors={
 };
 const fmt=n=>Math.ceil(n/1000)+' secondes';
 export function soEscapeHtml(d,sid,code=''){
- if(!d?.enabled)return '<section class="panel"><h2>ROG-03 · Évasion</h2><p>Compétence indisponible pour ce personnage.</p></section>';
+ if(!d?.enabled)return '<section class="panel"><h2>ROG-03 · Évasion</h2><p class="rp">Vous cherchez la faille dans votre prison et le moment où disparaître.</p><p>Compétence indisponible pour ce personnage.</p></section>';
  const c=d.captivity;
  let body='<p>Évasion fictive seulement : aucun QR ne déverrouille une serrure. Le MJ supervise la sortie physique.</p>';
  if(c?.status==='ACTIVE'){
@@ -34,7 +34,7 @@ export function soEscapeHtml(d,sid,code=''){
   }
  }else if(c)body+='<p>Cette captivité est terminée.</p>';
  else body+='<p>Vous n’avez aucune captivité déclarée par un MJ.</p>';
- return '<section class="panel"><h2>ROG-03 · Évasion</h2>'+body+'<p class="muted">60 / 45 / 45 / 30 / 30 secondes selon niveau ; 1 PA seulement si réussi. Découverte : récupération 10 minutes. Un STOP suspend l’action.</p></section>';
+ return '<section class="panel"><h2>ROG-03 · Évasion</h2><p class="rp">Vous cherchez la faille dans votre prison et le moment où disparaître.</p>'+body+'<p class="muted">60 / 45 / 45 / 30 / 30 secondes selon niveau ; 1 PA seulement si réussi. Découverte : récupération 10 minutes. Un STOP suspend l’action.</p></section>';
 }
 export function soEscapeAdminHtml(d,sid){
  const people=d.characters.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.name)+'</option>').join('');

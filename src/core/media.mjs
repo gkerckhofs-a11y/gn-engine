@@ -1,8 +1,9 @@
+import {playerIdentityContext} from './player-identity.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {requireThat,documentId,DomainError} from './validation.mjs';
 import {mediaHash as hash,mediaLimits,mediaRef,imageReferences} from './media-state.mjs';
 import {recordPublication} from './narrative.mjs';
-export const mediaCommands=['mediaCatalog','mediaHealth','mediaCheckFiles','mediaUpload','mediaRead','mediaMetadata','mediaTargets','prepareMediaAssignments','assignMedia','prepareMediaRemoval','trashMedia','restoreMedia','purgeMedia','mediaCleanup'];
+export const mediaCommands=['playerPortraitUpload','setPlayerPortrait','mediaCatalog','mediaHealth','mediaCheckFiles','mediaUpload','mediaRead','mediaMetadata','mediaTargets','prepareMediaAssignments','assignMedia','prepareMediaRemoval','trashMedia','restoreMedia','purgeMedia','mediaCleanup'];
 export const mediaAction=a=>mediaCommands.includes(a);
 const digest=v=>hash(JSON.stringify(v));
 const str=(v,max,required=false)=>{requireThat(typeof v==='string'&&v.length<=max&&(!required||v.trim()),'INVALID_MEDIA');return v.trim();};
@@ -17,6 +18,10 @@ export function createMediaService({store,signed,admin,isAdmin,checkSession,chec
     signed(actor);
     if(input.sessionId){const s=await checkSession(tx,actor,documentId(input.sessionId));requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');return {ownerUid:s.ownerUid,scope:'session',scopeId:s.id,key:`session:${s.id}`};}
     admin(actor);return {ownerUid:actor.uid,scope:'owner',scopeId:actor.uid,key:`owner:${actor.uid}`};
+  }
+  async function portraitScope(tx,actor,input){
+    signed(actor);const {s,c}=await playerIdentityContext(tx,actor,documentId(input.sessionId),{editing:true});
+    return {ownerUid:s.ownerUid,scope:'session',scopeId:s.id,key:`session:${s.id}`,uploaderUid:actor.uid,portraitCharacterId:c.id};
   }
   function permitted(a,ctx,actor){requireThat(a&&a.ownerUid===ctx.ownerUid&&(isAdmin(actor)&&actor.uid===a.ownerUid||a.scope==='session'&&a.scopeId===ctx.scopeId),'FORBIDDEN');return a;}
   const quotaPath=uid=>`mediaQuotas/${hash(uid)}`;
@@ -35,15 +40,16 @@ export function createMediaService({store,signed,admin,isAdmin,checkSession,chec
     try{return {mime:a.variants[variant].mime,data:(await images.read(a.variants[variant].path)).toString('base64')};}
     catch(e){if(e instanceof DomainError)throw e;throw new DomainError('MEDIA_STORAGE_UNAVAILABLE');}
   }
-  async function upload(actor,input,archived=false){
+  async function upload(actor,input,archived=false,self=false){
+    const uploadScope=self?portraitScope:scope;
     signed(actor);storage();const requestId=documentId(input.requestId),info=metadata(input);
-    // Check organizer rights before decoding any untrusted image.
-    const initial=await store.runTransaction(tx=>scope(tx,actor,input));
-    const prepared=await processImage(input.data,archived?{fileBytes:mediaLimits.variantBytes,preserveSource:true}:undefined),id=hash(`${actor.uid}:${requestId}`),path=`media/${id}`,fingerprint=digest([prepared.digest,info,initial.key,input.allowDuplicate===true]);
+    // Check the appropriate organizer or self-portrait scope before decoding.
+    const initial=await store.runTransaction(tx=>uploadScope(tx,actor,input));
+    const prepared=await processImage(input.data,archived?{fileBytes:mediaLimits.variantBytes,preserveSource:true}:self?{portrait:true}:undefined),id=hash(`${actor.uid}:${requestId}`),path=`media/${id}`,fingerprint=digest([prepared.digest,info,initial.key,input.allowDuplicate===true]);
     const attempt=uuid(),at=now(),variants=Object.fromEntries(Object.entries(prepared.variants).map(([k,v])=>[k,{path:`media/${id}/${attempt}/${k}`,mime:v.mime,bytes:v.data.length}]));
     const claim=await store.runTransaction(async tx=>{
-      const ctx=await scope(tx,actor,input),old=await tx.get(path),q=await quota(tx,ctx.ownerUid),known=await tx.list('media',['ownerUid',ctx.ownerUid]),duplicate=known.find(a=>a.digest===prepared.digest&&a.id!==id&&['READY','TRASHED','UPLOADING'].includes(a.status)&&(isAdmin(actor)||a.key===ctx.key));
-      if(old){permitted(old,ctx,actor);requireThat(old.fingerprint===fingerprint,'REQUEST_ID_REUSED');if(['READY','TRASHED','PURGED'].includes(old.status))return {done:true,result:{id:old.id,status:old.status}};requireThat(old.status==='FAILED','MEDIA_IMPORT_RUNNING');}
+      const ctx=await uploadScope(tx,actor,input),old=await tx.get(path),q=await quota(tx,ctx.ownerUid),known=await tx.list('media',['ownerUid',ctx.ownerUid]),duplicate=known.find(a=>a.digest===prepared.digest&&a.id!==id&&['READY','TRASHED','UPLOADING'].includes(a.status)&&(isAdmin(actor)||a.key===ctx.key));
+      if(old){permitted(old,ctx,actor);if(self)requireThat(old.uploaderUid===actor.uid&&old.portraitCharacterId===ctx.portraitCharacterId,'FORBIDDEN');requireThat(old.fingerprint===fingerprint,'REQUEST_ID_REUSED');if(['READY','TRASHED','PURGED'].includes(old.status))return {done:true,result:{id:old.id,status:old.status}};requireThat(old.status==='FAILED','MEDIA_IMPORT_RUNNING');}
       requireThat(input.allowDuplicate===true||!duplicate||!['READY','TRASHED','UPLOADING'].includes(duplicate.status)||duplicate.id===id,'MEDIA_DUPLICATE');
       requireThat(q.bytes+q.pendingBytes+prepared.bytes<=mediaLimits.storedBytes&&q.count+q.pendingCount<mediaLimits.images,'MEDIA_QUOTA');
       tx.set(path,{id,...info,...initial,createdAt:old?.createdAt??at,updatedAt:at,revision:1,refsRevision:0,usageCount:0,status:'UPLOADING',bytes:prepared.bytes,width:prepared.width,height:prepared.height,digest:prepared.digest,fingerprint,attempt,expiresAt:at+15*60*1000,variants});
@@ -53,7 +59,7 @@ export function createMediaService({store,signed,admin,isAdmin,checkSession,chec
     try{
       for(const [key,v] of Object.entries(prepared.variants))await images.put(variants[key].path,v.data,v.mime);
       return await store.runTransaction(async tx=>{
-        const ctx=await scope(tx,actor,input),a=await tx.get(path),q=await quota(tx,ctx.ownerUid);requireThat(a?.status==='UPLOADING'&&a.attempt===attempt,'MEDIA_IMPORT_RUNNING');
+        const ctx=await uploadScope(tx,actor,input),a=await tx.get(path),q=await quota(tx,ctx.ownerUid);requireThat(a?.status==='UPLOADING'&&a.attempt===attempt,'MEDIA_IMPORT_RUNNING');
         tx.set(path,{...a,status:'READY',updatedAt:now()});tx.set(quotaPath(ctx.ownerUid),{...q,bytes:q.bytes+a.bytes,count:q.count+1,pendingBytes:q.pendingBytes-a.bytes,pendingCount:q.pendingCount-1});audit(tx,'IMPORT',actor,ctx,[id]);return {id,status:'READY'};
       });
     }catch(error){
@@ -111,6 +117,23 @@ export function createMediaService({store,signed,admin,isAdmin,checkSession,chec
     if(action==='mediaRead')return read(actor,input);
     signed(actor);
     if(action==='mediaUpload')return upload(actor,input);
+    if(action==='playerPortraitUpload')return upload(actor,{...input,name:'Portrait public',category:'Identité',universe:'',credit:'',tags:'',allowDuplicate:true},false,true);
+    if(action==='setPlayerPortrait')return store.runTransaction(async tx=>{
+      const sid=documentId(input.sessionId),{s,c}=await playerIdentityContext(tx,actor,sid,{editing:true});
+      const asset=input.mediaId?await tx.get(`media/${documentId(input.mediaId)}`):null;
+      if(input.mediaId)requireThat(asset?.status==='READY'&&asset.scope==='session'&&asset.scopeId===sid&&asset.uploaderUid===actor.uid&&asset.portraitCharacterId===c.id,'FORBIDDEN');
+      const op=`mediaOperations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`,fingerprint=digest([action,sid,input.mediaId??null,input.revision]),previous=await tx.get(op);
+      if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');return previous.result;}
+      requireThat(input.revision===(c.contentRevision??1),'STALE_REVISION');
+      if(s.spaceOutlaws)authorizeSpaceOutlaws(tx,s,'MEDIA');
+      const next={...c,contentRevision:(c.contentRevision??1)+1,mediaImages:{...c.mediaImages}};
+      if(asset)next.mediaImages.portrait=mediaRef(asset.id);else delete next.mediaImages.portrait;
+      const event={id:uuid(),at:now(),actorUid:actor.uid,reason:'Portrait public choisi par le joueur',stage:s.stage},base=`sessions/${sid}/characters`;
+      recordPublication(tx,base,c,next,event);tx.set(`${base}/${c.id}`,next);
+      tx.set(`${base}/${c.id}/mediaHistory/${event.id}`,{...event,before:{mediaImages:c.mediaImages??{}},after:{mediaImages:next.mediaImages}});
+      tx.set(`sessions/${sid}`,{...s,revision:s.revision+1});
+      const result={revision:next.contentRevision};tx.set(op,{fingerprint,result});return result;
+    });
     if(action==='mediaCleanup')return cleanup(actor,input);
     if(action==='mediaHealth'){
       const records=await store.runTransaction(async tx=>{

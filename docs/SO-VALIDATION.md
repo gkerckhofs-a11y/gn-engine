@@ -1,5 +1,9 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Espace joueur — candidat du 12 novembre 2026
+
+Filtrage des fonctions spécialisées selon les compétences effectives, présentation RP/HRP, import du portrait public personnel et répertoire dont les classes admises sont choisies par le MJ. [Périmètre, sécurité et validation](SO-PLAYER-IDENTITY.md). Répertoire fermé par défaut ; PV/protection hors de cette tranche. Tests locaux distincts de la CI et de la publication.
+
 ## Contestation douanière — décision MJ (candidat)
 
 Décision privée et motivée de maintien ou de recommandation de restitution sur une contestation encore en attente. Réponse publique propre au personnage, notes internes invisibles ; aucun effet automatique sur lot, quittance, crédit ou droits du joueur. La restitution exige toujours son contrôle physique MJ séparé. CI et recette sur le SHA exact à vérifier.

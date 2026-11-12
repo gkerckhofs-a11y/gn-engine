@@ -12,7 +12,7 @@ export const soDecryptionErrors={
 };
 const secs=ms=>Math.ceil(ms/1000)+' s';
 export function soDecryptionHtml(d,sid){
- if(!d?.enabled)return '<section class="panel"><h2>INF-02 · Déchiffrement</h2><p>La compétence INF-02 n’est pas disponible pour ce personnage.</p></section>';
+ if(!d?.enabled)return '<section class="panel"><h2>INF-02 · Déchiffrement</h2><p class="rp">Derrière les signes brouillés, un message attend votre regard.</p><p>La compétence INF-02 n’est pas disponible pour ce personnage.</p></section>';
  const a=d.active;
  let body='';
  if(a?.status==='RUNNING'){
@@ -23,5 +23,5 @@ export function soDecryptionHtml(d,sid){
  else body=d.documents.map(k=>'<form data-form="soDecryptionStart" data-sid="'+esc(sid)+'" data-id="'+esc(k.id)+'"><p><strong>'+esc(k.title)+'</strong> · N'+esc(k.requiredLevel)+' requis. '+(k.decoded?'Déjà déchiffré.':k.attempted?'Tentative consommée.':'Une seule tentative par version.')+'</p>'+
   '<button type="submit" '+(k.attempted||k.decoded||d.level<k.requiredLevel?'disabled':'')+'>Tenter INF-02</button></form>').join('');
  if(!body)body='<p>Aucun document chiffré actuellement accessible. Obtenez d’abord un document en jeu.</p>';
- return '<section class="panel"><h2>INF-02 · Déchiffrement</h2><p>Un document obtenu en jeu, 1 PA et 1D6 + niveau contre le seuil du scénario. Révélation uniquement en cas de réussite. Aucun accès technique réel n’est ouvert.</p>'+body+'</section>';
+ return '<section class="panel"><h2>INF-02 · Déchiffrement</h2><p class="rp">Derrière les signes brouillés, un message attend votre regard.</p><p>Un document obtenu en jeu, 1 PA et 1D6 + niveau contre le seuil du scénario. Révélation uniquement en cas de réussite. Aucun accès technique réel n’est ouvert.</p>'+body+'</section>';
 }

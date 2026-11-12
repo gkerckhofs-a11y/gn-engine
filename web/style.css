@@ -19,3 +19,22 @@ fieldset.narrative-item{border:1px solid var(--line,#344052);border-radius:12px;
 .workshop-grid .card p{margin:0}
 .workshop-grid .card button:first-of-type{margin-top:auto}
 .workshop-context{scroll-margin-top:1.5rem}
+
+/* Player copy: fiction stays upright; interface explanations and effects are HRP. */
+.player-content { font-style: italic; }
+.player-content :is(h1,h2,h3,h4,button,.button,input,select,textarea,.rp,.prose) { font-style: normal; }
+.player-content :is(.hrp,.rules-text,.rules-text .prose) { font-style: italic; }
+.player-content .rp { color: var(--text,inherit); }
+.player-scene { border-left: 2px solid var(--gold,#cfb66d); padding: .6rem 1rem; margin-bottom: 1.2rem; }
+.player-vitals { font-style: italic; }
+.identity-photo { width: min(100%,210px); margin: 1rem 0; }
+.identity-photo figure { margin: 0; }
+.identity-photo img { width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: .6rem; }
+.portrait-editor { margin: 1rem 0; }
+.portrait-editor input[type=file] { width: 100%; }
+.skill-card .rules-text { margin-top: .7rem; }
+.skill-card .prose { white-space: pre-line; }
+
+body:has(.player-shell) dialog { font-style: italic; }
+body:has(.player-shell) dialog :is(h1,h2,h3,button,input,select,textarea,.prose,.rp) { font-style: normal; }
+body:has(.player-shell) dialog .hrp { font-style: italic; }

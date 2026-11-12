@@ -1,0 +1,31 @@
+import {escapeHtml as esc} from './groups.mjs';
+const copy={
+  "play": "Votre histoire, vos ambitions et vos secrets voyagent avec vous.",
+  "skills": "L’expérience laisse des traces. Voici les savoir-faire sur lesquels vous pouvez compter.",
+  "learning": "Chaque rencontre peut vous apprendre à survivre autrement.",
+  "bag": "Sur vous, chaque objet peut devenir une ressource, une monnaie d’échange ou un dernier recours.",
+  "wallet": "Les crédits circulent ; les dettes, elles, laissent des souvenirs.",
+  "action": "Un visage croisé, une serrure oubliée, une trace dans la poussière : à vous de saisir l’occasion.",
+  "field": "Le lieu ne livre ses secrets qu’à ceux qui savent où regarder.",
+  "person": "Vous faites face à un autre destin. Votre savoir-faire peut changer la suite de son histoire.",
+  "groups": "Vous n’avancez pas seul. Vos alliances vous ouvrent certaines portes.",
+  "group": "Derrière ces couleurs, des ambitions et des engagements vous unissent.",
+  "knowledge": "Un fragment de vérité vaut parfois plus qu’une cargaison entière.",
+  "infos": "Conservez ce que vous avez appris ; le bon renseignement peut tout changer.",
+  "notes": "Certaines pensées méritent de rester à l’abri des regards.",
+  "spaceport": "Les moteurs grondent au-delà des quais. Une nouvelle destination vous attend.",
+  "space-maintenance": "À l’atelier, chaque réparation rapproche un équipage de son prochain départ.",
+  "space-combats": "Sur vos capteurs, une silhouette approche. Vos décisions engagent tout l’équipage.",
+  "space-rescues": "Une balise répond encore. Il reste peut-être quelqu’un pour vous tirer de là.",
+  "cargo": "Entre les quais et les soutes, chaque cargaison a sa destination.",
+  "shops": "Au comptoir du port, les marchandises changent de mains et les affaires se nouent.",
+  "shop": "Le marchand vous accueille. Examinez ce qui pourrait vous être utile.",
+  "missions": "Des commanditaires cherchent des personnes capables de tenir parole.",
+  "contracts": "Les engagements que vous avez pris attendent désormais des actes.",
+  "bounties": "Un nom circule sur les écrans du port. Quelqu’un est prêt à payer pour un résultat.",
+  "intelligence": "Dans les arrière-salles, les bonnes informations ont leur prix.",
+  "customs-consents": "Vos marchandises arrivent aux frontières du secteur. Il est temps de régler les formalités.",
+  "directory": "Le registre du port rassemble les visages que vous pourriez croiser.",
+  "health": "Votre corps garde la mémoire des derniers affrontements."
+};
+export function playerVoiceIntro(route){const aliases={actions:'action',interactions:'action',note:'notes',discover:'knowledge',mission:'missions',application:'missions',contract:'contracts',bounty:'bounties',hold:'cargo','cargo-transfer':'cargo','cargo-port':'cargo',flight:'spaceport','space-combat':'space-combats',accounts:'wallet',account:'wallet','group-missions':'contracts'};const text=copy[aliases[route.page]??route.page]??(route.space==='terminal'?'Le réseau du port relaie vos affaires et les services à votre disposition.':null);return text?`<p class="rp player-scene">${esc(text)}</p>`:'';}
