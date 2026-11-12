@@ -35,3 +35,11 @@ Le métier Mécano seul ne donne pas Entretien de protection. Les réparations d
 - Six parcours partagés mémoire / Firestore : publication différée et confidentialité ; classes à candidature/acceptation ; mission libre sans récompense et règlement ; correction/soin/QR et protection ; durée/coût/réessai de réparation ; annulation et refus sans compétence ou référence valide.
 - Firebase local : `GN_FIRESTORE_SUITES='["identity-news-health"]' npm run test:emulator:firestore` — six réussites. Aucun appel de mutation sur la production.
 - Recette visuelle Android/iOS et CI du commit candidat distinctes de ces preuves locales ; à effectuer avant publication.
+
+## Ajustements avant publication — 12 novembre 2026
+
+À la demande de Guillaume : en-tête joueur avec nom complet en grand et métier public en dessous ; retrait du titre et du statut de session de cet en-tête. Les cartes du Terminal expliquent en italique leur usage, les choix et confirmations, sans codes de compétence ni vocabulaire interne.
+
+Une capacité de soute nulle supprime le lien depuis la navigation du vaisseau et la liste des soutes. Le serveur Space Outlaws exclut cette soute de myCargo et refuse shipHold ; le dépôt et la sélection comme destination restent refusés. Les vaisseaux de capacité positive restent accessibles. Aucun changement de capacité, de stock ou de propriété en production.
+
+Validation locale des ajustements : 81 tests ciblés réussis (player-spaces, player-capabilities, space-outlaws-voyages-ui, cargo-ui, space-logistics), puis compilation réussie. Ce résultat ne vaut pas résultat CI du candidat complet ni recette sur téléphone réel. Publication explicitement autorisée après les corrections.
