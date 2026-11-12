@@ -1,4 +1,4 @@
-import {mkdir,copyFile,readFile,writeFile,readdir} from 'node:fs/promises';
+import {mkdir,copyFile,readFile,writeFile,readdir,cp} from 'node:fs/promises';
 import {build} from 'esbuild';
 await mkdir('public',{recursive:true});
 await build({entryPoints:['web/app.mjs'],outfile:'public/app.js',bundle:true,minify:true,format:'esm',target:'es2022',legalComments:'eof'});
@@ -12,3 +12,5 @@ await mkdir('public/masters',{recursive:true});
 for(const name of await readdir('assets/masters'))if(name.endsWith('.xlsx'))await copyFile(`assets/masters/${name}`,`public/masters/${name}`);
 await writeFile('public/version.json',JSON.stringify({version}));
 console.log('Interface compilée dans public/');
+
+await cp('web/cockpit','public/cockpit',{recursive:true});

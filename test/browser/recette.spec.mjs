@@ -220,3 +220,30 @@ test.describe('Accès privé depuis la régie',()=>{
     await setStage(manager,'PAUSE');
   });
 });
+
+test('Cockpit autonome : scènes, pause, effets sans dépense et petit écran',async({page},testInfo)=>{
+ const allowed=new Map([['index.html','text/html'],['cockpit.css','text/css'],['cockpit.mjs','text/javascript'],['state.mjs','text/javascript']]);
+ const errors=[],unexpected=[];page.on('pageerror',e=>errors.push(e.message));
+ await page.route('**/*',async route=>{
+  const url=new URL(route.request().url()),name=url.pathname.split('/').pop();
+  if(url.origin!=='http://127.0.0.1:4173'||!url.pathname.startsWith('/cockpit/')||!allowed.has(name)){unexpected.push(url.href);return route.abort();}
+  await route.fulfill({contentType:allowed.get(name),body:await readFile(`web/cockpit/${name}`)});
+ });
+ await page.goto('/cockpit/index.html');
+ await expect(page.locator('#phase')).toHaveText('À quai');
+ await page.locator('#next').click();await expect(page.locator('#phase')).toHaveText('Décollage');
+ await page.locator('#pause').click();await expect(page.locator('#next')).toBeDisabled();await expect(page.locator('#pause-overlay')).toBeVisible();
+ await page.locator('#pause').click();
+ for(let i=0;i<4;i++)await page.locator('#next').click();
+ await expect(page.locator('#phase')).toHaveText('Alerte combat');
+ await page.locator('#shot').click();await page.locator('#impact').click();
+ await expect(page.locator('#hull')).toHaveText('4 / 4');await expect(page.locator('#shield')).toHaveText('2 / 2');await expect(page.locator('#fuel')).toHaveText('8 / 12');
+ await page.locator('#motion').click();await expect(page.locator('#motion')).toHaveAttribute('aria-pressed','true');
+ await capture(page,testInfo,'cockpit-desktop');
+ await page.setViewportSize({width:390,height:844});
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await capture(page,testInfo,'cockpit-mobile');
+ await page.locator('#next').click();await page.locator('#next').click();await expect(page.locator('#phase')).toHaveText('Amarré');
+ await page.locator('#reset').click();await expect(page.locator('#phase')).toHaveText('À quai');await expect(page.locator('#sound')).toHaveAttribute('aria-pressed','false');
+ expect(errors).toEqual([]);expect(unexpected).toEqual([]);
+});
