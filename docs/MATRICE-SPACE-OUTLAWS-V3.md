@@ -1,5 +1,9 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## Cockpit immersif — prototype du 12 novembre 2026
+
+[Démonstration visuelle autonome](SO-COCKPIT-PROTOTYPE.md) : huit scènes, effets spatiaux, instruments, pause et mouvement réduit. Sans raccord de jeu ni écriture en session. Appairage sécurisé, équipage et commandes réelles restent à développer. Validation locale et CI distinctes de la recette humaine.
+
 ## Identité, News et état après combat — candidat du 12 novembre 2026
 
 Navigation et accès illustrés, annonces programmées avec illustration et missions réservées à certaines classes, déclaration de touches et correction MJ, état consultable par QR et entretien d’armure ordinaire. [Périmètre, préparation et limites](SO-IDENTITY-NEWS-HEALTH.md). Six parcours validés sur mémoire et Firestore local ; CI et recette mobile distinctes. Aucun déploiement de cette tranche.

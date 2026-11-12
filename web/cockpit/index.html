@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#080e17"><title>Space Outlaws · Cockpit expérimental</title><link rel="stylesheet" href="./cockpit.css"></head>
+<body>
+<header><a class="brand" href="../">SO<span>SPACE OUTLAWS</span></a><div class="ship-title"><small>TRANSPORT LÉGER · DÉMONSTRATION</small><h1>L’Épervier</h1></div><div class="connection"><i></i> SIMULATION LOCALE</div></header>
+<main>
+<section class="viewport" aria-label="Vue extérieure du cockpit">
+<canvas id="space" aria-hidden="true"></canvas><div class="glass"></div>
+<div class="view-top"><span id="phase">À quai</span><span id="location">Port-Brèche · baie 07</span></div>
+<div class="reticle" aria-hidden="true"><span>+</span></div>
+<div class="view-bottom"><div><small>DESTINATION</small><strong>Relais des Confins</strong></div><div class="coordinates">SECTEUR 07 / ROUTE DE DÉMONSTRATION</div></div>
+<div class="paused" id="pause-overlay" hidden>SIMULATION EN PAUSE</div>
+<div class="cockpit-frame" aria-hidden="true"></div>
+</section>
+<section class="instruments" aria-label="Instruments de bord">
+<article class="instrument"><small>01 / INTÉGRITÉ</small><h2>Coque</h2><div><strong id="hull">4 / 4</strong><span>STRUCTURE</span></div><meter id="hull-meter" min="0" max="4" value="4">4 sur 4</meter></article>
+<article class="instrument"><small>02 / DÉFENSE</small><h2>Boucliers</h2><div><strong id="shield">2 / 2</strong><span>PROTECTION</span></div><meter id="shield-meter" min="0" max="2" value="2">2 sur 2</meter></article>
+<article class="instrument"><small>03 / PROPULSION</small><h2>Carburant</h2><div><strong id="fuel">8 / 12</strong><span>RÉSERVE</span></div><meter id="fuel-meter" min="0" max="12" value="8">8 sur 12</meter></article>
+<article class="radar instrument"><div class="radar-disc" aria-hidden="true"><b></b><i id="radar-contact" hidden></i></div><div><small>04 / CAPTEURS</small><h2 id="radar-label">Zone calme</h2></div></article>
+</section>
+<section class="console">
+<article class="comms"><div class="section-title"><span class="signal">▂▄▆</span><h2>Communications</h2><small>CANAL DE BORD</small></div><p id="message" role="status" aria-live="polite">Équipage, bienvenue à bord. En attente de vos instructions.</p><p class="hrp">Les messages et les valeurs sont fictifs. Cette démonstration ne consomme aucun PA, crédit ou carburant en jeu.</p><ol id="journal" aria-label="Journal de bord"></ol></article>
+<article class="controls"><div class="section-title"><h2>Poste de pilotage</h2><span id="step">01 / 08</span></div><button class="primary" id="next">Autoriser le décollage <span>↗</span></button><p class="hrp" id="hint">Lance une séquence visuelle de sortie du hangar. Aucun véritable départ n’est enregistré.</p><div class="combat-controls" id="combat-controls" hidden><button id="shot">Simuler une salve</button><button id="impact">Simuler un impact</button></div><p class="hrp" id="combat-help" hidden>Les effets illustrent un résultat fictif déjà décidé. Aucun jet de combat n’est effectué.</p></article>
+</section>
+<footer><div><button id="pause" aria-pressed="false">Ⅱ Pause</button><button id="sound" aria-pressed="false">Son : désactivé</button><button id="motion" aria-pressed="false">Mouvement réduit</button><button id="fullscreen">Plein écran ⛶</button></div><button id="reset">Recommencer ↺</button></footer>
+<details class="director"><summary>Régie de démonstration · choisir une scène</summary><p class="hrp">Accès de test uniquement. Ces commandes ne sont pas des permissions de MJ et ne sont reliées à aucune session.</p><div id="scenes"></div></details>
+</main><script type="module" src="./cockpit.mjs"></script></body></html>
