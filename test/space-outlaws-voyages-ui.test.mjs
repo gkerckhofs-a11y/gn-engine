@@ -5,7 +5,7 @@ import {playerRoute,terminalHtml} from '../web/player-spaces.mjs';
 const profile={label:'Cargo',seats:6,cargoCapacity:20,hullMax:4,shieldMax:2};
 const ship={shipId:'ship',name:'Vaisseau <script>',profile,hull:4,shield:2,fuel:4,tankCapacity:16,portId:'home',confirmation:'proof',operation:null,journey:null};
 test('Vols SO UI : terminal et navigation privés, saisie du code et manifeste',()=>{
- const d={session:{id:'s',spaceOutlaws:{navigationVersion:1}}};assert.match(terminalHtml(d),/spaceport\/s/);assert.equal(playerRoute('flight','s','ship').space,'terminal');const html=soNavigationHtml({session:d.session,ship,canPilot:true,canAct:true,lots:[],confirmation:'proof'});assert.match(html,/name="navigationCode"/);assert.match(html,/name="passengerCodes"/);assert.match(html,/Deux minutes, 0 PA/);assert.doesNotMatch(html,/<script>/);
+ const d={session:{id:'s',spaceOutlaws:{navigationVersion:1}},character:{abilities:{skills:[{id:'PIL-01',level:2}]}}};assert.match(terminalHtml(d),/spaceport\/s/);assert.equal(playerRoute('flight','s','ship').space,'terminal');const html=soNavigationHtml({session:d.session,ship,canPilot:true,canAct:true,lots:[],confirmation:'proof'});assert.match(html,/name="navigationCode"/);assert.match(html,/name="passengerCodes"/);assert.match(html,/Deux minutes, 0 PA/);assert.doesNotMatch(html,/<script>/);
  assert.deepEqual(passengerCodesInput('public-id\nhttps://example.invalid/#/badge/s/other\n'),['public-id','other']);
 });
 test('Vols SO UI : aperçu avant réservation PA et confirmation physique',()=>{

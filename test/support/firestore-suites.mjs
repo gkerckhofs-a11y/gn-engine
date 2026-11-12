@@ -1,6 +1,7 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {id:"player-identity",module:"../support/player-identity-suite.mjs",exportName:"playerIdentitySuite",label:"Identités publiques et portraits joueurs",seconds:25},
   {"id":"space-customs-appeal","module":"../support/space-customs-appeal-suite.mjs","exportName":"customsAppealSuite","label":"Contestations de saisies Space Outlaws sur Firestore","seconds":45},
   {"id":"space-customs-seizure","module":"../support/space-customs-seizure-suite.mjs","exportName":"customsSeizureSuite","label":"Saisie officielle fictive et reçus joueurs","seconds":65},
   {"id":"space-customs-detention","module":"../support/space-customs-detention-suite.mjs","exportName":"customsDetentionSuite","label":"Retenue fictive douanière 15 minutes sur Firestore","seconds":65},

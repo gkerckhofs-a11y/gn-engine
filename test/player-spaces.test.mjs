@@ -70,7 +70,7 @@ test('Action : les deux historiques sont intégrables sans multiplier les champs
  const field={session:{id:'s1',stage:'PAUSE'},actions:[{id:'a',targetTitle:'Cache',status:'ACTIVE',kind:'SEARCH',cost:1,instructions:'Attendre',remainingMs:2000,test:'D6'}]};
  const fh=fieldMineHtml(field,{embedded:true});assert.ok(!fh.includes('data-field-form="code"'));assert.ok(fh.includes('data-field-form="finish"'));assert.ok(fh.includes('data-field-timer="2000"'));assert.ok(fh.includes('disabled'));assert.ok(fieldMineHtml(field).includes('data-field-form="code"'));
  const person={session:{id:'s1',stage:'PAUSE'},character:{id:'c1'},convalescenceMs:0,captureMs:0,encounter:{taken:false},skills:[],aidOffers:[],actions:[]};
- const ph=personMineHtml(person,{embedded:true});assert.ok(!ph.includes('data-person-form="badge"'));assert.ok(ph.includes('data-person-form="offer"'));assert.ok(personMineHtml(person).includes('data-person-form="badge"'));
+ const ph=personMineHtml(person,{embedded:true});assert.ok(!ph.includes('data-person-form="badge"'));assert.ok(!ph.includes('data-person-form="offer"'));person.skills=[{id:'MED-01',name:'Diagnostic'}];assert.ok(personMineHtml(person,{embedded:true}).includes('data-person-form="offer"'));assert.ok(personMineHtml(person).includes('data-person-form="badge"'));
 });
 
 test('Navigation SO : accès à Mon groupe sur une session compatible',()=>{
