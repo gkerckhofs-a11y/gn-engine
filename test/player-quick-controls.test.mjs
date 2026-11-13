@@ -51,3 +51,8 @@ test('Sabacc : code manuel équivalent au QR, clé de révocation conservée',as
  assert.deepEqual(sabaccTarget('table-1.key-1',origin),sabaccTarget(origin+'/sabacc/?table=table-1&key=key-1',origin));
  for(const x of ['table-1',origin+'/sabacc/?table=table-1','https://other.test/sabacc/?table=t&key=k',origin+'/?table=t&key=k'])assert.throws(()=>sabaccTarget(x,origin));
 });
+
+test('menus Action et Terminal : résumé avec liens, sans grands panneaux de santé répétés',()=>{
+ const own={...d,character:{id:'hero',displayName:'Hero'},session:{id:'s1',spaceOutlaws:{healthVersion:1}}};
+ for(const page of ['action','terminal']){const html=playerShell(own,playerRoute(page,'s1'),'');assert.doesNotMatch(html,/class="quick-states"/);assert.match(html,/#\/health\/s1/);assert.match(html,/#\/protection\/s1/);}
+});

@@ -82,3 +82,8 @@ body:has(.player-shell)>header{display:none}
 #action-history{scroll-margin-top:90px;margin-top:24px}#action-history>summary{font-size:1.1rem;min-height:44px;padding:12px 0}
 
 .terminal-family{margin-top:1.6rem}.terminal-card{min-height:140px;display:flex;flex-direction:column;gap:.5rem}.terminal-card h3,.terminal-card p{margin:0}.terminal-card small{margin-top:auto}.terminal-card[data-state="BLOCKED"] small{color:var(--gold,#e6bd74)}
+
+/* Keep the action and service menus within reach; only the global nav sticks. */
+.player-shell .player-vitals{position:static}
+.player-session .player-name{font-size:clamp(24px,5vw,34px)}
+@media(max-width:600px){.player-shell .player-session{display:grid;grid-template-columns:1fr auto;gap:10px}.player-session .player-heading{grid-column:1/-1;grid-row:1}.player-session .character-code{display:block;line-height:1.5}.player-session .character-code strong{font-size:12px}}
