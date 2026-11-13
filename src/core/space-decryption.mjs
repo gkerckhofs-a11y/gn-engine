@@ -16,8 +16,8 @@ const actionPath=(sid,id)=>base(sid)+'/inf02Actions/'+id;
 const attemptPath=(sid,cid,kid,revision)=>base(sid)+'/inf02Attempts/'+hash(cid+':'+kid+':'+revision);
 const summarize=a=>({id:a.id,status:a.status,knowledgeId:a.knowledgeId,readyAtGameMs:a.readyAtGameMs,
  durationSeconds:a.durationSeconds,roll:a.roll??null,total:a.total??null,threshold:a.threshold??null,success:a.success??null});
-export const soDecryptionActions=['mySoDecryption','startSoDecryption','finishSoDecryption','cancelSoDecryption'];
-export function createSoDecryptionService({store,signed,now,uuid,rollD6=()=>randomInt(1,7)}){
+export const soDecryptionActions=['soDecryptionAdmin','cancelSoDecryptionMJ','mySoDecryption','startSoDecryption','finishSoDecryption','cancelSoDecryption'];
+export function createSoDecryptionService({store,signed,checkSession,now,uuid,rollD6=()=>randomInt(1,7)}){
  async function access(tx,actor,sid){
   signed(actor);
   const s=await tx.get(base(sid));
@@ -41,9 +41,49 @@ export function createSoDecryptionService({store,signed,now,uuid,rollD6=()=>rand
   requireThat(k?.publicationState==='PUBLISHED'&&k.kind==='DOCUMENT'&&k.cipher?.plaintext&&r?.active,'SO_INF02_DOCUMENT');
   return {k,r};
  }
+ async function cancel(tx,s,c,state,a,at,moderation=null){
+  const time=gameTime(s.clock,at),id=a.id,sid=s.id;
+  requireThat(c?.activeFieldActionId===id&&state?.activeId===id,'SO_INF02_STALE');
+  const mark=await tx.get(attemptPath(sid,c.id,a.knowledgeId,a.knowledgeRevision));
+  requireThat(mark?.status==='RUNNING'&&mark.id===id,'SO_INF02_STALE');
+  const pointsPath=actionPointPath(sid,c.id),points=actionPointState(s,c,await tx.get(pointsPath),at);
+  const ended={...a,status:'CANCELLED',finishedAtGameMs:time};
+  tx.set(actionPath(sid,id),ended);
+  tx.set(attemptPath(sid,c.id,a.knowledgeId,a.knowledgeRevision),{id,status:'CANCELLED'});
+  tx.set(actorPath(sid,c.id),{...state,activeId:null});
+  tx.set(pointsPath,releaseActionPoints(points,1,actionPointMaximum(s.actionPointRules,c)));
+  tx.set(charPath(sid,c.id),{...c,activeFieldActionId:null});
+  if(moderation){const auditId=uuid();tx.set(base(sid)+'/audit/'+auditId,{id:auditId,at,action:'cancelSoDecryptionMJ',actionId:id,characterId:c.id,...moderation});}
+  return summarize(ended);
+ }
  return async function dispatch(action,actor,input){
   const sid=documentId(input.sessionId),at=now(),roll=action==='finishSoDecryption'?rollD6():null;
   return store.runTransaction(async tx=>{
+   if(['soDecryptionAdmin','cancelSoDecryptionMJ'].includes(action)){
+    signed(actor);
+    const s=await checkSession(tx,actor,sid,'content',true);
+    requireThat(s?.spaceOutlaws?.inf02Version===1,'SO_INF02_CLOSED');
+    if(action==='soDecryptionAdmin'){
+     const rows=await tx.list(base(sid)+'/inf02Actions',['status','RUNNING'],{limit:1001});
+     requireThat(rows.length<=1000,'SO_RELEASE_LIMIT');
+     const actions=[];
+     for(const a of rows){const c=await tx.get(charPath(sid,a.characterId));actions.push({...summarize(a),characterName:c?.public?.displayName??a.characterId,remainingMs:Math.max(0,a.readyAtGameMs-gameTime(s.clock,at))});}
+     return {actions};
+    }
+    requireThat(typeof input.reason==='string'&&input.reason.trim()&&input.reason.length<=500,'REASON_REQUIRED');
+    const requestId=documentId(input.requestId),op='operations/'+hash(actor.uid+':'+requestId),fingerprint=hash(JSON.stringify([action,input])),previous=await tx.get(op);
+    if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');return previous.result;}
+    const a=await tx.get(actionPath(sid,documentId(input.actionId)));
+    requireThat(a,'NOT_FOUND');
+    requireThat(a.status==='RUNNING'||a.status==='CANCELLED','SO_INF02_STALE');
+    let result=summarize(a);
+    if(a.status==='RUNNING'){
+     const c=await tx.get(charPath(sid,a.characterId)),state=await tx.get(actorPath(sid,a.characterId));
+     authorizeSpaceOutlaws(tx,s,'INF02');
+     result=await cancel(tx,s,c,state,a,at,{actorUid:actor.uid,reason:input.reason.trim()});
+    }
+    tx.set(op,{fingerprint,result,at});return result;
+   }
    const {s,c,r:registration}=await access(tx,actor,sid),time=gameTime(s.clock,at),level=Math.min(5,abilityLevel(c,'INF-02'));
    const state=await tx.get(actorPath(sid,c.id))??{activeId:null,cooldownUntil:0};
    const active=state.activeId?await tx.get(actionPath(sid,state.activeId)):null;
@@ -100,13 +140,7 @@ export function createSoDecryptionService({store,signed,now,uuid,rollD6=()=>rand
    const pointsPath=actionPointPath(sid,c.id),points=actionPointState(s,c,await tx.get(pointsPath),at);
    requireThat(c.activeFieldActionId===id,'SO_INF02_STALE');
    if(action==='cancelSoDecryption'){
-    const ended={...a,status:'CANCELLED',finishedAtGameMs:time};
-    tx.set(actionPath(sid,id),ended);
-    tx.set(attemptPath(sid,c.id,a.knowledgeId,a.knowledgeRevision),{id,status:'CANCELLED'});
-    tx.set(actorPath(sid,c.id),{...state,activeId:null});
-    tx.set(pointsPath,releaseActionPoints(points,1,actionPointMaximum(s.actionPointRules,c)));
-    tx.set(charPath(sid,c.id),{...c,activeFieldActionId:null});
-    return record(summarize(ended));
+    return record(await cancel(tx,s,c,state,a,at));
    }
    await live(tx,s,c,at);
    requireThat(time>=a.readyAtGameMs,'SO_INF02_TOO_EARLY');

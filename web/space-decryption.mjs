@@ -25,3 +25,7 @@ export function soDecryptionHtml(d,sid){
  if(!body)body='<p>Aucun document chiffré actuellement accessible. Obtenez d’abord un document en jeu.</p>';
  return '<section class="panel"><h2>INF-02 · Déchiffrement</h2><p class="rp">Derrière les signes brouillés, un message attend votre regard.</p><p>Un document obtenu en jeu, 1 PA et 1D6 + niveau contre le seuil du scénario. Révélation uniquement en cas de réussite. Aucun accès technique réel n’est ouvert.</p>'+body+'</section>';
 }
+
+export function soDecryptionAdminHtml(d,sid){
+ return '<section class="panel"><h2>Déchiffrements en cours</h2><p>Interrompre libère le PA réservé, sans révéler le texte ni consommer la tentative. Le motif est conservé dans le journal MJ.</p>'+d.actions.map(a=>'<form data-form="soDecryptionCancelMJ" data-sid="'+esc(sid)+'" data-id="'+esc(a.id)+'"><h3>'+esc(a.characterName)+'</h3><p>Document '+esc(a.knowledgeId)+' · '+secs(a.remainingMs)+'</p><label>Motif<input name="reason" maxlength="500" required></label><button type="submit">Interrompre et libérer le PA</button></form>').join('')+(d.actions.length?'':'<p>Aucun déchiffrement en cours.</p>')+'</section>';
+}

@@ -197,7 +197,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const learningService=createSoLearningService({store,signed,checkSession,now,uuid});
   const pickpocketService=createSoPickpocketService({store,signed,now,uuid});
   const escapeService=createSoEscapeService({store,signed,checkSession,now,uuid});
-  const decryptionService=createSoDecryptionService({store,signed,now,uuid,rollD6});
+  const decryptionService=createSoDecryptionService({store,signed,checkSession,now,uuid,rollD6});
   const intrusionService=createSoIntrusionService({store,signed,now,uuid,rollD6});
   const forgeryService=createSoForgeryService({store,signed,checkSession,now,uuid,rollD6});
   const customsDetentionService=createCustomsDetentionService({store,signed,checkSession,now,uuid});

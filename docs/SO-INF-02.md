@@ -33,3 +33,9 @@ Ne jamais mettre le texte clair dans `body` : ce champ apparaît au détenteur d
 Tests Node en mémoire, même suite sur émulateur Firestore et rendu HTML ciblé : succès, échec, délai, PA, annulation, concurrence/idempotence, exclusion des documents non obtenus et ancien Master, contenu secret avant/après, permissions, version périmée. Vérifier la CI sur le SHA exact du candidat ; un profil ciblé ne remplace pas la validation générale de publication.
 
 **Déploiement, migration, fusion main : non autorisés par cette tranche.**
+
+## Complément de régie — 13 novembre 2026
+
+Session → régie → Fouilles et installations → Déchiffrements en cours : un MJ disposant du droit de contenu peut saisir un motif et « Interrompre et libérer le PA ». Cette procédure utilise l’annulation native et permet de débloquer une réservation après révocation ou réaffectation du joueur, y compris en pause. Elle ne révèle aucun texte, ne consomme pas la tentative et ne rembourse jamais une tentative déjà résolue. Les appels répétés ne libèrent le PA qu’une fois ; un événement est conservé dans le journal d’audit. Joueurs et personnel d’accueil n’y ont pas accès. Aucun accès privé n’est réactivé.
+
+Recette terrain à réaliser : lancer INF-02 avec un personnage test, révoquer son accès, interrompre depuis la régie en indiquant le motif, puis vérifier le PA, le journal et l’absence de révélation. Les validations automatisées sont suivies dans la matrice unique `SO-COMPETENCES-V07-CLOTURE.md` et la PR du commit testé.

@@ -145,4 +145,51 @@ export function soDecryptionSuite(makeStore,prefix='INF-02'){
   await f.cancel(a.id);assert.equal((await f.points()).available,5);
  });
 
+ test(prefix+' : le MJ libère une action après révocation avec motif et sans texte secret',async()=>{
+  const f=await decryptionFixture(makeStore),a=await f.start();
+  await f.actionCmd('revokeAccess',{uid:f.player.uid},f.owner);
+  await assert.rejects(f.finish(a.id),{code:'FORBIDDEN'});
+  const view=await f.actionRead('soDecryptionAdmin',{},f.owner);
+  assert.equal(view.actions[0].id,a.id);assert.doesNotMatch(JSON.stringify(view),/COORDONNEES_SECRETES/);
+  const body={actionId:a.id,reason:'Accès révoqué : libération de réservation',requestId:randomUUID()};
+  const r=await f.actionCmd('cancelSoDecryptionMJ',body,f.owner);assert.equal(r.status,'CANCELLED');
+  assert.deepEqual(await f.actionCmd('cancelSoDecryptionMJ',body,f.owner),r);
+  assert.deepEqual(await f.actionCmd('cancelSoDecryptionMJ',{...body,requestId:randomUUID()},f.owner),r);
+  const points=await f.store.get('sessions/'+f.sid+'/characters/'+f.c+'/resources/actionPoints');
+  assert.equal(points.reserved,0);assert.equal(points.available,5);
+  assert.equal((await f.store.get(f.rpath)).decodedRevision,undefined);
+  assert.equal((await f.store.get('sessions/'+f.sid+'/characters/'+f.c)).activeFieldActionId,null);
+  const audits=(await f.store.list('sessions/'+f.sid+'/audit')).filter(x=>x.action==='cancelSoDecryptionMJ');
+  assert.equal(audits.length,1);assert.equal(audits[0].reason,body.reason);
+  assert.equal((await f.actionRead('soDecryptionAdmin',{},f.owner)).actions.length,0);
+ });
+ test(prefix+' : annulation MJ réservée au contenu, motif requis, permissions revérifiées au rejeu',async()=>{
+  const f=await decryptionFixture(makeStore),a=await f.start(),body={actionId:a.id,reason:'Interruption contrôlée',requestId:randomUUID()};
+  await assert.rejects(f.actionRead('soDecryptionAdmin'),{code:'FORBIDDEN'});
+  await assert.rejects(f.actionCmd('cancelSoDecryptionMJ',body),{code:'FORBIDDEN'});
+  await assert.rejects(f.actionCmd('cancelSoDecryptionMJ',{actionId:a.id,reason:' '},f.owner),{code:'REASON_REQUIRED'});
+  await f.role(true,'RECEPTION');
+  await assert.rejects(f.actionRead('soDecryptionAdmin',{},f.mj),{code:'FORBIDDEN'});
+  await f.role(true,'MJ');
+  await f.actionCmd('cancelSoDecryptionMJ',body,f.mj);
+  await f.role(false,'MJ');
+  await assert.rejects(f.actionCmd('cancelSoDecryptionMJ',body,f.mj),{code:'FORBIDDEN'});
+  assert.equal((await f.points()).available,5);
+ });
+ test(prefix+' : arrêt en pause et nouvelle tentative, sans annulation d’une réussite',async()=>{
+  const f=await decryptionFixture(makeStore),a=await f.start();await f.stage('PAUSE');
+  await f.actionCmd('cancelSoDecryptionMJ',{actionId:a.id,reason:'Interruption de scène'},f.owner);
+  await f.stage('EN_JEU');const b=await f.start();f.advance(165000);f.setDie(6);await f.finish(b.id);
+  await assert.rejects(f.actionCmd('cancelSoDecryptionMJ',{actionId:b.id,reason:'Trop tard'},f.owner),{code:'SO_INF02_STALE'});
+  assert.equal((await f.points()).available,4);
+ });
+ test(prefix+' : résolution et annulation MJ concurrentes produisent un seul résultat économique',async()=>{
+  const f=await decryptionFixture(makeStore),a=await f.start();f.advance(165000);f.setDie(6);
+  const results=await Promise.allSettled([f.finish(a.id),f.actionCmd('cancelSoDecryptionMJ',{actionId:a.id,reason:'Interruption concurrente'},f.owner)]);
+  assert.equal(results.filter(r=>r.status==='fulfilled').length,1);
+  const ended=await f.store.get('sessions/'+f.sid+'/inf02Actions/'+a.id),points=await f.points();
+  assert.equal(points.reserved,0);assert.equal(points.available,ended.status==='SUCCESS'?4:5);
+  assert.equal((await f.store.get(f.rpath)).decodedRevision!==undefined,ended.status==='SUCCESS');
+ });
+
 }
