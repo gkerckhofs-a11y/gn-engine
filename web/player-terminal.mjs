@@ -1,12 +1,12 @@
 import {escapeHtml as esc} from './groups.mjs';
-import {isTracker} from '../src/shared/player-access.mjs';
+import {isTracker,isBroker} from '../src/shared/player-access.mjs';
 const count=(d,...keys)=>keys.reduce((n,k)=>n+(Array.isArray(d?.[k])?d[k].length:0),0);
 const closed=new Set(['CLOSED','CANCELLED','DECLINED','COMPLETED','FINISHED','SETTLED','PAID','RETURNED','REVOKED']);
 const active=rows=>(rows??[]).filter(x=>x.status&&!closed.has(x.status)).length;
 // Read only the native player projections: no catalogue of private ships or accounts.
 export async function loadTerminal(api,own){
  const f=own.session.spaceOutlaws;if(!f)return {};
- const tasks=[['sabacc','sabaccHome',true],['shops','shops',f.shopsVersion===1],['market','market',own.economyEnabled],['missions','announcements',f.missionsVersion===1],['contracts','myContracts',f.missionsVersion===1],['intelligence','myIntelligence',f.intelligenceVersion===1],['bounties','bounties',f.bountyVersion===1&&isTracker(own.character)],['ships','mySpaceport',f.navigationVersion===1],['cargo','myCargo',f.logisticsVersion===1],['maintenance','spaceMaintenance',f.logisticsVersion===1],['towing','towingDesk',f.towingWorkVersion===1],['modules','moduleMandates',f.moduleMandatesVersion===1],['combats','spaceCombats',f.combatVersion===1],['rescues','spaceRescues',f.combatVersion===1],['consents','myCustomsConsents',f.hiddenCargoVersion===1],['customs','customsDesk',f.hiddenCargoVersion===1],['receipts','myCustomsSeizures',f.customsDetentionVersion===1],['accounts','myAccounts',own.economyEnabled&&(own.groups??[]).some(g=>g.permissions?.readWallet||g.permissions?.payWallet)]];
+ const tasks=[['sabacc','sabaccHome',true],['shops','shops',f.shopsVersion===1],['market','market',own.economyEnabled&&isBroker(own.character)],['missions','announcements',f.missionsVersion===1],['contracts','myContracts',f.missionsVersion===1],['intelligence','myIntelligence',f.intelligenceVersion===1],['bounties','bounties',f.bountyVersion===1&&isTracker(own.character)],['ships','mySpaceport',f.navigationVersion===1],['cargo','myCargo',f.logisticsVersion===1],['maintenance','spaceMaintenance',f.logisticsVersion===1],['towing','towingDesk',f.towingWorkVersion===1],['modules','moduleMandates',f.moduleMandatesVersion===1],['combats','spaceCombats',f.combatVersion===1],['rescues','spaceRescues',f.combatVersion===1],['consents','myCustomsConsents',f.hiddenCargoVersion===1],['customs','customsDesk',f.hiddenCargoVersion===1],['receipts','myCustomsSeizures',f.customsDetentionVersion===1],['accounts','myAccounts',own.economyEnabled&&(own.groups??[]).some(g=>g.permissions?.readWallet||g.permissions?.payWallet)]];
  const context={errors:[]};
  await Promise.all(tasks.filter(([, ,enabled])=>enabled).map(async([key,action])=>{
   try{context[key]=await api(action,action==='sabaccHome'?{}:{sessionId:own.session.id});}
@@ -20,11 +20,11 @@ export function terminalItems(own,d={}){
  const port='Services du port',special='Mes services spécialisés',assets='Mes biens, vaisseaux et mandats';
  if(f.shopsVersion===1&&count(d.shops,'shops','orders'))add('shops','Boutiques du port',port,'Acheter des fournitures et retirer mes commandes.',d.shops.orders);
  if(own.economyEnabled)add('wallet','Mes crédits',port,`${own.wallet?.account?.available??'—'} crédits disponibles · paiements et historique.`);
- if(d.market?.economyEnabled)add('market','Marché',port,'Cours, achats, ventes et négociations.');
+ if(isBroker(own.character)&&d.market?.economyEnabled)add('market','Marché',port,'Cours, achats, ventes et négociations.');
  if(f.missionsVersion===1&&count(d.missions,'announcements'))add('missions','Missions proposées',port,'Consulter les offres qui me sont accessibles.');
  if(count(d.contracts,'contracts'))add('contracts','Mes contrats',port,'Mes engagements personnels et collectifs.',d.contracts.contracts);
  if(f.intelligenceVersion===1&&count(d.intelligence,'offers'))add('intelligence','Réseau d’informateurs',port,'Consulter les offres et mes renseignements achetés.',d.intelligence.offers);
- if(d.sabacc?.enabled)add('sabacc','Sabacc — Cantina',port,'Rejoindre une table avec son code.',[],{url:'/sabacc/'});
+ if(d.sabacc?.enabled)add('sabacc','Sabacc — Cantina',port,'Rejoindre une table avec son code.',[],{url:own.demo?.table?`/sabacc/?table=${encodeURIComponent(own.demo.table.id)}&key=${encodeURIComponent(own.demo.table.qrToken)}&demoSession=${encodeURIComponent(sid)}&demoRole=${own.demo.selected}`:'/sabacc/'});
  if(own.directoryAllowed)add('directory','Registre des identités',port,'Consulter les identités publiques autorisées.');
  if(f.bountyVersion===1&&isTracker(own.character)&&d.bounties)add('bounties','Primes ouvertes',special,'Cibles recherchées et suivi de mes preuves.',d.bounties.bounties);
  if(count(d.ships,'ships','invitations'))add('spaceport','Mes vaisseaux et vols',assets,'Informations du vaisseau et commandes selon mon mandat.',d.ships.invitations);

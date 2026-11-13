@@ -79,6 +79,11 @@ export function createEconomyService({store,signed,checkSession,checkScenario,no
         const subject=collective?{id:a.id,name:a.label}:partyName(c);
         const prepared={character:subject,currency:currencyView(parent.economyRules),amount,delta,memo,before,after,confirmation:hash(JSON.stringify([parent.revision,subject,before,after,memo,reason]))};
         if(preparing)return prepared;requireThat(input.confirmation===prepared.confirmation,'STALE_REVISION');
+        if(parent.spaceOutlaws){
+          const demo=await tx.get(`soloDemos/${id}`);
+          requireThat(demo?.ownerUid===actor.uid&&parent.ownerUid===actor.uid&&!collective&&demo.profiles.some(p=>p.uid===c.assignedUid),'FORBIDDEN');
+          authorizeSpaceOutlaws(tx,parent,'PAYMENT');
+        }
         tx.set(`${base}/accounts/${a.id}`,next);
         writeLedger(tx,id,{id:newId,kind:'GM_ADJUSTMENT',at,actorUid:actor.uid,memo,reason,createdCurrency:Math.max(0,delta),removedCurrency:Math.max(0,-delta),entries:[{accountId:a.id,characterId:a.characterId??null,groupId:a.groupId??null,delta,before,after}]});result={id:newId,account:after};
       }

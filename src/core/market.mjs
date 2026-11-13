@@ -1,3 +1,4 @@
+import {isBroker} from '../shared/player-access.mjs';
 import {readPriceBook,commodityQuote,priceBoard,indexedListing,commodityTrade,tradeBoard} from './price-state.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {inventoryHash as hash,itemQuantity,publicItem,personalLot,lotState,readLot} from './inventory-state.mjs';
@@ -56,6 +57,7 @@ export function createMarketService({store,signed,checkSession,now,uuid}){
     signed(actor);const at=now(),id=uuid();return store.runTransaction(async tx=>{
       const admin=action==='sessionMarket'||action==='withdrawSessionListing';
       const ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId)),c:null,version:actor.uid}:await inventoryPlayer(tx,actor,input),{s,c,version}=ctx;
+      requireThat(!s.spaceOutlaws||admin||isBroker(c),'FORBIDDEN');
       requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');const base=`sessions/${s.id}`;
       if(action==='market'||action==='sessionMarket'){
         const book=await readPriceBook(tx,s,at);

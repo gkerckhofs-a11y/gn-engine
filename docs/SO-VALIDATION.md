@@ -1498,3 +1498,10 @@ Développement demandé depuis `SABACC_Cahier_des_charges_V1_0`, avec classement
 Candidat consolidé dans PR #12 : dashboard PC #11 et contrôles joueur #10 inclus. Audit et limites : [PNJ-BAG-AUDIT.md](PNJ-BAG-AUDIT.md).
 
 Validation locale Node 24 : compilation réussie ; 218 tests ciblés de démonstration, abordage, douanes et interfaces ; 22 tests boutiques/retenue ; 34 tests de remises/faux, incluant la dernière vérification de captivité et d’occupation. Les suites se recouvrent : ces nombres ne forment pas un total de tests uniques. Les 505 tests UI initialement exécutés avaient trois échecs liés aux anciens chargements de fixture et au champ URL ; ces trois cas ont été corrigés et réexécutés dans les suites ciblées. Aucun `npm test` intégral local. La CI utilise Node 22 et ses résultats sur le commit exact sont consignés dans la PR. Aucun test caméra sur téléphone, aucune modification Firebase en ligne, aucune publication.
+
+## 13 novembre 2026 — essai commun et simplifications demandées
+
+Tranche en cours : [essai commun, codes courts, corbeille et marché COU](SO-ESSAI-COMMUN.md).
+Tests ciblés de création native des huit profils, reprise après réponse perdue,
+isolation des identités de démonstration, codes et corbeille exécutés localement.
+La CI du commit candidat et les opérations en ligne restent à consigner après exécution.

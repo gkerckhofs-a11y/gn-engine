@@ -94,7 +94,7 @@ export function centralInitialCoherenceSuite(makeStore,prefix='Cohérence initia
  test(`${prefix} : lecture sans politique, admission, état de jeu ni écriture`,async()=>{
   const f=await initialCoherenceFixture(makeStore,true),run=f.store.runTransaction.bind(f.store),reads=[];
   f.store.runTransaction=fn=>run(tx=>fn({...tx,get:async p=>{reads.push(p);return tx.get(p);},list:async(p,...args)=>{reads.push(p);return tx.list(p,...args);},set:()=>assert.fail('Contrôle en lecture seule')}));
-  const a=await f.check(7),b=await f.check(7);assert.deepEqual(a,b);assert.ok(reads.every(p=>[f.base,`${f.base}/changes`,`campaigns/${f.cid}`,`sessions/${f.sid}`].includes(p)));
+  const a=await f.check(7),b=await f.check(7);assert.deepEqual(a,b);assert.ok(reads.every(p=>[f.base,`${f.base}/changes`,`campaigns/${f.cid}`,`sessions/${f.sid}`,`recycleBin/sessions_${f.sid}`].includes(p)));
   assert.doesNotMatch(JSON.stringify(a),/Secret de fiction|Biographie fictive|Note M2 privée|Préparation privée du kit|invitationHash|firstName|email/);
  });
  test(`${prefix} : kit voisin et objets de session ignorés`,async()=>{

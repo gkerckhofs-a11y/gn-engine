@@ -61,7 +61,7 @@ export function centralCheckSuite(makeStore,prefix='Contrôle central C2a'){
   const f=await centralCheckFixture(makeStore);await f.configure();const run=f.store.runTransaction.bind(f.store),reads=[];
   f.store.runTransaction=fn=>run(tx=>fn({...tx,get:async(p)=>{reads.push(p);return tx.get(p);},list:async(...args)=>{reads.push(args[0]);return tx.list(...args);}}));
   const r=await f.check(1);assert.equal(r.diff[0].type,'speciesCatalogue');assert.equal(r.totals.invalid,0);assert.doesNotMatch(JSON.stringify(r),/Règles fictives|quotas|friends|firstName|email/);
-  assert.ok(reads.every(p=>[`${f.base}/changes`,f.base,`campaigns/${f.cid}`,`sessions/${f.sid}`].includes(p)),JSON.stringify(reads));
+  assert.ok(reads.every(p=>[`${f.base}/changes`,f.base,`campaigns/${f.cid}`,`sessions/${f.sid}`,`recycleBin/sessions_${f.sid}`].includes(p)),JSON.stringify(reads));
  });
  test(`${prefix} : campagne voisine et instance de session ne résolvent aucun lien`,async()=>{
   const f=await centralCheckFixture(makeStore),other=await f.create({creationId:randomUUID()});await f.saveCharacter();

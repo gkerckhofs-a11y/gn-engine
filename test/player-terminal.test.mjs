@@ -7,8 +7,8 @@ test('Terminal : prime exclusivement à la classe principale, pas aux compétenc
  const d={bounties:{bounties:[]}},o=own('TRA');assert.ok(ids(o,d).includes('bounties'));
  for(const cl of ['COM','MED','MEC','PIL','COU','INF','ROG']){o.character.primaryClassId=cl;o.character.abilities.skills=[{id:'TRA-03',level:5}];assert.ok(!ids(o,d).includes('bounties'));assert.doesNotMatch(personalTerminalHtml(o,d),/Primes ouvertes/);}
 });
-test('Terminal : commerce commun au Courtier et aux autres classes, aucune commande COU inventée',()=>{
- for(const cl of ['COU','MED']){const o=own(cl),d={shops:{shops:[{id:'s'}]},market:{economyEnabled:true}};assert.deepEqual(ids(o,d),['shops','wallet','market']);assert.doesNotMatch(personalTerminalHtml(o,d),/licence|COU-03/);}
+test('Terminal : Marché réservé au Courtier, boutiques et portefeuille ouverts aux autres classes',()=>{
+ for(const cl of ['COU','MED']){const o=own(cl),d={shops:{shops:[{id:'s'}]},market:{economyEnabled:true}};assert.deepEqual(ids(o,d),cl==='COU'?['shops','wallet','market']:['shops','wallet']);assert.doesNotMatch(personalTerminalHtml(o,d),/licence|COU-03/);}
 });
 test('Terminal : propriétaire non pilote et pilote mandaté utilisent uniquement les projections autorisées',()=>{
  for(const cl of ['COM','PIL']){const o=own(cl);assert.ok(!ids(o,{}).includes('spaceport'));const d={ships:{ships:[{id:'ship',pilotId:cl==='PIL'?'c':'other'}]}};assert.ok(ids(o,d).includes('spaceport'));assert.doesNotMatch(personalTerminalHtml(o,d),/data-action=".*(Pilot|Flight)|SECRET/);}
@@ -37,7 +37,7 @@ test('Terminal : Sabacc activé, registre autorisé et dossiers en cours uniquem
 });
 test('Terminal : chargement sans droit inventé, modules éteints, erreurs explicites et recalcul de session',async()=>{
  const calls=[],api=async(a,p)=>{calls.push([a,p]);if(a==='customsDesk')throw Object.assign(Error(),{code:'FORBIDDEN'});if(a==='shops')throw Object.assign(Error(),{code:'NETWORK_ERROR'});return {};};
- const o=own('MED');let d=await loadTerminal(api,o);assert.ok(!calls.some(([a])=>a==='bounties'||a==='myAccounts'));assert.equal(d.customs,undefined);assert.deepEqual(d.errors,['shops']);
+ const o=own('MED');let d=await loadTerminal(api,o);assert.ok(!calls.some(([a])=>a==='bounties'||a==='myAccounts'||a==='market'));assert.equal(d.customs,undefined);assert.deepEqual(d.errors,['shops']);
  calls.length=0;o.session={id:'other',spaceOutlaws:{}};o.economyEnabled=false;d=await loadTerminal(api,o);assert.deepEqual(calls,[['sabaccHome',{}]]);assert.equal(d.shops,undefined);
  calls.length=0;const t=own('TRA');t.groups=[{permissions:{readWallet:true}}];await loadTerminal(api,t);assert.ok(calls.some(([a,p])=>a==='bounties'&&p.sessionId==='s'));assert.ok(calls.some(([a])=>a==='myAccounts'));
 });

@@ -938,3 +938,10 @@ Salon entre membres actifs révélés, réception future uniquement, signature f
 ## Mes actions — parcours directs, 13 novembre 2026
 
 Menu dérivé des compétences et versions actives ; choix conservé après QR/ID, aperçu natif automatique pour terrain/soins, modules spécialisés ouverts directement, historiques secondaires. Audit capacité → cible → contrôle et limites : [SO-PLAYER-ACTIONS.md](SO-PLAYER-ACTIONS.md). Tests locaux ciblés et build réussis ; validation navigateur mobile ajoutée à la CI, non certifiée sur téléphone réel. Aucune nouvelle action ni modification de règles.
+
+### Décisions organisateur du 13 novembre 2026
+
+Essai solo commun à huit profils, groupe et Sabacc ; alias personnage `ABC123` ;
+corbeille des sessions/scénarios ; boutons explicites de suppression d’images ;
+Marché réservé à la classe principale Courtier. Détail, limites et validation :
+[SO-ESSAI-COMMUN.md](SO-ESSAI-COMMUN.md).
