@@ -1487,3 +1487,9 @@ Salon entre membres actifs révélés, réception future uniquement, signature f
 ## 2026-11-13 — Sabacc autonome (candidat séparé)
 
 Développement demandé depuis `SABACC_Cahier_des_charges_V1_0`, avec classement Sabacc For Charity choisi par l’organisateur. Moteur, tables privées/publiques, régie, QR, portefeuilles local/GN et client `/sabacc/`. Rapport de périmètre et limites : [SABACC-MODULE.md](SABACC-MODULE.md). Base main publiée `abae2811c2aeb27cba1ff47c5e004d3b7c11bbc5`. Tests ciblés mémoire (14), Firestore (8) et compilation réussis ; résultat CI du SHA candidat dans la PR. Recette humaine mobile et terrain non exécutée. Pas de publication du module.
+
+## 2026-11-13 — Sacs personnels, fret et libellés RP
+
+Candidat consolidé dans PR #12 : dashboard PC #11 et contrôles joueur #10 inclus. Audit et limites : [PNJ-BAG-AUDIT.md](PNJ-BAG-AUDIT.md).
+
+Validation locale Node 24 : compilation réussie ; 218 tests ciblés de démonstration, abordage, douanes et interfaces ; 22 tests boutiques/retenue ; 34 tests de remises/faux, incluant la dernière vérification de captivité et d’occupation. Les suites se recouvrent : ces nombres ne forment pas un total de tests uniques. Les 505 tests UI initialement exécutés avaient trois échecs liés aux anciens chargements de fixture et au champ URL ; ces trois cas ont été corrigés et réexécutés dans les suites ciblées. Aucun `npm test` intégral local. La CI utilise Node 22 et ses résultats sur le commit exact sont consignés dans la PR. Aucun test caméra sur téléphone, aucune modification Firebase en ligne, aucune publication.

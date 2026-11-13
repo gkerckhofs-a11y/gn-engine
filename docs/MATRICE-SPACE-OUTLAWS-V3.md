@@ -923,3 +923,14 @@ Salon entre membres actifs révélés, réception future uniquement, signature f
 | Portefeuille local ou GN, pots atomiques | `src/sabacc/adapters.mjs` | suite `sabacc-gn`, crédits protégés préservés |
 | Dix tables de huit identités | suite `sabacc` | émulateur : p95 231 ms / 265 commandes ; pas de mesure terrain |
 | Livraison | `docs/SABACC-MODULE.md` | candidat séparé, aucune recette humaine ni publication |
+
+## Sacs, fret et mentions RP — 13 novembre 2026
+
+| Exigence | Correction | Validation / limite |
+|---|---|---|
+| Dernière interface orga | Dashboard PC PR #11 intégré avec contrôles joueur PR #10 | Bases 95935f5 et ecef0d8, regroupées dans PR #12 |
+| Mentions PNJ visibles | Libellés de contacts, comptoirs, prestataires et douaniers | Inventaire détaillé : [PNJ-BAG-AUDIT.md](PNJ-BAG-AUDIT.md) ; valeurs internes conservées |
+| Sac personnel | Remise gratuite native, destinataire par QR/ID, réception explicite | Lots protégés exclus ; concurrence, STOP, décès, captivité, accès et actions en cours contrôlés |
+| Fret | Nouveaux chargements depuis le sac refusés côté serveur | Contrats commerciaux conservés ; anciens stocks embarqués récupérables, sans migration |
+| Kits de démonstration | Plus d’achat médical forcé dans `scripts/recette/showcase.mjs` | Huit classes testées : 200 Cr protégés, deux fournitures initiales MED uniquement |
+| Données et publication | Aucun sac existant modifié, aucun déploiement | Accès Firebase absent ; CI exacte à consulter dans PR #12 |
