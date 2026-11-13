@@ -138,6 +138,7 @@ async function api(action,input={},asOrganizer=false) {
   return result;
 }
 async function mutate(action,input={}){
+  if(soloDemoContext&&currentPlayerRoute&&input.sessionId===soloDemoContext.sessionId&&!input.demoRole)input={...input,demoRole:soloDemoRole};
   const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify([action,input])));
   const key=Array.from(new Uint8Array(digest)).map(n=>n.toString(16).padStart(2,'0')).join('');
   const requestId=pendingCommands.get(key)??crypto.randomUUID();pendingCommands.set(key,requestId);
