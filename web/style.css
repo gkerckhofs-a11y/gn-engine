@@ -73,3 +73,10 @@ body:has(.player-shell)>header{display:none}
 .qr-scan-button{margin:.5rem 0}.entity-code{overflow-wrap:anywhere}
 
 .quick-states{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:1rem;margin:1rem 0}.quick-states .panel{margin:0}
+
+/* Touch-first action cards; history remains secondary. */
+.action-menu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px}
+.action-family{margin:24px 0}.action-choice{display:flex;flex-direction:column;gap:8px;text-decoration:none;min-height:160px;padding:20px;overflow-wrap:anywhere;color:inherit}
+.action-choice strong{font-size:1.15rem}.action-choice p{margin:0}.action-choice:hover,.action-choice:focus-visible{outline:2px solid var(--gold,#d3b477);outline-offset:2px}
+.action-choice.is-blocked{opacity:.62;cursor:not-allowed;pointer-events:none}.action-status{margin-top:auto;font-size:.9rem}.action-choice small{opacity:.75}
+#action-history{scroll-margin-top:90px;margin-top:24px}#action-history>summary{font-size:1.1rem;min-height:44px;padding:12px 0}

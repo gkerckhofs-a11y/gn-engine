@@ -934,3 +934,7 @@ Salon entre membres actifs révélés, réception future uniquement, signature f
 | Fret | Nouveaux chargements depuis le sac refusés côté serveur | Contrats commerciaux conservés ; anciens stocks embarqués récupérables, sans migration |
 | Kits de démonstration | Plus d’achat médical forcé dans `scripts/recette/showcase.mjs` | Huit classes testées : 200 Cr protégés, deux fournitures initiales MED uniquement |
 | Données et publication | Aucun sac existant modifié, aucun déploiement | Accès Firebase absent ; CI exacte à consulter dans PR #12 |
+
+## Mes actions — parcours directs, 13 novembre 2026
+
+Menu dérivé des compétences et versions actives ; choix conservé après QR/ID, aperçu natif automatique pour terrain/soins, modules spécialisés ouverts directement, historiques secondaires. Audit capacité → cible → contrôle et limites : [SO-PLAYER-ACTIONS.md](SO-PLAYER-ACTIONS.md). Tests locaux ciblés et build réussis ; validation navigateur mobile ajoutée à la CI, non certifiée sur téléphone réel. Aucune nouvelle action ni modification de règles.

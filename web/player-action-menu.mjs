@@ -1,0 +1,66 @@
+import {escapeHtml as esc} from './groups.mjs';
+import {skillLevel} from './player-capabilities.mjs';
+import {analysisSkills,analysisProfile} from '../src/shared/space-outlaws-analysis.mjs';
+import {playerTargetPath} from './player-spaces.mjs';
+
+// Presentation of implemented native workflows only. Never grants a server permission.
+export function actionMenuItems(own,context={}){
+ const flags=own.session.spaceOutlaws??{},items=[],add=(id,title,group,mode,extra={})=>items.push({id,title,group,mode,...extra});
+ if(!flags.actionsVersion)return items;
+ if(flags.searchVersion===1)add('search','Fouiller un lieu','Actions communes','field',{kind:'SEARCH',cost:1,description:'Chercher les trouvailles accessibles sur place.'});
+ add('discover','Examiner un élément interactif','Actions communes','discover',{description:'Ouvrir une information accessible avec son code.'});
+ if(flags.healthVersion===1){
+  add('stabilize','Porter les premiers secours','Soins et secours','person',{kind:'STABILIZE',cost:0,urgent:true,description:'Rester auprès d’une victime pour la stabiliser, sans consommable.'});
+  for(const [skill,title,group] of [['MED-02','Soigner un personnage','Soins et secours'],['MEC-02','Réparer un droïde','Technique et mécanique'],['ENTRETIEN_PROTECTION','Restaurer une protection','Technique et mécanique']])if(skillLevel(own.character,skill)>0)add(skill,title,group,'person',{skill,kind:skill==='ENTRETIEN_PROTECTION'?'PROTECTION':'FIELD_CARE',cost:1,urgent:skill!=='ENTRETIEN_PROTECTION',description:'Choisir le bénéficiaire ; le matériel compatible et les conditions seront vérifiés.'});
+ }
+ for(const [skill,title] of analysisSkills){if(skillLevel(own.character,skill)<1||skill==='PIL-01'&&flags.routeAnalysisVersion!==1)continue;const p=analysisProfile(skill);add(skill,title,skill==='MEC-01'?'Technique et mécanique':skill==='PIL-01'?'Pilotage et navigation':'Analyses','field',{skill,kind:'ANALYZE',routeCode:skill==='PIL-01',cost:p.cost,description:`${p.durationByLevel[skillLevel(own.character,skill)]??p.durationSeconds} secondes sur une cible préparée et accessible.`});}
+ for(const [skill,flag,title,mode] of [['INF-01','inf01Version','Tenter une intrusion','intrusion'],['INF-02','inf02Version','Déchiffrer un document','decryption'],['INF-03','inf03Version','Falsifier un document','forgery'],['ROG-02','pickpocketVersion','Tenter un vol à la tire','pickpocket'],['ROG-03','escapeVersion','Tenter une évasion','escape']])if(flags[flag]===1&&skillLevel(own.character,skill)>0)add(skill,title,skill.startsWith('INF')?'Informatique':'Discrétion',mode,{skill,cost:1,description:skill==='ROG-02'?'Au poste organisation, avec l’identité fictive de la cible.':skill==='ROG-03'?'Depuis une captivité et une issue préparées par l’organisation.':skill==='INF-02'?'Choisir parmi les documents chiffrés déjà obtenus.':'Sur une cible préparée et autorisée.'});
+ if(flags.navigationVersion===1&&skillLevel(own.character,'PIL-01')>0)add('flight','Préparer un vol','Pilotage et navigation','ship',{description:'Choisir un vaisseau autorisé puis préparer son départ.'});
+ if(flags.logisticsVersion===1&&skillLevel(own.character,'MEC-02')>=2)add('maintenance','Mes interventions sur vaisseaux','Technique et mécanique','maintenance',{skill:'MEC-02',minLevel:2,description:'Ouvrir les interventions proposées et les accords à confirmer.'});
+ if(flags.moduleMandatesVersion===1&&skillLevel(own.character,'MEC-03')>0)add('modules','Mes travaux de modules','Technique et mécanique','modules',{skill:'MEC-03',description:'Ouvrir les mandats et travaux autorisés sur les modules.'});
+ if(context.person?.skills?.length)add('aid','Proposer mon aide','Coopération','aid',{cost:0,description:'Choisir un allié et l’une de vos compétences admissibles.'});
+ return items.map(item=>({...item,level:item.skill?skillLevel(own.character,item.skill):null,blocked:actionBlocked(item,own,context)}));
+}
+export function actionBlocked(item,own,context={}){
+ const h=own.health??{},stage=own.session.stage;
+ if(h.safetyStopped)return 'Jeu suspendu par un STOP sécurité.';
+ if(h.status==='DEAD')return 'Votre personnage est décédé.';
+ if(stage!=='EN_JEU'&&!(stage==='PAUSE'&&item.urgent))return 'Disponible pendant le jeu.';
+ if(item.mode==='discover')return null;
+ if(h.outOfCombat||h.hp===0)return 'Votre personnage est hors combat.';
+ if((context.person?.convalescenceMs??h.convalescenceMs??0)>0)return 'Convalescence en cours.';
+ if(context.escape?.captivity?.status==='ACTIVE'&&item.mode!=='escape')return 'Votre personnage est captif.';
+ if(item.mode==='escape'&&context.escape?.captivity?.status!=='ACTIVE')return 'Aucune captivité active déclarée.';
+ const open=['ACTIVE','CONTINUING','AWAITING_PICK','AWAITING_HANDOVER','RUNNING','CHOOSING'];
+ if([...(context.field?.actions??[]),...(context.person?.actions??[])].some(a=>open.includes(a.status))||[context.pickpocket?.active,context.escape?.active,context.decryption?.active].some(a=>a&&open.includes(a.status)))return 'Une action est en cours. Retrouvez-la ci-dessous.';
+ const state=context[item.mode];if(state?.cooldownMs>0)return `Récupération : ${Math.ceil(state.cooldownMs/1000)} secondes de jeu.`;
+ if(own.actionPoints&&item.cost>own.actionPoints.available)return 'PA disponibles insuffisants.';
+ return null;
+}
+export function actionMenuHtml(own,context){
+ const items=actionMenuItems(own,context),sid=own.session.id,groups=[...new Set(items.map(i=>i.group))];
+ return `<h1>Mes actions</h1><p class="rp lead">Choisissez votre action, puis sa cible.</p><div class="row"><button class="quiet" data-action="refresh">Actualiser</button><button class="quiet" data-action="actionHistory">Mes actions en cours et historique</button></div><section aria-label="Mes capacités"><h2>Mes capacités</h2>${groups.map(group=>`<section class="action-family"><h3>${esc(group)}</h3><div class="action-menu-grid">${items.filter(i=>i.group===group).map(i=>`<a class="panel action-choice ${i.blocked?'is-blocked':''}" href="#/act/${esc(sid)}/${esc(i.id)}" ${i.blocked?'aria-disabled="true" tabindex="-1"':''}><strong>${esc(i.title)}</strong><p>${esc(i.description)}</p>${i.skill?`<small>${esc(i.skill)} · niveau ${i.level}${i.minLevel?` · N${i.minLevel} requis`:''}</small>`:''}<p>${i.cost===undefined?'Coût et matériel : selon le protocole':`${i.cost} PA${['pickpocket','escape'].includes(i.mode)?' seulement si l’effet prévu se produit':''}`}</p><span class="action-status">${esc(i.blocked??(['field','person','discover','intrusion','forgery'].includes(i.mode)?'Action contextuelle · scanner ou saisir un code':i.mode==='ship'?'Choisir un vaisseau':'Ouvrir le parcours'))}</span></a>`).join('')}</div></section>`).join('')}</section>`;
+}
+export function actionTargetHtml(sid,item){return `<h1>${esc(item.title)}</h1><p>Votre choix est conservé. Identifiez la cible pour vérifier les conditions.</p><form class="panel" data-form="actionTarget" data-sid="${esc(sid)}" data-intent="${esc(item.id)}"><label>${item.routeCode?'Code de la liaison':item.mode==='person'?'QR ou ID du personnage':'QR ou code de la cible'}<input name="code" required maxlength="2048" autocomplete="off" autofocus></label><button class="primary">Vérifier cette cible</button></form><a href="#/action/${esc(sid)}">Retour à mes actions</a>`;}
+export function selectedTargetPath(raw,item,origin,sid){
+ if(item.routeCode){const code=String(raw).trim();if(!/^[A-Za-z0-9_-]{1,128}$/.test(code))throw Error('Saisissez le code de la liaison indiqué au spatioport.');return code;}
+ const kind=item.mode==='person'?'person':item.mode;
+ const path=playerTargetPath(raw,kind,origin,sid),[found,,target]=path.split('/');
+ if(found!==kind)throw Error('Ce code ne correspond pas au type de cible de l’action choisie.');
+ return target;
+}
+export function focusActionTarget(item,d){
+ const profiles=d.profiles.filter(p=>p.kind===item.kind&&(!item.skill||p.skillId===item.skill)&&(p.qualified!==false));
+ return {...d,profiles};
+}
+export function actionTargetUnavailable(sid){return `<p role="status">Cette cible ne propose pas l’action choisie à votre personnage. Aucun PA n’a été dépensé.</p><a href="#/action/${esc(sid)}">Mes actions</a>`;}
+// An automatic preview is read-only. Never submit a start/finish form here.
+export function previewSelectedAction(root){
+ const form=root.querySelector('[data-field-form="prepare"], [data-person-form="prepare"]');if(!form)return;
+ for(const select of form.querySelectorAll('select')){
+  if(select.options.length===1)select.selectedIndex=0;
+  if((select.name.startsWith('supply_')||select.name==='consumableLotId')&&!select.options.length){const p=root.ownerDocument.createElement('p');p.textContent='Fourniture compatible absente de votre sac.';form.append(p);form.querySelector('button.primary').disabled=true;return;}
+ }
+ const button=form.querySelector('button.primary');if(button?.disabled)return;
+ form.requestSubmit();
+}

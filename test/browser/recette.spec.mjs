@@ -73,6 +73,28 @@ test('Navigateur : six identités, filtres et secrets du contrat',async({browser
   }
 });
 
+test('Mes actions : mobile, choix conservé, cible par ID et aperçu serveur automatique sans dépense',async({browser},info)=>{
+ const {page:orga}=await login(browser,'owner');await navigate(orga,`session/${scenario.sessionId}/animate`,'spaceOutlawsEntry');
+ orga.once('dialog',d=>d.accept());await clickCommand(orga,'[data-action="soStage"][data-stage="EN_JEU"]','setStage');
+ const {page}=await login(browser,'player');await page.setViewportSize({width:390,height:844});
+ await page.addInitScript(()=>{if(navigator.mediaDevices)navigator.mediaDevices.getUserMedia=async()=>{throw Error('Caméra refusée pour ce test');};});
+ try{
+  await navigate(page,`action/${scenario.sessionId}`,'myFieldActions');await expect(page.getByRole('heading',{name:'Mes capacités',exact:true})).toBeVisible();
+  await expect(page.locator('a.action-choice[href$="/MED-02"]')).toBeVisible();await expect(page.locator('a.action-choice[href$="/INF-01"]')).toHaveCount(0);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await expect(page.locator('#action-history')).not.toHaveAttribute('open');await capture(page,info,'mes-actions-mobile');
+  await page.locator('a.action-choice[href$="/COM-03"]').click();await expect(page.locator('[data-form="actionTarget"]')).toHaveAttribute('data-intent','COM-03');
+  await page.getByRole('button',{name:'Scanner un QR',exact:true}).click();await expect(page.getByText('Caméra indisponible ou refusée.',{exact:false})).toBeVisible();
+  await page.locator('[data-form="actionTarget"] input').fill('https://127.0.0.1/#/field/autre/counter-place');await page.getByRole('button',{name:'Vérifier cette cible'}).click();await expect(page.locator('[data-form="actionTarget"]')).toBeVisible();
+  await page.locator('[data-form="actionTarget"] input').fill('counter-place');const preview=apiResponse(page,'prepareFieldAction');await page.getByRole('button',{name:'Vérifier cette cible'}).click();expect((await preview).status()).toBe(200);
+  await expect(page.locator('dialog[open] [data-field-form="start"]')).toBeVisible();await expect(page.locator('[data-field-form="prepare"]')).toHaveCount(1);await expect(page).toHaveURL(new RegExp('/act/'+scenario.sessionId+'/COM-03/counter-place$'));
+  await capture(page,info,'action-cible-apercu-mobile');await page.locator('dialog[open] [data-field-action="close"]').click();
+  await navigate(page,`action/${scenario.sessionId}`,'myFieldActions');await page.locator('[data-action="actionHistory"]').first().click();await expect(page.locator('#action-history')).toHaveAttribute('open','');await expect(page).toHaveURL(new RegExp('/action/'+scenario.sessionId+'$'));
+ }finally{
+  await navigate(orga,`session/${scenario.sessionId}/animate`,'spaceOutlawsEntry');orga.once('dialog',d=>d.accept());await clickCommand(orga,'[data-action="soStage"][data-stage="PAUSE"]','setStage');
+ }
+});
+
 test('Navigateur : STOP puis reprise depuis la régie, sans modifier les réserves',async({browser},info)=>{
   const {page}=await login(browser,'owner');await navigate(page,`session/${scenario.sessionId}`,'spaceOutlawsEntry');
   await clickCommand(page,'[data-action="soSafetyStopMJ"]','stopSafetyMJ');
