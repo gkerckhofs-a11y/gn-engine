@@ -325,3 +325,63 @@ test('Navigateur : Sabacc autonome, deux comptes, cartes privées et régie mobi
   const refunded=await command(one.page,tokens[1],'sabaccTable',{tableId:t.id,qrToken:t.qrToken});expect(refunded.self.balance).toBe(500);expect(refunded.hand.phase).toBe('CANCELLED');
   gm.page.once('dialog',dialog=>dialog.accept());await clickCommand(gm.page,'[data-rotate]','sabaccRotateQR');await one.page.getByRole('button',{name:'Table',exact:true}).click();await expect(one.page.locator('[data-return]')).toBeVisible();await one.page.locator('[data-return]').click();await expect(one.page.getByRole('heading',{name:'Cantina navigateur',exact:true})).toBeVisible();
 });
+
+test('Dashboard orga : trois espaces, recherche, droits et Sabacc sur mobile',async({browser},info)=>{
+ const {page}=await login(browser,'owner');
+ await navigate(page,`session/${scenario.sessionId}/animate`,'spaceOutlawsEntry');
+ await expect(page.locator('.org-tabs [aria-current="page"]')).toHaveText('Animer');
+ await expect(page.locator('.org-main h1')).toHaveText('Animer');
+ await expect(page.locator('[data-org-section="prepare"]:visible')).toHaveCount(0);
+ await page.locator('[data-org-character]').fill('AUCUN_PERSONNAGE_123');
+ await expect(page.locator('[data-org-no-match]')).toBeVisible();
+ await page.locator('[data-org-character]').fill('');
+ await expect(page.locator('[data-org-name]').first()).toBeVisible();
+ await page.locator('[data-org-name] button[data-action="preview"]').first().click();
+ await expect(page.locator('#dialog')).toBeVisible();await page.keyboard.press('Escape');
+ await capture(page,info,'organisateur-animer-desktop');
+ await page.getByRole('navigation',{name:'Organisation de la session'}).getByRole('link',{name:'Préparer',exact:true}).click();
+ await expect(page.locator('.org-main h1')).toHaveText('Préparer');
+ await expect(page.getByRole('heading',{name:'Joueurs approuvés',exact:true})).toBeVisible();
+ await page.locator('[data-org-tool]').fill('sabacc');
+ await expect(page.locator('.org-sidebar a[href="/sabacc/?view=admin"]')).toBeVisible();
+ await page.locator('[data-org-tool]').fill('');
+ await page.getByRole('navigation',{name:'Organisation de la session'}).getByRole('link',{name:'Superviser',exact:true}).click();
+ await expect(page.locator('.org-main h1')).toHaveText('Superviser');
+ await expect(page.getByRole('heading',{name:'Journal des dernières opérations',exact:true})).toBeVisible();
+ await page.setViewportSize({width:390,height:844});
+ await capture(page,info,'organisateur-superviser-mobile');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.locator('[data-org-tool]').fill('sabacc');await page.locator('.org-sidebar a[href="/sabacc/?view=admin"]').click();
+ await expect(page.locator('#tabs [data-tab="admin"]')).toHaveAttribute('aria-current','page');
+ await expect(page.locator('#content')).toContainText('Régie');
+ for(const role of ['mj','reception']){
+  const other=await login(browser,role);await navigate(other.page,`session/${scenario.sessionId}/animate`,'session');
+  await expect(other.page.locator('.org-shell')).toBeVisible();
+  await expect(other.page.locator('.org-sidebar a[href="/sabacc/?view=admin"]')).toHaveCount(0);
+  if(role==='reception'){
+   await expect(other.page.locator('[data-org-character]')).toHaveCount(0);
+   await expect(other.page.locator('#app')).not.toContainText('SECRET_RECETTE');
+   await expect(other.page.locator('[data-action="setStage"]')).toHaveCount(0);
+  }
+ }
+});
+
+test('Dashboard orga : accès missions et spatioport, pause et reprise sans changer de contexte',async({browser},info)=>{
+ const {page}=await login(browser,'owner');
+ await navigate(page,`session/${scenario.sessionId}/animate`,'spaceOutlawsEntry');
+ const initial=await page.locator('.org-context-meta').innerText();
+ const first=initial.includes('En pause')?'EN_JEU':'PAUSE',second=first==='PAUSE'?'EN_JEU':'PAUSE';
+ page.once('dialog',d=>d.accept());await clickCommand(page,`[data-action="soStage"][data-stage="${first}"]`,'setStage');
+ await expect(page.locator(`[data-action="soStage"][data-stage="${second}"]`)).toBeVisible();
+ page.once('dialog',d=>d.accept());await clickCommand(page,`[data-action="soStage"][data-stage="${second}"]`,'setStage');
+ await expect(page.locator('.org-context-meta')).toHaveText(initial);
+ await page.locator('.org-sidebar').getByRole('link',{name:'Contrats et arbitrages',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Régie des missions',exact:true})).toBeVisible();
+ await expect(page.locator('.org-context')).toBeVisible();
+ await page.locator('[data-org-tool]').fill('cockpit');
+ await page.locator('.org-sidebar').getByRole('link',{name:'Décollages et cockpits',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Régie du spatioport',exact:true})).toBeVisible();
+ await capture(page,info,'organisateur-spatioport-navigation');
+ await page.locator('.org-context').getByRole('link',{name:'Changer de session',exact:true}).click();
+ await expect(page.locator('.org-shell')).toHaveCount(0);
+});
