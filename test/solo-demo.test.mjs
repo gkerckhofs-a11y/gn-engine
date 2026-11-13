@@ -20,9 +20,9 @@ test('Essai solo : huit classes, groupe commun, casino, kits et droits isolés',
 test('Essai solo : reprise après réponse perdue sans dupliquer session, personnages ni crédits',async()=>{
  const {runSoloDemo}=await import('../web/solo-demo-run.mjs');
  const owner={uid:'owner-resume',email:'resume@example.invalid',emailVerified:true,provider:'google.com',authTime:100},store=new MemoryStore(),w=createWorkflow({store,ownerEmail:owner.email,now:()=>100000});
- const cache=new Map(),storage={getItem:k=>cache.get(k)??null,setItem:(k,v)=>cache.set(k,v),removeItem:k=>cache.delete(k)};let lose=true;
+ let maxCache=0;const cache=new Map(),storage={getItem:k=>cache.get(k)??null,setItem:(k,v)=>{maxCache=Math.max(maxCache,Buffer.byteLength(v));cache.set(k,v);},removeItem:k=>cache.delete(k)};let lose=true;
  const api=async(a,i)=>{const r=await w.dispatch(a,owner,i);if(a==='saveCentralItem'&&lose){lose=false;throw Error('Réponse perdue');}return r;};
  await assert.rejects(runSoloDemo(api,storage,'test'),/Réponse perdue/);
- const result=await runSoloDemo(api,storage,'test');assert.equal((await store.list('sessions')).length,1);assert.equal(cache.size,0);
+ const result=await runSoloDemo(api,storage,'test');assert.equal((await store.list('sessions')).length,1);assert.equal(cache.size,0);assert.ok(maxCache<1000000,`Cache de reprise trop volumineux : ${maxCache}`);
  for(const p of result.profiles){const wallet=await w.dispatch('myWallet',owner,{sessionId:result.sessionId,demoRole:p.id});assert.equal(wallet.account.balance,1000);assert.equal(wallet.account.protectedCredits,200);}
 });

@@ -9,7 +9,8 @@ export async function runSoloDemo(api,storage,key,onProgress=()=>{}){
   if(cached){if(cached.action!==action)throw Error('Le plan de création a changé. Contactez l’organisateur.');if(action==='createSoloDemo')sid=cached.result.id;return cached.result;}
   if(!state.pending){state.pending={action,input:{...input,...(role==='owner'?{}:{demoRole:role,demoSession:sid})},role};save();}
   if(state.pending.action!==action||state.pending.role!==role)throw Error('Étape de création incohérente.');
-  const r=await api(action,state.pending.input,role==='owner');
+  const full=await api(action,state.pending.input,role==='owner');
+  const r=action==='session'?{revision:full.revision}:action==='centralMaster'?{draft:{revision:full.draft.revision}}:action==='mySession'?{character:{id:full.character?.id}}:full;
   state.steps.push({action,result:r});state.pending=null;save();if(action==='createSoloDemo')sid=r.id;return r;
  });
  storage.removeItem(key);return result;
