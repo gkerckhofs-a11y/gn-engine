@@ -11,7 +11,7 @@ export function fullReleaseCI(run,jobs,sha){
   return run.id;
 }
 
-export async function awaitReleaseCI({sha,token,request=fetch,delay=ms=>new Promise(r=>setTimeout(r,ms)),attempts=45,onPending=()=>{}}){
+export async function awaitReleaseCI({sha,token,request=fetch,delay=ms=>new Promise(r=>setTimeout(r,ms)),attempts=90,onPending=()=>{}}){
   if(!/^[a-f0-9]{40}$/.test(sha)||!token)throw new Error('SHA et authentification GitHub requis');
   const read=async path=>{
     const response=await request(`https://api.github.com/repos/${repository}/${path}`,{headers:{authorization:`Bearer ${token}`,accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},signal:AbortSignal.timeout(15000)});
@@ -37,7 +37,7 @@ export async function awaitReleaseCI({sha,token,request=fetch,delay=ms=>new Prom
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
   try{
     if(process.env.GITHUB_REPOSITORY!==repository||process.env.GITHUB_REF!=='refs/heads/main')throw new Error('Publication réservée à main du dépôt autorisé');
-    const id=await awaitReleaseCI({sha:process.env.GITHUB_SHA,token:process.env.GH_TOKEN,onPending:n=>console.log(`Attente de la CI complète du candidat (${n}/45)`)});
+    const id=await awaitReleaseCI({sha:process.env.GITHUB_SHA,token:process.env.GH_TOKEN,onPending:n=>console.log(`Attente de la CI complète du candidat (${n}/90)`)});
     console.log(`CI complète validée : https://github.com/${repository}/actions/runs/${id}`);
   }catch(error){console.error(error.message);process.exitCode=1;}
 }

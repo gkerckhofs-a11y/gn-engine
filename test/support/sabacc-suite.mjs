@@ -67,6 +67,7 @@ export function sabaccGnSuite(makeStore,prefix='Sabacc GN'){
   await send('sabaccStatus',{status:'OPEN'});await send('sabaccJoin',{seat:0},f.player);await send('sabaccJoin',{seat:1},f.other);await send('sabaccReady',{ready:true},f.player);await send('sabaccReady',{ready:true},f.other);
   const held=await f.get(`accounts/${accountId(f.cid)}`);assert.equal(held.balance,990);assert.equal(held.protectedCredits,before.protectedCredits);const escrow=(await f.store.list(`sessions/${f.sid}/accounts`)).find(a=>a.ownerType==='SABACC');assert.equal(escrow.balance,20);
   const events=(await f.store.list(`sessions/${f.sid}/ledger`)).filter(e=>e.kind==='SABACC');assert.equal(events.length,1);assert.equal(events[0].entries.reduce((n,e)=>n+e.delta,0),0);
+  await cmd('setStage',{sessionId:f.sid,revision:(await f.get('')).revision,stage:'PAUSE'});const closing=await read('prepareCampaignClosure',{sessionId:f.sid,reason:'Fin test',participantUids:[f.player.uid,f.other.uid]});assert.equal(closing.canClose,false);assert.ok(closing.blocks.some(b=>b.kind==='SABACC_POT'));
   await f.cmd('revokeAccess',{uid:f.player.uid});await assert.rejects(read('sabaccTable',{tableId:t.id,qrToken:t.qrToken},f.player),{code:'FORBIDDEN'});
   await send('sabaccCancel',{reason:'Annulation après retrait accès'});assert.equal((await f.get(`accounts/${accountId(f.cid)}`)).balance,1000);assert.equal((await f.get(`accounts/${escrow.id}`)).balance,0);
  });

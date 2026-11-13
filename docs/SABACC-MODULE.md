@@ -1,7 +1,7 @@
 # Sabacc autonome — candidat V1
 
 Source : [SABACC_Cahier_des_charges_V1_0](https://docs.google.com/document/d/1qUq2mc-tvRlLCjW939ITGZnck4Gmqc-QiOPHvq3Ckt4/edit), consulté le 13 novembre 2026. Copie de travail : `docs/source/SABACC_V1_0.txt`.
-Base publiée : `abae2811c2aeb27cba1ff47c5e004d3b7c11bbc5`. Développement isolé dans `work/sabacc-module`. Aucun déploiement autorisé pour ce module.
+Base publiée : `abae2811c2aeb27cba1ff47c5e004d3b7c11bbc5`. Développement isolé dans `work/sabacc-module`. Publication autorisée par Guillaume le 13 novembre 2026, dès que les vérifications sont réussies.
 
 ## Utilisation
 
@@ -41,9 +41,9 @@ La cible 10×8 est testée sur des identités et tables de recette avec commande
 
 ## Validation reproductible
 
-- `node --test test/sabacc-engine.test.mjs test/sabacc.test.mjs` : 14 tests réussis lors du développement (deck, classement, huit joueurs, doubles, tours, fonds, concurrence, confidentialité, pause, reconnexion, nouvelle main, multi-table, portefeuille GN).
+- `node --test test/sabacc-engine.test.mjs test/sabacc.test.mjs` : 15 tests réussis lors du développement (deck, classement, huit joueurs, doubles, tours, fonds, concurrence, confidentialité, pause, reconnexion, nouvelle main, multi-table, portefeuille GN).
 - `GN_FIRESTORE_SUITES='["sabacc","sabacc-gn"]' npx --no-install firebase emulators:exec --project demo-gn-engine --only firestore,auth,storage 'node --test test/integration/firestore.test.mjs'` : 8 tests réussis, dont 10 tables × 8 identités. 265 commandes mesurées, p95 231 ms ; seuil déclaré dans le test 1500 ms. Données fictives, émulateur local ; ce seuil ne qualifie pas la production.
 - `npm run build` : réussi.
 - `npm run test:recette:browser -- --grep Sabacc` : parcours Chromium à exécuter avec les émulateurs ; aucun accès production. Test ajouté : activation/régie, QR, deux identités, cartes privées, action, règles sans perte de sélection, écran 390 px, pause et remboursement. Les résultats CI exacts sont consignés dans la PR.
 
-La CI complète est requise car l’intégration touche le dispatcher et les protections des campagnes. La branche doit rester séparée de main jusqu’à validation et autorisation distincte de publication.
+La CI complète est requise car l’intégration touche le dispatcher et les protections des campagnes. La publication autorisée reste conditionnée à la réussite des vérifications du candidat exact.
