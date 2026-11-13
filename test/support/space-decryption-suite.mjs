@@ -24,6 +24,13 @@ export async function decryptionFixture(makeStore,{helper=false}={}){
  const cancel=id=>f.actionCmd('cancelSoDecryption',{actionId:id});
  return {...f,c,plaintext,start,finish,cancel,kpath,rpath};
 }
+async function bonusFixture(makeStore,{helper=false}={}){
+ const f=await decryptionFixture(makeStore,{helper});
+ const lot=(await f.store.list('sessions/'+f.sid+'/inventory')).find(l=>l.ownerId===f.c&&!l.item.consumable);
+ assert.ok(lot);const lotPath='sessions/'+f.sid+'/inventory/'+lot.id;
+ await f.store.runTransaction(async tx=>{const k=await tx.get(f.kpath);tx.set(f.kpath,{...k,cipher:{...k.cipher,bonusItemIds:[lot.item.id]}});});
+ return {...f,lot,lotPath,startBonus:()=>f.actionCmd('startSoDecryption',{knowledgeId:'ordinary',bonusLotId:lot.id})};
+}
 export function soDecryptionSuite(makeStore,prefix='INF-02'){
  test(prefix+' : document acquis, D6 + niveau, temps de jeu, un PA et révélation après succès',async()=>{
   const f=await decryptionFixture(makeStore);
@@ -241,6 +248,38 @@ export function soDecryptionSuite(makeStore,prefix='INF-02'){
   });
   await assert.rejects(f.actionCmd('startSoDecryption',{knowledgeId:'ordinary',aidOfferId:offer.id}),{code:'FIELD_SKILL_REQUIRED'});
   assert.equal((await f.points()).reserved,0);
+ });
+
+ test(prefix+' : décrypteur compatible +1 réservé puis libéré sans consommation, avec aide +1',async()=>{
+  const f=await bonusFixture(makeStore,{helper:true});
+  assert.equal((await f.actionRead('mySoDecryption')).documents[0].bonusLots[0].id,f.lot.id);
+  const offer=await f.actionCmd('offerAid',{targetId:f.c,skillId:'INF-02',present:true},f.other);
+  const a=await f.actionCmd('startSoDecryption',{knowledgeId:'ordinary',bonusLotId:f.lot.id,aidOfferId:offer.id});
+  assert.equal(a.bonus,1);assert.equal((await f.store.get(f.lotPath)).status,'FIELD_RESERVED');
+  f.advance(165000);f.setDie(2);const r=await f.finish(a.id);assert.equal(r.status,'SUCCESS');assert.equal(r.total,6);
+  const lot=await f.store.get(f.lotPath);assert.equal(lot.status,'AVAILABLE');assert.equal(lot.quantity,f.lot.quantity);assert.equal(lot.fieldActionId,null);
+  assert.equal((await f.store.list(f.lotPath+'/history')).filter(h=>h.actionId===a.id).length,1);
+ });
+ test(prefix+' : matériel non compatible, étranger ou consommable refusé sans réserver de PA',async()=>{
+  const f=await bonusFixture(makeStore,{helper:true}),other=(await f.actionRead('mySession',{},f.other)).character.id;
+  for(const patch of [{item:{...f.lot.item,id:'incompatible'}},{ownerId:other},{item:{...f.lot.item,consumable:true}},{status:'FIELD_RESERVED',fieldActionId:'other'}]){
+   await f.store.runTransaction(async tx=>tx.set(f.lotPath,{...f.lot,...patch}));
+   await assert.rejects(f.startBonus(),{code:'FIELD_EQUIPMENT_UNAVAILABLE'});assert.equal((await f.points()).reserved,0);
+  }
+ });
+ test(prefix+' : annulation MJ et échec restituent le décrypteur une seule fois',async()=>{
+  const f=await bonusFixture(makeStore),a=await f.startBonus();
+  const input={actionId:a.id,reason:'Interruption équipement',requestId:randomUUID()};
+  await f.actionCmd('cancelSoDecryptionMJ',input,f.owner);const released=await f.store.get(f.lotPath);
+  await f.actionCmd('cancelSoDecryptionMJ',input,f.owner);assert.deepEqual(await f.store.get(f.lotPath),released);
+  const b=await f.startBonus();f.advance(165000);f.setDie(1);assert.equal((await f.finish(b.id)).status,'FAILED');
+  assert.equal((await f.store.get(f.lotPath)).quantity,f.lot.quantity);assert.equal((await f.store.get(f.lotPath)).status,'AVAILABLE');
+ });
+ test(prefix+' : révision de matériel en cours de tentative empêche le bonus et la révélation',async()=>{
+  const f=await bonusFixture(makeStore),a=await f.startBonus();
+  await f.store.runTransaction(async tx=>{const l=await tx.get(f.lotPath);tx.set(f.lotPath,{...l,revision:l.revision+1});});
+  f.advance(165000);f.setDie(6);await assert.rejects(f.finish(a.id),{code:'FIELD_EQUIPMENT_UNAVAILABLE'});
+  assert.equal((await f.points()).reserved,1);assert.equal((await f.store.get(f.rpath)).decodedRevision,undefined);
  });
 
 }

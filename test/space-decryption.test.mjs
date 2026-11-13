@@ -1,3 +1,4 @@
+import {soReleaseDefinitionChecks} from '../src/core/space-outlaws-release-check.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {soDecryptionSuite} from './support/space-decryption-suite.mjs';
@@ -24,4 +25,13 @@ test('M6 INF-02 : seules les informations complètes et documents de type DOCUME
  }
  assert.throws(()=>centralKnowledgeInput({...document,kind:'KNOWLEDGE',cipher},'invalid'));
  assert.throws(()=>centralKnowledgeInput({...document,body:'CONFIDENTIEL',cipher},'invalid'));
+});
+
+test('M6 INF-02 : compatibilités bornées, doublons refusés, publication sans référence impossible',()=>{
+ const cipher={minLevel:1,threshold:6,plaintext:'Secret',bonusItemIds:['decoder']};
+ assert.deepEqual(centralKnowledgeInput({...document,cipher},'doc').cipher.bonusItemIds,['decoder']);
+ for(const ids of [['decoder','decoder'],Array.from({length:21},(_,i)=>'item'+i),['bad/id']])assert.throws(()=>centralKnowledgeInput({...document,cipher:{...cipher,bonusItemIds:ids}},'doc'));
+ const k={id:'knowledge_doc',entityId:'doc',type:'knowledge',operation:'UPSERT',data:{cipher}},i={id:'item_decoder',entityId:'decoder',type:'item',operation:'UPSERT',data:{consumable:false}};
+ assert.equal(soReleaseDefinitionChecks([k,i]).definitions.length,0);
+ for(const items of [[],[{...i,data:{consumable:true}}]])assert.ok(soReleaseDefinitionChecks([k,...items]).definitions.some(b=>b.code==='SO_INF02_BONUS_ITEM'));
 });

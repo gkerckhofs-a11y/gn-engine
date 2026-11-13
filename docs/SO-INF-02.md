@@ -24,7 +24,7 @@ Ne jamais mettre le texte clair dans `body` : ce champ apparaît au détenteur d
 
 1. Obtenir un objet physique par vol/inventaire ne crée pas encore automatiquement un reçu M6. Le MJ doit fournir le document en jeu par un parcours existant ; une intégration inventaire ↔ documents reste à planifier.
 2. Les défis cryptogrammes/mini-jeux alternatifs aux jets D6 et leur propre validation ne sont pas encore intégrés.
-3. Le bonus matériel INF-02 reste à raccorder aux compatibilités préparées. L’aide compétente est raccordée par le complément du 13 novembre décrit ci-dessous.
+3. Le décrypteur portable (+1) et l’aide compétente (+1) sont raccordés par les compléments du 13 novembre décrits ci-dessous. Les autres éventuels équipements nécessitent leur règle propre.
 4. Une révision de document ne doit pas être appliquée rétroactivement à une session en cours : préserver le Master figé et le reçu historique.
 5. Aucune recette d'ergonomie Android/iOS réelle, de charge ou de session humaine effectuée par le seul code.
 
@@ -47,3 +47,11 @@ Depuis Action → Proposer mon aide, un personnage compétent propose INF-02 au 
 L’aidant peut interrompre depuis ses offres d’aide actives ; l’initiateur et le MJ conservent leurs annulations. Toute interruption avant résolution libère les réservations et ne consomme pas la tentative. Aider n’accorde ni possession du document ni accès au texte déchiffré. Le matériel bonus et les cryptogrammes alternatifs restent hors de ce complément.
 
 Recette : deux personnages INF-02, offre d’aide, lancement avec l’offre, indisponibilité de l’aidant, résultat, contrôle de son PA inchangé et de ses dix minutes de récupération ; recommencer avec interruption et avec révocation de l’aidant.
+
+## Décrypteur portable — 13 novembre 2026
+
+Dans la fiche de document M6, renseigner les identifiants des équipements M1 compatibles dans « Décrypteurs compatibles (+1) ». Le contrôle du Master vérifie les références ; la publication refuse un consommable ou un module de vaisseau. Le champ reste facultatif : aucun objet initial ne reçoit automatiquement de bonus.
+
+Le joueur choisit un décrypteur présent dans son sac avant de lancer INF-02. Le lot est réservé pendant la durée puis libéré sur succès, échec ou annulation, sans perte de quantité. Son bonus +1 peut s’ajouter à l’aide +1. Les transferts et usages concurrents restent soumis au verrou natif d’inventaire. Un changement incohérent de lot bloque la résolution plutôt que d’écraser les données.
+
+Recette : publier un document compatible, fournir le décrypteur au personnage, sélectionner le lot, vérifier sa réservation, terminer puis vérifier le +1 et la quantité conservée. Refaire avec annulation et matériel incompatible. Le formulaire M6 prend en charge la préparation ; aucun Master déjà publié n’est modifié automatiquement.

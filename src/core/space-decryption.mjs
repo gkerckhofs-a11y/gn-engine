@@ -1,3 +1,4 @@
+import {readLot,personalLot,lotState} from './inventory-state.mjs';
 import {prepareAid,reserveAid,checkAid,finishAid,aidSnapshot,cooldownPath} from './aid-state.mjs';
 import {requireGameAction} from './health-state.mjs';
 import {createHash,randomInt} from 'node:crypto';
@@ -17,7 +18,7 @@ const actorPath=(sid,cid)=>base(sid)+'/inf02Actors/'+cid;
 const actionPath=(sid,id)=>base(sid)+'/inf02Actions/'+id;
 const attemptPath=(sid,cid,kid,revision)=>base(sid)+'/inf02Attempts/'+hash(cid+':'+kid+':'+revision);
 const summarize=a=>({id:a.id,status:a.status,knowledgeId:a.knowledgeId,readyAtGameMs:a.readyAtGameMs,
- durationSeconds:a.durationSeconds,roll:a.roll??null,total:a.total??null,threshold:a.threshold??null,success:a.success??null,aid:a.aid?1:0});
+ durationSeconds:a.durationSeconds,roll:a.roll??null,total:a.total??null,threshold:a.threshold??null,success:a.success??null,bonus:a.bonus??0,aid:a.aid?1:0});
 export const soDecryptionActions=['soDecryptionAdmin','cancelSoDecryptionMJ','cancelSoDecryptionAid','mySoDecryption','startSoDecryption','finishSoDecryption','cancelSoDecryption'];
 export function createSoDecryptionService({store,signed,checkSession,now,uuid,rollD6=()=>randomInt(1,7)}){
  async function access(tx,actor,sid){
@@ -43,14 +44,27 @@ export function createSoDecryptionService({store,signed,checkSession,now,uuid,ro
   requireThat(k?.publicationState==='PUBLISHED'&&k.kind==='DOCUMENT'&&k.cipher?.plaintext&&r?.active,'SO_INF02_DOCUMENT');
   return {k,r};
  }
+ async function reservedBonus(tx,s,c,a,at){
+  if(!a.bonusLotId)return null;
+  const l=await readLot(tx,s.id,a.bonusLotId,at);
+  requireThat(l&&personalLot(l,c.id)&&l.status==='FIELD_RESERVED'&&l.fieldActionId===a.id&&l.quantity>0&&l.revision===a.bonusLotRevision&&l.item.id===a.bonusItemId&&!l.item.consumable,'FIELD_EQUIPMENT_UNAVAILABLE');
+  return l;
+ }
+ function releaseBonus(tx,s,a,l,at,cancelled){
+  if(!l)return;
+  const next={...l,status:'AVAILABLE',fieldActionId:null,revision:l.revision+1},path=base(s.id)+'/inventory/'+l.id;
+  tx.set(path,next);tx.set(path+'/history/'+a.id,{id:a.id,at,kind:cancelled?'FIELD_RELEASE':'FIELD_USE',actorUid:a.actorUid??null,actionId:a.id,before:lotState(l),after:lotState(next)});
+ }
  async function cancel(tx,s,c,state,a,at,moderation=null){
   const time=gameTime(s.clock,at),id=a.id,sid=s.id;
   requireThat(c?.activeFieldActionId===id&&state?.activeId===id,'SO_INF02_STALE');
   const mark=await tx.get(attemptPath(sid,c.id,a.knowledgeId,a.knowledgeRevision));
   requireThat(mark?.status==='RUNNING'&&mark.id===id,'SO_INF02_STALE');
   const pointsPath=actionPointPath(sid,c.id),points=actionPointState(s,c,await tx.get(pointsPath),at);
+  const bonusLot=await reservedBonus(tx,s,c,a,at);
   const ended={...a,status:'CANCELLED',finishedAtGameMs:time};
   await finishAid(tx,s,a,at,{cancel:true});
+  releaseBonus(tx,s,a,bonusLot,at,true);
   tx.set(actionPath(sid,id),ended);
   tx.set(attemptPath(sid,c.id,a.knowledgeId,a.knowledgeRevision),{id,status:'CANCELLED'});
   tx.set(actorPath(sid,c.id),{...state,activeId:null});
@@ -94,12 +108,14 @@ export function createSoDecryptionService({store,signed,checkSession,now,uuid,ro
    if(action==='mySoDecryption'){
     const receipts=await tx.list(charPath(sid,c.id)+'/knowledge',null,{limit:1001});
     requireThat(receipts.length<=1000,'SO_RELEASE_LIMIT');
+    const lots=(await tx.list(base(sid)+'/inventory',['holderId',c.id])).filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.quantity>0&&!l.item.consumable&&!l.item.shipModule);
     const documents=[];
     for(const receipt of receipts.filter(r=>r.active)){
      const k=await tx.get(base(sid)+'/knowledge/'+receipt.id);
      if(k?.publicationState!=='PUBLISHED'||k.kind!=='DOCUMENT'||!k.cipher?.plaintext)continue;
      const tried=await tx.get(attemptPath(sid,c.id,k.id,k.revision));
      documents.push({id:k.id,title:receipt.snapshot.title,revision:k.revision,requiredLevel:k.cipher.minLevel,
+      bonusLots:lots.filter(l=>(k.cipher.bonusItemIds??[]).includes(l.item.id)).map(l=>({id:l.id,name:l.item.name,bonus:1})),
       attempted:['SUCCESS','FAILED'].includes(tried?.status),decoded:receipt.decodedRevision===k.revision});
     }
     const offers=await tx.list(base(sid)+'/aidOffers',['recipientId',c.id]);
@@ -134,6 +150,8 @@ export function createSoDecryptionService({store,signed,checkSession,now,uuid,ro
     requireThat(r.decodedRevision!==k.revision,'SO_INF02_ALREADY');
     const attempt=await tx.get(attemptPath(sid,c.id,k.id,k.revision));
     requireThat(!['RUNNING','FAILED','SUCCESS'].includes(attempt?.status),'SO_INF02_ALREADY');
+    let bonusLot=null;
+    if(input.bonusLotId){bonusLot=await readLot(tx,sid,documentId(input.bonusLotId),at);requireThat(bonusLot&&personalLot(bonusLot,c.id)&&bonusLot.status==='AVAILABLE'&&bonusLot.quantity>0&&!bonusLot.item.consumable&&!bonusLot.item.shipModule&&(k.cipher.bonusItemIds??[]).includes(bonusLot.item.id),'FIELD_EQUIPMENT_UNAVAILABLE');}
     const profile={test:'D6',skillId:'INF-02',minLevel:k.cipher.minLevel};
     const aid=await prepareAid(tx,s,c,input,profile,family,at);
     if(aid){
@@ -144,8 +162,9 @@ export function createSoDecryptionService({store,signed,checkSession,now,uuid,ro
     const pointsPath=actionPointPath(sid,c.id),points=actionPointState(s,c,await tx.get(pointsPath),at);
     const id=uuid(),durationSeconds=durations[level],a={id,characterId:c.id,knowledgeId:k.id,knowledgeRevision:k.revision,
       status:'RUNNING',level,durationSeconds,readyAtGameMs:time+durationSeconds*1000,startedAtGameMs:time,
-      accessVersion:registration.accessVersion,profile,aid:aidSnapshot(aid),family,cooldownSeconds:600};
+      accessVersion:registration.accessVersion,actorUid:actor.uid,bonus:bonusLot?1:0,bonusLotId:bonusLot?.id??null,bonusItemId:bonusLot?.item.id??null,bonusLotRevision:bonusLot?bonusLot.revision+1:null,profile,aid:aidSnapshot(aid),family,cooldownSeconds:600};
     reserveAid(tx,s,a,aid,'inf02Actions');
+    if(bonusLot)tx.set(base(sid)+'/inventory/'+bonusLot.id,{...bonusLot,status:'FIELD_RESERVED',fieldActionId:id,revision:bonusLot.revision+1});
     tx.set(pointsPath,reserveActionPoints(points,1));
     tx.set(charPath(sid,c.id),{...c,activeFieldActionId:id});
     tx.set(actorPath(sid,c.id),{...state,activeId:id});
@@ -169,12 +188,15 @@ export function createSoDecryptionService({store,signed,checkSession,now,uuid,ro
    requireThat(k.revision===a.knowledgeRevision,'SO_INF02_STALE');
    requireThat(level>=a.level&&level>=k.cipher.minLevel,'SO_INF02_SKILL');
    requireThat(Number.isInteger(roll)&&roll>=1&&roll<=6,'INVALID_DIE');
+   const bonusLot=await reservedBonus(tx,s,c,a,at);
+   if(bonusLot)requireThat((k.cipher.bonusItemIds??[]).includes(bonusLot.item.id),'FIELD_EQUIPMENT_UNAVAILABLE');
    await checkAid(tx,s,a,at);
    if(a.aid&&s.spaceOutlaws.escapeVersion===1){const cap=await tx.get(base(sid)+'/soCaptivities/'+a.aid.characterId);requireThat(cap?.status!=='ACTIVE','SO_ESCAPE_CAPTIVE');}
-   const total=roll+a.level+(a.aid?1:0),success=total>=k.cipher.threshold;
+   const total=roll+a.level+(a.bonus??0)+(a.aid?1:0),success=total>=k.cipher.threshold;
    const ended={...a,status:success?'SUCCESS':'FAILED',finishedAtGameMs:time,roll,total,
     threshold:k.cipher.threshold,success};
    await finishAid(tx,s,a,at);
+   releaseBonus(tx,s,a,bonusLot,at,false);
    tx.set(cooldownPath(sid,c.id,family),{readyAtGameMs:time+cooldownMs,actionId:id});
    tx.set(actionPath(sid,id),ended);
    tx.set(attemptPath(sid,c.id,k.id,k.revision),{id,status:ended.status});

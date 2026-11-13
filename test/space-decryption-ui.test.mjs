@@ -25,3 +25,8 @@ test('INF-02 : sélection d’une aide existante avant le lancement, identité �
  assert.match(html,/name="aidOfferId"/);assert.match(html,/value="offer"/);assert.match(html,/&lt;img&gt;/);
  assert.match(html,/sans dépenser de PA/);
 });
+
+test('INF-02 : choix du décrypteur compatible avant lancement, nom échappé',()=>{
+ const html=soDecryptionHtml({enabled:true,level:2,cooldownMs:0,documents:[{id:'doc',title:'Message',requiredLevel:1,bonusLots:[{id:'lot',name:'<b>Décrypteur</b>'}]}]},'sid');
+ assert.match(html,/name="bonusLotId"/);assert.match(html,/value="lot"/);assert.match(html,/&lt;b&gt;Décrypteur/);
+});

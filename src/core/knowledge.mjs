@@ -29,7 +29,9 @@ export function knowledgeInput(input,id,old={}) {
     &&Number.isSafeInteger(sourceCipher.threshold)&&sourceCipher.threshold>=2&&sourceCipher.threshold<=12,'INVALID_KNOWLEDGE');
    const plaintext=text(sourceCipher.plaintext,20000,true);
    requireThat(input.body!==plaintext,'INVALID_KNOWLEDGE');
-   return {minLevel:sourceCipher.minLevel,threshold:sourceCipher.threshold,plaintext};
+   const bonusItemIds=sourceCipher.bonusItemIds===undefined?undefined:ids(sourceCipher.bonusItemIds);
+   requireThat(!bonusItemIds||bonusItemIds.length<=20,'INVALID_KNOWLEDGE');
+   return {minLevel:sourceCipher.minLevel,threshold:sourceCipher.threshold,plaintext,...(bonusItemIds!==undefined?{bonusItemIds}:{})};
   })();
   return {id,...(cipher?{cipher}:{}),qrSkillId:skillId,qrSkillLevel:skillLevel,title:text(input.title,150,true),body:text(input.body,20000,true),origin:text(input.origin??'',300),
     kind:input.kind,publicationState:input.publicationState,shareMode:input.shareMode,

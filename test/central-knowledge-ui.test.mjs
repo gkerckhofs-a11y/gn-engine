@@ -27,3 +27,10 @@ test('M6 central UI : archive et restauration explicites sans suppression des r�
 test('M4 central UI : sélection M6 limitée au titre, à la provenance et à l’état',()=>{
  const data={...d,workshop:'M4',changes:[],references:{itemsReadable:false,items:[],knowledgeReadable:true,knowledge:[{id:'document',title:'<b>Document</b>',kind:'DOCUMENT',source:'WEB',revision:3,archived:true}]}},h=ui.recipeForm(data,'formula');assert.match(h,/list="central-recipe-knowledge"/);assert.match(h,/&lt;b&gt;Document/);assert.match(h,/archivée · r3 · WEB/);assert.doesNotMatch(h,/Vérité privée|Note privée|initialCharacterIds/);assert.match(h,/ne débloque aucune fabrication/);const denied=ui.recipeForm({...data,references:{...data.references,knowledgeReadable:false,knowledge:[]}},'formula');assert.match(denied,/Lecture M6 non accordée/);assert.doesNotMatch(denied,/option value="document"/);
 });
+
+test('M6 INF-02 : compatibilité matérielle explicite conservée dans le formulaire',()=>{
+ const h=ui.knowledgeForm(d,'document',{...c,data:{...c.data,cipher:{minLevel:1,threshold:6,plaintext:'Secret',bonusItemIds:['decoder']}}});
+ assert.match(h,/name="cipherBonusItems" value="decoder"/);
+ const p=centralKnowledgePayload({...c.data,qrSkillLevel:'',qrSkillId:'',cipherEnabled:'on',cipherMinLevel:'1',cipherThreshold:'6',cipherPlaintext:'Secret',cipherBonusItems:'decoder, second'});
+ assert.deepEqual(p.cipher.bonusItemIds,['decoder','second']);
+});
