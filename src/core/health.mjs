@@ -1,4 +1,5 @@
 import {acceptsPatientNature} from '../shared/character-nature.mjs';
+import {abilityLevel} from './abilities.mjs';
 import {retireCharacterMemberships} from './group-roster.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {hasSoHealth,survival,vitalTime,securedPatient} from './space-outlaws-health-state.mjs';
@@ -24,8 +25,8 @@ const available=(skill,use,time)=>({used:use?.used??0,remaining:skill.healing.us
   waitMs:use?.readyAtGameMs!=null?Math.max(0,use.readyAtGameMs-time):scope(skill)!=='ACTOR'||use?.lastUsedGameMs==null?0:Math.max(0,skill.healing.cooldownSeconds*1000-(time-use.lastUsedGameMs))});
 const patientPath=(sid,cid)=>`${charPath(sid,cid)}/cooldowns/field-care`;
 const projectEvent=e=>({id:e.id,kind:e.kind,at:e.at,sourceName:e.sourceName??'',targetName:e.targetName??'',skillName:e.skillName??'',before:e.before,after:e.after,restored:e.restored??null,consumable:e.consumable?{name:e.consumable.name,quantity:e.consumable.quantity,unit:e.consumable.unit}:null});
-const writes=new Set(['saveScenarioHealth','saveSessionHealth','correctHealth','applyDamage','applyTreatment','stopSafety','stopSafetyMJ','resumeSafety','confirmSurvivalDeath']);
-export const healthAction=a=>writes.has(a)||['myHealth','previewHealth','healthHistory','prepareDamage','prepareTreatment','survivalAdmin'].includes(a);
+const writes=new Set(['recordStealthAttempt','saveScenarioHealth','saveSessionHealth','correctHealth','applyDamage','applyTreatment','stopSafety','stopSafetyMJ','resumeSafety','confirmSurvivalDeath']);
+export const healthAction=a=>writes.has(a)||['myStealthAttempts','myHealth','previewHealth','healthHistory','prepareDamage','prepareTreatment','survivalAdmin'].includes(a);
 
 export function createHealthService({store,signed,checkSession,checkScenario,now,uuid}){
   const player=async(tx,actor,input,preview=false)=>{
@@ -166,6 +167,34 @@ export function createHealthService({store,signed,checkSession,checkScenario,now
     });
     return store.runTransaction(async tx=>{
       const preview=action==='previewHealth',ctx=await player(tx,actor,input,preview),{s,c,r}=ctx;
+      if(['myStealthAttempts','recordStealthAttempt'].includes(action)){
+        requireThat(hasSoHealth(s)&&c.spaceOutlawsSkills?.classId==='ROG'&&abilityLevel(c,'ROG-01')>0,'FIELD_SKILL_REQUIRED');
+        const path=`${charPath(s.id,c.id)}/fieldCooldowns/${hash('SKILL:ROG-01')}`,use=await tx.get(path),time=gameTime(s.clock,at);
+        if(action==='myStealthAttempts'){
+          const events=await tx.list(`${charPath(s.id,c.id)}/healthHistory`,null,{orderBy:'at',direction:'desc',limit:30});
+          return {session:{id:s.id,stage:s.stage},revision:use?.revision??0,waitMs:Math.max(0,(use?.readyAtGameMs??0)-time),
+            stopped:!!s.safetyStop?.active,gameTimeMs:time,events:events.filter(e=>e.kind==='STEALTH_ATTEMPT').map(e=>({id:e.id,at:e.at,outcome:e.outcome,announcedAtGameMs:e.announcedAtGameMs,wasRecovering:e.wasRecovering}))};
+        }
+        const requestId=documentId(input.requestId),op=`operations/${hash(`${actor.uid}:${requestId}`)}`,fingerprint=hash(JSON.stringify([action,input])),prior=await tx.get(op);
+        if(prior){requireThat(prior.fingerprint===fingerprint,'REQUEST_ID_REUSED');requireThat(prior.characterId===c.id&&prior.accessVersion===r.accessVersion,'FORBIDDEN');return prior.result;}
+        requireThat(['EN_JEU','PAUSE'].includes(s.stage)&&!s.safetyStop?.active,'SESSION_NOT_RUNNING');
+        requireThat(input.revision===(use?.revision??0),'STALE_REVISION');
+        requireThat(input.safe===true&&input.announced===true&&['SUCCEEDED','FAILED'].includes(input.outcome),'SO_STEALTH_CONFIRM');
+        const elapsed=whole(input.secondsSinceAttempt,'SO_STEALTH_TIME');requireThat(elapsed<=86400&&elapsed*1000<=time,'SO_STEALTH_TIME');
+        const announcedAtGameMs=time-elapsed*1000;
+        requireThat(use?.announcedAtGameMs===undefined||announcedAtGameMs>use.announcedAtGameMs,'SO_STEALTH_TIME');
+        const readyAtGameMs=Math.max(use?.readyAtGameMs??0,announcedAtGameMs+600000),wasRecovering=announcedAtGameMs<(use?.readyAtGameMs??0);
+        const next={revision:(use?.revision??0)+1,readyAtGameMs,announcedAtGameMs,outcome:input.outcome,actionId:newId};
+        // This is a report after a physical scene, including a mistaken attempt
+        // during recovery. It never changes a target or grants an attack.
+        authorizeSpaceOutlaws(tx,s,'FIELD');authorizeSpaceOutlaws(tx,s,'HEALTH');
+        tx.set(path,next);
+        const event={id:newId,at,kind:'STEALTH_ATTEMPT',action,actorUid:actor.uid,characterId:c.id,sourceName:c.public.displayName,
+          before:healthState(c),after:healthState(c),outcome:input.outcome,announcedAtGameMs,wasRecovering};
+        tx.set(`${charPath(s.id,c.id)}/healthHistory/${newId}`,event);tx.set(`sessions/${s.id}/audit/${newId}`,event);
+        const result={id:newId,revision:next.revision,waitMs:Math.max(0,readyAtGameMs-time),wasRecovering};
+        tx.set(op,{fingerprint,result,at,characterId:c.id,accessVersion:r.accessVersion});return result;
+      }
       if(action==='myHealth'||preview){
         const skills=c.abilityProfile?.published?c.abilityProfile.skills.filter(k=>['ACTIVE_SELF','ACTIVE_TARGET'].includes(k.kind)&&k.healing?.effect==='HEAL_HP'):[];
         const stock=skills.some(k=>k.healing.consumable)?(await tx.list(`sessions/${s.id}/inventory`,['holderId',c.id])).map(l=>effectiveLot(l,at)).filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.item.consumable):[];

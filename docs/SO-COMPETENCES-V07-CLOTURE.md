@@ -65,7 +65,7 @@ Dans « Commit / PR », **B** = base main `49ec5ea12100f9efb62ea23773b216d465d06
 | COM-01 Vétéran | Combattant | ch. 7, 3, 6 | naissance, santé, succession | Personnage | À vérifier | entry/health/succession existants | B | Non vérifié | À faire | 4 PV naissance/santé/relève vérifiés localement (L) ; CI du candidat et recette terrain restantes |
 | COM-02 Désarmement | Combattant | ch. 7, 5 | règles joueur | Physique | À vérifier | présentation à contrôler | B | Non vérifié | À faire | Consignes ch. 5 complétées et testées (L) ; CI du candidat et recette terrain restantes |
 | COM-03 Lecture tactique | Combattant | ch. 7, 4 | field-actions ANALYZE | Action | À vérifier | space-outlaws-actions | B/C | Non vérifié | À faire | Cinq niveaux et refus de baisse de niveau testés sur Firestore (L) ; CI du candidat et recette terrain restantes |
-| ROG-01 Neutralisation furtive | Rogue | ch. 8, 5 | santé et procédure physique | Physique/Action | Partiel | santé existante | B | Non vérifié | À faire | Suivi spécifique des tentatives/récupération à raccorder |
+| ROG-01 Neutralisation furtive | Rogue | ch. 8, 5 | santé, récupération et audit natifs | Physique/Action | À vérifier | space-stealth + santé ; 5 cas Firestore | L + M | Non | À faire | Suivi après scène raccordé ; CI exacte et recette physique restantes |
 | ROG-02 Vol à la tire | Rogue | ch. 8, A12 | space-pickpocket | Action | À vérifier | space-pickpocket | B | Non vérifié | À faire | Recette identité, quotas et notification différée |
 | ROG-03 Évasion | Rogue | ch. 8, 6 | space-escape | Action | À vérifier | space-escape | B | Non vérifié | À faire | Recette surveillance et verrous concurrents |
 | TRA-01 Lecture des traces | Traqueur | ch. 9, 4 | field-actions ANALYZE | Action | À vérifier | space-outlaws-actions | B/C | Non vérifié | À faire | Recette garantie/supplément et version |
@@ -265,3 +265,16 @@ Preuves locales sur ce lot :
 CI précédente vérifiée : PR #24, commit `da38760748b786a7529e61babc620b630de21a3c`, [exécution 43478788053](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/43478788053), réussie. PR #25, commit `e7a2af8db6c876665bc3e78d12785c6f85921056`, [exécution 43479691734](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/43479691734), également réussie. Cela ne valide pas automatiquement L ni la PR #26 encore en cours au relevé.
 
 Restent distincts : raccord des faux documents à TRA-03, suivi des tentatives ROG-01, capacités numériques supplémentaires et recette terrain. Aucune fermeture artificielle de ces lignes.
+
+
+## M — Neutralisation furtive : déclaration après la scène (13 novembre 2026)
+
+Branche `work/skills-v07-stealth-tracking`, base L / PR #27, `ee20d9a08241457efc75f4cc33e52d42419661cc`. Règles V0.7 ch. 5 et 8 : ROG-01 fixe, 0 PA, aucun dé, dix minutes de récupération dès chaque tentative annoncée, réussie ou échouée. Aucun téléphone requis pendant la confrontation.
+
+Le menu Action ouvre directement le suivi personnel, sans QR ni cible. Le Rogue déclare une tentative passée, son résultat et les secondes de jeu écoulées depuis l’annonce, hors pauses. La récupération utilise le temps de jeu natif ; les réservations de PA et les PV restent intacts. Une déclaration après blessure ou pendant une pause ordinaire reste possible. Le STOP bloque l’écriture. Une tentative déclarée pendant une récupération est signalée dans l’historique et au MJ ; elle n’accorde aucune attaque et ne raccourcit jamais le délai. Une annonce plus ancienne que la dernière enregistrée est refusée.
+
+Réemploi du service santé, des `fieldCooldowns`, de l’historique de santé et de l’audit. La cible déclare ses propres dégâts par le parcours existant ; aucune commande ne modifie à distance les PV d’un autre joueur. Les droits courants, la classe principale Rogue et la possession de ROG-01 sont vérifiés avant lecture ou écriture. Révision et reçu de requête protègent les doubles clics, requêtes concurrentes et réessais ; aucun schéma publié ni donnée de session existante n’est réécrit.
+
+Validation locale : 43 tests ciblés santé/menu/interface/suivi réussis ; cinq cas Firestore réussis (succès et échec, pause, concurrence/réessai/révocation, déclaration à 0 PV, refus, STOP et interruption atomique). Compilation réussie, contrôle des espaces sans erreur. La CI du nouveau commit doit être relevée dans sa PR ; aucune intégration main, publication Firebase ou recette terrain n’est revendiquée.
+
+Limite physique explicite : la surprise, la distance, l’annonce et la sécurité se jouent et s’arbitrent sur le terrain. Le serveur enregistre une déclaration, pas une preuve automatique de réussite. Les derniers événements sont consultables par le joueur, le journal complet reste disponible à l’organisation.

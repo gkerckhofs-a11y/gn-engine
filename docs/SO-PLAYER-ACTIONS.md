@@ -62,3 +62,8 @@ Le MJ utilise « Nouvelle rencontre » uniquement pour une situation réellement
 Les analyses de terrain revérifient le niveau engagé avant de remettre les informations. Si la fiche a changé, l’action peut être interrompue par son parcours natif pour libérer les ressources. Une analyse automatique ne tire pas de dé ; une résolution déjà enregistrée ne relance pas le test.
 
 La fiche Compétences contient les conditions canoniques des 34 capacités. Désarmement, Neutralisation furtive, Riposte, Garde du corps et Maîtrise du sabre restent des techniques physiques : lire avant la scène, jouer sans téléphone, déclarer ensuite les pertes de santé à l’abri. Afficher la règle d’une capacité ne signifie pas que tous ses parcours numériques sont déjà raccordés : voir la matrice unique de clôture.
+
+
+### ROG-01 — après la scène
+
+La carte « Neutralisation furtive · après la scène » ouvre un formulaire personnel. À l’abri, déclarer toute tentative annoncée, réussie ou échouée, et le temps de jeu écoulé depuis l’annonce, hors pauses. Le délai restant se consulte ici. Une déclaration pendant la récupération est signalée au MJ ; ce formulaire n’autorise jamais une nouvelle attaque et n’applique aucun dégât à une cible. La victime utilise sa déclaration de santé habituelle. La lecture des règles avant la scène et la sécurité physique restent prioritaires.
