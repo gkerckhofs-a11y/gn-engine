@@ -26,7 +26,9 @@ test('SO sac : équipement initial, restriction et fret confié refusés dès l�
  }
 });
 test('SO sac : STOP, décès ou restriction après proposition empêchent la réception',async()=>{
- for(const mode of ['stop','dead','restriction']){const f=await fixture(),p=await f.propose();
+ for(const mode of ['stop','dead','restriction','captivity','busy']){const f=await fixture(),p=await f.propose();
+  if(mode==='captivity'){await f.edit('',s=>({...s,spaceOutlaws:{...s.spaceOutlaws,escapeVersion:1}}));await f.edit(`/soCaptivities/${f.characters[1]}`,()=>({status:'ACTIVE'}));}
+  if(mode==='busy')await f.edit(`/characters/${f.characters[1]}`,c=>({...c,activeFieldActionId:'action'}));
   if(mode==='stop')await f.edit('',s=>({...s,safetyStop:{active:true}}));
   if(mode==='dead')await f.edit(`/characters/${f.characters[1]}`,c=>({...c,survival:{dead:true}}));
   if(mode==='restriction')await f.edit(`/inventory/${f.input.lotId}`,l=>({...l,transferable:false}));

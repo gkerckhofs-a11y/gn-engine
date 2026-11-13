@@ -1,4 +1,4 @@
-import {personalTransferAllowed,personalTransferActorAllowed} from './personal-transfer-policy.mjs';
+import {personalTransferAllowed,personalTransferActorReady} from './personal-transfer-policy.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {inventoryHash as hash,itemQuantity,publicItem,personalLot,readLot} from './inventory-state.mjs';
 import {requireGameAction} from './health-state.mjs';
@@ -37,7 +37,7 @@ async function current(tx,s,p,at){
   const forgedValid=await forgedLotIntegrity(tx,s.id,lot);
   const valid=forgedValid&&personalTransferAllowed(s,lot,p.sourceId)&&source.active&&recipient.active&&source.version===p.sourceVersion&&recipient.version===p.recipientVersion&&
     !!lot&&personalLot(lot,p.sourceId)&&lot.status==='AVAILABLE'&&lot.revision===p.lotRevision&&lot.quantity>=p.quantity;
-  return {source,recipient,lot,valid,canAccept:!!valid&&s.stage==='EN_JEU'&&personalTransferActorAllowed(s,source.c)&&personalTransferActorAllowed(s,recipient.c)};
+  return {source,recipient,lot,valid,canAccept:!!valid&&s.stage==='EN_JEU'&&await personalTransferActorReady(tx,s,source.c)&&await personalTransferActorReady(tx,s,recipient.c)};
 }
 async function projection(tx,s,c,p,preview=false,at){
   const sender=p.sourceId===c.id,x=p.status==='PENDING'?await current(tx,s,p,at):null;
@@ -53,7 +53,7 @@ export async function listLotTransfers(tx,s,c,preview=false,at){
 }
 export function createLotTransferService({store,signed,now,uuid}){
   async function prepare(tx,ctx,input,at){
-    const {s,c,version}=ctx;requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,c,'transfer');requireThat(personalTransferActorAllowed(s,c),'OUT_OF_COMBAT');
+    const {s,c,version}=ctx;requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,c,'transfer');requireThat(await personalTransferActorReady(tx,s,c),'OUT_OF_COMBAT');
     const recipientId=documentId(input.recipientId);requireThat(recipientId!==c.id,'INVALID_RECIPIENT');
     const recipient=await party(tx,s.id,recipientId);requireThat(recipient.active,'INVALID_RECIPIENT');
     const lot=await readLot(tx,s.id,documentId(input.lotId),at);
