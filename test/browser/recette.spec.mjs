@@ -80,6 +80,7 @@ test('Terminal personnalisé : services autorisés et accès direct refusé aux 
  await expect(page.locator('[data-terminal="wallet"]')).toBeVisible();await expect(page.locator('[data-terminal="shops"]')).toBeVisible();
  await expect(page.locator('[data-terminal="bounties"]')).toHaveCount(0);await expect(page.locator('[data-terminal="customs"]')).toHaveCount(0);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await capture(page,info,'terminal-personnalise-mobile');
+ await navigate(page,`news/${scenario.sessionId}`,'announcements');await expect(page.getByRole('link',{name:'Primes ouvertes et mes preuves'})).toHaveCount(0);
  const denied=await navigate(page,`bounties/${scenario.sessionId}`,'bounties');expect(denied.status()).toBe(403);await expect(page.locator('#app')).not.toContainText('Primes ouvertes');
 });
 

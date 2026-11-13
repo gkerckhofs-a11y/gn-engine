@@ -1,3 +1,4 @@
+import {isTracker} from '../shared/player-access.mjs';
 import {admissionClasses} from '../shared/admission-rules.mjs';
 import {missionExecutionOptions} from './space-outlaws-mission-evidence.mjs';
 import {soMissionAccess,soAnnouncement,soMissionReadable} from './space-outlaws-mission-state.mjs';
@@ -94,7 +95,7 @@ export function createAnnouncementService({store,signed,checkSession,now,uuid}){
           if(state(a,at)==='OPEN'){announcements.push(view(a,at));refreshAfterMs=Math.min(refreshAfterMs,Math.max(100,a.deadline-at));}
           else if(state(a,at)==='SCHEDULED')refreshAfterMs=Math.min(refreshAfterMs,Math.max(100,a.opensAt-at));
         }
-        announcements.sort((a,b)=>b.opensAt-a.opensAt||a.id.localeCompare(b.id));return {refreshAfterMs,session:{id:s.id,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{})},announcements};
+        announcements.sort((a,b)=>b.opensAt-a.opensAt||a.id.localeCompare(b.id));return {bountiesAllowed:!s.spaceOutlaws||isTracker(ctx.c),refreshAfterMs,session:{id:s.id,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{})},announcements};
       }
       if(action==='myApplications'){
         const applications=[];for(const t of await tx.list(`${base}/applications`)){if(!await participantAccess(tx,s,ctx,actor,t))continue;const a=await tx.get(`${base}/announcements/${t.announcementId}`);if(await readable(tx,s,a,ctx.c.id,at))applications.push(summary(t,a,at,false,ctx));}

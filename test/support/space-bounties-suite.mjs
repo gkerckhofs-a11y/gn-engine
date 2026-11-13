@@ -24,10 +24,10 @@ export async function spaceBountiesFixture(makeStore,{places=2,amount=50,...opti
 }
 export function spaceBountiesSuite(makeStore,prefix='Primes SO'){
  test(`${prefix} : classe principale Traqueur obligatoire, y compris accès direct, annonce et reçu`,async()=>{
-  const f=await spaceBountiesFixture(makeStore);await f.start();await f.submit();await f.review();const contract=await f.awarded();
+  const f=await spaceBountiesFixture(makeStore);await f.start();assert.equal((await f.read('announcements')).bountiesAllowed,true);await f.submit();await f.review();const contract=await f.awarded();
   await f.edit(`characters/${f.cid}`,c=>({...c,birth:{...c.birth,classId:'COM'},abilityProfile:{...c.abilityProfile,class:{...c.abilityProfile.class,id:'COM'},skills:[...c.abilityProfile.skills,{id:'TRA-03',kind:'PASSIVE',level:5}]}}));
   for(const action of ['bounties','bountyDetail','prepareBountyClaim','submitBountyClaim'])await assert.rejects(f.cmd(action,{bountyId:f.bountyId,body:'Preuve',consent:true}),{code:'FORBIDDEN'});
-  assert.equal((await f.read('announcements')).announcements.some(a=>a.id===f.a.id),false);
+  assert.equal((await f.read('announcements')).bountiesAllowed,false);assert.equal((await f.read('announcements')).announcements.some(a=>a.id===f.a.id),false);
   await assert.rejects(f.read('announcementDetail',{announcementId:f.a.id}),{code:'FORBIDDEN'});
   assert.equal((await f.contract(contract)).contract.status,'REVIEWED');assert.equal((await f.detail(f.owner)).claims.length,1);
   const ordinary=await f.announce();assert.equal((await f.read('announcements')).announcements.some(a=>a.id===ordinary.id),true);
