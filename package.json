@@ -34,7 +34,8 @@
     "firebase-tools": "15.34.0",
     "qrcode": "1.5.4",
     "fast-xml-parser": "5.11.2",
-    "playwright": "1.62.1"
+    "playwright": "1.62.1",
+    "jsqr": "1.4.0"
   },
   "description": "GN Engine — scénario, inscription, attribution et accès privé sur Firebase"
 }

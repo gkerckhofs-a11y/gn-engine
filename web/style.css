@@ -62,3 +62,14 @@ body:has(.player-shell)>header{display:none}
 .group-chat-message{padding:.8rem;margin:.5rem 0;background:rgba(128,160,180,.07);border-radius:.5rem}
 .group-chat-message .prose{white-space:pre-wrap;margin-bottom:0;overflow-wrap:anywhere}
 .group-chat form{display:grid;gap:.7rem;margin-top:1rem}.group-chat textarea{resize:vertical;width:100%;box-sizing:border-box}
+
+/* Compact account controls, separate touch health controls and inline QR camera. */
+#account{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap}
+.character-code{display:block;font-size:.85rem;overflow-wrap:anywhere;color:var(--muted)}
+.quick-health input[type=range]{width:100%;min-height:48px;padding:0;accent-color:#d4ae61;touch-action:pan-y}
+.quick-health output{font-weight:bold;font-size:1.3em}
+.qr-scanner{padding:1rem;border:1px solid #647b78;border-radius:12px;max-width:32rem}
+.qr-scanner video{display:block;width:100%;max-height:50vh;object-fit:cover;background:#000;border-radius:8px}
+.qr-scan-button{margin:.5rem 0}.entity-code{overflow-wrap:anywhere}
+
+.quick-states{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:1rem;margin:1rem 0}.quick-states .panel{margin:0}

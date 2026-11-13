@@ -15,7 +15,7 @@ test('Vols SO UI : fin de préparation, transit suspendu et lecture passager',()
  const d={session:{id:'s'},ship:{...ship,operation:{kind:'PREPARE',remainingSeconds:0,manifest:[{name:'Pilote'}]}},canPilot:true,canAct:true,confirmation:'proof'};assert.match(soNavigationHtml(d),/finishSoPreparation/);assert.match(soNavigationHtml(d),/cancelSoNavigation/);const j={name:'Vol',fromPort:'a',toPort:'b',remainingSeconds:300,manifest:[{name:'Pilote'}],suspended:true,event:{label:'Patrouille',fuelDebt:0}};const html=soNavigationHtml({...d,ship:{...ship,journey:j},canPilot:false,canAct:false});assert.match(html,/Voyage suspendu/);assert.doesNotMatch(html,/arriveShip|departShip|refuelShip|cancelSoNavigation/);
 });
 test('Vols SO UI : attribution MJ explicite et aucune reprise sans carburant',()=>{
- const admin=soSpaceportHtml({session:{id:'s'},admin:true,models:[],ports:[],items:[],characters:[],ships:[{...ship,journey:{remainingSeconds:300,suspended:true,event:{label:'Panne',fuelDebt:1}}}]});assert.match(admin,/name="source"/);assert.match(admin,/name="pilotId"/);assert.match(admin,/sans carburant ni cargaison/);assert.match(admin,/Ouvrez Dépannage PNJ/);assert.doesNotMatch(admin,/continueSoVoyage|<script>/);
+ const admin=soSpaceportHtml({session:{id:'s'},admin:true,models:[],ports:[],items:[],characters:[],ships:[{...ship,journey:{remainingSeconds:300,suspended:true,event:{label:'Panne',fuelDebt:1}}}]});assert.match(admin,/name="source"/);assert.match(admin,/name="pilotId"/);assert.match(admin,/sans carburant ni cargaison/);assert.match(admin,/Ouvrez Assistance spatiale/);assert.doesNotMatch(admin,/continueSoVoyage|<script>/);
 });
 
 test('Vols SO UI : relève MJ avec aperçu, attestation et états bloqués',()=>{
@@ -60,7 +60,7 @@ test('Vol de groupe SO UI : attribution au groupe et mandat modifié pendant la 
  const d={session:{id:'s'},ship:{...ship,groupShip:true,operation:{kind:'PREPARE',remainingSeconds:0,manifest:[]}},canPilot:true,canAct:false,mandateChanged:true,confirmation:'proof'};
  const html=soNavigationHtml(d);
  assert.match(html,/liaison sécurisée/);assert.match(html,/Le mandat a changé/);assert.match(html,/cancelSoNavigation/);
- assert.doesNotMatch(html,/finishSoPreparation|Entretien|Dépannage PNJ/);
+ assert.doesNotMatch(html,/finishSoPreparation|Entretien|Assistance spatiale/);
 });
 
 test('Vols SO UI : accès soute uniquement pour une capacité positive',()=>{

@@ -24,13 +24,13 @@ export function shopBlockers(changes){
  for(const c of active){
   if(c.type==='shop'){
    const seller=active.find(x=>x.type==='character'&&x.entityId===c.data.sellerCharacterId);
-   if(!seller||seller.data.creationPlan!=null||seller.source==='ADMISSION')add(c,'sellerCharacterId','Le comptoir PNJ doit référencer une fiche narrative M2 sans création de personnage joueur. Les opérateurs du comptoir sont les MJ autorisés.');
+   if(!seller||seller.data.creationPlan!=null||seller.source==='ADMISSION')add(c,'sellerCharacterId','Le comptoir marchand doit référencer une fiche narrative M2 sans création de personnage joueur. Les opérateurs du comptoir sont les MJ autorisés.');
   }
   if(c.type==='offer'){
    const item=active.find(x=>x.type==='item'&&x.entityId===c.data.itemId);
    if(item?.data.shipModule){
-    if(!moduleOfferValid({...c.data,item:item.data},{hiddenCargo:true,towing:true})||c.data.buybackPrice!==null)add(c,c.data.buybackPrice!==null?'buybackPrice':'unitPrice','Un module standard exige le tarif canonique de son gabarit, sans rachat PNJ.');
-   }else if(!item?.data.consumable||c.data.buybackPrice!==null)add(c,c.data.buybackPrice!==null?'buybackPrice':'itemId','Ce parcours ouvre la vente de consommables et de modules standards PNJ, sans rachat. Préparer les autres offres lors de leur raccordement.');
+    if(!moduleOfferValid({...c.data,item:item.data},{hiddenCargo:true,towing:true})||c.data.buybackPrice!==null)add(c,c.data.buybackPrice!==null?'buybackPrice':'unitPrice','Un module standard exige le tarif canonique de son gabarit, sans reprise par le comptoir.');
+   }else if(!item?.data.consumable||c.data.buybackPrice!==null)add(c,c.data.buybackPrice!==null?'buybackPrice':'itemId','Ce parcours ouvre la vente de consommables et de modules standards du comptoir, sans rachat. Préparer les autres offres lors de leur raccordement.');
   }
  }
  return out;

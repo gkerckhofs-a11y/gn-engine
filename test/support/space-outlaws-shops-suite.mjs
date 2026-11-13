@@ -83,7 +83,7 @@ export function spaceOutlawsShopsSuite(makeStore,prefix='Boutiques SPACE OUTLAWS
  test(`${prefix} : voies historiques ne vendent ni ne transfèrent les lots protégés`,async()=>{
   const f=await shopsFixture(makeStore),sale=await f.buy();await f.pickup(sale);const other=(await f.actionRead('mySession',{},f.other)).character.id;
   for(const lotId of [sale.purchasedLotId,(await f.actionRead('myInventory')).lots.find(l=>l.item.id==='kit_communicator').id]){
-   const transfer={lotId,recipientId:other,quantity:1},p=await f.actionRead('prepareLotTransfer',transfer);await assert.rejects(f.actionCmd('proposeLotTransfer',{...transfer,confirmation:p.confirmation}),{code:'SO_GAMEPLAY_NOT_OPEN'});
+   const transfer={lotId,recipientId:other,quantity:1};await assert.rejects(f.actionRead('prepareLotTransfer',transfer),{code:'SO_PERSONAL_TRANSFER_RESTRICTED'});await assert.rejects(f.actionCmd('proposeLotTransfer',{...transfer,confirmation:'forged'}),{code:'SO_PERSONAL_TRANSFER_RESTRICTED'});
    const offer={lotId,buyerId:other,quantity:1,amount:10,minutes:10,pickupPlace:'Port',conditions:'Tentative'},q=await f.actionRead('prepareLotSale',offer);await assert.rejects(f.actionCmd('proposeLotSale',{...offer,confirmation:q.confirmation}),{code:'SO_GAMEPLAY_NOT_OPEN'});
   }
   assert.equal((await f.wallet()).protectedCredits,170);assert.equal((await f.remaining()).quantity,3);

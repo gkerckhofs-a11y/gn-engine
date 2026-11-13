@@ -1,3 +1,4 @@
+import {legacyHoldStock} from './legacy-hold-stock.mjs';
 import {hiddenCargoRequest} from '../../web/space-hidden-cargo.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -10,10 +11,10 @@ import {hiddenCargoCapacity,publishedCustomsCargoAssessment} from '../../src/cor
 import {centralTestItem} from './central-master-suite.mjs';
 import {guardSpaceOutlawsEntry} from '../../src/core/space-outlaws-entry-guard.mjs';
 
-// Full native path: published definition, real purchase, pickup and timed mounting.
+// Native module purchase/mounting, with explicit synthetic legacy hold stock.
 export async function nativeHiddenFlightFixture(makeStore,{profileId='CARGO',convoy=false}={}){
  const f=await (convoy?equippedConvoy(makeStore,{code:'MOD-04',form:false}):moduleFlightFixture(makeStore,{code:'MOD-04',profileId})),fuel=(await f.read('myInventory')).lots.find(l=>l.item.id==='propellant'),ids=[];
- for(const quantity of [3,2]){const p={lotId:fuel.id,quantity,destination:{kind:'HOLD',id:'ship'}},q=await f.read('prepareCargoTransfer',p),r=await f.cmd('startCargoTransfer',{...p,confirmation:q.confirmation,present:true});f.advance(180000);const done=await f.read('cargoTransfer',{transferId:r.id});await f.cmd('receiveCargoTransfer',{transferId:r.id,confirmation:done.confirmation,received:true});ids.push(r.lotId);}
+ ids.push(...await legacyHoldStock(f.store,f.sid,fuel.id,5,[3,2]));
  const conceal=async(conceal=true,lotId=ids[0])=>{const p={shipId:'ship',lotId,conceal},q=await f.read('prepareCargoConcealment',p);return f.cmd('setCargoConcealment',{...p,confirmation:q.confirmation,present:true});};await conceal();if(convoy)await f.formConvoy();
  const arrive=async()=>{f.advance(300000);await f.cmd('arriveShip',{shipId:'ship',confirmation:(await f.navigation()).confirmation});await f.edit(`characters/${f.otherId}`,c=>({...c,spacePortId:'away'}));f.setDice([]);f.setDie(6);};
  const grant=async(level=5)=>{const c=await f.get(`characters/${f.otherId}`);return f.cmd('setCustomsAuthority',{characterId:f.otherId,level,portId:'away',authorityRevision:c.customsAuthorization?.revision??0,reason:'Habilitation organisation'},f.owner);};
@@ -40,7 +41,7 @@ export async function hiddenCargoFixture(makeStore,{profileId='CARGO',quantity=5
  const f=await soVoyagesFixture(makeStore,{profileId,prepareExtra}),base=`sessions/${f.sid}`;
  const get=p=>f.store.get(base+(p?'/'+p:'')),edit=(p,fn)=>f.store.runTransaction(async tx=>{const path=base+(p?'/'+p:'');tx.set(path,fn(await tx.get(path)));});
  const fuel=(await f.read('myInventory')).lots.find(l=>l.item.id==='propellant'),lotIds=[];
- for(let remaining=quantity;remaining>0;remaining-=5){const input={lotId:fuel.id,quantity:Math.min(remaining,5),destination:{kind:'HOLD',id:'ship'}},p=await f.read('prepareCargoTransfer',input),transfer=await f.cmd('startCargoTransfer',{...input,confirmation:p.confirmation,present:true});f.advance(180000);const q=await f.read('cargoTransfer',{transferId:transfer.id});await f.cmd('receiveCargoTransfer',{transferId:transfer.id,confirmation:q.confirmation,received:true});lotIds.push(transfer.lotId);}
+ lotIds.push(...await legacyHoldStock(f.store,f.sid,fuel.id,quantity));
  const transfer={lotId:lotIds[0]};
  const sh=await f.ship(),module={lotId:'synthetic-hidden-module',code:'MOD-04',size:sh.soProfile.size,status:'OPERATIONAL'};
  await edit('',s=>({...s,spaceOutlaws:{...s.spaceOutlaws,hiddenCargoVersion:1}}));await edit('ships/ship',s=>({...s,modules:[module]}));

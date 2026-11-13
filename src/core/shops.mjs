@@ -104,7 +104,7 @@ export function createShopService({store,signed,checkSession,now,uuid}){
     requireThat(input.confirmation===preview.confirmation,'STALE_REVISION');
     const next=lot?{...lot,quantity:total,revision:lot.revision+1}:{...newLot(shopStockId(offer.id),{...offer.item,pillable:input.restricted?false:offer.item.pillable},quantity,shop.id,at,{kind:'SHOP_PROVISION',offerId:offer.id,versionId:s.versionId}),ownerType:'SHOP',location:{kind:'SHOP',id:shop.id},pillable:input.restricted?false:offer.item.pillable,transferable:!input.restricted,resellable:!input.restricted};
     tx.set(`${base}/inventory/${next.id}`,next);tx.set(`${base}/inventory/${next.id}/history/${eventId}`,{id:eventId,kind:'SHOP_PROVISION',at,actorUid:actor.uid,reason,source,provisionId,before:lot?movement(lot):null,after:movement(next)});
-    if(!a){const opened={id:shopAccountId(shop.id),sessionId:s.id,ownerType:'SHOP',shopId:shop.id,label:shop.name,status:'ACTIVE',balance:0,reserved:0,revision:1,createdAt:at};tx.set(`${base}/accounts/${opened.id}`,opened);writeLedger(tx,s.id,{id:eventId,kind:'OPENING',at,actorUid:actor.uid,memo:`Caisse PNJ : ${shop.name}`,reason,createdCurrency:0,removedCurrency:0,entries:[{accountId:opened.id,delta:0,before:{balance:0,reserved:0,available:0,revision:0},after:moneyState(opened)}]});}
+    if(!a){const opened={id:shopAccountId(shop.id),sessionId:s.id,ownerType:'SHOP',shopId:shop.id,label:shop.name,status:'ACTIVE',balance:0,reserved:0,revision:1,createdAt:at};tx.set(`${base}/accounts/${opened.id}`,opened);writeLedger(tx,s.id,{id:eventId,kind:'OPENING',at,actorUid:actor.uid,memo:`Caisse du comptoir : ${shop.name}`,reason,createdCurrency:0,removedCurrency:0,entries:[{accountId:opened.id,delta:0,before:{balance:0,reserved:0,available:0,revision:0},after:moneyState(opened)}]});}
     result={provisionId,lotId:next.id,quantity,stock:total};tx.set(provisionPath,{id:hash(provisionId),intent,result,actorUid:actor.uid,at,source,reason});
    }else if(action==='prepareShopPurchase'||action==='buyShopOffer'){
     const x=await purchase(tx,ctx,input,at);if(action==='prepareShopPurchase')return x.result;
@@ -117,7 +117,7 @@ export function createShopService({store,signed,checkSession,now,uuid}){
     if(action==='offerShopPickup')next={...next,pickupStatus:'READY',pickupBuyerVersion:x.buyer.version,pickupLotRevision:x.lot.revision};
     else{
      requireThat(x.ready,'STALE_PICKUP');requireThat(input.received===true,'HANDOVER_REQUIRED');
-     const moved=receivedShopLot(x.lot,c.id);tx.set(`${base}/inventory/${moved.id}`,moved);tx.set(`${base}/inventory/${moved.id}/history/${eventId}`,{id:eventId,kind:'PICKUP',at,actorUid:actor.uid,saleId:p.id,reason:'Remise PNJ présentée puis réception confirmée par le joueur',before:movement(x.lot),after:movement(moved)});
+     const moved=receivedShopLot(x.lot,c.id);tx.set(`${base}/inventory/${moved.id}`,moved);tx.set(`${base}/inventory/${moved.id}/history/${eventId}`,{id:eventId,kind:'PICKUP',at,actorUid:actor.uid,saleId:p.id,reason:'Remise du comptoir présentée puis réception confirmée par le joueur',before:movement(x.lot),after:movement(moved)});
      next={...next,pickupStatus:'RECEIVED',pickedUpAt:at};
     }
     tx.set(`${base}/lotSales/${p.id}`,next);result={id:p.id,pickupStatus:next.pickupStatus,purchasedLotId:p.purchasedLotId};

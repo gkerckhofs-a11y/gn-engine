@@ -88,6 +88,7 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
     requireThat(p.read&&(transport||sameOwner(ownerOf(lot),p.owner)),'FORBIDDEN');return p;
    };
    async function destinations(lot){
+    if(so&&lot.location.kind==='CHARACTER')return [];
     if(transport){const list=[];for(const loc of [{kind:'HOLD',id:transport.t.shipId},{kind:'SHOP',id:transport.t.shopId},{kind:'PORT',id:transport.t.toPort}]){const p=await place(loc);if(p.deposit&&!same(loc,lot.location))list.push(viewPlace(p));}return list;}
     const locs=[{kind:'CHARACTER',id:c.id},...(so?[]:await tx.list(`${base}/warehouses`)).map(w=>({kind:'WAREHOUSE',id:w.id})),...(await tx.list(`${base}/ships`)).map(w=>({kind:'HOLD',id:w.id}))],list=[];
     for(const loc of locs){const p=await place(loc);if(p.deposit&&sameOwner(p.owner,ownerOf(lot))&&!same(loc,lot.location))list.push(viewPlace(p));}return list;
@@ -153,11 +154,12 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
    }
    if(action==='cargoLot'){
     const lot=await readLot(tx,sid,documentId(input.lotId),at),p=await visibleLot(lot);
-    return {session:{id:sid,stage:s.stage,...(so?{spaceOutlaws:true}:{})},lot:publicLot(lot),source:viewPlace(p),owner:{...ownerOf(lot),name:transport?transport.c.sourceName:lot.ownerType==='GROUP'?groups.find(g=>g.id===lot.ownerId)?.name??'Bande':c.public.displayName},canMove:canMove&&p.withdraw&&lot.status==='AVAILABLE'&&lot.quantity>0,destinations:await destinations(lot)};
+    return {session:{id:sid,stage:s.stage,...(so?{spaceOutlaws:true}:{})},lot:publicLot(lot),source:viewPlace(p),owner:{...ownerOf(lot),name:transport?transport.c.sourceName:lot.ownerType==='GROUP'?groups.find(g=>g.id===lot.ownerId)?.name??'Bande':c.public.displayName},canMove:canMove&&(!so||lot.location.kind!=='CHARACTER')&&p.withdraw&&lot.status==='AVAILABLE'&&lot.quantity>0,destinations:await destinations(lot)};
    }
    if(['prepareCargoTransfer','startCargoTransfer'].includes(action)){
     requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireThat(movable(),'OUT_OF_COMBAT');
     const lot=await readLot(tx,sid,documentId(input.lotId),at),source=await visibleLot(lot),dest=await place(input.destination);
+    requireThat(!so||source.location.kind!=='CHARACTER','SO_PERSONAL_NOT_FREIGHT');
     requireThat(source.withdraw&&dest.deposit,'FORBIDDEN');requireThat(transport||sameOwner(ownerOf(lot),dest.owner),'CARGO_OWNER_MISMATCH');requireThat(!same(source.location,dest.location),'INVALID_DESTINATION');
     requireThat(lot.status==='AVAILABLE','INSUFFICIENT_STOCK');const quantity=itemQuantity(lot.item,input.quantity);requireThat(quantity<=lot.quantity,'INSUFFICIENT_STOCK');
     const volume=stockVolume([{...lot,quantity}]);if(so){requireThat(volume>0&&volume<=5,'SO_CARGO_BATCH');const pending=await tx.list(`${base}/cargoTransfers`);requireThat(!pending.some(t=>t.status==='LOADING'&&same(t.source,source.location)),'CARGO_TRANSFERS_OPEN');requireThat(source.location.kind==='HOLD'||dest.location.kind==='HOLD','INVALID_DESTINATION');}if(dest.capacity!==null)requireThat(whole(dest.used+dest.incoming+volume,'STORAGE_OVERFLOW')<=dest.capacity,'WAREHOUSE_FULL');

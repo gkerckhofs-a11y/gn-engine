@@ -10,7 +10,7 @@ test('Interface transport : proposition renseignée, montant explicite et route 
  const before=await f.view();assert.equal(transportPanel(before),'');await f.accept();const after=await f.view();assert.match(transportPanel(after),/AWAY-CODE|QR de manutention/);assert.match(transportTerms({...after.contract.terms.transport,recipient:'<script>bad</script>'}),/&lt;script&gt;/);assert.doesNotMatch(transportTerms({...after.contract.terms.transport,recipient:'<script>bad</script>'}),/<script>/);
 });
 test('Interface transport : seules destinations autorisées et suivi de tranche',async()=>{
- const f=await transportFixture(()=>new MemoryStore(),{quantity:5});await f.accept();const lot=(await f.lots())[0],d=await f.read('cargoLot',{lotId:lot.id}),ui=createCargoUi(helpers),html=ui.lot(d);assert.match(html,/HOLD:ship/);assert.doesNotMatch(html,/PORT:away|CHARACTER:/);assert.match(html,/Comptoir PNJ/);const t=await f.start(lot,{kind:'HOLD',id:'ship'});assert.match(transportPanel(await f.view()),new RegExp(`cargo-transfer/${f.sid}/${t.id}`));
+ const f=await transportFixture(()=>new MemoryStore(),{quantity:5});await f.accept();const lot=(await f.lots())[0],d=await f.read('cargoLot',{lotId:lot.id}),ui=createCargoUi(helpers),html=ui.lot(d);assert.match(html,/HOLD:ship/);assert.doesNotMatch(html,/PORT:away|CHARACTER:/);assert.match(html,/Comptoir marchand/);const t=await f.start(lot,{kind:'HOLD',id:'ship'});assert.match(transportPanel(await f.view()),new RegExp(`cargo-transfer/${f.sid}/${t.id}`));
 });
 
 test('Interface transport QR : cible de port reconnue, sans origine, session ou régie étrangère',async()=>{
