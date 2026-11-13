@@ -16,6 +16,8 @@ Candidat : branche `work/skills-v07-closure`. Les SHA, la PR et les résultats C
 - Marché spécialisé : restriction de PR #15 conservée. Le cahier des charges du 13 novembre demande explicitement des **cours publics gratuits pour les autres métiers** : route séparée `#/public-prices/:session`, projection native `commodityMarket`, aucune dépense de PA. Les remises spécialisées suivent les compétences acquises. Paiements et remises volontaires restent leurs parcours natifs.
 - COU-02 : le propriétaire a confirmé dans cette conversation le **maintien des cinq minutes réelles** de validité. V0.7, chapitre 13, citait ce délai comme hérité de V0.3. Le délai commence au résultat réussi, ne redémarre pas à la consultation et ne permet pas une deuxième tentative sur la même version d'offre.
 
+- Documents liés aux objets : décision du propriétaire du 13 novembre 2026, « Selon la fiche ». SHOW / Montrer seulement : accès lié à la possession de l’original ; COPY / Copie permise : texte déjà acquis conservé sans duplication de l’objet. Les révélations indépendantes du MJ restent distinctes.
+
 ## Compléments de tranche 1
 
 ### MED-01
@@ -82,7 +84,7 @@ Dans « Commit / PR », **B** = base main `49ec5ea12100f9efb62ea23773b216d465d06
 | COU-02 Négociation | Courtier | ch. 13, arbitrage 5 min | field-actions, shops/sales | Terminal/Action | Partiel | space-merchant-negotiation | C | Non | À faire | Prestations, fret et contrats exclusifs hors offres M5 actuelles |
 | COU-03 Réseau de contacts | Courtier | ch. 13, 4 | field-actions/carnet/récupérations | Terminal/Action | À vérifier | space-merchant-contacts | C | Non | À faire | CI exacte, reprise intersession et recette des réponses préparées |
 | INF-01 Intrusion | Infiltrateur | ch. 14 | space-intrusion | Action | Partiel | space-intrusion | B | Non vérifié | À faire | Bonus, consommables et couverture des cibles |
-| INF-02 Déchiffrement | Infiltrateur | ch. 14 | space-decryption/knowledge | Action | Partiel | space-decryption : 27 cas métier + 4 schémas ; intégration ciblée | B + D + E + F + G + H | Non vérifié | À faire | Transferts documentaires à compléter ; cryptogrammes à réponse préparée, matériel +1 et aide raccordés |
+| INF-02 Déchiffrement | Infiltrateur | ch. 14 | space-decryption/knowledge | Action | Partiel | space-decryption : cas métier de transfert, copies, droits et intégration ciblée | B + D + E + F + G + H + I | Non vérifié | À faire | Originaux M1/M6 et transferts raccordés ; validation CI du candidat et recette intégrée restantes |
 | INF-03 Falsification | Infiltrateur | ch. 14 | space-forgery/evidence | Action | Partiel | space-forgery | B | Non vérifié | À faire | Raccord TRA-03 et inspection du document transféré |
 | Entretien de protection | Supplémentaire | ch. 15, 5 | person-actions PROTECTION | Action | À vérifier | identity-news-health | B/C | Non vérifié | À faire | Banc de protection et recette des consommables compatibles |
 | Riposte | Supplémentaire | ch. 15, 5 | règles joueur | Physique | À vérifier | présentation à contrôler | B | Non vérifié | À faire | Vérifier règles par adversaire/confrontation, aucune commande exigée |
@@ -204,3 +206,15 @@ M6 prépare la consigne, la durée et une réponse textuelle. La réponse est no
 Un PA est réservé au départ. Le parcours CODE utilise exclusivement la durée préparée, en temps de jeu ; aucune génération de D6, même en cas de reprise réseau. Réponse correcte : révélation native du texte préparé. Réponse incorrecte : échec sans destruction du document. La règle INF-02 d’une tentative résolue par personnage/version et la récupération de dix minutes restent appliquées ; la relance propre à INF-01 n’est pas importée. Les bonus au dé (matériel/aide) sont refusés dans ce mode. Annulation et régie conservent leurs procédures natives.
 
 Vérifications : absence de jet mesurée, confidentialité de la solution, normalisation de réponse, succès/échec, reçu idempotent, pause, annulation, refus des bonus, version et reçu révoqués, préparation M6 et non-régression INF-01. Résultats locaux, Firestore, SHA et CI exacts dans la PR. INF-02 reste **Partiel** pour les transferts documentaires ; les défis sans réponse textuelle ne sont pas couverts par ce format. Ni fusion, ni publication Firebase, ni migration ou recette terrain.
+
+## Complément — originaux documentaires et droit de lecture
+
+**I** = branche `work/skills-v07-inventory-documents`, basée sur `d5ffc09be903f5aa7686cf9f3980944e3006c611` (PR #23). Références : V0.7 chapitre 14 INF-02 et décision explicite du propriétaire « Selon la fiche », 13 novembre 2026.
+
+Un modèle M1 individuel non consommable peut référencer un DOCUMENT M6 par `knowledgeId`. La préparation centrale vérifie la référence ; la publication refuse une cible absente, archivée ou d’un autre type. Le texte secret reste dans M6, jamais dans l’objet ni sa projection publique. Les modèles existants conservent leur forme lorsqu’aucune association n’est ajoutée. L’éditeur M1 propose ce champ ; les anciens exports Excel M1 ne le transportent pas encore.
+
+Le sac ouvre un reçu natif du carnet. L’écran INF-02 propose aussi les originaux non encore lus, avec retour au déchiffrement sans repasser par le menu Action. Aucun nouvel inventaire ni moteur de transfert n’est créé. Le don existant conserve l’identifiant du lot, sa provenance et son historique. Un document SHOW est relu uniquement tant que son original reste dans le sac autorisé ; les contrôles du carnet et de résolution INF-02 appliquent la même règle. La perte de possession pendant une tentative bloque le résultat ; l’annulation MJ libère le PA réservé. Un document COPY conserve le texte déjà acquis, sans créer un lot supplémentaire. Un reçu explicitement révoqué par le MJ ne peut être rétabli par une nouvelle lecture du sac.
+
+Ouvrir plusieurs fois le même original ne change pas le reçu et n’invalide pas une tentative en cours. Les requêtes de lecture sont liées au personnage et à sa version d’accès. La restitution de l’original ne remet pas à zéro une tentative résolue. Les droits du carnet acquis indépendamment par attribution MJ, QR autorisé ou copie permise restent indépendants de la possession d’un objet.
+
+Validation locale : 3 038 tests complets réussis avant le dernier raccordement de sélection directe ; après celui-ci, 65 tests ciblés réussis, 32 cas métier partagés Firestore réussis sur le candidat final, compilation et diff sans erreurs. Ces campagnes se recouvrent et leurs décomptes ne s’additionnent pas. SHA et CI exacte consignés dans la PR ; CI non présumée réussie. Aucun déploiement, fusion dans main, migration ni suppression de données. Le statut reste Partiel tant que les contrôles d’intégration et la clôture complète ne sont pas démontrés.

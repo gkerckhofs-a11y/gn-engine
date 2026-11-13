@@ -41,3 +41,9 @@ Les historiques sont regroupés dans un panneau secondaire, ouvert si une action
 - Chromium ne démarre pas dans ce conteneur. Le résultat navigateur et les captures seront ceux de la CI sur le commit exact, pas une recette physique Android/iOS.
 - La CI du parent #12 a révélé deux tests HTTP qui chargeaient encore des objets personnels. Leurs données de préparation sont corrigées : stock de fret explicite / stock historique de soute ; un appel HTTP vérifie désormais le refus du chargement d’un sac. Les contrôles métier ne sont pas assouplis.
 - Aucun backend de production changé par cette refonte, aucune donnée existante modifiée, aucune fusion main, aucun déploiement Firebase.
+
+## Documents du sac et INF-02
+
+L’écran de déchiffrement présente aussi les originaux non encore lus du sac et conserve le parcours sélectionné. Un original M1 associé à un DOCUMENT M6 propose « Lire le document » dans le sac. Son texte rejoint le carnet, sous les droits de la fiche : « Montrer seulement » requiert de conserver l’original ; « Copie permise » conserve le texte déjà acquis après son don. Le don utilise le transfert personnel existant et garde l’identifiant et la provenance de l’objet. Aucun fret de soute ni deuxième exemplaire n’est créé.
+
+Le déchiffrement revérifie le droit de lecture à la résolution. Une perte d’original SHOW empêche la révélation ; le joueur ou le MJ peut interrompre l’action pour libérer les réservations. Une révocation explicite du reçu par le MJ reste prioritaire. Les documents préparés avant cette extension restent utilisables selon leurs droits existants.

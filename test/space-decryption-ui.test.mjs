@@ -37,3 +37,8 @@ test('INF-02 : cryptogramme affiche sa durée puis une réponse, sans bouton de 
  const html=soDecryptionHtml({...d,active:{id:'a',mode:'CODE',status:'RUNNING',remainingMs:0,challenge:{prompt:'<script>Consigne'}}},'sid');
  assert.match(html,/name="answer"/);assert.match(html,/Valider la réponse sans dé/);assert.match(html,/&lt;script&gt;/);assert.doesNotMatch(html,/Terminer et lancer le D6/);
 });
+
+test('INF-02 : sélection de l’original du sac conserve le parcours de déchiffrement',()=>{
+ const h=soDecryptionHtml({enabled:true,level:2,cooldownMs:0,documents:[],inventoryDocuments:[{lotId:'original',name:'<img>',requiredLevel:2}]},'s');
+ assert.match(h,/data-action="openInventoryDocument"/);assert.match(h,/data-continue="decryption"/);assert.doesNotMatch(h,/<img>/);assert.match(h,/&lt;img&gt;/);
+});

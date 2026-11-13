@@ -1,3 +1,4 @@
+import {newLot,itemInput} from '../../src/core/inventory-state.mjs';
 import {intrusionAnswerDigest} from '../../src/core/field-state.mjs';
 import test from 'node:test';
 import {createHash,randomUUID} from 'node:crypto';
@@ -37,7 +38,63 @@ async function cryptogramFixture(makeStore){
  await f.store.runTransaction(async tx=>{const k=await tx.get(f.kpath);tx.set(f.kpath,{...k,cipher:{...k.cipher,challenge:{type:'CODE',prompt:'Consigne de cryptogramme préparée',durationSeconds:90,answerDigest:intrusionAnswerDigest('NOVA 2042')}}});});
  return f;
 }
+async function inventoryDocumentFixture(makeStore,shareMode='SHOW'){
+ const f=await decryptionFixture(makeStore,{helper:true});
+ const kid='inventory-document',lotId='original-document',path=`sessions/${f.sid}/inventory/${lotId}`;
+ const item=itemInput({name:'Original chiffré',kind:'INDIVIDUAL',consumable:false,publicationState:'PUBLISHED',knowledgeId:kid},'document-model');
+ const lot=newLot(lotId,item,1,f.c,1000000,{kind:'SCENARIO_VERSION'});
+ await f.store.runTransaction(async tx=>{const k=await tx.get(f.kpath);tx.set(`sessions/${f.sid}/knowledge/${kid}`,{...k,id:kid,shareMode});tx.set(path,lot);});
+ const otherId=(await f.actionRead('mySession',{},f.other)).character.id;
+ const open=(actor=f.player,extra={})=>f.actionCmd('openInventoryDocument',{lotId,...extra},actor);
+ const detail=(actor=f.player)=>f.actionRead('knowledgeDetail',{knowledgeId:kid},actor);
+ const transfer=async(from=f.player,to=otherId)=>{
+  const args={lotId,recipientId:to,quantity:1},p=await f.actionRead('prepareLotTransfer',args,from);
+  const proposed=await f.actionCmd('proposeLotTransfer',{...args,confirmation:p.confirmation},from),receiver=from===f.player?f.other:f.player;
+  const d=await f.actionRead('lotTransferDetail',{transferId:proposed.id},receiver);
+  return f.actionCmd('acceptLotTransfer',{transferId:proposed.id,confirmation:d.confirmation,received:true},receiver);
+ };
+ return {...f,kid,lotId,path,lot,otherId,open,detail,transfer};
+}
 export function soDecryptionSuite(makeStore,prefix='INF-02'){
+ test(prefix+' : original SHOW transféré sans duplication, accès et déchiffrement suivent la possession',async()=>{
+  const f=await inventoryDocumentFixture(makeStore);
+  const available=await f.actionRead('mySoDecryption');assert.equal(available.inventoryDocuments[0].lotId,f.lotId);assert.doesNotMatch(JSON.stringify(available),/COORDONNEES_SECRETES/);assert.equal((await f.actionRead('mySoDecryption',{},f.other)).inventoryDocuments.length,0);
+  await assert.rejects(f.open(f.other),{code:'FORBIDDEN'});await f.open();assert.match((await f.detail()).knowledge.body,/ZYX-7/);
+  await f.transfer();const moved=await f.store.get(f.path);assert.equal(moved.id,f.lotId);assert.deepEqual(moved.origin,f.lot.origin);assert.equal(moved.ownerId,f.otherId);
+  assert.equal((await f.store.list(`sessions/${f.sid}/inventory`)).filter(l=>l.item.knowledgeId===f.kid).length,1);
+  await assert.rejects(f.detail(),{code:'FORBIDDEN'});await assert.rejects(f.actionCmd('startSoDecryption',{knowledgeId:f.kid}),{code:'SO_INF02_DOCUMENT'});
+  assert.ok(!(await f.actionRead('mySoDecryption')).documents.some(d=>d.id===f.kid));
+  await f.open(f.other);assert.match((await f.detail(f.other)).knowledge.body,/ZYX-7/);
+  const a=await f.actionCmd('startSoDecryption',{knowledgeId:f.kid},f.other);f.advance(165000);f.setDie(4);
+  await f.actionCmd('finishSoDecryption',{actionId:a.id},f.other);assert.equal((await f.detail(f.other)).knowledge.body,f.plaintext);
+ });
+ test(prefix+' : copie acquise conservée après don, original unique et nouvelle lecture sans invalider la tentative',async()=>{
+  const f=await inventoryDocumentFixture(makeStore,'COPY');await f.open();const a=await f.actionCmd('startSoDecryption',{knowledgeId:f.kid});await f.open();f.advance(165000);f.setDie(4);await f.finish(a.id);
+  await f.transfer();assert.equal((await f.detail()).knowledge.body,f.plaintext);await f.open(f.other);assert.match((await f.detail(f.other)).knowledge.body,/ZYX-7/);
+  const receiptRevision=(await f.detail()).knowledge.receiptRevision;
+  await f.actionCmd('shareKnowledge',{knowledgeId:f.kid,recipientId:f.otherId,receiptRevision});assert.equal((await f.detail(f.other)).knowledge.body,f.plaintext);
+  assert.equal((await f.actionRead('mySoDecryption',{},f.other)).documents.find(d=>d.id===f.kid).decoded,true);
+  await f.transfer(f.other,f.c);await f.open();assert.equal((await f.detail()).knowledge.body,f.plaintext);
+  assert.equal((await f.detail(f.other)).knowledge.body,f.plaintext);
+  assert.equal((await f.store.list(`sessions/${f.sid}/inventory`)).filter(l=>l.item.knowledgeId===f.kid).length,1);
+ });
+ test(prefix+' : perte de l’original pendant la durée refuse le résultat puis annulation MJ rend le PA',async()=>{
+  const f=await inventoryDocumentFixture(makeStore);await f.open();const a=await f.actionCmd('startSoDecryption',{knowledgeId:f.kid});
+  await f.store.runTransaction(async tx=>{const l=await tx.get(f.path);tx.set(f.path,{...l,ownerId:f.otherId,holderId:f.otherId,location:{kind:'CHARACTER',id:f.otherId},revision:l.revision+1});});
+  f.advance(165000);await assert.rejects(f.finish(a.id),{code:'SO_INF02_DOCUMENT'});await f.actionCmd('cancelSoDecryptionMJ',{actionId:a.id,reason:'Original remis hors du sac'},f.owner);assert.equal((await f.points()).available,5);
+ });
+ test(prefix+' : lecture idempotente, reçu révoqué et changement de version d’accès refusent les réessais',async()=>{
+  const f=await inventoryDocumentFixture(makeStore),requestId=randomUUID();const a=await f.open(f.player,{requestId});assert.deepEqual(await f.open(f.player,{requestId}),a);
+  const rp=`sessions/${f.sid}/characters/${f.c}/knowledge/${f.kid}`;
+  await f.store.runTransaction(async tx=>{const r=await tx.get(rp);tx.set(rp,{...r,active:false});});await assert.rejects(f.open(),{code:'FORBIDDEN'});
+  await f.store.runTransaction(async tx=>{const r=await tx.get(rp);const p=`sessions/${f.sid}/registrations/${createHash('sha256').update(f.player.uid).digest('hex')}`,reg=await tx.get(p);tx.set(rp,{...r,active:true});tx.set(p,{...reg,accessVersion:reg.accessVersion+1});});
+  await assert.rejects(f.open(f.player,{requestId}),{code:'FORBIDDEN'});
+ });
+ test(prefix+' : lecture sans original ou avec objet consommable refusée, aucun reçu créé',async()=>{
+  const f=await inventoryDocumentFixture(makeStore);await f.store.runTransaction(async tx=>{const l=await tx.get(f.path);tx.set(f.path,{...l,item:{...l.item,consumable:true}});});await assert.rejects(f.open(),{code:'FORBIDDEN'});
+  assert.equal(await f.store.get(`sessions/${f.sid}/characters/${f.c}/knowledge/${f.kid}`),null);
+ });
+
  test(prefix+' : document acquis, D6 + niveau, temps de jeu, un PA et révélation après succès',async()=>{
   const f=await decryptionFixture(makeStore);
   const before=(await f.actionRead('knowledgeDetail',{knowledgeId:'ordinary'})).knowledge.body;

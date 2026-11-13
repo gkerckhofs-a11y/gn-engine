@@ -1,3 +1,4 @@
+import {documentReceiptAvailable} from './document-access.mjs';
 import {intrusionAnswerDigest} from './field-state.mjs';
 import {readLot,personalLot,lotState} from './inventory-state.mjs';
 import {prepareAid,reserveAid,checkAid,finishAid,aidSnapshot,cooldownPath} from './aid-state.mjs';
@@ -39,10 +40,10 @@ export function createSoDecryptionService({store,signed,checkSession,now,uuid,ro
   requireGameAction(s,c,'discover',at);
   if(s.spaceOutlaws.escapeVersion===1){const cap=await tx.get(base(s.id)+'/soCaptivities/'+c.id);requireThat(cap?.status!=='ACTIVE','SO_ESCAPE_CAPTIVE');}
  };
- async function document(tx,sid,cid,id){
+ async function document(tx,sid,cid,id,at){
   const k=await tx.get(base(sid)+'/knowledge/'+id);
   const r=await tx.get(receiptPath(sid,cid,id));
-  requireThat(k?.publicationState==='PUBLISHED'&&k.kind==='DOCUMENT'&&k.cipher?.plaintext&&r?.active,'SO_INF02_DOCUMENT');
+  requireThat(k?.publicationState==='PUBLISHED'&&k.kind==='DOCUMENT'&&k.cipher?.plaintext&&await documentReceiptAvailable(tx,sid,cid,r,at),'SO_INF02_DOCUMENT');
   return {k,r};
  }
  async function reservedBonus(tx,s,c,a,at){
@@ -112,6 +113,7 @@ export function createSoDecryptionService({store,signed,checkSession,now,uuid,ro
     const lots=(await tx.list(base(sid)+'/inventory',['holderId',c.id])).filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.quantity>0&&!l.item.consumable&&!l.item.shipModule);
     const documents=[];let challenge=null;
     for(const receipt of receipts.filter(r=>r.active)){
+     if(!await documentReceiptAvailable(tx,sid,c.id,receipt,at))continue;
      const k=await tx.get(base(sid)+'/knowledge/'+receipt.id);
      if(k?.publicationState!=='PUBLISHED'||k.kind!=='DOCUMENT'||!k.cipher?.plaintext)continue;
      const tried=await tx.get(attemptPath(sid,c.id,k.id,k.revision));
@@ -120,8 +122,14 @@ export function createSoDecryptionService({store,signed,checkSession,now,uuid,ro
       bonusLots:lots.filter(l=>(k.cipher.bonusItemIds??[]).includes(l.item.id)).map(l=>({id:l.id,name:l.item.name,bonus:1})),
       attempted:['SUCCESS','FAILED'].includes(tried?.status),decoded:receipt.decodedRevision===k.revision});
     }
+    const inventoryDocuments=[];
+    for(const l of lots.filter(l=>l.item.knowledgeId&&!documents.some(d=>d.id===l.item.knowledgeId))){
+     const receipt=receipts.find(r=>r.id===l.item.knowledgeId),k=await tx.get(base(sid)+'/knowledge/'+l.item.knowledgeId);
+     if((!receipt||receipt.active)&&k?.publicationState==='PUBLISHED'&&k.kind==='DOCUMENT'&&k.cipher?.plaintext)
+      inventoryDocuments.push({lotId:l.id,name:l.item.name,requiredLevel:k.cipher.minLevel});
+    }
     const offers=await tx.list(base(sid)+'/aidOffers',['recipientId',c.id]);
-    return {enabled:level>0,level,documents,aidOffers:offers.filter(o=>o.status==='OFFERED'&&o.skillId==='INF-02').map(o=>({id:o.id,helperName:o.helperName})),
+    return {enabled:level>0,level,documents,inventoryDocuments,aidOffers:offers.filter(o=>o.status==='OFFERED'&&o.skillId==='INF-02').map(o=>({id:o.id,helperName:o.helperName})),
       active:active?{...summarize(active),...(challenge?{challenge}:{}),remainingMs:Math.max(0,active.readyAtGameMs-time)}:null,
       cooldownMs:Math.max(0,readyAt-time)};
    }
@@ -147,7 +155,7 @@ export function createSoDecryptionService({store,signed,checkSession,now,uuid,ro
     if(s.spaceOutlaws.escapeVersion===1){
      const rogue=await tx.get(base(sid)+'/soEscapeRogues/'+c.id);requireThat(!rogue?.activeId,'SO_INF02_BUSY');
      const cap=await tx.get(base(sid)+'/soCaptivities/'+c.id);requireThat(cap?.status!=='ACTIVE','SO_ESCAPE_CAPTIVE');}
-    const kid=documentId(input.knowledgeId),{k,r}=await document(tx,sid,c.id,kid);
+    const kid=documentId(input.knowledgeId),{k,r}=await document(tx,sid,c.id,kid,at);
     requireThat(level>=k.cipher.minLevel,'SO_INF02_SKILL');
     requireThat(r.decodedRevision!==k.revision,'SO_INF02_ALREADY');
     const attempt=await tx.get(attemptPath(sid,c.id,k.id,k.revision));
@@ -187,7 +195,7 @@ export function createSoDecryptionService({store,signed,checkSession,now,uuid,ro
    }
    await live(tx,s,c,at);
    requireThat(time>=a.readyAtGameMs,'SO_INF02_TOO_EARLY');
-   const {k,r}=await document(tx,sid,c.id,a.knowledgeId);
+   const {k,r}=await document(tx,sid,c.id,a.knowledgeId,at);
    requireThat(k.revision===a.knowledgeRevision,'SO_INF02_STALE');
    requireThat(level>=a.level&&level>=k.cipher.minLevel,'SO_INF02_SKILL');
    const challenge=k.cipher.challenge;requireThat((a.mode??'D6')===(challenge?'CODE':'D6'),'SO_INF02_STALE');

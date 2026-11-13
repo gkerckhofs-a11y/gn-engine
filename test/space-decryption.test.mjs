@@ -1,3 +1,4 @@
+import {itemInput,publicItem} from '../src/core/inventory-state.mjs';
 import {soReleaseDefinitionChecks} from '../src/core/space-outlaws-release-check.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -45,4 +46,15 @@ test('M6 INF-02 : cryptogramme haché, édition sans réponse conserve le secret
  assert.equal(edited.cipher.challenge.answerDigest,k.cipher.challenge.answerDigest);
  for(const patch of [{answerCode:''},{durationSeconds:0},{durationSeconds:3601},{prompt:''},{type:'UNSUPPORTED'}])assert.throws(()=>centralKnowledgeInput({...document,cipher:{...cipher,challenge:{...challenge,...patch}}},'code'));
  assert.throws(()=>centralKnowledgeInput({...document,cipher:{...cipher,bonusItemIds:['decoder']}},'code'));
+});
+
+test('M1 document : modèle individuel, référence M6 valide et ancien modèle inchangé',()=>{
+ const base={name:'Original',kind:'INDIVIDUAL',consumable:false,publicationState:'PUBLISHED'};
+ assert.equal(Object.hasOwn(itemInput(base,'old'),'knowledgeId'),false);
+ const item=itemInput({...base,knowledgeId:'doc'},'original');assert.equal(publicItem(item).knowledgeId,'doc');
+ assert.equal(itemInput(base,'original',item).knowledgeId,'doc');assert.equal(itemInput({...base,knowledgeId:null},'original',item).knowledgeId,undefined);
+ for(const patch of [{kind:'STACKABLE'},{consumable:true},{shipModule:{code:'MOD-01',size:1}}])assert.throws(()=>itemInput({...base,knowledgeId:'doc',...patch},'bad'));
+ const ch={id:'item_original',entityId:'original',type:'item',operation:'UPSERT',data:item};
+ assert.ok(soReleaseDefinitionChecks([ch]).definitions.some(d=>d.code==='SO_DOCUMENT_REFERENCE'));
+ assert.ok(!soReleaseDefinitionChecks([ch,{id:'knowledge_doc',entityId:'doc',type:'knowledge',operation:'UPSERT',data:{...document,id:'doc'}}]).definitions.some(d=>d.code==='SO_DOCUMENT_REFERENCE'));
 });

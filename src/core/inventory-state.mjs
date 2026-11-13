@@ -14,15 +14,17 @@ export function itemInput(input,id,old={}){
   if(laserRecharge!==null)requireThat(input.consumable&&Number.isSafeInteger(laserRecharge?.pelletsPerUnit)&&laserRecharge.pelletsPerUnit>0,'INVALID_RECHARGE');
   const shipModule=input.shipModule===undefined?old.shipModule??null:input.shipModule;
   if(shipModule!==null)requireThat(typeof shipModule==='object'&&!Array.isArray(shipModule)&&Object.keys(shipModule).length===2&&Object.hasOwn(shipModule,'code')&&Object.hasOwn(shipModule,'size')&&standardShipModuleQuote(shipModule)!==null&&input.kind==='INDIVIDUAL'&&!input.consumable&&laserRecharge===null,'INVALID_SHIP_MODULE');
+  const knowledgeId=input.knowledgeId===undefined?old.knowledgeId??null:input.knowledgeId;
+  if(knowledgeId!==null){documentId(knowledgeId);requireThat(input.kind==='INDIVIDUAL'&&!input.consumable&&!shipModule&&!laserRecharge,'INVALID_ITEM');}
   const unitVolume=input.unitVolume==null?null:whole(input.unitVolume,'INVALID_ITEM');
   // Optional canonical preparation price for each inventory unit, not a sale or tax.
   const referenceUnitValueCr=input.referenceUnitValueCr===undefined?old.referenceUnitValueCr??null:input.referenceUnitValueCr;
   requireThat(referenceUnitValueCr===null||Number.isSafeInteger(referenceUnitValueCr)&&referenceUnitValueCr>0,'INVALID_REFERENCE_VALUE');
-  return {...mediaFields(old,['illustration']),id,name:text(input.name,150,true),description:text(input.description??'',6000),category:text(input.category??'',150),
+  return {...(knowledgeId?{knowledgeId}:{}),...mediaFields(old,['illustration']),id,name:text(input.name,150,true),description:text(input.description??'',6000),category:text(input.category??'',150),
     pillable:input.pillable??old.pillable??false,...(input.pickpocketable!==undefined||old.pickpocketable!==undefined?{pickpocketable:input.pickpocketable??old.pickpocketable}:{}),unit:text(input.unit??'unité',50,true),kind:input.kind,consumable:input.consumable,unitVolume,legality:input.legality??'UNSPECIFIED',...(referenceUnitValueCr===null?{}:{referenceUnitValueCr}),
     ...(shipModule?{shipModule:{code:shipModule.code,size:shipModule.size}}:{}),...(laserRecharge?{laserRecharge:{pelletsPerUnit:laserRecharge.pelletsPerUnit}}:{}),gmNotes:text(input.gmNotes??'',10000),publicationState:input.publicationState,revision:(old.revision??0)+1};
 }
-export const publicItem=d=>({...(d.shipModule?{shipModule:{code:d.shipModule.code,size:d.shipModule.size}}:{}),...(d.laserRecharge?{laserRecharge:{pelletsPerUnit:d.laserRecharge.pelletsPerUnit}}:{}),...mediaFields(d,['illustration']),id:d.id,name:d.name,pillable:d.pillable??false,pickpocketable:d.pickpocketable??false,description:d.description,category:d.category,unit:d.unit,kind:d.kind,consumable:d.consumable,unitVolume:d.unitVolume,legality:d.legality,...(d.referenceUnitValueCr==null?{}:{referenceUnitValueCr:d.referenceUnitValueCr}),revision:d.revision});
+export const publicItem=d=>({...(d.knowledgeId?{knowledgeId:d.knowledgeId}:{}),...(d.shipModule?{shipModule:{code:d.shipModule.code,size:d.shipModule.size}}:{}),...(d.laserRecharge?{laserRecharge:{pelletsPerUnit:d.laserRecharge.pelletsPerUnit}}:{}),...mediaFields(d,['illustration']),id:d.id,name:d.name,pillable:d.pillable??false,pickpocketable:d.pickpocketable??false,description:d.description,category:d.category,unit:d.unit,kind:d.kind,consumable:d.consumable,unitVolume:d.unitVolume,legality:d.legality,...(d.referenceUnitValueCr==null?{}:{referenceUnitValueCr:d.referenceUnitValueCr}),revision:d.revision});
 export function itemQuantity(definition,value,allowZero=false){
   const quantity=whole(value,'INVALID_QUANTITY');requireThat((allowZero||quantity>0)&&(definition.kind!=='INDIVIDUAL'||quantity<=1),'INVALID_QUANTITY');return quantity;
 }

@@ -1,3 +1,5 @@
+import {heldDocument,documentReceiptAvailable} from './document-access.mjs';
+import {readLot} from './inventory-state.mjs';
 import {codeChallengeInput} from './field-state.mjs';
 import {createKnowledgeSalesService,knowledgeSaleActions} from './knowledge-sales.mjs';
 import {requireGameAction,canGameAction} from './health-state.mjs';
@@ -53,7 +55,7 @@ export function seedKnowledge(tx,sid,knowledge,at){
   }
 }
 const reads=new Set(['myKnowledge','previewKnowledge','knowledgeDetail','previewKnowledgeDetail','prepareKnowledgeShare','knowledgeHistory','knowledgeRecipients']);
-const mutations=new Set(['saveKnowledge','saveSessionKnowledge','grantKnowledge','discoverKnowledge','shareKnowledge','markKnowledgeRead']);
+const mutations=new Set(['openInventoryDocument','saveKnowledge','saveSessionKnowledge','grantKnowledge','discoverKnowledge','shareKnowledge','markKnowledgeRead']);
 export const knowledgeAction=action=>reads.has(action)||mutations.has(action)||knowledgeSaleActions.includes(action);
 
 export function createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid}) {
@@ -62,21 +64,21 @@ export function createKnowledgeService({store,signed,checkSession,checkScenario,
     signed(actor);const sid=documentId(input.sessionId);
     const s=preview?await checkSession(tx,actor,sid):await tx.get(`sessions/${sid}`);
     requireThat(s && s.stage!=='ARCHIVED','FORBIDDEN');
-    let cid;
+    let cid,accessVersion=null;
     if(preview)cid=documentId(input.characterId);
     else {
       const r=await tx.get(`sessions/${sid}/registrations/${hash(actor.uid)}`);
-      requireThat(r?.status==='ACCEPTED' && r.accessActive && r.characterId && actor.authTime>=r.minAuthTime,'FORBIDDEN');cid=r.characterId;
+      requireThat(r?.status==='ACCEPTED' && r.accessActive && r.characterId && actor.authTime>=r.minAuthTime,'FORBIDDEN');cid=r.characterId;accessVersion=r.accessVersion;
     }
     const c=await tx.get(`sessions/${sid}/characters/${cid}`);
     requireThat(c && (preview||c.assignedUid===actor.uid),'FORBIDDEN');
     requireThat(['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s.stage),'BRIEFING_CLOSED');
     requireThat(c.publicationState==='PUBLISHED' && c.public?.publicationState==='PUBLISHED','CONTENT_UNPUBLISHED');
-    return {s,c};
+    return {s,c,accessVersion};
   };
-  const known=async(tx,sid,cid,kid)=>{
+  const known=async(tx,sid,cid,kid,at)=>{
     const k=await tx.get(`sessions/${sid}/knowledge/${kid}`),r=await tx.get(receiptPath(sid,cid,kid));
-    requireThat(k?.publicationState==='PUBLISHED' && r?.active,'FORBIDDEN');return {k,r};
+    requireThat(k?.publicationState==='PUBLISHED' && await documentReceiptAvailable(tx,sid,cid,r,at),'FORBIDDEN');return {k,r};
   };
   const view=(k,r,body=false)=>({id:k.id,title:r.snapshot.title,kind:r.snapshot.kind,origin:r.snapshot.origin,
     receivedAt:r.receivedAt,source:r.source,sourceName:r.sourceName,readAt:r.readAt??null,revision:r.snapshot.revision,
@@ -95,6 +97,18 @@ export function createKnowledgeService({store,signed,checkSession,checkScenario,
   return async function dispatch(action,actor,input){
     if(knowledgeSaleActions.includes(action))return sales(action,actor,input);
     signed(actor);const at=now();
+    if(action==='openInventoryDocument')return store.runTransaction(async tx=>{
+      const {s,c,accessVersion}=await context(tx,actor,input),lotId=documentId(input.lotId),lot=await readLot(tx,s.id,lotId,at),kid=lot?.item.knowledgeId;
+      requireThat(s.spaceOutlaws?.inf02Version===1&&kid&&await heldDocument(tx,s.id,c.id,kid,lotId,at),'FORBIDDEN');
+      const k=await tx.get(`sessions/${s.id}/knowledge/${kid}`),path=receiptPath(s.id,c.id,kid),old=await tx.get(path);
+      requireThat(k?.publicationState==='PUBLISHED'&&k.kind==='DOCUMENT'&&(!old||old.active),'FORBIDDEN');
+      const op='operations/'+hash(actor.uid+':'+documentId(input.requestId)),fingerprint=hash(JSON.stringify([action,input])),previous=await tx.get(op);
+      if(previous){requireThat(previous.fingerprint===fingerprint&&previous.characterId===c.id&&previous.accessVersion===accessVersion,'FORBIDDEN');return previous.result;}
+      authorizeSpaceOutlaws(tx,s,'KNOWLEDGE');
+      if(!old||old.source==='INVENTORY'&&old.documentLotId!==lotId)tx.set(path,{...(old??{id:kid,active:true,snapshot:knowledgeSnapshot(k),receivedAt:at,readAt:null}),source:'INVENTORY',sourceName:lot.item.name,documentLotId:lotId,inventoryCopy:old?.inventoryCopy===true||k.shareMode==='COPY',grantRevision:(old?.grantRevision??0)+1});
+      const id=uuid(),result={id:kid};tx.set(`sessions/${s.id}/audit/${id}`,{id,at,action,actorUid:actor.uid,characterId:c.id,knowledgeId:kid,lotId});
+      tx.set(op,{fingerprint,result,at,characterId:c.id,accessVersion});return result;
+    });
     if(reads.has(action))return store.runTransaction(async tx=>{
       if(action==='knowledgeHistory'||action==='knowledgeRecipients'){
         const {base}=await parentContext(tx,actor,input,!input.sessionId),kid=documentId(input.knowledgeId);
@@ -107,10 +121,10 @@ export function createKnowledgeService({store,signed,checkSession,checkScenario,
       const preview=action.startsWith('preview'),{s,c}=await context(tx,actor,input,preview);
       if(action==='myKnowledge'||action==='previewKnowledge'){
         const receipts=await tx.list(`sessions/${s.id}/characters/${c.id}/knowledge`),items=[];
-        for(const r of receipts){if(!r.active)continue;const k=await tx.get(`sessions/${s.id}/knowledge/${r.id}`);if(k?.publicationState==='PUBLISHED')items.push(view(k,r));}
+        for(const r of receipts){if(!r.active)continue;const k=await tx.get(`sessions/${s.id}/knowledge/${r.id}`);if(k?.publicationState==='PUBLISHED'&&await documentReceiptAvailable(tx,s.id,c.id,r,at))items.push(view(k,r));}
         return {session:{id:s.id,stage:s.stage},preview,items:items.sort((a,b)=>b.receivedAt-a.receivedAt||a.id.localeCompare(b.id))};
       }
-      const {k,r}=await known(tx,s.id,c.id,documentId(input.knowledgeId));
+      const {k,r}=await known(tx,s.id,c.id,documentId(input.knowledgeId),at);
       if(action==='prepareKnowledgeShare'){
         requireThat((r.grantRevision??0)===input.receiptRevision,'STALE_REVISION');
         requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,c,'share');requireThat(view(k,r).canCopy,'SHARING_DISABLED');
@@ -136,7 +150,7 @@ export function createKnowledgeService({store,signed,checkSession,checkScenario,
           requireThat(k?.publicationState==='PUBLISHED' && k.qrEnabled && (k.qrAudience==='ALL_PLAYERS'||k.qrCharacterIds.includes(c.id)),'FORBIDDEN');
           requireThat(!k.qrSkillId||abilityLevel(c,k.qrSkillId)>=k.qrSkillLevel,'FORBIDDEN');
           r=await tx.get(receiptPath(s.id,c.id,kid));requireThat(!r||r.active,'FORBIDDEN');
-        }else ({k,r}=await known(tx,s.id,c.id,kid));
+        }else ({k,r}=await known(tx,s.id,c.id,kid,at));
         if(action==='markKnowledgeRead'||action==='shareKnowledge')requireThat((r.grantRevision??0)===input.receiptRevision,'STALE_REVISION');
         if(action==='shareKnowledge'){
           requireGameAction(s,c,'share');
@@ -180,10 +194,10 @@ export function createKnowledgeService({store,signed,checkSession,checkScenario,
         const cid=recipient?.id??c.id,old=recipient?recipientReceipt:r;
         // Revoked receipts cannot be reacquired through another QR or another character; only a MJ can restore them.
         requireThat(!old||old.active,'FORBIDDEN');
-        if(!old){
-          const shared=action==='shareKnowledge';
-          tx.set(receiptPath(s.id,cid,k.id),{id:k.id,active:true,snapshot:shared?r.snapshot:knowledgeSnapshot(k),receivedAt:at,
-            source:shared?'SHARED':'QR',sourceName:shared?c.public.displayName:'Découverte par QR',readAt:null,grantRevision:1});
+        if(!old||old.source==='INVENTORY'){
+          const shared=action==='shareKnowledge',decoded=shared?r.decodedRevision:old?.decodedRevision===k.revision?old.decodedRevision:null;
+          tx.set(receiptPath(s.id,cid,k.id),{id:k.id,active:true,snapshot:shared?r.snapshot:decoded?old.snapshot:knowledgeSnapshot(k),receivedAt:at,
+            source:shared?'SHARED':'QR',sourceName:shared?c.public.displayName:'Découverte par QR',readAt:null,grantRevision:(old?.grantRevision??0)+1,...(decoded?{decodedRevision:decoded}:{})});
         }
         Object.assign(audit,{knowledgeId:k.id,characterId:c.id,recipientId:cid,created:!old});result={id:k.id};
       }

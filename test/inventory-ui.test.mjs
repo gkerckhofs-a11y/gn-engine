@@ -35,3 +35,10 @@ test('catalogue et correction UI : coût facultatif, motif MJ et aucune réouver
 test('sac UI : modules montés séparés des biens à récupérer, lien privé et aucun lien dans l’aperçu MJ',()=>{
  const d={session:{id:'s'},character:{id:'owner',name:'Owner'},lots:[],installed:[{id:'module',item:{...item,shipModule:{code:'MOD-01',size:2}},location:{kind:'SHIP_MODULE',id:'ship'}}]},h=ui.page(d);assert.match(h,/Mes modules montés/);assert.match(h,/#\/flight\/s\/ship/);assert.match(h,/retrait en atelier à venir/);assert.doesNotMatch(h,/<img|Objets à récupérer/);assert.doesNotMatch(ui.page({...d,preview:true}),/<a |<button/);
 });
+
+test('sac UI : ouvrir un original documentaire, sans commande en aperçu ni lot consommé',()=>{
+ const d={session:{id:'s'},character:{id:'owner',name:'Owner'},lots:[{...lot,item:{...item,knowledgeId:'document',kind:'INDIVIDUAL',consumable:false}}]};
+ assert.match(ui.page(d),/data-action="openInventoryDocument"/);
+ assert.doesNotMatch(ui.page({...d,preview:true}),/data-action="openInventoryDocument"/);
+ assert.doesNotMatch(ui.page({...d,lots:[{...d.lots[0],status:'CONSUMED'}]}),/data-action="openInventoryDocument"/);
+});
