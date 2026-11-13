@@ -62,9 +62,9 @@ Dans « Commit / PR », **B** = base main `49ec5ea12100f9efb62ea23773b216d465d06
 
 | Compétence | Classe | Règle | Moteur | Interface | Statut | Tests | Commit / PR | Publication | Recette terrain | Reste à faire |
 |---|---|---|---|---|---|---|---|---|---|---|
-| COM-01 Vétéran | Combattant | ch. 7, 3, 6 | naissance, santé, succession | Personnage | À vérifier | entry/health/succession existants | B | Non vérifié | À faire | Recette complète 4 PV, relève et persistance |
-| COM-02 Désarmement | Combattant | ch. 7, 5 | règles joueur | Physique | À vérifier | présentation à contrôler | B | Non vérifié | À faire | Vérifier consignes et limites sans téléphone en confrontation |
-| COM-03 Lecture tactique | Combattant | ch. 7, 4 | field-actions ANALYZE | Action | À vérifier | space-outlaws-actions | B/C | Non vérifié | À faire | Contrôle de clôture des cinq niveaux et cibles défensives |
+| COM-01 Vétéran | Combattant | ch. 7, 3, 6 | naissance, santé, succession | Personnage | À vérifier | entry/health/succession existants | B | Non vérifié | À faire | 4 PV naissance/santé/relève vérifiés localement (L) ; CI du candidat et recette terrain restantes |
+| COM-02 Désarmement | Combattant | ch. 7, 5 | règles joueur | Physique | À vérifier | présentation à contrôler | B | Non vérifié | À faire | Consignes ch. 5 complétées et testées (L) ; CI du candidat et recette terrain restantes |
+| COM-03 Lecture tactique | Combattant | ch. 7, 4 | field-actions ANALYZE | Action | À vérifier | space-outlaws-actions | B/C | Non vérifié | À faire | Cinq niveaux et refus de baisse de niveau testés sur Firestore (L) ; CI du candidat et recette terrain restantes |
 | ROG-01 Neutralisation furtive | Rogue | ch. 8, 5 | santé et procédure physique | Physique/Action | Partiel | santé existante | B | Non vérifié | À faire | Suivi spécifique des tentatives/récupération à raccorder |
 | ROG-02 Vol à la tire | Rogue | ch. 8, A12 | space-pickpocket | Action | À vérifier | space-pickpocket | B | Non vérifié | À faire | Recette identité, quotas et notification différée |
 | ROG-03 Évasion | Rogue | ch. 8, 6 | space-escape | Action | À vérifier | space-escape | B | Non vérifié | À faire | Recette surveillance et verrous concurrents |
@@ -87,15 +87,15 @@ Dans « Commit / PR », **B** = base main `49ec5ea12100f9efb62ea23773b216d465d06
 | INF-02 Déchiffrement | Infiltrateur | ch. 14 | space-decryption/knowledge | Action | Partiel | space-decryption : cas métier de transfert, copies, droits et intégration ciblée | B + D + E + F + G + H + I | Non vérifié | À faire | Originaux M1/M6 et transferts raccordés ; validation CI du candidat et recette intégrée restantes |
 | INF-03 Falsification | Infiltrateur | ch. 14 | space-forgery/evidence | Action | Partiel | space-forgery | B | Non vérifié | À faire | Raccord TRA-03 et inspection du document transféré |
 | Entretien de protection | Supplémentaire | ch. 15, 5 | person-actions PROTECTION | Action | À vérifier | identity-news-health | B/C | Non vérifié | À faire | Banc de protection et recette des consommables compatibles |
-| Riposte | Supplémentaire | ch. 15, 5 | règles joueur | Physique | À vérifier | présentation à contrôler | B | Non vérifié | À faire | Vérifier règles par adversaire/confrontation, aucune commande exigée |
-| Garde du corps | Supplémentaire | ch. 15, 5 | règles joueur, déclaration santé | Physique | À vérifier | présentation à contrôler | B | Non vérifié | À faire | Désignation, distance et transfert joué au bon moment |
+| Riposte | Supplémentaire | ch. 15, 5 | règles joueur | Physique | À vérifier | présentation à contrôler | B | Non vérifié | À faire | Règles canoniques et fiche sans commande testées (L) ; CI du candidat et recette terrain restantes |
+| Garde du corps | Supplémentaire | ch. 15, 5 | règles joueur, déclaration santé | Physique | À vérifier | présentation à contrôler | B | Non vérifié | À faire | Désignation, 2 m, transfert immédiat et exclusions documentés/testés (L) ; CI et recette terrain restantes |
 | Sabotage | Supplémentaire | ch. 15 | field-actions SABOTAGE/REPAIR | Action | Partiel | space-installation, field-actions | S | Non | À faire | Installations N1–N2 raccordées ; modules de droïdes N3, vaisseaux N4 et profils exceptionnels N5 à compléter |
 | Dissimulation | Supplémentaire | ch. 15 | person-actions / inventaire natif | Action/sac | Partiel | space-loot-concealment | K | Non | À faire | Cache, expiration et oppositions raccordées ; CI exacte et recette intégrée restantes |
 | FIL-01 Pistage | Supplémentaire | ch. 15 | traces fictives à raccorder | Action | À développer | Pas de parcours spécifique identifié | B | Non vérifié | À faire | Registre commun fictif, niveaux et suivi spatial |
 | TOXI-01 Toxicologie | Supplémentaire | ch. 15 | recettes/inventaire à raccorder | Action | À développer | Catalogue préparatoire, pas de cycle complet identifié | B/C | Non | À faire | Fabrication, activation volontaire, antidote, expiration et MED-01 |
 | ESC-01 Escorte spatiale | Supplémentaire | ch. 15, 20, 25 | escort/maneuvers/combat | Cockpit/Terminal | À vérifier | space-escort-maneuvers | B | Non vérifié | À faire | Recette intégrée avec PIL-03 et mandats |
 | EFF-01 Effacement de traces | Supplémentaire | ch. 15 | traces fictives à raccorder | Action | À développer | Pas de parcours spécifique identifié | B | Non vérifié | À faire | Masquage/opposition FIL sans aucune suppression d'audit |
-| LAS-01 Maîtrise du sabre | Supplémentaire | ch. 15, 5 | apprentissage, santé, règles | Personnage/physique | À vérifier | health/learning | B | Non vérifié | À faire | Attribution, arme compatible et procédure physique |
+| LAS-01 Maîtrise du sabre | Supplémentaire | ch. 15, 5 | apprentissage, santé, règles | Personnage/physique | À vérifier | health/learning | B | Non vérifié | À faire | Règles, apprentissage et dégâts contrôlés (L) ; CI du candidat et recette avec matériel réel restantes |
 
 ## Vérification et limites de clôture
 
@@ -242,3 +242,26 @@ Validation : 57 tests ciblés réussis (clinique, atelier, santé et interaction
 - Les cartes Action conduisent au parcours natif. Dissimulation sélectionne son propre sac, sans demander de QR de personnage. M1 propose l’admissibilité ; la régie des interactions propose la nouvelle rencontre motivée. Les nouvelles publications portent `personLootVersion` et `concealmentVersion` ; aucune ancienne session n’est migrée.
 
 Validation locale : campagne complète de 3 051 tests réussie avant le dernier contrôle de confidentialité après libération ; 53 tests ciblés réussis après ce contrôle, compilation et diff sans erreurs. Onze cas partagés Firestore réussis sur le candidat final ; un cas de reprise d’épisode réussi localement et sur Firestore vérifie l’expiration de la cache sans altérer la session source. CI exacte à consigner dans la PR. Ces campagnes se recouvrent. Pas de fusion main, de déploiement Firebase, de données réelles modifiées ou de recette terrain. L’export Excel M1 historique ne transporte pas encore `concealable` ; préparer ce champ dans l’éditeur M1.
+
+
+## L — Niveaux des analyses et procédures physiques (13 novembre 2026)
+
+Branche `work/skills-v07-analysis-guards`, base K / PR #26, `6fcab6a4adbdd9d6214ebdae08d7fe9f15d86dfc`. Références : V0.7 ch. 4, 5, 7, 9 et 15. Le commit et la CI du candidat sont à relever dans sa PR ; aucune fusion, publication Firebase ni recette humaine effectuée.
+
+Un défaut reproduit sur COM-03, TRA-01 et TRA-03 permettait de recevoir les informations préparées au niveau 3 après une baisse au niveau 1 pendant l’action. La résolution native revérifie désormais le niveau engagé pour toute compétence de terrain Space Outlaws. Le refus ne distribue aucune information, ne consomme aucun dé et conserve les réservations jusqu’à l’annulation native. Les tirages D6/D12 ne sont effectués qu’à une résolution admissible qui les exige, et sont conservés lors des reprises transactionnelles. COM-03 ne tire donc plus de dé inutilisé ; une résolution déjà enregistrée ou trop précoce n’en tire pas non plus.
+
+La fiche expose désormais les extraits canoniques des 34 compétences, dont les dix supplémentaires. COM-02 reprend les contacts sûrs, l’interruption de séquence et le retrait de dix secondes ; Riposte et Garde du corps reprennent leurs limites par confrontation. LAS-01 distingue apprentissage et arme, sans attribuer de pouvoirs. Les techniques physiques restent des consignes de scène, sans commande de combat ; les pertes de santé sont déclarées ensuite à l’abri. La présence de ces textes ne vaut pas implémentation des capacités numériques supplémentaires encore absentes.
+
+Preuves locales sur ce lot :
+
+- 39 tests ciblés actions/terrain/fouilles/expertise marchande réussis ; cinq niveaux COM-03 et TRA-01, informations garanties et bonus, durées, coût, récupération et tentative par version.
+- 45 tests de non-régression négociation/contacts/installations/diagnostic technique/navigation réussis.
+- 18 cas de la suite `space-outlaws-actions` réussis sur Firestore, incluant les baisses de niveau, concurrence, réessais, interruption et confidentialité.
+- 29 tests santé et interface réussis ; règles présentes pour les 34 entrées du catalogue, aucune commande dans les fiches de techniques physiques.
+- 21 tests de succession réussis, avec vérification explicite des 4 PV et du maximum de 4 à la relève d’un Combattant.
+- Deux cas Firestore supplémentaires réussis : neutralisation déclarée après la scène (Vétéran à 0 PV, protection inchangée, survie réelle, immunité du droïde) et naissance du successeur Combattant. La suite santé complète antérieure à ce nouveau cas a aussi passé ses 20 cas Firestore.
+- Compilation réussie et `git diff --check` sans erreur. Ces contrôles ciblés ne sont pas une recette complète Android/iOS.
+
+CI précédente vérifiée : PR #24, commit `da38760748b786a7529e61babc620b630de21a3c`, [exécution 43478788053](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/43478788053), réussie. PR #25, commit `e7a2af8db6c876665bc3e78d12785c6f85921056`, [exécution 43479691734](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/43479691734), également réussie. Cela ne valide pas automatiquement L ni la PR #26 encore en cours au relevé.
+
+Restent distincts : raccord des faux documents à TRA-03, suivi des tentatives ROG-01, capacités numériques supplémentaires et recette terrain. Aucune fermeture artificielle de ces lignes.

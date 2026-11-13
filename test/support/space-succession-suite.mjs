@@ -169,6 +169,8 @@ export function spaceSuccessionSuite(makeStore,prefix='Succession SO'){
   await f.edit(`characters/${f.cid}`,c=>({...c,earnedXp:38,xp:1,inheritedXp:9}));await f.edit(`registrations/${hash(f.player.uid)}`,r=>({...r,progression:{completedSessions:4,pendingXp:3}}));
   const q=await f.previewSuccession();assert.equal(q.inheritedXp,9);assert.equal(q.pendingXp,3);assert.equal(q.xp,12);assert.equal(q.actionPoints,8);
   const requestId=randomUUID(),done=await f.succeed(q,f.input(),{requestId}),me=await f.actionRead('mySession');
+  assert.equal(q.hp,4);assert.equal(me.character.hp,4);
+  assert.equal((await f.get('characters/reserve')).maxHp,4);
   assert.equal(done.characterId,'reserve');assert.equal(me.character.displayName,'Dana Réserve');assert.equal(me.progression.xp,12);assert.equal(me.progression.earnedXp,3);assert.equal(me.globalLevel,2);assert.equal(me.actionPoints.available,8);assert.equal(me.actionPoints.nextRefillGameMs,q.nextRefillGameMs);
   assert.deepEqual(await f.get(''),before);assert.equal((await f.get(`characters/${f.cid}`)).assignedUid,null);assert.equal((await f.get(`characters/${f.cid}`)).survival.dead,true);assert.equal((await f.get('characters/reserve')).birth.order,2);
   assert.deepEqual(await f.get(`accounts/${accountId(f.cid)}`),oldWallet);for(const l of oldLots)assert.deepEqual(await f.get(`inventory/${l.id}`),l);

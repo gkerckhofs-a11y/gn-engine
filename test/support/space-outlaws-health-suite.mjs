@@ -20,6 +20,17 @@ export async function healthFixture(makeStore,options={}){
  return {...f,cid,tid,damage,careInput,startCare,finishCare,cancelCare,health};
 }
 export function spaceOutlawsHealthSuite(makeStore,prefix='Santé SPACE OUTLAWS'){
+ test(`${prefix} : neutralisation physique déclarée après scène, Vétéran à zéro et droïde immunisé`,async()=>{
+  const f=await healthFixture(makeStore,{classId:'COM'});
+  assert.equal((await f.health()).hp,4);
+  await f.damage(1,f.other,{damageKind:'STEALTH',secondsSinceDown:30});
+  const h=await f.health();assert.equal(h.hp,0);assert.equal(h.protection,1);
+  assert.equal(h.status,'URGENT');assert.equal(h.remainingMs,270000);
+  assert.equal((await f.points(f.other)).available,5);assert.equal(f.rollCount(),0);
+  const g=await healthFixture(makeStore,{classId:'COM',nature:'DROID'});
+  await assert.rejects(g.damage(1,g.other,{damageKind:'STEALTH'}),{code:'PATIENT_NATURE_MISMATCH'});
+  assert.equal((await g.health()).hp,4);assert.equal((await g.health()).protection,1);
+ });
  test(`${prefix} : soins de terrain, 1 PA et une fourniture réelle, réessai sans double coût`,async()=>{
   const f=await healthFixture(makeStore);await f.damage();const a=await f.startCare();assert.equal(a.remainingMs,105000);assert.equal((await f.points()).reserved,1);const stock=await f.actionRead('myInventory');assert.equal(stock.lots.filter(l=>l.status==='FIELD_RESERVED').length,1);
   await assert.rejects(f.finishCare(a),{code:'FIELD_TOO_EARLY'});f.advance(105000);const requestId=randomUUID(),r=await f.finishCare(a,f.player,{requestId});assert.equal(r.result.restored,1);assert.equal((await f.health()).hp,3);assert.equal((await f.points()).available,4);assert.deepEqual(await f.finishCare(a,f.player,{requestId}),r);assert.deepEqual((await f.finishCare(a)).result,r.result);

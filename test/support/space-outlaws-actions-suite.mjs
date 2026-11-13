@@ -30,6 +30,46 @@ export async function actionsFixture(makeStore,{classId='COM',nature='HUMANOID',
  return {...f,actionRead:read,actionCmd:cmd,stage,prepareAction:prepare,start,finish,points,advance:ms=>{at+=ms;},rollCount:()=>dieRolls,setDie:n=>{die=n;},setDice:values=>{dice=[...values];},target};
 }
 export function spaceOutlawsActionsSuite(makeStore,prefix='Actions SPACE OUTLAWS'){
+ test(`${prefix} : cinq niveaux tactiques et de traces, durées, informations et tentative par version`,async()=>{
+  for(const [classId,skillId] of [['COM','COM-03'],['TRA','TRA-01']])for(let level=1;level<=5;level++){
+   const f=await actionsFixture(makeStore,{classId,skillId});await f.stage('EN_JEU');
+   const cid=(await f.actionRead('mySession')).character.id,path=`sessions/${f.sid}/characters/${cid}`;
+   await f.store.runTransaction(async tx=>{const c=await tx.get(path);tx.set(path,{...c,abilityProfile:{...c.abilityProfile,skills:c.abilityProfile.skills.map(k=>k.id===skillId?{...k,level}:k)}});});
+   const a=await f.start(),seconds=skillId==='COM-03'?[120,105,90,75,60][level-1]:120;
+   assert.equal(a.remainingMs,seconds*1000);assert.equal(a.cost,1);f.advance(seconds*1000);
+   const r=await f.finish(a),ids=['ordinary',...(level>=3?['higher']:[]),...(skillId==='TRA-01'&&level===5?['bonus']:[])];
+   assert.deepEqual(r.result.information.map(k=>k.id),ids);assert.equal(r.result.roll,skillId==='COM-03'?null:1);
+   assert.equal((await f.points()).available,4);assert.equal(f.rollCount(),skillId==='COM-03'?0:1);
+   await assert.rejects(f.start({targetId:'elsewhere'}),{code:'COOLDOWN_ACTIVE'});
+   f.advance(600000);await assert.rejects(f.start(),{code:'FIELD_ANALYSIS_DONE'});
+  }
+ });
+ test(`${prefix} : perte du niveau engagé bloque les renseignements supérieurs, annulation sans perte`,async()=>{
+  for(const [classId,skillId] of [['COM','COM-03'],['TRA','TRA-01'],['TRA','TRA-03']]){
+   const f=await actionsFixture(makeStore,{classId,skillId});await f.stage('EN_JEU');
+   const cid=(await f.actionRead('mySession')).character.id,path=`sessions/${f.sid}/characters/${cid}`;
+   const level=async level=>f.store.runTransaction(async tx=>{const c=await tx.get(path);tx.set(path,{...c,abilityProfile:{...c.abilityProfile,skills:c.abilityProfile.skills.map(k=>k.id===skillId?{...k,level}:k)}});});
+   await level(3);const a=await f.start();await level(1);f.advance(120000);
+   await assert.rejects(f.finish(a),{code:'FIELD_SKILL_REQUIRED'});
+   assert.equal(f.rollCount(),0);assert.deepEqual((await f.actionRead('myKnowledge')).items,[]);
+   assert.equal((await f.points()).reserved,1);
+   await f.actionCmd('cancelFieldAction',{actionId:a.id,reason:'Niveau changé pendant la scène'});
+   assert.equal((await f.points()).available,5);assert.equal((await f.points()).reserved,0);
+   const b=await f.start();f.advance(120000);const r=await f.finish(b);
+   assert.deepEqual(r.result.information.map(k=>k.id),['ordinary']);
+   assert.equal(f.rollCount(),skillId==='COM-03'?0:1);
+  }
+ });
+ test(`${prefix} : aucun dé en lecture tactique, avant durée ou lors des réessais d’une analyse`,async()=>{
+  for(const [classId,skillId] of [['COM','COM-03'],['TRA','TRA-01']]){
+   const f=await actionsFixture(makeStore,{classId,skillId});await f.stage('EN_JEU');const a=await f.start();
+   await assert.rejects(f.finish(a),{code:'FIELD_TOO_EARLY'});assert.equal(f.rollCount(),0);
+   f.advance(120000);const requestId=randomUUID(),r=await f.finish(a,{requestId});
+   assert.equal(f.rollCount(),skillId==='COM-03'?0:1);
+   assert.deepEqual(await f.finish(a,{requestId}),r);assert.deepEqual((await f.finish(a)).result,r.result);
+   assert.equal(f.rollCount(),skillId==='COM-03'?0:1);
+  }
+ });
  test(`${prefix} : QR, aperçu privé, scène et informations graduées sans jet tactique`,async()=>{
   const f=await actionsFixture(makeStore);const scan=await f.actionRead('fieldTarget',{targetId:'scene'});assert.equal(scan.profiles[0].durationSeconds,105);assert.doesNotMatch(JSON.stringify(scan),/TEXTE_PRIVE|VERITE_MJ|SECRET_MJ|Titre ordinary/);assert.equal((await f.points()).available,5);
   await assert.rejects(f.start(),{code:'SESSION_NOT_RUNNING'});await f.stage('EN_JEU');const p=await f.prepareAction();assert.equal(p.cost,1);assert.equal(p.test,'AUTO');assert.equal(p.cooldownSeconds,600);assert.equal((await f.points()).reserved,0);

@@ -55,3 +55,10 @@ Le déchiffrement revérifie le droit de lecture à la résolution. Une perte d�
 « Dissimuler un objet » ouvre directement son propre sac. Seuls les modèles M1 préparés comme admissibles sont proposés. Une cache protège une unité pendant trente minutes de jeu ; elle résiste au Rogue et à la fouille commune. Un Traqueur de niveau au moins égal la découvre immédiatement à la résolution de sa fouille. Le quota de prise ne change pas.
 
 Le MJ utilise « Nouvelle rencontre » uniquement pour une situation réellement distincte, avec motif. Attendre dix ou trente minutes, changer de fouilleur ou recapturer la même victime ne recrée pas automatiquement un droit de prise.
+
+
+### Clôture V0.7 — analyses et techniques physiques
+
+Les analyses de terrain revérifient le niveau engagé avant de remettre les informations. Si la fiche a changé, l’action peut être interrompue par son parcours natif pour libérer les ressources. Une analyse automatique ne tire pas de dé ; une résolution déjà enregistrée ne relance pas le test.
+
+La fiche Compétences contient les conditions canoniques des 34 capacités. Désarmement, Neutralisation furtive, Riposte, Garde du corps et Maîtrise du sabre restent des techniques physiques : lire avant la scène, jouer sans téléphone, déclarer ensuite les pertes de santé à l’abri. Afficher la règle d’une capacité ne signifie pas que tous ses parcours numériques sont déjà raccordés : voir la matrice unique de clôture.

@@ -121,7 +121,9 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
    }
    return {session:{id:s.id,stage:s.stage},...(route?{navigation:{name:route.name,fromPort:route.fromPort,toPort:route.toPort}}:{}),target:publicTarget(t,state),profiles,analysisDone:t.kind==='ANALYSIS'&&state.analyses?.[c.id]===t.revision,aidOffers:await offeredAid(tx,s.id,c.id),activeActionId:c.activeFieldActionId??null,lockedMs:Math.max(0,state.lockedUntilGameMs-time),protectedMs:Math.max(0,state.protectedUntilGameMs-time)};
   });
-  const requestId=documentId(input.requestId),op=`operations/${hash(`${actor.uid}:${requestId}`)}`,fingerprint=digest([action,input]),id=uuid(),die=action==='finishFieldAction'?rollD6():null,searchDie=action==='finishFieldAction'?rollD12():null;
+  const requestId=documentId(input.requestId),op=`operations/${hash(`${actor.uid}:${requestId}`)}`,fingerprint=digest([action,input]),id=uuid();
+  // Draw only for an eligible resolution, once even if the transaction retries.
+  let die,searchDie;
   return store.runTransaction(async tx=>{
    let org,ctx,a;
    if(adminWrites.includes(action)){org=await organizer(tx,actor,input);requireThat(org.s.stage!=='ARCHIVED','SESSION_CLOSED');}
@@ -188,13 +190,13 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
       if(s.spaceOutlaws&&['SABOTAGE','REPAIR'].includes(a.kind))requireThat(s.spaceOutlaws.sabotageVersion===1&&validSoInstallation(t)&&t.revision===a.targetRevision,'FIELD_STATE_CHANGED');
       requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,c,'discover',at);requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');requireThat(time>=a.readyAtGameMs,'FIELD_TOO_EARLY');requireThat(t?.publicationState==='PUBLISHED','FIELD_UNAVAILABLE');await dependency(tx,s,t,at);
       requireThat(!a.profile.skillId||abilityLevel(c,a.profile.skillId)>=a.profile.minLevel,'FIELD_SKILL_REQUIRED');requireThat(a.kind==='SEARCH'||a.kind==='ANALYZE'||(a.kind==='SABOTAGE'?state.status==='ONLINE':state.status==='OFFLINE'),'FIELD_STATE_CHANGED');
-      if(a.profile.skillId==='MEC-01')requireThat(abilityLevel(c,'MEC-01')>=a.level,'FIELD_SKILL_REQUIRED');
+      if(s.spaceOutlaws&&a.profile.skillId)requireThat(abilityLevel(c,a.profile.skillId)>=a.level,'FIELD_SKILL_REQUIRED');
       if(a.profile.skillId==='PIL-01'){
        requireRouteAnalysis(s);requireThat(abilityLevel(c,'PIL-01')>=a.level,'FIELD_SKILL_REQUIRED');
        const route=a.routeAnalysis?await tx.get(`sessions/${s.id}/routes/${a.routeAnalysis.routeId}`):null;
        requireThat(digest(routeAnalysisBinding(s,c,t,route))===digest(a.routeAnalysis),'FIELD_STATE_CHANGED');
       }
-      await checkAid(tx,s,a,at);const roll=a.searchVersion===1?searchDie:a.profile.test==='D6'?die:null;if(roll!==null)requireThat(Number.isInteger(roll)&&roll>=1&&roll<=(a.searchVersion===1?12:6),'INVALID_DIE');
+      await checkAid(tx,s,a,at);const roll=a.searchVersion===1?(searchDie??=rollD12()):a.profile.test==='D6'?(die??=rollD6()):null;if(roll!==null)requireThat(Number.isInteger(roll)&&roll>=1&&roll<=(a.searchVersion===1?12:6),'INVALID_DIE');
       const total=roll===null?null:roll+a.level+a.bonus+(a.aid?1:0),success=roll===null||total>=a.profile.threshold;outcome={success,roll,level:a.level,bonus:a.bonus,aid:a.aid?1:0,total,threshold:a.searchVersion===1&&!a.showDifficulty?null:a.profile.threshold,text:success?a.profile.successText:a.profile.failureText,reward:null};
       if(a.searchVersion===1){
        requireThat(isPlaceSearch(t)&&t.search.active&&t.revision===a.targetRevision&&state.epoch===a.searchEpoch,'FIELD_STATE_CHANGED');
