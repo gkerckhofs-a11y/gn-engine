@@ -35,3 +35,14 @@ test('M6 INF-02 : compatibilités bornées, doublons refusés, publication sans 
  assert.equal(soReleaseDefinitionChecks([k,i]).definitions.length,0);
  for(const items of [[],[{...i,data:{consumable:true}}]])assert.ok(soReleaseDefinitionChecks([k,...items]).definitions.some(b=>b.code==='SO_INF02_BONUS_ITEM'));
 });
+
+test('M6 INF-02 : cryptogramme haché, édition sans réponse conserve le secret, paramètres invalides refusés',()=>{
+ const challenge={type:'CODE',prompt:'Décodez le message',durationSeconds:90,answerCode:'NOVA 2042'};
+ const cipher={minLevel:2,threshold:6,plaintext:'SECRET',challenge};
+ const k=centralKnowledgeInput({...document,cipher},'code');assert.match(k.cipher.challenge.answerDigest,/^[a-f0-9]{64}$/);
+ assert.doesNotMatch(JSON.stringify(k),/NOVA 2042|answerCode/);
+ const edited=centralKnowledgeInput({...document,cipher:{...cipher,challenge:{...challenge,answerCode:'',durationSeconds:120}}},'code',k);
+ assert.equal(edited.cipher.challenge.answerDigest,k.cipher.challenge.answerDigest);
+ for(const patch of [{answerCode:''},{durationSeconds:0},{durationSeconds:3601},{prompt:''},{type:'UNSUPPORTED'}])assert.throws(()=>centralKnowledgeInput({...document,cipher:{...cipher,challenge:{...challenge,...patch}}},'code'));
+ assert.throws(()=>centralKnowledgeInput({...document,cipher:{...cipher,bonusItemIds:['decoder']}},'code'));
+});

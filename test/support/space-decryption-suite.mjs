@@ -1,3 +1,4 @@
+import {intrusionAnswerDigest} from '../../src/core/field-state.mjs';
 import test from 'node:test';
 import {createHash,randomUUID} from 'node:crypto';
 import assert from 'node:assert/strict';
@@ -30,6 +31,11 @@ async function bonusFixture(makeStore,{helper=false}={}){
  assert.ok(lot);const lotPath='sessions/'+f.sid+'/inventory/'+lot.id;
  await f.store.runTransaction(async tx=>{const k=await tx.get(f.kpath);tx.set(f.kpath,{...k,cipher:{...k.cipher,bonusItemIds:[lot.item.id]}});});
  return {...f,lot,lotPath,startBonus:()=>f.actionCmd('startSoDecryption',{knowledgeId:'ordinary',bonusLotId:lot.id})};
+}
+async function cryptogramFixture(makeStore){
+ const f=await decryptionFixture(makeStore);
+ await f.store.runTransaction(async tx=>{const k=await tx.get(f.kpath);tx.set(f.kpath,{...k,cipher:{...k.cipher,challenge:{type:'CODE',prompt:'Consigne de cryptogramme préparée',durationSeconds:90,answerDigest:intrusionAnswerDigest('NOVA 2042')}}});});
+ return f;
 }
 export function soDecryptionSuite(makeStore,prefix='INF-02'){
  test(prefix+' : document acquis, D6 + niveau, temps de jeu, un PA et révélation après succès',async()=>{
@@ -280,6 +286,48 @@ export function soDecryptionSuite(makeStore,prefix='INF-02'){
   await f.store.runTransaction(async tx=>{const l=await tx.get(f.lotPath);tx.set(f.lotPath,{...l,revision:l.revision+1});});
   f.advance(165000);f.setDie(6);await assert.rejects(f.finish(a.id),{code:'FIELD_EQUIPMENT_UNAVAILABLE'});
   assert.equal((await f.points()).reserved,1);assert.equal((await f.store.get(f.rpath)).decodedRevision,undefined);
+ });
+
+ test(prefix+' : cryptogramme à durée préparée, solution privée et aucun D6 même au rejeu',async()=>{
+  const f=await cryptogramFixture(makeStore),before=f.rollCount();
+  assert.doesNotMatch(JSON.stringify(await f.actionRead('mySoDecryption')),/Consigne de cryptogramme|NOVA 2042|answerDigest|COORDONNEES_SECRETES/);
+  const a=await f.start();assert.equal(a.mode,'CODE');assert.equal(a.durationSeconds,90);
+  const view=await f.actionRead('mySoDecryption');assert.equal(view.active.challenge.prompt,'Consigne de cryptogramme préparée');
+  assert.doesNotMatch(JSON.stringify(view),/NOVA 2042|answerDigest|COORDONNEES_SECRETES/);
+  const body={actionId:a.id,answer:' nova   2042 ',requestId:randomUUID()};
+  await assert.rejects(f.actionCmd('finishSoDecryption',body),{code:'SO_INF02_TOO_EARLY'});
+  f.advance(90000);f.setDie(0);const r=await f.actionCmd('finishSoDecryption',body);
+  assert.equal(r.status,'SUCCESS');assert.equal(r.roll,null);assert.equal(r.total,null);assert.equal(r.threshold,null);
+  assert.deepEqual(await f.actionCmd('finishSoDecryption',body),r);assert.equal(f.rollCount(),before);
+  assert.equal((await f.points()).available,4);assert.equal((await f.actionRead('knowledgeDetail',{knowledgeId:'ordinary'})).knowledge.body,f.plaintext);
+ });
+ test(prefix+' : cryptogramme erroné consomme la tentative, sans dé ni destruction du document',async()=>{
+  const f=await cryptogramFixture(makeStore),a=await f.start();f.advance(90000);
+  await assert.rejects(f.actionCmd('finishSoDecryption',{actionId:a.id,answer:'?'}),{code:'SO_INF02_ANSWER'});
+  assert.equal((await f.points()).reserved,1);
+  const r=await f.actionCmd('finishSoDecryption',{actionId:a.id,answer:'MAUVAISE REPONSE'});assert.equal(r.status,'FAILED');assert.equal(r.roll,null);
+  assert.equal((await f.points()).available,4);assert.match((await f.actionRead('knowledgeDetail',{knowledgeId:'ordinary'})).knowledge.body,/ZYX/);
+  f.advance(600000);await assert.rejects(f.start(),{code:'SO_INF02_ALREADY'});
+ });
+ test(prefix+' : cryptogramme sans bonus au dé, annulation puis durée complète en temps de jeu',async()=>{
+  const f=await cryptogramFixture(makeStore);
+  await assert.rejects(f.actionCmd('startSoDecryption',{knowledgeId:'ordinary',bonusLotId:'injected'}),{code:'AID_NOT_ALLOWED'});
+  await assert.rejects(f.actionCmd('startSoDecryption',{knowledgeId:'ordinary',aidOfferId:'injected'}),{code:'AID_NOT_ALLOWED'});
+  const a=await f.start();f.advance(30000);await f.cancel(a.id);assert.equal((await f.points()).available,5);
+  const b=await f.start();f.advance(30000);await f.stage('PAUSE');f.advance(600000);
+  assert.equal((await f.actionRead('mySoDecryption')).active.remainingMs,60000);
+  await f.stage('EN_JEU');f.advance(60000);
+  assert.equal((await f.actionCmd('finishSoDecryption',{actionId:b.id,answer:'NOVA 2042'})).status,'SUCCESS');
+ });
+ test(prefix+' : cryptogramme révisé ou reçu retiré ne divulgue plus la consigne active',async()=>{
+  const f=await cryptogramFixture(makeStore),a=await f.start();
+  await f.store.runTransaction(async tx=>{const k=await tx.get(f.kpath);tx.set(f.kpath,{...k,revision:k.revision+1});});
+  assert.equal((await f.actionRead('mySoDecryption')).active.challenge,undefined);f.advance(90000);
+  await assert.rejects(f.actionCmd('finishSoDecryption',{actionId:a.id,answer:'NOVA 2042'}),{code:'SO_INF02_STALE'});
+  await f.cancel(a.id);
+  const b=await f.start();await f.store.runTransaction(async tx=>{const r=await tx.get(f.rpath);tx.set(f.rpath,{...r,active:false});});
+  assert.equal((await f.actionRead('mySoDecryption')).active.challenge,undefined);
+  f.advance(90000);await assert.rejects(f.actionCmd('finishSoDecryption',{actionId:b.id,answer:'NOVA 2042'}),{code:'SO_INF02_DOCUMENT'});
  });
 
 }

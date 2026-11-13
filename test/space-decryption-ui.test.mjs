@@ -30,3 +30,10 @@ test('INF-02 : choix du décrypteur compatible avant lancement, nom échappé',(
  const html=soDecryptionHtml({enabled:true,level:2,cooldownMs:0,documents:[{id:'doc',title:'Message',requiredLevel:1,bonusLots:[{id:'lot',name:'<b>Décrypteur</b>'}]}]},'sid');
  assert.match(html,/name="bonusLotId"/);assert.match(html,/value="lot"/);assert.match(html,/&lt;b&gt;Décrypteur/);
 });
+
+test('INF-02 : cryptogramme affiche sa durée puis une réponse, sans bouton de jet ni bonus',()=>{
+ const d={enabled:true,level:2,cooldownMs:0,documents:[{id:'doc',title:'Cryptogramme',requiredLevel:1,mode:'CODE',durationSeconds:90}]};
+ const menu=soDecryptionHtml(d,'sid');assert.match(menu,/90 secondes/);assert.doesNotMatch(menu,/name="bonusLotId"|name="aidOfferId"/);
+ const html=soDecryptionHtml({...d,active:{id:'a',mode:'CODE',status:'RUNNING',remainingMs:0,challenge:{prompt:'<script>Consigne'}}},'sid');
+ assert.match(html,/name="answer"/);assert.match(html,/Valider la réponse sans dé/);assert.match(html,/&lt;script&gt;/);assert.doesNotMatch(html,/Terminer et lancer le D6/);
+});

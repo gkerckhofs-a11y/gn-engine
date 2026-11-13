@@ -1,3 +1,4 @@
+import {intrusionAnswerDigest} from './field-state.mjs';
 import {readLot,personalLot,lotState} from './inventory-state.mjs';
 import {prepareAid,reserveAid,checkAid,finishAid,aidSnapshot,cooldownPath} from './aid-state.mjs';
 import {requireGameAction} from './health-state.mjs';
@@ -17,7 +18,7 @@ const receiptPath=(sid,cid,kid)=>charPath(sid,cid)+'/knowledge/'+kid;
 const actorPath=(sid,cid)=>base(sid)+'/inf02Actors/'+cid;
 const actionPath=(sid,id)=>base(sid)+'/inf02Actions/'+id;
 const attemptPath=(sid,cid,kid,revision)=>base(sid)+'/inf02Attempts/'+hash(cid+':'+kid+':'+revision);
-const summarize=a=>({id:a.id,status:a.status,knowledgeId:a.knowledgeId,readyAtGameMs:a.readyAtGameMs,
+const summarize=a=>({id:a.id,status:a.status,mode:a.mode??'D6',knowledgeId:a.knowledgeId,readyAtGameMs:a.readyAtGameMs,
  durationSeconds:a.durationSeconds,roll:a.roll??null,total:a.total??null,threshold:a.threshold??null,success:a.success??null,bonus:a.bonus??0,aid:a.aid?1:0});
 export const soDecryptionActions=['soDecryptionAdmin','cancelSoDecryptionMJ','cancelSoDecryptionAid','mySoDecryption','startSoDecryption','finishSoDecryption','cancelSoDecryption'];
 export function createSoDecryptionService({store,signed,checkSession,now,uuid,rollD6=()=>randomInt(1,7)}){
@@ -74,7 +75,7 @@ export function createSoDecryptionService({store,signed,checkSession,now,uuid,ro
   return summarize(ended);
  }
  return async function dispatch(action,actor,input){
-  const sid=documentId(input.sessionId),at=now(),roll=action==='finishSoDecryption'?rollD6():null;
+  const sid=documentId(input.sessionId),at=now();let rolled=null;
   return store.runTransaction(async tx=>{
    if(['soDecryptionAdmin','cancelSoDecryptionMJ'].includes(action)){
     signed(actor);
@@ -109,18 +110,19 @@ export function createSoDecryptionService({store,signed,checkSession,now,uuid,ro
     const receipts=await tx.list(charPath(sid,c.id)+'/knowledge',null,{limit:1001});
     requireThat(receipts.length<=1000,'SO_RELEASE_LIMIT');
     const lots=(await tx.list(base(sid)+'/inventory',['holderId',c.id])).filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.quantity>0&&!l.item.consumable&&!l.item.shipModule);
-    const documents=[];
+    const documents=[];let challenge=null;
     for(const receipt of receipts.filter(r=>r.active)){
      const k=await tx.get(base(sid)+'/knowledge/'+receipt.id);
      if(k?.publicationState!=='PUBLISHED'||k.kind!=='DOCUMENT'||!k.cipher?.plaintext)continue;
      const tried=await tx.get(attemptPath(sid,c.id,k.id,k.revision));
-     documents.push({id:k.id,title:receipt.snapshot.title,revision:k.revision,requiredLevel:k.cipher.minLevel,
+     if(active?.knowledgeId===k.id&&active.status==='RUNNING'&&active.knowledgeRevision===k.revision&&active.accessVersion===registration.accessVersion&&level>=k.cipher.minLevel&&k.cipher.challenge)challenge={type:'CODE',prompt:k.cipher.challenge.prompt,durationSeconds:k.cipher.challenge.durationSeconds};
+     documents.push({mode:k.cipher.challenge?'CODE':'D6',durationSeconds:k.cipher.challenge?.durationSeconds??durations[level]??null,id:k.id,title:receipt.snapshot.title,revision:k.revision,requiredLevel:k.cipher.minLevel,
       bonusLots:lots.filter(l=>(k.cipher.bonusItemIds??[]).includes(l.item.id)).map(l=>({id:l.id,name:l.item.name,bonus:1})),
       attempted:['SUCCESS','FAILED'].includes(tried?.status),decoded:receipt.decodedRevision===k.revision});
     }
     const offers=await tx.list(base(sid)+'/aidOffers',['recipientId',c.id]);
     return {enabled:level>0,level,documents,aidOffers:offers.filter(o=>o.status==='OFFERED'&&o.skillId==='INF-02').map(o=>({id:o.id,helperName:o.helperName})),
-      active:active?{...summarize(active),remainingMs:Math.max(0,active.readyAtGameMs-time)}:null,
+      active:active?{...summarize(active),...(challenge?{challenge}:{}),remainingMs:Math.max(0,active.readyAtGameMs-time)}:null,
       cooldownMs:Math.max(0,readyAt-time)};
    }
    if(action!=='cancelSoDecryptionAid')requireThat(level>0,'SO_INF02_SKILL');
@@ -150,6 +152,7 @@ export function createSoDecryptionService({store,signed,checkSession,now,uuid,ro
     requireThat(r.decodedRevision!==k.revision,'SO_INF02_ALREADY');
     const attempt=await tx.get(attemptPath(sid,c.id,k.id,k.revision));
     requireThat(!['RUNNING','FAILED','SUCCESS'].includes(attempt?.status),'SO_INF02_ALREADY');
+    requireThat(!k.cipher.challenge||(!input.bonusLotId&&!input.aidOfferId),'AID_NOT_ALLOWED');
     let bonusLot=null;
     if(input.bonusLotId){bonusLot=await readLot(tx,sid,documentId(input.bonusLotId),at);requireThat(bonusLot&&personalLot(bonusLot,c.id)&&bonusLot.status==='AVAILABLE'&&bonusLot.quantity>0&&!bonusLot.item.consumable&&!bonusLot.item.shipModule&&(k.cipher.bonusItemIds??[]).includes(bonusLot.item.id),'FIELD_EQUIPMENT_UNAVAILABLE');}
     const profile={test:'D6',skillId:'INF-02',minLevel:k.cipher.minLevel};
@@ -160,7 +163,7 @@ export function createSoDecryptionService({store,signed,checkSession,now,uuid,ro
      requireThat((helperState?.cooldownUntil??0)<=time,'SO_INF02_COOLDOWN');
     }
     const pointsPath=actionPointPath(sid,c.id),points=actionPointState(s,c,await tx.get(pointsPath),at);
-    const id=uuid(),durationSeconds=durations[level],a={id,characterId:c.id,knowledgeId:k.id,knowledgeRevision:k.revision,
+    const id=uuid(),durationSeconds=k.cipher.challenge?.durationSeconds??durations[level],a={id,mode:k.cipher.challenge?'CODE':'D6',characterId:c.id,knowledgeId:k.id,knowledgeRevision:k.revision,
       status:'RUNNING',level,durationSeconds,readyAtGameMs:time+durationSeconds*1000,startedAtGameMs:time,
       accessVersion:registration.accessVersion,actorUid:actor.uid,bonus:bonusLot?1:0,bonusLotId:bonusLot?.id??null,bonusItemId:bonusLot?.item.id??null,bonusLotRevision:bonusLot?bonusLot.revision+1:null,profile,aid:aidSnapshot(aid),family,cooldownSeconds:600};
     reserveAid(tx,s,a,aid,'inf02Actions');
@@ -187,14 +190,23 @@ export function createSoDecryptionService({store,signed,checkSession,now,uuid,ro
    const {k,r}=await document(tx,sid,c.id,a.knowledgeId);
    requireThat(k.revision===a.knowledgeRevision,'SO_INF02_STALE');
    requireThat(level>=a.level&&level>=k.cipher.minLevel,'SO_INF02_SKILL');
-   requireThat(Number.isInteger(roll)&&roll>=1&&roll<=6,'INVALID_DIE');
+   const challenge=k.cipher.challenge;requireThat((a.mode??'D6')===(challenge?'CODE':'D6'),'SO_INF02_STALE');
    const bonusLot=await reservedBonus(tx,s,c,a,at);
    if(bonusLot)requireThat((k.cipher.bonusItemIds??[]).includes(bonusLot.item.id),'FIELD_EQUIPMENT_UNAVAILABLE');
    await checkAid(tx,s,a,at);
    if(a.aid&&s.spaceOutlaws.escapeVersion===1){const cap=await tx.get(base(sid)+'/soCaptivities/'+a.aid.characterId);requireThat(cap?.status!=='ACTIVE','SO_ESCAPE_CAPTIVE');}
-   const total=roll+a.level+(a.bonus??0)+(a.aid?1:0),success=total>=k.cipher.threshold;
+   let roll=null,total=null,success;
+   if(challenge){
+    requireThat(!a.aid&&!a.bonusLotId,'SO_INF02_STALE');
+    requireThat(typeof input.answer==='string'&&input.answer.length<=128,'SO_INF02_ANSWER');
+    let digest;try{digest=intrusionAnswerDigest(input.answer);}catch{requireThat(false,'SO_INF02_ANSWER');}
+    success=digest===challenge.answerDigest;
+   }else{
+    roll=rolled??(rolled=rollD6());requireThat(Number.isInteger(roll)&&roll>=1&&roll<=6,'INVALID_DIE');
+    total=roll+a.level+(a.bonus??0)+(a.aid?1:0);success=total>=k.cipher.threshold;
+   }
    const ended={...a,status:success?'SUCCESS':'FAILED',finishedAtGameMs:time,roll,total,
-    threshold:k.cipher.threshold,success};
+    threshold:challenge?null:k.cipher.threshold,success};
    await finishAid(tx,s,a,at);
    releaseBonus(tx,s,a,bonusLot,at,false);
    tx.set(cooldownPath(sid,c.id,family),{readyAtGameMs:time+cooldownMs,actionId:id});

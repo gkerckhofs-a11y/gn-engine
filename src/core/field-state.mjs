@@ -17,6 +17,21 @@ const normalizeIntrusionCode=code=>{
 };
 export const intrusionAnswerDigest=code=>createHash('sha256').update(normalizeIntrusionCode(code)).digest('hex');
 
+export function codeChallengeInput(inputChallenge,oldChallenge){
+  check(inputChallenge===undefined||inputChallenge&&typeof inputChallenge==='object'&&!Array.isArray(inputChallenge));
+  let challenge;
+  if(inputChallenge){
+   check(inputChallenge.type==='CODE'&&Object.keys(inputChallenge).every(key=>['type','prompt','durationSeconds','answerCode','answerDigest'].includes(key)));
+   const supplied=typeof inputChallenge.answerCode==='string'&&inputChallenge.answerCode.trim()?intrusionAnswerDigest(inputChallenge.answerCode):null;
+   const answerDigest=supplied??inputChallenge.answerDigest??oldChallenge?.answerDigest;
+   check(typeof answerDigest==='string'&&/^[a-f0-9]{64}$/.test(answerDigest));
+   const durationSeconds=num(inputChallenge.durationSeconds,3600);
+   check(durationSeconds>0);
+   challenge={type:'CODE',prompt:text(inputChallenge.prompt,3000,true),durationSeconds,answerDigest};
+  }
+  return challenge;
+}
+
 export function fieldProfile(v,kind){
  check(v&&typeof v==='object'&&!Array.isArray(v));check(Array.isArray(v.bonusItems??[]));const skillId=v.skillId?documentId(v.skillId):null;
  const durationByLevel={};check(Object.keys(v.durationByLevel??{}).length<=20);
@@ -58,18 +73,7 @@ export function fieldTargetInput(v,id,old={}){
   check(Number.isSafeInteger(i.minLevel)&&i.minLevel>=1&&i.minLevel<=5);
   check(Number.isSafeInteger(i.threshold)&&i.threshold>=2&&i.threshold<=12);
   check((v.rewards??[]).length===0&&Object.keys(v.profiles??{}).length===0&&!v.dependencyId);
-  const inputChallenge=i.challenge;
-  check(inputChallenge===undefined||inputChallenge&&typeof inputChallenge==='object'&&!Array.isArray(inputChallenge));
-  let challenge;
-  if(inputChallenge){
-   check(inputChallenge.type==='CODE'&&Object.keys(inputChallenge).every(key=>['type','prompt','durationSeconds','answerCode','answerDigest'].includes(key)));
-   const supplied=typeof inputChallenge.answerCode==='string'&&inputChallenge.answerCode.trim()?intrusionAnswerDigest(inputChallenge.answerCode):null;
-   const answerDigest=supplied??inputChallenge.answerDigest??old.intrusion?.challenge?.answerDigest;
-   check(typeof answerDigest==='string'&&/^[a-f0-9]{64}$/.test(answerDigest));
-   const durationSeconds=num(inputChallenge.durationSeconds,3600);
-   check(durationSeconds>0);
-   challenge={type:'CODE',prompt:text(inputChallenge.prompt,3000,true),durationSeconds,answerDigest};
-  }
+  const challenge=codeChallengeInput(i.challenge,old.intrusion?.challenge);
   return {id,kind:'INTRUSION',title:text(v.title,150,true),description:text(v.description??'',6000),
    gmNotes:text(v.gmNotes??'',10000),publicationState:v.publicationState,profiles:{},rewards:[],
    intrusion:{category:i.category,minLevel:i.minLevel,threshold:i.threshold,

@@ -23,7 +23,7 @@ Ne jamais mettre le texte clair dans `body` : ce champ apparaît au détenteur d
 ## Limites non couvertes par la première tranche
 
 1. Obtenir un objet physique par vol/inventaire ne crée pas encore automatiquement un reçu M6. Le MJ doit fournir le document en jeu par un parcours existant ; une intégration inventaire ↔ documents reste à planifier.
-2. Les défis cryptogrammes/mini-jeux alternatifs aux jets D6 et leur propre validation ne sont pas encore intégrés.
+2. Les cryptogrammes à réponse textuelle préparée sont raccordés au validateur partagé avec INF-01 ; les autres formats de mini-jeu ne sont pas couverts.
 3. Le décrypteur portable (+1) et l’aide compétente (+1) sont raccordés par les compléments du 13 novembre décrits ci-dessous. Les autres éventuels équipements nécessitent leur règle propre.
 4. Une révision de document ne doit pas être appliquée rétroactivement à une session en cours : préserver le Master figé et le reçu historique.
 5. Aucune recette d'ergonomie Android/iOS réelle, de charge ou de session humaine effectuée par le seul code.
@@ -55,3 +55,11 @@ Dans la fiche de document M6, renseigner les identifiants des équipements M1 co
 Le joueur choisit un décrypteur présent dans son sac avant de lancer INF-02. Le lot est réservé pendant la durée puis libéré sur succès, échec ou annulation, sans perte de quantité. Son bonus +1 peut s’ajouter à l’aide +1. Les transferts et usages concurrents restent soumis au verrou natif d’inventaire. Un changement incohérent de lot bloque la résolution plutôt que d’écraser les données.
 
 Recette : publier un document compatible, fournir le décrypteur au personnage, sélectionner le lot, vérifier sa réservation, terminer puis vérifier le +1 et la quantité conservée. Refaire avec annulation et matériel incompatible. Le formulaire M6 prend en charge la préparation ; aucun Master déjà publié n’est modifié automatiquement.
+
+## Cryptogramme à réponse préparée — 13 novembre 2026
+
+Dans M6, activer « Cryptogramme à réponse préparée », saisir la consigne, la durée annoncée (secondes de jeu) et la solution. Le contrat partagé avec INF-01 accepte 4–64 lettres, chiffres, espaces ou tirets et une durée de 1–3600 secondes. En modification, une réponse vide conserve l’empreinte existante ; désactiver le cryptogramme revient au D6. La réponse brute n’est jamais réaffichée. Les compatibilités de matériel ne sont pas enregistrées dans ce mode.
+
+Après lancement, le joueur lit la consigne puis valide sa réponse une fois la durée écoulée. Aucun D6 n’est généré et aucun bonus au dé ne s’applique. Une mauvaise réponse consomme le PA et la tentative de cette version ; une réponse correcte révèle le texte privé préparé. Le document chiffré n’est jamais détruit. Les espaces multiples, la casse et la normalisation Unicode suivent INF-01. Une saisie hors format demande correction sans résoudre la tentative.
+
+Recette : publier un document avec une consigne à 90 secondes ; vérifier que le formulaire annonce cette durée, puis la suspend pendant une pause. Résoudre avec la bonne réponse, vérifier l’absence de jet et le débit unique. Sur un autre personnage, essayer une mauvaise réponse et confirmer l’absence de nouvelle tentative sur cette version après récupération.

@@ -1,3 +1,4 @@
+import {codeChallengeInput} from './field-state.mjs';
 import {createKnowledgeSalesService,knowledgeSaleActions} from './knowledge-sales.mjs';
 import {requireGameAction,canGameAction} from './health-state.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
@@ -31,7 +32,9 @@ export function knowledgeInput(input,id,old={}) {
    requireThat(input.body!==plaintext,'INVALID_KNOWLEDGE');
    const bonusItemIds=sourceCipher.bonusItemIds===undefined?undefined:ids(sourceCipher.bonusItemIds);
    requireThat(!bonusItemIds||bonusItemIds.length<=20,'INVALID_KNOWLEDGE');
-   return {minLevel:sourceCipher.minLevel,threshold:sourceCipher.threshold,plaintext,...(bonusItemIds!==undefined?{bonusItemIds}:{})};
+   let challenge;try{challenge=codeChallengeInput(sourceCipher.challenge,old.cipher?.challenge);}catch{requireThat(false,'INVALID_KNOWLEDGE');}
+   requireThat(!challenge||!bonusItemIds?.length,'INVALID_KNOWLEDGE');
+   return {minLevel:sourceCipher.minLevel,threshold:sourceCipher.threshold,plaintext,...(bonusItemIds!==undefined?{bonusItemIds}:{}),...(challenge?{challenge}:{})};
   })();
   return {id,...(cipher?{cipher}:{}),qrSkillId:skillId,qrSkillLevel:skillLevel,title:text(input.title,150,true),body:text(input.body,20000,true),origin:text(input.origin??'',300),
     kind:input.kind,publicationState:input.publicationState,shareMode:input.shareMode,

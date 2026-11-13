@@ -34,3 +34,10 @@ test('M6 INF-02 : compatibilité matérielle explicite conservée dans le formul
  const p=centralKnowledgePayload({...c.data,qrSkillLevel:'',qrSkillId:'',cipherEnabled:'on',cipherMinLevel:'1',cipherThreshold:'6',cipherPlaintext:'Secret',cipherBonusItems:'decoder, second'});
  assert.deepEqual(p.cipher.bonusItemIds,['decoder','second']);
 });
+test('M6 INF-02 : préparation du cryptogramme sans réafficher la réponse ni son empreinte',()=>{
+ const challenge={type:'CODE',prompt:'Consigne',durationSeconds:90,answerDigest:'a'.repeat(64)};
+ const h=ui.knowledgeForm(d,'document',{...c,data:{...c.data,cipher:{minLevel:1,threshold:6,plaintext:'Secret',challenge}}});
+ assert.match(h,/name="cipherChallengeEnabled" checked/);assert.match(h,/name="cipherAnswer" value=""/);assert.ok(!h.includes(challenge.answerDigest));
+ const payload=centralKnowledgePayload({...c.data,qrSkillLevel:'',qrSkillId:'',cipherEnabled:'on',cipherChallengeEnabled:'on',cipherMinLevel:'1',cipherThreshold:'6',cipherPlaintext:'Secret',cipherPrompt:'Consigne',cipherDuration:'90',cipherAnswer:'NOVA 2042',cipherBonusItems:'decoder'});
+ assert.equal(payload.cipher.challenge.answerCode,'NOVA 2042');assert.equal(payload.cipher.challenge.durationSeconds,90);assert.equal(payload.cipher.bonusItemIds,undefined);
+});
