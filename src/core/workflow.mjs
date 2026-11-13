@@ -1,3 +1,4 @@
+import {createSabaccService,sabaccActions} from '../sabacc/service.mjs';
 import {groupChat} from './group-chat.mjs';
 import {createCockpitCommandService} from './cockpit-command.mjs';
 import {createPlayerIdentityService,identityCommands} from './player-identity.mjs';
@@ -223,7 +224,9 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const notebookService=createNotebookService({store,signed,now,uuid});
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
+  const sabaccService=createSabaccService({store,signed,isAdmin,checkSession,now,uuid});
   async function dispatch(action,actor,input={}) {
+    if(sabaccActions.has(action))return sabaccService(action,actor,input);
     if(shopActions.includes(action))return shopService(action,actor,input);
     if(soLearningActions.includes(action))return learningService(action,actor,input);
     if(soPickpocketActions.includes(action))return pickpocketService(action,actor,input);
@@ -549,6 +552,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
           if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/fieldActions`)).some(a=>a.status==='ACTIVE'),'FIELD_ACTIONS_OPEN');
           if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/ships`)).some(s=>s.journey),'VOYAGES_OPEN');
           if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/cargoTransfers`)).some(t=>t.status==='LOADING'),'CARGO_TRANSFERS_OPEN');
+          if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/accounts`)).some(a=>a.ownerType==='SABACC'&&a.balance>0),'SABACC_POT_NOT_EMPTY');
           if(input.stage==='ARCHIVED')requireThat(!s.campaignId,'CAMPAIGN_CLOSE_REQUIRED');
           if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/bounties`)).some(b=>b.status==='OPEN'),'BOUNTIES_OPEN');
           if(input.stage==='ARCHIVED')requireThat(!(await tx.list(`sessions/${sid}/contracts`)).some(c=>['PROPOSED','ACTIVE','SUBMITTED'].includes(c.status)),'CONTRACTS_OPEN');

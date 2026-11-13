@@ -1479,3 +1479,7 @@ Conserver le candidat sur branche/PR. Aucun merge, aucune production, aucun chan
 ## Messagerie de groupe — 12 novembre 2026
 
 Salon entre membres actifs révélés, réception future uniquement, signature fictive explicite, droits revérifiés et reçus idempotents. Détails, limites et preuves locales : [SO-MESSAGERIE-GROUPES.md](SO-MESSAGERIE-GROUPES.md). Contrôle navigateur ajouté en CI ; aucune publication.
+
+## 2026-11-13 — Sabacc autonome (candidat séparé)
+
+Développement demandé depuis `SABACC_Cahier_des_charges_V1_0`, avec classement Sabacc For Charity choisi par l’organisateur. Moteur, tables privées/publiques, régie, QR, portefeuilles local/GN et client `/sabacc/`. Rapport de périmètre et limites : [SABACC-MODULE.md](SABACC-MODULE.md). Base main publiée `abae2811c2aeb27cba1ff47c5e004d3b7c11bbc5`. Tests ciblés mémoire (14), Firestore (8) et compilation réussis ; résultat CI du SHA candidat dans la PR. Recette humaine mobile et terrain non exécutée. Pas de publication du module.

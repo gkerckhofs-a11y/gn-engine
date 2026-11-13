@@ -132,6 +132,7 @@ export function createCampaignService({store,signed,admin,checkScenario,checkSes
   block('BOUNTY',bounties.filter(r=>r.status==='OPEN'));
   block('PICKUP',sales.filter(r=>r.status==='SOLD'&&r.pickupStatus!=='RECEIVED'));
   block('RESERVED_CREDITS',data.accounts.filter(r=>r.reserved!==0));
+  block('SABACC_POT',data.accounts.filter(r=>r.ownerType==='SABACC'&&r.balance!==0));
   block('RESERVED_AP',data.characters.filter((ch,i)=>(resources[i]?.reserved??0)>0));
   const openListings=listings.filter(r=>r.status==='ACTIVE'),openSales=sales.filter(r=>r.status==='PENDING'),openTransfers=transfers.filter(r=>r.status==='PENDING');
   for(const lot of data.inventory)if(lot.status==='RESERVED'){

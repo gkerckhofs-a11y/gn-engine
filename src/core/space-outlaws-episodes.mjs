@@ -57,6 +57,7 @@ export function soClosure(s,data,input,at){
  const eligible=data.registrations.filter(r=>r.admission?.status==='APPROVED');
  requireThat(input.participantUids.every(uid=>eligible.some(r=>r.uid===uid)),'SO_PARTICIPANTS_REQUIRED');
  const blocks=[],changes=[],block=(kind,rows)=>rows.forEach(r=>blocks.push({kind,id:r.id,title:r.public?.displayName??r.name??r.terms?.title??r.id}));
+ block('SABACC_POT',data.accounts.filter(a=>a.ownerType==='SABACC'&&a.balance!==0));
  block('SURVIVAL',data.characters.filter(c=>['URGENT','EXPIRED'].includes(survival(s,c,at).status)));
  block('PERSON_ACTION',data.personActions.filter(personOpen));
  block('FIELD_ACTION',data.fieldActions.filter(a=>a.status==='ACTIVE'));
