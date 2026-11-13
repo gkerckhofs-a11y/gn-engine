@@ -338,7 +338,18 @@ test('Dashboard orga : trois espaces, recherche, droits et Sabacc sur mobile',as
  await expect(page.locator('[data-org-name]').first()).toBeVisible();
  await page.locator('[data-org-name] button[data-action="preview"]').first().click();
  await expect(page.locator('#dialog')).toBeVisible();await page.keyboard.press('Escape');
- await page.evaluate(()=>scrollTo(0,0));await capture(page,info,'organisateur-animer-desktop');
+ for(const width of [1440,1920]){
+  await page.setViewportSize({width,height:1080});await page.evaluate(()=>scrollTo(0,0));
+  const bounds=await page.locator('.org-shell').boundingBox();expect(bounds.width).toBeGreaterThan(width===1440?1300:1700);
+  expect(await page.locator('.org-cards').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(width===1440?3:4);
+  await expect(page.locator('.org-tool-list')).toHaveAttribute('open','');
+  await expect(page.getByRole('navigation',{name:'Actions fréquentes'}).getByRole('link',{name:'Régie Sabacc',exact:true})).toBeVisible();
+  await capture(page,info,`organisateur-pc-${width}`);
+  await page.evaluate(()=>scrollTo(0,900));
+  const top=await page.locator('.org-navigation').boundingBox();expect(top.y).toBeGreaterThanOrEqual(-1);expect(top.y).toBeLessThanOrEqual(1);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ }
+ await page.evaluate(()=>scrollTo(0,0));
  await page.getByRole('navigation',{name:'Organisation de la session'}).getByRole('link',{name:'Préparer',exact:true}).click();
  await expect(page.locator('.org-main h1')).toHaveText('Préparer');
  await expect(page.getByRole('heading',{name:'Joueurs approuvés',exact:true})).toBeVisible();

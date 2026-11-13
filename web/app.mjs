@@ -103,6 +103,7 @@ let identity=null, routeVersion=0, noticeTimer, busy=false, currentPlayer=null, 
 const pendingCommands=new Map();
 let currentOrganizer=null;
 document.addEventListener('input',event=>organizerInput(event,app));
+window.addEventListener('resize',()=>{const tools=app.querySelector('.org-tool-list');if(tools)tools.open=innerWidth>800;});
 function pageRenderer(){const context=currentOrganizer,base=createPlayerRenderer({version:routeVersion,getVersion:()=>routeVersion,context:currentPlayer,route:currentPlayerRoute,root:app});const render=(content,space)=>{base(organizerShell(context,content),space);if(base.current())organizeHome(app,context);};render.current=base.current;return render;}
 function notice(message,error=false){const n=document.querySelector('#notice');n.textContent=message;n.className=error?'error':'';n.style.display='block';clearTimeout(noticeTimer);noticeTimer=setTimeout(()=>n.style.display='none',6500);}
 async function api(action,input={}) {

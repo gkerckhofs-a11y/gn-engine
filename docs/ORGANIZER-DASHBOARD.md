@@ -36,6 +36,10 @@ Droits : propriétaire = contenu/rythme/accueil/délégations ; MJ = contenu/ryt
 
 La navigation persistante accompagne les routes organisateur de session, y compris les sous-régies. Préparer/Animer/Superviser renvoient au bon contexte ; la recherche d’outil traverse les trois catégories sans exposer les fonctions désactivées. Les pages de Master/scénario/campagne ouvertes depuis la session conservent la navigation au moyen d’un contexte explicite dans le lien, vérifié contre la session ; leurs contrôles ne sont pas dupliqués. Les accès autonomes sans session gardent leur propre contexte d’édition. Les anciennes routes restent valables. Les sessions historiques gardent leurs formulaires existants, répartis entre les trois vues.
 
+## Priorité PC — précision utilisateur du 13 novembre
+
+Le poste organisateur est un PC. La console utilise une largeur de travail allant jusqu’à 1840 px, une barre de contexte persistante, une navigation latérale déployée, quatre raccourcis fréquents, les commandes de rythme et de sécurité côte à côte et trois ou quatre colonnes de cartes selon la largeur. La recherche et les contrôles restent accessibles au clavier. La recette principale couvre 1440 × 1080 et 1920 × 1080, avec vérification du bandeau pendant le défilement. Le petit écran reste un contrôle de compatibilité secondaire.
+
 ## Choix et limites explicites
 
 - Frontend uniquement : aucun schéma, règle métier, endpoint, droit serveur ou ressource modifié.
