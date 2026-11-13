@@ -1,4 +1,5 @@
 const fields={
+ consentTraceErasure:['recipientId'],
  personTarget:['targetId'],preparePersonAction:['targetId'],startPersonAction:['targetId'],offerAid:['targetId'],
  startSoPickpocket:['targetId'],prepareTreatment:['targetId'],applyTreatment:['targetId'],
  preparePayment:['recipientId'],payCredits:['recipientId'],payFromAccount:['recipientId'],prepareAccountPayment:['recipientId'],

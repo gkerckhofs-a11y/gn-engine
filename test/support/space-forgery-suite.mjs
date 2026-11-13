@@ -2,11 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {actionsFixture,analysisTarget} from './space-outlaws-actions-suite.mjs';
 const tid='forge_license',blankItemId='kit_blank-forms';
-export async function forgeryFixture(makeStore,{category='RECEIPT',minLevel=1,threshold=6,second=false,review=false}={}){
+export async function forgeryFixture(makeStore,{category='RECEIPT',minLevel=1,threshold=6,second=false,review=false,trace=false}={}){
  const f=await actionsFixture(makeStore,{classId:'INF',release:false,helper:second});
  if(review)await f.cc('saveCentralFieldTarget',{fieldTargetId:'review',fieldTargetRevision:0,draftRevision:(await f.view()).draft.revision,fieldTarget:analysisTarget('TRA-03',{documentOnly:true}),reason:'Dossier des originaux produits'});
  const view=await f.view();
- const fieldTarget={kind:'FORGERY',title:'Atelier du faussaire',description:'Atelier en jeu avec mobilier fictif.',
+ const fieldTarget={...(trace?{tracePolicy:{minLevel:1,actions:['FORGERY'],falseLeads:[]}}:{}),kind:'FORGERY',title:'Atelier du faussaire',description:'Atelier en jeu avec mobilier fictif.',
   gmNotes:'ATELIER_MJ_SECRET',profiles:{},rewards:[],forgery:{...(review?{reviewTargetId:'review'}:{}),category,minLevel,threshold,blankItemId,
    documentTitle:'Attestation du Port de Brèche',documentText:'DOCUMENT_DE_FICTION_SANS_DROIT',
    anomalies:'FIBRE_PAPIER_INCORRECTE_SECRET_MJ'}};

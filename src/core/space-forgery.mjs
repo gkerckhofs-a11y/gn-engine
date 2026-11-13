@@ -1,3 +1,4 @@
+import {recordFictionalTrace} from './space-fictional-traces.mjs';
 import {activeMalaise} from './space-toxicology-state.mjs';
 import {createHash,randomInt} from 'node:crypto';
 import {abilityLevel} from './abilities.mjs';
@@ -201,6 +202,7 @@ export function createSoForgeryService({store,signed,checkSession,now,uuid,rollD
      templateId:tid,templateRevision:target.revision,quality:a.level,
      anomalies:target.forgery.anomalies,actionId:aid});
    }
+   await recordFictionalTrace(tx,s,c,target,'FORGERY',a.id,at);
    const ended={...a,status:success?'SUCCESS':'FAILED',finishedAtGameMs:time,roll,total,
     threshold:target.forgery.threshold,success,documentId:documentIdCreated};
    tx.set(actionPath(sid,aid),ended);

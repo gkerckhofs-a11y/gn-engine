@@ -1,3 +1,4 @@
+import {recordFictionalTrace} from './space-fictional-traces.mjs';
 import {readLot,personalLot,lotState} from './inventory-state.mjs';
 import {prepareAid,reserveAid,checkAid,finishAid,aidSnapshot,cooldownPath} from './aid-state.mjs';
 import {offeredAid} from './person-actions.mjs';
@@ -172,6 +173,7 @@ export function createSoIntrusionService({store,signed,checkSession,now,uuid,rol
     requireThat(Number.isInteger(roll)&&roll>=1&&roll<=6,'INVALID_DIE');
     total=roll+a.level+(a.bonus??0)+(a.aid?1:0);success=total>=t.intrusion.threshold;
    }
+   await recordFictionalTrace(tx,s,c,t,'INTRUSION',a.id,at);
    const text=success?t.intrusion.successText:t.intrusion.failureText;
    const ended={...a,status:success?'SUCCESS':'FAILED',finishedAtGameMs:time,
     roll,total,threshold:challenge?null:t.intrusion.threshold,success,text};

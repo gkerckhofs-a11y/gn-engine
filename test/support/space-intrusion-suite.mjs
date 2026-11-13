@@ -4,11 +4,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {actionsFixture} from './space-outlaws-actions-suite.mjs';
 
-export async function intrusionFixture(makeStore,{minLevel=1,threshold=6,challenge=false,helper=false,resources=false,hints=false,failureLockSeconds=0}={}){
+export async function intrusionFixture(makeStore,{minLevel=1,threshold=6,challenge=false,helper=false,resources=false,hints=false,failureLockSeconds=0,trace=false}={}){
  const f=await actionsFixture(makeStore,{classId:'INF',release:false,helper});
  if(resources)await f.cc('saveCentralItem',{itemId:'circuit',itemRevision:0,draftRevision:(await f.view()).draft.revision,item:{name:'Circuit consommable fictif',kind:'STACKABLE',consumable:true},reason:'Fourniture préparée'});
  const d=await f.view();
- const target={kind:'INTRUSION',title:'Serrure de cantina',description:'Une serrure fictive portant le QR du jeu.',
+ const target={...(trace?{tracePolicy:{minLevel:1,actions:['INTRUSION'],falseLeads:[]}}:{}),kind:'INTRUSION',title:'Serrure de cantina',description:'Une serrure fictive portant le QR du jeu.',
   gmNotes:'SECRET_MJ',failureLockSeconds,profiles:{},rewards:[],intrusion:{category:'LOCK',minLevel,threshold,
    successText:'LE_PASSAGE_FICTIF_EST_AUTORISE',failureText:'La serrure fictive résiste.',...(resources?{bonusItemIds:['kit_communicator'],consumable:{itemId:'circuit',quantity:2}}:{}),...(hints?{hints:[{id:'hint3',minLevel:3,text:'INDICE_PRIVE_N3'},{id:'hint5',minLevel:5,text:'INDICE_PRIVE_N5'}]}:{}),
    ...(challenge?{challenge:{type:'CODE',prompt:'Trouver la devise de la station, gravée sur le décor.',
