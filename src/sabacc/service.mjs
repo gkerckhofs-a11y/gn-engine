@@ -111,7 +111,7 @@ export function createSabaccService({store,signed,isAdmin,checkSession,now,uuid}
     let seat=who?.seat??t.seats.find(s=>s.id===who?.id)?.seat;
     if(action==='sabaccTick'){need(t.status==='ACTIVE'&&settings.enabled,'SABACC_PAUSED');seat=h.activeSeat;}
     if(action==='sabaccExpel'){seat=number(input.seat,0,7);const p=t.seats.find(s=>s.seat===seat);need(p,'SABACC_PLAYER');p.kick=true;txt(input.reason,500);}
-    const out=act(t,h,seat,action==='sabaccExpel'?'EXPEL':input.move,{rng:randomSource(seed),clock:time,balances:b,cardId:input.cardId,amount:input.amount,timeout:action==='sabaccTick'});h=out.hand;deltas=out.deltas;
+    if(action==='sabaccExpel'&&h.players.find(p=>p.seat===seat)?.folded){h.events.push({sequence:h.events.length+1,type:'EXPEL',round:h.round,seat});}else{const out=act(t,h,seat,action==='sabaccExpel'?'EXPEL':input.move,{rng:randomSource(seed),clock:time,balances:b,cardId:input.cardId,amount:input.amount,timeout:action==='sabaccTick'});h=out.hand;deltas=out.deltas;}
    }else if(action==='sabaccCancel'){
     need(t&&active(h),'SABACC_PHASE');txt(input.reason,500);await loadCards();await balances(h.players);const out=cancelHand(t,h);h=out.hand;deltas=out.deltas;
    }else if(action==='sabaccRefundPot'){

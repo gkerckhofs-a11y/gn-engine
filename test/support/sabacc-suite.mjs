@@ -49,6 +49,9 @@ export function sabaccSuite(makeStore,prefix='Sabacc'){
   for(const t of tables){await t.send('sabaccCancel',{reason:'Fin de charge fictive'});const balances=await Promise.all(t.players.map(w=>f.read('sabaccTable',{tableId:t.tid,qrToken:t.qrToken},w)));assert.equal(balances.reduce((n,d)=>n+d.self.balance,0),8000);}
   times.sort((a,b)=>a-b);const p95=times[Math.floor(times.length*.95)];console.log(`${prefix} charge 10×8 : ${times.length} commandes, p95 ${Math.round(p95)} ms (seuil recette locale 1500 ms)`);assert.ok(p95<1500);
  });
+ test(`${prefix} : retirer un joueur déjà couché puis terminer sans bloquer la table`,async()=>{
+  const f=await sabaccFixture(makeStore);await f.send('sabaccJoin',{seat:2},f.eve);await f.send('sabaccGrant',{playerId:(await f.view(f.eve)).self.id,amount:100,reason:'Test troisième joueur'});await f.start();await f.send('sabaccReady',{ready:true},f.eve);const actors=[f.a,f.b,f.eve];for(let i=0;i<3;i++){const d=await f.view();await f.send('sabaccPlay',{move:'STAND'},actors[d.hand.activeSeat]);}const d=await f.view(),seat=d.hand.activeSeat;await f.send('sabaccPlay',{move:'FOLD'},actors[seat]);await f.send('sabaccExpel',{seat,reason:'Départ après abandon'});await f.send('sabaccCancel',{reason:'Fin de test'});assert.equal((await f.view(actors[seat])).self.seat,null);
+ });
  test(`${prefix} : siège unique, autres tables et expulsions entre deux mains`,async()=>{
   const f=await sabaccFixture(makeStore);await assert.rejects(f.send('sabaccJoin',{seat:0},f.eve),{code:'SABACC_SEAT'});
   const t=await f.cmd('sabaccCreate',{name:'Casino',location:'Annexe',tier:2,seatCount:4,mode:'LOCAL'});await f.cmd('sabaccStatus',{tableId:t.id,revision:1,status:'OPEN'});await assert.rejects(f.cmd('sabaccJoin',{tableId:t.id,qrToken:t.qrToken,revision:2,seat:0},f.a),{code:'SABACC_ALREADY_SEATED'});await f.send('sabaccExpel',{seat:0,reason:'Fin de présence'});assert.equal((await f.view()).self.seat,null);
