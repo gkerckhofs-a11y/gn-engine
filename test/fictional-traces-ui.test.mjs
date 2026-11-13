@@ -14,3 +14,12 @@ test('Traces : accord explicite, alias personnage et fausse piste autorisée',as
 test('Traces : projection sans identité technique ni heure sous N2',()=>{
  assert.equal(traceResultHtml({found:false}), '');const h=traceResultHtml({found:true,characterName:'<nom>'});assert.match(h,/&lt;nom&gt;/);assert.doesNotMatch(h,/1970|undefined|UID/);
 });
+
+test('Traces spatiales : carte N4, données préparées et parcours sans seconde sélection',async()=>{
+ const {pursuitSelectionHtml,spatialTraceResultHtml,shipTraceBindingsHtml}=await import('../web/fictional-traces.mjs');
+ const own={session:{id:'s',stage:'EN_JEU',spaceOutlaws:{actionsVersion:1,fictionalTracesVersion:1}},character:{abilities:{skills:[{id:'FIL-01',level:3}]}}};assert.ok(!actionMenuItems(own).some(i=>i.pursuit));own.character.abilities.skills[0].level=4;assert.ok(actionMenuItems(own).find(i=>i.id==='FIL-01-pursuit').pursuit);
+ assert.match(pursuitSelectionHtml({ships:[{id:'aboard',name:'<vaisseau>'}]},'s','beacon'),/data-target="beacon"/);assert.match(pursuitSelectionHtml({ships:[]},'s','beacon'),/embarquer/);
+ const p=tracePolicyPayload({traceEnabled:'on',traceMinLevel:'1',traceActions:'DEPARTURE',traceRoutes:'out | Secteur voisin | fenêtre prévue'});assert.deepEqual(p.routes,[{routeId:'out',nextSegment:'Secteur voisin',arrivalWindow:'fenêtre prévue'}]);assert.match(tracePolicyHtml({tracePolicy:p}),/Secteur voisin/);
+ assert.match(spatialTraceResultHtml({pursuit:{success:true,roll:6,total:10,current:false,nextSegment:'<secret>'}}),/n’est plus actuelle/);assert.match(spatialTraceResultHtml({pursuit:{success:true,nextSegment:'<secret>'}}),/&lt;secret&gt;/);
+ assert.equal(shipTraceBindingsHtml({parent:{}}),'');assert.match(shipTraceBindingsHtml({parent:{tracesReady:true},fieldTargets:[{id:'b',title:'Balise',tracePolicy:p}],traceShips:[{id:'s',name:'Vaisseau'}]}),/data-field-form="traceBind"/);
+});

@@ -1,3 +1,4 @@
+import {recordShipDeparture,myTraceAlerts} from './space-fictional-traces.mjs';
 import {malaiseAt} from './space-toxicology-state.mjs';
 import {startTowingOutage,waitingTowingOutage} from './space-towing-outage.mjs';
 import {towingFlightContext,validateTowingDeparture,validateTowingConsent,validateTowingRoute,towingRoute,towingEvent,departTowedWreck,arriveTowedWreck} from './space-towing-flight.mjs';
@@ -85,7 +86,7 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
      confirmations.set(sh.id,tow?hash(JSON.stringify([receipt(s,sh,version),tow.confirmationState])):receipt(s,sh,version));
     }
     return {
-     invitations:await convoyInvitations(tx,s,c,time),
+     alerts:admin?[]:await myTraceAlerts(tx,s,c),invitations:await convoyInvitations(tx,s,c,time),
      session:{id:s.id,stage:s.stage,cockpitEnabled:cockpitSettings?.enabled===true,towingReady:s.spaceOutlaws.towingWorkVersion===1&&hasModuleFlights(s),routeAnalysisReady:s.spaceOutlaws.routeAnalysisVersion===1,convoyReady:hasSoConvoy(s),logisticsReady:s.spaceOutlaws.logisticsVersion===1,combatReady:s.spaceOutlaws.combatVersion===1},
      admin,ships:ships.map(x=>({...safeSoShip(s,x,time),...(admin&&x.ownerType==='GROUP'?{ownerId:x.ownerId}:{}),confirmation:confirmations.get(x.id)})),
      ...(admin?{groups:groups.filter(g=>g.roster&&!g.roster.archived&&g.publicationState==='PUBLISHED').map(g=>({id:g.id,name:g.name})),
@@ -263,7 +264,7 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
      if(!cancelling){validateTowingDeparture(s,ship,towing);validateTowingRoute(a.route,towing,s);await validateModuleFlight(tx,s,ship);const modules=eligibleFlightModules(s,ship,time),event=towingEvent(soVoyageEvent(a.route,dice[0],dice[1],ship.fuel-a.route.fuelCost,modules.length?modules[(dice[2]-1)%modules.length]:null),towing,ship.fuel-a.route.fuelCost),duration=a.route.durationSeconds+event.delaySeconds,suspended=event.needsMJ||event.fuelDebt>0;
       const transportManifest=await transportDeparture(tx,s,ship,a.route,id,at);
       j={...(towing?{towing:{workId:towing.r.id,wreckId:towing.wreck.id,lotId:towing.b.lotId,...(hasTowingOutages(s)?{outageVersion:1}:{})}}:{}),...(transportManifest.length?{transportManifest}:{}),...a.route,routeId:a.route.id,id,manifest:a.manifest.map(m=>({id:m.id,name:m.name})),...(s.spaceOutlaws.missionExecutionVersion===1?{missionManifest:a.manifest.map(m=>({id:m.id,version:m.version}))}:{}),pilotId:a.pilotId,departedAt:at,departedAtGameMs:time,arrivesAtGameMs:time+duration*1000,event,suspended,remainingMs:suspended?duration*1000:null};
-      j=startTowingOutage(j,event,time);departTowedWreck(tx,s,towing,j,at);next=flightShip(s,{...neutralizeVoyageModule(s,next,event,time,id),fuel:ship.fuel-a.route.fuelCost-event.fuelCost,docked:false,journey:j},time);tx.set(`${base}/voyages/${id}`,{...j,shipId:ship.id,status:j.suspended?'SUSPENDED':'IN_TRANSIT'});
+      j=startTowingOutage(j,event,time);departTowedWreck(tx,s,towing,j,at);next=flightShip(s,{...neutralizeVoyageModule(s,next,event,time,id),fuel:ship.fuel-a.route.fuelCost-event.fuelCost,docked:false,journey:j},time);tx.set(`${base}/voyages/${id}`,{...j,shipId:ship.id,status:j.suspended?'SUSPENDED':'IN_TRANSIT'});await recordShipDeparture(tx,s,ship,pilotCharacter,j,at);if(towing)await recordShipDeparture(tx,s,towing.wreck,pilotCharacter,j,at);
      }
      for(const m of members){requireThat(m.c&&m.c.activeNavigationId===a.id,'INVALID_MANIFEST');tx.set(`${base}/characters/${m.c.id}`,{...m.c,activeNavigationId:null,...(j?{activeVoyageId:j.id}:{} )});}
      tx.set(actionPointPath(s.id,pilotCharacter.id),cancelling?releaseActionPoints(points,1,actionPointMaximum(s.actionPointRules,pilotCharacter)):resolveActionPoints(points,1));

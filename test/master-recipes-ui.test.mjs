@@ -11,7 +11,7 @@ import {writeMasterXlsx} from '../web/master-xlsx-write.mjs';
 const workspace=()=>({module:'magasins',sheet:'Recettes',session:false,editable:true,errors:[],rows:[],newRow:{id:'new-recipe',operation:'CREER',version:'1'},meta:recipeMasterExample().Meta,references:{recipeItems:[{id:'ingredient',name:'<img src=x>'}],skills:[],recipeTargets:[],knowledge:[]}});
 test('SO-06b interface : composants guidés, brouillon seul et texte échappé',()=>{
  const w=workspace(),d=moduleDraft(w),html=moduleEditorHtml(w,d);assert.match(html,/Quantité de &lt;img src=x&gt;/);assert.ok(!html.includes('<img'));assert.ok(!html.includes('value="PUBLISHED"'));
- assert.match(html,/aucune recette ne peut être publiée/);assert.match(moduleListHtml(w),/recipeExample/);
+ assert.match(html,/passent le contrôle de publication commun/);assert.match(moduleListHtml(w),/recipeExample/);
  const row=moduleFormRow(w,d,{...d.row,nom:'Formule',composants__levels:'1',composants__skill__ingredient:'OUI',composants__level__ingredient:'2'});
  assert.equal(row.composants,'ingredient:2');assert.equal(row.publication,'DRAFT');assert.ok(!Object.keys(row).some(k=>k.includes('__')));
 });

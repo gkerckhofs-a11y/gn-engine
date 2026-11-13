@@ -46,7 +46,7 @@ export function fieldProfile(v,kind){
   bonusItems,consumable,successText:text(v.successText??'',4000),failureText:text(v.failureText??'',4000)};
 }
 export function fieldTargetInput(v,id,old={}){
- const tracePolicy=tracePolicyInput(v?.tracePolicy);check(!tracePolicy||!v.documentOnly&&tracePolicy.actions.every(k=>({SEARCH:['SEARCH'],ANALYSIS:['ANALYZE'],INSTALLATION:['SABOTAGE','REPAIR'],INTRUSION:['INTRUSION'],FORGERY:['FORGERY']}[v.kind]??[]).includes(k)));return {...baseFieldTargetInput(v,id,old),...(tracePolicy?{tracePolicy}:{})};
+ const tracePolicy=tracePolicyInput(v?.tracePolicy);check(!tracePolicy||!v.documentOnly&&tracePolicy.actions.every(k=>k==='DEPARTURE'||({SEARCH:['SEARCH'],ANALYSIS:['ANALYZE'],INSTALLATION:['SABOTAGE','REPAIR'],INTRUSION:['INTRUSION'],FORGERY:['FORGERY']}[v.kind]??[]).includes(k)));return {...baseFieldTargetInput(v,id,old),...(tracePolicy?{tracePolicy}:{})};
 }
 function baseFieldTargetInput(v,id,old={}){
  if(isPlaceSearch(v))return searchTargetInput(v,id,old);

@@ -40,6 +40,7 @@ export function centralLocationDiagnostics(c,field,id,changes,required=false){
 }
 export function centralFieldTargetReferences(d){
  const refs=[];const add=(field,type,id,extra={})=>{if(id)refs.push({field,type,id,...extra});};
+ (d.tracePolicy?.routes??[]).forEach((r,i)=>add(`tracePolicy.routes.${i}.routeId`,'route',r.routeId));
  if(d.kind==='FORGERY'){add('forgery.reviewTargetId','fieldTarget',d.forgery.reviewTargetId);add('forgery.blankItemId','item',d.forgery.blankItemId,{consumable:true});return refs;}
  if(d.kind==='INTRUSION'){(d.intrusion.bonusItemIds??[]).forEach((id,i)=>add(`intrusion.bonusItemIds.${i}`,'item',id));if(d.intrusion.consumable)add('intrusion.consumable.itemId','item',d.intrusion.consumable.itemId,{consumable:true,quantity:d.intrusion.consumable.quantity});return refs;}
  if(isPlaceSearch(d)){
