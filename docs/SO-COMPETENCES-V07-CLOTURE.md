@@ -82,7 +82,7 @@ Dans « Commit / PR », **B** = base main `49ec5ea12100f9efb62ea23773b216d465d06
 | COU-02 Négociation | Courtier | ch. 13, arbitrage 5 min | field-actions, shops/sales | Terminal/Action | Partiel | space-merchant-negotiation | C | Non | À faire | Prestations, fret et contrats exclusifs hors offres M5 actuelles |
 | COU-03 Réseau de contacts | Courtier | ch. 13, 4 | field-actions/carnet/récupérations | Terminal/Action | À vérifier | space-merchant-contacts | C | Non | À faire | CI exacte, reprise intersession et recette des réponses préparées |
 | INF-01 Intrusion | Infiltrateur | ch. 14 | space-intrusion | Action | Partiel | space-intrusion | B | Non vérifié | À faire | Bonus, consommables et couverture des cibles |
-| INF-02 Déchiffrement | Infiltrateur | ch. 14 | space-decryption/knowledge | Action | Partiel | space-decryption | B | Non vérifié | À faire | Documents transférés, reçus, bonus et cryptogrammes |
+| INF-02 Déchiffrement | Infiltrateur | ch. 14 | space-decryption/knowledge | Action | Partiel | space-decryption : 11 cas métier + 2 schémas ; intégration ciblée | B + D | Non vérifié | À faire | Bonus, cryptogrammes spécifiques et transferts à compléter ; accès et reçus renforcés |
 | INF-03 Falsification | Infiltrateur | ch. 14 | space-forgery/evidence | Action | Partiel | space-forgery | B | Non vérifié | À faire | Raccord TRA-03 et inspection du document transféré |
 | Entretien de protection | Supplémentaire | ch. 15, 5 | person-actions PROTECTION | Action | À vérifier | identity-news-health | B/C | Non vérifié | À faire | Banc de protection et recette des consommables compatibles |
 | Riposte | Supplémentaire | ch. 15, 5 | règles joueur | Physique | À vérifier | présentation à contrôler | B | Non vérifié | À faire | Vérifier règles par adversaire/confrontation, aucune commande exigée |
@@ -154,3 +154,13 @@ Validation locale : 59 tests ciblés réussis (atelier, clinique, santé, public
 - Cartes directes Action « Saboter une installation » et « Remettre une installation en service », sur QR ou code de cible. Préparation via l'éditeur M6 ; capacité des nouvelles publications `sabotageVersion=1`. Anciennes sessions fermées, sans migration implicite.
 
 Validation locale : 77 tests ciblés, campagne complète de 3 002 tests, six cas Firestore dédiés, compilation et `git diff --check` réussis. Les campagnes se recouvrent ; leurs nombres ne sont pas additionnables. SHA et état de CI exacts consignés dans la PR. Aucun déploiement ou test terrain. Le statut Sabotage demeure **Partiel** : les niveaux avancés demandent les raccordements spécifiques aux modules, aux vaisseaux à quai et aux exceptions préparées.
+
+## Complément — confidentialité et résolution INF-02
+
+**D** = branche `work/skills-v07-decryption-guards`, basée sur `f5752b5cf6a6de02f0184bfad3df659acb887960` (PR #18). Référence : V0.7 chapitre 14, INF-02 ; règles générales d’indisponibilité du personnage. Aucun coût, durée, seuil ou bonus canonique modifié.
+
+Le moteur existant `space-decryption` vérifie maintenant la version d’accès de l’action à la résolution et à l’annulation. Les reçus de requête sont liés au personnage et à la version d’accès : une reprise réseau dans le même contexte renvoie le résultat enregistré sans nouvelle dépense ; une réaffectation ne donne pas accès au résultat précédent. Les anciens reçus dépourvus de cette liaison sont refusés, sans migration ni suppression. Une action ouverte avant révocation ne peut pas être résolue ou annulée avec la nouvelle version d’accès ; la gestion de ces réservations après révocation reste à compléter.
+
+Les restrictions communes de santé, convalescence, aide et déplacement sont réutilisées au départ et à la résolution. La résolution contrôle également la compétence actuelle, le reçu actif du document et un D6 serveur entier compris entre 1 et 6. Les refus transactionnels ne dépensent pas le PA réservé et ne révèlent pas le texte.
+
+Validation locale : 70 tests ciblés déchiffrement, interface, santé et documents réussis (dont 13 tests INF-02/schéma). Compilation réussie. Résultat Firestore et SHA/CI exacts consignés dans la PR du complément. INF-02 reste **Partiel** ; aucune fusion dans main, aucun déploiement Firebase, aucune recette terrain.

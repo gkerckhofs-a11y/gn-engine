@@ -1,4 +1,5 @@
 import test from 'node:test';
+import {createHash,randomUUID} from 'node:crypto';
 import assert from 'node:assert/strict';
 import {actionsFixture} from './space-outlaws-actions-suite.mjs';
 import {knowledgeSnapshot} from '../../src/core/knowledge.mjs';
@@ -92,4 +93,56 @@ export function soDecryptionSuite(makeStore,prefix='INF-02'){
   await f.actionCmd('endSoCaptivity',{characterId:f.c},f.owner);
   await assert.rejects(f.actionCmd('startSoDecryption',{knowledgeId:'ordinary'},f.other),{code:'SO_INF02_DOCUMENT'});
  });
+ test(prefix+' : reprise réseau idempotente et changement de version d’accès refusé',async()=>{
+  const f=await decryptionFixture(makeStore),input={knowledgeId:'ordinary',requestId:randomUUID()};
+  const a=await f.actionCmd('startSoDecryption',input);
+  assert.deepEqual(await f.actionCmd('startSoDecryption',input),a);
+  assert.equal((await f.points()).reserved,1);
+  const path='sessions/'+f.sid+'/registrations/'+createHash('sha256').update(f.player.uid).digest('hex');
+  await f.store.runTransaction(async tx=>{const r=await tx.get(path);tx.set(path,{...r,accessVersion:r.accessVersion+1});});
+  await assert.rejects(f.actionCmd('startSoDecryption',input),{code:'FORBIDDEN'});
+  f.advance(165000);f.setDie(6);
+  await assert.rejects(f.finish(a.id),{code:'SO_INF02_STALE'});
+  assert.equal((await f.points()).reserved,1);
+  assert.equal((await f.store.get(f.rpath)).decodedRevision,undefined);
+ });
+ test(prefix+' : résolution répétée sans double dépense, reçu inaccessible après réaffectation',async()=>{
+  const f=await decryptionFixture(makeStore,{helper:true}),a=await f.start();
+  f.advance(165000);f.setDie(6);
+  const input={actionId:a.id,requestId:randomUUID()},result=await f.actionCmd('finishSoDecryption',input);
+  assert.deepEqual(await f.actionCmd('finishSoDecryption',input),result);
+  assert.equal((await f.points()).available,4);
+  const other=(await f.actionRead('mySession',{},f.other)).character.id;
+  const path='sessions/'+f.sid+'/registrations/'+createHash('sha256').update(f.player.uid).digest('hex');
+  await f.store.runTransaction(async tx=>{
+   const r=await tx.get(path),cp='sessions/'+f.sid+'/characters/'+other,c=await tx.get(cp);
+   tx.set(path,{...r,characterId:other});tx.set(cp,{...c,assignedUid:f.player.uid});
+  });
+  await assert.rejects(f.actionCmd('finishSoDecryption',input),{code:'FORBIDDEN'});
+ });
+ test(prefix+' : convalescence contrôlée au lancement et à la résolution, annulation possible',async()=>{
+  const f=await decryptionFixture(makeStore),path='sessions/'+f.sid+'/characters/'+f.c;
+  const edit=until=>f.store.runTransaction(async tx=>{const c=await tx.get(path);tx.set(path,{...c,convalescentUntilGameMs:until});});
+  await edit(99999999);await assert.rejects(f.start(),{code:'OUT_OF_COMBAT'});
+  await edit(0);const a=await f.start();await edit(99999999);f.advance(165000);
+  await assert.rejects(f.finish(a.id),{code:'OUT_OF_COMBAT'});
+  await f.cancel(a.id);assert.equal((await f.points()).available,5);assert.equal((await f.points()).reserved,0);
+ });
+ test(prefix+' : diminution de compétence pendant l’action ne conserve pas l’ancien bonus',async()=>{
+  const f=await decryptionFixture(makeStore),a=await f.start(),path='sessions/'+f.sid+'/characters/'+f.c;
+  await f.store.runTransaction(async tx=>{const c=await tx.get(path);tx.set(path,{...c,abilityProfile:{...c.abilityProfile,skills:c.abilityProfile.skills.map(s=>s.id==='INF-02'?{...s,level:1}:s)}});});
+  f.advance(165000);f.setDie(6);await assert.rejects(f.finish(a.id),{code:'SO_INF02_SKILL'});
+  assert.equal((await f.store.get(f.rpath)).decodedRevision,undefined);
+  await f.cancel(a.id);assert.equal((await f.points()).available,5);
+ });
+ test(prefix+' : dé invalide et reçu révoqué sans consommation ni révélation',async()=>{
+  const f=await decryptionFixture(makeStore),a=await f.start();f.advance(165000);
+  for(const die of [0,7,1.5]){f.setDie(die);await assert.rejects(f.finish(a.id),{code:'INVALID_DIE'});}
+  assert.equal((await f.points()).reserved,1);
+  await f.store.runTransaction(async tx=>{const r=await tx.get(f.rpath);tx.set(f.rpath,{...r,active:false});});
+  f.setDie(6);await assert.rejects(f.finish(a.id),{code:'SO_INF02_DOCUMENT'});
+  assert.equal((await f.store.get(f.rpath)).decodedRevision,undefined);
+  await f.cancel(a.id);assert.equal((await f.points()).available,5);
+ });
+
 }

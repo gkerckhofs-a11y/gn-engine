@@ -1,3 +1,4 @@
+import {requireGameAction} from './health-state.mjs';
 import {createHash,randomInt} from 'node:crypto';
 import {abilityLevel} from './abilities.mjs';
 import {actionPointPath,actionPointState,actionPointMaximum,reserveActionPoints,resolveActionPoints,releaseActionPoints} from './action-point-state.mjs';
@@ -27,10 +28,12 @@ export function createSoDecryptionService({store,signed,now,uuid,rollD6=()=>rand
   requireThat(c?.assignedUid===actor.uid&&c.publicationState==='PUBLISHED'&&c.public?.publicationState==='PUBLISHED','FORBIDDEN');
   return {s,c,r};
  }
- const live=(s,c)=>{
+ const live=async(tx,s,c,at)=>{
   requireThat(s.stage==='EN_JEU'&&s.clock?.runningSince!==null,'SESSION_NOT_RUNNING');
   requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
   requireThat(!c.survival?.dead&&c.hp>0&&!c.outOfCombat,'SO_INF02_UNAVAILABLE');
+  requireGameAction(s,c,'discover',at);
+  if(s.spaceOutlaws.escapeVersion===1){const cap=await tx.get(base(s.id)+'/soCaptivities/'+c.id);requireThat(cap?.status!=='ACTIVE','SO_ESCAPE_CAPTIVE');}
  };
  async function document(tx,sid,cid,id){
   const k=await tx.get(base(sid)+'/knowledge/'+id);
@@ -41,7 +44,7 @@ export function createSoDecryptionService({store,signed,now,uuid,rollD6=()=>rand
  return async function dispatch(action,actor,input){
   const sid=documentId(input.sessionId),at=now(),roll=action==='finishSoDecryption'?rollD6():null;
   return store.runTransaction(async tx=>{
-   const {s,c}=await access(tx,actor,sid),time=gameTime(s.clock,at),level=Math.min(5,abilityLevel(c,'INF-02'));
+   const {s,c,r:registration}=await access(tx,actor,sid),time=gameTime(s.clock,at),level=Math.min(5,abilityLevel(c,'INF-02'));
    const state=await tx.get(actorPath(sid,c.id))??{activeId:null,cooldownUntil:0};
    const active=state.activeId?await tx.get(actionPath(sid,state.activeId)):null;
    if(action==='mySoDecryption'){
@@ -62,11 +65,11 @@ export function createSoDecryptionService({store,signed,now,uuid,rollD6=()=>rand
    requireThat(level>0,'SO_INF02_SKILL');
    const requestId=documentId(input.requestId),op='operations/'+hash(actor.uid+':'+requestId),fingerprint=hash(JSON.stringify([action,input]));
    const previous=await tx.get(op);
-   if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');return previous.result;}
+   if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');requireThat(previous.characterId===c.id&&previous.accessVersion===registration.accessVersion,'FORBIDDEN');return previous.result;}
    authorizeSpaceOutlaws(tx,s,'INF02');
-   const record=result=>{tx.set(op,{fingerprint,result,at});return result;};
+   const record=result=>{tx.set(op,{fingerprint,result,at,characterId:c.id,accessVersion:registration.accessVersion});return result;};
    if(action==='startSoDecryption'){
-    live(s,c);
+    await live(tx,s,c,at);
     requireThat(!active&&time>=state.cooldownUntil,'SO_INF02_COOLDOWN');
     requireThat(!c.activeFieldActionId&&!c.activePersonActionId&&!c.activeNavigationId&&!c.activeMaintenanceId&&!c.activeCargoId&&!c.activeVoyageId,'SO_INF02_BUSY');
     if(s.spaceOutlaws.pickpocketVersion===1){const rogue=await tx.get(base(sid)+'/pickpocketRogues/'+c.id);requireThat(!rogue?.activeId,'SO_INF02_BUSY');}
@@ -81,7 +84,7 @@ export function createSoDecryptionService({store,signed,now,uuid,rollD6=()=>rand
     const pointsPath=actionPointPath(sid,c.id),points=actionPointState(s,c,await tx.get(pointsPath),at);
     const id=uuid(),durationSeconds=durations[level],a={id,characterId:c.id,knowledgeId:k.id,knowledgeRevision:k.revision,
       status:'RUNNING',level,durationSeconds,readyAtGameMs:time+durationSeconds*1000,startedAtGameMs:time,
-      accessVersion: (await tx.get(base(sid)+'/registrations/'+hash(actor.uid))).accessVersion};
+      accessVersion:registration.accessVersion};
     tx.set(pointsPath,reserveActionPoints(points,1));
     tx.set(charPath(sid,c.id),{...c,activeFieldActionId:id});
     tx.set(actorPath(sid,c.id),{...state,activeId:id});
@@ -91,7 +94,7 @@ export function createSoDecryptionService({store,signed,now,uuid,rollD6=()=>rand
    }
    requireThat(['finishSoDecryption','cancelSoDecryption'].includes(action),'INVALID_ACTION');
    const id=documentId(input.actionId),a=await tx.get(actionPath(sid,id));
-   requireThat(a?.characterId===c.id&&a.status==='RUNNING'&&state.activeId===id,'SO_INF02_STALE');
+   requireThat(a?.characterId===c.id&&a.accessVersion===registration.accessVersion&&a.status==='RUNNING'&&state.activeId===id,'SO_INF02_STALE');
    const mark=await tx.get(attemptPath(sid,c.id,a.knowledgeId,a.knowledgeRevision));
    requireThat(mark?.status==='RUNNING'&&mark.id===id,'SO_INF02_STALE');
    const pointsPath=actionPointPath(sid,c.id),points=actionPointState(s,c,await tx.get(pointsPath),at);
@@ -105,10 +108,12 @@ export function createSoDecryptionService({store,signed,now,uuid,rollD6=()=>rand
     tx.set(charPath(sid,c.id),{...c,activeFieldActionId:null});
     return record(summarize(ended));
    }
-   live(s,c);
+   await live(tx,s,c,at);
    requireThat(time>=a.readyAtGameMs,'SO_INF02_TOO_EARLY');
    const {k,r}=await document(tx,sid,c.id,a.knowledgeId);
    requireThat(k.revision===a.knowledgeRevision,'SO_INF02_STALE');
+   requireThat(level>=a.level&&level>=k.cipher.minLevel,'SO_INF02_SKILL');
+   requireThat(Number.isInteger(roll)&&roll>=1&&roll<=6,'INVALID_DIE');
    const total=roll+a.level,success=total>=k.cipher.threshold;
    const ended={...a,status:success?'SUCCESS':'FAILED',finishedAtGameMs:time,roll,total,
     threshold:k.cipher.threshold,success};
