@@ -127,6 +127,7 @@ export const firestoreSuites = [
   {"id":"space-outlaws-shops","module":"../support/space-outlaws-shops-suite.mjs","exportName":"spaceOutlawsShopsSuite","label":"Boutiques SO sur Firestore","seconds":42},
   {"id":"space-outlaws-health","module":"../support/space-outlaws-health-suite.mjs","exportName":"spaceOutlawsHealthSuite","label":"Santé SO sur Firestore","seconds":69},
   {"id":"space-stealth","module":"../support/space-stealth-suite.mjs","exportName":"spaceStealthSuite","label":"Neutralisation physique sur Firestore","seconds":30},
+  {"id":"space-document-review","module":"../support/space-document-review-suite.mjs","exportName":"spaceDocumentReviewSuite","label":"Documents TRA-03 sur Firestore","seconds":60},
   {"id":"space-outlaws-voyages","module":"../support/space-outlaws-voyages-suite.mjs","exportName":"spaceOutlawsVoyagesSuite","label":"Vols SO sur Firestore","seconds":98},
   {"id":"space-encounters","module":"../support/space-encounters-suite.mjs","exportName":"spaceEncountersSuite","label":"Rencontres spatiales SO sur Firestore","seconds":111},
   {"id":"space-logistics","module":"../support/space-logistics-suite.mjs","exportName":"spaceLogisticsSuite","label":"Entretien et fret SO sur Firestore","seconds":95},

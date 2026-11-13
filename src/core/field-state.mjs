@@ -50,7 +50,7 @@ export function fieldTargetInput(v,id,old={}){
   check(['DRAFT','READY','PUBLISHED'].includes(v.publicationState));
   const x=v.forgery;
   check(x&&typeof x==='object'&&!Array.isArray(x)&&Object.keys(x).every(k=>[
-   'category','minLevel','threshold','blankItemId','documentTitle','documentText','anomalies'
+   'category','minLevel','threshold','blankItemId','documentTitle','documentText','anomalies','reviewTargetId'
   ].includes(k)));
   const categories={RECEIPT:1,MANIFEST:2,LICENSE:3,ORDER:4,EXCEPTIONAL:5};
   check(Object.hasOwn(categories,x.category));
@@ -59,7 +59,7 @@ export function fieldTargetInput(v,id,old={}){
   check((v.rewards??[]).length===0&&Object.keys(v.profiles??{}).length===0&&!v.dependencyId);
   return {id,kind:'FORGERY',title:text(v.title,150,true),description:text(v.description??'',6000),
    gmNotes:text(v.gmNotes??'',10000),publicationState:v.publicationState,profiles:{},rewards:[],
-   forgery:{category:x.category,minLevel:x.minLevel,threshold:x.threshold,
+   forgery:{...(x.reviewTargetId?{reviewTargetId:documentId(x.reviewTargetId)}:{}),category:x.category,minLevel:x.minLevel,threshold:x.threshold,
     blankItemId:documentId(x.blankItemId),documentTitle:text(x.documentTitle,150,true),
     documentText:text(x.documentText,6000,true),anomalies:text(x.anomalies??'',6000,true)},
    dependencyId:null,offlineSeconds:0,failureLockSeconds:0,repairProtectionSeconds:0,
@@ -86,6 +86,8 @@ export function fieldTargetInput(v,id,old={}){
  check(v&&['SEARCH','INSTALLATION','ANALYSIS'].includes(v.kind));check(['DRAFT','READY','PUBLISHED'].includes(v.publicationState));
  check(v.profiles&&typeof v.profiles==='object'&&!Array.isArray(v.profiles));check(Array.isArray(v.rewards??[]));
  const analysis=v.kind==='ANALYSIS';
+ check(v.documentOnly===undefined||typeof v.documentOnly==='boolean');
+ if(v.documentOnly)check(analysis&&v.profiles?.ANALYZE?.skillId==='TRA-03');
  const profiles={};for(const k of Object.keys(v.profiles??{})){check(analysis?k==='ANALYZE':v.kind==='SEARCH'?k==='SEARCH':['SABOTAGE','REPAIR'].includes(k));profiles[k]=fieldProfile(v.profiles[k],k);}
  check(analysis?!!profiles.ANALYZE:v.kind==='SEARCH'?!!profiles.SEARCH:!!profiles.SABOTAGE&&!!profiles.REPAIR);
  if(analysis){const p=profiles.ANALYZE,canonical=analysisProfile(p.skillId,p);check(canonical&&isDeepStrictEqual(p,fieldProfile(canonical,'ANALYZE')));}
@@ -98,7 +100,7 @@ export function fieldTargetInput(v,id,old={}){
  check(rewards.length<=20&&new Set(rewards.map(r=>r.id)).size===rewards.length);check(v.kind==='SEARCH'||analysis?rewards.length>0:rewards.length===0);
  if(analysis)check(rewards.some(r=>!r.bonus&&r.minLevel<=(profiles.ANALYZE.skillId==='COU-03'?profiles.ANALYZE.minLevel:1))&&new Set(rewards.map(r=>r.knowledgeId)).size===rewards.length);
  const dependencyId=v.dependencyId?documentId(v.dependencyId):null;check(!dependencyId||(v.kind==='SEARCH'&&dependencyId!==id));
- return {id,kind:v.kind,title:text(v.title,150,true),description:text(v.description??'',6000),gmNotes:text(v.gmNotes??'',10000),publicationState:v.publicationState,profiles,rewards,dependencyId,
+ return {...(v.documentOnly===true?{documentOnly:true}:{}),id,kind:v.kind,title:text(v.title,150,true),description:text(v.description??'',6000),gmNotes:text(v.gmNotes??'',10000),publicationState:v.publicationState,profiles,rewards,dependencyId,
   offlineSeconds:num(v.offlineSeconds??0,604800),failureLockSeconds:num(v.failureLockSeconds??300,86400),repairProtectionSeconds:num(v.repairProtectionSeconds??0,86400),revision:(old.revision??0)+1};
 }
 export function validateFieldReferences(t,records){

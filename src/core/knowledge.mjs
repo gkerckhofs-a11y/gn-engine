@@ -197,7 +197,7 @@ export function createKnowledgeService({store,signed,checkSession,checkScenario,
         if(!old||old.source==='INVENTORY'){
           const shared=action==='shareKnowledge',decoded=shared?r.decodedRevision:old?.decodedRevision===k.revision?old.decodedRevision:null;
           tx.set(receiptPath(s.id,cid,k.id),{id:k.id,active:true,snapshot:shared?r.snapshot:decoded?old.snapshot:knowledgeSnapshot(k),receivedAt:at,
-            source:shared?'SHARED':'QR',sourceName:shared?c.public.displayName:'Découverte par QR',readAt:null,grantRevision:(old?.grantRevision??0)+1,...(decoded?{decodedRevision:decoded}:{})});
+            ...(shared&&r.documentLotId&&r.inventoryCopy===true?{documentLotId:r.documentLotId,inventoryCopy:true}:{}),source:shared?'SHARED':'QR',sourceName:shared?c.public.displayName:'Découverte par QR',readAt:null,grantRevision:(old?.grantRevision??0)+1,...(decoded?{decodedRevision:decoded}:{})});
         }
         Object.assign(audit,{knowledgeId:k.id,characterId:c.id,recipientId:cid,created:!old});result={id:k.id};
       }

@@ -16,7 +16,7 @@ const invPath=(sid,id)=>base(sid)+'/inventory/'+id;
 const statePath=(sid,id)=>base(sid)+'/fieldStates/'+id;
 const durations=[null,300,270,240,210,180],cooldownMs=600000;
 const isBlank=(lot,itemId)=>lot?.item?.id===itemId&&(lot.item.consumable===true||lot.origin?.kind==='SO_BIRTH'&&lot.origin?.slotId==='blank-forms');
-export const soForgeryActions=['inspectSoForgery','mySoForgery','startSoForgery','finishSoForgery','cancelSoForgery'];
+export const soForgeryActions=['soForgeryAdmin','cancelSoForgeryMJ','inspectSoForgery','mySoForgery','startSoForgery','finishSoForgery','cancelSoForgery'];
 const view=a=>({id:a.id,targetId:a.targetId,status:a.status,durationSeconds:a.durationSeconds,
  remainingMs:a.remainingMs??0,roll:a.roll??null,total:a.total??null,threshold:a.threshold??null,
  success:a.success??null,documentId:a.documentId??null});
@@ -34,9 +34,46 @@ export function createSoForgeryService({store,signed,checkSession,now,uuid,rollD
   requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
   requireThat(!c.survival?.dead&&c.hp>0&&!c.outOfCombat,'SO_INF03_UNAVAILABLE');
  };
+ async function cancel(tx,s,c,state,field,a,at,moderation=null){
+  const sid=s.id,aid=a.id;
+  requireThat(c?.activeFieldActionId===aid&&state?.activeId===aid&&field?.activeActionId===aid,'SO_INF03_STALE');
+  const blank=await tx.get(invPath(sid,a.blankLotId));
+  requireThat(blank?.status==='FIELD_RESERVED'&&blank.forgeryActionId===aid
+    &&blank.revision===a.blankRevision+1&&personalLot(blank,c.id),'SO_INF03_FORM');
+  const path=actionPointPath(sid,c.id),points=actionPointState(s,c,await tx.get(path),at);
+  const ended={...a,status:'CANCELLED',finishedAtGameMs:gameTime(s.clock,at)};
+  tx.set(path,releaseActionPoints(points,1,actionPointMaximum(s.actionPointRules,c)));
+  tx.set(invPath(sid,a.blankLotId),{...blank,status:'AVAILABLE',forgeryActionId:null,revision:blank.revision+1});
+  tx.set(actionPath(sid,aid),ended);
+  tx.set(characterPath(sid,c.id),{...c,activeFieldActionId:null});
+  tx.set(actorPath(sid,c.id),{...state,activeId:null});
+  tx.set(statePath(sid,a.targetId),{...field,activeActionId:null,revision:field.revision+1});
+  if(moderation){const id=uuid();tx.set(base(sid)+'/audit/'+id,{id,at,action:'cancelSoForgeryMJ',actionId:aid,characterId:c.id,...moderation});}
+  return view(ended);
+ }
  return async function dispatch(action,actor,input){
-  const sid=documentId(input.sessionId),at=now(),roll=action==='finishSoForgery'?rollD6():null;
+  const sid=documentId(input.sessionId),at=now();let roll;
   return store.runTransaction(async tx=>{
+   if(['soForgeryAdmin','cancelSoForgeryMJ'].includes(action)){
+    signed(actor);const s=await checkSession(tx,actor,sid,'content',true);
+    requireThat(s?.spaceOutlaws?.inf03Version===1,'SO_INF03_CLOSED');
+    if(action==='soForgeryAdmin'){
+     const rows=await tx.list(base(sid)+'/inf03Actions',['status','RUNNING'],{limit:1001});
+     requireThat(rows.length<=1000,'SO_RELEASE_LIMIT');const actions=[];
+     for(const a of rows){const c=await tx.get(characterPath(sid,a.characterId));actions.push({...view(a),characterName:c?.public?.displayName??a.characterId,remainingMs:Math.max(0,a.readyAtGameMs-gameTime(s.clock,at))});}
+     return {actions};
+    }
+    requireThat(typeof input.reason==='string'&&input.reason.trim()&&input.reason.length<=500,'REASON_REQUIRED');
+    const requestId=documentId(input.requestId),op='operations/'+hash(actor.uid+':'+requestId),fingerprint=hash(JSON.stringify([action,input])),previous=await tx.get(op);
+    if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');return previous.result;}
+    const a=await tx.get(actionPath(sid,documentId(input.actionId)));requireThat(a,'NOT_FOUND');
+    requireThat(['RUNNING','CANCELLED'].includes(a.status),'SO_INF03_STALE');let result=view(a);
+    if(a.status==='RUNNING'){
+     const c=await tx.get(characterPath(sid,a.characterId)),state=await tx.get(actorPath(sid,a.characterId)),field=await tx.get(statePath(sid,a.targetId));
+     authorizeSpaceOutlaws(tx,s,'INF03');result=await cancel(tx,s,c,state,field,a,at,{actorUid:actor.uid,reason:input.reason.trim()});
+    }
+    tx.set(op,{fingerprint,result,at});return result;
+   }
    if(action==='inspectSoForgery'){
     const s=await checkSession(tx,actor,sid,'content',true);
     requireThat(s?.spaceOutlaws?.inf03Version===1,'SO_INF03_CLOSED');
@@ -83,7 +120,6 @@ export function createSoForgeryService({store,signed,checkSession,now,uuid,rollD
      blanks,cooldownMs:Math.max(0,state.cooldownUntil-time),
      active:active?view({...active,remainingMs:Math.max(0,active.readyAtGameMs-time)}):null};
    }
-   requireThat(level>0,'SO_INF03_SKILL');
    const requestId=documentId(input.requestId),op='operations/'+hash(actor.uid+':'+requestId);
    const fingerprint=hash(JSON.stringify([action,input])),receipt=await tx.get(op);
    if(receipt){requireThat(receipt.fingerprint===fingerprint&&receipt.characterId===c.id
@@ -129,6 +165,7 @@ export function createSoForgeryService({store,signed,checkSession,now,uuid,rollD
    requireThat(a?.characterId===c.id&&a.targetId===tid&&a.accessVersion===r.accessVersion
     &&a.status==='RUNNING'&&state.activeId===aid&&field.activeActionId===aid
     &&c.activeFieldActionId===aid,'SO_INF03_STALE');
+   if(action==='cancelSoForgery')return record(await cancel(tx,s,c,state,field,a,at));
    const blank=await tx.get(invPath(sid,a.blankLotId));
    requireThat(blank?.status==='FIELD_RESERVED'&&blank.forgeryActionId===aid
     &&blank.revision===a.blankRevision+1&&personalLot(blank,c.id),'SO_INF03_FORM');
@@ -136,16 +173,10 @@ export function createSoForgeryService({store,signed,checkSession,now,uuid,rollD
    const unlock=()=>{tx.set(characterPath(sid,c.id),{...c,activeFieldActionId:null});
     tx.set(actorPath(sid,c.id),{...state,activeId:null});
     tx.set(statePath(sid,tid),{...field,activeActionId:null,revision:field.revision+1});};
-   if(action==='cancelSoForgery'){
-    const ended={...a,status:'CANCELLED',finishedAtGameMs:time};
-    tx.set(pointPath,releaseActionPoints(points,1,actionPointMaximum(s.actionPointRules,c)));
-    tx.set(invPath(sid,a.blankLotId),{...blank,status:'AVAILABLE',forgeryActionId:null,revision:blank.revision+1});
-    tx.set(actionPath(sid,aid),ended);unlock();
-    return record(view(ended));
-   }
    live(s,c);requireThat(time>=a.readyAtGameMs,'SO_INF03_TOO_EARLY');
    requireThat(input.present===true,'SO_INF03_PRESENCE');
    requireThat(target.revision===a.targetRevision&&field.status==='ONLINE','SO_INF03_STALE');
+   requireThat(level>=a.level,'SO_INF03_SKILL');roll??=rollD6();
    requireThat(Number.isSafeInteger(roll)&&roll>=1&&roll<=6,'INVALID_DIE');
    const total=roll+a.level,success=total>=target.forgery.threshold;
    const next={...blank,quantity:blank.quantity-1,status:blank.quantity===1?'CONSUMED':'AVAILABLE',
@@ -156,7 +187,7 @@ export function createSoForgeryService({store,signed,checkSession,now,uuid,rollD
    let documentIdCreated=null;
    if(success){
     documentIdCreated=uuid();
-    const item={id:'forged_'+hash(tid).slice(0,24),name:target.forgery.documentTitle,
+    const item={...(target.forgery.reviewTargetId?{reviewTargetId:target.forgery.reviewTargetId}:{}),id:'document_'+hash(tid).slice(0,24),name:target.forgery.documentTitle,
      description:target.forgery.documentText,category:'Document de fiction',unit:'document',
      kind:'INDIVIDUAL',consumable:false,unitVolume:null,legality:'UNSPECIFIED',
      publicationState:'PUBLISHED',revision:1,pillable:true,pickpocketable:true,gmNotes:''};

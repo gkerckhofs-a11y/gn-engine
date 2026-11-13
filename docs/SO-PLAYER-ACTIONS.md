@@ -67,3 +67,10 @@ La fiche Compétences contient les conditions canoniques des 34 capacités. Dés
 ### ROG-01 — après la scène
 
 La carte « Neutralisation furtive · après la scène » ouvre un formulaire personnel. À l’abri, déclarer toute tentative annoncée, réussie ou échouée, et le temps de jeu écoulé depuis l’annonce, hors pauses. Le délai restant se consulte ici. Une déclaration pendant la récupération est signalée au MJ ; ce formulaire n’autorise jamais une nouvelle attaque et n’applique aucun dégât à une cible. La victime utilise sa déclaration de santé habituelle. La lecture des règles avant la scène et la sécurité physique restent prioritaires.
+
+
+### Vérifier un document présenté (TRA-03)
+
+La carte ouvre les originaux accessibles et les copies dont la lecture est autorisée. Le QR du document ou son code `DOC:<identifiant>` mène au même dossier sans rechoisir l’action. Le modèle M1 ou le modèle de faux M6 doit référencer une analyse TRA-03 réservée aux originaux. La possession, le reçu, le niveau et la version sont revérifiés à la résolution. Une remise ne remet pas à zéro une tentative déjà résolue ; une copie autorisée ne crée aucun objet. Les résultats sont les informations préparées par l’organisation, sans révélation automatique du faussaire.
+
+Dans le contrôle MJ des faux documents, les fabrications en cours peuvent être interrompues avec motif, y compris après retrait d’accès du joueur. Le PA et le formulaire encore réservés sont libérés ; les fabrications terminées restent dans l’historique.

@@ -5,7 +5,7 @@ import {analysisProfile} from '../shared/space-outlaws-analysis.mjs';
 import {isPlaceSearch} from './space-outlaws-search-state.mjs';
 import {initialSkillIds} from '../shared/initial-character-profile.mjs';
 
-const fields=['kind','title','description','gmNotes','forgery','intrusion','profiles','rewards','dependencyId','offlineSeconds','failureLockSeconds','repairProtectionSeconds','searchVersion','search','finds'];
+const fields=['documentOnly','kind','title','description','gmNotes','forgery','intrusion','profiles','rewards','dependencyId','offlineSeconds','failureLockSeconds','repairProtectionSeconds','searchVersion','search','finds'];
 const profileFields=['skillId','minLevel','instructions','durationSeconds','durationByLevel','test','threshold','cost','cooldownSeconds','bonusItems','consumable','successText','failureText'];
 const keys=(v,allowed)=>requireThat(v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).every(k=>allowed.includes(k)),'INVALID_CENTRAL_FIELD_TARGET');
 export const centralFieldTargetBytes=96*1024;
@@ -40,7 +40,7 @@ export function centralLocationDiagnostics(c,field,id,changes,required=false){
 }
 export function centralFieldTargetReferences(d){
  const refs=[];const add=(field,type,id,extra={})=>{if(id)refs.push({field,type,id,...extra});};
- if(d.kind==='FORGERY'){add('forgery.blankItemId','item',d.forgery.blankItemId,{consumable:true});return refs;}
+ if(d.kind==='FORGERY'){add('forgery.reviewTargetId','fieldTarget',d.forgery.reviewTargetId);add('forgery.blankItemId','item',d.forgery.blankItemId,{consumable:true});return refs;}
  if(d.kind==='INTRUSION')return refs;
  if(isPlaceSearch(d)){
   d.finds.forEach((f,i)=>{add(`finds.${i}.itemId`,'item',f.itemId,{quantity:f.quantity});add(`finds.${i}.knowledgeId`,'knowledge',f.knowledgeId);f.characterIds.forEach(cid=>add(`finds.${i}.characterIds`,'character',cid));});
