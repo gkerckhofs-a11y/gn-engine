@@ -182,7 +182,7 @@ test.describe('Accès privé depuis la régie',()=>{
     const inventory=d=>d.lots.map(l=>({id:l.id,quantity:l.quantity,status:l.status})).sort((a,b)=>a.id.localeCompare(b.id));
     const admin=await readPage(manager,`shops-admin/${scenario.sessionId}`,'shopAdmin');
     await navigate(player,`shops/${scenario.sessionId}`,'shops');await clickCommand(player,'[data-form="shopPurchase"][data-offer="supply"] button','prepareShopPurchase');
-    const entry=await readPage(manager,`session/${scenario.sessionId}`,'spaceOutlawsEntry'),participant=entry.registrations.find(r=>r.characterId===before.character.id);
+    const entry=await readPage(manager,`session/${scenario.sessionId}/prepare`,'spaceOutlawsEntry'),participant=entry.registrations.find(r=>r.characterId===before.character.id);
     const access=manager.locator(`[data-player-access="${participant.uid}"]`);
     await expect(access.locator('[data-action="invite"]')).toHaveCount(0);
     manager.once('dialog',dialog=>dialog.accept());await clickCommand(manager,`[data-player-access="${participant.uid}"] [data-action="revoke"]`,'revokeAccess');
@@ -194,7 +194,7 @@ test.describe('Accès privé depuis la régie',()=>{
     await expect(player.locator('#app')).not.toContainText('SECRET_RECETTE_BRIEFING');await expect(player.locator('#app')).toContainText('Votre accès privé doit être activé');
     const registry=await readPage(manager,`contracts-admin/${scenario.sessionId}`,'sessionContracts'),contract=registry.contracts.find(c=>c.id===scenario.contractId);
     expect(contract.obligations.alerts).toContain('ACCESS_CHANGED');expect(contract.obligations.salaryReserved).toBe(100);await capture(manager,info,'obligations-acces-suspendu');
-    await navigate(manager,`session/${scenario.sessionId}`,'spaceOutlawsEntry');
+    await navigate(manager,`session/${scenario.sessionId}/prepare`,'spaceOutlawsEntry');
     await clickCommand(manager,`[data-player-access="${participant.uid}"] [data-action="invite"]`,'issueInvitation');
     const invitation=await manager.locator('#dialog [data-action="copy"]').getAttribute('data-value');
     await manager.locator('#dialog [data-action="close"]').click();
@@ -338,7 +338,7 @@ test('Dashboard orga : trois espaces, recherche, droits et Sabacc sur mobile',as
  await expect(page.locator('[data-org-name]').first()).toBeVisible();
  await page.locator('[data-org-name] button[data-action="preview"]').first().click();
  await expect(page.locator('#dialog')).toBeVisible();await page.keyboard.press('Escape');
- await capture(page,info,'organisateur-animer-desktop');
+ await page.evaluate(()=>scrollTo(0,0));await capture(page,info,'organisateur-animer-desktop');
  await page.getByRole('navigation',{name:'Organisation de la session'}).getByRole('link',{name:'Préparer',exact:true}).click();
  await expect(page.locator('.org-main h1')).toHaveText('Préparer');
  await expect(page.getByRole('heading',{name:'Joueurs approuvés',exact:true})).toBeVisible();
@@ -349,7 +349,7 @@ test('Dashboard orga : trois espaces, recherche, droits et Sabacc sur mobile',as
  await expect(page.locator('.org-main h1')).toHaveText('Superviser');
  await expect(page.getByRole('heading',{name:'Journal des dernières opérations',exact:true})).toBeVisible();
  await page.setViewportSize({width:390,height:844});
- await capture(page,info,'organisateur-superviser-mobile');
+ await page.evaluate(()=>scrollTo(0,0));await capture(page,info,'organisateur-superviser-mobile');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await page.locator('[data-org-tool]').fill('sabacc');await page.locator('.org-sidebar a[href="/sabacc/?view=admin"]').click();
  await expect(page.locator('#tabs [data-tab="admin"]')).toHaveAttribute('aria-current','page');
@@ -374,7 +374,7 @@ test('Dashboard orga : accès missions et spatioport, pause et reprise sans chan
  page.once('dialog',d=>d.accept());await clickCommand(page,`[data-action="soStage"][data-stage="${first}"]`,'setStage');
  await expect(page.locator(`[data-action="soStage"][data-stage="${second}"]`)).toBeVisible();
  page.once('dialog',d=>d.accept());await clickCommand(page,`[data-action="soStage"][data-stage="${second}"]`,'setStage');
- await expect(page.locator('.org-context-meta')).toHaveText(initial);
+ await expect(page.locator('.org-context-meta')).toHaveText(initial,{useInnerText:true});
  await page.locator('.org-sidebar').getByRole('link',{name:'Contrats et arbitrages',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Régie des missions',exact:true})).toBeVisible();
  await expect(page.locator('.org-context')).toBeVisible();

@@ -34,7 +34,7 @@ Droits : propriétaire = contenu/rythme/accueil/délégations ; MJ = contenu/ryt
 | Journaux session et bilan de campagne | Superviser | 50 opérations renvoyées par session, détail dans les régies |
 | Demandes de cockpit / recours / urgences | Animer et Superviser · À traiter | Lectures existantes, dédoublonnage par identifiant, aucun faux zéro en cas d’échec |
 
-La navigation persistante accompagne les routes organisateur de session, y compris les sous-régies. Préparer/Animer/Superviser renvoient au bon contexte ; la recherche d’outil traverse les trois catégories sans exposer les fonctions désactivées. Les pages de Master/scénario/campagne conservent leur propre contexte d’édition ; leurs contrôles ne sont pas dupliqués. Les anciennes routes restent valables. Les sessions historiques gardent leurs formulaires existants sous la navigation commune.
+La navigation persistante accompagne les routes organisateur de session, y compris les sous-régies. Préparer/Animer/Superviser renvoient au bon contexte ; la recherche d’outil traverse les trois catégories sans exposer les fonctions désactivées. Les pages de Master/scénario/campagne ouvertes depuis la session conservent la navigation au moyen d’un contexte explicite dans le lien, vérifié contre la session ; leurs contrôles ne sont pas dupliqués. Les accès autonomes sans session gardent leur propre contexte d’édition. Les anciennes routes restent valables. Les sessions historiques gardent leurs formulaires existants, répartis entre les trois vues.
 
 ## Choix et limites explicites
 
@@ -44,7 +44,7 @@ La navigation persistante accompagne les routes organisateur de session, y compr
 - Recours : projection existante limitée aux 80 derniers dossiers ; journal session limité à 50 opérations. Ce n’est pas un bilan exhaustif ni un nouveau système d’alertes.
 - Vérification avant lancement : le contrôle de publication existant reste l’autorité. Aucun seuil, obligation de carburant ou nouveau blocage ajouté à la publication.
 - Les journaux métiers, les stocks et l’économie détaillés restent dans leurs outils existants. Pas de total financier agrégé inventé.
-- Navigation hors session (Master/scénario/campagne) inchangée. Les actions avancées des écrans historiques restent dans leurs formulaires existants.
+- Navigation autonome hors session (Master/scénario/campagne) inchangée. Les actions avancées des écrans historiques restent dans leurs formulaires existants.
 - Pas de validation sur appareils physiques Android/iOS ; la recette navigateur automatisée ne vaut pas recette GN réelle.
 - Aucun déploiement Firebase ni fusion autorisés pour cette refonte.
 
@@ -53,3 +53,5 @@ La navigation persistante accompagne les routes organisateur de session, y compr
 Tests ciblés de navigation : rôles, isolation joueur/cockpit, fonctionnalités absentes, droits Sabacc, échecs partiels, dédoublonnage des demandes de plusieurs vaisseaux, échappement HTML. Régression entrée/préparation, missions, épisodes, primes. Compilation de production. Deux parcours Chromium ajoutés : navigation des trois vues, recherche et fiche, rôles propriétaire/MJ/accueil, Sabacc direct, mobile 390 px, rythme pause/reprise, missions/spatioport et retour aux sessions. Les tests métier existants conservent les contrôles de publication, attribution, cockpit et décisions douanières.
 
 Lancement local de Chromium tenté : le processus se ferme avant l’ouverture d’une page dans cet environnement. Les captures et la vérification interactive doivent provenir de la CI isolée ; ne pas présenter ce lancement comme une recette réussie. Résultats exacts de CI à consigner dans la PR.
+
+Validation locale complémentaire : 70 tests ciblés réussis (workflow, préparation, Master/personnages centraux, entrée, actions, épisodes, missions, primes et nouvelle navigation), compilation réussie. Première recette CI : 11/13 parcours réussis ; adaptation nécessaire du parcours de suspension à l’onglet Préparer et comparaison du bandeau en texte rendu. Les captures ont permis de corriger la hauteur héritée du bandeau sur mobile et de remonter les commandes de sécurité. Ces corrections doivent être validées par la nouvelle CI, pas par le résultat initial.

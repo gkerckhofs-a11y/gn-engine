@@ -220,7 +220,7 @@ dialog .close { margin-bottom: 12px; }
 
 /* Organizer task navigation: scoped so player and cockpit surfaces stay independent. */
 .org-shell { --org-accent: #8dd3d4; }
-.org-context { display:flex; justify-content:space-between; align-items:center; gap:20px; padding:24px; background:#1c2927; border:1px solid var(--line); border-top:3px solid var(--org-accent); }
+.org-context { height:auto; min-height:140px; display:flex; justify-content:space-between; align-items:center; gap:20px; padding:24px; background:#1c2927; border:1px solid var(--line); border-top:3px solid var(--org-accent); }
 .org-title { display:block; font-size:clamp(1.25rem,3vw,1.8rem); line-height:1.3; overflow-wrap:anywhere; }
 .org-context-meta { display:flex; flex-wrap:wrap; gap:8px 18px; margin-top:12px; color:var(--muted); font-size:.85rem; }
 .org-tabs { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); background:#111b19; border:1px solid var(--line); border-top:0; position:sticky; top:0; z-index:4; }
@@ -265,3 +265,7 @@ dialog .close { margin-bottom: 12px; }
  .org-main .row { flex-wrap:wrap; }
 }
 @media(prefers-reduced-motion:reduce) { .org-shell * { scroll-behavior:auto; transition:none; } }
+.org-tool-list { border:0; padding:0; }
+.org-tool-list summary { min-height:44px; padding:12px 0; color:var(--org-accent); cursor:pointer; }
+.org-end-session { margin:20px 0 0; border-top:1px solid var(--line); padding-top:12px; }
+.org-end-session summary { color:var(--muted); cursor:pointer; }

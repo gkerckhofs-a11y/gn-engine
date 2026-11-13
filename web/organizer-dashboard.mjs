@@ -2,23 +2,26 @@ import {escapeHtml as esc} from './groups.mjs';
 import {centralWorkshops} from '../src/shared/central-workshops.mjs';
 
 const stages={PREPARATION:'Préparation',BRIEFING:'Briefing',EN_JEU:'En jeu',PAUSE:'En pause',FINISHED:'Terminée',ARCHIVED:'Archivée'};
+const eventLabels={setStage:'Rythme de jeu modifié',releaseSpaceOutlaws:'Version publiée',birthSpaceOutlaws:'Personnage attribué',requestSoLaunch:'Décollage demandé',assignSoCockpit:'Poste cockpit attribué',stopSafetyMJ:'STOP SÉCURITÉ',resumeSafety:'Reprise après STOP',decideCustomsAppeal:'Décision sur un recours'};
 const views={prepare:'Préparer',animate:'Animer',supervise:'Superviser'};
 const direct=new Set(['session','so-entry','group-admin','admissions-admin','directory-admin','announcements-admin','contracts-admin','contract-admin','bounties-admin','bounty-admin','spaceport-admin','space-combats-admin','space-rescues-admin','boarding-admin','space-maintenance-admin','towing-admin','module-mandates-admin','cargo-admin','cargo-port-admin','warehouses-admin','prices-admin','shops-admin','customs-admin','customs-inspection-admin','customs-detention-admin','forgery-inspect-admin','escape-admin','intelligence-admin','learning-admin','succession-admin']);
 const pathLink=(path,label,extra='')=>`<a href="${path.startsWith('/')?esc(path):`#/${esc(path)}`}" ${extra}>${esc(label)}</a>`;
-export function organizerRoute(page,id,token){
+const campaignPages=new Set(['central','central-check','central-snapshots','central-snapshot','campaign']);
+export function organizerRoute(page,id,token,sessionHint){
+ if(/^[A-Za-z0-9_-]{1,128}$/.test(sessionHint??'')&&(campaignPages.has(page)||page==='scenario'))return {page,sessionId:sessionHint,home:false,view:'prepare',...(page==='scenario'?{scenarioId:id}:{campaignId:id})};
  const sessionId=direct.has(page)?id:['field-admin','person-admin','media'].includes(page)&&id==='session'?token:null;
  if(!/^[A-Za-z0-9_-]{1,128}$/.test(sessionId??''))return null;
  return {page,sessionId,home:page==='session'||page==='so-entry',view:views[token]?token:page==='so-entry'||['admissions-admin','group-admin'].includes(page)?'prepare':null};
 }
-export function organizerView(route,s){return route.view??(route.home&&['PREPARATION','BRIEFING'].includes(s.stage)?'prepare':'animate');}
+export function organizerView(route,s){return route.view??(route.home&&(!s.permissions?.content||['PREPARATION','BRIEFING'].includes(s.stage))?'prepare':route.home&&['FINISHED','ARCHIVED'].includes(s.stage)?'supervise':'animate');}
 export function organizerTools(s,sabacc){
  const sid=s.id,so=s.spaceOutlaws??(s.preparationKind?{}:null),p=s.permissions??{},items=[];
  const add=(view,label,path,help)=>items.push({view,label,path,help});
  add('prepare','Participants et attributions',`session/${sid}/prepare`,'Valider les accès et attribuer les personnages.');
  if(p.content){
   if(s.preparationKind||so)add('prepare','Candidatures et invitations',`admissions-admin/${sid}`,'Examiner les dossiers et préparer l’entrée des joueurs.');
-  if(s.campaignId&&s.role==='OWNER')for(const w of centralWorkshops)add('prepare',w.label,`central/${s.campaignId}/${w.id}`,`${w.id} · Éditer, importer, exporter et vérifier les définitions.`);
-  if(!so&&s.scenarioId)add('prepare','Scénario et versions',`scenario/${s.scenarioId}`,'Retrouver les définitions et les versions publiées.');
+  if(s.campaignId&&s.role==='OWNER')for(const w of centralWorkshops)add('prepare',w.label,`central/${s.campaignId}/${w.id}?session=${sid}`,`${w.id} · Éditer, importer, exporter et vérifier les définitions.`);
+  if(!so&&s.scenarioId)add('prepare','Scénario et versions',`scenario/${s.scenarioId}?session=${sid}`,'Retrouver les définitions et les versions publiées.');
   if(so?.groupsVersion===1||!so&&s.groupsEnabled)add('prepare','Groupes et factions',`group-admin/${sid}`,'Définir les groupes, leurs membres et leurs accès.');
   if(!so||so.mediaVersion===1)add('prepare','Images et médias',`media/session/${sid}`,'Attribuer les images de cette session.');
   const live=[
@@ -51,6 +54,7 @@ export function organizerTools(s,sabacc){
 }
 export async function loadOrganizer(api,route){
  const s=await api('session',{sessionId:route.sessionId});
+ if(route.campaignId&&s.campaignId!==route.campaignId||route.scenarioId&&s.scenarioId!==route.scenarioId)throw new Error('ORGANIZER_CONTEXT_MISMATCH');
  const context={session:s,route,view:organizerView(route,s),loadedAt:new Date(),unavailable:[]};
  // These are projections already protected by their respective services, never new permissions.
  const reads=[];
@@ -83,16 +87,22 @@ export function organizerCharacters(s){
 }
 export function organizerJournal(s){
  if(!s.permissions.content)return '';
- return `<section class="panel"><h2>Journal des dernières opérations</h2><p><em>Les 50 dernières opérations renvoyées par la session. Les régies conservent leurs historiques détaillés.</em></p>${(s.audit??[]).map(a=>`<article class="org-log"><time>${esc(new Date(a.at).toLocaleString('fr-FR'))}</time><strong>${esc(a.action)}</strong>${a.reason?`<p>${esc(a.reason)}</p>`:''}<small>Auteur : ${esc(a.actorUid??'')}</small></article>`).join('')||'<p>Aucune opération dans ce journal.</p>'}</section>`;
+ return `<section class="panel"><h2>Journal des dernières opérations</h2><p><em>Les 50 dernières opérations renvoyées par la session. Les régies conservent leurs historiques détaillés.</em></p>${(s.audit??[]).map(a=>`<article class="org-log"><time>${esc(new Date(a.at).toLocaleString('fr-FR'))}</time><strong>${esc(eventLabels[a.action]??'Opération enregistrée')}</strong><small>${esc(a.action)}</small>${a.reason?`<p>${esc(a.reason)}</p>`:''}<small>Auteur : ${esc(a.actorUid??'')}</small></article>`).join('')||'<p>Aucune opération dans ce journal.</p>'}</section>`;
 }
 export function organizerShell(c,content){
  if(!c)return content;
  const s=c.session,view=c.view,tools=organizerTools(s,c.sabacc),home=`session/${s.id}`;
- return `<div class="org-shell"><header class="org-context"><div><p class="eyebrow">Régie organisateur · ${esc({OWNER:'Propriétaire',MJ:'MJ',RECEPTION:'Accueil'}[s.role]??s.role)}</p><strong class="org-title">${esc(s.title)}</strong><div class="org-context-meta"><span>${s.campaignEpisode?`Épisode ${esc(s.campaignEpisode)} · `:''}${esc(stages[s.stage]??s.stage)}</span><span>Version : ${s.versionId?'publiée':s.preparationKind?'en préparation':'non renseignée'}</span><span>${s.registrationOpen?'Inscriptions ouvertes':'Inscriptions fermées'}</span></div></div><div class="row">${pathLink('','Changer de session','class="button quiet"')}${pathLink('','Accueil orga','class="button quiet"')}<button data-action="refresh" class="quiet">Actualiser</button></div></header><nav class="org-tabs" aria-label="Organisation de la session">${Object.entries(views).map(([key,label])=>pathLink(`${home}/${key}`,label,view===key?'aria-current="page"':'')).join('')}</nav><div class="org-workspace"><aside class="org-sidebar"><label>Accès rapide<input type="search" data-org-tool placeholder="Cockpit, Sabacc, mission…"></label><nav aria-label="Outils organisateur">${tools.map(t=>pathLink(t.path,t.label,`data-org-tool-name="${esc(t.label.toLocaleLowerCase('fr'))}" data-org-tool-view="${t.view}" ${t.view===view?'':'hidden'}`)).join('')}</nav><p data-org-tools-empty hidden>Aucun outil accessible ne correspond.</p></aside><div class="org-main"><p class="org-breadcrumb">${pathLink(home,s.title)} <span aria-hidden="true">›</span> ${esc(views[view])}${!c.route.home?' › Régie':''}</p>${content}</div></div></div>`;
+ return `<div class="org-shell"><header class="org-context"><div><p class="eyebrow">Régie organisateur · ${esc({OWNER:'Propriétaire',MJ:'MJ',RECEPTION:'Accueil'}[s.role]??s.role)}</p><strong class="org-title">${esc(s.title)}</strong><div class="org-context-meta"><span>${s.campaignEpisode?`Épisode ${esc(s.campaignEpisode)} · `:''}${esc(stages[s.stage]??s.stage)}</span><span>Version : ${s.versionId||c.publication==='published'?'publiée':c.publication==='draft'?'non publiée':s.preparationKind?'à vérifier dans Préparer':'non renseignée'}</span><span>${s.registrationOpen?'Inscriptions ouvertes':'Inscriptions fermées'}</span></div></div><div class="row">${pathLink('','Changer de session','class="button quiet"')}${pathLink('','Accueil orga','class="button quiet"')}<button data-action="refresh" class="quiet">Actualiser</button></div></header><nav class="org-tabs" aria-label="Organisation de la session">${Object.entries(views).map(([key,label])=>pathLink(`${home}/${key}`,label,view===key?'aria-current="page"':'')).join('')}</nav><div class="org-workspace"><aside class="org-sidebar"><label>Accès rapide<input type="search" data-org-tool placeholder="Cockpit, Sabacc, mission…"></label><details class="org-tool-list" open><summary>Outils de la session</summary><nav aria-label="Outils organisateur">${tools.map(t=>pathLink(t.path,t.label,`data-org-tool-name="${esc(t.label.toLocaleLowerCase('fr'))}" data-org-tool-view="${t.view}" ${t.view===view?'':'hidden'}`)).join('')}</nav></details><p data-org-tools-empty hidden>Aucun outil accessible ne correspond.</p></aside><div class="org-main"><p class="org-breadcrumb">${pathLink(home,s.title)} <span aria-hidden="true">›</span> ${esc(views[view])}${!c.route.home?' › Régie':''}</p>${content}</div></div></div>`;
 }
 // Reparent existing controls rather than cloning them: one command, one handler.
 export function organizeHome(root,c){
- if(!c?.route.home)return;
+ if(!c)return;
+ for(const link of root.querySelectorAll('a[href^="#/"]')){
+  const path=link.getAttribute('href').slice(2),[page,id]=path.split('/');
+  if(!path.includes('?')&&((campaignPages.has(page)&&id===c.session.campaignId)||(page==='scenario'&&id===c.session.scenarioId)))link.setAttribute('href',`#/${path}?session=${encodeURIComponent(c.session.id)}`);
+ }
+ const shortcuts=root.querySelector('.org-tool-list');if(shortcuts)shortcuts.open=!root.ownerDocument.defaultView.matchMedia('(max-width:800px)').matches;
+ if(!c.route.home)return;
  const target=root.querySelector('.org-main');if(!target)return;
  const source=target.querySelector('[data-org-entry]');if(!source)return;
  const view=c.view;
@@ -106,18 +116,28 @@ export function organizeHome(root,c){
   const commands=source.querySelector('[data-org-section="animate"]');
   if(commands){commands.querySelectorAll('a').forEach(a=>a.remove());top.querySelector('.org-character-search')?.before(commands);}
  }
+ if(view==='animate'){
+  const health=root.querySelector('[data-org-health]');
+  if(health){
+   const people=[...health.querySelectorAll('article')];
+   if(people.length){const fold=root.ownerDocument.createElement('details');fold.innerHTML=`<summary>Suivi de ${people.length} personnage(s)</summary>`;fold.open=(c.health?.characters??[]).some(p=>['URGENT','EXPIRED'].includes(p.status));people[0].before(fold);people.forEach(person=>fold.append(person));}
+   top.querySelector('.org-character-search')?.before(health);
+  }
+ }
  const finish=root.querySelector('[data-org-section="animate"] [data-stage="FINISHED"]');
  if(finish){const advanced=root.ownerDocument.createElement('details');advanced.className='org-end-session';advanced.innerHTML='<summary>Clôture de la session</summary><p><em>La clôture reste soumise aux contrôles et à la confirmation existants.</em></p>';finish.before(advanced);advanced.append(finish);}
 
 }
 export function organizerInput(event,root){
  const input=event.target;
- if(input.matches('[data-org-character]')){
+ if(input.matches('[data-org-character],[data-org-participant]')){
   const query=input.value.trim().toLocaleLowerCase('fr');let count=0;
-  root.querySelectorAll('[data-org-name]').forEach(row=>{row.hidden=!row.dataset.orgName.includes(query);if(!row.hidden)count++;});
-  const empty=root.querySelector('[data-org-no-match]');if(empty)empty.hidden=count>0;
+  const participant=input.matches('[data-org-participant]');
+  root.querySelectorAll(participant?'[data-org-participant-name]':'[data-org-name]').forEach(row=>{row.hidden=!(participant?row.dataset.orgParticipantName:row.dataset.orgName).includes(query);if(!row.hidden)count++;});
+  const empty=root.querySelector(participant?'[data-org-no-participant]':'[data-org-no-match]');if(empty)empty.hidden=count>0;
  }
  if(input.matches('[data-org-tool]')){
+  const details=root.querySelector('.org-tool-list');if(details)details.open=true;
   const query=input.value.trim().toLocaleLowerCase('fr'),view=root.querySelector('.org-tabs [aria-current="page"]')?.getAttribute('href').split('/').at(-1);let count=0;
   root.querySelectorAll('[data-org-tool-name]').forEach(row=>{row.hidden=query?!row.dataset.orgToolName.includes(query):row.dataset.orgToolView!==view;if(!row.hidden)count++;});
   root.querySelector('[data-org-tools-empty]').hidden=count>0;

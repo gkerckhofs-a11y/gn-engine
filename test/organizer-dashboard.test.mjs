@@ -45,3 +45,10 @@ test('Navigation orga : HTML échappé, états de jeu et publication distincts',
  assert.doesNotMatch(organizerCharacters(session),/editCharacter/);
  assert.match(organizerOverview(context),/ne mesurent pas les joueurs actuellement connectés/);
 });
+test('Navigation orga : contexte du Master vérifié, sans association implicite',async()=>{
+ const route=organizerRoute('central','campaign','M2','s');assert.equal(route.view,'prepare');
+ const api=async action=>action==='session'?{...session,campaignId:'campaign'}:{admin:false};
+ const c=await loadOrganizer(api,route);assert.equal(c.session.id,'s');
+ await assert.rejects(loadOrganizer(api,organizerRoute('central','other','M2','s')),/CONTEXT_MISMATCH/);
+ assert.equal(organizerRoute('central','campaign','M2',null),null);
+});
