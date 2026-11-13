@@ -74,3 +74,10 @@ La carte « Neutralisation furtive · après la scène » ouvre un formulaire pe
 La carte ouvre les originaux accessibles et les copies dont la lecture est autorisée. Le QR du document ou son code `DOC:<identifiant>` mène au même dossier sans rechoisir l’action. Le modèle M1 ou le modèle de faux M6 doit référencer une analyse TRA-03 réservée aux originaux. La possession, le reçu, le niveau et la version sont revérifiés à la résolution. Une remise ne remet pas à zéro une tentative déjà résolue ; une copie autorisée ne crée aucun objet. Les résultats sont les informations préparées par l’organisation, sans révélation automatique du faussaire.
 
 Dans le contrôle MJ des faux documents, les fabrications en cours peuvent être interrompues avec motif, y compris après retrait d’accès du joueur. Le PA et le formulaire encore réservés sont libérés ; les fabrications terminées restent dans l’historique.
+
+
+### Intrusion préparée et indices
+
+Le parcours INF-01 propose la sonde compatible (+1), les fournitures requises et une aide offerte (+1), avant de réserver les ressources. Les fournitures sont dépensées au jet, y compris en cas d’échec. L’interruption libère ce qui est encore réservé. La régie peut interrompre une intrusion si l’accès du joueur a été retiré.
+
+Dans un mini-jeu, aucun D6 ne suit la réponse. Les indices préparés au niveau 3, 4 ou 5 se consultent pendant la tentative ; chaque indice n’est ouvert qu’une fois par personnage et version, y compris après relance ou reprise d’épisode. Le QR ne révèle jamais la solution. Les droits sur les systèmes réels restent inchangés.

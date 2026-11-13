@@ -41,7 +41,7 @@ export function centralLocationDiagnostics(c,field,id,changes,required=false){
 export function centralFieldTargetReferences(d){
  const refs=[];const add=(field,type,id,extra={})=>{if(id)refs.push({field,type,id,...extra});};
  if(d.kind==='FORGERY'){add('forgery.reviewTargetId','fieldTarget',d.forgery.reviewTargetId);add('forgery.blankItemId','item',d.forgery.blankItemId,{consumable:true});return refs;}
- if(d.kind==='INTRUSION')return refs;
+ if(d.kind==='INTRUSION'){(d.intrusion.bonusItemIds??[]).forEach((id,i)=>add(`intrusion.bonusItemIds.${i}`,'item',id));if(d.intrusion.consumable)add('intrusion.consumable.itemId','item',d.intrusion.consumable.itemId,{consumable:true,quantity:d.intrusion.consumable.quantity});return refs;}
  if(isPlaceSearch(d)){
   d.finds.forEach((f,i)=>{add(`finds.${i}.itemId`,'item',f.itemId,{quantity:f.quantity});add(`finds.${i}.knowledgeId`,'knowledge',f.knowledgeId);f.characterIds.forEach(cid=>add(`finds.${i}.characterIds`,'character',cid));});
   d.search.bonuses.forEach((b,i)=>add(`search.bonuses.${i}.sourceId`,b.kind==='ITEM'?'item':'skill',b.sourceId));return refs;

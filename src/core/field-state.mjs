@@ -69,6 +69,14 @@ export function fieldTargetInput(v,id,old={}){
   check(v.publicationState==='DRAFT'||v.publicationState==='READY'||v.publicationState==='PUBLISHED');
   check(v.intrusion&&typeof v.intrusion==='object'&&!Array.isArray(v.intrusion));
   const i=v.intrusion;
+  check(Object.keys(i).every(k=>['category','minLevel','threshold','successText','failureText','challenge','bonusItemIds','consumable','hints'].includes(k)));
+  const bonusItemIds=i.bonusItemIds??[];check(Array.isArray(bonusItemIds)&&bonusItemIds.length<=20&&new Set(bonusItemIds).size===bonusItemIds.length);bonusItemIds.forEach(documentId);
+  const consumable=i.consumable?{itemId:documentId(i.consumable.itemId),quantity:num(i.consumable.quantity,1000)}:null;check(!consumable||consumable.quantity>0);
+  const hints=i.hints??[];check(Array.isArray(hints)&&hints.length<=20);
+  const preparedHints=hints.map(h=>{check(h&&Object.keys(h).every(k=>['id','minLevel','text'].includes(k)));check(Number.isSafeInteger(h.minLevel)&&h.minLevel>=3&&h.minLevel<=5);return {id:documentId(h.id),minLevel:h.minLevel,text:text(h.text,3000,true)};});
+  check(new Set(preparedHints.map(h=>h.id)).size===preparedHints.length);
+  check(i.challenge||preparedHints.length===0);check(!i.challenge||!bonusItemIds.length&&!consumable);
+
   check(['LOCK','SAFE','TERMINAL'].includes(i.category));
   check(Number.isSafeInteger(i.minLevel)&&i.minLevel>=1&&i.minLevel<=5);
   check(Number.isSafeInteger(i.threshold)&&i.threshold>=2&&i.threshold<=12);
@@ -76,10 +84,10 @@ export function fieldTargetInput(v,id,old={}){
   const challenge=codeChallengeInput(i.challenge,old.intrusion?.challenge);
   return {id,kind:'INTRUSION',title:text(v.title,150,true),description:text(v.description??'',6000),
    gmNotes:text(v.gmNotes??'',10000),publicationState:v.publicationState,profiles:{},rewards:[],
-   intrusion:{category:i.category,minLevel:i.minLevel,threshold:i.threshold,
+   intrusion:{category:i.category,minLevel:i.minLevel,threshold:i.threshold,...(bonusItemIds.length?{bonusItemIds}:{}),...(consumable?{consumable}:{}),...(preparedHints.length?{hints:preparedHints}:{}),
     successText:text(i.successText,4000,true),failureText:text(i.failureText??'',4000),
     ...(challenge?{challenge}:{})},
-   dependencyId:null,offlineSeconds:0,failureLockSeconds:0,repairProtectionSeconds:0,
+   dependencyId:null,offlineSeconds:0,failureLockSeconds:challenge?0:num(v.failureLockSeconds??0,86400),repairProtectionSeconds:0,
    revision:(old.revision??0)+1};
  }
 

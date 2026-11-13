@@ -1,3 +1,4 @@
+import {episodeHarness} from './space-episodes-suite.mjs';
 import {newLot,itemInput} from '../../src/core/inventory-state.mjs';
 import {intrusionAnswerDigest} from '../../src/core/field-state.mjs';
 import test from 'node:test';
@@ -56,6 +57,13 @@ async function inventoryDocumentFixture(makeStore,shareMode='SHOW'){
  return {...f,kid,lotId,path,lot,otherId,open,detail,transfer};
 }
 export function soDecryptionSuite(makeStore,prefix='INF-02'){
+ test(prefix+' : échec par version conservé à l’épisode suivant, original et historique inchangés',async()=>{
+  const f=await decryptionFixture(makeStore),a=await f.start();f.advance(165000);f.setDie(1);assert.equal((await f.finish(a.id)).status,'FAILED');
+  const next=await episodeHarness(f);await next.close({participantUids:[f.player.uid]});await next.resume(await next.begin());await next.stage('EN_JEU');
+  assert.equal((await next.get('inf02Actions/'+a.id)).status,'FAILED');
+  await assert.rejects(next.cmd('startSoDecryption',{knowledgeId:'ordinary'},f.player),{code:'SO_INF02_ALREADY'});
+ });
+
  test(prefix+' : original SHOW transféré sans duplication, accès et déchiffrement suivent la possession',async()=>{
   const f=await inventoryDocumentFixture(makeStore);
   const available=await f.actionRead('mySoDecryption');assert.equal(available.inventoryDocuments[0].lotId,f.lotId);assert.doesNotMatch(JSON.stringify(available),/COORDONNEES_SECRETES/);assert.equal((await f.actionRead('mySoDecryption',{},f.other)).inventoryDocuments.length,0);
