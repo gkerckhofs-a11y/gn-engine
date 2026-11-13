@@ -165,7 +165,7 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
        const roll=a.status==='CONTINUING'||a.profile.test==='AUTO'?null:die;if(roll!==null)requireThat(Number.isInteger(roll)&&roll>=1&&roll<=6,'INVALID_DIE');const total=roll===null?null:roll+a.level+a.bonus+(a.aid?1:0),success=roll===null||total>=a.profile.threshold;
        const outcome=a.status==='CONTINUING'?{...a.result,completedAfterContinuation:true}: {roll,total,level:a.level,bonus:a.bonus,aid:a.aid?1:0,threshold:a.profile.threshold,success};
        if(a.kind==='DIAGNOSIS'){
-        const dossier=await patientDossier(tx,s.id,t.id);requireThat(diagnosisVersion(t,dossier)===a.diagnosisStateVersion,'FIELD_STATE_CHANGED');await release(tx,s,a,c,t,at,id,actor,false);const report={...outcome,...diagnosisResult(t,dossier,a.level,success)};next={...a,paid:true,status:'SUCCEEDED',finishedAt:at,result:report};tx.set(`${cp(s.id,c.id)}/diagnoses/${t.id}`,{actionId:a.id,stateVersion:a.diagnosisStateVersion,at,result:report});unlock(tx,s,a,c,t);
+        const dossier=await patientDossier(tx,s.id,t.id);requireThat(diagnosisVersion(t,dossier)===a.diagnosisStateVersion,'FIELD_STATE_CHANGED');await release(tx,s,a,c,t,at,id,actor,false);const report={...outcome,...diagnosisResult(t,dossier,a.level,success)};next={...a,paid:true,status:'SUCCEEDED',finishedAt:at,result:report};tx.set(`${cp(s.id,c.id)}/diagnoses/${t.id}`,{id:t.id,actionId:a.id,stateVersion:a.diagnosisStateVersion,at,result:report});unlock(tx,s,a,c,t);
        }else if(a.kind==='STABILIZE'){
         await release(tx,s,a,c,t,at,id,actor,false);next={...a,paid:true,status:'SUCCEEDED',finishedAt:at,result:{stabilized:true,restored:0,hp:0,maxHp:t.maxHp}};unlock(tx,s,a,c,t);
        }else if(a.kind==='PROTECTION'){

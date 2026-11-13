@@ -22,9 +22,9 @@ test('COU-02 : échec coûte un PA, pas de réduction, aucune relance de la mêm
  const f=await fixture(),a=await f.startNegotiation();f.advance(120000);const r=await f.finish(a);assert.equal(r.result.success,false);assert.equal(r.result.discount,undefined);assert.equal((await f.points()).available,4);await assert.rejects(f.actionRead('prepareShopPurchase',{shopId:'counter',offerId:'supply',quantity:1,useProtected:true,discountActionId:a.id}),{code:'NEGOTIATION_UNAVAILABLE'});f.advance(600000);await assert.rejects(f.startNegotiation(),{code:'FIELD_ANALYSIS_DONE'});
 });
 test('COU-02 : cinq minutes réelles, quantité, révision du lot et personnage contrôlés au paiement',async()=>{
- for(const changed of ['expiry','quantity','stock','person']){
+ for(const changed of ['expiry','quantity','stock','person','session']){
   const f=await fixture();f.setDie(4);const a=await f.startNegotiation();f.advance(120000);await f.finish(a);const i={shopId:'counter',offerId:'supply',quantity:1,useProtected:true,discountActionId:a.id};
-  if(changed==='expiry')f.advance(300000);if(changed==='quantity')i.quantity=2;if(changed==='stock')await f.provision({quantity:1});
+  if(changed==='expiry')f.advance(300000);if(changed==='quantity')i.quantity=2;if(changed==='stock')await f.provision({quantity:1});if(changed==='session')await f.store.runTransaction(async tx=>{const path=`sessions/${f.sid}/fieldActions/${a.id}`,old=await tx.get(path);tx.set(path,{...old,result:{...old.result,discount:{...old.result.discount,sessionId:'foreign-session'}}});});
   await assert.rejects(f.actionRead('prepareShopPurchase',i,changed==='person'?f.other:f.player),{code:'NEGOTIATION_UNAVAILABLE'});assert.equal((await f.till()).balance,0);
  }
 });

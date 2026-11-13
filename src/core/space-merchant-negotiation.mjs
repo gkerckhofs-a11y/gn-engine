@@ -18,5 +18,5 @@ export async function negotiableOffer(tx,s,c,target,quantity=1){
 export function discountResult(s,x,at){return {...x,sessionId:s.id,amount:discountedTotal(x.total),expiresAt:at+300000,usedAt:null};}
 export function validDiscount(a,ctx,offer,lot,quantity,at){
  const d=a?.result?.discount;
- return !!(ctx.s.spaceOutlaws?.merchantNegotiationVersion===1&&a?.status==='SUCCEEDED'&&a.profile?.skillId==='COU-02'&&a.characterId===ctx.c.id&&a.actorUid===ctx.c.assignedUid&&a.accessVersion===ctx.r.accessVersion&&abilityLevel(ctx.c,'COU-02')>=offer.negotiationLevel&&d&&!d.usedAt&&at<d.expiresAt&&d.shopId===offer.shopId&&d.offerId===offer.id&&d.offerRevision===offer.revision&&d.lotId===lot?.id&&d.lotRevision===lot.revision&&d.quantity===quantity&&d.total===offer.unitPrice*quantity&&d.amount===discountedTotal(d.total));
+ return !!(ctx.s.spaceOutlaws?.merchantNegotiationVersion===1&&a?.status==='SUCCEEDED'&&a.profile?.skillId==='COU-02'&&a.characterId===ctx.c.id&&a.actorUid===ctx.c.assignedUid&&a.accessVersion===ctx.r.accessVersion&&abilityLevel(ctx.c,'COU-02')>=offer.negotiationLevel&&d&&d.sessionId===ctx.s.id&&!d.usedAt&&at<d.expiresAt&&d.shopId===offer.shopId&&d.offerId===offer.id&&d.offerRevision===offer.revision&&d.lotId===lot?.id&&d.lotRevision===lot.revision&&d.quantity===quantity&&d.total===offer.unitPrice*quantity&&d.amount===discountedTotal(d.total));
 }

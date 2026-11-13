@@ -118,3 +118,11 @@ La tranche 1 n'est pas une clôture des 34 compétences. MED-01 attend TOXI-01 ;
 - [ ] Historiques joueur/MJ, aucune fuite des secrets ni altération de l'audit technique.
 
 Recommandation actuelle : **recette isolée des parcours développés**, pas certification d'aptitude de l'ensemble du GN pour une session réelle.
+
+### Preuves du candidat de tranche 1 — 13 novembre 2026
+
+PR [#16](https://github.com/gkerckhofs-a11y/gn-engine/pull/16), brouillon, non fusionnée. Premier candidat `41eadec08c3f3022498c0702f68ae2e11f3ac811` : campagne locale complète de 2 987 tests réussis puis 25 tests d'interface réussis ; 26 cas des cinq nouvelles suites réussis sur émulateur Firestore. CI [43459484221](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/43459484221) : application et HTTP/navigateur réussis ; Firestore encore en cours au moment de cette rédaction.
+
+Correctif suivant : dossiers médicaux, historique et tentatives diagnostiques repris par la copie native d'épisode ; remise liée à sa session d'origine ; identifiants ASCII des liens cliniques pour conserver la sélection dans le fragment d'URL du navigateur. Vérification locale : 50 tests de persistance et non-régression réussis, 19 tests de menu/clinique réussis, deux cas ciblés Firestore réussis, compilation réussie. Ces campagnes se recouvrent et ne doivent pas être additionnées. Le SHA et la conclusion de CI du correctif sont à consulter dans la PR.
+
+Aucune publication Firebase, modification de session réelle ou recette terrain dans cette tranche.

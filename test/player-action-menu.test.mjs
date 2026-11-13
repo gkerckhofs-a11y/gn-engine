@@ -58,3 +58,8 @@ test('actions : choisir le lieu clinique ou la quantité du lot avant la confirm
  previewSelectedAction({querySelector:()=>form,querySelectorAll:()=>[{},{}]});assert.equal(calls,0);
  previewSelectedAction({querySelector:()=>({...form,querySelector:selector=>selector.includes('tradeQuantity')?{}:null}),querySelectorAll:()=>[{}]});assert.equal(calls,0);
 });
+
+test('actions : liens cliniques identiques après encodage navigateur',()=>{
+ const d=own([['MED-02',2],['MED-03',2]]),items=actionMenuItems(d).filter(i=>i.kind?.startsWith('CLINIC'));assert.deepEqual(items.map(i=>i.id),['MED-03-safe','MED-03-fast']);
+ for(const i of items)assert.equal(new URL(`https://example.invalid/#/act/s/${i.id}`).hash.split('/').at(-1),i.id);
+});

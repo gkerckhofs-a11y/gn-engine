@@ -1,3 +1,4 @@
+import {episodeHarness} from './space-episodes-suite.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {healthFixture} from './space-outlaws-health-suite.mjs';
@@ -28,6 +29,10 @@ test('MED-01 : changement de dossier pendant la durée bloque la révélation, a
 test('MED-01 : contrôle métier et aucune stabilisation implicite par le diagnostic',async()=>{
  const f=await fixture();await f.damage(3);const a=await f.startDiagnosis();f.advance(60000);await f.finishCare(a);assert.equal((await f.health()).status,'URGENT');assert.equal((await f.health()).hp,0);
  const g=await fixture(2,{nature:'DROID'});await assert.rejects(g.startDiagnosis(),{code:'PATIENT_NATURE_MISMATCH'});await assert.rejects(g.actionCmd('saveMedicalDossier',{characterId:g.tid,revision:1,dossier:{information:[],reason:'Injection'}}),{code:'FORBIDDEN'});
+});
+
+test('MED-01 : dossier, historique et tentative conservés au changement d’épisode',async()=>{
+ const f=await fixture(),a=await f.startDiagnosis();f.advance(60000);await f.finishCare(a);const base=`sessions/${f.sid}`,before=await f.store.get(`${base}/medicalDossiers/${f.tid}`),history=await f.store.list(`${base}/medicalDossiers/${f.tid}/history`),diagnosis=await f.store.get(`${base}/characters/${f.cid}/diagnoses/${f.tid}`),e=await episodeHarness(f);await e.close();await e.resume(await e.begin());assert.deepEqual(await e.get(`medicalDossiers/${f.tid}`),before);assert.deepEqual(await f.store.list(`sessions/${e.sid}/medicalDossiers/${f.tid}/history`),history);assert.deepEqual(await e.get(`characters/${f.cid}/diagnoses/${f.tid}`),diagnosis);await e.stage('EN_JEU');await assert.rejects(e.read('preparePersonAction',{profileId:'SO-MED-01',targetId:f.tid},f.player),{code:'FIELD_ANALYSIS_DONE'});
 });
 
 }
