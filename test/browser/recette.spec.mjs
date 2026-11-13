@@ -323,4 +323,5 @@ test('Navigateur : Sabacc autonome, deux comptes, cartes privées et régie mobi
   await one.context.setOffline(true);await one.page.getByRole('button',{name:'Règles',exact:true}).click();await expect(one.page.getByRole('heading',{name:'Les règles du Sabacc'})).toBeVisible();await one.context.setOffline(false);
   gm.page.once('dialog',dialog=>dialog.accept());await gm.page.locator('[data-form="emergency"] [name="reason"]').fill('Fin de recette');await clickCommand(gm.page,'[data-form="emergency"] [value="cancel"]','sabaccCancel');
   const refunded=await command(one.page,tokens[1],'sabaccTable',{tableId:t.id,qrToken:t.qrToken});expect(refunded.self.balance).toBe(500);expect(refunded.hand.phase).toBe('CANCELLED');
+  gm.page.once('dialog',dialog=>dialog.accept());await clickCommand(gm.page,'[data-rotate]','sabaccRotateQR');await one.page.getByRole('button',{name:'Table',exact:true}).click();await expect(one.page.locator('[data-return]')).toBeVisible();await one.page.locator('[data-return]').click();await expect(one.page.getByRole('heading',{name:'Cantina navigateur',exact:true})).toBeVisible();
 });
