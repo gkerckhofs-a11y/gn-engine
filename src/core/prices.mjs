@@ -1,3 +1,4 @@
+import {isBroker} from '../shared/player-access.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {inventoryHash as hash} from './inventory-state.mjs';
 import {inventoryPlayer} from './inventory-transfers.mjs';
@@ -10,7 +11,8 @@ export function createPriceService({store,signed,checkSession,now,uuid}){
  return async(action,actor,input)=>{
   signed(actor);const sid=documentId(input.sessionId),base=`sessions/${sid}`,at=now(),eventId=uuid();
   return store.runTransaction(async tx=>{
-   const player=action==='commodityMarket',s=player?(await inventoryPlayer(tx,actor,input)).s:await checkSession(tx,actor,sid);
+   const player=action==='commodityMarket',ctx=player?await inventoryPlayer(tx,actor,input):null,s=player?ctx.s:await checkSession(tx,actor,sid);
+   requireThat(!player||!s.spaceOutlaws||isBroker(ctx.c),'FORBIDDEN');
    requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
    const book=await readPriceBook(tx,s,at),currency=s.economyRules?currencyView(s.economyRules):null;
    if(player)return {session:{id:sid,stage:s.stage},currency,enabled:s.economyRules?.enabled===true,prices:priceBoard(book),restrictions:tradeBoard(book)};

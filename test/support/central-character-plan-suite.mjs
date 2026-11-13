@@ -87,6 +87,6 @@ export function centralCharacterPlanSuite(makeStore,prefix='Plan initial C2c'){
  test(`${prefix} : contrôle sans dossiers, politique ni écriture, empreinte sensible au plan`,async()=>{
   const f=await centralCheckFixture(makeStore);await f.configure();await f.saveCharacter({draftRevision:1,character:character()});const first=await f.check(2);await f.saveCharacter({draftRevision:2,characterRevision:1,character:character({creationPlan:{...centralTestPlan,secondaryId:'INF-02'}})});
   const run=f.store.runTransaction.bind(f.store),reads=[];f.store.runTransaction=fn=>run(tx=>fn({...tx,get:async p=>{reads.push(p);return tx.get(p);},list:async(...args)=>{reads.push(args[0]);return tx.list(...args);},set:()=>assert.fail('Lecture seule')}));
-  const r=await f.check(3);assert.notEqual(r.fingerprint,first.fingerprint);assert.equal(r.publicationAvailable,false);assert.doesNotMatch(JSON.stringify(r),/Secret de fiction|Biographie fictive|friends|email/);assert.ok(reads.every(p=>[f.base,`${f.base}/changes`,`campaigns/${f.cid}`,`sessions/${f.sid}`].includes(p)));
+  const r=await f.check(3);assert.notEqual(r.fingerprint,first.fingerprint);assert.equal(r.publicationAvailable,false);assert.doesNotMatch(JSON.stringify(r),/Secret de fiction|Biographie fictive|friends|email/);assert.ok(reads.every(p=>[f.base,`${f.base}/changes`,`campaigns/${f.cid}`,`sessions/${f.sid}`,`recycleBin/sessions_${f.sid}`].includes(p)));
  });
 }

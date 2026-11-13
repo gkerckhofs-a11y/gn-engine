@@ -1,3 +1,6 @@
+import {demoActors,resolveDemoActor} from './solo-demo.mjs';
+import {recycleBinStore,createRecycleBinService} from './recycle-bin.mjs';
+import {createCharacterCodeService} from './character-codes.mjs';
 import {primaryClass} from '../shared/player-access.mjs';
 import {createSabaccService,sabaccActions} from '../sabacc/service.mjs';
 import {groupChat} from './group-chat.mjs';
@@ -103,7 +106,8 @@ const ownRegistration = r => r ? ({name:r.name, email:r.email, answers:r.answers
 
 /** Authenticated actor is supplied by the HTTP adapter, never by input JSON. */
 export function createWorkflow({store, ownerEmail, now = Date.now, uuid = randomUUID, images=null, processImage=null,rollD6,rollD12}) {
-  store=mediaTrackedStore(campaignGuardStore(store));
+  const lifecycleStore=store;
+  store=mediaTrackedStore(campaignGuardStore(recycleBinStore(store)));
   const isAdmin = actor => !!actor && actor.emailVerified === true && actor.provider === 'google.com'
     && actor.email?.toLowerCase() === ownerEmail?.toLowerCase();
   function signed(actor) { requireThat(actor?.uid && typeof actor.email==='string' && actor.email && actor.emailVerified === true && actor.provider === 'google.com', 'LOGIN_REQUIRED'); }
@@ -226,7 +230,34 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const knowledgeService=createKnowledgeService({store,signed,checkSession,checkScenario,now,uuid});
 
   const sabaccService=createSabaccService({store,signed,isAdmin,checkSession,now,uuid});
+  const recycleService=createRecycleBinService({store:lifecycleStore,admin,now});
+  const characterCodeService=createCharacterCodeService({store,signed,isAdmin,checkSession});
   async function dispatch(action,actor,input={}) {
+    if(action==='createSoloDemo'){
+      admin(actor);const creationId=documentId(input.creationId),result=await dispatch('createSpaceOutlawsPreparation',actor,{creationId,requestId:documentId(input.requestId),campaignTitle:'ESSAI COMMUN · Port-Brèche',title:'Le convoi disparu · Essai jouable',capacity:8,privacy:'Session privée de démonstration, huit identités fictives contrôlées uniquement par le propriétaire.'});
+      const path=`soloDemos/${result.id}`,profiles=demoActors(creationId);
+      await lifecycleStore.runTransaction(async tx=>{const old=await tx.get(path);if(!old)tx.set(path,{sessionId:result.id,campaignId:result.campaignId,ownerUid:actor.uid,authTime:Math.floor(now()/1000),profiles});});
+      return {...result,profiles};
+    }
+    if(action==='completeSoloDemo'){
+      admin(actor);const sid=documentId(input.sessionId),d=await store.get(`soloDemos/${sid}`),s=await store.get(`sessions/${sid}`),table=await store.get(`sabaccTables/${documentId(input.tableId)}`);
+      requireThat(d?.ownerUid===actor.uid&&s?.ownerUid===actor.uid&&s.stage==='EN_JEU'&&table?.sessionId===sid&&table.status==='OPEN','FORBIDDEN');
+      const characters=await store.list(`sessions/${sid}/characters`),groups=await store.list(`sessions/${sid}/groups`);
+      requireThat(d.profiles.every(p=>characters.some(c=>c.assignedUid===p.uid&&c.birth))&&groups.some(g=>g.members.filter(m=>m.active).length===8),'INVALID_STATUS');
+      await lifecycleStore.runTransaction(async tx=>{const current=await tx.get(`soloDemos/${sid}`);tx.set(`soloDemos/${sid}`,{...current,completed:true,tableId:table.id});});return {completed:true};
+    }
+    if(action==='soloDemoContext'){
+      signed(actor);if(!isAdmin(actor))return null;const d=await store.get(`soloDemos/${documentId(input.sessionId)}`),s=await store.get(`sessions/${input.sessionId}`);
+      const table=d?.tableId?await store.get(`sabaccTables/${d.tableId}`):null;
+      return d?.ownerUid===actor.uid&&s?.ownerUid===actor.uid?{sessionId:d.sessionId,table:table?{id:table.id,qrToken:table.qrToken}:null,profiles:d.profiles.map(({id,label,firstName,lastName})=>({id,label,name:`${firstName} ${lastName}`}))}:null;
+    }
+    if(input.demoRole){
+      actor=await resolveDemoActor({store,actor,input,isAdmin});
+      const {demoRole,demoSession,...rest}=input;input=rest;
+    }
+
+    if(['recycleBin','trashRecord','restoreRecord'].includes(action))return recycleService(action,actor,input);
+    if(['ensureCharacterCode','resolveCharacterCode'].includes(action))return characterCodeService(action,actor,input);
     if(sabaccActions.has(action))return sabaccService(action,actor,input);
     if(shopActions.includes(action))return shopService(action,actor,input);
     if(soLearningActions.includes(action))return learningService(action,actor,input);
@@ -305,7 +336,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
           if(s && s.ownerUid===g.ownerUid && !visible.some(x=>x.id===s.id)) visible.push({...privateSession(s),role:g.role});
         }
         const campaigns=own?await tx.list('campaigns',['ownerUid',actor.uid]):[];
-        return {scenarios,sessions:visible,centralCampaigns,campaigns:campaigns.map(c=>({id:c.id,title:c.title,episodeCount:c.episodeCount,activeSessionId:c.activeSessionId,activeBuildId:c.activeBuildId,latestSessionId:c.latestSessionId,...(c.preparationSessionId?{preparationSessionId:c.preparationSessionId}:{})}))};
+        return {scenarios,sessions:visible,centralCampaigns:centralCampaigns.filter(cc=>{const c=campaigns.find(c=>c.id===cc.id);return !c?.preparationSessionId||sessions.some(s=>s.id===c.preparationSessionId||s.campaignId===c.id);}),campaigns:campaigns.filter(c=>!c.preparationSessionId||sessions.some(s=>s.id===c.preparationSessionId||s.campaignId===c.id)).map(c=>({id:c.id,title:c.title,episodeCount:c.episodeCount,activeSessionId:c.activeSessionId,activeBuildId:c.activeBuildId,latestSessionId:c.latestSessionId,...(c.preparationSessionId?{preparationSessionId:c.preparationSessionId}:{})}))};
       });
     }
     if(action==='publicSession') {

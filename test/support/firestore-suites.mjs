@@ -1,6 +1,7 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {id:"identity-lifecycle",module:"../support/identity-lifecycle-suite.mjs",exportName:"identityLifecycleSuite",label:"Codes courts et corbeille sur Firestore",seconds:20},
   {id:"sabacc",module:"../support/sabacc-suite.mjs",exportName:"sabaccSuite",label:"Sabacc autonome sur Firestore",seconds:40},
   {id:"sabacc-gn",module:"../support/sabacc-suite.mjs",exportName:"sabaccGnSuite",label:"Sabacc GN sur Firestore",seconds:30},
   {id:"group-chat",module:"../support/group-chat-suite.mjs",exportName:"groupChatSuite",label:"Messagerie de groupe sur Firestore",seconds:40},

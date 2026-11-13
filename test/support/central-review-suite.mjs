@@ -94,7 +94,7 @@ export function centralReviewSuite(makeStore,prefix='Délégation C2b'){
   const f=await centralCheckFixture(makeStore);await f.grant(reviewGrant);await f.configure();await f.saveCharacter({draftRevision:1});const run=f.store.runTransaction.bind(f.store),reads=[];
   f.store.runTransaction=fn=>run(tx=>fn({...tx,get:async p=>{reads.push(p);return tx.get(p);},list:async(...args)=>{reads.push(args[0]);return tx.list(...args);},set:()=>assert.fail('Contrôle délégué en lecture seule')}));
   const r=await f.check(2,f.mj);assert.equal(r.publicationAvailable,false);assert.equal(r.diff.length,2);
-  const allowed=[`campaigns/${f.cid}`,`sessions/${f.sid}`,f.base,`${f.base}/changes`,centralStaffPath(f.cid,f.mj.email)];assert.ok(reads.every(p=>allowed.includes(p)),JSON.stringify(reads));
+  const allowed=[`campaigns/${f.cid}`,`sessions/${f.sid}`,`recycleBin/sessions_${f.sid}`,f.base,`${f.base}/changes`,centralStaffPath(f.cid,f.mj.email)];assert.ok(reads.every(p=>allowed.includes(p)),JSON.stringify(reads));
  });
  test(`${prefix} : cycle publié et révision périmée refusés aussi au délégué`,async()=>{
   const f=await centralCheckFixture(makeStore);await f.grant(reviewGrant);await f.save();await assert.rejects(f.check(0,f.mj),{code:'STALE_REVISION'});

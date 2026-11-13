@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "1f6a13d9930192424fcc757f4519b6b2c8fc602b",
+  "sourceCommit": "5b261c66a46700a5ff9cd2725d36c9ee7e1ad460",
   "version": "0.38.0-rc.1",
   "requestedAt": "2026-11-13",
-  "reason": "Guillaume autorise la publication de toutes les modifications après la refonte du Terminal : interface organisateur PC, QR/ID, état joueur, sac/fret, actions directes et Terminal personnalisé. Publication subordonnée à la CI complète réussie du commit main exact. Aucun changement de données de session."
+  "reason": "Publication autorisée par Guillaume : essai solo commun à huit profils, groupe, Sabacc, codes ABC123, corbeille et marché COU. Création et retrait des anciennes données uniquement après vérification du nouvel essai. Déploiement soumis à la CI complète du SHA main exact."
 }

@@ -4,7 +4,7 @@ import {playerRoute,playerShell,createPlayerRenderer,groupHomeHtml,groupMissionL
 import {playerRules} from '../src/core/player-rules.mjs';
 import {fieldMineHtml} from '../web/field-actions.mjs';
 import {personMineHtml} from '../web/person-actions.mjs';
-const context=()=>({session:{id:'s1',title:'Session <secrète>',stage:'PAUSE',summary:'Une ville',practical:'À lire'},character:{id:'c1',displayName:'Bela <Venn>',profession:'Pilote & navigatrice'},globalLevel:2,groups:[],economyEnabled:false,actionPoints:{available:5,maximum:8,reserved:1,nextRefillInMs:60000},health:{hp:2,maxHp:3,outOfCombat:false,convalescenceMs:0}});
+const context=()=>({session:{id:'s1',title:'Session <secrète>',stage:'PAUSE',summary:'Une ville',practical:'À lire'},character:{id:'c1',shortCode:'ABC123',displayName:'Bela <Venn>',profession:'Pilote & navigatrice'},globalLevel:2,groups:[],economyEnabled:false,actionPoints:{available:5,maximum:8,reserved:1,nextRefillInMs:60000},health:{hp:2,maxHp:3,outOfCombat:false,convalescenceMs:0}});
 
 test('Navigation joueur : les quatre entrées restent présentes, une seule active, QR et état accessibles',()=>{
  for(const [page,space] of [['identity','character'],['news','news'],['action','action'],['terminal','terminal']]){
@@ -13,7 +13,7 @@ test('Navigation joueur : les quatre entrées restent présentes, une seule acti
   assert.equal((nav.match(/<a /g)??[]).length,4);assert.equal((nav.match(/aria-current="page"/g)??[]).length,1);
   assert.ok(nav.includes(`href="#/${page}/s1" aria-current="page"`));assert.equal(playerRoute(page,'s1').space,space);
   for(const label of ['Identité','News','Action','Terminal'])assert.ok(nav.includes(label));
-  assert.ok(html.includes('Mon QR'));assert.ok(html.includes('Niveau <strong>2</strong>'));assert.ok(html.includes('5 / 8 PA'));assert.ok(html.includes('2 / 3 PV'));assert.ok(!html.includes('Renouvellement :'));assert.ok(html.includes('ID : <strong>c1</strong>'));
+  assert.ok(html.includes('Mon QR'));assert.ok(html.includes('Niveau <strong>2</strong>'));assert.ok(html.includes('5 / 8 PA'));assert.ok(html.includes('2 / 3 PV'));assert.ok(!html.includes('Renouvellement :'));assert.ok(html.includes('ID : <strong>ABC123</strong>'));
   assert.ok(html.includes('player-name">Bela &lt;Venn&gt;</strong>'));assert.ok(html.includes('player-profession">Pilote &amp; navigatrice</span>'));assert.ok(!html.includes('Session &lt;secrète&gt;'));assert.ok(!html.includes('<Venn>'));
  }
 });

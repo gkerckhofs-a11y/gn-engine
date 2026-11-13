@@ -18,8 +18,8 @@ test('curseur protection : ne retire aucun PV et refuse une saisie devenue obsol
  assert.equal(quickHealthSlider(d.health,'s1','hp',true),'');
 });
 test('résumé : ID, crédits disponibles et lien vers portefeuille, sans renouvellement',()=>{
- const html=playerShell({...d,character:{id:'hero',displayName:'Hero'},economyEnabled:true,wallet:{account:{available:42,balance:100}},session:{id:'s1',spaceOutlaws:{healthVersion:1}}},playerRoute('identity','s1'),'');
- assert.match(html,/ID : <strong>hero/);assert.match(html,/href="#\/wallet\/s1"[^>]*><strong>42/);assert.doesNotMatch(html,/Renouvellement/);
+ const html=playerShell({...d,character:{id:'hero',shortCode:'ABC123',displayName:'Hero'},economyEnabled:true,wallet:{account:{available:42,balance:100}},session:{id:'s1',spaceOutlaws:{healthVersion:1}}},playerRoute('identity','s1'),'');
+ assert.match(html,/ID : <strong>ABC123/);assert.match(html,/href="#\/wallet\/s1"[^>]*><strong>42/);assert.doesNotMatch(html,/Renouvellement/);
  assert.match(html,/data-kind="hp"/);assert.match(html,/data-kind="protection"/);
 });
 test('QR et ID : mêmes types de cibles et frontières de session',()=>{
@@ -53,6 +53,6 @@ test('Sabacc : code manuel équivalent au QR, clé de révocation conservée',as
 });
 
 test('menus Action et Terminal : résumé avec liens, sans grands panneaux de santé répétés',()=>{
- const own={...d,character:{id:'hero',displayName:'Hero'},session:{id:'s1',spaceOutlaws:{healthVersion:1}}};
+ const own={...d,character:{id:'hero',shortCode:'ABC123',displayName:'Hero'},session:{id:'s1',spaceOutlaws:{healthVersion:1}}};
  for(const page of ['action','terminal']){const html=playerShell(own,playerRoute(page,'s1'),'');assert.doesNotMatch(html,/class="quick-states"/);assert.match(html,/#\/health\/s1/);assert.match(html,/#\/protection\/s1/);}
 });

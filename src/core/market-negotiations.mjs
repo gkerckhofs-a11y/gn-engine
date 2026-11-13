@@ -1,3 +1,4 @@
+import {isBroker} from '../shared/player-access.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {inventoryHash as hash} from './inventory-state.mjs';
 import {inventoryPlayer} from './inventory-transfers.mjs';
@@ -50,6 +51,7 @@ export function createNegotiationService({store,signed,now,uuid}){
   return async(action,actor,input)=>{
     signed(actor);const at=now(),id=uuid();return store.runTransaction(async tx=>{
       const ctx=await inventoryPlayer(tx,actor,input),{s,c,version}=ctx,base=`sessions/${s.id}`;
+      requireThat(!s.spaceOutlaws||isBroker(c),'FORBIDDEN');
       requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
       if(action==='myMarketNegotiations'){
         const rows=[...await tx.list(`${base}/marketNegotiations`,['buyerId',c.id]),...await tx.list(`${base}/marketNegotiations`,['sellerId',c.id])].sort((a,b)=>b.updatedAt-a.updatedAt||a.id.localeCompare(b.id));
