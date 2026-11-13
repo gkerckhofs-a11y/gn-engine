@@ -15,3 +15,9 @@ test('interactions interface : pause, aide réservée aux tests et configuration
  const d={session:{id:'s',stage:'PAUSE'},target:{name:'Cible'},lots:[],aidOffers:[{id:'aid',helperName:'Aide',skillId:'med'}],profiles:[{id:'p',name:'Soin',test:'AUTO',kind:'FIELD_CARE',supplies:[],bonusItems:[],skillId:'med'}]};const h=personTargetHtml(d);assert.match(h,/disabled>Vérifier/);assert.ok(!h.includes('name="aidOfferId"'));d.profiles[0].test='D6';assert.match(personTargetHtml(d),/name="aidOfferId"/);
  const admin=personAdminHtml({scope:'session',parent:{id:'s',sealed:true},personProfiles:[],actions:[],inventory:[]});assert.ok(!admin.includes('data-person-action="new"'));assert.ok(!admin.includes('data-person-action="pillable"'));
 });
+
+test('dissimulation : unité du sac choisie sans cible tierce ni bonus au dé',()=>{
+ const d={session:{id:'s',stage:'EN_JEU'},target:{name:'Soi'},lots:[],aidOffers:[],profiles:[{id:'SO-CONCEAL',name:'Cache',kind:'CONCEAL',test:'AUTO',supplies:[],bonusItems:[],concealLots:[{id:'lot',name:'<img>'}]}]};
+ const h=personTargetHtml(d);assert.match(h,/name="concealLotId"/);assert.match(h,/&lt;img&gt;/);assert.doesNotMatch(h,/name="aidOfferId"|name="bonusLotId"/);
+ assert.match(personTargetHtml({...d,profiles:[{...d.profiles[0],concealLots:[]}]}),/disabled>Vérifier/);
+});

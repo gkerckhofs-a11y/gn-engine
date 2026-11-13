@@ -47,3 +47,11 @@ Les historiques sont regroupés dans un panneau secondaire, ouvert si une action
 L’écran de déchiffrement présente aussi les originaux non encore lus du sac et conserve le parcours sélectionné. Un original M1 associé à un DOCUMENT M6 propose « Lire le document » dans le sac. Son texte rejoint le carnet, sous les droits de la fiche : « Montrer seulement » requiert de conserver l’original ; « Copie permise » conserve le texte déjà acquis après son don. Le don utilise le transfert personnel existant et garde l’identifiant et la provenance de l’objet. Aucun fret de soute ni deuxième exemplaire n’est créé.
 
 Le déchiffrement revérifie le droit de lecture à la résolution. Une perte d’original SHOW empêche la révélation ; le joueur ou le MJ peut interrompre l’action pour libérer les réservations. Une révocation explicite du reçu par le MJ reste prioritaire. Les documents préparés avant cette extension restent utilisables selon leurs droits existants.
+
+## Fouilles de personnages et cache d’un objet
+
+« Fouiller un personnage » et « Fouille méthodique » conservent le choix d’action après identification du personnage. La cible doit être hors combat ou capturée selon l’état enregistré. La fouille ordinaire laisse la victime choisir ; la fouille méthodique laisse le Traqueur choisir. La remise d’une unité est confirmée par la victime. La liste privée cesse d’être accessible après libération.
+
+« Dissimuler un objet » ouvre directement son propre sac. Seuls les modèles M1 préparés comme admissibles sont proposés. Une cache protège une unité pendant trente minutes de jeu ; elle résiste au Rogue et à la fouille commune. Un Traqueur de niveau au moins égal la découvre immédiatement à la résolution de sa fouille. Le quota de prise ne change pas.
+
+Le MJ utilise « Nouvelle rencontre » uniquement pour une situation réellement distincte, avec motif. Attendre dix ou trente minutes, changer de fouilleur ou recapturer la même victime ne recrée pas automatiquement un droit de prise.

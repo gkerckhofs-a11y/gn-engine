@@ -1,3 +1,4 @@
+import {activeConcealment} from './space-person-loot.mjs';
 import {createHash} from 'node:crypto';
 import {admissionIdentity} from './admission-state.mjs';
 import {abilityLevel} from './abilities.mjs';
@@ -46,20 +47,20 @@ export function createSoPickpocketService({store,signed,now,uuid}){
   requireThat(!c.survival?.dead&&c.hp>0&&!c.outOfCombat,'SO_PICKPOCKET_UNAVAILABLE');
  };
  async function stocked(tx,sid,targetId,at){
-  const lots=await tx.list(prefix(sid)+'/inventory',['holderId',targetId]);
+  const s=await tx.get(prefix(sid)),target=await tx.get(characterPath(sid,targetId)),lots=await tx.list(prefix(sid)+'/inventory',['holderId',targetId]);
   const byType=new Map();
   for(const raw of lots){
    const l=await readLot(tx,sid,raw.id,at);
-   if(!eligible(l)||!personalLot(l,targetId)||!await forgedLotIntegrity(tx,sid,l))continue;
+   if(activeConcealment(s,target,l,at)||!eligible(l)||!personalLot(l,targetId)||!await forgedLotIntegrity(tx,sid,l))continue;
    if(!byType.has(l.item.id))byType.set(l.item.id,{itemId:l.item.id,name:l.item.name});
   }
   return [...byType.values()];
  }
  async function getLot(tx,sid,targetId,itemId,at){
-  const lots=await tx.list(prefix(sid)+'/inventory',['holderId',targetId]);
+  const s=await tx.get(prefix(sid)),target=await tx.get(characterPath(sid,targetId)),lots=await tx.list(prefix(sid)+'/inventory',['holderId',targetId]);
   for(const raw of lots){
    const l=await readLot(tx,sid,raw.id,at);
-   if(l.item?.id===itemId&&eligible(l)&&personalLot(l,targetId)&&await forgedLotIntegrity(tx,sid,l))return l;
+   if(l.item?.id===itemId&&!activeConcealment(s,target,l,at)&&eligible(l)&&personalLot(l,targetId)&&await forgedLotIntegrity(tx,sid,l))return l;
   }
   return null;
  }

@@ -1,3 +1,4 @@
+import {activeConcealment} from './space-person-loot.mjs';
 import {personalTransferAllowed,personalTransferActorReady} from './personal-transfer-policy.mjs';
 import {checkStoredCorrection} from './storage-state.mjs';
 import {validateRecipeItem} from './recipe-state.mjs';
@@ -45,7 +46,7 @@ export function createInventoryService({store,signed,checkSession,checkScenario,
         // Opaque transfer affordance: no authenticity, quality, origin or MJ evidence
         // is sent to the player inventory projection.
         const handoverReady=s.spaceOutlaws?await personalTransferActorReady(tx,s,c):false;
-        const playerLot=l=>({...publicLot(l),...(s.spaceOutlaws?{canTransferByHand:!preview&&s.stage==='EN_JEU'&&handoverReady&&personalTransferAllowed(s,l,c.id)}:{})});
+        const playerLot=l=>({...publicLot(l),...(activeConcealment(s,c,l,at)?{concealment:{level:c.concealment.level,expiresAtGameMs:c.concealment.expiresAtGameMs}}:{}),...(s.spaceOutlaws?{canTransferByHand:!preview&&s.stage==='EN_JEU'&&handoverReady&&personalTransferAllowed(s,l,c.id)}:{})});
         return {session:{id:sid,stage:s.stage,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{})},healthEnabled:s.healthRules?.enabled===true,economyEnabled:s.economyRules?.enabled===true,preview,character:{id:c.id,name:c.public.displayName},lots:lots.filter(l=>personalLot(l,c.id)).map(playerLot),
           installed:owned.filter(l=>l.status==='INSTALLED'&&l.location?.kind==='SHIP_MODULE').map(publicLot),stored:owned.filter(l=>['WAREHOUSE','HOLD'].includes(l.location?.kind)&&l.quantity>0).map(publicLot),ownedElsewhere:owned.filter(l=>l.holderId!==c.id&&l.location?.kind!=='SHIP_MODULE').map(publicLot),heldForOthers:lots.filter(l=>l.ownerId!==c.id).map(publicLot),sales:await listLotSales(tx,s,c,at,preview),
           canSell:!s.spaceOutlaws&&!preview&&s.stage==='EN_JEU'&&s.economyRules?.enabled===true&&canGameAction(s,c,'transfer'),canTransfer:!s.spaceOutlaws&&!preview&&s.stage==='EN_JEU'&&canGameAction(s,c,'transfer'),transfers:await listLotTransfers(tx,s,c,preview,at)};

@@ -347,6 +347,7 @@ async function selectedActionPage(sid,intentId,target){
  const back=`<a href="#/action/${esc(sid)}">Mes actions</a>`;
  if(!item){render(`<div class="narrow"><h1>Action indisponible</h1><p>Cette capacité n’est pas ouverte à ce personnage dans cette session.</p>${back}</div>`);return;}
  if(item.blocked){render(`<div class="narrow"><h1>${esc(item.title)}</h1><p role="status">${esc(item.blocked)}</p>${back}</div>`);return;}
+ if(item.self)target=own.character.id;
  if(['field','person','intrusion','forgery','discover'].includes(item.mode)){
   if(!target){render(`<div class="narrow">${actionTargetHtml(sid,item)}</div>`);return;}
   if(!/^[A-Za-z0-9_-]{1,128}$/.test(target))throw Error('Code de cible invalide.');

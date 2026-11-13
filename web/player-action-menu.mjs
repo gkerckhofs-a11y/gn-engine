@@ -9,6 +9,8 @@ export function actionMenuItems(own,context={}){
  if(!flags.actionsVersion)return items;
  if(flags.searchVersion===1)add('search','Fouiller un lieu','Actions communes','field',{kind:'SEARCH',cost:1,description:'Chercher les trouvailles accessibles sur place.'});
  add('discover','Examiner un élément interactif','Actions communes','discover',{description:'Ouvrir une information accessible avec son code.'});
+ if(flags.personLootVersion===1){add('loot-common','Fouiller un personnage','Actions communes','person',{kind:'LOOT_COMMON',cost:1,description:'À couvert, sur une cible hors combat ou capturée ; une unité choisie par la victime.'});if(skillLevel(own.character,'TRA-02')>0)add('TRA-02','Fouille méthodique','Analyses','person',{kind:'LOOT_METHODICAL',skill:'TRA-02',cost:1,description:'Choisir une unité pillable ; révéler les caches de niveau égal ou inférieur.'});}
+ if(flags.concealmentVersion===1&&skillLevel(own.character,'DISSIMULATION')>0)add('DISSIMULATION','Dissimuler un objet','Discrétion','person',{kind:'CONCEAL',skill:'DISSIMULATION',self:true,cost:1,description:'Choisir une unité admissible du sac et préparer sa cache à couvert.'});
  if(flags.medicalDiagnosisVersion===1&&skillLevel(own.character,'MED-01')>0)add('MED-01','Diagnostic médical','Soins et secours','person',{skill:'MED-01',kind:'DIAGNOSIS',cost:1,description:'Identifier le patient ; une minute à couvert pour examiner ses états fictifs.'});
  if(flags.healthVersion===1){
   add('stabilize','Porter les premiers secours','Soins et secours','person',{kind:'STABILIZE',cost:0,urgent:true,description:'Rester auprès d’une victime pour la stabiliser, sans consommable.'});
@@ -63,7 +65,7 @@ export function actionTargetUnavailable(sid){return `<p role="status">Cette cibl
 export function previewSelectedAction(root){
  const form=root.querySelector('[data-field-form="prepare"], [data-person-form="prepare"]');if(!form)return;
  if((root.querySelectorAll?.('[data-field-form="prepare"], [data-person-form="prepare"]')?.length??1)>1)return;
- if(form.querySelector('[name="tradeQuantity"]'))return;
+ if(form.querySelector('[name="tradeQuantity"], [name="concealLotId"]'))return;
  for(const select of form.querySelectorAll('select')){
   if(select.options.length===1)select.selectedIndex=0;
   if((select.name.startsWith('supply_')||select.name==='consumableLotId')&&!select.options.length){const p=root.ownerDocument.createElement('p');p.textContent='Fourniture compatible absente de votre sac.';form.append(p);form.querySelector('button.primary').disabled=true;return;}
