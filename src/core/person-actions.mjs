@@ -1,5 +1,5 @@
 import {diagnosisProfile,medicalDossier,diagnosisVersion,diagnosisFor,diagnosisResult,patientDossier} from './space-medical-diagnosis.mjs';
-import {isClinic,clinicProfile,requireClinic} from './space-clinic-profile.mjs';
+import {isClinic,clinicProfile,clinicForLevel,requireClinic} from './space-clinic-profile.mjs';
 import {requireRouteAnalysis} from './space-route-analysis.mjs';
 import {hasSoHealth,vitalTime,careTime,securedPatient,requireSoPatient} from './space-outlaws-health-state.mjs';
 import {requirePatientNature} from './character-nature.mjs';
@@ -54,6 +54,7 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
   await requireClinic(tx,s,p);
   const target=await activeCharacter(tx,s.id,input.targetId),t=target.c;requireThat(s.stage==='EN_JEU'||(hasSoHealth(s)&&t.hp===0),'SESSION_NOT_RUNNING');requireThat(!t.activePersonActionId&&!t.activeFieldActionId,'FIELD_TARGET_BUSY');
   const level=p.skillId?abilityLevel(c,p.skillId):0;requireThat(!p.skillId||level>=p.minLevel,'FIELD_SKILL_REQUIRED');for(const req of p.prerequisites)requireThat(abilityLevel(c,req.skillId)>=req.minLevel,'FIELD_SKILL_REQUIRED');eligible(s,c,t,p,level,at);
+  p=clinicForLevel(s,p,level);
   if(p.kind==='PROTECTION'){const equipment=await tx.list(`sessions/${s.id}/inventory`,['holderId',t.id]);requireThat(equipment.some(l=>personalLot(l,t.id)&&l.item.id===p.protectedItemId&&l.quantity>0&&l.status==='AVAILABLE'),'PROTECTION_EQUIPMENT_REQUIRED');}
   const dossier=p.kind==='DIAGNOSIS'?await patientDossier(tx,s.id,t.id):null;
   if(p.kind==='DIAGNOSIS'){requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');p=diagnosisFor(dossier,level);const prior=await tx.get(`${cp(s.id,c.id)}/diagnoses/${t.id}`);requireThat(prior?.stateVersion!==diagnosisVersion(t,dossier),'FIELD_ANALYSIS_DONE');}
@@ -79,7 +80,7 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
  }
  const unlock=(tx,s,a,c,t)=>{if(c.id===t.id)tx.set(cp(s.id,c.id),{...c,activeFieldActionId:null,activePersonActionId:null});else {tx.set(cp(s.id,c.id),{...c,activeFieldActionId:null});tx.set(cp(s.id,t.id),{...t,activePersonActionId:null});}};
  return async function dispatch(action,actor,input){
-  signed(actor);const at=now(),id=uuid(),die=action==='finishPersonAction'?rollD6():null;
+  signed(actor);const at=now(),id=uuid();let rolled;
   return store.runTransaction(async tx=>{
    let ctx,org;
    if(admin.includes(action)){const session=!!input.sessionId,sid=documentId(session?input.sessionId:input.scenarioId),s=session?await checkSession(tx,actor,sid):await checkScenario(tx,actor,sid);org={s,session,base:`${session?'sessions':'scenarios'}/${sid}`};}
@@ -93,7 +94,7 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
    }
    if(action==='personTarget'){
     const {s,c}=ctx,{c:t}=await activeCharacter(tx,s.id,input.targetId),profiles=[...await tx.list(`sessions/${s.id}/personProfiles`),...(s.spaceOutlaws?.medicalDiagnosisVersion===1?[diagnosisFor(await patientDossier(tx,s.id,t.id),abilityLevel(c,'MED-01'))]:[])].filter(p=>p.publicationState==='PUBLISHED'&&(isLoot(p)||acceptsPatientNature(p,t))&&(!s.spaceOutlaws||(hasSoHealth(s)&&(['STABILIZE','FIELD_CARE','PROTECTION'].includes(p.kind)||isClinic(p)||p.kind==='DIAGNOSIS'&&s.spaceOutlaws.medicalDiagnosisVersion===1)&&(!p.skillId||abilityLevel(c,p.skillId)>=p.minLevel)))),lots=(await tx.list(`sessions/${s.id}/inventory`,['holderId',c.id])).filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.quantity>0);
-    return {session:{id:s.id,stage:s.stage,healthReady:hasSoHealth(s),safetyStopped:s.safetyStop?.active===true},urgent:hasSoHealth(s)&&t.hp===0,target:{id:t.id,name:t.public.displayName,...(hasSoHealth(s)?{hp:t.hp,maxHp:t.maxHp,protection:t.protection??0}: {})},profiles:profiles.map(p=>({id:p.id,name:p.name,kind:p.kind,instructions:p.instructions,test:p.test,skillId:p.skillId,bonusItems:p.bonusItems,supplies:[p.consumable,...p.extraConsumables].filter(Boolean).map(x=>({...x,...(isClinic(p)&&p.patientNature==='DROID'&&p.partsItemId===x.itemId?{allowParts:true}:{})}))})),lots:lots.map(publicLot),aidOffers:await offeredAid(tx,s.id,c.id)};
+    return {session:{id:s.id,stage:s.stage,healthReady:hasSoHealth(s),safetyStopped:s.safetyStop?.active===true},urgent:hasSoHealth(s)&&t.hp===0,target:{id:t.id,name:t.public.displayName,...(hasSoHealth(s)?{hp:t.hp,maxHp:t.maxHp,protection:t.protection??0}: {})},profiles:profiles.map(p=>clinicForLevel(s,p,p.skillId?abilityLevel(c,p.skillId):0)).map(p=>({id:p.id,name:p.name,kind:p.kind,instructions:p.instructions,test:p.test,skillId:p.skillId,bonusItems:p.bonusItems,supplies:[p.consumable,...p.extraConsumables].filter(Boolean).map(x=>({...x,...(isClinic(p)&&p.patientNature==='DROID'&&p.partsItemId===x.itemId?{allowParts:true}:{})}))})),lots:lots.map(publicLot),aidOffers:await offeredAid(tx,s.id,c.id)};
    }
    if(action==='preparePersonAction')return (await plan(tx,ctx,input,at)).preview;
    if((ctx??org).s.spaceOutlaws){
@@ -162,7 +163,8 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
        requireThat(careTime(s,a,at)>=a.readyAtGameMs,'FIELD_TOO_EARLY');await requireClinic(tx,s,a.profile);if(hasSoHealth(s))requireThat(c.healthRevision===a.actorHealthRevision&&originalTarget.healthRevision===a.targetHealthRevision,'SO_CARE_INTERRUPTED');if(a.kind!=='STABILIZE')eligible(s,c,t,a.profile,abilityLevel(c,a.profile.skillId),at);else {requireGameAction(s,c,'heal',at);requireThat(t.survival?.stabilized,'SO_SURVIVAL_EXPIRED');}for(const req of [{skillId:a.profile.skillId,minLevel:a.profile.minLevel},...a.profile.prerequisites].filter(x=>x.skillId))requireThat(abilityLevel(c,req.skillId)>=req.minLevel,'FIELD_SKILL_REQUIRED');
        if(a.kind==='FIELD_CARE')requireThat((await tx.get(patientPath(s.id,t.id)))?.readyAtGameMs<=time||!(await tx.get(patientPath(s.id,t.id))),'PATIENT_COOLDOWN_ACTIVE');
        await checkAid(tx,s,a,at);
-       const roll=a.status==='CONTINUING'||a.profile.test==='AUTO'?null:die;if(roll!==null)requireThat(Number.isInteger(roll)&&roll>=1&&roll<=6,'INVALID_DIE');const total=roll===null?null:roll+a.level+a.bonus+(a.aid?1:0),success=roll===null||total>=a.profile.threshold;
+       requireThat(!a.profile.skillId||abilityLevel(c,a.profile.skillId)>=a.level,'FIELD_SKILL_REQUIRED');
+       const roll=a.status==='CONTINUING'||a.profile.test==='AUTO'?null:(rolled??(rolled=rollD6()));if(roll!==null)requireThat(Number.isInteger(roll)&&roll>=1&&roll<=6,'INVALID_DIE');const total=roll===null?null:roll+a.level+a.bonus+(a.aid?1:0),success=roll===null||total>=a.profile.threshold;
        const outcome=a.status==='CONTINUING'?{...a.result,completedAfterContinuation:true}: {roll,total,level:a.level,bonus:a.bonus,aid:a.aid?1:0,threshold:a.profile.threshold,success};
        if(a.kind==='DIAGNOSIS'){
         const dossier=await patientDossier(tx,s.id,t.id);requireThat(diagnosisVersion(t,dossier)===a.diagnosisStateVersion,'FIELD_STATE_CHANGED');await release(tx,s,a,c,t,at,id,actor,false);const report={...outcome,...diagnosisResult(t,dossier,a.level,success)};next={...a,paid:true,status:'SUCCEEDED',finishedAt:at,result:report};tx.set(`${cp(s.id,c.id)}/diagnoses/${t.id}`,{id:t.id,actionId:a.id,stateVersion:a.diagnosisStateVersion,at,result:report});unlock(tx,s,a,c,t);

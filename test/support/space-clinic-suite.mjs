@@ -66,6 +66,15 @@ export async function workshopFixture(makeStore,{level=2,kind='CLINIC_SAFE'}={})
  return {...f,edit,profile,pid:saved.id,input,startWorkshop};
 }
 export function workshopSuite(makeStore,prefix='Révision intégrale droïde'){
+ test(`${prefix} : N5 automatique sans jet, niveau perdu après départ bloque la résolution`,async()=>{
+  const f=await workshopFixture(makeStore,{kind:'CLINIC_FAST',level:5});await f.damage();
+  const p=await f.actionRead('preparePersonAction',await f.input());assert.equal(p.test,'AUTO');assert.equal(p.durationSeconds,135);
+  const target=await f.actionRead('personTarget',{targetId:f.tid});assert.equal(target.profiles.find(p=>p.id===f.pid).test,'AUTO');
+  const a=await f.startWorkshop();f.advance(135000);
+  await f.edit(`characters/${f.cid}`,c=>({...c,abilityProfile:{...c.abilityProfile,skills:c.abilityProfile.skills.map(s=>s.id==='MEC-02'?{...s,level:4}:s)}}));
+  await assert.rejects(f.finishCare(a),{code:'FIELD_SKILL_REQUIRED'});assert.equal(f.rollCount(),0);assert.equal((await f.points()).reserved,1);await f.cancelCare(a);assert.equal((await f.points()).available,5);
+ });
+
  test(`${prefix} : sûr/accéléré N2 à N5, consommations uniques, protection et modules conservés`,async()=>{
   for(const kind of ['CLINIC_SAFE','CLINIC_FAST'])for(let level=2;level<=5;level++){
    const f=await workshopFixture(makeStore,{level,kind}),base=`sessions/${f.sid}`;await f.damage(2);
@@ -73,6 +82,7 @@ export function workshopSuite(makeStore,prefix='Révision intégrale droïde'){
    const inventory=await f.store.list(`${base}/inventory`),parts=inventory.find(l=>l.holderId===f.cid&&l.item.id==='kit_parts'),component=inventory.find(l=>l.holderId===f.cid&&l.item.id==='kit_repair-supplies');
    assert.equal(parts.item.consumable,false);const target=await f.actionRead('personTarget',{targetId:f.tid});assert.ok(personTargetHtml(target).includes(`value="${parts.id}"`));f.setDie(6);const a=await f.startWorkshop(),seconds=kind==='CLINIC_SAFE'?300-(level-2)*30:180-(level-2)*15;
    assert.equal(a.remainingMs,seconds*1000);f.advance(seconds*1000-1);await assert.rejects(f.finishCare(a),{code:'FIELD_TOO_EARLY'});f.advance(1);const r=await f.finishCare(a);await f.finishCare(a);
+   assert.equal(f.rollCount(),kind==='CLINIC_FAST'&&level<5?1:0);
    assert.equal(r.result.hp,3);assert.equal((await f.health()).convalescenceMs,0);assert.equal((await f.health()).protection,1);assert.deepEqual((await f.store.get(`${base}/characters/${f.tid}`)).modules,[{id:'fixture-damaged',status:'DAMAGED'}]);
    assert.equal((await f.store.get(`${base}/inventory/${parts.id}`)).quantity,0);assert.equal((await f.store.get(`${base}/inventory/${component.id}`)).quantity,component.quantity-1);assert.equal((await f.points()).available,4);
    const items=actionMenuItems(await f.actionRead('mySession'));assert.ok(items.some(i=>i.id==='MEC-02-workshop-safe'));assert.ok(!items.some(i=>i.id==='MED-03-safe'));

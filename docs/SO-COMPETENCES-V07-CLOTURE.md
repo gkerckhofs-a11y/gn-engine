@@ -218,3 +218,13 @@ Le sac ouvre un reçu natif du carnet. L’écran INF-02 propose aussi les origi
 Ouvrir plusieurs fois le même original ne change pas le reçu et n’invalide pas une tentative en cours. Les requêtes de lecture sont liées au personnage et à sa version d’accès. La restitution de l’original ne remet pas à zéro une tentative résolue. Les droits du carnet acquis indépendamment par attribution MJ, QR autorisé ou copie permise restent indépendants de la possession d’un objet.
 
 Validation locale : 3 038 tests complets réussis avant le dernier raccordement de sélection directe ; après celui-ci, 65 tests ciblés réussis, 32 cas métier partagés Firestore réussis sur le candidat final, compilation et diff sans erreurs. Ces campagnes se recouvrent et leurs décomptes ne s’additionnent pas. SHA et CI exacte consignés dans la PR ; CI non présumée réussie. Aucun déploiement, fusion dans main, migration ni suppression de données. Le statut reste Partiel tant que les contrôles d’intégration et la clôture complète ne sont pas démontrés.
+
+## Correction — révision mécanique accélérée au niveau 5
+
+**J** = branche `work/skills-v07-workshop-auto`, base `da38760748b786a7529e61babc620b630de21a3c` (PR #24). V0.7 chapitre 6, « Clinique mécanique N2–N5 » : succès automatique par défaut à N5.
+
+Écart établi : le protocole accélérait correctement la révision mais produisait encore un D6 à N5. Le profil effectif du Mécano N5 devient AUTO, sans matériel bonus ni aide au dé ; durée de 135 secondes, PA et fournitures restent inchangés. L’interface annonce l’automatisme. Les niveaux N2–N4 gardent le D6 et leur continuation après échec. Le moteur ne génère désormais un dé qu’au moment où un protocole D6 en a réellement besoin, jamais pour un soin automatique, une résolution trop précoce ou un réessai déjà résolu.
+
+Le niveau utilisé au lancement est revérifié avant le résultat : une baisse de compétence ne conserve pas un ancien bonus ni l’automatisme N5. L’annulation libère les réservations. Les soins biologiques et les autres protocoles conservent leurs règles.
+
+Validation : 57 tests ciblés réussis (clinique, atelier, santé et interactions), 14 cas partagés Firestore réussis, compilation et diff sans erreurs. CI du commit exact à vérifier dans la PR. Aucun déploiement, fusion, migration ou recette terrain. MEC-02 reste Partiel pour ses autres profils techniques.

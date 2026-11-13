@@ -1,5 +1,6 @@
 import {documentId,requireThat} from './validation.mjs';
 export const isClinic=p=>['CLINIC_SAFE','CLINIC_FAST'].includes(p?.kind);
+export const clinicForLevel=(s,p,level)=>s.spaceOutlaws?.workshopVersion===1&&p.kind==='CLINIC_FAST'&&p.patientNature==='DROID'&&level>=5?{...p,test:'AUTO',threshold:0,bonusItems:[],instructions:p.instructions+' Niveau 5 : réussite automatique, sans dé ni bonus.'}:p;
 export function clinicProfile(input,id,revision,records,session){
  requireThat(isClinic(input)&&id.startsWith('SO-CLINIC-')&&['DRAFT','PUBLISHED'].includes(input.publicationState),'INVALID_PERSON_PROFILE');
  requireThat(input.patientNature==null||['HUMANOID','DROID'].includes(input.patientNature),'INVALID_PERSON_PROFILE');
