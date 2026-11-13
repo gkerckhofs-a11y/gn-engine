@@ -73,6 +73,16 @@ test('Navigateur : six identités, filtres et secrets du contrat',async({browser
   }
 });
 
+test('Terminal personnalisé : services autorisés et accès direct refusé aux primes pour un médecin',async({browser},info)=>{
+ const {page}=await login(browser,'player');await page.setViewportSize({width:390,height:844});
+ await navigate(page,`terminal/${scenario.sessionId}`,'mySession');
+ await expect(page.getByRole('heading',{name:'Services du port',exact:true})).toBeVisible();
+ await expect(page.locator('[data-terminal="wallet"]')).toBeVisible();await expect(page.locator('[data-terminal="shops"]')).toBeVisible();
+ await expect(page.locator('[data-terminal="bounties"]')).toHaveCount(0);await expect(page.locator('[data-terminal="customs"]')).toHaveCount(0);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await capture(page,info,'terminal-personnalise-mobile');
+ const denied=await navigate(page,`bounties/${scenario.sessionId}`,'bounties');expect(denied.status()).toBe(403);await expect(page.locator('#app')).not.toContainText('Primes ouvertes');
+});
+
 test('Mes actions : mobile, choix conservé, cible par ID et aperçu serveur automatique sans dépense',async({browser},info)=>{
  const {page:orga}=await login(browser,'owner');await navigate(orga,`session/${scenario.sessionId}/animate`,'spaceOutlawsEntry');
  orga.once('dialog',d=>d.accept());await clickCommand(orga,'[data-action="soStage"][data-stage="EN_JEU"]','setStage');

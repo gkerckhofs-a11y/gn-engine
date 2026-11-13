@@ -1,3 +1,4 @@
+import {primaryClass} from '../shared/player-access.mjs';
 import {createSabaccService,sabaccActions} from '../sabacc/service.mjs';
 import {groupChat} from './group-chat.mjs';
 import {createCockpitCommandService} from './cockpit-command.mjs';
@@ -390,6 +391,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       const ownShips=character&&s.spaceOutlaws?.navigationVersion?await tx.list(`sessions/${sid}/ships`,['ownerId',character.id]):[];
       const directorySettings=character?await tx.get(`playerDirectorySettings/${sid}`):null;
       const directoryAllowed=!!(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)&&!s.campaignSealed&&rawCharacter&&!rawCharacter.survival?.dead&&directorySettings?.classIds?.includes(rawCharacter.birth?.classId??rawCharacter.abilityProfile?.class?.id));
+      if(character)character.primaryClassId=primaryClass(rawCharacter)??null;
       return {ownsShip:ownShips.some(ship=>ship.ownerType==='CHARACTER'),directoryAllowed,portraitEditable:!!(character&&!preview&&!rawCharacter.survival?.dead&&!s.campaignSealed&&!s.safetyStop?.active&&['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)&&(!s.spaceOutlaws||s.spaceOutlaws.mediaVersion===1)),session:publicSession(s),registration:ownRegistration(r),character,economyEnabled:s.economyRules?.enabled===true,actionPoints:rawCharacter&&s.actionPointRules?.enabled?actionPointSummary(s,rawCharacter,await tx.get(actionPointPath(sid,rawCharacter.id)),at):null,health:healthSummary(s,rawCharacter,at),reason,gameTimeMs:gameTime(s.clock,at),
         globalLevel:character?(rawCharacter.globalLevel??1):null,...(character&&s.spaceOutlaws?.episodesVersion===1?{progression:{xp:rawCharacter.xp??0,earnedXp:rawCharacter.earnedXp??0,completedSessions:r?.progression?.completedSessions??0,pendingXp:r?.progression?.pendingXp??0}}:{}),playerRules:character?playerRules(s):null,
         groups:groups.filter(g=>(!s.spaceOutlaws||!rawCharacter?.survival?.dead)&&groupVisible(g,cid)).map(g=>groupSummary(g,cid))};

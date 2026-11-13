@@ -80,3 +80,5 @@ body:has(.player-shell)>header{display:none}
 .action-choice strong{font-size:1.15rem}.action-choice p{margin:0}.action-choice:hover,.action-choice:focus-visible{outline:2px solid var(--gold,#d3b477);outline-offset:2px}
 .action-choice.is-blocked{opacity:.62;cursor:not-allowed;pointer-events:none}.action-status{margin-top:auto;font-size:.9rem}.action-choice small{opacity:.75}
 #action-history{scroll-margin-top:90px;margin-top:24px}#action-history>summary{font-size:1.1rem;min-height:44px;padding:12px 0}
+
+.terminal-family{margin-top:1.6rem}.terminal-card{min-height:140px;display:flex;flex-direction:column;gap:.5rem}.terminal-card h3,.terminal-card p{margin:0}.terminal-card small{margin-top:auto}.terminal-card[data-state="BLOCKED"] small{color:var(--gold,#e6bd74)}

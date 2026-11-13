@@ -4,7 +4,7 @@ import {spaceCombatsHtml,spaceRescuesHtml,spaceConfirmHtml,spaceFormInput} from 
 import {playerRoute,terminalHtml} from '../web/player-spaces.mjs';
 const encounter={id:'c',status:'ROUND',round:1,quietRounds:0,ships:[{id:'s',name:'Moi <script>',hull:4,shield:2,fuel:4,maneuverability:1,pil03Used:false},{id:'b',name:'Adversaire',hull:4,shield:2}],ownShipId:'s',canOrder:true,skillLevel:2,surrenderOffers:[],remainingSeconds:90,confirmation:'proof'};
 test('Rencontres UI : routes Terminal, ordre privé, repli et consentements explicites',()=>{
- for(const path of ['space-combats','space-combat','space-rescues'])assert.equal(playerRoute(path,'sid','id').space,'terminal');assert.match(terminalHtml({session:{id:'sid',spaceOutlaws:{combatVersion:1}},character:{abilities:{skills:[{id:'PIL-01',level:2}]}}}),/space-rescues/);
+ for(const path of ['space-combats','space-combat','space-rescues'])assert.equal(playerRoute(path,'sid','id').space,'terminal');assert.match(terminalHtml({terminal:{rescues:{rescues:[{id:'rescue',status:'OFFERED'}]}},session:{id:'sid',spaceOutlaws:{combatVersion:1}},character:{abilities:{skills:[{id:'PIL-01',level:2}]}}}),/space-rescues/);
  const html=spaceCombatsHtml({session:{id:'sid'},combat:encounter});assert.match(html,/spaceOrder/);assert.match(html,/name="fallback"/);assert.match(html,/name="acceptSurrender"/);assert.match(html,/PIL03_2/);assert.doesNotMatch(html,/PIL03_5|<script>|resolveSpaceRound/);
 });
 test('Rencontres UI : fin du délai, lecture équipage et lancement MJ distincts',()=>{

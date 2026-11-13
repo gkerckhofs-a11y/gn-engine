@@ -1,5 +1,10 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Terminal personnel — 13 novembre 2026
+
+[Audit des services, droits et limites](SO-TERMINAL-PERSONNEL.md). Trois ensembles alimentés par les projections autorisées, primes exclusivement Traqueur côté serveur et interface, douanes séparées par responsabilité. 171 tests ciblés et build locaux réussis. Publication de l’ensemble autorisée par Guillaume, sous réserve des vérifications du commit exact ; statut de déploiement à constater dans GitHub.
+
+
 ## Interface QR et état joueur — 13 novembre 2026
 
 [Changements et limites](SO-PLAYER-QR-HEALTH.md) : scanner intégré et ID manuels, crédits disponibles, contrôles descendants PV/protection distincts, navigation allégée. Tests ciblés et compilation locaux ; recette caméra et visuelle non exécutée, lancement du navigateur bloqué par l’environnement. Aucune publication de cette tranche.
