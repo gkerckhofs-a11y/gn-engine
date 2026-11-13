@@ -24,7 +24,7 @@ Ne jamais mettre le texte clair dans `body` : ce champ apparaît au détenteur d
 
 1. Obtenir un objet physique par vol/inventaire ne crée pas encore automatiquement un reçu M6. Le MJ doit fournir le document en jeu par un parcours existant ; une intégration inventaire ↔ documents reste à planifier.
 2. Les défis cryptogrammes/mini-jeux alternatifs aux jets D6 et leur propre validation ne sont pas encore intégrés.
-3. Les bonus matériels/aide INF-02 ne sont pas couverts ; seul le D6 + niveau canonique est raccordé dans cette tranche.
+3. Le bonus matériel INF-02 reste à raccorder aux compatibilités préparées. L’aide compétente est raccordée par le complément du 13 novembre décrit ci-dessous.
 4. Une révision de document ne doit pas être appliquée rétroactivement à une session en cours : préserver le Master figé et le reçu historique.
 5. Aucune recette d'ergonomie Android/iOS réelle, de charge ou de session humaine effectuée par le seul code.
 
@@ -39,3 +39,11 @@ Tests Node en mémoire, même suite sur émulateur Firestore et rendu HTML cibl�
 Session → régie → Fouilles et installations → Déchiffrements en cours : un MJ disposant du droit de contenu peut saisir un motif et « Interrompre et libérer le PA ». Cette procédure utilise l’annulation native et permet de débloquer une réservation après révocation ou réaffectation du joueur, y compris en pause. Elle ne révèle aucun texte, ne consomme pas la tentative et ne rembourse jamais une tentative déjà résolue. Les appels répétés ne libèrent le PA qu’une fois ; un événement est conservé dans le journal d’audit. Joueurs et personnel d’accueil n’y ont pas accès. Aucun accès privé n’est réactivé.
 
 Recette terrain à réaliser : lancer INF-02 avec un personnage test, révoquer son accès, interrompre depuis la régie en indiquant le motif, puis vérifier le PA, le journal et l’absence de révélation. Les validations automatisées sont suivies dans la matrice unique `SO-COMPETENCES-V07-CLOTURE.md` et la PR du commit testé.
+
+## Aide au déchiffrement — 13 novembre 2026
+
+Depuis Action → Proposer mon aide, un personnage compétent propose INF-02 au détenteur du document et confirme sa présence. Celui-ci choisit l’offre dans le formulaire de déchiffrement avant de lancer la durée. Une seule aide apporte +1 au jet, sans PA supplémentaire. L’aidant reste occupé jusqu’au résultat et récupère dix minutes comme l’initiateur. Les anciens délais de déchiffrement et ceux de l’aide se cumulent par échéance maximale, jamais par addition de durées.
+
+L’aidant peut interrompre depuis ses offres d’aide actives ; l’initiateur et le MJ conservent leurs annulations. Toute interruption avant résolution libère les réservations et ne consomme pas la tentative. Aider n’accorde ni possession du document ni accès au texte déchiffré. Le matériel bonus et les cryptogrammes alternatifs restent hors de ce complément.
+
+Recette : deux personnages INF-02, offre d’aide, lancement avec l’offre, indisponibilité de l’aidant, résultat, contrôle de son PA inchangé et de ses dix minutes de récupération ; recommencer avec interruption et avec révocation de l’aidant.

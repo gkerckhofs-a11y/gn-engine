@@ -192,4 +192,55 @@ export function soDecryptionSuite(makeStore,prefix='INF-02'){
   assert.equal((await f.store.get(f.rpath)).decodedRevision!==undefined,ended.status==='SUCCESS');
  });
 
+ test(prefix+' : aide native +1, immobilisation, aucun PA aidant et récupération partagée',async()=>{
+  const f=await decryptionFixture(makeStore,{helper:true}),helper=(await f.actionRead('mySession',{},f.other)).character.id;
+  assert.ok((await f.actionRead('myPersonActions',{},f.other)).skills.some(s=>s.id==='INF-02'));
+  const offer=await f.actionCmd('offerAid',{targetId:f.c,skillId:'INF-02',present:true},f.other);
+  assert.equal((await f.actionRead('mySoDecryption')).aidOffers[0].id,offer.id);
+  const a=await f.actionCmd('startSoDecryption',{knowledgeId:'ordinary',aidOfferId:offer.id});
+  assert.equal(a.aid,1);assert.equal((await f.points(f.other)).reserved,0);
+  assert.equal((await f.store.get('sessions/'+f.sid+'/characters/'+helper)).activeFieldActionId,a.id);
+  await assert.rejects(f.actionCmd('startSoDecryption',{knowledgeId:'ordinary'},f.other),{code:'OUT_OF_COMBAT'});
+  f.advance(165000);f.setDie(3);const r=await f.finish(a.id);assert.equal(r.status,'SUCCESS');assert.equal(r.total,6);
+  assert.equal((await f.points()).available,4);assert.equal((await f.points(f.other)).available,5);
+  assert.equal((await f.store.get('sessions/'+f.sid+'/characters/'+helper)).activeAidId,null);
+  assert.equal((await f.actionRead('mySoDecryption',{},f.other)).cooldownMs,600000);
+  await assert.rejects(f.actionCmd('startSoDecryption',{knowledgeId:'ordinary'},f.other),{code:'SO_INF02_COOLDOWN'});
+  assert.deepEqual((await f.actionRead('myKnowledge',{},f.other)).items,[]);
+ });
+ test(prefix+' : retrait de l’aidant libère les deux personnages sans révélation ni récupération',async()=>{
+  const f=await decryptionFixture(makeStore,{helper:true}),offer=await f.actionCmd('offerAid',{targetId:f.c,skillId:'INF-02',present:true},f.other);
+  const a=await f.actionCmd('startSoDecryption',{knowledgeId:'ordinary',aidOfferId:offer.id});
+  await assert.rejects(f.actionCmd('cancelSoDecryptionAid',{actionId:a.id}),{code:'FORBIDDEN'});
+  const body={actionId:a.id,requestId:randomUUID()},r=await f.actionCmd('cancelSoDecryptionAid',body,f.other);
+  assert.deepEqual(r,{id:a.id,status:'CANCELLED'});assert.deepEqual(await f.actionCmd('cancelSoDecryptionAid',body,f.other),r);
+  assert.equal((await f.points()).available,5);assert.equal((await f.actionRead('mySoDecryption',{},f.other)).cooldownMs,0);
+  assert.equal((await f.store.get('sessions/'+f.sid+'/aidOffers/'+offer.id)).status,'CANCELLED');
+  assert.equal((await f.store.get(f.rpath)).decodedRevision,undefined);await f.start();
+ });
+ test(prefix+' : accès aidant révoqué bloque le résultat, annulation MJ libère aussi l’aidant',async()=>{
+  const f=await decryptionFixture(makeStore,{helper:true}),helper=(await f.actionRead('mySession',{},f.other)).character.id;
+  const offer=await f.actionCmd('offerAid',{targetId:f.c,skillId:'INF-02',present:true},f.other);
+  const a=await f.actionCmd('startSoDecryption',{knowledgeId:'ordinary',aidOfferId:offer.id});
+  await f.actionCmd('revokeAccess',{uid:f.other.uid},f.owner);f.advance(165000);f.setDie(6);
+  await assert.rejects(f.finish(a.id),{code:'INVALID_RECIPIENT'});
+  assert.equal((await f.points()).reserved,1);
+  await f.actionCmd('cancelSoDecryptionMJ',{actionId:a.id,reason:'Accès aidant révoqué'},f.owner);
+  assert.equal((await f.store.get('sessions/'+f.sid+'/characters/'+helper)).activeFieldActionId,null);
+  assert.equal((await f.points()).available,5);
+ });
+ test(prefix+' : compétence et ancien délai personnel de l’aidant sont contrôlés avant réservation',async()=>{
+  const f=await decryptionFixture(makeStore,{helper:true}),helper=(await f.actionRead('mySession',{},f.other)).character.id;
+  const offer=await f.actionCmd('offerAid',{targetId:f.c,skillId:'INF-02',present:true},f.other);
+  const path='sessions/'+f.sid+'/inf02Actors/'+helper;
+  await f.store.runTransaction(async tx=>tx.set(path,{activeId:null,cooldownUntil:600000}));
+  await assert.rejects(f.actionCmd('startSoDecryption',{knowledgeId:'ordinary',aidOfferId:offer.id}),{code:'SO_INF02_COOLDOWN'});
+  await f.store.runTransaction(async tx=>{
+   const cp='sessions/'+f.sid+'/characters/'+helper,c=await tx.get(cp);tx.set(path,{activeId:null,cooldownUntil:0});
+   tx.set(cp,{...c,abilityProfile:{...c.abilityProfile,skills:c.abilityProfile.skills.filter(s=>s.id!=='INF-02')}});
+  });
+  await assert.rejects(f.actionCmd('startSoDecryption',{knowledgeId:'ordinary',aidOfferId:offer.id}),{code:'FIELD_SKILL_REQUIRED'});
+  assert.equal((await f.points()).reserved,0);
+ });
+
 }

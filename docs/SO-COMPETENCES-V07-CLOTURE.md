@@ -82,7 +82,7 @@ Dans « Commit / PR », **B** = base main `49ec5ea12100f9efb62ea23773b216d465d06
 | COU-02 Négociation | Courtier | ch. 13, arbitrage 5 min | field-actions, shops/sales | Terminal/Action | Partiel | space-merchant-negotiation | C | Non | À faire | Prestations, fret et contrats exclusifs hors offres M5 actuelles |
 | COU-03 Réseau de contacts | Courtier | ch. 13, 4 | field-actions/carnet/récupérations | Terminal/Action | À vérifier | space-merchant-contacts | C | Non | À faire | CI exacte, reprise intersession et recette des réponses préparées |
 | INF-01 Intrusion | Infiltrateur | ch. 14 | space-intrusion | Action | Partiel | space-intrusion | B | Non vérifié | À faire | Bonus, consommables et couverture des cibles |
-| INF-02 Déchiffrement | Infiltrateur | ch. 14 | space-decryption/knowledge | Action | Partiel | space-decryption : 15 cas métier + 2 schémas ; intégration ciblée | B + D + E | Non vérifié | À faire | Bonus, cryptogrammes spécifiques et transferts à compléter ; accès et reçus renforcés |
+| INF-02 Déchiffrement | Infiltrateur | ch. 14 | space-decryption/knowledge | Action | Partiel | space-decryption : 19 cas métier + 2 schémas ; intégration ciblée | B + D + E + F | Non vérifié | À faire | Matériel bonus, cryptogrammes spécifiques et transferts à compléter ; aide, accès et reçus raccordés |
 | INF-03 Falsification | Infiltrateur | ch. 14 | space-forgery/evidence | Action | Partiel | space-forgery | B | Non vérifié | À faire | Raccord TRA-03 et inspection du document transféré |
 | Entretien de protection | Supplémentaire | ch. 15, 5 | person-actions PROTECTION | Action | À vérifier | identity-news-health | B/C | Non vérifié | À faire | Banc de protection et recette des consommables compatibles |
 | Riposte | Supplémentaire | ch. 15, 5 | règles joueur | Physique | À vérifier | présentation à contrôler | B | Non vérifié | À faire | Vérifier règles par adversaire/confrontation, aucune commande exigée |
@@ -174,3 +174,13 @@ Dans la régie de session → Fouilles et installations, un MJ habilité au cont
 Tests : succès après révocation, absence de divulgation, motif, refus joueur/réception, révocation MJ avant rejeu, pause, nouvelle tentative et course annulation/résolution. Résultats des campagnes locales, SHA et CI exacts consignés dans la PR du complément. Statut INF-02 toujours **Partiel** pour les bonus, cryptogrammes et transferts documentaires. Aucune fusion dans main, publication Firebase ou recette terrain.
 
 Suivi CI vérifié le 13 novembre 2026 : PR #17, commit `c2538a134cca411685880d4de68de776d555118b`, [exécution 43465628740](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/43465628740) réussie. Ce résultat ne valide pas les commits suivants.
+
+## Complément — aide compétente INF-02
+
+**F** = branche `work/skills-v07-decryption-aid`, basée sur `ea7a5287a118c39612d1777c189656a1a2df2425` (PR #20). Sources : V0.7 chapitre 4 « Tests ordinaires au D6 » et chapitre 14 INF-02. Réemploi exclusif de `aid-state`, des offres d’aide et des délais de compétence natifs.
+
+Une offre INF-02 peut être proposée depuis le parcours d’aide existant, puis sélectionnée avant le lancement du déchiffrement. Une seule aide compatible apporte +1. L’aidant doit satisfaire le niveau requis du document, être disponible, présent et hors récupération ; son personnage est réservé pendant l’action, sans réservation ou consommation de PA. Le résultat reste privé au détenteur du document, sans reçu ni texte clair accordé à l’aidant.
+
+À la résolution, les accès, l’état et la compétence de l’aidant sont revérifiés. Les deux participants récupèrent dix minutes de jeu, que le jet réussisse ou échoue. Le délai de l’aide est aussi lu lors d’un déchiffrement personnel ; le délai personnel historique est contrôlé avant d’accepter une aide. Une annulation par l’initiateur, l’aidant ou le MJ libère les deux personnages et le PA réservé sans appliquer de récupération. Le retrait de l’aidant passe par « Interrompre l’action aidée », sans deuxième moteur d’action.
+
+Les parcours sans aide et les actions déjà enregistrées sans champ d’aide restent compatibles. Aucune modification de Master publié ni migration de données. Tests ciblés : succès avec +1, PA, immobilisation, délai partagé, refus de compétence, révocation de l’aidant, retrait et annulation MJ. Résultats locaux et Firestore, SHA et CI exacts consignés dans la PR. INF-02 reste **Partiel** : matériel bonus, cryptogrammes préparés et intégration des documents transférés restent à compléter. Ni fusion, ni déploiement, ni recette terrain.

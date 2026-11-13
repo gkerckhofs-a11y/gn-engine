@@ -21,9 +21,10 @@ export function soDecryptionHtml(d,sid){
    '<form data-form="soDecryptionCancel" data-sid="'+esc(sid)+'" data-id="'+esc(a.id)+'"><button type="submit">Annuler avant résolution, sans PA</button></form>';
  }else if(d.cooldownMs>0)body='<p>Récupération personnelle : '+secs(d.cooldownMs)+'.</p>';
  else body=d.documents.map(k=>'<form data-form="soDecryptionStart" data-sid="'+esc(sid)+'" data-id="'+esc(k.id)+'"><p><strong>'+esc(k.title)+'</strong> · N'+esc(k.requiredLevel)+' requis. '+(k.decoded?'Déjà déchiffré.':k.attempted?'Tentative consommée.':'Une seule tentative par version.')+'</p>'+
+  '<label>Aide compétente (+1)<select name="aidOfferId"><option value="">Sans aide</option>'+(d.aidOffers??[]).map(o=>'<option value="'+esc(o.id)+'">'+esc(o.helperName)+'</option>').join('')+'</select></label>'+
   '<button type="submit" '+(k.attempted||k.decoded||d.level<k.requiredLevel?'disabled':'')+'>Tenter INF-02</button></form>').join('');
  if(!body)body='<p>Aucun document chiffré actuellement accessible. Obtenez d’abord un document en jeu.</p>';
- return '<section class="panel"><h2>INF-02 · Déchiffrement</h2><p class="rp">Derrière les signes brouillés, un message attend votre regard.</p><p>Un document obtenu en jeu, 1 PA et 1D6 + niveau contre le seuil du scénario. Révélation uniquement en cas de réussite. Aucun accès technique réel n’est ouvert.</p>'+body+'</section>';
+ return '<section class="panel"><h2>INF-02 · Déchiffrement</h2><p class="rp">Derrière les signes brouillés, un message attend votre regard.</p><p>Un document obtenu en jeu, 1 PA et 1D6 + niveau + une aide compétente éventuelle (+1) contre le seuil du scénario. L’aidant reste présent et récupère dix minutes sans dépenser de PA. Révélation uniquement en cas de réussite. Aucun accès technique réel n’est ouvert.</p>'+body+'</section>';
 }
 
 export function soDecryptionAdminHtml(d,sid){

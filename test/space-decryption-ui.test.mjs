@@ -19,3 +19,9 @@ test('INF-02 régie : interruption motivée et valeurs échappées',()=>{
  assert.match(html,/&lt;script&gt;/);assert.doesNotMatch(html,/<script>/);
  assert.match(soDecryptionAdminHtml({actions:[]},'session'),/Aucun déchiffrement/);
 });
+
+test('INF-02 : sélection d’une aide existante avant le lancement, identité échappée',()=>{
+ const html=soDecryptionHtml({enabled:true,level:2,cooldownMs:0,active:null,documents:[{id:'doc',title:'Message',requiredLevel:1}],aidOffers:[{id:'offer',helperName:'<img>'}]},'sid');
+ assert.match(html,/name="aidOfferId"/);assert.match(html,/value="offer"/);assert.match(html,/&lt;img&gt;/);
+ assert.match(html,/sans dépenser de PA/);
+});
