@@ -1,5 +1,9 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## Interface QR et état joueur — 13 novembre 2026
+
+[Changements et limites](SO-PLAYER-QR-HEALTH.md) : scanner intégré et ID manuels, crédits disponibles, contrôles descendants PV/protection distincts, navigation allégée. Tests ciblés et compilation locaux ; recette caméra et visuelle non exécutée, lancement du navigateur bloqué par l’environnement. Aucune publication de cette tranche.
+
 ## Cockpit connecté — candidat du 12 novembre 2026
 
 [Parcours et limites](SO-COCKPIT-CONNECTE.md) : demande de départ après préparation, notification dans la régie ouverte, poste exclusif affecté par le MJ, pilote authentifié sur le cockpit, départ et ordres de combat natifs. Vérification atomique de l’affectation et des commandes ; vols parallèles, révocation et réaffectation. Tests ciblés et compilation réussis ; CI exacte et recette humaine distinctes. Pas de publication de cette tranche. Convois liés et autres postes spécialisés restent hors de ce premier raccordement.
@@ -919,3 +923,18 @@ Salon entre membres actifs révélés, réception future uniquement, signature f
 | Portefeuille local ou GN, pots atomiques | `src/sabacc/adapters.mjs` | suite `sabacc-gn`, crédits protégés préservés |
 | Dix tables de huit identités | suite `sabacc` | émulateur : p95 231 ms / 265 commandes ; pas de mesure terrain |
 | Livraison | `docs/SABACC-MODULE.md` | candidat séparé, aucune recette humaine ni publication |
+
+## Sacs, fret et mentions RP — 13 novembre 2026
+
+| Exigence | Correction | Validation / limite |
+|---|---|---|
+| Dernière interface orga | Dashboard PC PR #11 intégré avec contrôles joueur PR #10 | Bases 95935f5 et ecef0d8, regroupées dans PR #12 |
+| Mentions PNJ visibles | Libellés de contacts, comptoirs, prestataires et douaniers | Inventaire détaillé : [PNJ-BAG-AUDIT.md](PNJ-BAG-AUDIT.md) ; valeurs internes conservées |
+| Sac personnel | Remise gratuite native, destinataire par QR/ID, réception explicite | Lots protégés exclus ; concurrence, STOP, décès, captivité, accès et actions en cours contrôlés |
+| Fret | Nouveaux chargements depuis le sac refusés côté serveur | Contrats commerciaux conservés ; anciens stocks embarqués récupérables, sans migration |
+| Kits de démonstration | Plus d’achat médical forcé dans `scripts/recette/showcase.mjs` | Huit classes testées : 200 Cr protégés, deux fournitures initiales MED uniquement |
+| Données et publication | Aucun sac existant modifié, aucun déploiement | Accès Firebase absent ; CI exacte à consulter dans PR #12 |
+
+## Mes actions — parcours directs, 13 novembre 2026
+
+Menu dérivé des compétences et versions actives ; choix conservé après QR/ID, aperçu natif automatique pour terrain/soins, modules spécialisés ouverts directement, historiques secondaires. Audit capacité → cible → contrôle et limites : [SO-PLAYER-ACTIONS.md](SO-PLAYER-ACTIONS.md). Tests locaux ciblés et build réussis ; validation navigateur mobile ajoutée à la CI, non certifiée sur téléphone réel. Aucune nouvelle action ni modification de règles.

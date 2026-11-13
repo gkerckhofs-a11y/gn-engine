@@ -15,5 +15,6 @@ test('interface connaissances : partage uniquement autorisé en jeu, aperçu neu
 });
 test('partage : le lien doit être le badge du même site et de la même session',()=>{
   assert.equal(badgeRecipient('https://gn-engine.web.app/#/badge/session/character','https://gn-engine.web.app','session'),'character');
-  for(const value of ['https://evil.invalid/#/badge/session/character','https://gn-engine.web.app/#/badge/other/character','https://gn-engine.web.app/#/invite/session/token','javascript:alert(1)','character','https://gn-engine.web.app/#/badge/session/character/extra'])assert.throws(()=>badgeRecipient(value,'https://gn-engine.web.app','session'));
+  assert.equal(badgeRecipient('character','https://gn-engine.web.app','session'),'character');
+  for(const value of ['https://evil.invalid/#/badge/session/character','https://gn-engine.web.app/#/badge/other/character','https://gn-engine.web.app/#/invite/session/token','javascript:alert(1)','https://gn-engine.web.app/#/badge/session/character/extra'])assert.throws(()=>badgeRecipient(value,'https://gn-engine.web.app','session'));
 });

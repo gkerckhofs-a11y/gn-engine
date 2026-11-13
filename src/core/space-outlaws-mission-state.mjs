@@ -1,3 +1,4 @@
+import {isTracker} from '../shared/player-access.mjs';
 import {hasSoEscort} from './space-escort.mjs';
 import {hasSoTransport,transportSettlementPlan,releaseTransport} from './space-transport.mjs';
 import {hasMissionExecution} from './space-outlaws-mission-evidence.mjs';
@@ -40,6 +41,7 @@ export async function soAnnouncement(tx,s,input,old){
 export async function soMissionReadable(tx,s,a,cid){
  if(!s.spaceOutlaws)return true;
  if(s.spaceOutlaws.missionsVersion!==1||a.missionVersionId!==s.spaceOutlaws.versionId)return false;
+ if(a.mode==='OPEN_BOUNTY'&&!isTracker(await tx.get(`sessions/${s.id}/characters/${cid}`)))return false;
  for(const id of a.requiredKnowledgeIds??[])if(!await tx.get(`sessions/${s.id}/characters/${cid}/knowledge/${id}`))return false;
  return true;
 }

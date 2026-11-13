@@ -12,7 +12,7 @@ const c={id:'c',title:'Mission',revision:2,status:'ACTIVE',terms,steps:[{id:'ste
 test('Missions SO UI : M7 sélectionné, financement réel et parcours joueur/régie',()=>{
  const html=ann.editor(s);assert.match(html,/name="missionId"/);assert.doesNotMatch(html,/<script>|value="GROUP"|value="TRANSPORT"|value="ESCORT"|value="OPEN_BOUNTY"/);
  const offer=ui.offer(s,{application:{id:'a',applicant:terms.applicant},announcement:{...terms,revision:1,rewardText:'100 Cr'}});assert.match(offer,/value="shop"/);assert.doesNotMatch(offer,/GM_EXTERNAL|value="person"/);
- assert.match(terminalHtml({session:s}),/missions\/s/);assert.match(createEntryUi(helpers).page({session:s,versionId:'v',actionsReady:true,missionsReady:true,stage:'EN_JEU',registrations:[]}),/announcements-admin\/s/);
+ assert.match(terminalHtml({session:s,terminal:{missions:{announcements:[{id:'mission'}]}}}),/missions\/s/);assert.match(createEntryUi(helpers).page({session:s,versionId:'v',actionsReady:true,missionsReady:true,stage:'EN_JEU',registrations:[]}),/announcements-admin\/s/);
 });
 test('Missions SO UI : étapes déclarées et validation sans paiement immédiat',()=>{
  const page=ui.detail({session:s,contract:c,canSubmit:true,history:[]});assert.match(page,/name="completedStep" value="step" required/);assert.doesNotMatch(page,/<script>/);

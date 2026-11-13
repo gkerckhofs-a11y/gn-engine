@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "825abd695dd7a2033f7a84eeec0cae15e75b14b5",
+  "sourceCommit": "1f6a13d9930192424fcc757f4519b6b2c8fc602b",
   "version": "0.38.0-rc.1",
   "requestedAt": "2026-11-13",
-  "reason": "Publication du module Sabacc explicitement autorisée par Guillaume dès que prêt. CI complète réussie sur le commit main exact requise. Module désactivé par défaut, aucune activation ni migration de session."
+  "reason": "Guillaume autorise la publication de toutes les modifications après la refonte du Terminal : interface organisateur PC, QR/ID, état joueur, sac/fret, actions directes et Terminal personnalisé. Publication subordonnée à la CI complète réussie du commit main exact. Aucun changement de données de session."
 }

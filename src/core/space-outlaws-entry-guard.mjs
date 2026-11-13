@@ -71,6 +71,8 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(scopes.has('SABACC_WALLET')&&/^(accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('PAYMENT')&&/^(accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('FIELD')&&/^(fieldActions\/[^/]+|fieldStates\/[^/]+|aidOffers\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/(?:resources\/actionPoints|fieldCooldowns\/[^/]+|knowledge\/[^/]+))?)$/.test(relative))continue;
+  if(scopes.has('PERSONAL_TRANSFER')&&session.spaceOutlaws.actionsVersion===1
+    &&/^(lotTransfers\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?)$/.test(relative))continue;
   if(scopes.has('FORGERY_TRANSFER')&&session.spaceOutlaws.inf03Version===1
     &&/^(lotTransfers\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?)$/.test(relative))continue;
   if(scopes.has('CUSTOMS_APPEAL')&&session.spaceOutlaws.customsDetentionVersion===1

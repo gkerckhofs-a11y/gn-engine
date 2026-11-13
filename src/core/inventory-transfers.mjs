@@ -1,6 +1,7 @@
+import {personalTransferAllowed,personalTransferActorReady} from './personal-transfer-policy.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {inventoryHash as hash,itemQuantity,publicItem,personalLot,readLot} from './inventory-state.mjs';
-import {canGameAction,requireGameAction} from './health-state.mjs';
+import {requireGameAction} from './health-state.mjs';
 import {forgedLotIntegrity} from './space-forgery-evidence.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 
@@ -34,10 +35,9 @@ async function current(tx,s,p,at){
   const source=await party(tx,s.id,p.sourceId),recipient=await party(tx,s.id,p.recipientId);
   const lot=await readLot(tx,s.id,p.lotId,at);
   const forgedValid=await forgedLotIntegrity(tx,s.id,lot);
-  const valid=forgedValid&&(!s.spaceOutlaws||(s.spaceOutlaws.inf03Version===1
-    &&p.forgeryTransfer===true&&lot?.origin?.kind==='SO_FORGERY'))&&source.active&&recipient.active&&source.version===p.sourceVersion&&recipient.version===p.recipientVersion&&
+  const valid=forgedValid&&personalTransferAllowed(s,lot,p.sourceId)&&source.active&&recipient.active&&source.version===p.sourceVersion&&recipient.version===p.recipientVersion&&
     !!lot&&personalLot(lot,p.sourceId)&&lot.status==='AVAILABLE'&&lot.revision===p.lotRevision&&lot.quantity>=p.quantity;
-  return {source,recipient,lot,valid,canAccept:!!valid&&s.stage==='EN_JEU'&&canGameAction(s,source.c,'transfer')&&canGameAction(s,recipient.c,'transfer')};
+  return {source,recipient,lot,valid,canAccept:!!valid&&s.stage==='EN_JEU'&&await personalTransferActorReady(tx,s,source.c)&&await personalTransferActorReady(tx,s,recipient.c)};
 }
 async function projection(tx,s,c,p,preview=false,at){
   const sender=p.sourceId===c.id,x=p.status==='PENDING'?await current(tx,s,p,at):null;
@@ -53,13 +53,14 @@ export async function listLotTransfers(tx,s,c,preview=false,at){
 }
 export function createLotTransferService({store,signed,now,uuid}){
   async function prepare(tx,ctx,input,at){
-    const {s,c,version}=ctx;requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,c,'transfer');
+    const {s,c,version}=ctx;requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,c,'transfer');requireThat(await personalTransferActorReady(tx,s,c),'OUT_OF_COMBAT');
     const recipientId=documentId(input.recipientId);requireThat(recipientId!==c.id,'INVALID_RECIPIENT');
     const recipient=await party(tx,s.id,recipientId);requireThat(recipient.active,'INVALID_RECIPIENT');
     const lot=await readLot(tx,s.id,documentId(input.lotId),at);
     requireThat(lot&&personalLot(lot,c.id),'FORBIDDEN');
     requireThat(await forgedLotIntegrity(tx,s.id,lot),'SO_INF03_RECORD');
     const quantity=itemQuantity(lot.item,input.quantity);requireThat(lot.status==='AVAILABLE'&&lot.quantity>=quantity,'INSUFFICIENT_STOCK');
+    if(s.spaceOutlaws)requireThat(personalTransferAllowed(s,lot,c.id),'SO_PERSONAL_TRANSFER_RESTRICTED');
     const result={source:{id:c.id,name:c.public.displayName},recipient:{id:recipientId,name:recipient.c.public.displayName},
       item:publicItem(lot.item),lotId:lot.id,quantity,before:lot.quantity,remaining:lot.quantity-quantity};
     return {lot,recipient,result:{...result,confirmation:hash(JSON.stringify([s.id,version,recipient.version,lot.revision,result]))}};
@@ -81,21 +82,20 @@ export function createLotTransferService({store,signed,now,uuid}){
       const previous=await tx.get(op);
       if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');requireThat(previous.partyVersion===version,'FORBIDDEN');return previous.result;}
       if(s.spaceOutlaws&&action!=='proposeLotTransfer'){
-        requireThat(s.spaceOutlaws.inf03Version===1&&p?.forgeryTransfer===true,'SO_GAMEPLAY_NOT_OPEN');
-        authorizeSpaceOutlaws(tx,s,'FORGERY_TRANSFER');
+        requireThat(p?.personalTransfer===true||p?.forgeryTransfer===true,'SO_GAMEPLAY_NOT_OPEN');
+        authorizeSpaceOutlaws(tx,s,'PERSONAL_TRANSFER');
       }
       let result;
       if(action==='proposeLotTransfer'){
         const x=await prepare(tx,ctx,input,at);
         if(s.spaceOutlaws){
-          requireThat(s.spaceOutlaws.inf03Version===1&&x.lot.origin?.kind==='SO_FORGERY','SO_GAMEPLAY_NOT_OPEN');
-          authorizeSpaceOutlaws(tx,s,'FORGERY_TRANSFER');
+          authorizeSpaceOutlaws(tx,s,'PERSONAL_TRANSFER');
         }
         requireThat(input.confirmation===x.result.confirmation,'STALE_REVISION');
         p={id:newId,status:'PENDING',revision:1,createdAt:at,updatedAt:at,sourceId:c.id,sourceName:c.public.displayName,sourceVersion:version,
           recipientId:x.recipient.c.id,recipientName:x.recipient.c.public.displayName,recipientVersion:x.recipient.version,
           lotId:x.lot.id,lotRevision:x.lot.revision,item:publicItem(x.lot.item),quantity:x.result.quantity,
-          ...(s.spaceOutlaws?{forgeryTransfer:true}:{})};
+          ...(s.spaceOutlaws?{personalTransfer:true,...(x.lot.origin?.kind==='SO_FORGERY'?{forgeryTransfer:true}:{})}:{})};
         tx.set(`${base}/lotTransfers/${p.id}`,p);result={id:p.id,status:p.status};
       }else{
         requireThat(p.status==='PENDING','TRANSFER_CLOSED');
@@ -105,7 +105,7 @@ export function createLotTransferService({store,signed,now,uuid}){
           requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireThat(input.received===true,'HANDOVER_REQUIRED');
           const x=await current(tx,s,p,at);
           requireThat(await forgedLotIntegrity(tx,s.id,x.lot),'SO_INF03_RECORD');
-          requireThat(x.valid,'STALE_TRANSFER');
+          requireThat(x.valid,'STALE_TRANSFER');requireThat(x.canAccept,'OUT_OF_COMBAT');
           requireGameAction(s,x.source.c,'transfer');requireGameAction(s,x.recipient.c,'transfer');
           const whole=x.lot.quantity===p.quantity,receivedId=whole?x.lot.id:newId;
           const received={...x.lot,id:receivedId,quantity:p.quantity,ownerId:p.recipientId,holderId:p.recipientId,

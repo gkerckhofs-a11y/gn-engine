@@ -1,3 +1,4 @@
+import {isTracker} from '../shared/player-access.mjs';
 import {soBountyAccess,soBountyMetadata,soBountyAudience,soBountySource,bountyAllocated,awardSoBounty} from './space-bounties.mjs';
 import {gameTime} from './clock.mjs';
 import {participationOf,participantOf,participantAccount,participantClaimId,selectParticipant,participantOptions,participantAccess,participantCurrent} from './mission-parties.mjs';
@@ -72,6 +73,7 @@ export function createBountyService({store,signed,checkSession,now,uuid}){
   return async(action,actor,input)=>{
     signed(actor);const at=now(),eventId=uuid();return store.runTransaction(async tx=>{
       const admin=admins.has(action),ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId)),version:actor.uid}:await inventoryPlayer(tx,actor,input),{s}=ctx,base=`sessions/${s.id}`;
+      requireThat(!s.spaceOutlaws||admin||isTracker(ctx.c),'FORBIDDEN');
       requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');soBountyAccess(tx,s,action,input);
       if(action==='sessionBounties'||action==='bounties'){
         const bounties=[];

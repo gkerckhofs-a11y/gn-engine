@@ -105,10 +105,7 @@ export function soForgerySuite(makeStore,prefix='INF-03'){
   assert.equal(ownLot.origin,undefined);
   assert.doesNotMatch(JSON.stringify(own),/FIBRE_PAPIER_INCORRECTE_SECRET_MJ/);
   const protectedInput={lotId:f.forms[1].id,recipientId:second,quantity:1};
-  const protectedPreview=await f.actionRead('prepareLotTransfer',protectedInput);
-  await assert.rejects(f.actionCmd('proposeLotTransfer',{
-   ...protectedInput,confirmation:protectedPreview.confirmation
-  }),{code:'SO_GAMEPLAY_NOT_OPEN'});
+  await assert.rejects(f.actionRead('prepareLotTransfer',protectedInput),{code:'SO_PERSONAL_TRANSFER_RESTRICTED'});
   const input={lotId:forged,recipientId:second,quantity:1};
   const prepared=await f.actionRead('prepareLotTransfer',input);
   const proposal=await f.actionCmd('proposeLotTransfer',{...input,confirmation:prepared.confirmation});

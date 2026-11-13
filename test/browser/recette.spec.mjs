@@ -73,6 +73,39 @@ test('Navigateur : six identités, filtres et secrets du contrat',async({browser
   }
 });
 
+test('Terminal personnalisé : services autorisés et accès direct refusé aux primes pour un médecin',async({browser},info)=>{
+ const {page}=await login(browser,'player');await page.setViewportSize({width:390,height:844});
+ await navigate(page,`terminal/${scenario.sessionId}`,'mySession');
+ await expect(page.getByRole('heading',{name:'Services du port',exact:true})).toBeVisible();
+ await expect(page.locator('[data-terminal="wallet"]')).toBeVisible();await expect(page.locator('[data-terminal="shops"]')).toBeVisible();
+ await expect(page.locator('[data-terminal="bounties"]')).toHaveCount(0);await expect(page.locator('[data-terminal="customs"]')).toHaveCount(0);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await capture(page,info,'terminal-personnalise-mobile');
+ await navigate(page,`news/${scenario.sessionId}`,'announcements');await expect(page.getByRole('link',{name:'Primes ouvertes et mes preuves'})).toHaveCount(0);
+ const denied=await navigate(page,`bounties/${scenario.sessionId}`,'bounties');expect(denied.status()).toBe(403);await expect(page.locator('#app')).not.toContainText('Primes ouvertes');
+});
+
+test('Mes actions : mobile, choix conservé, cible par ID et aperçu serveur automatique sans dépense',async({browser},info)=>{
+ const {page:orga}=await login(browser,'owner');await navigate(orga,`session/${scenario.sessionId}/animate`,'spaceOutlawsEntry');
+ orga.once('dialog',d=>d.accept());await clickCommand(orga,'[data-action="soStage"][data-stage="EN_JEU"]','setStage');
+ const {page}=await login(browser,'player');await page.setViewportSize({width:390,height:844});
+ await page.addInitScript(()=>{if(navigator.mediaDevices)navigator.mediaDevices.getUserMedia=async()=>{throw Error('Caméra refusée pour ce test');};});
+ try{
+  await navigate(page,`action/${scenario.sessionId}`,'myFieldActions');await expect(page.getByRole('heading',{name:'Mes capacités',exact:true})).toBeVisible();
+  await expect(page.locator('a.action-choice[href$="/MED-02"]')).toBeVisible();await expect(page.locator('a.action-choice[href$="/INF-01"]')).toHaveCount(0);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+  await expect(page.locator('#action-history')).not.toHaveAttribute('open');await capture(page,info,'mes-actions-mobile');
+  await page.locator('a.action-choice[href$="/COM-03"]').click();await expect(page.locator('[data-form="actionTarget"]')).toHaveAttribute('data-intent','COM-03');
+  await page.getByRole('button',{name:'Scanner un QR',exact:true}).click();await expect(page.getByText('Caméra indisponible ou refusée.',{exact:false})).toBeVisible();
+  await page.locator('[data-form="actionTarget"] input').fill('https://127.0.0.1/#/field/autre/counter-place');await page.getByRole('button',{name:'Vérifier cette cible'}).click();await expect(page.locator('[data-form="actionTarget"]')).toBeVisible();
+  await page.locator('[data-form="actionTarget"] input').fill('counter-place');const preview=apiResponse(page,'prepareFieldAction');await page.getByRole('button',{name:'Vérifier cette cible'}).click();expect((await preview).status()).toBe(200);
+  await expect(page.locator('dialog[open] [data-field-form="start"]')).toBeVisible();await expect(page.locator('[data-field-form="prepare"]')).toHaveCount(1);await expect(page).toHaveURL(new RegExp('/act/'+scenario.sessionId+'/COM-03/counter-place$'));
+  await capture(page,info,'action-cible-apercu-mobile');await page.locator('dialog[open] [data-field-action="close"]').click();
+  await navigate(page,`action/${scenario.sessionId}`,'myFieldActions');await page.locator('[data-action="actionHistory"]').first().click();await expect(page.locator('#action-history')).toHaveAttribute('open','');await expect(page).toHaveURL(new RegExp('/action/'+scenario.sessionId+'$'));
+ }finally{
+  await navigate(orga,`session/${scenario.sessionId}/animate`,'spaceOutlawsEntry');orga.once('dialog',d=>d.accept());await clickCommand(orga,'[data-action="soStage"][data-stage="PAUSE"]','setStage');
+ }
+});
+
 test('Navigateur : STOP puis reprise depuis la régie, sans modifier les réserves',async({browser},info)=>{
   const {page}=await login(browser,'owner');await navigate(page,`session/${scenario.sessionId}`,'spaceOutlawsEntry');
   await clickCommand(page,'[data-action="soSafetyStopMJ"]','stopSafetyMJ');
@@ -182,7 +215,7 @@ test.describe('Accès privé depuis la régie',()=>{
     const inventory=d=>d.lots.map(l=>({id:l.id,quantity:l.quantity,status:l.status})).sort((a,b)=>a.id.localeCompare(b.id));
     const admin=await readPage(manager,`shops-admin/${scenario.sessionId}`,'shopAdmin');
     await navigate(player,`shops/${scenario.sessionId}`,'shops');await clickCommand(player,'[data-form="shopPurchase"][data-offer="supply"] button','prepareShopPurchase');
-    const entry=await readPage(manager,`session/${scenario.sessionId}`,'spaceOutlawsEntry'),participant=entry.registrations.find(r=>r.characterId===before.character.id);
+    const entry=await readPage(manager,`session/${scenario.sessionId}/prepare`,'spaceOutlawsEntry'),participant=entry.registrations.find(r=>r.characterId===before.character.id);
     const access=manager.locator(`[data-player-access="${participant.uid}"]`);
     await expect(access.locator('[data-action="invite"]')).toHaveCount(0);
     manager.once('dialog',dialog=>dialog.accept());await clickCommand(manager,`[data-player-access="${participant.uid}"] [data-action="revoke"]`,'revokeAccess');
@@ -194,7 +227,7 @@ test.describe('Accès privé depuis la régie',()=>{
     await expect(player.locator('#app')).not.toContainText('SECRET_RECETTE_BRIEFING');await expect(player.locator('#app')).toContainText('Votre accès privé doit être activé');
     const registry=await readPage(manager,`contracts-admin/${scenario.sessionId}`,'sessionContracts'),contract=registry.contracts.find(c=>c.id===scenario.contractId);
     expect(contract.obligations.alerts).toContain('ACCESS_CHANGED');expect(contract.obligations.salaryReserved).toBe(100);await capture(manager,info,'obligations-acces-suspendu');
-    await navigate(manager,`session/${scenario.sessionId}`,'spaceOutlawsEntry');
+    await navigate(manager,`session/${scenario.sessionId}/prepare`,'spaceOutlawsEntry');
     await clickCommand(manager,`[data-player-access="${participant.uid}"] [data-action="invite"]`,'issueInvitation');
     const invitation=await manager.locator('#dialog [data-action="copy"]').getAttribute('data-value');
     await manager.locator('#dialog [data-action="close"]').click();
@@ -324,4 +357,75 @@ test('Navigateur : Sabacc autonome, deux comptes, cartes privées et régie mobi
   gm.page.once('dialog',dialog=>dialog.accept());await gm.page.locator('[data-form="emergency"] [name="reason"]').fill('Fin de recette');await clickCommand(gm.page,'[data-form="emergency"] [value="cancel"]','sabaccCancel');
   const refunded=await command(one.page,tokens[1],'sabaccTable',{tableId:t.id,qrToken:t.qrToken});expect(refunded.self.balance).toBe(500);expect(refunded.hand.phase).toBe('CANCELLED');
   gm.page.once('dialog',dialog=>dialog.accept());await clickCommand(gm.page,'[data-rotate]','sabaccRotateQR');await one.page.getByRole('button',{name:'Table',exact:true}).click();await expect(one.page.locator('[data-return]')).toBeVisible();await one.page.locator('[data-return]').click();await expect(one.page.getByRole('heading',{name:'Cantina navigateur',exact:true})).toBeVisible();
+});
+
+test('Dashboard orga : trois espaces, recherche, droits et Sabacc sur mobile',async({browser},info)=>{
+ const {page}=await login(browser,'owner');
+ await navigate(page,`session/${scenario.sessionId}/animate`,'spaceOutlawsEntry');
+ await expect(page.locator('.org-tabs [aria-current="page"]')).toHaveText('Animer');
+ await expect(page.locator('.org-main h1')).toHaveText('Animer');
+ await expect(page.locator('[data-org-section="prepare"]:visible')).toHaveCount(0);
+ await page.locator('[data-org-character]').fill('AUCUN_PERSONNAGE_123');
+ await expect(page.locator('[data-org-no-match]')).toBeVisible();
+ await page.locator('[data-org-character]').fill('');
+ await expect(page.locator('[data-org-name]').first()).toBeVisible();
+ await page.locator('[data-org-name] button[data-action="preview"]').first().click();
+ await expect(page.locator('#dialog')).toBeVisible();await page.keyboard.press('Escape');
+ for(const width of [1440,1920]){
+  await page.setViewportSize({width,height:1080});await page.evaluate(()=>scrollTo(0,0));
+  const bounds=await page.locator('.org-shell').boundingBox();expect(bounds.width).toBeGreaterThan(width===1440?1300:1700);
+  expect(await page.locator('.org-cards').evaluate(el=>getComputedStyle(el).gridTemplateColumns.split(' ').length)).toBe(width===1440?3:4);
+  await expect(page.locator('.org-tool-list')).toHaveAttribute('open','');
+  await expect(page.getByRole('navigation',{name:'Actions fréquentes'}).getByRole('link',{name:'Régie Sabacc',exact:true})).toBeVisible();
+  await capture(page,info,`organisateur-pc-${width}`);
+  await page.evaluate(()=>scrollTo(0,900));
+  const top=await page.locator('.org-navigation').boundingBox();expect(top.y).toBeGreaterThanOrEqual(-1);expect(top.y).toBeLessThanOrEqual(1);
+  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ }
+ await page.evaluate(()=>scrollTo(0,0));
+ await page.getByRole('navigation',{name:'Organisation de la session'}).getByRole('link',{name:'Préparer',exact:true}).click();
+ await expect(page.locator('.org-main h1')).toHaveText('Préparer');
+ await expect(page.getByRole('heading',{name:'Joueurs approuvés',exact:true})).toBeVisible();
+ await page.locator('[data-org-tool]').fill('sabacc');
+ await expect(page.locator('.org-sidebar a[href="/sabacc/?view=admin"]')).toBeVisible();
+ await page.locator('[data-org-tool]').fill('');
+ await page.getByRole('navigation',{name:'Organisation de la session'}).getByRole('link',{name:'Superviser',exact:true}).click();
+ await expect(page.locator('.org-main h1')).toHaveText('Superviser');
+ await expect(page.getByRole('heading',{name:'Journal des dernières opérations',exact:true})).toBeVisible();
+ await page.setViewportSize({width:390,height:844});
+ await page.evaluate(()=>scrollTo(0,0));await capture(page,info,'organisateur-superviser-mobile');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.locator('[data-org-tool]').fill('sabacc');await page.locator('.org-sidebar a[href="/sabacc/?view=admin"]').click();
+ await expect(page.locator('#tabs [data-tab="admin"]')).toHaveAttribute('aria-current','page');
+ await expect(page.locator('#content')).toContainText('Régie');
+ for(const role of ['mj','reception']){
+  const other=await login(browser,role);await navigate(other.page,`session/${scenario.sessionId}/animate`,'session');
+  await expect(other.page.locator('.org-shell')).toBeVisible();
+  await expect(other.page.locator('.org-sidebar a[href="/sabacc/?view=admin"]')).toHaveCount(0);
+  if(role==='reception'){
+   await expect(other.page.locator('[data-org-character]')).toHaveCount(0);
+   await expect(other.page.locator('#app')).not.toContainText('SECRET_RECETTE');
+   await expect(other.page.locator('[data-action="setStage"]')).toHaveCount(0);
+  }
+ }
+});
+
+test('Dashboard orga : accès missions et spatioport, pause et reprise sans changer de contexte',async({browser},info)=>{
+ const {page}=await login(browser,'owner');
+ await navigate(page,`session/${scenario.sessionId}/animate`,'spaceOutlawsEntry');
+ const initial=await page.locator('.org-context-meta').innerText();
+ const first=initial.includes('En pause')?'EN_JEU':'PAUSE',second=first==='PAUSE'?'EN_JEU':'PAUSE';
+ page.once('dialog',d=>d.accept());await clickCommand(page,`[data-action="soStage"][data-stage="${first}"]`,'setStage');
+ await expect(page.locator(`[data-action="soStage"][data-stage="${second}"]`)).toBeVisible();
+ page.once('dialog',d=>d.accept());await clickCommand(page,`[data-action="soStage"][data-stage="${second}"]`,'setStage');
+ await expect(page.locator('.org-context-meta')).toHaveText(initial,{useInnerText:true});
+ await page.locator('.org-sidebar').getByRole('link',{name:'Contrats et arbitrages',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Régie des missions',exact:true})).toBeVisible();
+ await expect(page.locator('.org-context')).toBeVisible();
+ await page.locator('[data-org-tool]').fill('cockpit');
+ await page.locator('.org-sidebar').getByRole('link',{name:'Décollages et cockpits',exact:true}).click();
+ await expect(page.getByRole('heading',{name:'Régie du spatioport',exact:true})).toBeVisible();
+ await capture(page,info,'organisateur-spatioport-navigation');
+ await page.locator('.org-context').getByRole('link',{name:'Changer de session',exact:true}).click();
+ await expect(page.locator('.org-shell')).toHaveCount(0);
 });

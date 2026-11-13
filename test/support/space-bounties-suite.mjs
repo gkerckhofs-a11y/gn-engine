@@ -9,6 +9,7 @@ import {bountyCommands} from '../../src/core/bounties.mjs';
 export async function spaceBountiesFixture(makeStore,{places=2,amount=50,...options}={}){
  const f=await spaceMissionsFixture(makeStore,options);
  if(options.release===false)return f;
+ for(const id of [f.cid,f.otherId])await f.edit(`characters/${id}`,c=>({...c,birth:{...c.birth,classId:'TRA'},abilityProfile:{...c.abilityProfile,class:{...c.abilityProfile.class,id:'TRA'}}}));
  const a=await f.announce({mode:'OPEN_BOUNTY',category:'BOUNTY',places}),bountyId=a.id;
  const setupInput=(patch={})=>({announcementId:bountyId,amount,funding:'ACCOUNT',sourceAccountId:shopAccountId('counter'),reason:'Cagnotte réelle PNJ',...patch});
  const start=(patch={})=>f.confirm('prepareBounty','openBounty',setupInput(patch));
@@ -22,6 +23,15 @@ export async function spaceBountiesFixture(makeStore,{places=2,amount=50,...opti
  return {...f,a,bountyId,setupInput,start,claimInput,submit,detail,reviewInput,review,awarded,close};
 }
 export function spaceBountiesSuite(makeStore,prefix='Primes SO'){
+ test(`${prefix} : classe principale Traqueur obligatoire, y compris accès direct, annonce et reçu`,async()=>{
+  const f=await spaceBountiesFixture(makeStore);await f.start();assert.equal((await f.read('announcements')).bountiesAllowed,true);await f.submit();await f.review();const contract=await f.awarded();
+  await f.edit(`characters/${f.cid}`,c=>({...c,birth:{...c.birth,classId:'COM'},abilityProfile:{...c.abilityProfile,class:{...c.abilityProfile.class,id:'COM'},skills:[...c.abilityProfile.skills,{id:'TRA-03',kind:'PASSIVE',level:5}]}}));
+  for(const action of ['bounties','bountyDetail','prepareBountyClaim','submitBountyClaim'])await assert.rejects(f.cmd(action,{bountyId:f.bountyId,body:'Preuve',consent:true}),{code:'FORBIDDEN'});
+  assert.equal((await f.read('announcements')).bountiesAllowed,false);assert.equal((await f.read('announcements')).announcements.some(a=>a.id===f.a.id),false);
+  await assert.rejects(f.read('announcementDetail',{announcementId:f.a.id}),{code:'FORBIDDEN'});
+  assert.equal((await f.contract(contract)).contract.status,'REVIEWED');assert.equal((await f.detail(f.owner)).claims.length,1);
+  const ordinary=await f.announce();assert.equal((await f.read('announcements')).announcements.some(a=>a.id===ordinary.id),true);
+ });
  test(`${prefix} : budget réel réservé une fois, annonce figée et aucune finance privée divulguée`,async()=>{
   const f=await spaceBountiesFixture(makeStore),p=f.setupInput(),q=await f.read('prepareBounty',p,f.owner),input={...p,confirmation:q.confirmation,requestId:randomUUID()},r=await f.cmd('openBounty',input,f.owner);assert.deepEqual(await f.cmd('openBounty',input,f.owner),r);assert.equal((await f.till()).balance,150);assert.equal((await f.till()).reserved,100);const d=await f.detail();assert.equal(d.bounty.awardedCount,0);assert.equal(d.bounty.remaining,2);assert.doesNotMatch(JSON.stringify(d),/SECRET_|sourceAccountId|Cagnotte réelle PNJ|giverCharacterId/);await assert.rejects(f.announce({...f.announcementInput(),announcementId:f.a.id,revision:1,mode:'OPEN_BOUNTY'}),{code:'BOUNTY_LOCKED'});
  });

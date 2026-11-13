@@ -62,3 +62,28 @@ body:has(.player-shell)>header{display:none}
 .group-chat-message{padding:.8rem;margin:.5rem 0;background:rgba(128,160,180,.07);border-radius:.5rem}
 .group-chat-message .prose{white-space:pre-wrap;margin-bottom:0;overflow-wrap:anywhere}
 .group-chat form{display:grid;gap:.7rem;margin-top:1rem}.group-chat textarea{resize:vertical;width:100%;box-sizing:border-box}
+
+/* Compact account controls, separate touch health controls and inline QR camera. */
+#account{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap}
+.character-code{display:block;font-size:.85rem;overflow-wrap:anywhere;color:var(--muted)}
+.quick-health input[type=range]{width:100%;min-height:48px;padding:0;accent-color:#d4ae61;touch-action:pan-y}
+.quick-health output{font-weight:bold;font-size:1.3em}
+.qr-scanner{padding:1rem;border:1px solid #647b78;border-radius:12px;max-width:32rem}
+.qr-scanner video{display:block;width:100%;max-height:50vh;object-fit:cover;background:#000;border-radius:8px}
+.qr-scan-button{margin:.5rem 0}.entity-code{overflow-wrap:anywhere}
+
+.quick-states{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:1rem;margin:1rem 0}.quick-states .panel{margin:0}
+
+/* Touch-first action cards; history remains secondary. */
+.action-menu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:14px}
+.action-family{margin:24px 0}.action-choice{display:flex;flex-direction:column;gap:8px;text-decoration:none;min-height:160px;padding:20px;overflow-wrap:anywhere;color:inherit}
+.action-choice strong{font-size:1.15rem}.action-choice p{margin:0}.action-choice:hover,.action-choice:focus-visible{outline:2px solid var(--gold,#d3b477);outline-offset:2px}
+.action-choice.is-blocked{opacity:.62;cursor:not-allowed;pointer-events:none}.action-status{margin-top:auto;font-size:.9rem}.action-choice small{opacity:.75}
+#action-history{scroll-margin-top:90px;margin-top:24px}#action-history>summary{font-size:1.1rem;min-height:44px;padding:12px 0}
+
+.terminal-family{margin-top:1.6rem}.terminal-card{min-height:140px;display:flex;flex-direction:column;gap:.5rem}.terminal-card h3,.terminal-card p{margin:0}.terminal-card small{margin-top:auto}.terminal-card[data-state="BLOCKED"] small{color:var(--gold,#e6bd74)}
+
+/* Keep the action and service menus within reach; only the global nav sticks. */
+.player-shell .player-vitals{position:static}
+.player-session .player-name{font-size:clamp(24px,5vw,34px)}
+@media(max-width:600px){.player-shell .player-session{display:grid;grid-template-columns:1fr auto;gap:10px}.player-session .player-heading{grid-column:1/-1;grid-row:1}.player-session .character-code{display:block;line-height:1.5}.player-session .character-code strong{font-size:12px}}

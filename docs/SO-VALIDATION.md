@@ -1,5 +1,14 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+## Terminal personnel — 13 novembre 2026
+
+[Audit des services, droits et limites](SO-TERMINAL-PERSONNEL.md). Trois ensembles alimentés par les projections autorisées, primes exclusivement Traqueur côté serveur et interface, douanes séparées par responsabilité. 171 tests ciblés et build locaux réussis. Publication de l’ensemble autorisée par Guillaume, sous réserve des vérifications du commit exact ; statut de déploiement à constater dans GitHub.
+
+
+## Interface QR et état joueur — 13 novembre 2026
+
+[Changements et limites](SO-PLAYER-QR-HEALTH.md) : scanner intégré et ID manuels, crédits disponibles, contrôles descendants PV/protection distincts, navigation allégée. Tests ciblés et compilation locaux ; recette caméra et visuelle non exécutée, lancement du navigateur bloqué par l’environnement. Aucune publication de cette tranche.
+
 ## Cockpit connecté — candidat du 12 novembre 2026
 
 [Parcours et limites](SO-COCKPIT-CONNECTE.md) : demande de départ après préparation, notification dans la régie ouverte, poste exclusif affecté par le MJ, pilote authentifié sur le cockpit, départ et ordres de combat natifs. Vérification atomique de l’affectation et des commandes ; vols parallèles, révocation et réaffectation. Tests ciblés et compilation réussis ; CI exacte et recette humaine distinctes. Pas de publication de cette tranche. Convois liés et autres postes spécialisés restent hors de ce premier raccordement.
@@ -1483,3 +1492,9 @@ Salon entre membres actifs révélés, réception future uniquement, signature f
 ## 2026-11-13 — Sabacc autonome (candidat séparé)
 
 Développement demandé depuis `SABACC_Cahier_des_charges_V1_0`, avec classement Sabacc For Charity choisi par l’organisateur. Moteur, tables privées/publiques, régie, QR, portefeuilles local/GN et client `/sabacc/`. Rapport de périmètre et limites : [SABACC-MODULE.md](SABACC-MODULE.md). Base main publiée `abae2811c2aeb27cba1ff47c5e004d3b7c11bbc5`. Tests ciblés mémoire (14), Firestore (8) et compilation réussis ; résultat CI du SHA candidat dans la PR. Recette humaine mobile et terrain non exécutée. Pas de publication du module.
+
+## 2026-11-13 — Sacs personnels, fret et libellés RP
+
+Candidat consolidé dans PR #12 : dashboard PC #11 et contrôles joueur #10 inclus. Audit et limites : [PNJ-BAG-AUDIT.md](PNJ-BAG-AUDIT.md).
+
+Validation locale Node 24 : compilation réussie ; 218 tests ciblés de démonstration, abordage, douanes et interfaces ; 22 tests boutiques/retenue ; 34 tests de remises/faux, incluant la dernière vérification de captivité et d’occupation. Les suites se recouvrent : ces nombres ne forment pas un total de tests uniques. Les 505 tests UI initialement exécutés avaient trois échecs liés aux anciens chargements de fixture et au champ URL ; ces trois cas ont été corrigés et réexécutés dans les suites ciblées. Aucun `npm test` intégral local. La CI utilise Node 22 et ses résultats sur le commit exact sont consignés dans la PR. Aucun test caméra sur téléphone, aucune modification Firebase en ligne, aucune publication.
