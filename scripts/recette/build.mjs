@@ -24,5 +24,9 @@ export async function buildRecette(){
   await writeFile(resolve(output,'version.json'),JSON.stringify({version}));
   await writeFile(resolve(output,'recette-build.json'),JSON.stringify(metadata,null,2));
   await build({entryPoints:[resolve(root,'scripts/recette/report-client.mjs')],outfile:resolve(output,'recette-report.js'),bundle:true,minify:true,format:'esm',target:'es2022'});
+  await mkdir(resolve(output,'sabacc'),{recursive:true});
+  await writeFile(resolve(output,'sabacc/index.html'),(await readFile(resolve(root,'web/sabacc/index.html'),'utf8')).replace('<body>',`<body>${toolbar}`));
+  for(const name of ['sabacc.css','sw.js'])await copyFile(resolve(root,'web/sabacc',name),resolve(output,'sabacc',name));
+  await build({entryPoints:[resolve(root,'web/sabacc/app.mjs')],outfile:resolve(output,'sabacc/app.js'),bundle:true,minify:true,format:'esm',target:'es2022',plugins:[{name:'sabacc-local-auth',setup(b){b.onResolve({filter:/firebase-client\.mjs$/},()=>({path:resolve(root,'scripts/recette/firebase-client.mjs')}));}}]});
   return metadata;
 }

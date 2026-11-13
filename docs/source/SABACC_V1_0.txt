@@ -1,0 +1,463 @@
+Source : https://docs.google.com/document/d/1qUq2mc-tvRlLCjW939ITGZnck4Gmqc-QiOPHvq3Ckt4
+Révision lue : AHj4eMS9FcuY0KXzaczbdQPQTEJgBy8dDQ4aV15Af0zh8MK7lzMu0cQfwGLvJCdC_ZfNQBYBX_cnLeHLrSxp-ySaQsiq5U8yeBussNY0_sw
+Décision utilisateur : classement Sabacc For Charity, 13 novembre 2026.
+
+SABACC
+CORELLIAN SPIKE
+Cahier des charges du module multijoueur
+Jeu de table physique + smartphones + crédits fictifs
+Version
+1.0
+Statut
+Spécification fonctionnelle proposée
+Architecture
+Module autonome, connecteur GN Engine optionnel
+Règles
+Corellian Spike — profil Space Outlaws V1
+Objectif : permettre à plusieurs joueurs assis à la même table de rejoindre une partie par QR, miser des crédits, jouer leurs cartes secrètement sur smartphone et régler automatiquement les gains, sans dépendre du scénario en cours.
+Sommaire
+1. Décision produit et périmètre
+2. Variante retenue : Corellian Spike
+3. Expérience joueur cible
+4. Profil de règles V1
+5. Trois niveaux de tables
+6. Gestion multi-table
+7. Interface joueur
+8. Onglet Règles
+9. Direction artistique
+10. Administration / régie
+11. Architecture technique
+12. Modèle de données
+13. Crédits, mises et règlement
+14. QR et cycle de vie des tables
+15. Sécurité, anti-triche et résilience
+16. Cas limites
+17. Tests de recette
+18. Découpage de livraison
+19. Hors périmètre V1
+20. Références
+1. Décision produit et périmètre
+Le module SABACC est conçu comme un composant de jeu autonome et réutilisable. Il ne dépend ni des personnages, ni des missions, ni des règles de SPACE OUTLAWS. Son intégration à GN Engine se fait uniquement par des interfaces explicites : identité du joueur et portefeuille de crédits.
+[SAB-001] MUST — Le moteur Sabacc doit fonctionner sans scénario actif, avec une monnaie fictive locale ou un adaptateur de portefeuille externe.
+[SAB-002] MUST — Aucune donnée de scénario, de mission, de compétence ou d’inventaire ne doit être nécessaire pour créer ou jouer une partie.
+[SAB-003] MUST — L’intégration GN Engine doit être optionnelle et isolée derrière un WalletAdapter et un IdentityProvider.
+[SAB-004] MUST — Une même installation doit pouvoir héberger plusieurs tables Sabacc simultanées, de plusieurs niveaux de mise.
+[SAB-005] MUST — La partie doit rester socialement physique : les joueurs sont assis à la même table ; le smartphone remplace les cartes, les jetons et le croupier, pas l’interaction entre joueurs.
+1.1. Objectifs
+Entrer dans une table en scannant son QR.
+Afficher une main privée sur le téléphone de chaque joueur.
+Synchroniser pot, mises, ordre de jeu, phase et actions en temps réel.
+Bloquer et transférer automatiquement les crédits fictifs de façon atomique.
+Automatiser distribution, pioche, défausse, Spike Dice, révélation et détermination du gagnant.
+Permettre à l’organisateur de créer autant de tables de chaque niveau que nécessaire.
+Rendre les règles consultables à tout moment depuis un onglet dédié sans quitter la partie.
+1.2. Positionnement technique recommandé
+Le choix recommandé est un module isolé dans le même écosystème technique que GN Engine, avec ses propres routes, services, collections et tests. Cela évite un second système d’authentification tout en empêchant le Sabacc de dépendre du Master SPACE OUTLAWS. Le module pourrait ultérieurement être extrait en application autonome sans réécrire le moteur de jeu.
+2. Variante retenue : Corellian Spike
+La V1 utilisera Corellian Spike. StarWars.com confirme Corellian Spike comme une variante nommée de Sabacc, aux côtés notamment de Kessel Sabacc. Des références spécialisées de la communauté la décrivent comme une variante largement répandue et particulièrement populaire ; elle est également associée au jeu montré dans Solo. Le Sabacc possède toutefois de nombreuses variantes et règles de maison : le produit doit donc figer un profil de règles explicite au lieu de mélanger des sources.
+[RULE-001] MUST — Le profil de règles doit être identifié par un identifiant immuable, par exemple corellian_spike_so_v1.
+[RULE-002] MUST — Toutes les parties V1 utilisent ce profil, sauf évolution future explicitement versionnée.
+[RULE-003] MUST — Une modification ultérieure des règles ne doit jamais changer rétroactivement une partie déjà clôturée.
+2.1. Base du jeu
+Élément
+Profil V1
+Joueurs
+2 à 8 joueurs par table.
+Paquet
+62 cartes : 30 positives, 30 négatives, 2 Sylops de valeur 0.
+Valeurs
+Trois exemplaires de chaque valeur +1 à +10 et -1 à -10.
+Objectif
+Obtenir une main totalisant 0 (Sabacc), ou à défaut la valeur la plus proche de 0.
+Main initiale
+2 cartes privées par joueur.
+Structure
+3 rounds ; phase Cartes, phase de Mise, phase Spike Dice.
+Pot principal
+Antes + mises ; gagné à chaque main.
+Pot Sabacc
+Alimenté par une seconde ante ; gagné seulement si le vainqueur termine exactement à 0 ; sinon il reste à la table.
+Révélation
+Après le troisième round, si au moins deux joueurs restent actifs.
+3. Expérience joueur cible
+3.1. Parcours principal
+Le joueur s’assied à une table physique et scanne le QR affiché sur celle-ci.
+Le module ouvre la table correspondante. Si nécessaire, le joueur s’authentifie.
+Le joueur voit le niveau de table, les antes, les limites, le nombre de sièges disponibles et son solde.
+Il choisit un siège libre et confirme « Rejoindre la table ». Aucun débit n’est effectué avant la validation de l’entrée dans une main.
+Quand au moins deux joueurs sont prêts, le moteur ouvre une nouvelle main.
+Les antes sont débitées atomiquement ; deux cartes privées sont distribuées à chaque joueur.
+Le joueur agit depuis son téléphone lorsque son tour arrive. Les autres téléphones voient l’état public actualisé.
+Après trois rounds, le moteur révèle uniquement les mains des joueurs encore actifs, calcule le résultat et crédite automatiquement le ou les pots.
+Une nouvelle main peut démarrer avec les joueurs encore assis. Le joueur peut quitter entre deux mains et récupérer immédiatement son solde disponible.
+3.2. Principes UX
+[UX-001] MUST — Un joueur doit pouvoir rejoindre une table en moins de trois actions après authentification : scanner, choisir un siège, confirmer.
+[UX-002] MUST — Le bouton d’action principal du tour doit être immédiatement visible sans défilement sur un smartphone courant.
+[UX-003] MUST — Le joueur doit toujours voir : solde disponible, montant engagé dans la main, pot principal, pot Sabacc, phase, round et joueur actif.
+[UX-004] MUST — La main privée ne doit jamais être affichée dans une vue partagée ou une notification système contenant la valeur des cartes.
+[UX-005] MUST — L’onglet Règles doit être accessible pendant la partie et son ouverture ne doit ni quitter la table ni interrompre le tour.
+4. Profil de règles V1
+4.1. Distribution et tableau de jeu
+Le serveur mélange le paquet avec un générateur aléatoire cryptographiquement sûr, distribue deux cartes à chaque joueur, place le reste en pioche et révèle une première carte dans la défausse. Le client ne reçoit jamais l’ordre du paquet.
+[GAME-001] MUST — Le mélange, la distribution, les tirages et les Spike Dice sont déterminés côté serveur.
+[GAME-002] MUST — Chaque main privée est stockée dans un espace lisible uniquement par son joueur et les rôles administratifs explicitement autorisés.
+4.2. Round : phase Cartes
+À son tour, un joueur choisit exactement une action de carte :
+Stand : conserver la main actuelle.
+Gain : piocher une carte depuis la pioche.
+Discard & Gain : défausser une carte puis piocher une carte.
+Swap : échanger une carte de sa main contre la carte visible au sommet de la défausse.
+[GAME-003] MUST — Le moteur doit empêcher toute action illégale selon la phase, le tour, la taille de main et l’état du joueur.
+4.3. Phase de mise
+Le moteur utilise les actions Check, Bet, Call, Raise et Fold. Pour garder la V1 robuste, les side pots et l’all-in partiel sont exclus. Un joueur qui ne peut pas suivre doit se coucher. Les limites de mise proviennent de la configuration de la table.
+[BET-001] MUST — Chaque mise est une commande serveur atomique et idempotente.
+[BET-002] MUST — Le client ne peut jamais envoyer un nouveau solde ; il envoie uniquement une intention de mise et le montant demandé.
+[BET-003] MUST — Le moteur refuse un montant inférieur au minimum, supérieur au maximum de table, supérieur au solde disponible ou incompatible avec la mise courante.
+[BET-004] MUST — Le pli de mise se termine lorsque tous les joueurs actifs ont égalisé la mise courante ou se sont couchés.
+[BET-005] MUST — Si un seul joueur reste actif, il gagne immédiatement le pot principal ; le pot Sabacc n’est pas attribué sans révélation d’un Sabacc exact et reste attaché à la table.
+4.4. Spike Dice
+Après la phase de mise, le moteur lance deux dés à six faces. Si les symboles diffèrent, rien ne se passe. S’ils sont identiques, un Sabacc Shift remplace la main de chaque joueur actif par le même nombre de nouvelles cartes. Le résultat des dés est public et accompagné d’une animation courte.
+[SPIKE-001] MUST — Le résultat des dés est généré serveur, enregistré dans l’historique de la main et diffusé à tous les joueurs simultanément.
+4.5. Fin de main et classement
+Après le troisième round, le serveur calcule la main gagnante. Un total de 0 est un Sabacc et bat toute main non nulle. Les égalités entre mains suivent la hiérarchie Corellian Spike du profil de règles versionné. La table de classement doit être stockée comme donnée de règles et utilisée à la fois par le moteur et par l’onglet Règles, afin d’éviter deux interprétations divergentes.
+[SCORE-001] MUST — Le moteur de classement doit être pur et déterministe : mêmes cartes + même ruleset = même classement.
+[SCORE-002] MUST — Le ruleset V1 doit comporter des tests unitaires couvrant chaque catégorie de main classée, les Sabacc non classés et les Nulrhek.
+[SCORE-003] MUST — En cas d’égalité parfaite après tous les tie-breaks du profil, le pot principal est partagé selon une règle explicite d’arrondi ; le reliquat d’un crédit va au premier joueur selon l’ordre de siège après le donneur.
+5. Trois niveaux de tables
+Les trois niveaux sont des modèles de configuration. L’organisateur peut créer plusieurs tables de chaque niveau et modifier leurs montants. Les valeurs ci-dessous sont des valeurs de départ proposées, non des règles canoniques du GN.
+Niveau
+Nom par défaut
+Ante pot principal
+Ante pot Sabacc
+Mise min.
+Mise max. par action
+Usage
+I
+Cantina
+5
+5
+5
+25
+Découverte.
+II
+Casino
+25
+25
+25
+100
+Standard.
+III
+High Stakes
+100
+100
+100
+500
+Gros enjeux.
+Tous les montants sont éditables table par table. Une modification de paramètres s’applique uniquement aux nouvelles mains, jamais à une main déjà ouverte.
+[TIER-001] MUST — Les niveaux I, II et III servent de modèles clonables, pas de valeurs codées en dur.
+[TIER-002] MUST — Chaque table peut surcharger : nom, lieu, nombre de sièges, antes, mise minimale, mise maximale, incrément minimal de relance, délai de tour, politique d’accès et statut.
+[TIER-003] MUST — Le niveau III peut être configuré en accès libre, sur invitation, par liste de personnages ou par code supplémentaire, sans que cette restriction devienne obligatoire pour les autres niveaux.
+6. Gestion multi-table
+6.1. Création et duplication
+[TABLE-001] MUST — La régie peut créer un nombre arbitraire de tables à partir d’un des trois modèles de niveau.
+[TABLE-002] MUST — Une table reçoit un identifiant stable, un nom public, un niveau, un emplacement physique et un QR unique.
+[TABLE-003] MUST — Une fonction « Dupliquer » permet de créer rapidement plusieurs tables identiques, puis de renommer leur emplacement et leur QR.
+[TABLE-004] MUST — Une table peut être ouverte, fermée, mise en pause ou archivée sans supprimer son historique financier fictif.
+6.2. Tableau de régie
+Colonne
+Contenu
+Table
+Nom, identifiant, niveau, emplacement.
+État
+Fermée / Lobby / En jeu / Pause / Entre deux mains.
+Joueurs
+Sièges occupés / capacité.
+Main
+Numéro, round, phase, joueur actif.
+Pots
+Pot principal et pot Sabacc.
+Activité
+Dernière action / dernière synchronisation.
+Actions MJ
+Ouvrir, pause, reprendre, fermer, expulser, régénérer QR, voir audit.
+7. Interface joueur
+7.1. Navigation mobile
+La navigation principale comprend quatre onglets :
+Onglet
+Fonction
+TABLE
+Vue commune : joueurs, sièges, pots, round, phase, mise actuelle, dernier résultat de Spike Dice.
+MA MAIN
+Cartes privées, total actuel, action de carte, commandes de mise pendant son tour.
+RÈGLES
+Rappel rapide et règlement complet, consultable sans quitter la partie.
+HISTORIQUE
+Actions publiques de la main et résultats des mains précédentes ; aucune carte adverse non révélée.
+7.2. Écran « Ma main »
+Cartes très lisibles, positives et négatives différenciées sans dépendre uniquement de la couleur.
+Total de la main affiché en permanence, avec mention « SABACC » si total = 0.
+Indicateur visuel « À toi de jouer » + vibration courte optionnelle.
+Actions impossibles grisées avec raison accessible.
+Confirmation obligatoire pour Fold et pour toute mise dépassant un seuil configurable.
+Après validation, animation brève puis verrouillage de l’action jusqu’à accusé serveur.
+8. Onglet Règles
+L’onglet RÈGLES est une fonctionnalité produit, pas une simple page d’aide. Il doit servir de référence commune autour de la table et être généré depuis le même ruleset que le moteur.
+8.1. Vue rapide — 30 secondes
+But : faire 0 ; sinon être le plus proche de 0.
+Chaque main commence avec 2 cartes.
+3 rounds : Cartes → Mise → Spike Dice.
+Actions de cartes : Stand, Gain, Discard & Gain, Swap.
+Mises : Check, Bet, Call, Raise, Fold.
+Double aux Spike Dice : toutes les mains actives sont remplacées en conservant le même nombre de cartes.
+Le vainqueur prend le pot principal. S’il gagne avec exactement 0, il prend aussi le pot Sabacc.
+8.2. Vue complète
+[HELP-001] MUST — Afficher la composition du paquet, le déroulement détaillé d’une main, les actions, les mises, le Spike, les pots et les tie-breaks.
+[HELP-002] MUST — Afficher la hiérarchie complète des mains Corellian Spike du ruleset V1, avec un exemple graphique par catégorie lorsque possible.
+[HELP-003] MUST — Afficher un glossaire : Sabacc, Nulrhek, Sylop, Hand Pot, Sabacc Pot, Shift, Dealer.
+[HELP-004] MUST — Le contenu des règles doit être disponible hors ligne une fois la partie chargée.
+[HELP-005] MUST — Une recherche simple ou des ancres permettent d’accéder directement à « Mises », « Spike », « Gagner » et « Classement des mains ».
+9. Direction artistique
+9.1. Intention
+L’esthétique doit évoquer une interface de jeu clandestine de space-opera : terminal de cantina, technologie rétro-futuriste, matériaux usés, lumière de néon et instrumentation industrielle. Elle doit rappeler l’atmosphère Star Wars sans reproduire l’interface exacte d’un film, d’un jeu vidéo, un logo officiel ou des captures protégées.
+9.2. Langage visuel
+Élément
+Direction
+Palette
+Fond graphite / noir bleuté ; accents ambre et laiton ; cyan ou vert pâle pour l’état système ; rouge réservé aux alertes.
+Typographie
+Sans-serif condensée / technique pour les titres, sans-serif très lisible pour le texte. Éviter une police décorative pour les montants et les règles.
+Cartes
+Design original géométrique, tactile et légèrement usé ; signe + / - et valeur toujours lisibles ; Sylop visuellement exceptionnel.
+Cadres
+Panneaux métalliques fins, lignes de circuit, coins coupés, grilles et petits marqueurs lumineux.
+Animation
+Courtes transitions de distribution, mise, défausse et Spike ; priorité à la vitesse, pas au spectacle.
+Son
+Optionnel : clics de terminal, jeton, mélange électronique, signal de tour ; bouton mute permanent.
+Lisibilité
+Contraste AA visé ; information redondante par texte/signe, pas uniquement par couleur.
+9.3. Écrans distinctifs par niveau
+Les trois niveaux partagent la même architecture, mais peuvent recevoir un habillage léger : Cantina plus brut et industriel ; Casino plus propre et lumineux ; High Stakes plus sombre, or/laiton et minimaliste. Aucun thème ne doit modifier la lisibilité des actions.
+10. Administration / régie
+10.1. Paramétrage général
+Activer/désactiver le module Sabacc.
+Choisir le fournisseur d’identité : local ou GN Engine.
+Choisir le portefeuille : local fictif ou crédits GN Engine.
+Configurer les trois modèles de table.
+Créer, dupliquer, renommer, ouvrir, fermer et archiver des tables.
+Générer et imprimer les QR par table.
+Consulter parties en cours, historique, incidents et mouvements de crédits.
+Réinitialiser un QR compromis sans recréer la table.
+10.2. Actions d’urgence MJ
+[ADMIN-001] MUST — Pause générale d’une table : aucune action ni mise n’est acceptée pendant la pause.
+[ADMIN-002] MUST — Reprise de table sans recréer la main si l’état est cohérent.
+[ADMIN-003] MUST — Expulsion d’un joueur entre deux mains ; en cours de main, l’action applique la politique de déconnexion/fold et conserve l’audit.
+[ADMIN-004] MUST — Annulation administrative d’une main uniquement via une commande serveur journalisée qui rembourse les engagements non réglés selon l’état transactionnel réel.
+[ADMIN-005] MUST — Aucune interface MJ ordinaire ne permet de voir les cartes privées en direct. Un mode diagnostic exceptionnel, s’il existe, doit être séparé et audité.
+11. Architecture technique
+11.1. Composants
+Composant
+Responsabilité
+Web/PWA mobile
+QR, lobby, main privée, commandes, règles, historique.
+Game Service
+Machine à états de table et de main ; validation de toutes les actions.
+Random Service
+Mélange cryptographiquement sûr et Spike Dice.
+Wallet Adapter
+Reserve, debit, credit, settle, refund ; implémentation locale ou GN Engine.
+Identity Provider
+Utilisateur local ou identité GN Engine.
+Realtime Store
+État public synchronisé + documents privés par joueur.
+Audit Log
+Événements immuables de partie et de portefeuille fictif.
+Admin Console
+Création/configuration des tables, supervision et incidents.
+11.2. Recommandation GN Engine / Firebase
+Dans l’écosystème actuel, l’implémentation naturelle est Next.js/TypeScript côté client, Firebase Authentication pour l’identité, Firestore pour les états synchronisés, et fonctions serveur/transactions Firestore pour les actions critiques. Les mains privées doivent être séparées des données publiques ; les clients adverses ne doivent jamais recevoir les cartes cachées ni l’ordre de la pioche.
+[TECH-001] MUST — Toutes les commandes de jeu critiques passent par un endpoint/fonction serveur ; aucun calcul client ne peut modifier l’état autoritaire.
+[TECH-002] MUST — Les écritures de mise, pot et portefeuille sont transactionnelles et idempotentes.
+[TECH-003] MUST — L’état partagé et l’état privé utilisent des documents/collections distincts avec règles d’accès vérifiables.
+[TECH-004] MUST — Une reconnexion recharge l’état autoritaire et ne rejoue jamais une commande déjà acquittée.
+12. Modèle de données
+Entité
+Champs essentiels
+SabaccTable
+id, name, tier, location, seatCount, rulesetId, stakes, accessPolicy, qrTokenVersion, status, sabaccPotBalance.
+TableSeat
+tableId, seatNo, playerId, joinedAt, ready, connectionState.
+SabaccHand
+id, tableId, handNo, dealerSeat, round, phase, activeSeat, currentBet, handPot, rulesetVersion, status.
+PlayerHandPrivate
+handId, playerId, cards[], total, folded, committedCredits, lastAction.
+DeckServerState
+handId, remainingDeck[], discard[], rngAuditRef — serveur uniquement.
+GameCommand
+commandId, handId, playerId, type, payload, createdAt, result, idempotencyKey.
+WalletMovement
+movementId, playerId, tableId, handId, type, amount, balanceBefore/After, commandId.
+GameEvent
+sequence, tableId, handId, visibility, type, payload, timestamp.
+13. Crédits, mises et règlement
+13.1. Interface de portefeuille
+Le Sabacc ne connaît pas la structure interne de l’économie du scénario. Il demande seulement au WalletAdapter des opérations normalisées : getBalance, reserve, commit, release, credit et transfer/settle selon l’architecture retenue.
+[WALLET-001] MUST — Une entrée dans une main vérifie que le joueur peut payer les deux antes avant de le déclarer actif.
+[WALLET-002] MUST — Un même commandId ne peut produire qu’un seul mouvement financier fictif, même après retry réseau.
+[WALLET-003] MUST — Le règlement d’une main et la clôture de son état doivent être atomiques ou compensables : jamais de gagnant déclaré sans crédit correspondant, ni de crédit sans main clôturée.
+[WALLET-004] MUST — Le pot Sabacc persiste à la table entre les mains et survit à un redémarrage du service.
+[WALLET-005] MUST — Toute remise à zéro manuelle du pot Sabacc requiert confirmation et produit un événement d’audit explicitant la destination des crédits fictifs.
+14. QR et cycle de vie des tables
+14.1. QR
+Chaque table physique possède un QR. Il contient une URL courte et un jeton de table, jamais des informations de portefeuille ni une autorisation d’action. Le serveur résout le jeton vers la table et vérifie son statut.
+[QR-001] MUST — Le QR d’une table peut être régénéré sans changer l’identifiant métier de la table.
+[QR-002] MUST — Un ancien QR révoqué est refusé immédiatement.
+[QR-003] MUST — Scanner un QR d’une table fermée affiche son nom et ses règles de mise, mais interdit l’entrée.
+14.2. États
+État
+Description
+CLOSED
+Table visible en régie, impossible à rejoindre.
+OPEN / LOBBY
+Joueurs peuvent rejoindre, choisir un siège et se déclarer prêts.
+ACTIVE
+Une main est en cours.
+BETWEEN_HANDS
+Main réglée ; entrées/sorties autorisées.
+PAUSED
+État gelé par régie ; aucune commande de jeu acceptée.
+ARCHIVED
+Table hors service, historique conservé.
+15. Sécurité, anti-triche et résilience
+[SEC-001] MUST — Un joueur ne peut lire que sa propre main privée.
+[SEC-002] MUST — Les clients ne reçoivent jamais le paquet restant ni les mains adverses avant révélation.
+[SEC-003] MUST — Toutes les décisions de validité, tirage, score et règlement sont serveur.
+[SEC-004] MUST — Les commandes utilisent authentification, autorisation, numéro de séquence et clé d’idempotence.
+[SEC-005] MUST — Les logs permettent de reconstruire la chronologie d’une main sans exposer les secrets d’une main active.
+[SEC-006] MUST — La session récupère après refresh ou perte de réseau sans dupliquer mise, tirage ou règlement.
+[SEC-007] MUST — Le mélange utilise une source aléatoire cryptographiquement sûre. Une option future peut publier après clôture une preuve/seed d’audit si souhaité.
+[SEC-008] MUST — Les règles de sécurité Firestore/serveur interdisent toute écriture directe client dans les soldes et pots.
+15.1. Déconnexion
+Politique V1 recommandée : délai configurable. Si le joueur revient avant l’expiration, il reprend la partie. Si son tour expire, le système fait Check lorsqu’aucune mise n’est à suivre ; sinon Fold. Une déconnexion ne rembourse jamais automatiquement des crédits déjà engagés dans une main valide.
+16. Cas limites
+Cas
+Comportement attendu
+2e scan du même joueur
+Reconnexion au même siège, pas de second siège.
+QR photographié
+Accès refusé si table fermée ; QR régénérable. Option future : code de présence.
+Solde insuffisant avant ante
+Joueur reste spectateur/lobby et ne participe pas à la main.
+Solde insuffisant pour Call
+Fold requis en V1 ; pas de side pot.
+Tous fold sauf un
+Gain immédiat du pot principal ; pot Sabacc conservé.
+Égalité parfaite
+Partage du pot selon règle d’arrondi déterministe.
+Service redémarre
+Reprise depuis état persistant ; aucune redistribution ou remélange implicite.
+Table mise en pause
+Timers suspendus ; commandes refusées jusqu’à reprise.
+MJ annule la main
+Commande compensée et auditée ; aucun effacement silencieux de l’historique.
+17. Tests de recette
+ID
+Scénario
+Critère de succès
+REC-S01
+Scanner QR et rejoindre
+Bon nom/niveau, siège réservé une seule fois.
+REC-S02
+Deux joueurs démarrent
+Antes débitées une fois, deux cartes privées chacun.
+REC-S03
+Confidentialité
+Aucun joueur ne peut lire la main privée d’un autre via UI ou API.
+REC-S04
+Action de carte
+Une seule action autorisée par tour ; état synchronisé sur les autres téléphones.
+REC-S05
+Mise concurrente
+Ordre et montants respectés ; aucun double débit après retry.
+REC-S06
+Sabacc Shift
+Double aux dés remplace chaque main active par le même nombre de cartes.
+REC-S07
+Révélation
+Le moteur choisit le gagnant exact selon le ruleset figé.
+REC-S08
+Pot Sabacc
+Sans score 0, jackpot persiste ; avec score 0 gagnant, il est versé une seule fois.
+REC-S09
+Déconnexion
+Reconnexion restaure le siège et la main sans fuite ni duplication.
+REC-S10
+Pause MJ
+Aucune commande acceptée pendant la pause ; reprise cohérente.
+REC-S11
+Multi-table
+Deux tables simultanées n’échangent aucun état, pot ou joueur.
+REC-S12
+Trois niveaux
+Paramètres propres appliqués aux nouvelles mains de chaque table.
+REC-S13
+Règles
+Onglet accessible pendant son tour sans perte d’état.
+REC-S14
+Charge cible
+Au moins 10 tables de 8 joueurs restent jouables simultanément en environnement de recette ; seuils de latence consignés avant validation.
+REC-S15
+Audit
+Chaque mouvement de crédits est rattachable à une table, une main et une commande.
+18. Découpage de livraison
+Lot
+Contenu
+Sortie
+S0 — Moteur
+Ruleset, deck, score, machine à états, tests purs.
+Une main peut être simulée entièrement sans UI.
+S1 — Table temps réel
+Lobby QR, sièges, main privée, actions, Spike, révélation.
+2–8 smartphones jouent une partie sur une table.
+S2 — Économie
+Wallet local + adaptateur GN Engine, antes, mises, pots, règlement.
+Partie avec crédits fictifs sans duplication.
+S3 — Régie multi-table
+3 modèles, création/duplication, QR, supervision, pause.
+Plusieurs tables et niveaux simultanés.
+S4 — UX / DA / Règles
+Habillage, animations, règles rapides/complètes, accessibilité.
+Version terrain cohérente et immersive.
+S5 — Recette
+Sécurité, multi-compte, déconnexion, charge, mobile réel.
+Candidat de mise en service ; déploiement seulement sur autorisation.
+19. Hors périmètre V1
+Jeu contre une IA.
+Parties à distance entre joueurs non présents à la même table.
+Tournois automatiques multi-tables avec éliminations et brackets.
+Side pots et all-in incomplet.
+Tricheries ou pouvoirs de personnage modifiant secrètement les cartes.
+Variantes supplémentaires (Kessel Sabacc, Coruscant Shift, etc.).
+Achat en argent réel, conversion de crédits fictifs en argent ou mécanisme assimilable à un jeu d’argent réel.
+Création libre de règles de Sabacc par les organisateurs en V1.
+20. Références
+Les sources ci-dessous servent à sélectionner et cadrer la variante. Le produit V1 doit ensuite figer son propre profil de règles versionné afin de garantir un comportement déterministe.
+Kelly Knox, StarWars.com, « Game On: A Look at Sabacc and Dejarik », 21 novembre 2024.https://www.starwars.com/news/star-wars-outlaws-sabacc-and-dejarik
+Games of the Galaxy / The Holodex, « The Complete Corellian Spike », consulté le 26 octobre 2026.https://www.gamesofthegalaxy.com/spike
+Sabacc For Charity, guide Corellian Spike, consulté le 26 octobre 2026.https://www.sabaccforcharity.com/fr/guides
+Wookieepedia, « Corellian Spike », synthèse des variantes et mains issues de sources Star Wars, consulté le 26 octobre 2026.https://starwars.fandom.com/wiki/Corellian_Spike
+Décisions à considérer comme proposées dans cette V1.0
+Les montants par défaut des trois niveaux, l’absence de side pots, la politique de timeout et le partage des égalités sont des décisions produit proposées pour obtenir rapidement une V1 robuste. Elles sont toutes paramétrables ou versionnables sans remettre en cause l’architecture du module.
+Annexe A — Checklist de développement
+Moteur
+☐ Ruleset versionné    ☐ Deck 62 cartes    ☐ RNG serveur    ☐ 3 rounds    ☐ Actions cartes    ☐ Spike Shift    ☐ Évaluateur de mains    ☐ Tests de classement
+Temps réel
+☐ Lobby    ☐ Sièges    ☐ Présence    ☐ Tour actif    ☐ État public    ☐ Main privée    ☐ Reconnexion    ☐ Timers
+Économie
+☐ Antes    ☐ Bet/Call/Raise/Fold    ☐ Pot principal    ☐ Pot Sabacc persistant    ☐ Règlement atomique    ☐ Idempotence    ☐ Audit
+Régie
+☐ 3 modèles    ☐ Multi-table    ☐ Duplication    ☐ QR    ☐ Pause    ☐ Annulation compensée    ☐ Historique
+UX
+☐ 4 onglets    ☐ Règles rapides    ☐ Règles complètes    ☐ DA cantina    ☐ Responsive    ☐ Accessibilité    ☐ Mute
+Sécurité
+☐ Auth    ☐ ACL main privée    ☐ Serveur autoritaire    ☐ Pas de deck client    ☐ Règles Firestore    ☐ Retry sûr    ☐ Tests multi-comptes

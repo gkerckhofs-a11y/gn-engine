@@ -909,3 +909,13 @@ Les 24 cas initiaux, six FOR et dix SEC complets gardent leurs statuts ci-dessus
 ## Messagerie de groupe — 12 novembre 2026
 
 Salon entre membres actifs révélés, réception future uniquement, signature fictive explicite, droits revérifiés et reçus idempotents. Détails, limites et preuves locales : [SO-MESSAGERIE-GROUPES.md](SO-MESSAGERIE-GROUPES.md). Contrôle navigateur ajouté en CI ; aucune publication.
+
+## Module optionnel Sabacc — candidat du 13 novembre 2026
+
+| Périmètre | Implémentation | Preuve / limite |
+|---|---|---|
+| Moteur Corellian Spike, classement S4C | `src/sabacc/rules.mjs`, `engine.mjs`, `random.mjs` | `test/sabacc-engine.test.mjs` |
+| Table autonome, QR, confidentialité, reprise, régie | `src/sabacc/service.mjs`, `web/sabacc/` | suite partagée `sabacc`, parcours navigateur Sabacc |
+| Portefeuille local ou GN, pots atomiques | `src/sabacc/adapters.mjs` | suite `sabacc-gn`, crédits protégés préservés |
+| Dix tables de huit identités | suite `sabacc` | émulateur : p95 231 ms / 265 commandes ; pas de mesure terrain |
+| Livraison | `docs/SABACC-MODULE.md` | candidat séparé, aucune recette humaine ni publication |

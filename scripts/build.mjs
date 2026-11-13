@@ -18,3 +18,7 @@ await cp('web/cockpit','public/cockpit',{recursive:true});
 const cockpitTemplate=await readFile('web/cockpit/index.html','utf8');
 await writeFile('public/cockpit/live.html',cockpitTemplate.replace('<body>','<body data-connected="true">').replace('src="./cockpit.mjs"','src="./connected.js"'));
 await build({entryPoints:['web/cockpit/connected.mjs'],outfile:'public/cockpit/connected.js',bundle:true,minify:true,format:'esm',target:'es2022'});
+
+await mkdir('public/sabacc',{recursive:true});
+for(const file of ['index.html','sabacc.css','sw.js'])await copyFile(`web/sabacc/${file}`,`public/sabacc/${file}`);
+await build({entryPoints:['web/sabacc/app.mjs'],outfile:'public/sabacc/app.js',bundle:true,minify:true,format:'esm',target:'es2022'});

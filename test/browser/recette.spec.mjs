@@ -300,3 +300,27 @@ test('Navigateur : messagerie de groupe, brouillon conservé, envoi et révocati
  await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await capture(page,info,'messagerie-groupe-mobile');
  denied=true;await expect(page.locator('[data-group-chat]')).toContainText('Impossible de vérifier');await expect(page.getByRole('log')).toHaveCount(0);await expect(form).toHaveCount(0);
 });
+
+test('Navigateur : Sabacc autonome, deux comptes, cartes privées et régie mobile',async({browser},info)=>{
+  test.setTimeout(150000);
+  const gm=await login(browser,'owner'),one=await login(browser,'player'),two=await login(browser,'other');
+  async function token(page){const wait=apiResponse(page,'identity');await page.reload();return (await wait).request().headers().authorization;}
+  const tokens=await Promise.all([gm,one,two].map(x=>token(x.page)));
+  async function command(page,authorization,action,input={}){return page.evaluate(async({authorization,action,input})=>{const r=await fetch('/api/command',{method:'POST',headers:{'Content-Type':'application/json',authorization},body:JSON.stringify({action,input:{requestId:crypto.randomUUID(),...input}})});const b=await r.json();if(!r.ok)throw Error(b.error);return b.result;},{authorization,action,input});}
+  await gm.page.goto('/sabacc/');await gm.page.getByRole('button',{name:'Régie MJ'}).click();await gm.page.getByText('Activation, MJ et modèles',{exact:true}).click();
+  await gm.page.locator('[data-form="settings"] [name="enabled"]').selectOption('true');await clickCommand(gm.page,'[data-form="settings"] button','sabaccSettings');
+  await gm.page.getByText('Créer une table',{exact:true}).click();const form=gm.page.locator('[data-form="create"]');await form.locator('[name="name"]').fill('Cantina navigateur');await form.locator('[name="location"]').fill('Salon test');
+  const created=await clickCommand(gm.page,'[data-form="create"] button','sabaccCreate');await expect(gm.page.locator('[data-status="OPEN"]')).toBeVisible();await clickCommand(gm.page,'[data-status="OPEN"]','sabaccStatus');
+  const url=`/sabacc/?table=${created.tableId}&key=${created.qrToken}`;
+  for(const [i,p]of [[1,one],[2,two]]){await command(p.page,tokens[i],'sabaccProfile',{name:i===1?'Alpha Sabacc':'Bravo Sabacc'});await p.page.goto(url);await expect(p.page.locator(`[data-seat="${i-1}"]`)).toBeVisible();await clickCommand(p.page,`[data-seat="${i-1}"]`,'sabaccJoin');}
+  let state=await command(gm.page,tokens[0],'sabaccHome');const t=state.tables.find(t=>t.id===created.tableId);for(const s of t.seats){const d=await command(gm.page,tokens[0],'sabaccTable',{tableId:t.id,qrToken:t.qrToken});await command(gm.page,tokens[0],'sabaccGrant',{tableId:t.id,revision:d.table.revision,playerId:s.playerId,amount:500,reason:'Recette navigateur'});}
+  await expect(one.page.locator('[data-ready="true"]')).toBeEnabled();await clickCommand(one.page,'[data-ready="true"]','sabaccReady');await expect(two.page.locator('[data-ready="true"]')).toBeEnabled();await clickCommand(two.page,'[data-ready="true"]','sabaccReady');
+  for(const p of [one,two]){await p.page.getByRole('button',{name:'Ma main',exact:true}).click();await expect(p.page.locator('.cards .card')).toHaveCount(2);}
+  const d1=await command(one.page,tokens[1],'sabaccTable',{tableId:t.id,qrToken:t.qrToken}),d2=await command(two.page,tokens[2],'sabaccTable',{tableId:t.id,qrToken:t.qrToken}),director=await command(gm.page,tokens[0],'sabaccTable',{tableId:t.id,qrToken:t.qrToken});expect(director.cards).toEqual([]);expect(d1.cards.map(c=>c.id).some(id=>d2.cards.some(c=>c.id===id))).toBe(false);expect(JSON.stringify(d1)).not.toContain('"deck"');
+  const active=d1.canAct?one:two;await active.page.locator('[data-card]').first().click();await active.page.getByRole('button',{name:'Règles',exact:true}).click();await expect(active.page.getByRole('heading',{name:'Classement des mains'})).toBeVisible();await active.page.getByRole('button',{name:'Ma main',exact:true}).click();await expect(active.page.locator('[data-card][aria-pressed="true"]')).toHaveCount(1);await clickCommand(active.page,'[data-move="GAIN"]','sabaccPlay');await expect(active.page.locator('.cards .card')).toHaveCount(3);
+  await active.page.setViewportSize({width:390,height:844});expect(await active.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await capture(active.page,info,'sabacc-main-mobile-fictive');
+  await gm.page.reload();await gm.page.getByRole('button',{name:'Régie MJ'}).click();await clickCommand(gm.page,'[data-status="PAUSED"]','sabaccStatus');await gm.page.locator(`[data-qr="${t.id}"]`).click();await expect(gm.page.locator('#qr-image')).toBeVisible();await capture(gm.page,info,'sabacc-regie-qr-fictif');await gm.page.locator('#close-qr').click();
+  await one.context.setOffline(true);await one.page.getByRole('button',{name:'Règles',exact:true}).click();await expect(one.page.getByRole('heading',{name:'Les règles du Sabacc'})).toBeVisible();await one.context.setOffline(false);
+  gm.page.once('dialog',dialog=>dialog.accept());await gm.page.locator('[data-form="emergency"] [name="reason"]').fill('Fin de recette');await clickCommand(gm.page,'[data-form="emergency"] [value="cancel"]','sabaccCancel');
+  const refunded=await command(one.page,tokens[1],'sabaccTable',{tableId:t.id,qrToken:t.qrToken});expect(refunded.self.balance).toBe(500);expect(refunded.hand.phase).toBe('CANCELLED');
+});
