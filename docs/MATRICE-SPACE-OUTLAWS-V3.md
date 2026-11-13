@@ -1,5 +1,9 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+## Interface QR et état joueur — 13 novembre 2026
+
+[Changements et limites](SO-PLAYER-QR-HEALTH.md) : scanner intégré et ID manuels, crédits disponibles, contrôles descendants PV/protection distincts, navigation allégée. Tests ciblés et compilation locaux ; recette caméra et visuelle non exécutée, lancement du navigateur bloqué par l’environnement. Aucune publication de cette tranche.
+
 ## Cockpit connecté — candidat du 12 novembre 2026
 
 [Parcours et limites](SO-COCKPIT-CONNECTE.md) : demande de départ après préparation, notification dans la régie ouverte, poste exclusif affecté par le MJ, pilote authentifié sur le cockpit, départ et ordres de combat natifs. Vérification atomique de l’affectation et des commandes ; vols parallèles, révocation et réaffectation. Tests ciblés et compilation réussis ; CI exacte et recette humaine distinctes. Pas de publication de cette tranche. Convois liés et autres postes spécialisés restent hors de ce premier raccordement.

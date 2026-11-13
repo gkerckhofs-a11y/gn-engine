@@ -3,9 +3,11 @@ export const knowledgeKinds={KNOWLEDGE:'Connaissance',CLUE:'Indice',DOCUMENT:'Do
 const date=value=>new Date(value).toLocaleString('fr-FR');
 const checks=(name,selected,characters)=>characters.map(c=>`<label class="check"><input type="checkbox" name="${name}" value="${esc(c.id)}" ${selected.includes(c.id)?'checked':''}>${esc(c.public.displayName)}</label>`).join('');
 export function badgeRecipient(value,origin,sessionId){
+  value=String(value??'').trim();
+  if(/^[A-Za-z0-9_-]{1,128}$/.test(value))return value;
   let u;try{u=new URL(value);}catch{throw new Error('Collez le lien complet du badge public.');}
   const match=/^#\/badge\/([A-Za-z0-9_-]{1,128})\/([A-Za-z0-9_-]{1,128})$/.exec(u.hash);
-  if(u.origin!==origin||u.pathname!=='/'||!match||match[1]!==sessionId)throw new Error('Ce lien doit être un badge public de cette session.');
+  if(u.origin!==origin||u.pathname!=='/'||u.search||u.username||u.password||!match||match[1]!==sessionId)throw new Error('Ce lien doit être un badge public de cette session.');
   return match[2];
 }
 export function createKnowledgeUi({button,link,pill,input,textarea}){

@@ -13,7 +13,7 @@ test('Navigation joueur : les quatre entrées restent présentes, une seule acti
   assert.equal((nav.match(/<a /g)??[]).length,4);assert.equal((nav.match(/aria-current="page"/g)??[]).length,1);
   assert.ok(nav.includes(`href="#/${page}/s1" aria-current="page"`));assert.equal(playerRoute(page,'s1').space,space);
   for(const label of ['Identité','News','Action','Terminal'])assert.ok(nav.includes(label));
-  assert.ok(html.includes('Mon QR'));assert.ok(html.includes('Niveau <strong>2</strong>'));assert.ok(html.includes('5 / 8 PA'));assert.ok(html.includes('2 / 3 PV'));assert.ok(html.includes('pause'));
+  assert.ok(html.includes('Mon QR'));assert.ok(html.includes('Niveau <strong>2</strong>'));assert.ok(html.includes('5 / 8 PA'));assert.ok(html.includes('2 / 3 PV'));assert.ok(!html.includes('Renouvellement :'));assert.ok(html.includes('ID : <strong>c1</strong>'));
   assert.ok(html.includes('player-name">Bela &lt;Venn&gt;</strong>'));assert.ok(html.includes('player-profession">Pilote &amp; navigatrice</span>'));assert.ok(!html.includes('Session &lt;secrète&gt;'));assert.ok(!html.includes('<Venn>'));
  }
 });
