@@ -1,3 +1,4 @@
+import {validToxiRecipe} from './space-toxicology.mjs';
 import {centralLocationDiagnostics,centralLocationReferences} from './central-field-targets.mjs';
 import {validateRecipeItem} from './recipe-state.mjs';
 
@@ -31,10 +32,10 @@ export function centralRecipeProjection(changes,itemChanges,knowledgeChanges=nul
    else if(target.operation!=='UPSERT')add(c,'unlockKnowledgeId',r.unlockKnowledgeId,'REFERENCE_ARCHIVED','Restaurer cette connaissance dans M6 ou changer la référence.');
   }
   diagnostics.push(...centralLocationDiagnostics(c,'laboratoryTargetId',r.laboratoryTargetId,knowledgeChanges,true).map(d=>({...d,...(c.provenance?{fileName:c.provenance.fileName,sheet:c.provenance.sheet,row:c.provenance.row,column:columns.laboratoryTargetId}:{})})));
-  if(r.laboratoryTargetId)add(c,'laboratoryTargetId',r.laboratoryTargetId,'LABORATORY_AUTHORIZATION_PENDING','Lieu référencé seulement : habilitation du laboratoire et QR de fabrication restent à raccorder.');
+  if(r.laboratoryTargetId&&!validToxiRecipe(r))add(c,'laboratoryTargetId',r.laboratoryTargetId,'LABORATORY_AUTHORIZATION_PENDING','Lieu référencé seulement : habilitation du laboratoire et QR de fabrication restent à raccorder.');
   for(const field of ['skillId','effectId']){
-   if(r[field])add(c,field,r[field],'REFERENCE_PENDING','Référence conservée ; son contrôle central et son activation restent à raccorder.');
-   else add(c,field,null,'REFERENCE_REQUIRED','Préparer cette référence avant le futur contrôle global.');
+   if(r[field]&&!validToxiRecipe(r))add(c,field,r[field],'REFERENCE_PENDING','Référence conservée ; son contrôle central et son activation restent à raccorder.');
+   else if(!r[field])add(c,field,null,'REFERENCE_REQUIRED','Préparer cette référence avant le futur contrôle global.');
   }
  }
  return {references:{...centralLocationReferences(knowledgeChanges),itemsReadable:itemChanges!==null,items:items.map(c=>({id:c.entityId,name:c.data.name,kind:c.data.kind,consumable:c.data.consumable,unit:c.data.unit,laserRecharge:!!c.data.laserRecharge,archived:c.operation!=='UPSERT',revision:c.data.revision,source:c.source})),

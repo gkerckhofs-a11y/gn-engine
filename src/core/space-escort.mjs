@@ -1,3 +1,4 @@
+import {activeMalaise} from './space-toxicology-state.mjs';
 import {requireThat,documentId,whole} from './validation.mjs';
 import {admissionKeys,admissionText} from './admission-state.mjs';
 import {inventoryHash as hash} from './inventory-state.mjs';
@@ -89,7 +90,7 @@ export async function escortCommand(tx,s,c,ctx,input,at,id,actor,action){
  requireThat(!s.safetyStop?.active&&s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireThat(open(c)&&escortFuelRemaining(c)>0,'SO_ESCORT_FUEL_CLOSED');
  const t=c.terms.escort,ship=await tx.get(`${base(s)}/ships/${t.shipId}`),source=await tx.get(`${base(s)}/accounts/${c.sourceAccountId}`);moneyState(source);requireThat(source.reserved>=escortFuelRemaining(c),'INVALID_ACCOUNT');
  requireThat(!ship?.operation?.escortContractId,'SPACE_SHIP_BUSY');
- if(!admin)requireThat(ship?.ownerId===c.characterId&&ship.pilotId===ctx.c.id&&idle(ship)&&ship.portId===t.fromPort&&!ctx.c.activeNavigationId&&!ctx.c.activeVoyageId&&!ctx.c.activeFieldActionId&&!ctx.c.activePersonActionId&&!ctx.c.activeCargoId&&!ctx.c.activeMaintenanceId&&!ctx.c.activeAidId&&ctx.c.hp>0&&!ctx.c.outOfCombat&&!ctx.c.survival?.dead&&!(ctx.c.convalescentUntilGameMs>gameTime(s.clock,at)),'SO_ESCORT_SHIP');
+ if(!admin)requireThat(ship?.ownerId===c.characterId&&ship.pilotId===ctx.c.id&&idle(ship)&&ship.portId===t.fromPort&&!ctx.c.activeNavigationId&&!ctx.c.activeVoyageId&&!ctx.c.activeFieldActionId&&!ctx.c.activePersonActionId&&!ctx.c.activeCargoId&&!ctx.c.activeMaintenanceId&&!ctx.c.activeAidId&&ctx.c.hp>0&&!activeMalaise(s,ctx.c,at)&&!ctx.c.outOfCombat&&!ctx.c.survival?.dead&&!(ctx.c.convalescentUntilGameMs>gameTime(s.clock,at)),'SO_ESCORT_SHIP');
  let result,next,lot,offer,quantity,reason,guard=[];
  if(release){reason=admissionText(input.reason,2000,true);result={released:escortFuelRemaining(c),reason};next={...c,escortFuel:{...c.escortFuel,remaining:0,released:(c.escortFuel.released??0)+escortFuelRemaining(c),closedAt:at}};}
  else{

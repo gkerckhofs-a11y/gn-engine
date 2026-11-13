@@ -160,6 +160,7 @@ export function createKnowledgeService({store,signed,checkSession,checkScenario,
       }
       const previous=await tx.get(operationPath);
       if(s?.spaceOutlaws)authorizeSpaceOutlaws(tx,s,'KNOWLEDGE');
+      if(action==='grantKnowledge'&&parent?.spaceOutlaws)authorizeSpaceOutlaws(tx,parent,'KNOWLEDGE');
       if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');return previous.result;}
       let result,audit={id:newId,action,at,actorUid:actor.uid};
       if(action==='saveKnowledge'||action==='saveSessionKnowledge'){

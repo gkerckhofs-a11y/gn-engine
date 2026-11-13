@@ -18,7 +18,7 @@ export const hasSoEpisodes=s=>s?.spaceOutlaws?.episodesVersion===1;
 const hash=v=>createHash('sha256').update(v).digest('hex');
 // Runtime collections of the connected SO services. Global request receipts and
 // invitations stay attached to their original session; histories retain IDs.
-const roots=['inf01Actions','inf02Actions','forgeryRecords','inf03Actions','medicalDossiers','knowledgeDeals','characters','registrations','groups','knowledge','skills','classes','items','accounts','inventory','masterRows','fieldTargets','fieldStates','personProfiles','warehouses','ships','routes','commodityPrices','priceEvents','cargoTariffs','recipes','shops','shopProvisions','shipModels','ports','missions','announcements','applications','contracts','lotSales','lotTransfers','marketListings','bounties','fieldActions','personActions','aidOffers','cargoTransfers','voyages','spaceAmbushes','spaceCombats','spaceRescues','shipMaintenance','ledger','logisticsHistory','audit'];
+const roots=['toxicDoses','inf01Actions','inf02Actions','forgeryRecords','inf03Actions','medicalDossiers','knowledgeDeals','characters','registrations','groups','knowledge','skills','classes','items','accounts','inventory','masterRows','fieldTargets','fieldStates','personProfiles','warehouses','ships','routes','commodityPrices','priceEvents','cargoTariffs','recipes','shops','shopProvisions','shipModels','ports','missions','announcements','applications','contracts','lotSales','lotTransfers','marketListings','bounties','fieldActions','personActions','aidOffers','cargoTransfers','voyages','spaceAmbushes','spaceCombats','spaceRescues','shipMaintenance','ledger','logisticsHistory','audit'];
 const children={medicalDossiers:['history'],registrations:['successionHistory'],characters:['diagnoses','history','knowledge','healthHistory','mediaHistory'],items:['mediaHistory'],ships:['mediaHistory'],fieldTargets:['history'],inventory:['history','mediaHistory'],accounts:['history'],shops:['offers'],announcements:['history','mediaHistory'],applications:['messages'],contracts:['history'],bounties:['history','claims'],spaceCombats:['rounds','boardings'],groups:['updates','history']};
 const limits={records:5000,bytes:6*1024*1024};
 export async function readSoEpisode(tx,s){
@@ -69,7 +69,7 @@ export function soClosure(s,data,input,at){
  block('CARGO_TRANSFER',data.cargoTransfers.filter(t=>t.status==='LOADING'));
  block('SHIP_OPERATION',data.ships.filter(sh=>sh.operation||sh.rescueId||sh.maintenanceId));
  block('CHARACTER_OPERATION',data.characters.filter(c=>c.activeFieldActionId||c.activePersonActionId||c.activeAidId||c.activeNavigationId||c.activeMaintenanceId||c.activeCargoId));
- block('RESERVED_STOCK',data.inventory.filter(l=>['FIELD_RESERVED','CARGO_RESERVED','RESERVED'].includes(l.status)));
+ block('RESERVED_STOCK',data.inventory.filter(l=>['FIELD_RESERVED','CARGO_RESERVED','RESERVED'].includes(l.status)&&!(s.spaceOutlaws.toxicologyVersion===1&&l.status==='FIELD_RESERVED'&&l.fieldActionId==='DOSE:'+l.id&&data.toxicDoses.some(d=>d.id===l.id&&d.status==='PLACED'))));
  // PIL-03 / ESC-01 orders may reserve PA across the frozen round. Every other action
  // must be completed/cancelled through its own service before closure.
  for(const c of data.characters){
@@ -176,7 +176,7 @@ export function soEpisodeEntries(data,source,s,actor,at){
  const entries=new Map(data.entries.map(e=>[e.path,structuredClone(e.data)])),put=(path,value)=>entries.set(path,value);
  for(const c of data.characters){
   const r=data.registrations.find(r=>r.uid===c.assignedUid),level=r?(r.progression?.completedSessions>=4?2:1):c.globalLevel;
-  const next={...c,sessionId:s.id,globalLevel:level,convalescentUntilGameMs:0,...(c.concealment?{concealment:null}:{}),...(c.lootEncounter?{lootEncounter:null}:{})};put(`characters/${c.id}`,next);
+  const next={...c,sessionId:s.id,globalLevel:level,convalescentUntilGameMs:0,...(c.toxicology?.status==='ACTIVE'?{toxicology:{...c.toxicology,status:'EXPIRED',expiredBetweenSessions:true}}:{}),...(c.concealment?{concealment:null}:{}),...(c.lootEncounter?{lootEncounter:null}:{})};put(`characters/${c.id}`,next);
   const path=`characters/${c.id}/resources/actionPoints`,old=actionPointState(source,c,entries.get(path),source.campaignClosedAt),max=actionPointMaximum(s.actionPointRules,next);
   put(path,{...old,available:max-old.reserved,lastRefillGameMs:s.clock.elapsedMs,revision:old.revision+1});
  }

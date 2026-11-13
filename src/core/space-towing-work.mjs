@@ -1,3 +1,4 @@
+import {malaiseAt} from './space-toxicology-state.mjs';
 import {createTowingRecoveryService,towingRecoveryActions,towingRecoveryDesk} from './space-towing-recovery.mjs';
 import {isDeepStrictEqual} from 'node:util';
 import {documentId,requireThat,DomainError} from './validation.mjs';
@@ -22,7 +23,7 @@ const reads=new Set(['towingDesk','towingDeskAdmin','prepareTowingAttachment','p
 const admins=new Set(['towingDeskAdmin','releaseTowingAttachmentAdmin','prepareTowingWork','offerTowingWork','towingWorkAdmin','cancelTowingWorkAdmin']);
 const open=r=>['TOWING_OFFERED','TOWING_APPROVED','TOWING_ACTIVE','TOWING_ATTACHED'].includes(r.status);
 const free=sh=>sh?.enabled&&!sh.towingAttachment&&sh.docked&&sh.soProfile&&!sh.journey&&!sh.operation&&!sh.combatId&&!sh.rescueId&&!sh.maintenanceId&&!sh.ambushId&&!sh.convoy&&!sh.convoyOffer;
-const fit=(c,time)=>c?.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeVoyageId&&!c.activeNavigationId&&!c.activeMaintenanceId&&!c.activeCargoId&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&!(c.convalescentUntilGameMs>time);
+const fit=(c,time)=>c?.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeVoyageId&&!c.activeNavigationId&&!c.activeMaintenanceId&&!c.activeCargoId&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&!(c.convalescentUntilGameMs>time)&&!malaiseAt(c,time);
 const local=(s,c,sh)=>(c.spacePortId??s.transportRules?.homePort)===sh.portId;
 
 const audience=(admin,c,version,r,ship,wreck)=>admin||r.binding.owners.some(o=>o.id===c?.id&&o.version===version&&[ship?.ownerId,wreck?.ownerId].includes(c.id))||c?.id===r.binding.technicianId&&version===r.binding.technicianVersion;

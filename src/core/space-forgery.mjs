@@ -1,3 +1,4 @@
+import {activeMalaise} from './space-toxicology-state.mjs';
 import {createHash,randomInt} from 'node:crypto';
 import {abilityLevel} from './abilities.mjs';
 import {actionPointPath,actionPointState,actionPointMaximum,reserveActionPoints,resolveActionPoints,releaseActionPoints} from './action-point-state.mjs';
@@ -29,10 +30,10 @@ export function createSoForgeryService({store,signed,checkSession,now,uuid,rollD
   requireThat(c?.assignedUid===actor.uid&&c.publicationState==='PUBLISHED'&&c.public?.publicationState==='PUBLISHED','FORBIDDEN');
   return {s,c,r};
  }
- const live=(s,c)=>{
+ const live=(s,c,at)=>{
   requireThat(s.stage==='EN_JEU'&&s.clock?.runningSince!==null,'SESSION_NOT_RUNNING');
   requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
-  requireThat(!c.survival?.dead&&c.hp>0&&!c.outOfCombat,'SO_INF03_UNAVAILABLE');
+  requireThat(!c.survival?.dead&&c.hp>0&&!c.outOfCombat&&!activeMalaise(s,c,at),'SO_INF03_UNAVAILABLE');
  };
  async function cancel(tx,s,c,state,field,a,at,moderation=null){
   const sid=s.id,aid=a.id;
@@ -127,7 +128,7 @@ export function createSoForgeryService({store,signed,checkSession,now,uuid,rollD
    authorizeSpaceOutlaws(tx,s,'INF03');
    const record=result=>{tx.set(op,{fingerprint,result,at,characterId:c.id,accessVersion:r.accessVersion});return result;};
    if(action==='startSoForgery'){
-    live(s,c);requireThat(input.present===true,'SO_INF03_PRESENCE');
+    live(s,c,at);requireThat(input.present===true,'SO_INF03_PRESENCE');
     requireThat(level>=target.forgery.minLevel,'SO_INF03_SKILL');
     requireThat(!state.activeId&&time>=state.cooldownUntil,'SO_INF03_COOLDOWN');
     requireThat(field.status==='ONLINE'&&!field.activeActionId,'SO_INF03_BUSY');
@@ -173,7 +174,7 @@ export function createSoForgeryService({store,signed,checkSession,now,uuid,rollD
    const unlock=()=>{tx.set(characterPath(sid,c.id),{...c,activeFieldActionId:null});
     tx.set(actorPath(sid,c.id),{...state,activeId:null});
     tx.set(statePath(sid,tid),{...field,activeActionId:null,revision:field.revision+1});};
-   live(s,c);requireThat(time>=a.readyAtGameMs,'SO_INF03_TOO_EARLY');
+   live(s,c,at);requireThat(time>=a.readyAtGameMs,'SO_INF03_TOO_EARLY');
    requireThat(input.present===true,'SO_INF03_PRESENCE');
    requireThat(target.revision===a.targetRevision&&field.status==='ONLINE','SO_INF03_STALE');
    requireThat(level>=a.level,'SO_INF03_SKILL');roll??=rollD6();

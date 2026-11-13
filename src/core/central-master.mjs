@@ -437,7 +437,7 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
      if(input.item.laserRecharge!=null)keys(input.item.laserRecharge,['pelletsPerUnit']);
      data=itemInput({...input.item,publicationState:'DRAFT'},id,old?.data);
     }else if(action==='saveCentralRecipe'){
-     keys(input.recipe,['name','description','kind','minLevel','skillId','productItemId','effectId','laboratoryTargetId','unlockKnowledgeId','components','indicativePrice','gmNotes']);
+     keys(input.recipe,['compatibleRecipeIds','name','description','kind','minLevel','skillId','productItemId','effectId','laboratoryTargetId','unlockKnowledgeId','components','indicativePrice','gmNotes']);
      requireThat(Array.isArray(input.recipe.components),'INVALID_RECIPE');
      for(const component of input.recipe.components)keys(component,['itemId','quantity']);
      data=recipeInput({...input.recipe,publicationState:'DRAFT',masterArchived:false},id,old?.data);

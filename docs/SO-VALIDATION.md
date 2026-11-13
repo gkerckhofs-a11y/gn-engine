@@ -1,5 +1,7 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+Complément toxicologie du 13 novembre 2026 : [périmètre, preuves et limites P](SO-COMPETENCES-V07-CLOTURE.md#p--toxicologie--doses-malaise-et-antidotes-13-novembre-2026). Fabrication et traitement natifs, doses volontaires, malaise et diagnostic N3 raccordés sur branche. Tests locaux et émulateurs réussis ; CI, intégration, publication et terrain restent distincts. Aucun déploiement de ce lot.
+
 Suivi de clôture V0.7 du 13 novembre 2026 : [matrice unique des 34 capacités](SO-COMPETENCES-V07-CLOTURE.md). Les états historiques ci-dessous sont conservés ; ils ne remplacent pas la nouvelle preuve par compétence.
 
 ## Terminal personnel — 13 novembre 2026

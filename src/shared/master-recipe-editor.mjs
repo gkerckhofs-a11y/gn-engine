@@ -12,4 +12,4 @@ export const recipeEditor={sheet:'Recettes',title:'Recettes & Potions — brouil
  {name:'prix_indicatif',label:'Prix indicatif en brouillon',type:'number',min:0,clear:true,help:'Aucun cours, crédit ou prix de vente n’est modifié.'},
  {name:'publication',label:'Publication',choices:[['DRAFT','Brouillon uniquement']],initial:'DRAFT'},
  {name:'notes_mj',label:'Notes réservées aux organisateurs',type:'textarea',clear:true,max:10000},
- ],note:'Préparation privée des recettes dans le Master commun. TOXI-01 prévoit une dose, 1 PA, 5 minutes de jeu et 10 minutes de récupération. La fabrication, les déblocages et les effets sur cible ne sont pas encore disponibles : aucune recette ne peut être publiée dans cette tranche.'};
+ ],note:'Préparation privée des recettes dans le Master commun. TOXI-01 prévoit une dose, 1 PA, 5 minutes de jeu et 10 minutes de récupération. Malaise et antidotes compatibles se configurent dans M4 puis passent le contrôle de publication commun. La formule doit être connue en jeu ; le laboratoire doit être équipé. Les effets scénarisés non définis restent fermés.'};

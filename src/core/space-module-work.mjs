@@ -1,3 +1,4 @@
+import {activeMalaise} from './space-toxicology-state.mjs';
 import {hasCompleteTowing} from './space-module-flight.mjs';
 import {hasHiddenCargo} from './space-hidden-cargo.mjs';
 import {isDeepStrictEqual} from 'node:util';
@@ -30,7 +31,7 @@ export function createModuleWorkService({store,signed,checkSession,now,uuid}){
    const ship=await tx.get(`${base}/ships/${r.shipId}`),lot=await tx.get(`${base}/inventory/${r.lotId}`),tech=await inventoryParty(tx,s.id,r.technicianId),owner=await inventoryParty(tx,s.id,r.ownerId);
    requireThat(admin||c.id===r.ownerId&&version===r.ownerVersion&&ship?.ownerId===c.id||c.id===r.technicianId&&version===r.technicianVersion,'FORBIDDEN');
    const starting=['prepareModuleWorkStart','startModuleWork'].includes(action),cancel=action.startsWith('cancel');
-   if(starting||finishing)requireThat(c.id===r.technicianId&&version===r.technicianVersion&&tech.active&&owner.active&&owner.version===r.ownerVersion&&ship?.ownerId===r.ownerId&&c.hp>0&&!c.outOfCombat&&!c.survival?.dead&&owner.c.hp>0&&!owner.c.outOfCombat&&!owner.c.survival?.dead,'FORBIDDEN');
+   if(starting||finishing)requireThat(c.id===r.technicianId&&version===r.technicianVersion&&tech.active&&owner.active&&owner.version===r.ownerVersion&&ship?.ownerId===r.ownerId&&c.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!activeMalaise(s,c,at)&&owner.c.hp>0&&!owner.c.outOfCombat&&!owner.c.survival?.dead,'FORBIDDEN');
    requireThat(r.moduleWorkVersion===undefined||r.moduleWorkVersion===1,'MODULE_WORK_CLOSED');
    if(finishing)requireThat(navigationSkill(c,'MEC-03')>=r.install.level,'MODULE_TECH_REQUIRED');
    const stored=tech.c?await tx.get(actionPointPath(s.id,r.technicianId)):null,points=tech.c?actionPointState(s,tech.c,stored,at):null;

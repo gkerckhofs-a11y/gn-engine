@@ -1,3 +1,4 @@
+import {activeMalaise} from './space-toxicology-state.mjs';
 import {activeConcealment} from './space-person-loot.mjs';
 import {createHash} from 'node:crypto';
 import {admissionIdentity} from './admission-state.mjs';
@@ -41,10 +42,10 @@ export function createSoPickpocketService({store,signed,now,uuid}){
   return {s,c,r};
  }
  const levelOf=c=>Math.min(5,abilityLevel(c,'ROG-02'));
- const validateGame=(s,c)=>{
+ const validateGame=(s,c,at)=>{
   requireThat(s.stage==='EN_JEU'&&s.clock?.runningSince!==null,'SESSION_NOT_RUNNING');
   requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
-  requireThat(!c.survival?.dead&&c.hp>0&&!c.outOfCombat,'SO_PICKPOCKET_UNAVAILABLE');
+  requireThat(!c.survival?.dead&&c.hp>0&&!c.outOfCombat&&!activeMalaise(s,c,at),'SO_PICKPOCKET_UNAVAILABLE');
  };
  async function stocked(tx,sid,targetId,at){
   const s=await tx.get(prefix(sid)),target=await tx.get(characterPath(sid,targetId)),lots=await tx.list(prefix(sid)+'/inventory',['holderId',targetId]);
@@ -111,7 +112,7 @@ export function createSoPickpocketService({store,signed,now,uuid}){
    const requestId=documentId(input.requestId),op='operations/'+hash(actor.uid+':'+requestId),fingerprint=hashInput(action,input);
    const prior=await tx.get(op);
    if(prior){requireThat(prior.fingerprint===fingerprint,'REQUEST_ID_REUSED');return prior.result;}
-   validateGame(s,c);
+   validateGame(s,c,at);
    authorizeSpaceOutlaws(tx,s,'PICKPOCKET');
    const record=(result)=>{tx.set(op,{fingerprint,result,at});return result;};
    if(action==='startSoPickpocket'){

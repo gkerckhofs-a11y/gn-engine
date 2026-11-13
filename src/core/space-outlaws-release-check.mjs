@@ -1,3 +1,4 @@
+import {validToxiRecipe} from './space-toxicology.mjs';
 import {validSoInstallation} from '../shared/space-installation.mjs';
 import {requireThat} from './validation.mjs';
 import {campaignPagesFor,campaignLimits} from './campaigns.mjs';
@@ -5,7 +6,7 @@ import {soGroupDefinitionBlockers} from './space-outlaws-group-state.mjs';
 import {shopBlockers,moduleOfferValid} from './space-outlaws-shop-state.mjs';
 import {isPlaceSearch} from './space-outlaws-search-state.mjs';
 
-const supported=new Set(['group','speciesCatalogue','item','classKit','character','knowledge','fieldTarget','shop','offer','shipModel','port','route','mission']);
+const supported=new Set(['recipe','group','speciesCatalogue','item','classKit','character','knowledge','fieldTarget','shop','offer','shipModel','port','route','mission']);
 
 // Checks the configuration needed for a new game, independently of existing sessions.
 export function soReleaseDefinitionChecks(changes){
@@ -23,8 +24,13 @@ export function soReleaseDefinitionChecks(changes){
   for(const id of t.data.intrusion.bonusItemIds??[]){const item=active.find(c=>c.type==='item'&&c.entityId===id);if(!item||item.data.consumable||item.data.shipModule)blockers.push({code:'SO_INF01_ITEM',detailField:'intrusion.bonusItemIds',changeId:t.id,entityId:t.entityId,message:'Le matériel compatible doit être un équipement M1 non consommable, hors module de vaisseau.'});}
   const need=t.data.intrusion.consumable;if(need){const item=active.find(c=>c.type==='item'&&c.entityId===need.itemId);if(!item?.data.consumable||item.data.shipModule||item.data.kind==='INDIVIDUAL'&&need.quantity!==1)blockers.push({code:'SO_INF01_ITEM',detailField:'intrusion.consumable',changeId:t.id,entityId:t.entityId,message:'Préparer un consommable M1 compatible et sa quantité exacte.'});}
  }
+ for(const ch of active.filter(c=>c.type==='recipe')){
+  const r=ch.data,lab=targets.find(t=>t.entityId===r.laboratoryTargetId)?.data,product=active.find(c=>c.type==='item'&&c.entityId===r.productItemId)?.data;
+  if(!validToxiRecipe(r)||!lab?.laboratory||!validSoInstallation(lab)||!product?.consumable||product.shipModule||product.laserRecharge||!knowledge.some(k=>k.entityId===r.unlockKnowledgeId)||r.components.some(n=>{const it=active.find(c=>c.type==='item'&&c.entityId===n.itemId)?.data;return !it?.consumable||it.shipModule||it.laserRecharge||it.kind==='INDIVIDUAL'&&n.quantity!==1;})||(r.compatibleRecipeIds??[]).some(id=>!active.some(c=>c.type==='recipe'&&c.entityId===id&&c.data.kind==='MALAISE'&&validToxiRecipe(c.data))))blockers.push({code:'SO_TOXI_RECIPE',detailField:'recipe',changeId:ch.id,entityId:ch.entityId,message:'Préparer une recette TOXI-01 de malaise biologique ou son antidote compatible, avec laboratoire habilité, connaissance et consommables valides. Les autres effets scénarisés restent fermés.'});
+ }
+ if(active.filter(c=>c.type==='recipe').length>100)blockers.push({code:'SO_TOXI_RECIPE',entityId:'M4',message:'Limiter cette version à cent recettes préparées.'});
  const maxInitial=Math.max(0,...active.filter(ch=>ch.type==='character').map(ch=>knowledge.filter(k=>Array.isArray(k.data?.initialCharacterIds)&&k.data.initialCharacterIds.includes(ch.entityId)).length));
- if(knowledge.length+2*targets.length+maxInitial+active.filter(ch=>['group','shop','offer','shipModel','port','route','item','mission'].includes(ch.type)).length>440)blockers.push({code:'SO_RUNTIME_LIMIT',entityId:'M6',message:'Trop de définitions et informations initiales pour une activation atomique (440 écritures de définitions maximum). Réduire la version de départ.'});
+ if(knowledge.length+2*targets.length+maxInitial+active.filter(ch=>['recipe','group','shop','offer','shipModel','port','route','item','mission'].includes(ch.type)).length>440)blockers.push({code:'SO_RUNTIME_LIMIT',entityId:'M6',message:'Trop de définitions et informations initiales pour une activation atomique (440 écritures de définitions maximum). Réduire la version de départ.'});
  return {groupAndShop:[...groups,...shopBlockers(changes)],definitions:blockers};
 }
 

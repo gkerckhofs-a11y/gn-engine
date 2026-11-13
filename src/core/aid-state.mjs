@@ -1,3 +1,4 @@
+import {activeMalaise} from './space-toxicology-state.mjs';
 import {createHash} from 'node:crypto';
 import {documentId,requireThat} from './validation.mjs';
 import {abilityLevel} from './abilities.mjs';
@@ -32,7 +33,7 @@ export async function checkAid(tx,s,a,at){
  if(!a.aid)return;
  const helper=await activeCharacter(tx,s.id,a.aid.characterId),offer=await tx.get(`sessions/${s.id}/aidOffers/${a.aid.offerId}`);
  requireThat(helper.c.assignedUid===a.aid.uid&&helper.r.accessVersion===a.aid.accessVersion&&helper.c.activeFieldActionId===a.id&&offer?.status==='ACTIVE','AID_UNAVAILABLE');
- requireThat(!(s.healthRules?.enabled&&(helper.c.hp===0||helper.c.outOfCombat))&&!(helper.c.convalescentUntilGameMs>gameTime(s.clock,at)),'OUT_OF_COMBAT');
+ requireThat(!activeMalaise(s,helper.c,at)&&!(s.healthRules?.enabled&&(helper.c.hp===0||helper.c.outOfCombat))&&!(helper.c.convalescentUntilGameMs>gameTime(s.clock,at)),'OUT_OF_COMBAT');
  requireThat(abilityLevel(helper.c,a.profile.skillId)>=a.profile.minLevel,'FIELD_SKILL_REQUIRED');for(const req of a.profile.prerequisites??[])requireThat(abilityLevel(helper.c,req.skillId)>=req.minLevel,'FIELD_SKILL_REQUIRED');
 }
 export const aidSnapshot=aid=>aid?{offerId:aid.offer.id,characterId:aid.character.id,name:aid.character.public.displayName,uid:aid.character.assignedUid,accessVersion:aid.accessVersion}:null;

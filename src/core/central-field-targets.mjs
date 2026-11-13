@@ -5,7 +5,7 @@ import {analysisProfile} from '../shared/space-outlaws-analysis.mjs';
 import {isPlaceSearch} from './space-outlaws-search-state.mjs';
 import {initialSkillIds} from '../shared/initial-character-profile.mjs';
 
-const fields=['documentOnly','kind','title','description','gmNotes','forgery','intrusion','profiles','rewards','dependencyId','offlineSeconds','failureLockSeconds','repairProtectionSeconds','searchVersion','search','finds'];
+const fields=['laboratory','documentOnly','kind','title','description','gmNotes','forgery','intrusion','profiles','rewards','dependencyId','offlineSeconds','failureLockSeconds','repairProtectionSeconds','searchVersion','search','finds'];
 const profileFields=['skillId','minLevel','instructions','durationSeconds','durationByLevel','test','threshold','cost','cooldownSeconds','bonusItems','consumable','successText','failureText'];
 const keys=(v,allowed)=>requireThat(v&&typeof v==='object'&&!Array.isArray(v)&&Object.keys(v).every(k=>allowed.includes(k)),'INVALID_CENTRAL_FIELD_TARGET');
 export const centralFieldTargetBytes=96*1024;

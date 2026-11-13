@@ -1,3 +1,4 @@
+import {toxicologyReads,toxicologyWrites,doseCommand} from './space-toxicology.mjs';
 import {acceptsPatientNature} from '../shared/character-nature.mjs';
 import {abilityLevel} from './abilities.mjs';
 import {retireCharacterMemberships} from './group-roster.mjs';
@@ -26,7 +27,7 @@ const available=(skill,use,time)=>({used:use?.used??0,remaining:skill.healing.us
 const patientPath=(sid,cid)=>`${charPath(sid,cid)}/cooldowns/field-care`;
 const projectEvent=e=>({id:e.id,kind:e.kind,at:e.at,sourceName:e.sourceName??'',targetName:e.targetName??'',skillName:e.skillName??'',before:e.before,after:e.after,restored:e.restored??null,consumable:e.consumable?{name:e.consumable.name,quantity:e.consumable.quantity,unit:e.consumable.unit}:null});
 const writes=new Set(['recordStealthAttempt','saveScenarioHealth','saveSessionHealth','correctHealth','applyDamage','applyTreatment','stopSafety','stopSafetyMJ','resumeSafety','confirmSurvivalDeath']);
-export const healthAction=a=>writes.has(a)||['myStealthAttempts','myHealth','previewHealth','healthHistory','prepareDamage','prepareTreatment','survivalAdmin'].includes(a);
+export const healthAction=a=>writes.has(a)||toxicologyReads.includes(a)||toxicologyWrites.includes(a)||['myStealthAttempts','myHealth','previewHealth','healthHistory','prepareDamage','prepareTreatment','survivalAdmin'].includes(a);
 
 export function createHealthService({store,signed,checkSession,checkScenario,now,uuid}){
   const player=async(tx,actor,input,preview=false)=>{
@@ -92,6 +93,7 @@ export function createHealthService({store,signed,checkSession,checkScenario,now
   };
   return async(action,actor,input)=>{
     signed(actor);const at=now(),newId=uuid();
+    if(toxicologyReads.includes(action)||toxicologyWrites.includes(action))return store.runTransaction(async tx=>{const {s,c,r}=await player(tx,actor,input);if(toxicologyWrites.includes(action))authorizeSpaceOutlaws(tx,s,'TOXICOLOGY');return doseCommand(tx,s,c,r,action,input,{at,id:newId,actor});});
     if(['stopSafety','stopSafetyMJ','resumeSafety','confirmSurvivalDeath','survivalAdmin'].includes(action))return store.runTransaction(async tx=>{
       const sid=documentId(input.sessionId),admin=action!=='stopSafety',ctx=admin?null:await player(tx,actor,input),s=admin?await checkSession(tx,actor,sid):ctx.s;
       requireThat(hasSoHealth(s),'SO_GAMEPLAY_NOT_OPEN');
