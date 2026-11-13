@@ -1,6 +1,11 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {id:"space-merchant-negotiation",module:"../support/space-merchant-negotiation-suite.mjs",exportName:"merchantNegotiationSuite",label:"space-merchant-negotiation Firestore",seconds:30},
+  {id:"space-merchant-contacts",module:"../support/space-merchant-contacts-suite.mjs",exportName:"merchantContactsSuite",label:"space-merchant-contacts Firestore",seconds:30},
+  {id:"space-medical-diagnosis",module:"../support/space-medical-diagnosis-suite.mjs",exportName:"medicalDiagnosisSuite",label:"space-medical-diagnosis Firestore",seconds:30},
+  {id:"space-clinic",module:"../support/space-clinic-suite.mjs",exportName:"clinicSuite",label:"Clinique SO sur Firestore",seconds:30},
+  {id:"space-merchant-analysis",module:"../support/space-merchant-analysis-suite.mjs",exportName:"merchantAnalysisSuite",label:"Expertise marchande sur Firestore",seconds:25},
   {id:"identity-lifecycle",module:"../support/identity-lifecycle-suite.mjs",exportName:"identityLifecycleSuite",label:"Codes courts et corbeille sur Firestore",seconds:20},
   {id:"sabacc",module:"../support/sabacc-suite.mjs",exportName:"sabaccSuite",label:"Sabacc autonome sur Firestore",seconds:40},
   {id:"sabacc-gn",module:"../support/sabacc-suite.mjs",exportName:"sabaccGnSuite",label:"Sabacc GN sur Firestore",seconds:30},

@@ -1,3 +1,5 @@
+import {diagnosisProfile,medicalDossier,diagnosisVersion,diagnosisFor,diagnosisResult,patientDossier} from './space-medical-diagnosis.mjs';
+import {isClinic,clinicProfile,requireClinic} from './space-clinic-profile.mjs';
 import {requireRouteAnalysis} from './space-route-analysis.mjs';
 import {hasSoHealth,vitalTime,careTime,securedPatient,requireSoPatient} from './space-outlaws-health-state.mjs';
 import {requirePatientNature} from './character-nature.mjs';
@@ -17,7 +19,7 @@ const digest=x=>hash(JSON.stringify(x));
 const memo=v=>{requireThat(typeof v==='string'&&v.trim()&&v.length<=500,'REASON_REQUIRED');return v.trim();};
 const path=(sid,id)=>`sessions/${sid}/personActions/${id}`;
 const patientPath=(sid,cid)=>`${cp(sid,cid)}/cooldowns/field-care`;
-const admin=['personAdmin','savePersonProfile','cancelPersonActionMJ','setLotPillable'];
+const admin=['saveMedicalDossier','personAdmin','savePersonProfile','cancelPersonActionMJ','setLotPillable'];
 const reads=['personAdmin','personTarget','myPersonActions','preparePersonAction'];
 export const personCommands=[...new Set([...admin,...reads,'startPersonAction','finishPersonAction','cancelPersonAction','cancelPersonActionAid','chooseLoot','confirmLootHandover','offerAid','cancelAidOffer','declareCapture','declareFreedom'])];
 export const personAction=a=>personCommands.includes(a);
@@ -28,7 +30,7 @@ const view=(a,s,cid,at)=>({id:a.id,kind:a.kind,status:a.status,name:a.profile.na
 export async function offeredAid(tx,sid,cid){return (await tx.list(`sessions/${sid}/aidOffers`,['recipientId',cid])).filter(x=>x.status==='OFFERED').map(x=>({id:x.id,helperName:x.helperName,skillId:x.skillId}));}
 export function createPersonService({store,signed,checkScenario,checkSession,now,uuid,rollD6=()=>randomInt(1,7)}){
  const player=async(tx,actor,input)=>{const sid=documentId(input.sessionId),s=await tx.get(`sessions/${sid}`);requireThat(s&&['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s.stage),'FORBIDDEN');const r=await tx.get(`sessions/${sid}/registrations/${hash(actor.uid)}`);requireThat(r?.status==='ACCEPTED'&&r.accessActive&&r.characterId&&actor.authTime>=r.minAuthTime,'FORBIDDEN');const c=await tx.get(cp(sid,r.characterId));requireThat(c?.assignedUid===actor.uid&&c.publicationState==='PUBLISHED'&&c.public?.publicationState==='PUBLISHED','FORBIDDEN');return {s,c,r};};
- const catalog=async(tx,base)=>Object.fromEntries(await Promise.all(['personProfiles','skills','items'].map(async k=>[k,await tx.list(`${base}/${k}`)])));
+ const catalog=async(tx,base)=>Object.fromEntries(await Promise.all(['personProfiles','skills','items','fieldTargets'].map(async k=>[k,await tx.list(`${base}/${k}`)])));
  async function participant(tx,s,a,c,r,actor,allowAid=false){
   const expected=c.id===a.characterId?{uid:a.actorUid,version:a.accessVersion}:c.id===a.targetId?{uid:a.targetUid,version:a.targetAccessVersion}:allowAid&&c.id===a.aid?.characterId?{uid:a.aid.uid,version:a.aid.accessVersion}:null;
   requireThat(expected?.uid===actor.uid&&expected.version===r.accessVersion,'FORBIDDEN');
@@ -40,29 +42,33 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
   requireGameAction(s,c,isLoot(p)?'discover':'heal',at);requireThat(!convalescent(s,c,at),'OUT_OF_COMBAT');
   if(s.healthRules?.enabled)requireThat(c.hp>0,'OUT_OF_COMBAT');
   if(isLoot(p)){requireThat(lootEligible(s,t,at),'LOOT_TARGET_REQUIRED');requireThat(!encounter(t,at).taken,'LOOT_ENCOUNTER_LIMIT');}
+  else if(p.kind==='DIAGNOSIS'){requirePatientNature(p,t);requireThat(!t.survival?.dead,'SO_PATIENT_DEAD');}
   else if(p.kind==='PROTECTION'){requireThat(t.hp>0&&!t.survival?.dead,'OUT_OF_COMBAT');requireThat((t.protection??0)===0,'NO_PROTECTION_NEEDED');}
   else {requirePatientNature(p,t);if(hasSoHealth(s)){requireSoPatient(s,t,at);if(p.kind==='STABILIZE')requireThat(t.hp===0&&!t.survival?.stabilized,'SO_NO_STABILIZATION_NEEDED');}requireThat(s.healthRules?.enabled,'HEALTH_DISABLED');healthState(t);requireThat(t.hp<t.maxHp||convalescent(s,t,at),'NO_HEAL_NEEDED');if(p.kind==='FIELD_CARE'){requireThat(t.hp<t.maxHp,'NO_HEAL_NEEDED');requireThat(t.hp>0||level>=p.reviveLevel,'FIELD_SKILL_REQUIRED');requireThat(c.id!==t.id||!convalescent(s,t,at),'OUT_OF_COMBAT');}}
  }
  async function plan(tx,ctx,input,at){
   const {s,c,r}=ctx;
   if(s.spaceOutlaws?.escapeVersion===1){const cap=await tx.get(`sessions/${s.id}/soCaptivities/${c.id}`);requireThat(cap?.status!=='ACTIVE','SO_ESCAPE_CAPTIVE');}requireThat(s.stage==='EN_JEU'||(hasSoHealth(s)&&s.stage==='PAUSE'),'SESSION_NOT_RUNNING');requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(!c.activeFieldActionId&&!c.activePersonActionId,'FIELD_ACTOR_BUSY');
-  const p=await tx.get(`sessions/${s.id}/personProfiles/${documentId(input.profileId)}`);requireThat(p?.publicationState==='PUBLISHED','PERSON_PROFILE_UNAVAILABLE');
-  if(s.spaceOutlaws)requireThat(hasSoHealth(s)&&['STABILIZE','FIELD_CARE','PROTECTION'].includes(p.kind)&&p.id.startsWith('SO-'),'SO_GAMEPLAY_NOT_OPEN');
+  let p=input.profileId==='SO-MED-01'&&s.spaceOutlaws?.medicalDiagnosisVersion===1?diagnosisProfile:await tx.get(`sessions/${s.id}/personProfiles/${documentId(input.profileId)}`);requireThat(p?.publicationState==='PUBLISHED','PERSON_PROFILE_UNAVAILABLE');
+  if(s.spaceOutlaws)requireThat(hasSoHealth(s)&&(['STABILIZE','FIELD_CARE','PROTECTION'].includes(p.kind)||isClinic(p)||p.kind==='DIAGNOSIS'&&s.spaceOutlaws.medicalDiagnosisVersion===1)&&p.id.startsWith('SO-'),'SO_GAMEPLAY_NOT_OPEN');
+  await requireClinic(tx,s,p);
   const target=await activeCharacter(tx,s.id,input.targetId),t=target.c;requireThat(s.stage==='EN_JEU'||(hasSoHealth(s)&&t.hp===0),'SESSION_NOT_RUNNING');requireThat(!t.activePersonActionId&&!t.activeFieldActionId,'FIELD_TARGET_BUSY');
   const level=p.skillId?abilityLevel(c,p.skillId):0;requireThat(!p.skillId||level>=p.minLevel,'FIELD_SKILL_REQUIRED');for(const req of p.prerequisites)requireThat(abilityLevel(c,req.skillId)>=req.minLevel,'FIELD_SKILL_REQUIRED');eligible(s,c,t,p,level,at);
   if(p.kind==='PROTECTION'){const equipment=await tx.list(`sessions/${s.id}/inventory`,['holderId',t.id]);requireThat(equipment.some(l=>personalLot(l,t.id)&&l.item.id===p.protectedItemId&&l.quantity>0&&l.status==='AVAILABLE'),'PROTECTION_EQUIPMENT_REQUIRED');}
+  const dossier=p.kind==='DIAGNOSIS'?await patientDossier(tx,s.id,t.id):null;
+  if(p.kind==='DIAGNOSIS'){requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');p=diagnosisFor(dossier,level);const prior=await tx.get(`${cp(s.id,c.id)}/diagnoses/${t.id}`);requireThat(prior?.stateVersion!==diagnosisVersion(t,dossier),'FIELD_ANALYSIS_DONE');}
   const family=isLoot(p)?'FOUILLE':`SKILL:${p.skillId}`,time=gameTime(s.clock,at),use=await tx.get(cooldownPath(s.id,c.id,family));requireThat((use?.readyAtGameMs??0)<=time,'COOLDOWN_ACTIVE');
   const patient=p.kind==='FIELD_CARE'?await tx.get(patientPath(s.id,t.id)):null;requireThat((patient?.readyAtGameMs??0)<=time,'PATIENT_COOLDOWN_ACTIVE');
-  const urgent=hasSoHealth(s)&&t.hp===0;
+  const urgent=hasSoHealth(s)&&t.hp===0&&p.kind!=='DIAGNOSIS';
   if(urgent&&!t.survival?.stabilized)requireThat(vitalTime(s,at)+60000<t.survival.deadline,'SO_SURVIVAL_TOO_LATE');
   const cost=s.actionPointRules?.enabled?(p.cost??s.actionPointRules.cost):0,points=s.actionPointRules?.enabled?actionPointState(s,c,await tx.get(actionPointPath(s.id,c.id)),at):null;if(points)reserveActionPoints(points,cost);
   const lots=new Map(),supplies=[];let bonus=0,bonusName=null;
   if(input.bonusLotId){requireThat(p.test==='D6','AID_NOT_ALLOWED');const l=await readLot(tx,s.id,documentId(input.bonusLotId),at),b=p.bonusItems.find(b=>b.itemId===l?.item.id);requireThat(b&&l.quantity>0&&l.status==='AVAILABLE'&&personalLot(l,c.id),'FIELD_EQUIPMENT_UNAVAILABLE');lots.set(l.id,l);bonus=b.bonus;bonusName=l.item.name;}
   for(const supply of [p.consumable,...p.extraConsumables].filter(Boolean)){const lid=input.supplyLots?.[supply.itemId],l=await readLot(tx,s.id,documentId(lid),at);requireThat(l&&personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.item.id===supply.itemId&&l.item.consumable&&l.quantity>=supply.quantity,'FIELD_EQUIPMENT_UNAVAILABLE');lots.set(l.id,l);supplies.push({...supply,lotId:l.id,name:l.item.name});}
   const aid=await prepareAid(tx,s,c,input,p,family,at);requireThat(!aid||aid.character.id!==t.id,'AID_NOT_ALLOWED');
-  const durationSeconds=p.durationByLevel[level]??p.durationSeconds,cooldownSeconds=p.kind==='PROTECTION'?600:isLoot(p)?p.cooldownSeconds??s.actionPointRules?.cooldownSeconds??600:0;
-  const confirmation=digest({s:s.id,rules:s.actionPointRules??null,p,c,access:r.accessVersion,t,targetAccess:target.r.accessVersion,points,lots:[...lots.values()],aid,patient});
-  return {p,t,urgent,tr:target.r,points,lots:[...lots.values()],supplies,aid,family,preview:{name:p.name,kind:p.kind,urgent,safetyStopped:false,target:{id:t.id,name:t.public.displayName},cost,level,bonus,bonusName,aid:aid?1:0,aidName:aid?.character.public.displayName??null,durationSeconds,cooldownSeconds,test:p.test,threshold:p.threshold,continuationSeconds:p.continuationSeconds,instructions:p.instructions,supplies,confirmation}};
+  const durationSeconds=p.durationByLevel[level]??p.durationSeconds,cooldownSeconds=['PROTECTION','DIAGNOSIS'].includes(p.kind)?600:isLoot(p)?p.cooldownSeconds??s.actionPointRules?.cooldownSeconds??600:0;
+  const confirmation=digest({s:s.id,rules:s.actionPointRules??null,p,c,access:r.accessVersion,t,targetAccess:target.r.accessVersion,points,lots:[...lots.values()],aid,patient,dossier});
+  return {p,t,urgent,dossier,tr:target.r,points,lots:[...lots.values()],supplies,aid,family,preview:{name:p.name,kind:p.kind,urgent,safetyStopped:false,target:{id:t.id,name:t.public.displayName},cost,level,bonus,bonusName,aid:aid?1:0,aidName:aid?.character.public.displayName??null,durationSeconds,cooldownSeconds,test:p.test,threshold:p.threshold,continuationSeconds:p.continuationSeconds,instructions:p.instructions,supplies,confirmation}};
  }
  async function release(tx,s,a,c,t,at,id,actor,cancel){
   const time=gameTime(s.clock,at);
@@ -78,42 +84,49 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
    let ctx,org;
    if(admin.includes(action)){const session=!!input.sessionId,sid=documentId(session?input.sessionId:input.scenarioId),s=session?await checkSession(tx,actor,sid):await checkScenario(tx,actor,sid);org={s,session,base:`${session?'sessions':'scenarios'}/${sid}`};}
    else ctx=await player(tx,actor,input);
-   if(action==='personAdmin'){const {s,session,base}=org;return {scope:session?'session':'scenario',parent:{id:s.id,title:s.title,spaceOutlaws:!!s.spaceOutlaws,sealed:s.campaignSealed===true},...await catalog(tx,base),actions:session?(await tx.list(`${base}/personActions`)).filter(personOpen).map(a=>view(a,s,a.characterId,at)):[],inventory:session?(await tx.list(`${base}/inventory`)).filter(l=>l.quantity>0).map(l=>({...publicLot(l),pillable:(l.pillable??l.item.pillable)===true})):[]};}
+   if(action==='personAdmin'){const {s,session,base}=org;return {scope:session?'session':'scenario',parent:{id:s.id,title:s.title,spaceOutlaws:!!s.spaceOutlaws,diagnosisReady:s.spaceOutlaws?.medicalDiagnosisVersion===1,sealed:s.campaignSealed===true},...await catalog(tx,base),...(session&&s.spaceOutlaws?.medicalDiagnosisVersion===1?{patients:(await tx.list(`${base}/characters`)).filter(c=>c.publicationState==='PUBLISHED').map(c=>({id:c.id,name:c.public.displayName})),medicalDossiers:await tx.list(`${base}/medicalDossiers`)}:{}),actions:session?(await tx.list(`${base}/personActions`)).filter(personOpen).map(a=>view(a,s,a.characterId,at)):[],inventory:session?(await tx.list(`${base}/inventory`)).filter(l=>l.quantity>0).map(l=>({...publicLot(l),pillable:(l.pillable??l.item.pillable)===true})):[]};}
    if(action==='myPersonActions'){
     const {s,c,r}=ctx,all=await tx.list(`sessions/${s.id}/personActions`),actions=[];
     for(const a of all){const identity=c.id===a.characterId?[a.actorUid,a.accessVersion]:c.id===a.targetId?[a.targetUid,a.targetAccessVersion]:c.id===a.aid?.characterId?[a.aid.uid,a.aid.accessVersion]:null;if(!identity||identity[0]!==actor.uid||identity[1]!==r.accessVersion)continue;const v=view(a,s,c.id,at);if(v.canChoose){const t=await tx.get(cp(s.id,a.targetId));v.lootLots=(await lootLots(tx,s,t,at)).map(l=>({id:l.id,name:l.item.name}));}actions.push(v);}
     const offers=(await tx.list(`sessions/${s.id}/aidOffers`,['helperId',c.id])).filter(o=>o.helperUid===actor.uid&&o.accessVersion===r.accessVersion&&['OFFERED','ACTIVE'].includes(o.status));
-    return {session:{id:s.id,stage:s.stage,...(s.spaceOutlaws?{spaceOutlaws:true,healthReady:hasSoHealth(s)}:{})},character:{id:c.id,name:c.public.displayName},skills:(c.abilityProfile?.published?c.abilityProfile.skills:[]).filter(k=>k.kind==='PASSIVE'&&(!s.spaceOutlaws||analysisProfile(k.id)?.test==='D6'&&(k.id!=='PIL-01'||s.spaceOutlaws.routeAnalysisVersion===1))).map(k=>({id:k.id,name:k.name})),actions:actions.sort((a,b)=>b.startedAt-a.startedAt).slice(0,100),aidOffers:offers.map(o=>({id:o.id,status:o.status,recipientName:o.recipientName,skillId:o.skillId,actionId:o.actionId??null,collection:o.collection??null})),encounter:encounter(c,at),convalescenceMs:Math.max(0,(c.convalescentUntilGameMs??0)-gameTime(s.clock,at)),captureMs:Math.max(0,(c.lootEncounter?.captureUntil??0)-at)};
+    return {session:{id:s.id,stage:s.stage,...(s.spaceOutlaws?{spaceOutlaws:true,healthReady:hasSoHealth(s)}:{})},character:{id:c.id,name:c.public.displayName},skills:(c.abilityProfile?.published?c.abilityProfile.skills:[]).filter(k=>k.kind==='PASSIVE'&&(!s.spaceOutlaws||(analysisProfile(k.id)?.test==='D6'||k.id==='MED-01'&&s.spaceOutlaws.medicalDiagnosisVersion===1||k.id==='MED-03'&&hasSoHealth(s)||k.id==='COU-02'&&s.spaceOutlaws.merchantNegotiationVersion===1)&&(k.id!=='PIL-01'||s.spaceOutlaws.routeAnalysisVersion===1))).map(k=>({id:k.id,name:k.name})),actions:actions.sort((a,b)=>b.startedAt-a.startedAt).slice(0,100),aidOffers:offers.map(o=>({id:o.id,status:o.status,recipientName:o.recipientName,skillId:o.skillId,actionId:o.actionId??null,collection:o.collection??null})),encounter:encounter(c,at),convalescenceMs:Math.max(0,(c.convalescentUntilGameMs??0)-gameTime(s.clock,at)),captureMs:Math.max(0,(c.lootEncounter?.captureUntil??0)-at)};
    }
    if(action==='personTarget'){
-    const {s,c}=ctx,{c:t}=await activeCharacter(tx,s.id,input.targetId),profiles=(await tx.list(`sessions/${s.id}/personProfiles`)).filter(p=>p.publicationState==='PUBLISHED'&&(isLoot(p)||acceptsPatientNature(p,t))&&(!s.spaceOutlaws||(hasSoHealth(s)&&['STABILIZE','FIELD_CARE','PROTECTION'].includes(p.kind)&&(!p.skillId||abilityLevel(c,p.skillId)>=p.minLevel)))),lots=(await tx.list(`sessions/${s.id}/inventory`,['holderId',c.id])).filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.quantity>0);
+    const {s,c}=ctx,{c:t}=await activeCharacter(tx,s.id,input.targetId),profiles=[...await tx.list(`sessions/${s.id}/personProfiles`),...(s.spaceOutlaws?.medicalDiagnosisVersion===1?[diagnosisFor(await patientDossier(tx,s.id,t.id),abilityLevel(c,'MED-01'))]:[])].filter(p=>p.publicationState==='PUBLISHED'&&(isLoot(p)||acceptsPatientNature(p,t))&&(!s.spaceOutlaws||(hasSoHealth(s)&&(['STABILIZE','FIELD_CARE','PROTECTION'].includes(p.kind)||isClinic(p)||p.kind==='DIAGNOSIS'&&s.spaceOutlaws.medicalDiagnosisVersion===1)&&(!p.skillId||abilityLevel(c,p.skillId)>=p.minLevel)))),lots=(await tx.list(`sessions/${s.id}/inventory`,['holderId',c.id])).filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.quantity>0);
     return {session:{id:s.id,stage:s.stage,healthReady:hasSoHealth(s),safetyStopped:s.safetyStop?.active===true},urgent:hasSoHealth(s)&&t.hp===0,target:{id:t.id,name:t.public.displayName,...(hasSoHealth(s)?{hp:t.hp,maxHp:t.maxHp,protection:t.protection??0}: {})},profiles:profiles.map(p=>({id:p.id,name:p.name,kind:p.kind,instructions:p.instructions,test:p.test,skillId:p.skillId,bonusItems:p.bonusItems,supplies:[p.consumable,...p.extraConsumables].filter(Boolean)})),lots:lots.map(publicLot),aidOffers:await offeredAid(tx,s.id,c.id)};
    }
    if(action==='preparePersonAction')return (await plan(tx,ctx,input,at)).preview;
    if((ctx??org).s.spaceOutlaws){
     const aid=['offerAid','cancelAidOffer'].includes(action);
+    const diagnosisConfig=action==='saveMedicalDossier'&&org?.session&&org.s.spaceOutlaws.medicalDiagnosisVersion===1;
+    const clinicConfig=action==='savePersonProfile'&&isClinic(input.profile)&&org?.session&&hasSoHealth(org.s);
     const protectionConfig=action==='savePersonProfile'&&input.profile?.kind==='PROTECTION'&&org?.session&&hasSoHealth(org.s);
-    requireThat(protectionConfig||aid||(hasSoHealth((ctx??org).s)&&['startPersonAction','finishPersonAction','cancelPersonAction','cancelPersonActionMJ'].includes(action)),'SO_GAMEPLAY_NOT_OPEN');
+    requireThat(diagnosisConfig||clinicConfig||protectionConfig||aid||(hasSoHealth((ctx??org).s)&&['startPersonAction','finishPersonAction','cancelPersonAction','cancelPersonActionMJ'].includes(action)),'SO_GAMEPLAY_NOT_OPEN');
     if(action==='offerAid'&&input.skillId==='PIL-01')requireRouteAnalysis((ctx??org).s);
-    if(action==='offerAid')requireThat(analysisProfile(input.skillId)?.test==='D6','AID_NOT_ALLOWED');
-    authorizeSpaceOutlaws(tx,(ctx??org).s,protectionConfig?'PROTECTION_CONFIG':aid?'AID':'CARE');
+    if(action==='offerAid')requireThat(analysisProfile(input.skillId)?.test==='D6'||input.skillId==='MED-01'&&(ctx??org).s.spaceOutlaws.medicalDiagnosisVersion===1||input.skillId==='MED-03'&&hasSoHealth((ctx??org).s)||input.skillId==='COU-02'&&(ctx??org).s.spaceOutlaws.merchantNegotiationVersion===1,'AID_NOT_ALLOWED');
+    authorizeSpaceOutlaws(tx,(ctx??org).s,diagnosisConfig?'DIAGNOSIS_CONFIG':clinicConfig?'CLINIC_CONFIG':protectionConfig?'PROTECTION_CONFIG':aid?'AID':'CARE');
    }
    const op=`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`,fingerprint=digest([action,input]),previous=await tx.get(op);
    let a;
    if(['finishPersonAction','cancelPersonAction','cancelPersonActionAid','chooseLoot','confirmLootHandover','cancelPersonActionMJ'].includes(action)){const s=(ctx??org).s;a=await tx.get(path(s.id,documentId(input.actionId)));requireThat(a,'NOT_FOUND');if(ctx)await participant(tx,s,a,ctx.c,ctx.r,actor,action==='cancelPersonActionAid');}
    if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');if(ctx)requireThat(previous.characterId===ctx.c.id&&previous.accessVersion===ctx.r.accessVersion,'FORBIDDEN');for(const party of previous.parties??[]){const current=await activeCharacter(tx,(ctx??org).s.id,party.id);requireThat(current.c.assignedUid===party.uid&&current.r.accessVersion===party.version,'FORBIDDEN');}return previous.result;}
    if(org)requireThat(org.s.stage!=='ARCHIVED','SESSION_CLOSED');let result;
-   if(action==='savePersonProfile'){
-    const {s,base}=org,repair=s.spaceOutlaws&&input.profile?.kind==='PROTECTION',pid=input.profileId?documentId(input.profileId):repair?`SO-ARMOR-${id}`:id,old=await tx.get(`${base}/personProfiles/${pid}`);requireThat((old?.revision??0)===(input.revision??0),'STALE_REVISION');
+   if(action==='saveMedicalDossier'){
+    const {s}=org;requireThat(org.session&&s.spaceOutlaws?.medicalDiagnosisVersion===1&&['BRIEFING','EN_JEU','PAUSE'].includes(s.stage),'SO_GAMEPLAY_NOT_OPEN');const cid=documentId(input.characterId);await activeCharacter(tx,s.id,cid);const old=await patientDossier(tx,s.id,cid);requireThat((old?.revision??0)===(input.revision??0),'STALE_REVISION');const next={id:cid,...medicalDossier(input.dossier,(old?.revision??0)+1,await tx.list(`sessions/${s.id}/items`),s.spaceOutlaws.versionId),updatedBy:actor.uid,at};tx.set(`sessions/${s.id}/medicalDossiers/${cid}`,next);tx.set(`sessions/${s.id}/medicalDossiers/${cid}/history/${id}`,{id,at,before:old??null,after:next,actorUid:actor.uid});result={id:cid,revision:next.revision};
+   }else if(action==='savePersonProfile'){
+    const {s,base}=org,clinic=s.spaceOutlaws&&isClinic(input.profile),repair=s.spaceOutlaws&&input.profile?.kind==='PROTECTION',pid=input.profileId?documentId(input.profileId):clinic?`SO-CLINIC-${id}`:repair?`SO-ARMOR-${id}`:id,old=await tx.get(`${base}/personProfiles/${pid}`);requireThat((old?.revision??0)===(input.revision??0),'STALE_REVISION');
     let p;const records=await catalog(tx,base);
-    if(repair){
+    if(clinic){
+      requireThat((!old||isClinic(old))&&['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)&&!s.safetyStop?.active,'INVALID_PERSON_PROFILE');
+      p=clinicProfile(input.profile,pid,(old?.revision??0)+1,records,s);
+    }else if(repair){
       requireThat(pid.startsWith('SO-ARMOR-')&&(!old||old.kind==='PROTECTION')&&['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)&&!s.safetyStop?.active,'INVALID_PERSON_PROFILE');
       const equipment=documentId(input.profile.protectedItemId),supply=documentId(input.profile.consumable?.itemId);
       requireThat(records.items.some(i=>i.id===equipment&&i.versionId===s.spaceOutlaws.versionId&&!i.consumable)&&records.items.some(i=>i.id===supply&&i.versionId===s.spaceOutlaws.versionId&&i.consumable),'FIELD_REFERENCE');
       requireThat(['DRAFT','PUBLISHED'].includes(input.profile.publicationState),'INVALID_PERSON_PROFILE');
       p={id:pid,revision:(old?.revision??0)+1,kind:'PROTECTION',name:'Entretien de protection',publicationState:input.profile.publicationState,protectedItemId:equipment,skillId:'ENTRETIEN_PROTECTION',minLevel:1,patientNature:null,test:'AUTO',threshold:0,cost:1,cooldownSeconds:600,bonusItems:[],consumable:{itemId:supply,quantity:1},extraConsumables:[],prerequisites:[],durationSeconds:120,durationByLevel:{1:120,2:105,3:90,4:75,5:60},continuationSeconds:0,healAmount:0,reviveLevel:0,convalescenceSeconds:0,patientCooldownSeconds:0,instructions:'Remplacez la plaque endommagée de cette armure ordinaire. Restaure 1 protection, aucun PV. 1 PA et une plaque ; 120 / 105 / 90 / 75 / 60 secondes selon le niveau. Récupération personnelle : 10 minutes.'};
     }else{p=personProfileInput(input.profile,pid,old??{});validatePersonReferences(p,records);}
-    requireThat(records.personProfiles.length<100||old,'INVALID_PERSON_PROFILE');tx.set(`${base}/personProfiles/${pid}`,p);if(!repair)tx.set(base,{...s,revision:s.revision+1});tx.set(`${base}/personProfiles/${pid}/history/${id}`,{id,at,actorUid:actor.uid,reason:memo(input.reason),before:old??null,after:p});result={id:pid};
+    requireThat(records.personProfiles.length<100||old,'INVALID_PERSON_PROFILE');tx.set(`${base}/personProfiles/${pid}`,p);if(!repair&&!clinic)tx.set(base,{...s,revision:s.revision+1});tx.set(`${base}/personProfiles/${pid}/history/${id}`,{id,at,actorUid:actor.uid,reason:memo(input.reason),before:old??null,after:p});result={id:pid};
    }else if(action==='setLotPillable'){
     const {s,session}=org;requireThat(session&&typeof input.pillable==='boolean','INVALID_ITEM');const lid=documentId(input.lotId),l=await readLot(tx,s.id,lid,at);requireThat(l?.status==='AVAILABLE'&&l.quantity>0,'INSUFFICIENT_STOCK');requireThat(l.revision===input.revision,'STALE_REVISION');const next={...l,pillable:input.pillable,revision:l.revision+1};tx.set(`sessions/${s.id}/inventory/${lid}`,next);tx.set(`sessions/${s.id}/inventory/${lid}/history/${id}`,{id,at,kind:'PILLABLE_SETTING',actorUid:actor.uid,reason:memo(input.reason),before:l.pillable??l.item.pillable??false,after:input.pillable});result={id:lid};
    }else if(action==='offerAid'){
@@ -128,7 +141,7 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
     tx.set(cp(s.id,c.id),{...c,lootEncounter:e});tx.set(`sessions/${s.id}/audit/${id}`,{id,at,action,actorUid:actor.uid,characterId:c.id,before:c.lootEncounter??null,after:e});result={encounter:e};
    }else if(action==='startPersonAction'){
     requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');const p=await plan(tx,ctx,input,at);requireThat(p.preview.confirmation===input.confirmation,'STALE_REVISION');const {s,c,r}=ctx,time=gameTime(s.clock,at);
-    a={id,kind:p.p.kind,status:'ACTIVE',profile:p.p,characterId:c.id,characterName:c.public.displayName,actorUid:actor.uid,accessVersion:r.accessVersion,targetId:p.t.id,targetName:p.t.public.displayName,targetUid:p.t.assignedUid,targetAccessVersion:p.tr.accessVersion,startedAt:at,readyAtGameMs:(p.urgent?vitalTime(s,at):time)+p.preview.durationSeconds*1000,...(hasSoHealth(s)?{urgent:p.urgent,startedVitalMs:vitalTime(s,at),actorHealthRevision:c.healthRevision,targetHealthRevision:p.t.healthRevision}:{}),
+    a={id,...(p.p.kind==='DIAGNOSIS'?{medicalDossier:p.dossier??null,diagnosisStateVersion:diagnosisVersion(p.t,p.dossier)}:{}),kind:p.p.kind,status:'ACTIVE',profile:p.p,characterId:c.id,characterName:c.public.displayName,actorUid:actor.uid,accessVersion:r.accessVersion,targetId:p.t.id,targetName:p.t.public.displayName,targetUid:p.t.assignedUid,targetAccessVersion:p.tr.accessVersion,startedAt:at,readyAtGameMs:(p.urgent?vitalTime(s,at):time)+p.preview.durationSeconds*1000,...(hasSoHealth(s)?{urgent:p.urgent,startedVitalMs:vitalTime(s,at),actorHealthRevision:c.healthRevision,targetHealthRevision:p.t.healthRevision}:{}),
      cost:p.preview.cost,apEnabled:!!p.points,paid:false,level:p.preview.level,bonus:p.preview.bonus,aid:aidSnapshot(p.aid),family:p.family,cooldownSeconds:p.preview.cooldownSeconds,supplies:p.supplies,lotIds:p.lots.map(l=>l.id),lootEncounterNumber:isLoot(p.p)?encounter(p.t,at).number:null};
     if(p.points)tx.set(actionPointPath(s.id,c.id),reserveActionPoints(p.points,a.cost));for(const l of p.lots)tx.set(`sessions/${s.id}/inventory/${l.id}`,{...l,status:'FIELD_RESERVED',fieldActionId:id,revision:l.revision+1});reserveAid(tx,s,a,p.aid,'personActions');
     tx.set(cp(s.id,c.id),{...c,activeFieldActionId:id,...(c.id===p.t.id?{activePersonActionId:id}:{})});if(c.id!==p.t.id)tx.set(cp(s.id,p.t.id),{...p.t,activePersonActionId:id,...(isLoot(p.p)?{lootEncounter:{...encounter(p.t,at),freeSince:null}}:{})});
@@ -146,12 +159,14 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
       const ca=await activeCharacter(tx,s.id,c.id),ta=await activeCharacter(tx,s.id,t.id);requireThat(ca.c.assignedUid===a.actorUid&&ca.r.accessVersion===a.accessVersion&&ta.c.assignedUid===a.targetUid&&ta.r.accessVersion===a.targetAccessVersion,'FORBIDDEN');
       if(action==='finishPersonAction'){
        requireThat(ctx.c.id===a.characterId,'FORBIDDEN');if(['AWAITING_PICK','AWAITING_HANDOVER'].includes(a.status))return view(a,s,c.id,at);
-       requireThat(careTime(s,a,at)>=a.readyAtGameMs,'FIELD_TOO_EARLY');if(hasSoHealth(s))requireThat(c.healthRevision===a.actorHealthRevision&&originalTarget.healthRevision===a.targetHealthRevision,'SO_CARE_INTERRUPTED');if(a.kind!=='STABILIZE')eligible(s,c,t,a.profile,abilityLevel(c,a.profile.skillId),at);else {requireGameAction(s,c,'heal',at);requireThat(t.survival?.stabilized,'SO_SURVIVAL_EXPIRED');}for(const req of [{skillId:a.profile.skillId,minLevel:a.profile.minLevel},...a.profile.prerequisites].filter(x=>x.skillId))requireThat(abilityLevel(c,req.skillId)>=req.minLevel,'FIELD_SKILL_REQUIRED');
+       requireThat(careTime(s,a,at)>=a.readyAtGameMs,'FIELD_TOO_EARLY');await requireClinic(tx,s,a.profile);if(hasSoHealth(s))requireThat(c.healthRevision===a.actorHealthRevision&&originalTarget.healthRevision===a.targetHealthRevision,'SO_CARE_INTERRUPTED');if(a.kind!=='STABILIZE')eligible(s,c,t,a.profile,abilityLevel(c,a.profile.skillId),at);else {requireGameAction(s,c,'heal',at);requireThat(t.survival?.stabilized,'SO_SURVIVAL_EXPIRED');}for(const req of [{skillId:a.profile.skillId,minLevel:a.profile.minLevel},...a.profile.prerequisites].filter(x=>x.skillId))requireThat(abilityLevel(c,req.skillId)>=req.minLevel,'FIELD_SKILL_REQUIRED');
        if(a.kind==='FIELD_CARE')requireThat((await tx.get(patientPath(s.id,t.id)))?.readyAtGameMs<=time||!(await tx.get(patientPath(s.id,t.id))),'PATIENT_COOLDOWN_ACTIVE');
        await checkAid(tx,s,a,at);
        const roll=a.status==='CONTINUING'||a.profile.test==='AUTO'?null:die;if(roll!==null)requireThat(Number.isInteger(roll)&&roll>=1&&roll<=6,'INVALID_DIE');const total=roll===null?null:roll+a.level+a.bonus+(a.aid?1:0),success=roll===null||total>=a.profile.threshold;
        const outcome=a.status==='CONTINUING'?{...a.result,completedAfterContinuation:true}: {roll,total,level:a.level,bonus:a.bonus,aid:a.aid?1:0,threshold:a.profile.threshold,success};
-       if(a.kind==='STABILIZE'){
+       if(a.kind==='DIAGNOSIS'){
+        const dossier=await patientDossier(tx,s.id,t.id);requireThat(diagnosisVersion(t,dossier)===a.diagnosisStateVersion,'FIELD_STATE_CHANGED');await release(tx,s,a,c,t,at,id,actor,false);const report={...outcome,...diagnosisResult(t,dossier,a.level,success)};next={...a,paid:true,status:'SUCCEEDED',finishedAt:at,result:report};tx.set(`${cp(s.id,c.id)}/diagnoses/${t.id}`,{actionId:a.id,stateVersion:a.diagnosisStateVersion,at,result:report});unlock(tx,s,a,c,t);
+       }else if(a.kind==='STABILIZE'){
         await release(tx,s,a,c,t,at,id,actor,false);next={...a,paid:true,status:'SUCCEEDED',finishedAt:at,result:{stabilized:true,restored:0,hp:0,maxHp:t.maxHp}};unlock(tx,s,a,c,t);
        }else if(a.kind==='PROTECTION'){
         const equipment=await tx.list(`sessions/${s.id}/inventory`,['holderId',t.id]);requireThat(equipment.some(l=>personalLot(l,t.id)&&l.item.id===a.profile.protectedItemId&&l.quantity>0&&l.status==='AVAILABLE'),'PROTECTION_EQUIPMENT_REQUIRED');
@@ -161,7 +176,8 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
        }else if(a.kind==='CLINIC_FAST'&&!success){
         // Spend once at the failed roll; retain only the actor, patient and helper until completion.
         await release(tx,s,a,c,t,at,id,actor,false);
-        next={...a,paid:true,lotIds:[],status:'CONTINUING',result:outcome,readyAtGameMs:time+a.profile.continuationSeconds*1000};
+        next={...a,paid:true,lotIds:[],status:'CONTINUING',result:outcome,readyAtGameMs:careTime(s,a,at)+a.profile.continuationSeconds*1000,...(hasSoHealth(s)?{targetHealthRevision:t.healthRevision}:{})};
+        if(t!==originalTarget)tx.set(cp(s.id,t.id),t);
         if(a.aid){const helper=await tx.get(cp(s.id,a.aid.characterId)),offer=await tx.get(`sessions/${s.id}/aidOffers/${a.aid.offerId}`);tx.set(cp(s.id,helper.id),{...helper,activeFieldActionId:a.id,activeAidId:a.aid.offerId});tx.set(`sessions/${s.id}/aidOffers/${offer.id}`,{...offer,status:'ACTIVE'});}
        }else if(isLoot(a.profile)){
         await release(tx,s,a,c,t,at,id,actor,false);const candidates=await lootLots(tx,s,t,at);next={...a,paid:true,lotIds:[],status:candidates.length?'AWAITING_PICK':'SUCCEEDED',result:{...outcome,empty:candidates.length===0},readyAtGameMs:time};if(!candidates.length){next.finishedAt=at;unlock(tx,s,a,c,t);}

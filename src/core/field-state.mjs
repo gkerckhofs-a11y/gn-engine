@@ -92,7 +92,7 @@ export function fieldTargetInput(v,id,old={}){
   check(!input.bonus||profiles.ANALYZE.test==='D6');Object.assign(r,{minLevel:input.minLevel,bonus:input.bonus});
  }
  check(rewards.length<=20&&new Set(rewards.map(r=>r.id)).size===rewards.length);check(v.kind==='SEARCH'||analysis?rewards.length>0:rewards.length===0);
- if(analysis)check(rewards.some(r=>!r.bonus&&r.minLevel===1)&&new Set(rewards.map(r=>r.knowledgeId)).size===rewards.length);
+ if(analysis)check(rewards.some(r=>!r.bonus&&r.minLevel<=(profiles.ANALYZE.skillId==='COU-03'?profiles.ANALYZE.minLevel:1))&&new Set(rewards.map(r=>r.knowledgeId)).size===rewards.length);
  const dependencyId=v.dependencyId?documentId(v.dependencyId):null;check(!dependencyId||(v.kind==='SEARCH'&&dependencyId!==id));
  return {id,kind:v.kind,title:text(v.title,150,true),description:text(v.description??'',6000),gmNotes:text(v.gmNotes??'',10000),publicationState:v.publicationState,profiles,rewards,dependencyId,
   offlineSeconds:num(v.offlineSeconds??0,604800),failureLockSeconds:num(v.failureLockSeconds??300,86400),repairProtectionSeconds:num(v.repairProtectionSeconds??0,86400),revision:(old.revision??0)+1};

@@ -66,7 +66,7 @@ export function validateCentralChange(c,revision){
    const {id,revision,masterArchived,publicationState,...input}=d;normalized={...centralKnowledgeInput(input,c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
   }
   if(c.type==='shop')normalized={...centralShopInput({name:d.name,description:d.description,sellerCharacterId:d.sellerCharacterId,locationTargetId:d.locationTargetId,gmNotes:d.gmNotes},c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
-  if(c.type==='offer')normalized={...centralOfferInput({name:d.name,shopId:d.shopId,itemId:d.itemId,unitPrice:d.unitPrice,buybackPrice:d.buybackPrice,conditions:d.conditions,gmNotes:d.gmNotes},c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
+  if(c.type==='offer')normalized={...centralOfferInput({...('negotiationLevel' in d?{negotiationLevel:d.negotiationLevel}:{}),name:d.name,shopId:d.shopId,itemId:d.itemId,unitPrice:d.unitPrice,buybackPrice:d.buybackPrice,conditions:d.conditions,gmNotes:d.gmNotes},c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
   if(c.type==='fieldTarget')normalized={...centralFieldTargetInput(centralFieldTargetEditable(d),c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
   if(c.type==='group')normalized={...centralGroupInput(centralGroupEditable(d),c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
   if(c.type==='character')normalized={...centralCharacterInput(centralCharacterEditable(d),c.entityId),contentRevision:d.contentRevision,masterArchived:c.operation==='ARCHIVE'};

@@ -11,8 +11,9 @@ export function centralShopInput(v,id,old={}){
   gmNotes:text(v.gmNotes??'',10000,code),publicationState:'DRAFT',masterArchived:false,revision:(old.revision??0)+1};
 }
 export function centralOfferInput(v,id,old={}){
- const code='INVALID_CENTRAL_OFFER';keys(v,['name','shopId','itemId','unitPrice','buybackPrice','conditions','gmNotes'],code);
- return {id,schemaVersion:1,name:text(v.name,150,code,true),shopId:ref(v.shopId),itemId:ref(v.itemId),unitPrice:v.unitPrice==null?null:amountInput(v.unitPrice),buybackPrice:v.buybackPrice==null?null:amountInput(v.buybackPrice),
+ const code='INVALID_CENTRAL_OFFER';keys(v,['name','shopId','itemId','unitPrice','buybackPrice','conditions','gmNotes','negotiationLevel'],code);
+ requireThat(v.negotiationLevel==null||Number.isInteger(v.negotiationLevel)&&v.negotiationLevel>=1&&v.negotiationLevel<=5,code);
+ return {id,...(v.negotiationLevel!=null?{negotiationLevel:v.negotiationLevel}:{}),schemaVersion:1,name:text(v.name,150,code,true),shopId:ref(v.shopId),itemId:ref(v.itemId),unitPrice:v.unitPrice==null?null:amountInput(v.unitPrice),buybackPrice:v.buybackPrice==null?null:amountInput(v.buybackPrice),
   conditions:text(v.conditions??'',2000,code),gmNotes:text(v.gmNotes??'',10000,code),publicationState:'DRAFT',masterArchived:false,revision:(old.revision??0)+1};
 }
 

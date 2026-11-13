@@ -1,5 +1,7 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+Suivi de clôture V0.7 du 13 novembre 2026 : [matrice unique des 34 capacités](SO-COMPETENCES-V07-CLOTURE.md). Les états historiques ci-dessous sont conservés ; ils ne remplacent pas la nouvelle preuve par compétence.
+
 ## Terminal personnel — 13 novembre 2026
 
 [Audit des services, droits et limites](SO-TERMINAL-PERSONNEL.md). Trois ensembles alimentés par les projections autorisées, primes exclusivement Traqueur côté serveur et interface, douanes séparées par responsabilité. 171 tests ciblés et build locaux réussis. Publication de l’ensemble autorisée par Guillaume, sous réserve des vérifications du commit exact ; statut de déploiement à constater dans GitHub.

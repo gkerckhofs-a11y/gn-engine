@@ -1,3 +1,4 @@
+import {skillLevel} from './player-capabilities.mjs';
 import {escapeHtml as esc} from './groups.mjs';
 import {isTracker,isBroker} from '../src/shared/player-access.mjs';
 const count=(d,...keys)=>keys.reduce((n,k)=>n+(Array.isArray(d?.[k])?d[k].length:0),0);
@@ -19,6 +20,7 @@ export function terminalItems(own,d={}){
  const add=(id,title,group,description,rows=[],extra={})=>items.push({id,path:`${id}/${sid}`,title,group,description,pending:active(rows),history:rows.length>0&&active(rows)===0,...extra});
  const port='Services du port',special='Mes services spécialisés',assets='Mes biens, vaisseaux et mandats';
  if(f.shopsVersion===1&&count(d.shops,'shops','orders'))add('shops','Boutiques du port',port,'Acheter des fournitures et retirer mes commandes.',d.shops.orders);
+ if(own.economyEnabled)add('public-prices','Cours publics',port,'Consulter gratuitement les cours publiés.');
  if(own.economyEnabled)add('wallet','Mes crédits',port,`${own.wallet?.account?.available??'—'} crédits disponibles · paiements et historique.`);
  if(isBroker(own.character)&&d.market?.economyEnabled)add('market','Marché',port,'Cours, achats, ventes et négociations.');
  if(f.missionsVersion===1&&count(d.missions,'announcements'))add('missions','Missions proposées',port,'Consulter les offres qui me sont accessibles.');
@@ -26,6 +28,9 @@ export function terminalItems(own,d={}){
  if(f.intelligenceVersion===1&&count(d.intelligence,'offers'))add('intelligence','Réseau d’informateurs',port,'Consulter les offres et mes renseignements achetés.',d.intelligence.offers);
  if(d.sabacc?.enabled)add('sabacc','Sabacc — Cantina',port,'Rejoindre une table avec son code.',[],{url:own.demo?.table?`/sabacc/?table=${encodeURIComponent(own.demo.table.id)}&key=${encodeURIComponent(own.demo.table.qrToken)}&demoSession=${encodeURIComponent(sid)}&demoRole=${own.demo.selected}`:'/sabacc/'});
  if(own.directoryAllowed)add('directory','Registre des identités',port,'Consulter les identités publiques autorisées.');
+ if(f.merchantNegotiationVersion===1&&skillLevel(own.character,'COU-02')>0)add('merchant-negotiation','Négociation commerciale',special,'Ouvrir les offres explicitement négociables des boutiques.',[],{path:`shops/${sid}`});
+ if(f.merchantContactsVersion===1&&skillLevel(own.character,'COU-03')>0)add('merchant-contacts','Réseau de contacts',special,'Rechercher une information, un fournisseur, un acheteur ou un contrat préparé.',[],{path:`act/${sid}/COU-03`});
+ if(f.merchantAnalysisVersion===1&&skillLevel(own.character,'COU-01')>0)add('merchant-analysis','Expertise marchande',special,'Analyser une marchandise ou une offre préparée.',[],{path:`act/${sid}/COU-01`});
  if(f.bountyVersion===1&&isTracker(own.character)&&d.bounties)add('bounties','Primes ouvertes',special,'Cibles recherchées et suivi de mes preuves.',d.bounties.bounties);
  if(count(d.ships,'ships','invitations'))add('spaceport','Mes vaisseaux et vols',assets,'Informations du vaisseau et commandes selon mon mandat.',d.ships.invitations);
  if(count(d.cargo,'holds','transfers'))add('cargo','Soutes et fret',assets,'Soutes autorisées et transferts de marchandises.',d.cargo.transfers);

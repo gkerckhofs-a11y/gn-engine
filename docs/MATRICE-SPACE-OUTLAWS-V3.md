@@ -1,5 +1,7 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+Suivi de clôture V0.7 du 13 novembre 2026 : [matrice unique des 34 capacités](SO-COMPETENCES-V07-CLOTURE.md). Les états historiques ci-dessous sont conservés ; ils ne remplacent pas la nouvelle preuve par compétence.
+
 ## Interface QR et état joueur — 13 novembre 2026
 
 [Changements et limites](SO-PLAYER-QR-HEALTH.md) : scanner intégré et ID manuels, crédits disponibles, contrôles descendants PV/protection distincts, navigation allégée. Tests ciblés et compilation locaux ; recette caméra et visuelle non exécutée, lancement du navigateur bloqué par l’environnement. Aucune publication de cette tranche.
