@@ -87,7 +87,7 @@ Dans « Commit / PR », **B** = base main `49ec5ea12100f9efb62ea23773b216d465d06
 | Entretien de protection | Supplémentaire | ch. 15, 5 | person-actions PROTECTION | Action | À vérifier | identity-news-health | B/C | Non vérifié | À faire | Banc de protection et recette des consommables compatibles |
 | Riposte | Supplémentaire | ch. 15, 5 | règles joueur | Physique | À vérifier | présentation à contrôler | B | Non vérifié | À faire | Vérifier règles par adversaire/confrontation, aucune commande exigée |
 | Garde du corps | Supplémentaire | ch. 15, 5 | règles joueur, déclaration santé | Physique | À vérifier | présentation à contrôler | B | Non vérifié | À faire | Désignation, distance et transfert joué au bon moment |
-| Sabotage | Supplémentaire | ch. 15 | field-actions SABOTAGE/REPAIR | Action | Partiel | moteur général field-actions | B | Non vérifié | À faire | Profil canonique SO, kit et cibles préparées ; branche SO actuellement fermée |
+| Sabotage | Supplémentaire | ch. 15 | field-actions SABOTAGE/REPAIR | Action | Partiel | space-installation, field-actions | S | Non | À faire | Installations N1–N2 raccordées ; modules de droïdes N3, vaisseaux N4 et profils exceptionnels N5 à compléter |
 | Dissimulation | Supplémentaire | ch. 15 | inventaire natif à étendre | Action/sac | À développer | Pas de parcours spécifique identifié | B | Non vérifié | À faire | Unité cachée, expiration et opposition TRA-02 |
 | FIL-01 Pistage | Supplémentaire | ch. 15 | traces fictives à raccorder | Action | À développer | Pas de parcours spécifique identifié | B | Non vérifié | À faire | Registre commun fictif, niveaux et suivi spatial |
 | TOXI-01 Toxicologie | Supplémentaire | ch. 15 | recettes/inventaire à raccorder | Action | À développer | Catalogue préparatoire, pas de cycle complet identifié | B/C | Non | À faire | Fabrication, activation volontaire, antidote, expiration et MED-01 |
@@ -141,3 +141,16 @@ Référence canonique : livre V0.7, chapitre 6 (révision intégrale) et chapitr
 - Capacité `workshopVersion=1` des nouvelles publications. Les empreintes des anciens profils médicaux restent vérifiables à l'identique ; aucune session ni version publiée n'est migrée implicitement.
 
 Validation locale : 59 tests ciblés réussis (atelier, clinique, santé, publication, épisodes, menu), puis campagne complète de 2 996 tests réussis ; après les derniers ajustements de projection/interface, 25 tests clinique/atelier/menu réussis. Six cas dédiés réussis sur Firestore local, compilation et `git diff --check` réussis. Ces campagnes se recouvrent. Aucune CI exacte de W encore validée à cette rédaction ; aucune fusion, publication Firebase ni recette terrain. Ce complément ne clôture pas MEC-02 : rechargement des blindages/boucliers et réparation des modules restent distincts et à compléter.
+
+## Complément — sabotage et remise en service des installations A15 N1–N2
+
+**S** = branche `work/skills-v07-installations`, basée sur `c2538a134cca411685880d4de68de776d555118b` (PR #17). Référence : V0.7 chapitre 15, Sabotage/A15 ; récupération par défaut du chapitre 4. Les moteurs natifs `field-actions` et `fieldStates` sont réutilisés.
+
+- M6 prépare explicitement une installation simple N1 ou protégée N2, son kit consommable, les bonus compatibles, les conséquences et le seuil annoncé (6 par défaut). Les paramètres canoniques sont contrôlés avant publication. Aucun QR quelconque, module ou vaisseau n'acquiert ces droits.
+- Sabotage : 300 secondes, 1 PA, un kit consommé au jet même sur échec, D6 serveur + compétence + bonus/aide, récupération personnelle 600 secondes. Échec : verrou 300 secondes sur la cible ; succès : panne temporaire de 900 secondes au maximum.
+- Remise en service : MEC-02 N2, 180 secondes, 1 PA, sans dé ni pièces ; récupération par défaut de 600 secondes. Aucun PV ou module durablement endommagé n'est réparé.
+- Une panne active par cible ; verrou natif d'intervention, confirmations et réservations transactionnelles. Annulation avant résolution sans consommation ; changement de version et accès révoqué refusés.
+- Protection de 900 secondes après remise en service, y compris expiration automatique. La protection est calculée depuis l'échéance réelle de la panne, jamais depuis une consultation tardive. L'historique technique n'est pas supprimé.
+- Cartes directes Action « Saboter une installation » et « Remettre une installation en service », sur QR ou code de cible. Préparation via l'éditeur M6 ; capacité des nouvelles publications `sabotageVersion=1`. Anciennes sessions fermées, sans migration implicite.
+
+Validation locale : 77 tests ciblés, campagne complète de 3 002 tests, six cas Firestore dédiés, compilation et `git diff --check` réussis. Les campagnes se recouvrent ; leurs nombres ne sont pas additionnables. SHA et état de CI exacts consignés dans la PR. Aucun déploiement ou test terrain. Le statut Sabotage demeure **Partiel** : les niveaux avancés demandent les raccordements spécifiques aux modules, aux vaisseaux à quai et aux exceptions préparées.

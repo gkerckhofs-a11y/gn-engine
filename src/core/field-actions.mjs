@@ -1,3 +1,4 @@
+import {validSoInstallation} from '../shared/space-installation.mjs';
 import {negotiableOffer,discountResult} from './space-merchant-negotiation.mjs';
 import {requireMerchantAnalysis,merchantProfile,contactQuota,contactUsage} from './space-merchant-analysis.mjs';
 import {isTechnicalAnalysis,requireTechnicalAnalysis} from './space-technical-analysis.mjs';
@@ -52,7 +53,7 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
   const {s,c,r}=ctx;
   if(s.spaceOutlaws?.escapeVersion===1){const cap=await tx.get(`sessions/${s.id}/soCaptivities/${c.id}`);requireThat(cap?.status!=='ACTIVE','SO_ESCAPE_CAPTIVE');}requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,c,'discover',at);requireThat(!c.activeFieldActionId&&!c.activePersonActionId,'FIELD_ACTOR_BUSY');
   const {t,state}=await target(tx,s,input.targetId,at),kind=input.kind,p=Object.hasOwn(t.profiles,kind)?merchantProfile(t,t.profiles[kind],abilityLevel(c,t.profiles[kind].skillId)):null;requireThat(p,'INVALID_FIELD_TARGET');
-  if(s.spaceOutlaws)requireThat(s.spaceOutlaws.actionsVersion===1&&(t.kind==='ANALYSIS'&&kind==='ANALYZE'||s.spaceOutlaws.searchVersion===1&&isPlaceSearch(t)&&kind==='SEARCH'),'SO_GAMEPLAY_NOT_OPEN');
+  if(s.spaceOutlaws)requireThat(s.spaceOutlaws.actionsVersion===1&&(t.kind==='ANALYSIS'&&kind==='ANALYZE'||s.spaceOutlaws.searchVersion===1&&isPlaceSearch(t)&&kind==='SEARCH'||s.spaceOutlaws.sabotageVersion===1&&validSoInstallation(t)&&['SABOTAGE','REPAIR'].includes(kind)),'SO_GAMEPLAY_NOT_OPEN');
   const negotiation=p.skillId==='COU-02'?await negotiableOffer(tx,s,c,t,input.tradeQuantity??1):null;
   const routeAnalysis=isRouteAnalysis(t)?routeAnalysisBinding(s,c,t,await routeAnalysisByCode(tx,s,c,input.navigationCode)):null;
   await dependency(tx,s,t,at);const time=gameTime(s.clock,at);requireThat(!state.activeActionId,'FIELD_TARGET_BUSY');requireThat(time>=state.lockedUntilGameMs,'FIELD_TARGET_LOCKED');
@@ -130,7 +131,7 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
     requireThat(action!=='replenishFieldTarget'&&(action!=='saveFieldTarget'||session.spaceOutlaws.searchVersion===1&&isPlaceSearch(input.target)),'SO_GAMEPLAY_NOT_OPEN');
     authorizeSpaceOutlaws(tx,session,'FIELD');
     if(session.spaceOutlaws.searchVersion===1)authorizeSpaceOutlaws(tx,session,'SEARCH');
-    if(a)requireThat(a.kind==='ANALYZE'||session.spaceOutlaws.searchVersion===1&&a.searchVersion===1,'SO_GAMEPLAY_NOT_OPEN');
+    if(a)requireThat(a.kind==='ANALYZE'||session.spaceOutlaws.searchVersion===1&&a.searchVersion===1||session.spaceOutlaws.sabotageVersion===1&&['SABOTAGE','REPAIR'].includes(a.kind),'SO_GAMEPLAY_NOT_OPEN');
    }
    if(['COU-01','COU-03'].includes(a?.profile.skillId))requireMerchantAnalysis(session,{profiles:{ANALYZE:a.profile}});
    if(a?.profile.skillId==='MEC-01'&&session.spaceOutlaws)requireTechnicalAnalysis(session);
@@ -165,7 +166,7 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
     a={id,characterId:c.id,characterName:c.public.displayName,actorUid:actor.uid,accessVersion:r.accessVersion,targetId:p.t.id,targetTitle:p.t.title,kind:input.kind,status:'ACTIVE',startedAt:at,startedAtGameMs:time,readyAtGameMs:time+p.preview.durationSeconds*1000,
      ...(p.routeAnalysis?{routeAnalysis:p.routeAnalysis}:{}),aid:aidSnapshot(p.aid),durationSeconds:p.preview.durationSeconds,cost:p.preview.cost,apEnabled:!!p.points,cooldownSeconds:p.preview.cooldownSeconds,family:p.family,level:p.preview.level,bonus:p.preview.bonus,bonusName:p.preview.bonusName,profile:p.p,reward:p.reward,
      ...(isPlaceSearch(p.t)?{searchVersion:1,searchEpoch:p.state.epoch,showDifficulty:p.t.search.showDifficulty,bonuses:p.bonuses,targetRevision:p.t.revision}:{}),
-     ...(p.negotiation?{negotiation:p.negotiation}:{}),...(input.kind==='ANALYZE'?{information:p.information,targetRevision:p.t.revision}:{}),
+     ...(p.negotiation?{negotiation:p.negotiation}:{}),...(input.kind==='ANALYZE'?{information:p.information,targetRevision:p.t.revision}:{}),...(['SABOTAGE','REPAIR'].includes(input.kind)?{targetRevision:p.t.revision}:{}),
      bonusLotId:p.bonusLot?.id??null,consumableLotId:p.consumableLot?.id??null,offlineSeconds:p.t.offlineSeconds,failureLockSeconds:p.t.failureLockSeconds,repairProtectionSeconds:p.t.repairProtectionSeconds};
     reserveAid(tx,s,a,p.aid,'fieldActions');tx.set(ap(s.id,id),a);tx.set(cp(s.id,c.id),{...c,activeFieldActionId:id});tx.set(sp(s.id,p.t.id),{...p.state,activeActionId:id,revision:p.state.revision+1});
     if(p.points)tx.set(actionPointPath(s.id,c.id),reserveActionPoints(p.points,a.cost));
@@ -173,7 +174,7 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
     tx.set(`sessions/${s.id}/audit/${id}`,{id,at,action,actorUid:actor.uid,characterId:c.id,targetId:a.targetId,cost:a.cost});result=viewAction(a,s,at);
    }else{
     const gm=action==='cancelFieldActionMJ';let s,c,r;
-    if(gm){requireThat(org.session,'INVALID_ID');s=org.s;a=await tx.get(ap(s.id,documentId(input.actionId)));requireThat(a,'NOT_FOUND');if(s.spaceOutlaws)requireThat(a.kind==='ANALYZE'||s.spaceOutlaws.searchVersion===1&&a.searchVersion===1,'SO_GAMEPLAY_NOT_OPEN');c=await tx.get(cp(s.id,a.characterId));}
+    if(gm){requireThat(org.session,'INVALID_ID');s=org.s;a=await tx.get(ap(s.id,documentId(input.actionId)));requireThat(a,'NOT_FOUND');if(s.spaceOutlaws)requireThat(a.kind==='ANALYZE'||s.spaceOutlaws.searchVersion===1&&a.searchVersion===1||s.spaceOutlaws.sabotageVersion===1&&['SABOTAGE','REPAIR'].includes(a.kind),'SO_GAMEPLAY_NOT_OPEN');c=await tx.get(cp(s.id,a.characterId));}
     else {({s,c,r}=ctx);if(action==='cancelFieldActionAid')c=await tx.get(cp(s.id,a.characterId));}
     const cancel=action!=='finishFieldAction';
     if(a.status!=='ACTIVE')result=viewAction(a,s,at);
@@ -184,6 +185,7 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
      const points=a.apEnabled?actionPointState(s,c,await tx.get(actionPointPath(s.id,c.id)),at):null;
      let outcome=null,why=cancel?reason(input.reason):'';
      if(!cancel){
+      if(s.spaceOutlaws&&['SABOTAGE','REPAIR'].includes(a.kind))requireThat(s.spaceOutlaws.sabotageVersion===1&&validSoInstallation(t)&&t.revision===a.targetRevision,'FIELD_STATE_CHANGED');
       requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,c,'discover',at);requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');requireThat(time>=a.readyAtGameMs,'FIELD_TOO_EARLY');requireThat(t?.publicationState==='PUBLISHED','FIELD_UNAVAILABLE');await dependency(tx,s,t,at);
       requireThat(!a.profile.skillId||abilityLevel(c,a.profile.skillId)>=a.profile.minLevel,'FIELD_SKILL_REQUIRED');requireThat(a.kind==='SEARCH'||a.kind==='ANALYZE'||(a.kind==='SABOTAGE'?state.status==='ONLINE':state.status==='OFFLINE'),'FIELD_STATE_CHANGED');
       if(a.profile.skillId==='MEC-01')requireThat(abilityLevel(c,'MEC-01')>=a.level,'FIELD_SKILL_REQUIRED');
@@ -222,7 +224,7 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
         tx.set(path,{id:rw.knowledgeId,active:true,snapshot:rw.knowledge,receivedAt:at,source:'FIELD',sourceName:a.targetTitle,readAt:null,grantRevision:1});outcome.reward={kind:rw.kind,name:rw.knowledge.title,knowledgeId:rw.knowledgeId};
        }
        state={...state,stock:{...state.stock,[rw.id]:state.stock[rw.id]-1},claims:{...state.claims,[c.id]:{...claimsFor(state,c.id),[rw.id]:claimed(state,c.id,rw.id)+1}}};
-      }else if(success&&a.kind==='SABOTAGE')state={...state,status:'OFFLINE',offlineUntilGameMs:a.offlineSeconds?time+a.offlineSeconds*1000:null};
+      }else if(success&&a.kind==='SABOTAGE')state={...state,status:'OFFLINE',offlineUntilGameMs:a.offlineSeconds?time+a.offlineSeconds*1000:null,...(s.spaceOutlaws?.sabotageVersion===1?{protectionAfterExpirySeconds:900}:{})};
       else if(success&&a.kind==='REPAIR')state={...state,status:'ONLINE',offlineUntilGameMs:null,protectedUntilGameMs:time+a.repairProtectionSeconds*1000};
       else if(!success&&a.kind!=='SEARCH')state={...state,lockedUntilGameMs:time+a.failureLockSeconds*1000};
       const priorUse=a.profile.skillId==='COU-03'?await tx.get(uses(s.id,c.id,a.family)):null;if(a.profile.skillId==='COU-03')requireThat(contactUsage(s,priorUse)<contactQuota(abilityLevel(c,'COU-03')),'CONTACT_QUOTA_EXHAUSTED');

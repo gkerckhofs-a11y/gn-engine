@@ -1,3 +1,4 @@
+import {validSoInstallation} from '../shared/space-installation.mjs';
 import {requireThat} from './validation.mjs';
 import {fieldTargetInput} from './field-state.mjs';
 import {analysisProfile} from '../shared/space-outlaws-analysis.mjs';
@@ -58,7 +59,7 @@ export function centralFieldTargetProjection(changes,itemChanges=null){
  for(const c of changes.filter(c=>c.type==='fieldTarget'&&c.operation==='UPSERT')){
   const add=(field,ref,type,code,message)=>diagnostics.push(diagnostic(c,field,ref,type,code,message));
   for(const ref of centralFieldTargetReferences(c.data)){
-   if(ref.type==='skill'){if(!(isPlaceSearch(c.data)?initialSkillIds.includes(ref.id):c.data.kind==='ANALYSIS'&&analysisProfile(ref.id)))add(ref.field,ref.id,ref.type,'REFERENCE_NOT_CHECKED','Catalogue canonique et profil de compétence à raccorder.');continue;}
+   if(ref.type==='skill'){if(!(isPlaceSearch(c.data)?initialSkillIds.includes(ref.id):c.data.kind==='ANALYSIS'&&analysisProfile(ref.id)||validSoInstallation(c.data)&&['SABOTAGE','MEC-02'].includes(ref.id)))add(ref.field,ref.id,ref.type,'REFERENCE_NOT_CHECKED','Catalogue canonique et profil de compétence à raccorder.');continue;}
    if(ref.type==='item'&&itemChanges===null){add(ref.field,ref.id,ref.type,'REFERENCE_NOT_CHECKED','Lecture M1 requise pour contrôler cet objet.');continue;}
    const target=(ref.type==='item'?items:changes).find(t=>t.type===ref.type&&t.entityId===ref.id);
    if(!target){add(ref.field,ref.id,ref.type,'REFERENCE_MISSING','Préparer la définition cible dans son atelier ou corriger son identifiant.');continue;}
@@ -70,7 +71,7 @@ export function centralFieldTargetProjection(changes,itemChanges=null){
    }
    if(ref.type==='item'&&ref.quantity!==undefined&&target.data.kind==='INDIVIDUAL'&&ref.quantity!==1)add(ref.field,ref.id,ref.type,'FIELD_ITEM_QUANTITY','Un objet individuel exige une quantité de 1.');
   }
-  if(c.data.kind!=='ANALYSIS'&&c.data.kind!=='INTRUSION'&&c.data.kind!=='FORGERY'&&!isPlaceSearch(c.data)){
+  if(c.data.kind!=='ANALYSIS'&&c.data.kind!=='INTRUSION'&&c.data.kind!=='FORGERY'&&!isPlaceSearch(c.data)&&!validSoInstallation(c.data)){
    add('profiles',null,null,'FIELD_RULES_PENDING','Paramètres préparatoires : conformité V0.7, compétences, autorisations et QR de jeu restent à valider avant toute activation.');
    if(c.data.rewards.length)add('rewards',null,null,'FIELD_REWARD_SOURCE_PENDING','Quantités et plafonds proposés seulement ; source, réserve réelle et attribution transactionnelle restent à raccorder.');
   }

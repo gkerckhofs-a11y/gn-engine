@@ -115,6 +115,6 @@ export function validateFieldReferences(t,records){
 }
 export const initialFieldState=t=>({id:t.id,revision:1,status:'ONLINE',offlineUntilGameMs:null,protectedUntilGameMs:0,lockedUntilGameMs:0,activeActionId:null,stock:Object.fromEntries(t.rewards.map(r=>[r.id,r.stock])),claims:{},...(isPlaceSearch(t)?initialSearchState(t):{})});
 export function effectiveFieldState(s,state,at){
- const time=gameTime(s.clock,at);return state.status==='OFFLINE'&&state.offlineUntilGameMs!==null&&time>=state.offlineUntilGameMs?{...state,status:'ONLINE',offlineUntilGameMs:null}:state;
+ const time=gameTime(s.clock,at);return state.status==='OFFLINE'&&state.offlineUntilGameMs!==null&&time>=state.offlineUntilGameMs?{...state,status:'ONLINE',...(state.protectionAfterExpirySeconds?{protectedUntilGameMs:Math.max(state.protectedUntilGameMs??0,state.offlineUntilGameMs+state.protectionAfterExpirySeconds*1000)}:{}),offlineUntilGameMs:null}:state;
 }
 export function seedFieldTargets(tx,s,targets){for(const t of targets??[]){tx.set(`sessions/${s.id}/fieldTargets/${t.id}`,t);tx.set(`sessions/${s.id}/fieldStates/${t.id}`,initialFieldState(t));}}
