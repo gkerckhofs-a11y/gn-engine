@@ -4,6 +4,7 @@ export const firestoreSuites = [
   {id:"space-merchant-negotiation",module:"../support/space-merchant-negotiation-suite.mjs",exportName:"merchantNegotiationSuite",label:"space-merchant-negotiation Firestore",seconds:30},
   {id:"space-merchant-contacts",module:"../support/space-merchant-contacts-suite.mjs",exportName:"merchantContactsSuite",label:"space-merchant-contacts Firestore",seconds:30},
   {id:"space-medical-diagnosis",module:"../support/space-medical-diagnosis-suite.mjs",exportName:"medicalDiagnosisSuite",label:"space-medical-diagnosis Firestore",seconds:30},
+  {id:"space-workshop",module:"../support/space-clinic-suite.mjs",exportName:"workshopSuite",label:"Révision intégrale droïde sur Firestore",seconds:60},
   {id:"space-clinic",module:"../support/space-clinic-suite.mjs",exportName:"clinicSuite",label:"Clinique SO sur Firestore",seconds:30},
   {id:"space-merchant-analysis",module:"../support/space-merchant-analysis-suite.mjs",exportName:"merchantAnalysisSuite",label:"Expertise marchande sur Firestore",seconds:25},
   {id:"identity-lifecycle",module:"../support/identity-lifecycle-suite.mjs",exportName:"identityLifecycleSuite",label:"Codes courts et corbeille sur Firestore",seconds:20},

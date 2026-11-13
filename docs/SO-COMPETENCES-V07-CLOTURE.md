@@ -73,7 +73,7 @@ Dans « Commit / PR », **B** = base main `49ec5ea12100f9efb62ea23773b216d465d06
 | MED-02 Soins de terrain | Médecin | ch. 10, 6 | person-actions, santé SO | Action | À vérifier | space-outlaws-health | B/C | Non vérifié | À faire | Clôture intégrée avec diagnostics, clinique et toxicologie |
 | MED-03 Traitement clinique | Médecin | ch. 10, 4 | person-actions CLINIC | Action/régie | À vérifier | space-clinic | C | Non | À faire | CI exacte, interaction avec états TOXI et recette clinique |
 | MEC-01 Diagnostic technique | Mécano | ch. 11 | analyse M6/space-technical-analysis | Action | Partiel | space-technical-analysis | B/C | Non vérifié | À faire | Profils de droïdes, installations et pannes dynamiques |
-| MEC-02 Réparation | Mécano | ch. 11, 17 | person-actions, maintenance/vaisseaux | Action/Terminal | Partiel | health, maintenance | B/C | Non vérifié | À faire | Révision atelier droïde, blindage/boucliers et profils spécialisés |
+| MEC-02 Réparation | Mécano | ch. 11, 17 | person-actions, maintenance/vaisseaux | Action/Terminal | Partiel | health, maintenance, space-clinic/workshop | B/C/W | Non vérifié | À faire | Révision atelier raccordée sur W ; blindage/boucliers, modules et autres profils spécialisés à compléter |
 | MEC-03 Amélioration | Mécano | ch. 11, 17 | module-mandates/module-work | Action/Terminal | Partiel | module-work/module-mandates | B | Non vérifié | À faire | Couvrir modules droïdes, rares et prototypes |
 | PIL-01 Navigation | Pilote | ch. 12, 18 | route-analysis, detours | Action/Terminal | À vérifier | route-analysis/detours | B/C | Non vérifié | À faire | Recette cinq niveaux, codes et changements de route |
 | PIL-02 Préparation de vol | Pilote | ch. 12, 18 | voyages/cockpit-launch | Terminal/cockpit | À vérifier | voyages/cockpit-launch | B | Non vérifié | À faire | Recette mandats, manifeste et décollage |
@@ -126,3 +126,18 @@ PR [#16](https://github.com/gkerckhofs-a11y/gn-engine/pull/16), brouillon, non f
 Correctif suivant : dossiers médicaux, historique et tentatives diagnostiques repris par la copie native d'épisode ; remise liée à sa session d'origine ; identifiants ASCII des liens cliniques pour conserver la sélection dans le fragment d'URL du navigateur. Vérification locale : 50 tests de persistance et non-régression réussis, 19 tests de menu/clinique réussis, deux cas ciblés Firestore réussis, compilation réussie. Ces campagnes se recouvrent et ne doivent pas être additionnées. Le SHA et la conclusion de CI du correctif sont à consulter dans la PR.
 
 Aucune publication Firebase, modification de session réelle ou recette terrain dans cette tranche.
+
+## Tranche 2 — révision intégrale des droïdes
+
+**W** = branche `work/skills-v07-workshop`, basée sur `901648aae6ef59ed117a1428ff8e474693cc153e` de la PR #16. Complément proposé séparément ; main demeure `49ec5ea12100f9efb62ea23773b216d465d06297`. SHA et CI exacts consignés dans la PR du complément.
+
+Référence canonique : livre V0.7, chapitre 6 (révision intégrale) et chapitre 11, MEC-02. Réemploi du moteur `person-actions` et de ses protocoles `CLINIC_SAFE` / `CLINIC_FAST`, sans moteur de réparation parallèle.
+
+- Atelier M6 publié et en service, MEC-02 N2 + MEC-01 N2 ; cible droïde distincte de l'intervenant. Un médecin sans ces compétences n'obtient aucun droit mécanique.
+- Protocole sûr : 300/270/240/210 s aux niveaux 2/3/4/5 ; accéléré : 180/165/150/135 s, D6 + MEC-02 + bonus autorisés ≥ 6. Échec : 120 s supplémentaires, sans nouveau jet ou coût.
+- Un PA, un composant compatible et un lot de pièces de 50 Cr d'usage. Références du kit Mécano publié, jamais déduites du nom d'un objet. Le lot de pièces initial non marqué consommable reste utilisable dans ce seul protocole et est consommé une fois ; aucun débit additionnel de 50 crédits.
+- Tous les PV restaurés et recalibrage terminé ; protection, modules et délai de réparation de terrain conservés. Stabilisation et STOP utilisent les horloges natives. Annulation avant résolution : réservations libérées ; après échec du jet : aucun remboursement.
+- Deux cartes Action, sélection du droïde par le parcours QR/ID existant, atelier/fournitures vérifiés avant confirmation. Préparation depuis les profils cliniques de la régie avec choix explicite Humanoïde/Droïde.
+- Capacité `workshopVersion=1` des nouvelles publications. Les empreintes des anciens profils médicaux restent vérifiables à l'identique ; aucune session ni version publiée n'est migrée implicitement.
+
+Validation locale : 59 tests ciblés réussis (atelier, clinique, santé, publication, épisodes, menu), puis campagne complète de 2 996 tests réussis ; après les derniers ajustements de projection/interface, 25 tests clinique/atelier/menu réussis. Six cas dédiés réussis sur Firestore local, compilation et `git diff --check` réussis. Ces campagnes se recouvrent. Aucune CI exacte de W encore validée à cette rédaction ; aucune fusion, publication Firebase ni recette terrain. Ce complément ne clôture pas MEC-02 : rechargement des blindages/boucliers et réparation des modules restent distincts et à compléter.
