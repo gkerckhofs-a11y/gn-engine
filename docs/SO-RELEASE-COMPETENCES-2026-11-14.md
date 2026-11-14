@@ -2,6 +2,12 @@
 
 Auteur : Codex. Autorisation : Guillaume, réponse « ok vas-y » après le point sur le développement, l’intégration et la publication des compétences.
 
+## Publication reportée — décision du 14 novembre 2026
+
+Après la fusion #34 dans main `43a2c7359c09c014db126cc121ea36dcf15c80b7`, Guillaume a demandé : « On publiera sur firebase plus tard, j’ai encore des modifs à travailler ». La CI complète de la candidate est réussie (43572314612) ; la CI main est distincte et était encore en cours. Le pipeline Firebase 43574851449 attendait la CI, sans étape de déploiement engagée.
+
+La publication automatique est suspendue : verify et deploy sont explicitement désactivés. Un job sans accès cloud indique la pause ; le groupe de concurrence annule l’ancien pipeline en attente. Les sources intégrées restent dans main, sans retour de code ni migration. Une future publication nécessitera une instruction explicite puis le rétablissement des gardes de validation. Le résultat d’annulation et l’état public doivent être constatés séparément.
+
 ## Candidat et portée
 
 Dépôt gkerckhofs-a11y/gn-engine, PR #34, base main `49ec5ea12100f9efb62ea23773b216d465d06297`. Version candidate `0.38.0-rc.2`. Les lots #16–#33 sont ancêtres de cette branche ; la fusion cumulative conserve leurs commits. Le complément FIL conserve la balise pendant la préparation native du vol. Les preuves exactes et l’état final sont consignés dans la description de #34, sans modifier le candidat uniquement pour y ajouter son propre SHA.

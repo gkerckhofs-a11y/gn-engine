@@ -12,11 +12,18 @@ permissions:
 
 concurrency:
   group: gn-engine-production
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
+  publication-paused:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - run: echo 'Publication Firebase suspendue à la demande de Guillaume le 14 novembre 2026. Aucune ressource de production modifiée.'
+
   verify:
-    if: github.repository == 'gkerckhofs-a11y/gn-engine' && github.ref == 'refs/heads/main'
+    # Publication reportée : restaurer explicitement ce garde lors d’une future autorisation.
+    if: ${{ false }}
     runs-on: ubuntu-latest
     timeout-minutes: 35
     steps:
@@ -33,6 +40,7 @@ jobs:
         run: node scripts/await-release-ci.mjs
 
   deploy:
+    if: ${{ false }}
     needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 40
