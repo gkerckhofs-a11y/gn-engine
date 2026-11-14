@@ -21,11 +21,11 @@ const labels={
 const fieldLabels={displayName:'nom fictif',nature:'nature',classId:'classe',speciesId:'espèce',secondaryId:'initiation'};
 const statusLabels={MATCHED:'Identité et choix concordants',BLOCKED:'À vérifier',EXCLUDED:'Fiche archivée, dossier non approuvé',NOT_REQUIRED:'Aucune préparation M2 attendue'};
 const label=(map,key)=>Object.hasOwn(map,key)?map[key]:key;
-export const createAdmissionM2CheckUi=({button,link})=>d=>`<h2>Contrôle des dossiers M2</h2>
+export const createAdmissionM2CheckUi=({button,link})=>d=>`<h2>Vérifier les candidatures et fiches</h2>
  <p>${d.status==='NO_DETECTED_ERROR'?'Aucune incohérence détectée dans ce contrôle.':'Des corrections ou décisions sont nécessaires.'}</p>
  <p>${d.totals.approved} dossiers approuvés · ${d.totals.matched} concordants · ${d.totals.blocked} à vérifier · ${d.totals.excluded} archivés hors approbation · ${d.totals.exceptions} exceptions explicites.</p>
  <p>Contrôle du ${esc(new Date(d.checkedAt).toLocaleString('fr-FR'))}, brouillon ${d.snapshot.draftRevision}. Une modification ultérieure exige un nouveau contrôle.</p>
- <p>Ce rapport vérifie les dossiers, leurs liens M2, les choix et les places confirmées. Il n’autorise aucune publication ni naissance. Les kits, compétences actives et autres dépendances relèvent aussi du contrôle global de campagne.</p>
+ <p>Ce rapport vérifie les candidatures, les fiches de personnages associées, les choix et les places confirmées. Il n’autorise aucune publication ni naissance. Les kits, compétences actives et autres dépendances relèvent aussi du contrôle global de campagne.</p>
  ${button('Relancer le contrôle','checkAdmissionM2','','quiet')} ${link('Ouvrir M2',`central/${d.campaignId}/M2`,'button quiet')}
  <h3>Places par classe</h3><ul>${d.byClass.map(c=>`<li>${esc(admissionClasses.find(x=>x.id===c.classId)?.label??c.classId)} : ${c.observed} dossiers approuvés, ${c.confirmed} places comptées, quota ${c.quota}.</li>`).join('')}</ul>
  ${d.diagnostics.some(x=>!x.registrationId)?`<h3>Cohérence d’ensemble</h3><ul>${d.diagnostics.filter(x=>!x.registrationId).map(x=>`<li>${esc(label(labels,x.code))}${x.characterId?` (${esc(x.characterId)})`:''}</li>`).join('')}</ul>`:''}

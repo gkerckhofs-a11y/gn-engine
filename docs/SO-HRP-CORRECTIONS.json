@@ -1,0 +1,611 @@
+[
+  {
+    "file": "web/collective-accounts.mjs",
+    "before": "La projection appliquera les droits de ce personnage. Un accès non autorisé sera refusé.",
+    "after": "Les informations visibles et les paiements possibles dépendent des autorisations de ce personnage.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/player-action-menu.mjs",
+    "before": "Identifier le point de jeu autorisé. Les journaux techniques restent confidentiels et intacts.",
+    "after": "Scannez le QR du point de jeu pour rechercher ou brouiller une trace fictive. Les déplacements réels ne sont pas suivis.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/player-action-menu.mjs",
+    "before": "Installation simple ou protégée préparée par le MJ ; cinq minutes et un kit au jet.",
+    "after": "Sur une installation préparée par le MJ : cinq minutes, puis un test. Le kit est consommé lors du test, même en cas d’échec.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/space-intrusion.mjs",
+    "before": "Cette serrure, ce coffre ou ce terminal fictif n’est pas préparé dans le Master de la session.",
+    "after": "Cette serrure, ce coffre ou ce terminal fictif n’est pas prévu pour cette action. Demandez au MJ de vérifier le point de jeu.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/space-intrusion.mjs",
+    "before": "La durée canonique de l’intrusion n’est pas encore écoulée.",
+    "after": "L’intrusion est encore en cours. Attendez la fin du délai indiqué avant de terminer.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/space-decryption.mjs",
+    "before": "INF-02 n’est pas activé pour cette version de jeu.",
+    "after": "Le déchiffrement n’est pas disponible dans cette session. Demandez au MJ comment traiter ce document.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/boarding-custody.mjs",
+    "before": "Retour à sa soute avant livraison native ; aucun salaire validé par la prise.",
+    "after": "Rendez le fret à sa soute avant la livraison prévue au contrat. La prise ne valide aucun salaire.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/fictional-traces.mjs",
+    "before": "Préparez une balise DEPARTURE dans M6 et un vaisseau à quai.",
+    "after": "Préparez un point de départ de vaisseau dans l’atelier Informations et lieux, puis un vaisseau à quai.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/ship-workspace.mjs",
+    "before": "Les coûts, pièces, niveaux et accords sont vérifiés par les outils de travaux.",
+    "after": "Ouvrez une intervention pour vérifier les pièces, le niveau, l’accord et le coût nécessaires avant de commencer.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/space-maintenance.mjs",
+    "before": "Les fournitures sont payées une seule fois.",
+    "after": "Vérifiez le devis avant de commencer : les fournitures sont payées une seule fois.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/space-module-mandates.mjs",
+    "before": "L’accord seul ne réserve rien.",
+    "after": "Donner votre accord ne consomme aucun objet ni point d’action.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/space-module-mandates.mjs",
+    "before": "Les vols équipés dépendent de la version de session ; consultez la navigation.",
+    "after": "Consultez la navigation pour savoir si ce vaisseau équipé peut partir dans cette session.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/transfers.mjs",
+    "before": "La propriété et la détention passeront au destinataire lorsqu’il acceptera, avec les objets dans son sac. Le stock n’est pas réservé.",
+    "after": "L’objet restera dans votre sac jusqu’à son acceptation. Le destinataire en deviendra alors propriétaire et le recevra dans son sac. Une proposition seule ne met pas les objets de côté.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/transfers.mjs",
+    "before": "Un changement de ce lot invalidera la proposition ; aucune quantité n’est retirée maintenant.",
+    "after": "Si ces objets changent entre-temps, il faudra refaire la proposition. Aucun objet n’est retiré de votre sac maintenant.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/solo-demo-navigation.mjs",
+    "before": "Suivez les étapes dans l’ordre. Les contrôles et confirmations du Master restent obligatoires.",
+    "after": "Suivez les étapes dans l’ordre. Vérifiez le scénario et confirmez sa publication avant de préparer les personnages.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/preparations.mjs",
+    "before": "Règles de référence : V0.7 · aucune version Master publiée.",
+    "after": "Règles de référence : V0.7 · aucune version du scénario publiée.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/preparations.mjs",
+    "before": "Préparez les dossiers et les kits dans le Master central,",
+    "after": "Préparez les personnages et leur équipement dans le scénario,",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/space-outlaws-entry.mjs",
+    "before": "Préparer le personnage dans M2",
+    "after": "Préparer sa fiche de personnage",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/space-outlaws-entry.mjs",
+    "before": " · fourniture M1 : ",
+    "after": " · fourniture prévue : ",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/space-outlaws-entry.mjs",
+    "before": "Les soins MED-02/MEC-02 utilisent les fournitures des kits M1 Médecin/Mécano préparés. Complétez ces kits avant de figer la version si ces soins sont nécessaires.",
+    "after": "Les soins médicaux et les réparations de droïdes utilisent les fournitures prévues dans leur équipement de départ. Vérifiez ces équipements avant de publier la version.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/space-outlaws-entry.mjs",
+    "before": "La publication fige tout le brouillon. Elle ne distribue ni personnage ni ressource. Après publication, ce brouillon ne sera plus éditable ; les autres domaines et les révisions de campagne seront raccordés ultérieurement.",
+    "after": "Vous allez publier cette version du scénario. Vérifiez les fiches, leurs secrets et leur équipement. Cette version ne pourra plus être modifiée ; les personnages et leur matériel seront attribués séparément, après publication.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/admissions.mjs",
+    "before": "Les espèces restent narratives dans le brouillon M2.",
+    "after": "Les espèces servent à décrire les personnages dans le scénario en préparation.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/admissions.mjs",
+    "before": "Une approbation confirme la participation. La préparation M2 exige aussi les droits d’édition M2 et une confirmation séparée ; l’incarnation reste une étape ultérieure ; aucun kit, crédit ou QR actif n’est créé ici.",
+    "after": "Approuver un dossier confirme la participation. Préparer sa fiche demande aussi le droit de modifier les personnages et une confirmation séparée. L’attribution au joueur, son équipement, ses crédits et son accès de jeu se préparent ensuite.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/admissions.mjs",
+    "before": "Préparer dans le Master Personnages",
+    "after": "Préparer la fiche de personnage",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/admissions.mjs",
+    "before": "Ce dossier a déjà produit une fiche M2. Un nouvel essai ne crée aucune copie et ne remplace pas les éditions ultérieures.",
+    "after": "La fiche de ce personnage est déjà préparée. La consulter ne crée pas de copie et ne remplace pas les modifications faites depuis.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/admissions.mjs",
+    "before": "J’ai vérifié ces données fictives et confirme leur préparation privée dans M2.",
+    "after": "J’ai vérifié ces informations fictives et confirme la préparation privée de la fiche.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/admission-m2-check.mjs",
+    "before": "Ce rapport vérifie les dossiers, leurs liens M2, les choix et les places confirmées.",
+    "after": "Ce rapport vérifie les candidatures, les fiches de personnages associées, les choix et les places confirmées.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/admission-m2-reconciliation.mjs",
+    "before": "Remplacer la biographie M2 par le background approuvé ci-dessus.",
+    "after": "Remplacer la biographie de la fiche par l’histoire approuvée ci-dessus.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-groups.mjs",
+    "before": "Ces textes, appartenances et permissions restent des propositions privées dans M2.",
+    "after": "Ces textes, membres et autorisations restent des propositions privées dans le scénario.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-knowledge.mjs",
+    "before": "Lecture M2 non accordée : les noms et états des personnages ne sont pas consultables ici.",
+    "after": "Vous n’avez pas le droit de consulter les personnages dans cet atelier. Demandez les identifiants nécessaires à son responsable.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-recipes.mjs",
+    "before": "La lecture de M1 n’est pas accordée. Les noms et états des modèles ne sont pas consultables ici.",
+    "after": "Vous ne pouvez pas consulter les objets dans cet atelier. Demandez leurs identifiants au responsable des objets.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-recipes.mjs",
+    "before": "La lecture de M6 n’est pas accordée. Les titres et états des connaissances ne sont pas consultables ici.",
+    "after": "Vous ne pouvez pas consulter les informations dans cet atelier. Demandez leurs identifiants à son responsable.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-check.mjs",
+    "before": "Ces nombres comptent les définitions M2, pas les participants ni les places confirmées.",
+    "after": "Ces nombres comptent les fiches préparées dans le scénario. Ils ne comptent ni les participants inscrits ni les places confirmées.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-check.mjs",
+    "before": "Le rapport correspond à la révision affichée. Après une modification, revenez aux ateliers et relancez le contrôle.",
+    "after": "Ce rapport vérifie le scénario tel qu’il est actuellement préparé. Après une modification, relancez le contrôle avant de publier.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-class-kits.mjs",
+    "before": "Choisissez les modèles M1 ou renseignez leurs futurs identifiants.",
+    "after": "Choisissez les objets de départ ou renseignez les identifiants des objets encore à préparer.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-class-kits.mjs",
+    "before": "les attributs des modèles M1 achetés ensuite",
+    "after": "les caractéristiques des objets achetés ensuite",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-missions.mjs",
+    "before": "Sources de récompense, règles de réussite, groupes, annonces, rendez-vous, événements, lieux/QR et publication restent à raccorder. Les conditions sont du texte de préparation.",
+    "after": "Cette fiche sert à préparer la mission. Les conditions restent du texte à organiser : elles ne déclenchent pas automatiquement les récompenses, rendez-vous ou événements.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-field-targets.mjs",
+    "before": "Chaque modèle est une cible M6 figée. Un seul document suivi est créé par succès, aucun pouvoir technique.",
+    "after": "Chaque modèle prévoit un document fictif. Une réussite produit un seul exemplaire ; elle ne donne aucun accès à un système réel.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-field-targets.mjs",
+    "before": "Préparez les informations M6, puis liez-les ici. La publication globale figera les règles et les textes.",
+    "after": "Préparez les informations que les joueurs pourront découvrir, puis associez-les ici. La publication conservera cette version des règles et des textes.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/logistics.mjs",
+    "before": "Modifiez-les avec l’onglet Entrepots du master,",
+    "after": "Modifiez-les avec l’onglet Entrepots du fichier de préparation,",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/space-hidden-cargo.mjs",
+    "before": "Sous-total indicatif des valeurs M1 connues",
+    "after": "Sous-total indicatif des valeurs connues des marchandises",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/space-hidden-cargo.mjs",
+    "before": "une révision du vaisseau ou nouvelle escale peut le rendre caduc",
+    "after": "une modification du vaisseau ou une nouvelle escale peut le rendre caduc",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/app.mjs",
+    "before": "Les objectifs se modifient dans les fiches des personnages ou dans le Master Objectifs.",
+    "after": "Modifiez les objectifs dans les fiches des personnages ou dans l’atelier Objectifs.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/app.mjs",
+    "before": "Préparez les vaisseaux et les routes avec le Master de ce module.",
+    "after": "Préparez les vaisseaux et les trajets dans le scénario.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/app.mjs",
+    "before": "Ces rôles de session ne donnent aucun droit de publication du Master central.",
+    "after": "Ces rôles ne donnent pas le droit de publier une version du scénario.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/app.mjs",
+    "before": "Connexion au serveur interrompue. Vérifiez le réseau puis réessayez.",
+    "after": "La connexion a été interrompue. Vérifiez votre réseau, puis réessayez.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/app.mjs",
+    "before": "Réponse du serveur illisible. Actualisez ou réessayez.",
+    "after": "La réponse n’a pas pu être lue. Actualisez pour vérifier l’état de votre demande.",
+    "category": "jargon",
+    "occurrences": 1
+  },
+  {
+    "file": "web/admissions.mjs",
+    "before": "'Préparer dans M2'",
+    "after": "'Préparer la fiche'",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/admissions.mjs",
+    "before": "'Consulter la préparation M2'",
+    "after": "'Consulter la fiche préparée'",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/admissions.mjs",
+    "before": ">Confirmer la préparation M2<",
+    "after": ">Confirmer la préparation<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/admission-m2-check.mjs",
+    "before": ">Contrôle des dossiers M2<",
+    "after": ">Vérifier les candidatures et fiches<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/admission-m2-reconciliation.mjs",
+    "before": ">Rapprocher le dossier et la fiche M2<",
+    "after": ">Comparer la candidature et la fiche<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/admission-m2-reconciliation.mjs",
+    "before": ">Fiche M2 actuelle<",
+    "after": ">Fiche de personnage actuelle<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/admission-m2-reconciliation.mjs",
+    "before": ">Biographie M2 actuelle<",
+    "after": ">Biographie actuelle<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/admission-m2-reconciliation.mjs",
+    "before": ">Conserver la biographie M2 actuelle.<",
+    "after": ">Conserver la biographie actuelle.<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-groups.mjs",
+    "before": ">Personnage M2 à ajouter<",
+    "after": ">Personnage à ajouter<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-characters.mjs",
+    "before": ">Vérifications de préparation M2<",
+    "after": ">Vérifier les personnages<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-characters.mjs",
+    "before": "'Créer une fiche M2'",
+    "after": "'Créer une fiche de personnage'",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-knowledge.mjs",
+    "before": ">Identifiant du personnage M2<",
+    "after": ">Identifiant du personnage<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-knowledge.mjs",
+    "before": "'Créer une information M6'",
+    "after": "'Créer une information'",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-missions.mjs",
+    "before": ">Information requise M6<",
+    "after": ">Information requise<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-missions.mjs",
+    "before": ">Objet M1 proposé<",
+    "after": ">Objet proposé<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-missions.mjs",
+    "before": "'Créer une mission M7'",
+    "after": "'Créer une mission'",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-missions.mjs",
+    "before": ">Donneur M2 proposé (facultatif)<",
+    "after": ">Personnage commanditaire (facultatif)<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-missions.mjs",
+    "before": ">Informations requises M6<",
+    "after": ">Informations requises<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-missions.mjs",
+    "before": "'Ajouter un prérequis M6'",
+    "after": "'Ajouter une information requise'",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-missions.mjs",
+    "before": ">Récompenses proposées M1<",
+    "after": ">Objets proposés en récompense<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-field-targets.mjs",
+    "before": ">Identifiant M6 de l’information<",
+    "after": ">Identifiant de l’information<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-field-targets.mjs",
+    "before": ">Enregistrer dans M6<",
+    "after": ">Enregistrer le lieu<",
+    "category": "label",
+    "occurrences": 2
+  },
+  {
+    "file": "web/central-field-targets.mjs",
+    "before": ">Enregistrer le modèle fictif dans M6<",
+    "after": ">Enregistrer le modèle fictif<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-field-targets.mjs",
+    "before": ">Identifiant M1 du formulaire vierge consommable<",
+    "after": ">Identifiant du formulaire vierge consommable<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-recipes.mjs",
+    "before": "'Ingrédient M1'",
+    "after": "'Objet utilisé comme ingrédient'",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-check.mjs",
+    "before": ">Kit M1<",
+    "after": ">Équipement de départ<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-check.mjs",
+    "before": "'Corriger les kits dans M1'",
+    "after": "'Corriger les équipements de départ'",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/central-check.mjs",
+    "before": "'Consulter les fiches dans M2'",
+    "after": "'Consulter les personnages'",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/place-search.mjs",
+    "before": "'Information M6 (pour un indice)'",
+    "after": "'Information à découvrir (pour un indice)'",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/place-search.mjs",
+    "before": "'Objet M1 (pour un objet)'",
+    "after": "'Objet à trouver'",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/place-search.mjs",
+    "before": "'Identifiant de compétence ou objet M1'",
+    "after": "'Code de compétence ou identifiant d’objet'",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/intelligence.mjs",
+    "before": "'Information M6 privée'",
+    "after": "'Information privée'",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/announcements.mjs",
+    "before": ">Mission du Master<",
+    "after": ">Mission du scénario<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/space-outlaws-episodes.mjs",
+    "before": ">Master du prochain épisode<",
+    "after": ">Scénario du prochain épisode<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/workshop.mjs",
+    "before": ">Master des tarifs<",
+    "after": ">Tarifs de préparation<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/masters.mjs",
+    "before": ">Catalogue du Master<",
+    "after": ">Catalogue du scénario<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/masters.mjs",
+    "before": ">Master des tarifs<",
+    "after": ">Tarifs de préparation<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/masters.mjs",
+    "before": ">Master du module<",
+    "after": ">Fichier de préparation du module<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/app.mjs",
+    "before": ">Contrôle du Master central<",
+    "after": ">Vérifier le scénario<",
+    "category": "label",
+    "occurrences": 1
+  },
+  {
+    "file": "web/app.mjs",
+    "before": ">Master central<",
+    "after": ">Préparation du scénario<",
+    "category": "label",
+    "occurrences": 1
+  }
+]

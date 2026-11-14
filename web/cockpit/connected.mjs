@@ -1,3 +1,4 @@
+import {uiErrorMessage} from '../ui-language.mjs';
 import auth from '../firebase-client.mjs';
 import {GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut,browserSessionPersistence,setPersistence} from 'firebase/auth';
 import {projectCockpit,lockCockpit} from './cockpit.mjs';
@@ -19,7 +20,7 @@ account.innerHTML='<button id="pilot-login">Connecter le pilote désigné</butto
 document.querySelector('header').after(account);
 const orders=document.createElement('section');orders.id='live-orders';document.querySelector('footer').before(orders);
 const status=text=>{$('connection-status').textContent=text;};
-function fail(error){main.hidden=true;current=null;lockCockpit();orders.replaceChildren();status(soNavigationErrors[error.code]??spaceEncounterErrors[error.code]??'Connexion ou autorisation indisponible. Vérifiez le pilote connecté et l’affectation du poste auprès du MJ.');}
+function fail(error){main.hidden=true;current=null;lockCockpit();orders.replaceChildren();status(uiErrorMessage(error,{...soNavigationErrors,...spaceEncounterErrors}));}
 async function api(action,input){
  if(!auth.currentUser)throw new Error('Connexion requise');
  const token=await auth.currentUser.getIdToken();

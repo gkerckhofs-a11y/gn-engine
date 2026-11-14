@@ -10,7 +10,7 @@ test('Fiche : chaque compétence acquise dispose de ses conditions, sans command
  assert.equal(soLearningCatalogue.length,34);
  for(const skill of soLearningCatalogue){
   const html=entrySkills({className:'Compétences',skills:[{...skill,level:1}]});
-  assert.ok(playerSkillRules[skill.id],skill.id);assert.match(html,/Effets et conditions de la compétence/);
+  assert.ok(playerSkillRules[skill.id],skill.id);assert.match(html,/Voir les règles détaillées/);
   if(['COM-02','ROG-01','RIPOSTE','GARDE_DU_CORPS','LAS-01'].includes(skill.id)){
    assert.match(html,/Technique jouée physiquement/);assert.doesNotMatch(html,/<button|data-action=|data-form=/);
   }

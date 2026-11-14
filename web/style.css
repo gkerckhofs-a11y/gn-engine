@@ -93,3 +93,13 @@ body:has(.player-shell)>header{display:none}
 .ship-header{height:auto;padding:20px;display:flex;flex-wrap:wrap;align-items:flex-start;border:1px solid var(--line);border-radius:14px;margin:20px 0}.ship-header>div{flex:1;min-width:0}.ship-header p,.ship-workspace .muted{overflow-wrap:anywhere}.ship-header .media-figure{max-width:240px;flex-basis:240px}.ship-gauges{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.ship-gauges p{border:1px solid var(--line);padding:10px;border-radius:8px;margin:0}.ship-gauges strong{display:block}.ship-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0}.ship-tabs a[aria-current=page]{border-color:var(--gold);color:var(--gold)}.ship-card .media-figure{width:100%;max-width:320px}.ship-workspace .panel{margin:16px 0}.ship-workspace button,.ship-workspace .button{max-width:100%;white-space:normal}@media(max-width:560px){.ship-header{display:block}.ship-header .media-figure{max-width:100%}.ship-tabs a{flex:1 0 40%}.ship-gauges{font-size:13px}.ship-gauges p{padding:8px}}
 
 .ship-native>.narrow{max-width:none;padding:0}.ship-native>.narrow>h1{display:none}
+
+/* Editorial hierarchy. RP/prose contain authored fiction; do not transform it. */
+.hrp,.skill-guidance dd{font-style:italic;line-height:1.65}
+.rp,.prose,.player-content .rp,.player-content .prose{font-style:normal}
+.player-content :is(label,summary,button,.button,input,select,textarea,code,pre,kbd,time,output,table,.pill,.entity-code,.character-code,.skill-reference,.player-vitals,[role=status],[role=alert]),body:has(.player-shell) dialog :is(label,summary,button,.button,input,select,textarea,code,pre,kbd,time,output,table,.pill,.entity-code,.character-code,[role=status],[role=alert]){font-style:normal}
+.player-vitals{font-style:normal}
+.skill-guidance{max-width:52rem}.skill-guidance>p{margin:.6rem 0}.skill-instructions,.rules-text,.technical-details{margin:.8rem 0}.skill-instructions>summary,.rules-text>summary,.technical-details>summary{cursor:pointer;min-height:44px;padding:.6rem 0;font-style:normal;line-height:1.5}
+.skill-guidance dt{font-style:normal;font-weight:650;margin-top:.8rem}.skill-guidance dd{margin:.25rem 0 .7rem;overflow-wrap:anywhere}.rules-text p{font-size:.95rem}.technical-details code{overflow-wrap:anywhere;white-space:pre-wrap}
+@media(max-width:600px){.skill-guidance,.hrp{font-size:1rem}.skill-card{padding:18px}.skill-instructions>summary,.rules-text>summary{padding:.7rem 0}}
+.prose.hrp{font-style:italic}.hrp :is(code,pre,kbd,abbr){font-style:normal}.game-terms{font-size:.85rem;margin:.5rem 0 1rem;color:var(--muted);line-height:1.65}.player-help{border-left:2px solid var(--line);padding:.2rem .8rem;margin:.8rem 0 1.2rem;max-width:54rem}.player-help p{margin:.2rem 0}

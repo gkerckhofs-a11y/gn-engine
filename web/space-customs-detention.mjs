@@ -1,3 +1,4 @@
+import {uiStatus} from './ui-language.mjs';
 import {escapeHtml as esc} from './groups.mjs';
 export const customsDetentionErrors={
  SO_CUSTOMS_HOLD_CLOSED:'La retenue douanière est indisponible dans cette session.',
@@ -59,7 +60,7 @@ export function customsSeizuresAdminHtml(d,sid){
    +'<p>Lot : '+esc(s.lotId)+' · propriétaire initial : '+esc(s.ownerId)+'</p>'
    +'<p>Référence de quittance : '+esc(s.receiptCode)+'</p>'
    +'<p>Décision et motif MJ : '+esc(s.reasonText??'')+'</p>'
-   +'<p>Statut : '+esc(s.status)+'</p>'
+   +'<p>Statut : '+esc(uiStatus(s.status))+'</p>'
    +(s.status==='SEIZED'?'<form data-form="customsSeizureReturn" data-sid="'+esc(sid)+'" data-id="'+esc(s.id)+'">'
      +'<label>Motif de restitution au propriétaire initial<input name="reasonText" maxlength="500" required></label>'
      +'<label><input name="authorized" type="checkbox" required>Restitution expressément autorisée par le MJ</label>'
@@ -75,7 +76,7 @@ export function customsSeizuresPlayerHtml(d,sid){
    +'<p>Quantité saisie : '+esc(r.quantity)+' · référence du lot : '+esc(r.lotId)+'</p>'
    +'<p>Quittance : '+esc(r.receiptCode)+'</p>'
    +'<p>Motif de fiction : marchandise réglementée sans permis, régularisation non obtenue.</p>'
-   +'<p>Statut : '+esc(r.status)+'</p>'+(r.returnedAt?'<p>Restitution enregistrée.</p>':'')+'</article>').join('')
+   +'<p>Statut : '+esc(uiStatus(r.status))+'</p>'+(r.returnedAt?'<p>Restitution enregistrée.</p>':'')+'</article>').join('')
     ||'<p>Aucune saisie formelle enregistrée pour ce personnage.</p>')
   +'</div>';
 }

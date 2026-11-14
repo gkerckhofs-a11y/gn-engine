@@ -44,7 +44,7 @@ export function preparationSteps(c){
 }
 export function preparationGuideHtml(c){
  if(!c.session.permissions?.content)return '';
- return `<section class="panel preparation-guide"><h2>Préparer votre session</h2><p>Suivez les étapes dans l’ordre. Les contrôles et confirmations du Master restent obligatoires.</p><ol>${preparationSteps(c).map(s=>`<li><div><strong>${esc(s.title)}</strong> <span class="pill">${esc(s.state)}</span><p>${esc(s.detail)}</p><a class="button quiet small" href="#/${esc(s.path)}">Ouvrir l’outil<span class="sr-only"> : ${esc(s.title)}</span></a></div></li>`).join('')}</ol></section>`;
+ return `<section class="panel preparation-guide"><h2>Préparer votre session</h2><p class="hrp">Suivez les étapes dans l’ordre. Vérifiez le scénario et confirmez sa publication avant de préparer les personnages.</p><ol>${preparationSteps(c).map(s=>`<li><div><strong>${esc(s.title)}</strong> <span class="pill">${esc(s.state)}</span><p>${esc(s.detail)}</p><a class="button quiet small" href="#/${esc(s.path)}">Ouvrir l’outil<span class="sr-only"> : ${esc(s.title)}</span></a></div></li>`).join('')}</ol></section>`;
 }
 export async function loadPreparationStatus(api,c,entry){
  if(!c)return;c.entry=entry;c.publication=entry.versionId?'published':'draft';

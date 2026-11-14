@@ -8,7 +8,7 @@ const link=(label,path,cls)=>`<a class="${cls}" href="#/${path}">${label}</a>`;
 const ui=createCentralCheckUi({link});
 test('C2f UI : huit classes, fiches concernées, liens M1/M2 et limite explicite',async()=>{
  const f=await initialCoherenceFixture(()=>new MemoryStore()),html=ui.page(await f.check(2));
- assert.match(html,/Classes et kits/);assert.match(html,/1 fiche\(s\) avec plan initial dans 1 classe/);assert.match(html,/Kit absent/);assert.match(html,/Médecin/);assert.match(html,/Infiltrateur/);assert.match(html,/pas les participants/);assert.match(html,/ne certifient pas les effets/);
+ assert.match(html,/Classes et kits/);assert.match(html,/1 fiche\(s\) avec plan initial dans 1 classe/);assert.match(html,/Kit absent/);assert.match(html,/Médecin/);assert.match(html,/Infiltrateur/);assert.match(html,/ni les participants inscrits/);assert.match(html,/ne certifient pas les effets/);
  assert.ok(html.includes(`central/${f.cid}/M1`));assert.ok(html.includes(`central/${f.cid}/M2`));assert.match(html,/scope="col"/);assert.match(html,/class="table-scroll"/);assert.doesNotMatch(html,/<form|data-action="publish|Secret de fiction/);
 });
 test('C2f UI : références contrôlées ne signifient pas naissance ni publication',async()=>{
