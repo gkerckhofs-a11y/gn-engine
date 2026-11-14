@@ -1,7 +1,7 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "5b261c66a46700a5ff9cd2725d36c9ee7e1ad460",
-  "version": "0.38.0-rc.1",
-  "requestedAt": "2026-11-13",
-  "reason": "Publication autorisée par Guillaume : essai solo commun à huit profils, groupe, Sabacc, codes ABC123, corbeille et marché COU. Création et retrait des anciennes données uniquement après vérification du nouvel essai. Déploiement soumis à la CI complète du SHA main exact."
+  "sourceCommit": "61322a6e5afc9eb976f5502931e83b9bae55b9f4",
+  "version": "0.38.0-rc.2",
+  "requestedAt": "2026-11-14",
+  "reason": "Publication intermédiaire autorisée par Guillaume : intégration cumulative des compétences #16–#33 et parcours FIL depuis le quai. Clôture des 34 capacités encore partielle, sans migration ni suppression de sessions. Déploiement soumis à la CI complète du SHA main exact."
 }

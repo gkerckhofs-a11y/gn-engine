@@ -2,6 +2,14 @@
 
 Travail du 13 novembre 2026. Référence : [règles V0.7 du 23 octobre 2026](source/SO_Regles_V07.txt). Périmètre : 34 capacités joueurs ; FOR-01 reste exclu. Ce document est la matrice unique de la nouvelle clôture, pas une attestation de recette terrain.
 
+## Candidat d’intégration du 14 novembre 2026
+
+La PR [#34](https://github.com/gkerckhofs-a11y/gn-engine/pull/34) regroupe les lots #16 à #33. Le complément de parcours FIL conserve la balise et le vaisseau choisi pendant le plein, la préparation PIL-02 et l’affectation du cockpit. Le pilote utilise ses commandes natives ; un passager prévu attend le départ. Après décollage, l’actualisation reprend la vérification de filature. Aucune route secrète n’est déduite et l’opposition conserve ses contrôles de liaison et de voyage courant.
+
+Preuves locales du complément sur l’arbre `36f5fe48df7314ea03fe770dca837b583f3ec803` : compilation, 27 tests ciblés traces/navigation/interface et 3 130 tests applicatifs complets réussis, zéro échec. Les groupes ciblés recouvrent le complet. La CI complète du parent `2ad70e1801951c96f4626ba4ad853cdc5f33a1f0` est [réussie](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/43500483299), dix jobs. Les échecs historiques #31/#32 restent historiques. Les SHA et résultats finaux de la nouvelle candidate seront consignés dans #34.
+
+La version applicative candidate est `0.38.0-rc.2`. Il s’agit d’une publication intermédiaire des parcours raccordés ; **la clôture fonctionnelle des 34 capacités demeure inachevée**. Restent MEC-01 dynamique, recharges de protection mécanique et modules de droïdes, modules rares/prototypes, sabotages avancés, négociation du fret/prestations/contrats et intrusion des soutes. Les essais Android/iOS et terrain restent à faire. Aucun ancien manifeste ni aucune session réelle ne reçoit de capacité rétroactive. Une nouvelle session utilisant une nouvelle version publiée du Master est nécessaire pour les nouvelles capacités ; mettre le site à jour ne migre pas l’ancien essai.
+
 ## Base et traçabilité
 
 Inspection initiale : main `49ec5ea12100f9efb62ea23773b216d465d06297`, PR #14 et #15 fusionnées. CI exacte de cette base : 43433207932 réussie ; déploiement précédent : 43433207514 réussi. PR #2 fusionnée ; PR #3 ouverte, audit Firebase distinct. Les anciennes lignes « candidat » de SO-VALIDATION et de la matrice V3 ne prouvent pas à elles seules la conformité actuelle.
@@ -91,7 +99,7 @@ Dans « Commit / PR », **B** = base main `49ec5ea12100f9efb62ea23773b216d465d06
 | Garde du corps | Supplémentaire | ch. 15, 5 | règles joueur, déclaration santé | Physique | À vérifier | présentation à contrôler | B | Non vérifié | À faire | Désignation, 2 m, transfert immédiat et exclusions documentés/testés (L) ; CI et recette terrain restantes |
 | Sabotage | Supplémentaire | ch. 15 | field-actions SABOTAGE/REPAIR | Action | Partiel | space-installation, field-actions | S | Non | À faire | Installations N1–N2 raccordées ; modules de droïdes N3, vaisseaux N4 et profils exceptionnels N5 à compléter |
 | Dissimulation | Supplémentaire | ch. 15 | person-actions / inventaire natif | Action/sac | Partiel | space-loot-concealment | K | Non | À faire | Cache, expiration et oppositions raccordées ; CI exacte et recette intégrée restantes |
-| FIL-01 Pistage | Supplémentaire | ch. 15 | field-actions, fictionalTraces | Action | Partiel | space-fictional-traces, UI, 7 Firestore | Q | Non | À faire | Q + R : départs et opposition raccordés ; départ depuis le quai dans le même parcours, CI exacte et recette mobile |
+| FIL-01 Pistage | Supplémentaire | ch. 15 | field-actions, fictionalTraces | Action | Partiel | space-fictional-traces, UI, 7 Firestore | Q | Non | À faire | Q + R + #34 : départs, opposition et parcours de départ depuis le quai raccordés ; CI exacte et recette mobile |
 | TOXI-01 Toxicologie | Supplémentaire | ch. 15, 27 | person-actions, health, inventory, recipes | Action | À vérifier | space-toxicology, toxicology-ui, 15 cas Firestore | P | Non | À faire | CI exacte, effets SCENARIO non définis fermés, recette mobile |
 | ESC-01 Escorte spatiale | Supplémentaire | ch. 15, 20, 25 | escort/maneuvers/combat | Cockpit/Terminal | À vérifier | space-escort-maneuvers | B | Non vérifié | À faire | Recette intégrée avec PIL-03 et mandats |
 | EFF-01 Effacement de traces | Supplémentaire | ch. 15 | field-actions, fictionalTraceMasks | Action | Partiel | space-fictional-traces, consentements, 7 Firestore | Q | Non | À faire | Q + R : signature N4 raccordée ; CI exacte et recette intégrée/mobile |
