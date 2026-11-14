@@ -1,7 +1,10 @@
+import {hasItemCircuits,commercialLot,commercialTradeAllowed} from './item-circuits.mjs';
+import {personalTransferActorReady} from './personal-transfer-policy.mjs';
+import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {isBroker} from '../shared/player-access.mjs';
 import {readPriceBook,commodityQuote,priceBoard,indexedListing,commodityTrade,tradeBoard} from './price-state.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
-import {inventoryHash as hash,itemQuantity,publicItem,personalLot,lotState,readLot} from './inventory-state.mjs';
+import {inventoryHash as hash,itemQuantity,publicItem,publicLot,effectiveLot,personalLot,lotState,readLot} from './inventory-state.mjs';
 import {inventoryParty,inventoryPlayer} from './inventory-transfers.mjs';
 import {accessAccount,accountParty} from './collective-accounts.mjs';
 import {accountId,amountInput,currencyView,moneyState,moneyText} from './economy-state.mjs';
@@ -13,10 +16,10 @@ const actions=new Set(['market','marketListing','prepareMarketListing','publishM
 export const marketAction=a=>actions.has(a);
 const view=p=>({id:p.id,status:p.status,revision:p.revision,createdAt:p.createdAt,expiresAt:p.expiresAt,seller:{id:p.sellerId,name:p.sellerName},item:publicItem(p.item),quantity:p.quantity,amount:p.amount,pricing:p.pricing??'FIXED',priceQuote:p.priceQuote??null,currency:p.currency,pickupPlace:p.pickupPlace,conditions:p.conditions});
 const proof=p=>hash(JSON.stringify(view(p)));
-const reserved=(lot,p)=>!!lot&&personalLot(lot,p.sellerId)&&lot.status==='RESERVED'&&lot.marketReservation?.listingId===p.id&&lot.marketReservation.expiresAt===p.expiresAt&&lot.revision===p.lotRevision&&lot.quantity===p.quantity;
+const reserved=(s,lot,p)=>!!lot&&(hasItemCircuits(s)?commercialLot(lot,p.sellerId):personalLot(lot,p.sellerId))&&lot.status==='RESERVED'&&lot.marketReservation?.listingId===p.id&&lot.marketReservation.expiresAt===p.expiresAt&&lot.revision===p.lotRevision&&lot.quantity===p.quantity;
 async function state(tx,s,p,at){
   const seller=await inventoryParty(tx,s.id,p.sellerId),lot=await readLot(tx,s.id,p.lotId,at);
-  const valid=seller.active&&seller.version===p.sellerVersion&&reserved(lot,p);
+  const valid=(!hasItemCircuits(s)||isBroker(seller.c)&&commercialTradeAllowed(lot,p.sellerId)&&await personalTransferActorReady(tx,s,seller.c))&&seller.active&&seller.version===p.sellerVersion&&reserved(s,lot,p);
   return {seller,lot,valid,status:p.status==='ACTIVE'?(at>=p.expiresAt?'EXPIRED':valid?'ACTIVE':'STALE'):p.status};
 }
 function project(s,c,p,x,admin=false,book=null){
@@ -28,7 +31,8 @@ function project(s,c,p,x,admin=false,book=null){
 export function createMarketService({store,signed,checkSession,now,uuid}){
   async function prepare(tx,ctx,input,at){
     const {s,c,version}=ctx;requireThat(s.economyRules?.enabled,'ECONOMY_DISABLED');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,c,'transfer');
-    const lot=await readLot(tx,s.id,documentId(input.lotId),at);requireThat(lot&&personalLot(lot,c.id),'FORBIDDEN');
+    const lot=await readLot(tx,s.id,documentId(input.lotId),at);requireThat(lot&&(hasItemCircuits(s)?commercialTradeAllowed(lot,c.id):personalLot(lot,c.id)),'FORBIDDEN');
+    if(hasItemCircuits(s))requireThat(await personalTransferActorReady(tx,s,c),'SO_PERSONAL_TRANSFER_RESTRICTED');
     const quantity=itemQuantity(lot.item,input.quantity);requireThat(lot.status==='AVAILABLE'&&lot.quantity>=quantity,'INSUFFICIENT_STOCK');
     const pricing=input.pricing??'FIXED';requireThat(['FIXED','INDEXED'].includes(pricing),'INVALID_PRICE');
     const book=await readPriceBook(tx,s,at),trade=commodityTrade(book,lot.item);requireThat(!trade.blocked,'TRADE_SUSPENDED');
@@ -39,7 +43,7 @@ export function createMarketService({store,signed,checkSession,now,uuid}){
   }
   async function purchase(tx,ctx,p,from,at,negotiation=null){
     const {s,c,version}=ctx;requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireThat(p.status==='ACTIVE','LISTING_CLOSED');requireThat(at<p.expiresAt,'LISTING_EXPIRED');
-    const x=await state(tx,s,p,at);requireThat(x.valid,'STALE_LISTING');
+    const x=await state(tx,s,p,at);requireThat(x.valid,'STALE_LISTING');if(hasItemCircuits(s)){requireThat(await personalTransferActorReady(tx,s,c),'SO_PERSONAL_TRANSFER_RESTRICTED');requireThat(x.lot.location.portId!=null&&(c.spacePortId??s.transportRules?.homePort)===x.lot.location.portId,'SHIP_NOT_LOCAL');}
     const book=await readPriceBook(tx,s,at);
     if(negotiation){
       const q=await negotiationState(tx,s,p,x,negotiation,at);requireThat(q.status==='ACCEPTED','NEGOTIATION_CLOSED');
@@ -58,12 +62,12 @@ export function createMarketService({store,signed,checkSession,now,uuid}){
       const admin=action==='sessionMarket'||action==='withdrawSessionListing';
       const ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId)),c:null,version:actor.uid}:await inventoryPlayer(tx,actor,input),{s,c,version}=ctx;
       requireThat(!s.spaceOutlaws||admin||isBroker(c),'FORBIDDEN');
-      requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');const base=`sessions/${s.id}`;
+      requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');if(hasItemCircuits(s))requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');const base=`sessions/${s.id}`;
       if(action==='market'||action==='sessionMarket'){
         const book=await readPriceBook(tx,s,at);
         const all=(await tx.list(`${base}/marketListings`)).sort((a,b)=>b.createdAt-a.createdAt||a.id.localeCompare(b.id)),listings=[];let closed=0;
         for(const p of all){const x=await state(tx,s,p,at);if(!admin&&p.sellerId!==c.id&&x.status!=='ACTIVE')continue;if(!admin&&x.status!=='ACTIVE'&&p.status!=='ACTIVE'&&closed++>=30)continue;listings.push(project(s,c,p,x,admin,book));}
-        return {session:{id:s.id,stage:s.stage},admin,economyEnabled:s.economyRules?.enabled===true,currency:s.economyRules?currencyView(s.economyRules):null,prices:priceBoard(book),restrictions:tradeBoard(book),listings};
+        return {session:{id:s.id,stage:s.stage,...(hasItemCircuits(s)?{itemCircuits:true}:{})},admin,economyEnabled:s.economyRules?.enabled===true,currency:s.economyRules?currencyView(s.economyRules):null,storedStock:!admin&&hasItemCircuits(s)?(await tx.list(`${base}/inventory`,['ownerId',c.id])).filter(l=>l.item.usage==='COMMERCIAL'&&['HOLD','WAREHOUSE'].includes(l.location.kind)&&l.quantity>0).map(publicLot):[],stock:!admin&&hasItemCircuits(s)?(await tx.list(`${base}/inventory`,['ownerId',c.id])).map(l=>effectiveLot(l,at)).filter(l=>commercialLot(l,c.id)&&l.quantity>0).map(publicLot):[],prices:priceBoard(book),restrictions:tradeBoard(book),listings};
       }
       if(action==='prepareMarketListing')return (await prepare(tx,ctx,input,at)).result;
       let p,from,negotiation;
@@ -105,12 +109,13 @@ export function createMarketService({store,signed,checkSession,now,uuid}){
         reason=admin?moneyText(input.reason):'Annonce retirée par le vendeur';
         const lot=await readLot(tx,s.id,p.lotId,at);
         // An expired listing must never release a newer reservation on the same lot.
-        if(reserved(lot,p)){
+        if(reserved(s,lot,p)){
           const next={...lot,status:'AVAILABLE',marketReservation:null,revision:lot.revision+1};
           tx.set(`${base}/inventory/${lot.id}`,next);tx.set(`${base}/inventory/${lot.id}/history/${id}`,{id,kind:'MARKET_RELEASE',at,actorUid:actor.uid,listingId:p.id,reason,before:lotState(lot),after:lotState(next)});
         }
         tx.set(`${base}/marketListings/${p.id}`,{...p,status:'WITHDRAWN',revision:p.revision+1,closedAt:at});result={id:p.id,status:'WITHDRAWN'};
       }
+      if(hasItemCircuits(s))authorizeSpaceOutlaws(tx,s,'ITEM_COMMERCE');
       tx.set(`${base}/audit/${id}`,{id,action,at,actorUid:actor.uid,listingId:p.id,lotId:p.lotId,quantity:p.quantity,amount:result.amount??p.amount,result,...(reason?{reason}:{})});
       tx.set(op,{fingerprint,result,guard:from?.guard??version,at});return result;
     });

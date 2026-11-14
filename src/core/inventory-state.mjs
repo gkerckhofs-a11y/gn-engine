@@ -1,3 +1,4 @@
+import {itemUsages,classificationFields} from './item-circuits.mjs';
 import {mediaFields} from './media-state.mjs';
 import {createHash} from 'node:crypto';
 import {documentId,requireThat,whole} from './validation.mjs';
@@ -11,6 +12,10 @@ export function itemInput(input,id,old={}){
   requireThat(input.pillable===undefined||typeof input.pillable==='boolean','INVALID_ITEM');
   requireThat(input.concealable===undefined||typeof input.concealable==='boolean','INVALID_ITEM');
   requireThat(input.pickpocketable===undefined||typeof input.pickpocketable==='boolean','INVALID_ITEM');
+  const classification={...classificationFields(old),...classificationFields(input)};
+  requireThat(classification.usage===undefined||itemUsages.includes(classification.usage),'INVALID_ITEM_USAGE');
+  requireThat(['transferable','resellable'].every(k=>classification[k]===undefined||typeof classification[k]==='boolean'),'INVALID_ITEM');
+  requireThat(classification.usage!=='FUEL'||input.kind==='STACKABLE'&&input.consumable&&!input.shipModule&&!input.laserRecharge,'INVALID_FUEL');
   const laserRecharge=input.laserRecharge===undefined?old.laserRecharge??null:input.laserRecharge;
   if(laserRecharge!==null)requireThat(input.consumable&&Number.isSafeInteger(laserRecharge?.pelletsPerUnit)&&laserRecharge.pelletsPerUnit>0,'INVALID_RECHARGE');
   const shipModule=input.shipModule===undefined?old.shipModule??null:input.shipModule;
@@ -23,11 +28,11 @@ export function itemInput(input,id,old={}){
   // Optional canonical preparation price for each inventory unit, not a sale or tax.
   const referenceUnitValueCr=input.referenceUnitValueCr===undefined?old.referenceUnitValueCr??null:input.referenceUnitValueCr;
   requireThat(referenceUnitValueCr===null||Number.isSafeInteger(referenceUnitValueCr)&&referenceUnitValueCr>0,'INVALID_REFERENCE_VALUE');
-  return {...(reviewTargetId?{reviewTargetId}:{}),...(input.concealable!==undefined||old.concealable!==undefined?{concealable:input.concealable??old.concealable}:{}),...(knowledgeId?{knowledgeId}:{}),...mediaFields(old,['illustration']),id,name:text(input.name,150,true),description:text(input.description??'',6000),category:text(input.category??'',150),
+  return {...classification,...(reviewTargetId?{reviewTargetId}:{}),...(input.concealable!==undefined||old.concealable!==undefined?{concealable:input.concealable??old.concealable}:{}),...(knowledgeId?{knowledgeId}:{}),...mediaFields(old,['illustration']),id,name:text(input.name,150,true),description:text(input.description??'',6000),category:text(input.category??'',150),
     pillable:input.pillable??old.pillable??false,...(input.pickpocketable!==undefined||old.pickpocketable!==undefined?{pickpocketable:input.pickpocketable??old.pickpocketable}:{}),unit:text(input.unit??'unité',50,true),kind:input.kind,consumable:input.consumable,unitVolume,legality:input.legality??'UNSPECIFIED',...(referenceUnitValueCr===null?{}:{referenceUnitValueCr}),
     ...(shipModule?{shipModule:{code:shipModule.code,size:shipModule.size}}:{}),...(laserRecharge?{laserRecharge:{pelletsPerUnit:laserRecharge.pelletsPerUnit}}:{}),gmNotes:text(input.gmNotes??'',10000),publicationState:input.publicationState,revision:(old.revision??0)+1};
 }
-export const publicItem=d=>({...(d.reviewTargetId?{reviewTargetId:d.reviewTargetId}:{}),...(d.concealable!==undefined?{concealable:d.concealable}:{}),...(d.knowledgeId?{knowledgeId:d.knowledgeId}:{}),...(d.shipModule?{shipModule:{code:d.shipModule.code,size:d.shipModule.size}}:{}),...(d.laserRecharge?{laserRecharge:{pelletsPerUnit:d.laserRecharge.pelletsPerUnit}}:{}),...mediaFields(d,['illustration']),id:d.id,name:d.name,pillable:d.pillable??false,pickpocketable:d.pickpocketable??false,description:d.description,category:d.category,unit:d.unit,kind:d.kind,consumable:d.consumable,unitVolume:d.unitVolume,legality:d.legality,...(d.referenceUnitValueCr==null?{}:{referenceUnitValueCr:d.referenceUnitValueCr}),revision:d.revision});
+export const publicItem=d=>({...classificationFields(d),...(d.reviewTargetId?{reviewTargetId:d.reviewTargetId}:{}),...(d.concealable!==undefined?{concealable:d.concealable}:{}),...(d.knowledgeId?{knowledgeId:d.knowledgeId}:{}),...(d.shipModule?{shipModule:{code:d.shipModule.code,size:d.shipModule.size}}:{}),...(d.laserRecharge?{laserRecharge:{pelletsPerUnit:d.laserRecharge.pelletsPerUnit}}:{}),...mediaFields(d,['illustration']),id:d.id,name:d.name,pillable:d.pillable??false,pickpocketable:d.pickpocketable??false,description:d.description,category:d.category,unit:d.unit,kind:d.kind,consumable:d.consumable,unitVolume:d.unitVolume,legality:d.legality,...(d.referenceUnitValueCr==null?{}:{referenceUnitValueCr:d.referenceUnitValueCr}),revision:d.revision});
 export function itemQuantity(definition,value,allowZero=false){
   const quantity=whole(value,'INVALID_QUANTITY');requireThat((allowZero||quantity>0)&&(definition.kind!=='INDIVIDUAL'||quantity<=1),'INVALID_QUANTITY');return quantity;
 }

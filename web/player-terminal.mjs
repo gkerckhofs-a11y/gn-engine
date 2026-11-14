@@ -19,10 +19,10 @@ export function terminalItems(own,d={}){
  const f=own.session.spaceOutlaws??{},sid=own.session.id,items=[];
  const add=(id,title,group,description,rows=[],extra={})=>items.push({id,path:`${id}/${sid}`,title,group,description,pending:active(rows),history:rows.length>0&&active(rows)===0,...extra});
  const port='Services du port',special='Mes services spécialisés',assets='Mes biens, vaisseaux et mandats';
- if(f.shopsVersion===1&&count(d.shops,'shops','orders'))add('shops','Boutiques du port',port,'Acheter des fournitures et retirer mes commandes.',d.shops.orders);
+ if(f.shopsVersion===1&&count(d.shops,'shops','orders'))add('shops','Boutiques d’objets personnels',port,'Acheter des fournitures et retirer mes commandes.',d.shops.orders);
  if(own.economyEnabled)add('public-prices','Cours publics',port,'Consulter gratuitement les cours publiés.');
  if(own.economyEnabled)add('wallet','Mes crédits',port,`${own.wallet?.account?.available??'—'} crédits disponibles · paiements et historique.`);
- if(isBroker(own.character)&&d.market?.economyEnabled)add('market','Marché',port,'Cours, achats, ventes et négociations.');
+ if(isBroker(own.character)&&d.market?.economyEnabled)add('market','Centrale commerciale',port,'Cours, achats, ventes et négociations.');
  if(f.missionsVersion===1&&count(d.missions,'announcements'))add('missions','Missions proposées',port,'Consulter les offres qui me sont accessibles.');
  if(count(d.contracts,'contracts'))add('contracts','Mes contrats',port,'Mes engagements personnels et collectifs.',d.contracts.contracts);
  if(f.intelligenceVersion===1&&count(d.intelligence,'offers'))add('intelligence','Réseau d’informateurs',port,'Consulter les offres et mes renseignements achetés.',d.intelligence.offers);
