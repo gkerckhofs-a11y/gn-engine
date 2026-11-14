@@ -22,12 +22,12 @@ export async function seedMissionScenario(call,uids,{pilot=false,galactic=false}
   for(const [role,name] of [['player','Ari'],['other','Bela']]){
     const revision=(await read('session')).revision,draftRevision=await draft();
     await cmd('beginAdmission',{token,sessionRevision:revision,policyRevision:1,draftRevision,consent:true},role);
-    await cmd('saveAdmissionProposal',{revision:1,sessionRevision:revision,policyRevision:1,draftRevision,proposal:{firstName:name,lastName:'Recette',speciesId:'human-test',classId:galactic&&role==='player'?'COU':pilot&&role==='other'?'PIL':'MED',secondaryId:'COM-03',background:`Fiction privée de ${name}.`,friends:''},submit:true,consent:true},role);
+    await cmd('saveAdmissionProposal',{revision:1,sessionRevision:revision,policyRevision:1,draftRevision,proposal:{firstName:name,lastName:'Recette',speciesId:'human-test',classId:galactic&&role==='player'?'COU':(pilot||galactic)&&role==='other'?'PIL':'MED',secondaryId:'COM-03',background:`Fiction privée de ${name}.`,friends:''},submit:true,consent:true},role);
     await cmd('reviewAdmission',{uid:uids[role],revision:2,policyRevision:1,draftRevision,decision:'APPROVE',reason:'Personnage fictif de recette'});
     await confirm('previewAdmissionM2','prepareAdmissionM2',{uid:uids[role],reason:'Fiction approuvée de recette'});
   }
   let revision=await draft();const createdItems=new Set();
-  for(const classId of galactic?['MED','COU']:pilot?['MED','PIL']:['MED']){
+  for(const classId of galactic?['MED','COU','PIL']:pilot?['MED','PIL']:['MED']){
    const bindings=[];
    for(const slot of initialClassKit(classId).slots){
     const itemId=`kit_${slot.id}`;bindings.push({slotId:slot.id,itemId});
@@ -49,13 +49,14 @@ export async function seedMissionScenario(call,uids,{pilot=false,galactic=false}
   await central('saveCentralMission',{missionId:'courier',missionRevision:0,draftRevision:revision++,mission,reason:'Mission fictive'});
   await confirm('previewSpaceOutlawsRelease','releaseSpaceOutlaws',{reason:'Version fictive pour les émulateurs'});
   for(const role of ['player','other']){
-    await confirm('previewSpaceOutlawsBirth','birthSpaceOutlaws',{uid:uids[role],options:{weaponApplicable:true,startingInformation:galactic&&role==='player'?'Cours publics : eau à Breach Port et au relais de Kessel.':pilot&&role==='other'?'Itinéraire fictif transmis au pilote lors du briefing.':''},reason:'Naissance de recette'});
+    await confirm('previewSpaceOutlawsBirth','birthSpaceOutlaws',{uid:uids[role],options:{weaponApplicable:true,startingInformation:galactic&&role==='other'?'Code de liaison de recette : MAP-OUT-CODE.':galactic&&role==='player'?'Cours publics : eau à Breach Port et au relais de Kessel.':pilot&&role==='other'?'Itinéraire fictif transmis au pilote lors du briefing.':''},reason:'Naissance de recette'});
     await cmd('confirmBriefing',{},role);
   }
   // Session staff are distinct from campaign workshop delegations.
   for(const [role,email] of [['MJ','mj@recette.example.invalid'],['RECEPTION','accueil@recette.example.invalid']])
     await cmd('setStaff',{revision:(await read('session')).revision,email,role,active:true,reason:'Équipe fictive de recette'});
   if(pilot)await provisionPilotShip(read,cmd,confirm);
+  if(galactic){const c=(await read('mySession',{},'other')).character;await confirm('prepareSoShip','provisionSoShip',{shipId:'map-cargo',modelId:'map-model',name:'Étoile du Relais',ownerId:c.id,pilotId:c.id,homePort:'home',fuelItemId:'map-fuel',source:'Cargo fictif pour la carte locale',reason:'Attribution de recette sans carburant créé'});}
   await confirm('prepareShopProvision','provisionShop',{shopId:'counter',offerId:'supply',provisionId:randomUUID(),quantity:10,restricted:true,source:'Dix fournitures physiques fictives autorisées pour la recette',reason:'Stock de recette'});
   await cmd('setStage',{stage:'EN_JEU',revision:(await read('session')).revision});
   const purchase={shopId:'counter',offerId:'supply',quantity:5,useProtected:true},quote=await read('prepareShopPurchase',purchase,'player');

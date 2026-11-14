@@ -1,3 +1,4 @@
+import {createGalacticMapService,galacticMapCommands} from './galactic-map.mjs';
 import {demoActors,resolveDemoActor} from './solo-demo.mjs';
 import {recycleBinStore,createRecycleBinService} from './recycle-bin.mjs';
 import {createCharacterCodeService} from './character-codes.mjs';
@@ -181,6 +182,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     }
     return record.mediaImages?.[slot]??null;
   }});
+  const galacticMapService=createGalacticMapService({store,signed,checkSession,now});
   const planetMarketService=createPlanetMarketService({store,signed,checkSession,now,uuid});
   const priceService=createPriceService({store,signed,checkSession,now,uuid});
   const towingWorkService=createTowingWorkService({store,signed,checkSession,now,uuid});
@@ -280,6 +282,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(admissionAction(action))return admissionService(action,actor,input);
     if(centralMasterAction(action))return centralMasterService(action,actor,input);
     if(groupManagementAction(action))return groupManagementService(action,actor,input);
+    if(galacticMapCommands.includes(action))return galacticMapService(action,actor,input);
     if(planetMarketCommands.includes(action))return planetMarketService(action,actor,input);
     if(priceAction(action))return priceService(action,actor,input);
     if(towingWorkActions.includes(action))return towingWorkService(action,actor,input);

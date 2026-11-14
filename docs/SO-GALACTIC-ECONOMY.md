@@ -1,6 +1,6 @@
 # Économie galactique — audit, matrice et premier parcours
 
-Auteur : Codex, 14 novembre 2026. Source : [cahier unifié fourni par Guillaume](source/SO_Galactic_Economy_V1.md), règles [V0.7, chapitres 23–25](source/SO_Regles_V07.txt). Aucun déploiement Firebase ni fusion autorisé.
+Auteur : Codex, 14 novembre 2026. Source : [cahier unifié fourni par Guillaume](source/SO_Galactic_Economy_V1.md), règles [V0.7, chapitres 23–25](source/SO_Regles_V07.txt). État initial de cette tranche : aucun déploiement Firebase ni fusion autorisé. Autorisation ultérieure conditionnelle : publication Firebase une fois tous les chantiers finalisés, voir [tranche carte](SO-GALACTIC-MAP.md) ; aucun déploiement effectué.
 
 ## Base vérifiée
 
@@ -16,7 +16,7 @@ Auteur : Codex, 14 novembre 2026. Source : [cahier unifié fourni par Guillaume]
 | Bourse | Marché entre Courtiers, fournisseurs dans les boutiques | Route `#/galactic/SESSION`, comparaison et filtre, graphique et tableau daté accessibles ; lien Terminal | Tests de rendu et recette Chromium ajoutée | Les échanges entre joueurs et commandes restent sur les routes existantes |
 | Régie | Cours globaux, comptoirs et actualités séparés | `#/galactic-admin/SESSION`, cours locaux et demande, publication/suspension, récapitulatif, motif privé et audit | Joueur refusé, version et révision contrôlées | Ajustement financier des caisses et association automatique aux News restent à raccorder |
 | Synchronisation | Actualisation manuelle des cours | Vérification serveur toutes les 10 secondes, conservation du filtre, erreurs réseau visibles ; aucun remplacement d’un formulaire ouvert | Recette navigateur : changement de cours sans rechargement | Synchronisation périodique, pas de garantie instantanée ; le paiement recontrôle toujours le prix |
-| Navigation | `space-outlaws-voyages.mjs` : `soRoute`, autonomie, durées, manifestes, cockpit, voyage et escales natifs | Réutilisation prévue ; aucune modification du moteur | Régression des acquis inchangée | Carte interactive et accès depuis le vaisseau : prochaine tranche |
+| Navigation | `space-outlaws-voyages.mjs` : `soRoute`, autonomie, durées, manifestes, cockpit, voyage et escales natifs | Réutilisation prévue ; aucune modification du moteur | Régression des acquis inchangée | Carte interactive et accès depuis le vaisseau : [tranche 3 raccordée](SO-GALACTIC-MAP.md) |
 | Contrats | `contracts.mjs`, `announcements.mjs`, `space-transport.mjs` : candidatures, négociation, provision et preuve native | Aucun moteur parallèle | Contrats et comptes existants préservés | Le raccord actuel est un transport PNJ depuis Breach Port. Demande libre d’un Courtier propriétaire et cargaison tierce : extension à développer |
 | Fret / escales | `cargo.mjs` : lots, réservations, capacité, garde, réception ; contrôle local et mandats | Lot acheté conservé au comptoir, retrait strictement sur son port ; rachat borné aux marchandises acquises à ce même port | Mauvais port et lot en soute refusés au rachat | Transporteur mandaté sur un achat du client et livraison locale : raccords de la tranche logistique |
 | Entrepôts | Moteur générique présent ; `cargo.mjs` refuse encore WAREHOUSE dans ce parcours SO | Aucun tarif inventé ni ouverture implicite | Absence de nouvelle permission d’entrepôt | Stockage spéculatif SO et stockage sous douane restent distincts ; frais à arbitrer si souhaités |
@@ -25,7 +25,7 @@ Auteur : Codex, 14 novembre 2026. Source : [cahier unifié fourni par Guillaume]
 | News / événements | Annonces BULLETIN et moteurs génériques MANUAL / INSTALLATION_OFFLINE présents ; commande de configuration SO non autorisée par le garde actuel | Les suspensions commerciales existantes restent vérifiées au paiement | Conditions existantes conservées | Régie des événements SO à raccorder, pas de lien de modification inopérant ajouté. Pas de planification horaire simulée ni prévision de profit garanti |
 | Continuité | Instantanés et reprise SO existants | `planetMarkets` et `planetPriceHistory` inclus dans l’instantané natif | Présence dans l’export, régression épisodes | Aucune campagne réinitialisée, aucun ancien lot ou compte reclassé |
 
-Les tranches 1 et le premier parcours de la tranche 2 sont livrés ici ; une première partie de la régie (tranche 7) est nécessaire pour rendre ce parcours utilisable. Le chantier unifié n’est pas terminé. La carte, les contrats libres entre joueurs, les délégations de retrait, les entrepôts SO et la recette commerciale de bout en bout restent à développer. La tranche 6 réutilise les acquis de #37.
+Les tranches 1 et le premier parcours de la tranche 2 sont livrés ici ; une première partie de la régie (tranche 7) est nécessaire pour rendre ce parcours utilisable. Le chantier unifié n’est pas terminé. La [carte est raccordée sur la tranche suivante](SO-GALACTIC-MAP.md) ; les contrats libres entre joueurs, les délégations de retrait, les entrepôts SO et la recette commerciale de bout en bout restent à développer. La tranche 6 réutilise les acquis de #37.
 
 ## Modèle et invariants
 

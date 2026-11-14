@@ -47,7 +47,7 @@ function groupPilotGrant(s,g,c){
   !!g?.roster&&groupVisible(g,c.id)&&memberFor(g,c.id).permissions.pilotShip===true&&navigationSkill(c,'PIL-02')>=1;
 }
 const groupPilotRevision=(g,c)=>hash(JSON.stringify([g.id,g.revision,c.id]));
-const routeFuelRequired=(ship,route)=>route.fuelCost+(ship.ownerType==='GROUP'?1:0);
+export const routeFuelRequired=(ship,route)=>route.fuelCost+(ship.ownerType==='GROUP'?1:0);
 const nameActions=new Set(['prepareSoShipName','renameSoShip']);
 const nameIdle=ship=>ship.enabled&&ship.docked&&!ship.journey&&!ship.operation&&!ship.combatId&&!ship.rescueId&&!ship.maintenanceId&&!ship.ambushId&&!ship.convoy&&!ship.convoyOffer;
 const publicModuleJourney=(j,time)=>{const {towingOutage,...raw}=publicJourney(j),p={...raw,...(towingOutage?{towingWait:{waiting:waitingTowingOutage(j,time),remainingSeconds:Math.max(0,Math.ceil((towingOutage.untilGameMs-time)/1000))}}:{})};if(!p.event?.neutralizedModule)return p;const {lotId,...effect}=p.event.neutralizedModule;return {...p,event:{...p.event,neutralizedModule:effect}};};

@@ -1,5 +1,7 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+Carte galactique du 14 novembre 2026 : [parcours, matrice de réutilisation et contrôles](SO-GALACTIC-MAP.md). Dépend de #39 ; lecture filtrée, codes explicites, autonomie native, escales et accès au formulaire de vol. Publication Firebase autorisée par Guillaume une fois tous les chantiers finalisés ; condition non remplie, aucun déploiement de cette tranche.
+
 Économie galactique du 14 novembre 2026 : [audit, matrice de réutilisation et premier parcours de marchés planétaires](SO-GALACTIC-ECONOMY.md). Dépend de #38 ; cours locaux, achats distants et rachat ordinaire limités aux contrôles raccordés. Carte, contrats libres et logistique intégrée restent à développer. Aucun déploiement.
 
 Refonte pédagogique HRP du 14 novembre 2026 : [audit, corrections et tests ciblés](SO-HRP-EDITORIAL.md). Candidat après #37 ; textes et présentation uniquement, règles et droits conservés. CI exacte dans la PR ; aucun déploiement.
