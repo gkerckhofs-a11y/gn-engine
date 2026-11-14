@@ -31,7 +31,7 @@ Demande : cahier des charges « Module Vaisseau et gestion des équipages » v1.
 
 Le Terminal affiche **Mes vaisseaux**, une carte par vaisseau consultable, avec nom, illustration disponible, profil, état et rôle. Les dossiers transversaux et les engagements encore à terminer restent récupérables même après la perte d’accès à la fiche du vaisseau.
 
-`#/ship/SESSION/VAISSEAU` ouvre le module partagé : Navigation, Carburant, Soute si capacité positive, Maintenance si pertinente, Équipage et Journal selon permissions. Retour permanent au Terminal ; interface adaptable au téléphone. Les anciennes routes `flight`, `spaceport`, `hold`, entretien, modules et rencontres restent disponibles.
+`#/ship/SESSION/VAISSEAU` ouvre le module partagé : Navigation, Carburant, Soute si capacité positive, Maintenance si pertinente, Équipage et Journal selon permissions. Retour permanent au Terminal ; interface adaptable au téléphone. La révocation ferme aussi l’accès résiduel du pilote dans les listes de fret et d’alliances ; les historiques dont il est personnellement participant restent indépendants. Les anciennes routes `flight`, `spaceport`, `hold`, entretien, modules et rencontres restent disponibles.
 
 `#/ship-admin/SESSION/VAISSEAU` ouvre la supervision du même objet depuis le spatioport MJ, avec retour à la régie. Les droits `content` de l’organisation sont contrôlés par les services natifs. La route ne donne aucun droit.
 
@@ -77,10 +77,12 @@ Un changement de pilote, de mandat ou de lot invalide une contribution ouverte. 
 Sur les arbres locaux successifs du lot, sans additionner les sélections qui se recouvrent :
 
 - 184 tests de régression ciblés réussis, puis **199 tests ciblés réussis** après compléments : module, équipages, fret, carburant, navigation, pilotage collectif, cockpit, maintenance, modules, rencontres, terminal et résolution des identités. Compilation réussie.
-- 24 parcours dédiés **réussis sur Firestore**, projet fictif `demo-gn-engine` ; contrôle complémentaire ajouté pour changement de capitaine pendant manutention. Nouvelle exécution de ces suites et de navigation/cockpit/pilotage collectif lancée avant livraison ; résultat final à constater dans la PR.
+- 24 parcours dédiés **réussis sur Firestore**, projet fictif `demo-gn-engine` ; contrôle complémentaire ajouté pour changement de capitaine pendant manutention. **58 tests Firestore élargis réussis**, dont le changement de capitaine pendant manutention, navigation, cockpit et pilotage collectif. Puis **5/5** pour la projection finale, dont le profil équipé. Le complément de fermeture des anciennes listes après révocation est couvert par 69 tests ciblés réussis ; un cas supplémentaire de retrait du pilote au cockpit passe en mémoire, avec départ/arrivée et réessai natifs. CI exacte à constater dans la PR.
 - Nouveau parcours HTTP/Auth **réussi** : propriétaire joueur, capitaine volontaire, extérieur, refus anonyme, refus de régie pour joueur, confidentialité et refus après révocation, y compris une commande ayant déjà un reçu.
 - Trois tests de l’essai solo réussis, dont les **huit classes recrutées dans la même session** avec égalité des personnages, vaisseaux, inventaires et comptes avant/après. Ni nouveaux comptes Google ni sessions dupliquées.
 - Recette Chromium ajoutée : accord du capitaine, recrutement d’un Mécano, parcours à 390 px, clavier, suppression de mandat, refus par URL, régie sur PC. Résultat CI et captures à constater ; le navigateur local est bloqué par l’environnement de lancement. Aucune recette humaine Android/iOS ou partie GN réelle n’est revendiquée.
+
+Première CI du lot : 3 181/3 183 tests applicatifs réussis, deux attentes d’interface encore dirigées vers l’ancien lien du Terminal. Elles ont été actualisées vers la page Vaisseau avec maintien du contrôle de la route `flight` ; 17/17 tests concernés réussis localement. La CI complète du nouveau commit doit être constatée avant toute conclusion globale.
 
 Commandes : `node --test` avec les fichiers ciblés du lot et régressions mentionnées ; `npm run build` ; `git diff --check` ; `firebase emulators:exec --project demo-gn-engine --only firestore,auth,storage` avec suites nommées et cas HTTP ciblé. Les commandes d’émulateur utilisent uniquement le projet fictif ; ce ne sont pas des publications Firebase.
 

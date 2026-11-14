@@ -1,4 +1,4 @@
-import {crewCargoGrant,shipCrewBase} from './ship-crew-state.mjs';
+import {crewCargoGrant,shipCrewBase,requireCrewPilot} from './ship-crew-state.mjs';
 import {isBroker} from '../shared/player-access.mjs';
 import {hasItemCircuits} from './item-circuits.mjs';
 import {hasHiddenCargo} from './space-hidden-cargo.mjs';
@@ -83,6 +83,7 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
     const collection=loc.kind==='HOLD'?'ships':'warehouses',r=await tx.get(`${base}/${collection}/${loc.id}`);requireThat(r,'CARGO_UNAVAILABLE');
     const owner=loc.kind==='HOLD'?ownerOf(r):{type:r.tenantType??'CHARACTER',id:r.tenantId};
     const nativeAccess=admin?{access:true,read:true,withdraw:true,deposit:true}:loc.kind==='HOLD'?shipAccess(r,c.id,groups):warehouseAccess({tenantType:owner.type,tenantId:owner.id},c.id,groups);
+    if(so&&!admin&&loc.kind==='HOLD'&&nativeAccess.pilot){try{await requireCrewPilot(tx,s,r,c,'shipNavigation',at);}catch(e){if(e.code!=='SHIP_CREW_REVOKED')throw e;nativeAccess.pilot=false;nativeAccess.access=nativeAccess.read||nativeAccess.withdraw||nativeAccess.deposit;}}
     const crew=so&&!admin&&loc.kind==='HOLD'?await crewCargoGrant(tx,s,r,c,at,cargoContinuation):{logistics:false,ownerFreight:false};
     const access={...nativeAccess,access:nativeAccess.access||crew.logistics,read:nativeAccess.read||crew.logistics,withdraw:nativeAccess.withdraw||crew.logistics,deposit:nativeAccess.deposit||crew.logistics};
     if(crew.logistics)crewHold={...crew,owner};
