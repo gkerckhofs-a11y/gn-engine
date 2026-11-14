@@ -1,3 +1,4 @@
+import {commercialTransportActions,createCommercialTransportService} from './commercial-transport.mjs';
 import {createGalacticMapService,galacticMapCommands} from './galactic-map.mjs';
 import {demoActors,resolveDemoActor} from './solo-demo.mjs';
 import {recycleBinStore,createRecycleBinService} from './recycle-bin.mjs';
@@ -182,6 +183,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     }
     return record.mediaImages?.[slot]??null;
   }});
+  const commercialTransportService=createCommercialTransportService({store,signed,checkSession,now,uuid});
   const galacticMapService=createGalacticMapService({store,signed,checkSession,now});
   const planetMarketService=createPlanetMarketService({store,signed,checkSession,now,uuid});
   const priceService=createPriceService({store,signed,checkSession,now,uuid});
@@ -282,6 +284,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(admissionAction(action))return admissionService(action,actor,input);
     if(centralMasterAction(action))return centralMasterService(action,actor,input);
     if(groupManagementAction(action))return groupManagementService(action,actor,input);
+    if(commercialTransportActions.includes(action))return commercialTransportService(action,actor,input);
     if(galacticMapCommands.includes(action))return galacticMapService(action,actor,input);
     if(planetMarketCommands.includes(action))return planetMarketService(action,actor,input);
     if(priceAction(action))return priceService(action,actor,input);

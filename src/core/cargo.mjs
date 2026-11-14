@@ -1,3 +1,4 @@
+import {commercialSource,sameTransportPlace} from './commercial-transport-state.mjs';
 import {crewCargoGrant,shipCrewBase,requireCrewPilot} from './ship-crew-state.mjs';
 import {isBroker} from '../shared/player-access.mjs';
 import {hasItemCircuits} from './item-circuits.mjs';
@@ -53,7 +54,7 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
     port=await tx.get(`${base}/ports/${documentId(input.portId)}`);requireThat(port?.versionId===s.spaceOutlaws.versionId,'FORBIDDEN');
     if(!['cargoPort','cargoPortAdmin'].includes(action)){
      const t=input.transferId?await tx.get(`${base}/cargoTransfers/${documentId(input.transferId)}`):null;
-     const lot=await readLot(tx,sid,documentId(t?.lotId??input.lotId),at),grant=await transportCargoAccess(tx,s,lot,c?.id,admin),destination=t?.destination??input.destination;
+     const lot=await readLot(tx,sid,documentId(t?.lotId??input.lotId),at),grant=await transportCargoAccess(tx,s,lot,c?.id,admin,at,input.transferId??null),destination=t?.destination??input.destination;
      requireThat(grant&&destination?.kind==='PORT'&&destination.id===port.id&&grant.t.toPort===port.id,'FORBIDDEN');
     }
    }
@@ -66,10 +67,10 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
    const time=gameTime(s.clock,at),canMove=!admin&&s.stage==='EN_JEU'&&movable()&&!s.safetyStop?.active;
    async function place(loc){
     loc=locationInput(loc);if(transport)requireThat(transportPlaceAllowed(transport,loc),'FORBIDDEN');
-    if(['SHOP','PORT'].includes(loc.kind)){
+    if(['SHOP','PORT'].includes(loc.kind)||transport&&loc.kind==='COMMERCIAL'){
      requireThat(so&&transport&&transportPlaceAllowed(transport,loc),'FORBIDDEN');
      const chLocal=admin||(c.spacePortId??s.transportRules?.homePort)===transport.ship.portId;
-     const source=loc.kind==='SHOP',available=(transport.active||transport.returnOnly)&&transport.local&&chLocal;
+     const source=sameTransportPlace(loc,commercialSource(transport.t)),available=(transport.active||transport.returnOnly)&&transport.local&&chLocal;
      return {location:loc,name:source?transport.c.sourceName:`${transport.t.recipient} · ${transport.t.toPort}`,owner:transport.owner,read:true,withdraw:source&&transport.active&&available&&transport.ship.portId===transport.t.fromPort,deposit:available&&(source?transport.ship.portId===transport.t.fromPort:transport.deliveryAllowed),revision:transport.c.revision,record:null,capacity:null,used:0,incoming:0};
     }
     if(so)requireThat(loc.kind!=='WAREHOUSE','SO_GAMEPLAY_NOT_OPEN');
@@ -81,6 +82,7 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
      const ch=admin?await tx.get(`${base}/characters/${loc.id}`):c;requireThat(ch&&(admin||loc.id===c.id),'FORBIDDEN');return {location:loc,name:admin?ch.public.displayName:'Mon sac',owner:{type:'CHARACTER',id:ch.id},read:true,withdraw:true,deposit:true,revision:ch.contentRevision??0,record:null,capacity:null,used:0,incoming:0};
     }
     const collection=loc.kind==='HOLD'?'ships':'warehouses',r=await tx.get(`${base}/${collection}/${loc.id}`);requireThat(r,'CARGO_UNAVAILABLE');
+    if(transport&&loc.kind==='HOLD'){const stock=await warehouseStock(tx,sid,r.id,'HOLD'),available=transport.local&&local(r),client=!admin&&transport.t.commercial?.clientId===c.id;return {location:loc,name:r.name,owner:transport.owner,read:true,withdraw:available,deposit:available&&transport.active,revision:r.revision,record:r,collection:'ships',capacity:client?null:r.capacity,used:client?null:stockVolume(stock),incoming:client?null:await incomingVolume(tx,sid,r.id,'HOLD'),stock};}
     const owner=loc.kind==='HOLD'?ownerOf(r):{type:r.tenantType??'CHARACTER',id:r.tenantId};
     const nativeAccess=admin?{access:true,read:true,withdraw:true,deposit:true}:loc.kind==='HOLD'?shipAccess(r,c.id,groups):warehouseAccess({tenantType:owner.type,tenantId:owner.id},c.id,groups);
     if(so&&!admin&&loc.kind==='HOLD'&&nativeAccess.pilot){try{await requireCrewPilot(tx,s,r,c,'shipNavigation',at);}catch(e){if(e.code!=='SHIP_CREW_REVOKED')throw e;nativeAccess.pilot=false;nativeAccess.access=nativeAccess.read||nativeAccess.withdraw||nativeAccess.deposit;}}
@@ -96,18 +98,18 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
    const permittedCargo=(p,lot)=>!p.crewLogistics||!lot.boardingCustody&&!lot.hiddenCargo?.concealed&&!lot.transportContractId&&((lot.ownerType??'CHARACTER')==='CHARACTER'&&lot.ownerId===c.id||p.crewOwnerFreight&&sameOwner(ownerOf(lot),p.owner));
    const cargoOwner=(p,lot)=>sameOwner(ownerOf(lot),p.owner)||p.crewLogistics&&permittedCargo(p,lot);
    const visibleLot=async lot=>{
-    requireThat(lot,'CARGO_UNAVAILABLE');transport=await transportCargoAccess(tx,s,lot,c?.id,admin);const p=await place(lot.location);
+    requireThat(lot,'CARGO_UNAVAILABLE');transport=await transportCargoAccess(tx,s,lot,c?.id,admin,at,input.transferId??null);const p=await place(lot.location);
     requireThat(p.read&&(transport||cargoOwner(p,lot))&&permittedCargo(p,lot),'FORBIDDEN');return p;
    };
    async function destinations(lot){
     if(so&&(lot.location.kind==='CHARACTER'||hasItemCircuits(s)&&lot.item.usage!=='COMMERCIAL'&&!transport))return [];
-    if(transport){const list=[];for(const loc of [{kind:'HOLD',id:transport.t.shipId},{kind:'SHOP',id:transport.t.shopId},{kind:'PORT',id:transport.t.toPort}]){const p=await place(loc);if(p.deposit&&!same(loc,lot.location))list.push(viewPlace(p));}return list;}
+    if(transport){const list=[];for(const loc of [{kind:'HOLD',id:transport.t.shipId},commercialSource(transport.t),{kind:'PORT',id:transport.t.toPort}]){const p=await place(loc);if(p.deposit&&!same(loc,lot.location))list.push(viewPlace(p));}return list;}
     const landOwner=crewHold?.ownerFreight&&ownerOf(lot).type==='CHARACTER'?lot.ownerId:c.id;
     const locs=[{kind:hasItemCircuits(s)?'COMMERCIAL':'CHARACTER',id:landOwner,...(hasItemCircuits(s)?{portId:c.spacePortId??s.transportRules?.homePort??null}:{})},...(so?[]:await tx.list(`${base}/warehouses`)).map(w=>({kind:'WAREHOUSE',id:w.id})),...(await tx.list(`${base}/ships`)).map(w=>({kind:'HOLD',id:w.id}))],list=[];
     for(const loc of locs){const p=await place(loc);if(p.deposit&&cargoOwner(p,lot)&&!same(loc,lot.location))list.push(viewPlace(p));}return list;
    }
    async function transferState(t){
-    const lot=await readLot(tx,sid,t.lotId,at);transport=await transportCargoAccess(tx,s,lot,c?.id,admin);
+    const lot=await readLot(tx,sid,t.lotId,at);transport=await transportCargoAccess(tx,s,lot,c?.id,admin,at,input.transferId??null);
     const source=await place(t.source),dest=await place(t.destination);
     requireThat(admin||dest.read,'FORBIDDEN');
     const baseConfirmation=hash(JSON.stringify([sid,guard,t,lot,source.record,dest.record,s.healthRules])),feeTotal=t.clearance?.total??0;
@@ -123,9 +125,9 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
    if(['cargoPort','cargoPortAdmin'].includes(action)){
     requireThat(so&&hasSoTransport(s),'SO_GAMEPLAY_NOT_OPEN');requireThat(port,'FORBIDDEN');
     const contracts=[];
-    for(const contract of await tx.list(`${base}/contracts`,admin?null:['characterId',c.id])){
+    for(const contract of await tx.list(`${base}/contracts`)){
      const terms=contract.terms?.transport;
-     if(!terms||terms.toPort!==port.id||contract.acceptedAt==null||!admin&&!await participantAccess(tx,s,ctx,actor,contract))continue;
+     if(!terms||terms.toPort!==port.id||contract.acceptedAt==null||!admin&&!await participantAccess(tx,s,ctx,actor,contract)&&terms.commercial?.operatorId!==c.id)continue;
      const evidence=await transportView(tx,s,contract),lots=[],transfers=[];
      for(const l of evidence.lots){
       if(l.location.kind!=='HOLD'||l.quantity<=0||l.boardingCustody)continue;
@@ -162,12 +164,13 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
    }
    if(action==='myCargo'){
     const holds=[];for(const ship of await tx.list(`${base}/ships`)){const p=await place({kind:'HOLD',id:ship.id});if((!so||p.capacity>0)&&(p.read||p.deposit||p.withdraw||p.pilot))holds.push({...viewPlace(p),docked:ship.docked,enabled:ship.enabled,portId:ship.portId??null,inTransit:!!ship.journey,local:local(ship)});}
-    const transfers=[];for(const t of await tx.list(`${base}/cargoTransfers`)){if(t.status!=='LOADING'||t.destination.kind==='CHARACTER'&&t.destination.id!==c.id)continue;if(t.transportContractId&&t.characterId!==c.id)continue;transport=t.transportContractId?await transportCargoAccess(tx,s,await readLot(tx,sid,t.lotId,at),c.id):null;cargoContinuation=t.characterId===c.id?t.id:null;const p=await place(t.destination);if(p.read)transfers.push(publicTransfer(t));transport=null;cargoContinuation=input.transferId??null;}
+    const transfers=[];for(const t of await tx.list(`${base}/cargoTransfers`)){if(t.status!=='LOADING'||t.destination.kind==='CHARACTER'&&t.destination.id!==c.id)continue;if(t.transportContractId&&t.characterId!==c.id)continue;transport=t.transportContractId?await transportCargoAccess(tx,s,await readLot(tx,sid,t.lotId,at),c.id,false,at,input.transferId??null):null;cargoContinuation=t.characterId===c.id?t.id:null;const p=await place(t.destination);if(p.read)transfers.push(publicTransfer(t));transport=null;cargoContinuation=input.transferId??null;}
     return {...(hasHiddenCargo(s)&&c.customsAuthorization?.level>=1?{customsReady:true}:{}),session:{id:sid,stage:s.stage,...(so?{spaceOutlaws:true}:{})},holds,transfers};
    }
    if(action==='shipHold'){
     const p=await place({kind:'HOLD',id:documentId(input.shipId)});requireThat(p.read||p.deposit||p.withdraw||p.pilot,'FORBIDDEN');requireThat(!so||p.capacity>0,'CARGO_UNAVAILABLE');
-    return {session:{id:sid,stage:s.stage,...(so?{spaceOutlaws:true}:{})},hold:{...viewPlace(p),...(hasHiddenCargo(s)&&p.record.ownerType==='CHARACTER'&&p.record.ownerId===c.id&&p.record.modules?.some(m=>m.code==='MOD-04')?{hiddenCargoReady:true}:{}),description:p.record.description,docked:p.record.docked,enabled:p.record.enabled,local:local(p.record),portId:p.record.portId??null,inTransit:!!p.record.journey},stock:p.read?p.stock.filter(l=>permittedCargo(p,l)).map(publicLot):[],canRead:p.read};
+    const visible=[];if(p.read)for(const l of p.stock){if(l.transportContractId){const contract=await tx.get(`${base}/contracts/${l.transportContractId}`);if(contract?.terms.transport?.commercial){try{await transportCargoAccess(tx,s,l,c.id,false,at);visible.push(publicLot(l));}catch(e){if(e.code!=='FORBIDDEN')throw e;}continue;}}if(permittedCargo(p,l))visible.push(publicLot(l));}
+    return {session:{id:sid,stage:s.stage,...(so?{spaceOutlaws:true}:{})},hold:{...viewPlace(p),...(hasHiddenCargo(s)&&p.record.ownerType==='CHARACTER'&&p.record.ownerId===c.id&&p.record.modules?.some(m=>m.code==='MOD-04')?{hiddenCargoReady:true}:{}),description:p.record.description,docked:p.record.docked,enabled:p.record.enabled,local:local(p.record),portId:p.record.portId??null,inTransit:!!p.record.journey},stock:visible,canRead:p.read};
    }
    if(action==='cargoLot'){
     const lot=await readLot(tx,sid,documentId(input.lotId),at),p=await visibleLot(lot);

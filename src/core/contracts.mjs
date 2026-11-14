@@ -1,3 +1,4 @@
+import {commercialClient,commercialOfferAuthority} from './commercial-transport-state.mjs';
 import {missionObligations} from './space-mission-obligations.mjs';
 import {appealFinanceActions,appealFinanceAdminActions,requireAppealFinance,appealFinanceView,appealFinanceCommand} from './space-contract-appeals.mjs';
 import {amendmentActions,amendmentAdminActions,amendmentView,amendmentCommand} from './space-escort-amendments.mjs';
@@ -25,11 +26,13 @@ const text=(v,max=5000)=>{requireThat(typeof v==='string'&&v.trim()&&v.length<=m
 const active=c=>['ACTIVE','SUBMITTED'].includes(c.status);
 const terminal=c=>['PAID','SETTLED','CANCELLED','EXPIRED','DECLINED'].includes(c.status);
 const status=(c,s,at)=>c.status==='ACTIVE'&&gameTime(s.clock,at)>=c.deadlineGameMs?'OVERDUE':c.status;
-const summary=(c,s,at,ctx=null)=>({id:c.id,revision:c.revision,title:c.terms.title,announcementId:c.announcementId,applicationId:c.applicationId,status:status(c,s,at),applicant:c.terms.applicant,sponsor:c.terms.sponsor,amount:c.terms.amount,currency:c.terms.currency,createdAt:c.createdAt,updatedAt:c.updatedAt,unread:(ctx?missionReadState(c,ctx).revision:c.lastReadRevision??0)<c.revision});
+const summary=(c,s,at,ctx=null)=>({id:c.id,revision:c.revision,title:c.terms.title,announcementId:c.announcementId,applicationId:c.applicationId,status:status(c,s,at),applicant:c.terms.applicant,sponsor:c.terms.sponsor,amount:c.terms.amount,currency:c.terms.currency,createdAt:c.createdAt,updatedAt:c.updatedAt,unread:(ctx?.commercialClient?(c.commercialReadStates?.[ctx.version]??0):ctx?missionReadState(c,ctx).revision:c.lastReadRevision??0)<c.revision});
 const candidate=participantCurrent;
 async function wallet(tx,s,id){const a=await tx.get(`sessions/${s.id}/accounts/${documentId(id)}`);requireThat(a?.sessionId===s.id,'ACCOUNT_UNAVAILABLE');moneyState(a);return a;}
+export function contractProposal(s,x,actor,id,at){return {...(s.spaceOutlaws?{missionId:x.a.missionId,missionVersionId:x.a.missionVersionId,missionSteps:x.missionSteps,rewardSources:x.rewards,giverCharacterId:x.a.giverCharacterId}:{}),...mediaFields(x.a,['illustration','briefing']),id,revision:1,status:'PROPOSED',announcementId:x.a.id,announcementRevision:x.a.revision,applicationId:x.t.id,participant:participantOf(x.t),applicantUid:x.t.applicantUid,characterId:x.t.characterId,applicantVersion:x.t.applicantVersion,terms:x.terms,termsHash:digest(x.terms),briefing:x.a.briefing,sourceAccountId:x.source?.id??null,sourceGuard:x.sourceGuard,sourceName:x.sourceName,reason:x.reason,approvedBy:{uid:actor.uid,email:actor.email,emailVerified:true,provider:actor.provider},offerDeadline:x.a.deadline,createdAt:at,updatedAt:at,lastReadRevision:0,...(x.commercialClient?{commercialClient:x.commercialClient,commercialQuoteHash:x.commercialQuoteHash,...(x.transport.path.length>1?{transportPlan:{revision:1,routes:x.transport.path}}:{})}:{})};}
 export function createContractService({store,signed,checkSession,now,uuid}){
   async function authorisedOffer(tx,s,c,a,at,ctx){
+    if(c.terms.transport?.commercial){await commercialOfferAuthority(tx,s,c);return;}
     requireThat(a&&a.revision===c.announcementRevision,'STALE_CONTRACT');
     requireThat(a.mode==='ASSIGNMENT'&&announcementState(a,at)==='OPEN','ANNOUNCEMENT_CLOSED');
     requireThat((a.assignedCount??0)<a.places,'MISSION_FULL');
@@ -71,7 +74,7 @@ export function createContractService({store,signed,checkSession,now,uuid}){
     if(c.sourceAccountId){source=await wallet(tx,s,c.sourceAccountId);requireThat(source.id!==to.id,'INVALID_RECIPIENT');requireThat(moneyState(source).available>=c.terms.amount+(c.terms.escort?.fuelBudget??0),'INSUFFICIENT_FUNDS');
       if(s.spaceOutlaws)await soMissionFunding(tx,s,c,source);
       if(c.sourceGuard){const p=await inventoryParty(tx,s.id,source.characterId);requireThat(p.active&&p.version===c.sourceGuard,'STALE_CONTRACT');}}
-    const rewards=await rewardStock(tx,s,c),transport=await transportAcceptance(tx,s,c),escort=await escortAcceptance(tx,s,c,source);
+    const rewards=await rewardStock(tx,s,c),transport=await transportAcceptance(tx,s,c,at),escort=await escortAcceptance(tx,s,c,source);
     const result={contract:{...summary(c,s,at),terms:c.terms},confirmation:digest([c.id,c.revision,c.termsHash,ctx.partyGuard??ctx.version,source?.revision??null,to.revision,rewards.map(x=>x.lot.revision),transport?.guard??null,escort?.guard??null,s.healthRules])};return {a,to,source,rewards,transport,escort,result};
   }
   async function proof(tx,s,c,ctx,input,at){
@@ -108,15 +111,15 @@ export function createContractService({store,signed,checkSession,now,uuid}){
     return {source,a,t,reason,rewards,transport,result:{...result,confirmation:digest([c.id,c.revision,source?.revision??null,rewards.map(x=>[x.lot.revision,x.source.revision]),transport,result])}};
   }
   async function readable(tx,s,c,ctx,actor,at){
-    const access=await participantAccess(tx,s,ctx,actor,c);requireThat(access,'FORBIDDEN');ctx.partyGuard=access.guard;if(c.status==='PROPOSED'){const a=await tx.get(`sessions/${s.id}/announcements/${c.announcementId}`);requireThat(await announcementReadable(tx,s,a,ctx.c.id,at),'FORBIDDEN');}
+    const client=commercialClient(c,ctx,actor),access=client?{guard:ctx.version}:await participantAccess(tx,s,ctx,actor,c);requireThat(access,'FORBIDDEN');ctx.commercialClient=client;ctx.partyGuard=access.guard;if(c.status==='PROPOSED'&&!c.terms.transport?.commercial){const a=await tx.get(`sessions/${s.id}/announcements/${c.announcementId}`);requireThat(await announcementReadable(tx,s,a,ctx.c.id,at),'FORBIDDEN');}
   }
   async function detail(tx,s,c,ctx,at,admin){
     const p=await candidate(tx,s,c);let canAccept=false,unavailable=null;
-    if(!admin&&c.status==='PROPOSED')try{await acceptance(tx,s,c,ctx,at);canAccept=true;}catch(e){if(!e.code)throw e;unavailable=e.code;}
+    if(!admin&&!ctx.commercialClient&&c.status==='PROPOSED')try{await acceptance(tx,s,c,ctx,at);canAccept=true;}catch(e){if(!e.code)throw e;unavailable=e.code;}
     const history=await tx.list(`sessions/${s.id}/contracts/${c.id}/history`,null,{orderBy:'at',direction:'desc',limit:30});
-    return {session:{id:s.id},admin,amendment:await amendmentView(tx,s,c,admin),escort:await escortView(tx,s,c,admin),transport:await transportView(tx,s,c),contract:{...mediaFields(c,c.acceptedAt!=null||admin?['illustration','briefing']:['illustration']),...summary(c,s,at,ctx),terms:c.terms,acceptedAt:c.acceptedAt??null,deadlineGameMs:c.deadlineGameMs??null,remainingGameMs:c.deadlineGameMs==null?null:Math.max(0,c.deadlineGameMs-gameTime(s.clock,at)),proof:c.proof??null,...(c.appeal?{appeal:c.appeal}:{}),steps:c.acceptedAt!=null||admin?c.missionSteps??[]:[],briefing:c.acceptedAt!=null||admin?c.briefing:null},
+    return {session:{id:s.id},admin,client:ctx.commercialClient===true,amendment:await amendmentView(tx,s,c,admin),escort:await escortView(tx,s,c,admin),transport:await transportView(tx,s,c),contract:{...mediaFields(c,c.acceptedAt!=null||admin?['illustration','briefing']:['illustration']),...summary(c,s,at,ctx),terms:c.terms,acceptedAt:c.acceptedAt??null,deadlineGameMs:c.deadlineGameMs??null,remainingGameMs:c.deadlineGameMs==null?null:Math.max(0,c.deadlineGameMs-gameTime(s.clock,at)),proof:c.proof??null,...(c.appeal?{appeal:c.appeal}:{}),steps:c.acceptedAt!=null||admin?c.missionSteps??[]:[],briefing:c.acceptedAt!=null||admin?c.briefing:null},
       ...soResolutionView(s,c,at,admin),...await appealFinanceView(tx,s,c,admin),...await missionRewardsView(tx,s,c,at,admin),...(!admin&&c.acceptedAt!=null?{evidence:await missionEvidence(tx,s,c,ctx)}:{}),history:admin?history:history.map(e=>({id:e.id,at:e.at,action:e.action,body:e.body??'',reason:e.publicReason??'',decision:e.decision??'',amount:e.amount??0})),candidateCurrent:p.current,canAccept,unavailable,
-      canDecline:!admin&&c.status==='PROPOSED',canSubmit:!admin&&c.status==='ACTIVE'&&(s.spaceOutlaws||gameTime(s.clock,at)<c.deadlineGameMs)&&s.stage==='EN_JEU'&&canGameAction(s,ctx.c,'publish'),
+      canDecline:!admin&&!ctx.commercialClient&&c.status==='PROPOSED',canSubmit:!admin&&!ctx.commercialClient&&c.status==='ACTIVE'&&(s.spaceOutlaws||gameTime(s.clock,at)<c.deadlineGameMs)&&s.stage==='EN_JEU'&&canGameAction(s,ctx.c,'publish'),
       canReview:admin&&p.current&&c.status==='SUBMITTED',canClose:admin&&!terminal(c)&&(!s.spaceOutlaws||c.status==='PROPOSED'||(c.status==='ACTIVE'&&!c.proof)),canExpire:admin&&((c.status==='ACTIVE'&&gameTime(s.clock,at)>=c.deadlineGameMs)||(c.status==='PROPOSED'&&at>=c.offerDeadline)),
       ...(admin?{finance:{funding:c.terms.funding,sourceName:c.sourceName,sourceAccountId:c.sourceAccountId,approvedBy:c.approvedBy.email,reason:c.reason}}:{})};
   }
@@ -133,8 +136,8 @@ export function createContractService({store,signed,checkSession,now,uuid}){
         const obligationsReady=admin&&s.spaceOutlaws?.missionsVersion===1,rows=await tx.list(`${base}/contracts`),freight=obligationsReady&&s.spaceOutlaws.transportVersion===1&&rows.some(c=>c.terms.transport&&c.acceptedAt!=null);
         const data=freight?{inventory:await tx.list(`${base}/inventory`),cargoTransfers:await tx.list(`${base}/cargoTransfers`)}:{},contracts=[];
         for(const c of rows){
-          if(!admin){if(!await participantAccess(tx,s,ctx,actor,c))continue;if(c.status==='PROPOSED'){const a=await tx.get(`${base}/announcements/${c.announcementId}`);if(!await announcementReadable(tx,s,a,ctx.c.id,at))continue;}}
-          contracts.push({...summary(c,s,at,ctx),...(obligationsReady?{obligations:missionObligations(s,c,at,data,await candidate(tx,s,c))}:{})});}
+          if(!admin){if(!commercialClient(c,ctx,actor)&&!await participantAccess(tx,s,ctx,actor,c))continue;if(c.status==='PROPOSED'&&!c.terms.transport?.commercial){const a=await tx.get(`${base}/announcements/${c.announcementId}`);if(!await announcementReadable(tx,s,a,ctx.c.id,at))continue;}}
+          contracts.push({...summary(c,s,at,admin?ctx:{...ctx,commercialClient:commercialClient(c,ctx,actor)}),...(obligationsReady?{obligations:missionObligations(s,c,at,data,await candidate(tx,s,c))}:{})});}
         return {session:{id:s.id,...(obligationsReady?{stage:s.stage,safetyStopped:!!s.safetyStop?.active}:{} )},admin,...(obligationsReady?{obligationsReady:true}:{}),contracts:contracts.sort((a,b)=>b.updatedAt-a.updatedAt||a.id.localeCompare(b.id))};
       }
       if(action==='prepareMissionContract')return (await prepare(tx,s,actor,input,at)).result;
@@ -142,6 +145,7 @@ export function createContractService({store,signed,checkSession,now,uuid}){
       if(action!=='proposeMissionContract'){
         c=await tx.get(`${base}/contracts/${documentId(input.contractId)}`);requireThat(c,admin?'NOT_FOUND':'FORBIDDEN');if(!admin)await readable(tx,s,c,ctx,actor,at);
         if(action==='sessionContract'||action==='contractDetail')return detail(tx,s,c,ctx,at,admin);
+        if(ctx.commercialClient)requireThat(['prepareContractDispute','disputeContract','prepareContractAppeal','appealContract','markContractRead'].includes(action),'FORBIDDEN');
         if(appealFinanceActions.includes(action)&&action.startsWith('prepare'))return (await appealFinanceCommand(tx,s,c,ctx,input,at,actor,id,action)).result;
         if(amendmentActions.includes(action)&&action.startsWith('prepare'))return (await amendmentCommand(tx,s,c,ctx,input,at,id,actor,action)).result;
         if(escortActions.includes(action)&&action.startsWith('prepare'))return (await escortCommand(tx,s,c,ctx,input,at,id,actor,action)).result;
@@ -166,7 +170,7 @@ export function createContractService({store,signed,checkSession,now,uuid}){
         const kind=soResolutionKind(action),x=await prepareSoResolution(tx,s,c,ctx,input,at,kind,candidate);requireThat(input.confirmation===x.result.confirmation,'STALE_REVISION');next=applySoResolution(tx,s,c,x,kind,at,actor,id,ledger);event.publicReason=x.result.reason;event.decision=kind;event.amount=x.result.pay;event.newEvidence=x.result.newEvidence??null;event.outcome=x.result.outcome??null;
       }else if(action==='proposeMissionContract'){
         const x=await prepare(tx,s,actor,input,at);requireThat(input.confirmation===x.result.confirmation,'STALE_REVISION');
-        c={...(s.spaceOutlaws?{missionId:x.a.missionId,missionVersionId:x.a.missionVersionId,missionSteps:x.missionSteps,rewardSources:x.rewards,giverCharacterId:x.a.giverCharacterId}:{}),...mediaFields(x.a,['illustration','briefing']),id,revision:1,status:'PROPOSED',announcementId:x.a.id,announcementRevision:x.a.revision,applicationId:x.t.id,participant:participantOf(x.t),applicantUid:x.t.applicantUid,characterId:x.t.characterId,applicantVersion:x.t.applicantVersion,terms:x.terms,termsHash:digest(x.terms),briefing:x.a.briefing,sourceAccountId:x.source?.id??null,sourceGuard:x.sourceGuard,sourceName:x.sourceName,reason:x.reason,approvedBy:{uid:actor.uid,email:actor.email,emailVerified:true,provider:actor.provider},offerDeadline:x.a.deadline,createdAt:at,updatedAt:at,lastReadRevision:0};next=c;
+        c=contractProposal(s,x,actor,id,at);next=c;
         tx.set(`${base}/applications/${x.t.id}`,{...x.t,contractId:c.id,revision:x.t.revision+1,updatedAt:at});event.terms=c.terms;event.reason=x.reason;
       }else if(action==='acceptContract'){
         const x=await acceptance(tx,s,c,ctx,at);requireThat(input.confirmation===x.result.confirmation,'STALE_REVISION');const t=await tx.get(`${base}/applications/${c.applicationId}`),gameAt=gameTime(s.clock,at);
@@ -197,7 +201,7 @@ export function createContractService({store,signed,checkSession,now,uuid}){
           if(x.t.contractId===c.id)tx.set(`${base}/applications/${x.t.id}`,{...x.t,status:'DISCUSSION',revision:x.t.revision+1,updatedAt:at});
         }
       }else{
-        requireThat(action==='markContractRead'&&input.revision===c.revision,'STALE_REVISION');next=withMissionRead(c,ctx,c.revision);
+        requireThat(action==='markContractRead'&&input.revision===c.revision,'STALE_REVISION');next=ctx.commercialClient?{...c,commercialReadStates:{...c.commercialReadStates,[ctx.version]:c.revision}}:withMissionRead(c,ctx,c.revision);
       }
       if(action!=='proposeMissionContract'&&action!=='markContractRead')next={...next,revision:c.revision+1,updatedAt:at};
       const result={id:c.id,status:next.status,revision:next.revision};tx.set(`${base}/contracts/${c.id}`,next);

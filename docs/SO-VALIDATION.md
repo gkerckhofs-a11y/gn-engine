@@ -1,5 +1,7 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+Transport commercial entre joueurs du 14 novembre 2026 : [audit, contrôleurs réutilisés, droits, tests et limites](SO-COMMERCIAL-TRANSPORT.md). Tranche 4 après #40 : demandes, négociations et contrats natifs financés par le Courtier ; fret et salaires conservés, sans moteur parallèle. Livraison commerciale finale et douanes restent à raccorder. Aucun déploiement de cette tranche.
+
 Carte galactique du 14 novembre 2026 : [parcours, matrice de réutilisation et contrôles](SO-GALACTIC-MAP.md). Dépend de #39 ; lecture filtrée, codes explicites, autonomie native, escales et accès au formulaire de vol. Publication Firebase autorisée par Guillaume une fois tous les chantiers finalisés ; condition non remplie, aucun déploiement de cette tranche.
 
 Économie galactique du 14 novembre 2026 : [audit, matrice de réutilisation et premier parcours de marchés planétaires](SO-GALACTIC-ECONOMY.md). Dépend de #38 ; cours locaux, achats distants et rachat ordinaire limités aux contrôles raccordés. Carte, contrats libres et logistique intégrée restent à développer. Aucun déploiement.

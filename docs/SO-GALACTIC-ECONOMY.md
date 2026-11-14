@@ -1,5 +1,7 @@
 # Économie galactique — audit, matrice et premier parcours
 
+Actualisation du 14 novembre 2026 : [carte galactique, tranche 3](SO-GALACTIC-MAP.md), puis [contrats de transport entre joueurs, tranche 4](SO-COMMERCIAL-TRANSPORT.md). Les limites ci-dessous décrivent l’état du premier lot de marchés ; les deux rapports précisent les raccords suivants et les écarts encore ouverts.
+
 Auteur : Codex, 14 novembre 2026. Source : [cahier unifié fourni par Guillaume](source/SO_Galactic_Economy_V1.md), règles [V0.7, chapitres 23–25](source/SO_Regles_V07.txt). État initial de cette tranche : aucun déploiement Firebase ni fusion autorisé. Autorisation ultérieure conditionnelle : publication Firebase une fois tous les chantiers finalisés, voir [tranche carte](SO-GALACTIC-MAP.md) ; aucun déploiement effectué.
 
 ## Base vérifiée
