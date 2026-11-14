@@ -146,7 +146,7 @@ export function writeSoReleaseVersion(tx,{campaignId,confirmation,entries,pages:
  const id=`so_${confirmation}`,base=`campaigns/${campaignId}/versions/${id}`;
  const pages=contentPages.map((entries,i)=>({id:String(i),versionId:id,entries}));
  const manifest={id,kind:versionKind,status:'READY',ruleProfile:spaceOutlawsProfile,campaignId,confirmation,...metadata,
-  ...releaseCapabilities,...(entries.some(e=>e.data.type==='item'&&e.data.data?.usage)?{itemCircuitsVersion:1}:{}),careProfiles:soCareProfiles(entries.map(e=>e.data),{workshop:true}),records:entries.length,
+  ...releaseCapabilities,...(entries.some(e=>e.data.operation==='UPSERT'&&e.data.type==='item'&&e.data.data?.usage)?{itemCircuitsVersion:1}:{}),careProfiles:soCareProfiles(entries.map(e=>e.data),{workshop:true}),records:entries.length,
   contentDigest:digest(entries),pages:pages.map(p=>({id:p.id,digest:digest(p)}))};
  for(const p of pages)tx.set(`${base}/pages/${p.id}`,p);
  tx.set(base,{...manifest,manifestDigest:digest(manifest)});

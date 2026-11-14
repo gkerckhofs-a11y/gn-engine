@@ -30,3 +30,7 @@ test('Circuits UI : les parcours de carburant proviennent des aperçus serveur, 
 test('Circuits Master : article non classé et tarif voucher incorrect bloquent la publication',async()=>{
  const {shopBlockers}=await import('../src/core/space-outlaws-shop-state.mjs'),change=(type,id,data)=>({id:`${type}_${id}`,type,entityId:id,operation:'UPSERT',data}),rows=[change('item','classified',{...item,id:'classified'}),change('item','legacy',{id:'legacy',consumable:true}),change('offer','old-offer',{itemId:'legacy',buybackPrice:null}),change('offer','fuel-offer',{itemId:'classified',unitPrice:24,buybackPrice:null})],d=shopBlockers(rows);assert.ok(d.some(v=>v.entityId==='old-offer'&&/Classer/.test(v.message)));assert.ok(d.some(v=>v.entityId==='fuel-offer'&&v.detailField==='unitPrice'&&/25 Cr/.test(v.message)));
 });
+test('Circuits versionnés : un modèle archivé ne peut pas activer de nouveaux droits',async()=>{
+ const {writeSoReleaseVersion}=await import('../src/core/space-outlaws-entry.mjs'),saved=new Map(),tx={set:(p,v)=>saved.set(p,v)},entry=operation=>({path:'changes/item_old',data:{id:'item_old',type:'item',entityId:'old',operation,data:{...item}}});
+ for(const operation of ['ARCHIVE','UPSERT']){saved.clear();const entries=[entry(operation)],id=writeSoReleaseVersion(tx,{campaignId:'campaign',confirmation:'release',entries,pages:[entries]});assert.equal(saved.get(`campaigns/campaign/versions/${id}`).itemCircuitsVersion,operation==='UPSERT'?1:undefined);}
+});

@@ -39,7 +39,7 @@ Les commandes métier, collections d'inventaire, comptes et journaux existants r
 
 M1 expose les champs dans l'éditeur et l'échange Excel **central** (`circuit`, `transferable`, `revendable`). Les anciens fichiers dont ces colonnes sont absentes restent lisibles. Les formats historiques CAMPAGNE/SESSION et les Masters publiés ne sont pas modifiés. L'omission d'une colonne ne reclassifie pas une définition existante.
 
-Une nouvelle version publiée contenant une classification explicite porte `itemCircuitsVersion=1`. Toutes ses offres doivent alors référencer un article classé ; une offre non classée ou un voucher à un prix différent de 25 Cr bloque la publication. Une ancienne version sans ce marqueur conserve ses circuits antérieurs. Les nouveaux raccordements ne lui sont pas ajoutés implicitement. Dans une session adoptant ces circuits, un ancien lot non classé reste consultable mais n'obtient pas les nouveaux droits d'échange.
+Une nouvelle version publiée contenant une classification explicite active (hors définitions archivées) porte `itemCircuitsVersion=1`. Toutes ses offres doivent alors référencer un article classé ; une offre non classée ou un voucher à un prix différent de 25 Cr bloque la publication. Une ancienne version sans ce marqueur conserve ses circuits antérieurs. Les nouveaux raccordements ne lui sont pas ajoutés implicitement. Dans une session adoptant ces circuits, un ancien lot non classé reste consultable mais n'obtient pas les nouveaux droits d'échange.
 
 Le contrôle MJ passe par M1 et les validations de publication existantes. Modifier un modèle ne réécrit pas les exemplaires déjà achetés ou embarqués. Le reclassement d'anciens lots en session demanderait une opération explicite séparée ; aucune migration de ce type n'est exécutée ici.
 
@@ -58,7 +58,7 @@ Le sac privilégie les lots disponibles, indique leur usage et leurs restriction
 Commandes locales exécutées :
 
 - Tests ciblés des moteurs et interfaces : inventaire, dons, ventes, marché, négociations, M1/M5, import central, publication, navigation, fret et terminal. Première sélection : **285 tests réussis**, aucun échec ; **sélection finale : 376 tests réussis**, aucun échec.
-- Nouvelle couverture dédiée : `node --test test/item-circuits.test.mjs test/item-circuits-ui.test.mjs` : **21 tests réussis** (15 parcours métier et 6 cas de modèles/interface), aucun échec.
+- Nouvelle couverture dédiée : `node --test test/item-circuits.test.mjs test/item-circuits-ui.test.mjs` : **22 tests réussis** (15 parcours métier et 7 cas de modèles/interface), aucun échec.
 - Émulateurs isolés `demo-gn-engine`, première version de la suite partagée : **12 parcours Firestore réussis**. Les parcours ajoutés ensuite et le candidat final sont soumis à la CI.
 - HTTP/Auth/Firestore isolés : `HTTP + Auth : circuits personnels, vente privée, retrait et historique protégé` : **1 test réussi**, incluant refus anonyme/tiers/révoqué et réessai sans double paiement.
 - `npm run build` et `git diff --check` réussis.
