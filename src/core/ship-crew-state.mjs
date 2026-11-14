@@ -33,9 +33,9 @@ export async function nativeShipReader(tx,s,ship,c,at){
    const g=await tx.get(`sessions/${s.id}/groups/${ship.ownerId}`);
    pilot=pilot&&s.spaceOutlaws?.groupPilotVersion===1&&g?.roster&&groupVisible(g,c.id)&&memberFor(g,c.id).permissions.pilotShip===true&&navigationSkill(c,'PIL-02')>=1;
   }
-  const member=await tx.get(`${shipCrewBase(s,ship)}/members/${c.id}`);
-  if(member){const access=await shipCrewAccess(tx,s,ship,c,at);pilot=pilot&&access.active&&['PILOT','CAPTAIN'].includes(member.role);}
-  if(pilot)return {read:true,pilot:true};
+  const member=await tx.get(`${shipCrewBase(s,ship)}/members/${c.id}`);let continuation=false;
+  if(member){const access=await shipCrewAccess(tx,s,ship,c,at),current=access.active&&['PILOT','CAPTAIN'].includes(member.role),committed=ship.operation?.pilotId===c.id||ship.journey?.pilotId===c.id;continuation=pilot&&!current&&committed;pilot=pilot&&(current||committed);}
+  if(pilot)return {read:true,pilot:true,continuation};
  }
  if(aboard(ship,c.id))return {read:true,passenger:true};
  const jobs=await tx.list(`sessions/${s.id}/shipMaintenance`,['shipId',ship.id]);

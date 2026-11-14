@@ -26,4 +26,8 @@ export function shipFuelContributionSuite(makeStore,prefix='Contribution carbura
   const f=await contributionFixture(makeStore);await assert.rejects(f.read('prepareLotTransfer',{...f.input,recipientId:f.otherId},f.other),{code:'INVALID_RECIPIENT'});await f.change('ROLE',f.otherId,{role:'MEMBER',permissions:{...crewPermissions,fuelContribution:false}});await assert.rejects(f.read('prepareLotTransfer',f.input,f.other),{code:'FORBIDDEN'});assert.equal((await f.ship()).fuel,0);
   const g=await shipCrewFixture(makeStore,{restrictedFuel:true}),inv=await g.invite();await g.respond(inv.id);const lot=(await g.read('myInventory')).lots.find(l=>l.item.id==='propellant');await assert.rejects(g.read('prepareLotTransfer',{lotId:lot.id,recipientId:g.otherId,quantity:1,contributionShipId:'ship'}),{code:'SO_PERSONAL_TRANSFER_RESTRICTED'});
  });
+ test(`${prefix} : pilote retiré pendant un plein retrouve uniquement son opération verrouillée`,async()=>{
+  const f=await contributionFixture(makeStore);await f.change('ROLE',f.otherId,{role:'PILOT',permissions:crewPermissions});await f.pilot();const p={shipId:'ship',lotId:f.donorLotId,quantity:2},q=await f.read('prepareRefuel',p,f.other);await f.cmd('refuelShip',{...p,confirmation:q.confirmation,present:true},f.other);await f.change('REMOVE');const d=await f.read('shipWorkspace',{shipId:'ship'},f.other);assert.equal(d.ship.finishing,true);assert.equal(d.ship.permissions.crew,false);assert.ok((await f.read('myShips',{},f.other)).ships.some(s=>s.id==='ship'));await assert.rejects(f.read('prepareRefuel',p,f.other),{code:'SHIP_CREW_REVOKED'});f.advance(120000);await f.navCommand('finishSoRefuel',{},f.other);assert.equal((await f.ship()).fuel,2);assert.equal((await f.read('myShips',{},f.other)).ships.length,0);
+ });
+
 }
