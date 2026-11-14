@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
+import {forgeryFixture} from './space-forgery-suite.mjs';
 import {shopsFixture} from './space-outlaws-shops-suite.mjs';
 import {soVoyagesFixture} from './space-outlaws-voyages-suite.mjs';
 import {accountId} from '../../src/core/economy-state.mjs';
@@ -107,6 +108,10 @@ export function itemCircuitsSuite(makeStore,prefix='Circuits explicites'){
 
  test(`${prefix} : équipement individuel non consommable acheté sans modifier un kit initial`,async()=>{
   const f=await circuitsFixture(makeStore,{classId:'COM',consumable:false,kind:'INDIVIDUAL'}),lot=await f.acquire(1),bag=await f.read('myInventory');assert.equal(lot.quantity,1);assert.equal(lot.item.kind,'INDIVIDUAL');assert.equal(lot.item.usage,'PERSONAL');assert.equal(bag.lots.find(l=>l.id===lot.id).canSellPersonal,true);assert.equal(bag.lots.find(l=>l.item.id==='kit_communicator').transferable,false);
+ });
+
+ test(`${prefix} : document natif de l’Infiltrateur personnel et donnable, toujours non revendable`,async()=>{
+  const f=await forgeryFixture(makeStore,{second:true});await f.store.runTransaction(async tx=>{const s=await tx.get(`sessions/${f.sid}`);tx.set(`sessions/${f.sid}`,{...s,spaceOutlaws:{...s.spaceOutlaws,itemCircuitsVersion:1}});});const a=await f.start();f.advance(270000);f.setDie(6);await f.finish(a.id);const d=await f.actionRead('myInventory'),lot=d.lots.find(l=>l.item.name==='Attestation du Port de Brèche');assert.ok(lot);assert.equal(lot.item.usage,'PERSONAL');assert.equal(lot.canTransferByHand,true);assert.equal(lot.canSellPersonal,false);const recipientId=(await f.actionRead('mySession',{},f.other)).character.id,p=await f.actionRead('prepareLotTransfer',{lotId:lot.id,recipientId,quantity:1});assert.ok(p.confirmation);
  });
 
 }

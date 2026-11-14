@@ -58,7 +58,7 @@ Le sac privilégie les lots disponibles, indique leur usage et leurs restriction
 Commandes locales exécutées :
 
 - Tests ciblés des moteurs et interfaces : inventaire, dons, ventes, marché, négociations, M1/M5, import central, publication, navigation, fret et terminal. Première sélection : **285 tests réussis**, aucun échec ; **sélection finale : 376 tests réussis**, aucun échec.
-- Nouvelle couverture dédiée : `node --test test/item-circuits.test.mjs test/item-circuits-ui.test.mjs` : **20 tests réussis** (14 parcours métier et 6 cas de modèles/interface), aucun échec.
+- Nouvelle couverture dédiée : `node --test test/item-circuits.test.mjs test/item-circuits-ui.test.mjs` : **21 tests réussis** (15 parcours métier et 6 cas de modèles/interface), aucun échec.
 - Émulateurs isolés `demo-gn-engine`, première version de la suite partagée : **12 parcours Firestore réussis**. Les parcours ajoutés ensuite et le candidat final sont soumis à la CI.
 - HTTP/Auth/Firestore isolés : `HTTP + Auth : circuits personnels, vente privée, retrait et historique protégé` : **1 test réussi**, incluant refus anonyme/tiers/révoqué et réessai sans double paiement.
 - `npm run build` et `git diff --check` réussis.
@@ -66,5 +66,7 @@ Commandes locales exécutées :
 La suite partagée `item-circuits` est inscrite dans le catalogue Firestore. La recette Chromium existante reçoit un parcours mobile 390×844 : achat de voucher, retrait, utilisation depuis le sac, annulation avant consommation et reliquat conservé. Le navigateur local refuse la création de son socket ; cette recette est vérifiée dans la CI, sans la présenter comme exécutée localement.
 
 Les parcours anciens de vente, boutique, fret, gardes et navigation sont conservés et inclus dans les régressions. Les validations ci-dessus sont automatisées ; elles ne certifient pas une recette humaine sur Android/iPhone ni une remise d'accessoire physique en GN.
+
+La CI initiale a identifié un comptoir sans offre masqué malgré ses récompenses de mission. Son affichage est conservé ; les récompenses restent dans le circuit personnel. La relecture conserve également la classification personnelle des nouveaux documents natifs INF-03, sans droit de revente, et réutilise la règle de coupure des références longues du sac sur mobile. Les tests de mission et de faux sont inclus dans la correction.
 
 Les fournisseurs ne rachètent pas automatiquement les articles : les offres avec `buybackPrice` restent fermées, comme avant. La revente entre joueurs est raccordée au moteur existant. Les stocks sous garde contractuelle continuent par leurs parcours de fret propres ; le nouveau stock commercial ne leur attribue aucun droit supplémentaire.
