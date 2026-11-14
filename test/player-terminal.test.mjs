@@ -11,7 +11,7 @@ test('Terminal : Marché réservé au Courtier, boutiques et portefeuille ouvert
  for(const cl of ['COU','MED']){const o=own(cl),d={shops:{shops:[{id:'s'}]},market:{economyEnabled:true}};assert.deepEqual(ids(o,d),cl==='COU'?['shops','public-prices','wallet','market']:['shops','public-prices','wallet']);assert.doesNotMatch(personalTerminalHtml(o,d),/licence|COU-03/);}
 });
 test('Terminal : propriétaire non pilote et pilote mandaté utilisent uniquement les projections autorisées',()=>{
- for(const cl of ['COM','PIL']){const o=own(cl);assert.ok(!ids(o,{}).includes('spaceport'));const d={ships:{ships:[{id:'ship',pilotId:cl==='PIL'?'c':'other'}]}};assert.ok(ids(o,d).includes('spaceport'));assert.doesNotMatch(personalTerminalHtml(o,d),/data-action=".*(Pilot|Flight)|SECRET/);}
+ for(const cl of ['COM','PIL']){const o=own(cl);assert.ok(!ids(o,{}).includes('spaceport'));const d={ships:{ships:[{id:'ship',pilotId:cl==='PIL'?'c':'other'}]}};assert.ok(ids(o,d).includes('ship-ship'));assert.match(personalTerminalHtml(o,d),/#\/ship\/s\/ship/);assert.doesNotMatch(personalTerminalHtml(o,d),/data-action=".*(Pilot|Flight)|SECRET/);}
 });
 test('Terminal : MEC secondaire et propriétaire suivent les interventions reçues, pas des travaux fictifs',()=>{
  const o=own();o.character.abilities.skills=[{id:'MEC-02',level:2}];assert.ok(!ids(o,{}).includes('space-maintenance'));

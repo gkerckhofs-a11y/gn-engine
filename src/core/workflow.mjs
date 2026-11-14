@@ -22,6 +22,8 @@ import {createCustomsSeizureService,customsSeizureActions} from './space-customs
 import {createCustomsAppealService,customsAppealActions} from './space-customs-appeals.mjs';
 import {createSpaceOutlawsSuccessionService,spaceOutlawsSuccessionActions} from './space-outlaws-succession.mjs';
 import {rewardsOpen} from './space-outlaws-mission-rewards.mjs';
+import {createShipCrewService,shipCrewActions} from './ship-crew.mjs';
+import {createShipWorkspaceService,shipWorkspaceActions} from './ship-workspace.mjs';
 import {createSpaceMaintenanceService,spaceMaintenanceActions} from './space-maintenance.mjs';
 import {createSpaceCombatService,spaceCombatActions} from './space-combat.mjs';
 import {createSpaceBoardingService,spaceBoardingActions} from './space-boarding.mjs';
@@ -171,7 +173,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       else if(context.kind==='inventory'){const d=await dispatch('myInventory',actor,{sessionId:scopeId}),l=[...d.lots,...d.stored,...d.ownedElsewhere,...d.heldForOthers].find(l=>l.id===id);requireThat(l,'FORBIDDEN');record=l.item;}
       else if(context.kind==='item'){requireThat(slot==='illustration','FORBIDDEN');const d=await dispatch('shops',actor,{sessionId:scopeId});const offer=d.shops.flatMap(s=>s.offers).find(o=>o.item.id===id);requireThat(offer,'FORBIDDEN');record=offer.item;}
       else if(context.kind==='fieldFind'){requireThat(slot==='illustration','FORBIDDEN');const d=await dispatch('myFieldActions',actor,{sessionId:scopeId});record=d.actions.find(a=>a.id===id)?.result?.discoveries?.find(f=>f.id===context.findId)?.item;requireThat(record,'FORBIDDEN');}
-      else if(context.kind==='ship'){requireThat(slot==='illustration','FORBIDDEN');record=(await dispatch('shipNavigation',actor,{sessionId:scopeId,shipId:id})).ship;}
+      else if(context.kind==='ship'){requireThat(slot==='illustration','FORBIDDEN');record=(await dispatch('shipWorkspace',actor,{sessionId:scopeId,shipId:id})).ship;}
       else if(context.kind==='announcement')record=(await dispatch('announcementDetail',actor,{sessionId:scopeId,announcementId:id})).announcement;
       else if(context.kind==='contract')record=(await dispatch('contractDetail',actor,{sessionId:scopeId,contractId:id})).contract;
       else requireThat(false,'FORBIDDEN');
@@ -182,6 +184,8 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const towingWorkService=createTowingWorkService({store,signed,checkSession,now,uuid});
   const moduleWorkService=createModuleWorkService({store,signed,checkSession,now,uuid});
   const moduleMandateService=createModuleMandateService({store,signed,checkSession,now,uuid});
+  const shipCrewService=createShipCrewService({store,signed,checkSession,now,uuid});
+  const shipWorkspaceService=createShipWorkspaceService({store,signed,checkSession,now,uuid});
   const spaceMaintenanceService=createSpaceMaintenanceService({store,signed,checkSession,now,uuid});
   const spaceCombatService=createSpaceCombatService({store,signed,checkSession,now,uuid,rollD6});
   const boardingCargoService=createBoardingCargoService({store,signed,checkSession,now,uuid});
@@ -277,6 +281,8 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(priceAction(action))return priceService(action,actor,input);
     if(towingWorkActions.includes(action))return towingWorkService(action,actor,input);
     if(moduleWorkActions.includes(action))return moduleWorkService(action,actor,input);
+    if(shipCrewActions.includes(action))return shipCrewService(action,actor,input);
+    if(shipWorkspaceActions.includes(action))return shipWorkspaceService(action,actor,input);
     if(moduleMandateActions.includes(action))return moduleMandateService(action,actor,input);
     if(spaceMaintenanceActions.includes(action))return spaceMaintenanceService(action,actor,input);
     if(spaceCombatActions.includes(action))return spaceCombatService(action,actor,input);

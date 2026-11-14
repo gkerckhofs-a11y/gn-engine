@@ -1,3 +1,4 @@
+import {requireCrewPilot} from './ship-crew-state.mjs';
 import {malaiseAt} from './space-toxicology-state.mjs';
 import {towingInterceptable,towingCombatContext,registerTowingEncounter,releaseTowingInSpace} from './space-towing-combat.mjs';
 import {flightShip,hasTowingCombat} from './space-module-flight.mjs';
@@ -44,7 +45,7 @@ export function createSpaceCombatService({store,signed,checkSession,now,uuid,rol
    const loadShips=async e=>{if(e.towingCombatVersion!==undefined)requireThat(e.towingCombatVersion===1&&hasTowingCombat(s),'TOWING_COMBAT_NOT_OPEN');const out=[];ctx.towingProofs=[];for(const sid of e.shipIds){const ship=flightShip(s,await tx.get(`${base}/ships/${sid}`),time);requireThat(ship?.soProfile,'CARGO_UNAVAILABLE');if(e.status!=='CLOSED'&&ship.towingAttachment&&ship.journey?.towing){const tow=await towingCombatContext(tx,s,ship,time,e);towContexts.set(ship.id,tow);ctx.towingProofs.push({shipId:ship.id,state:tow.confirmationState});}out.push(ship);}return out;};
    if(action==='spaceCombats'||action==='spaceCombatAdmin'){
     const combats=[];for(const e of await tx.list(`${base}/spaceCombats`)){const ships=await loadShips(e);if(admin||visible(e,ships,c))combats.push(projection(e,ships,s,ctx,time));}
-    const fleet=(await tx.list(`${base}/ships`)).map(x=>flightShip(s,x,time)),ambushes=[];for(const a of await tx.list(`${base}/spaceAmbushes`)){const ship=fleet.find(x=>x.id===a.shipId);if(a.status==='ACTIVE'&&ship?.journey?.id===a.journeyId&&(admin||ship.pilotId===c.id))ambushes.push({id:a.id,shipId:a.shipId,name:ship.name,confirmation:hash(JSON.stringify([s.revision,ship,a,version??null]))});}
+    let fleet=(await tx.list(`${base}/ships`)).map(x=>flightShip(s,x,time));if(!admin){const live=[];for(const sh of fleet){try{await requireCrewPilot(tx,s,sh,c,'shipNavigation',at);live.push(sh);}catch(e){if(e.code!=='SHIP_CREW_REVOKED')throw e;}}fleet=live;}const ambushes=[];for(const a of await tx.list(`${base}/spaceAmbushes`)){const ship=fleet.find(x=>x.id===a.shipId);if(a.status==='ACTIVE'&&ship?.journey?.id===a.journeyId&&(admin||ship.pilotId===c.id))ambushes.push({id:a.id,shipId:a.shipId,name:ship.name,confirmation:hash(JSON.stringify([s.revision,ship,a,version??null]))});}
     return {pirateAlliances:pirateAllianceView(s,fleet,c,admin),session:{id:s.id,stage:s.stage},admin,combats,ambushes,...(admin?{ships:fleet.filter(x=>inTransit(x,time)&&!x.journey.intercepted&&!x.journey.interceptionCovered).map(x=>({id:x.id,name:x.name}))}:{})};
    }
    let e,ships;
@@ -52,6 +53,7 @@ export function createSpaceCombatService({store,signed,checkSession,now,uuid,rol
    let ship=input.shipId?flightShip(s,await tx.get(`${base}/ships/${documentId(input.shipId)}`),time):null;
    const towVictim=e?.status!=='CLOSED'&&ship?.towingAttachment?(towContexts.get(ship.id)??await towingCombatContext(tx,s,ship,time,e??null)):null;if(towVictim&&(['prepareSpaceAmbush','armSpaceAmbush','cancelSpaceAmbush'].includes(action)||pirateAllianceFields[action]))requireThat(false,'TOWING_ACTION_NOT_OPEN');
    if(!admin&&action!=='spaceCombat'){requireThat(ship?.pilotId===c.id&&(!e||e.shipIds.includes(ship.id)),'FORBIDDEN');}
+   if(!admin&&ship)await requireCrewPilot(tx,s,ship,c,action,at);
    const op=reads.has(action)?null:`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`,fingerprint=hash(JSON.stringify([action,input]));
    if(op){const old=await tx.get(op);if(old){requireThat(old.towingCombatVersion!==1||hasTowingCombat(s),'TOWING_COMBAT_NOT_OPEN');requireThat(old.fingerprint===fingerprint,'REQUEST_ID_REUSED');requireThat(admin||old.guard===version,'FORBIDDEN');return old.result;}}
    if(action.startsWith('leavePirateAlliance')){requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage),'SESSION_NOT_RUNNING');}else active(s);
