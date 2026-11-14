@@ -88,6 +88,8 @@ Deuxième candidat CI : application réussie, 108/108 HTTP/Auth réussis, 17/18 
 
 Contrôle final complémentaire : la vue Équipage MJ ne doit pas dépendre d’un contexte de personnage joueur. Le parcours Chromium a révélé une déréférence nulle dans cette seule lecture après avoir validé le retrait et la révocation ; la lecture MJ est corrigée et ajoutée aux validations métier et HTTP. Les changements de propriétaire et la réactivation d’un membre retiré sont désormais couverts explicitement par une nouvelle acceptation obligatoire.
 
+Dernière attente de recette corrigée : `mySession` renvoie légitimement un accueil public sans personnage à un compte non inscrit (HTTP 200), et non une fiche privée. Le test vérifie donc cet accueil sans vaisseau, puis le refus HTTP 403 de `shipWorkspace` avec le même jeton authentifié. Le parcours complet a auparavant franchi la vue MJ corrigée.
+
 Commandes : `node --test` avec les fichiers ciblés du lot et régressions mentionnées ; `npm run build` ; `git diff --check` ; `firebase emulators:exec --project demo-gn-engine --only firestore,auth,storage` avec suites nommées et cas HTTP ciblé. Les commandes d’émulateur utilisent uniquement le projet fictif ; ce ne sont pas des publications Firebase.
 
 **Aucune fusion, aucun déploiement, aucune migration, aucune modification d’un Master publié ou d’une session réelle.** Le workflow de publication Firebase reste suspendu. Le candidat exact, l’état CI final et les éventuelles limites sont consignés dans la PR ; une CI parent ne remplace jamais ces preuves.
