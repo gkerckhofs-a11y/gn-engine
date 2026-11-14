@@ -1,5 +1,7 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+Navigation organisateur et essai solo du 14 novembre 2026 : [parcours, sécurité et tests ciblés](SO-ORGANIZER-TEST-NAVIGATION.md). Administration prioritaire, huit profils directs, retour à la régie et guide Préparer ; candidat sur branche, aucun déploiement autorisé. Le pipeline Firebase antérieur 43574851449 a été annulé et la publication automatique suspendue à la demande de Guillaume.
+
 Intégration du 14 novembre 2026 : PR [#34](https://github.com/gkerckhofs-a11y/gn-engine/pull/34), version candidate `0.38.0-rc.2`. Lots de compétences #16–#33 cumulés et départ FIL depuis le quai avec balise conservée. 3 130 tests applicatifs et compilation réussis localement sur l’arbre du complément ; CI exacte et publication à constater dans la PR. **Publication intermédiaire ; clôture des 34 capacités toujours partielle**, sans migration des sessions existantes. Voir la [matrice courante](SO-COMPETENCES-V07-CLOTURE.md).
 
 Complément spatial du 13 novembre 2026 : [traces de vaisseaux, filature et corrections des tests CI](SO-COMPETENCES-V07-CLOTURE.md#r--départs-de-vaisseaux-filature-et-signature-fictive-13-novembre-2026). Candidat sur branche ; aucune fusion ou publication. Les CI des parents #31/#32 ont des échecs identifiés, distincts des tests locaux du correctif.

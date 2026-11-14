@@ -429,3 +429,30 @@ test('Dashboard orga : accès missions et spatioport, pause et reprise sans chan
  await page.locator('.org-context').getByRole('link',{name:'Changer de session',exact:true}).click();
  await expect(page.locator('.org-shell')).toHaveCount(0);
 });
+
+test('Navigateur : régie et huit personnages de l’essai solo, liens sans droits et clavier PC',async({browser},info)=>{
+ test.setTimeout(300000);
+ const {page,context}=await login(browser,'owner');await page.setViewportSize({width:1440,height:1050});
+ await page.goto('/');await page.getByRole('button',{name:'Créer / reprendre l’essai commun',exact:true}).click();
+ const characters=page.locator('.demo-characters');await expect(characters).toBeVisible({timeout:120000});
+ await expect(page).toHaveURL(/#\/session\/[A-Za-z0-9_-]+$/);const sid=new URL(page.url()).hash.split('/')[2];
+ await expect(characters.locator('article')).toHaveCount(8);await expect(page.getByRole('link',{name:'Tester la session',exact:true})).toBeVisible();
+ await capture(page,info,'essai-administration-pc');
+ for(const [i,role] of ['COM','ROG','TRA','MED','MEC','PIL','COU','INF'].entries()){
+  const response=page.waitForResponse(r=>r.url().endsWith('/api/command')&&r.request().postDataJSON()?.action==='mySession'&&r.request().postDataJSON()?.input.demoRole===role);
+  await characters.locator('article').nth(i).getByRole('link',{name:/Tester ce personnage/}).click();
+  const own=await response;expect(own.status()).toBe(200);expect((await own.json()).result.character.primaryClassId).toBe(role);
+  await expect(page.locator('[data-demo-role]')).toHaveValue(role);await expect(page).toHaveURL(new RegExp(`demoRole=${role}`));
+  await page.getByRole('link',{name:'Retour à l’administration',exact:true}).click();await expect(characters).toBeVisible();
+ }
+ await page.getByRole('link',{name:'Préparer',exact:true}).click();await expect(page.locator('.preparation-guide li')).toHaveCount(5);
+ await expect(page.locator('.preparation-guide')).toContainText('Version déjà publiée');await expect(page.locator('.preparation-guide')).toContainText('Le jeu est déjà lancé');
+ const advanced=page.locator('.org-advanced');await expect(advanced).not.toHaveAttribute('open');await advanced.locator('summary').focus();await page.keyboard.press('Enter');await expect(advanced).toHaveAttribute('open','');await page.keyboard.press('Tab');expect(await page.evaluate(()=>document.activeElement.getAttribute('href'))).toContain('/central/');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)).toBe(false);await capture(page,info,'essai-preparer-pc');
+ await context.grantPermissions(['clipboard-read','clipboard-write']);const copy=characters.locator('article').nth(3).getByRole('button',{name:/Copier le lien/});const url=await copy.getAttribute('data-value');await copy.click();await expect(page.locator('#notice')).toContainText('Lien copié');expect(await page.evaluate(()=>navigator.clipboard.readText())).toBe(url);
+ await page.goto(url);await expect(page.locator('[data-demo-role]')).toHaveValue('MED');await page.getByRole('link',{name:'Identité',exact:true}).click();await expect(page.locator('[data-demo-role]')).toHaveValue('MED');await page.reload();await expect(page.locator('[data-demo-role]')).toHaveValue('MED');await capture(page,info,'essai-joueur-retour-pc');
+ const selected=page.waitForResponse(r=>r.url().endsWith('/api/command')&&r.request().postDataJSON()?.action==='mySession'&&r.request().postDataJSON()?.input.demoRole==='PIL');await page.locator('[data-demo-role]').selectOption('PIL');expect((await selected).status()).toBe(200);await expect(page.locator('[data-demo-role]')).toHaveValue('PIL');
+ await page.goto(`/#/play/${sid}`);await expect(page.locator('[data-demo-role]')).toHaveValue('PIL');await page.getByRole('link',{name:'Retour à l’administration',exact:true}).click();await expect(characters).toBeVisible();
+ await page.goto('/');await page.getByRole('button',{name:'Créer / reprendre l’essai commun',exact:true}).click();await expect(characters).toBeVisible();await expect(page).toHaveURL(new RegExp(`#/session/${sid}$`));
+ const {page:player}=await login(browser,'player');await player.goto(url);await expect(player.getByRole('heading',{name:'Nous ne pouvons pas ouvrir cet espace.'})).toBeVisible();await expect(player.getByRole('link',{name:'Retour à l’administration'})).toHaveCount(0);
+});
