@@ -1,3 +1,6 @@
+import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
+import {hasItemCircuits,commercialLot,receivedItemLocation,resellableItem} from './item-circuits.mjs';
+import {personalSaleAllowed,personalTransferActorReady} from './personal-transfer-policy.mjs';
 import {readPriceBook,commodityTrade} from './price-state.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {inventoryHash as hash,itemQuantity,publicItem,personalLot,readLot} from './inventory-state.mjs';
@@ -20,11 +23,13 @@ async function state(tx,s,p,at){
   const seller=await inventoryParty(tx,s.id,p.sellerId),buyer=await inventoryParty(tx,s.id,p.buyerId);
   const lot=await readLot(tx,s.id,p.purchasedLotId??p.lotId,at);
   const identities=seller.active&&buyer.active;
-  const valid=identities&&seller.version===p.sellerVersion&&buyer.version===p.buyerVersion&&!!lot&&personalLot(lot,p.sellerId)&&lot.status==='AVAILABLE'&&lot.revision===p.lotRevision&&lot.quantity>=p.quantity;
-  const custody=identities&&!!lot&&lot.ownerId===p.buyerId&&lot.holderId===p.sellerId&&lot.location.kind==='CHARACTER'&&lot.location.id===p.sellerId&&lot.status==='AVAILABLE'&&lot.quantity===p.quantity;
+  const commercialLocal=!hasItemCircuits(s)||!p.listingId||lot?.location.portId!=null&&(seller.c?.spacePortId??s.transportRules?.homePort)===lot.location.portId&&(buyer.c?.spacePortId??s.transportRules?.homePort)===lot.location.portId;
+  const readyActors=commercialLocal&&(!hasItemCircuits(s)||await personalTransferActorReady(tx,s,seller.c)&&await personalTransferActorReady(tx,s,buyer.c));
+  const valid=readyActors&&identities&&seller.version===p.sellerVersion&&buyer.version===p.buyerVersion&&!!lot&&(hasItemCircuits(s)&&p.listingId?commercialLot(lot,p.sellerId)&&resellableItem(lot):personalSaleAllowed(s,lot,p.sellerId))&&lot.status==='AVAILABLE'&&lot.revision===p.lotRevision&&lot.quantity>=p.quantity;
+  const custody=identities&&!!lot&&lot.ownerId===p.buyerId&&lot.holderId===p.sellerId&&lot.location.kind===(hasItemCircuits(s)&&p.listingId?'COMMERCIAL':'CHARACTER')&&lot.location.id===p.sellerId&&lot.status==='AVAILABLE'&&lot.quantity===p.quantity;
   const ready=custody&&p.pickupStatus==='READY'&&lot.revision===p.pickupLotRevision&&seller.version===p.pickupSellerVersion&&buyer.version===p.pickupBuyerVersion;
   const status=p.status==='PENDING'?(at>=p.expiresAt?'EXPIRED':valid?'PENDING':'STALE'):p.status;
-  const running=s.stage==='EN_JEU',pickupAllowed=running&&custody&&canGameAction(s,seller.c,'transfer')&&canGameAction(s,buyer.c,'transfer');
+  const running=s.stage==='EN_JEU',pickupAllowed=running&&readyActors&&custody&&canGameAction(s,seller.c,'transfer')&&canGameAction(s,buyer.c,'transfer');
   return {seller,buyer,lot,valid,custody,ready,status,pickupAllowed,
     canBuy:status==='PENDING'&&running&&s.economyRules?.enabled===true&&canGameAction(s,seller.c,'transfer')&&canGameAction(s,buyer.c,'pay'),
     pickupConfirmation:hash(JSON.stringify([view(p),lot?.revision??null,seller.version,buyer.version]))};
@@ -68,6 +73,7 @@ export function createSaleService({store,signed,now,uuid}){
     const buyerId=documentId(input.buyerId);requireThat(buyerId!==c.id,'INVALID_RECIPIENT');
     const buyer=await inventoryParty(tx,s.id,buyerId);requireThat(buyer.active,'INVALID_RECIPIENT');
     const lot=await readLot(tx,s.id,documentId(input.lotId),at);requireThat(lot&&personalLot(lot,c.id),'FORBIDDEN');
+    if(hasItemCircuits(s)){requireThat(personalSaleAllowed(s,lot,c.id),'SO_PERSONAL_TRANSFER_RESTRICTED');requireThat(await personalTransferActorReady(tx,s,c)&&await personalTransferActorReady(tx,s,buyer.c),'SO_PERSONAL_TRANSFER_RESTRICTED');}
     const quantity=itemQuantity(lot.item,input.quantity);requireThat(lot.status==='AVAILABLE'&&lot.quantity>=quantity,'INSUFFICIENT_STOCK');
     const trade=commodityTrade(await readPriceBook(tx,s,at),lot.item);requireThat(!trade.blocked,'TRADE_SUSPENDED');
     const amount=amountInput(input.amount),minutes=whole(input.minutes,'INVALID_SALE');requireThat(minutes>=1&&minutes<=10080,'INVALID_SALE');
@@ -90,6 +96,7 @@ export function createSaleService({store,signed,now,uuid}){
   return async(action,actor,input)=>{
     signed(actor);const at=now(),id=uuid();return store.runTransaction(async tx=>{
       const ctx=await inventoryPlayer(tx,actor,input),{s,c,version}=ctx,base=`sessions/${s.id}`;
+      if(s.spaceOutlaws&&hasItemCircuits(s))requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
       if(action==='prepareLotSale')return (await prepare(tx,ctx,input,at)).result;
       let p,role,from;
       if(action!=='proposeLotSale'){
@@ -115,14 +122,14 @@ export function createSaleService({store,signed,now,uuid}){
         result=settleLotSale(tx,s,c,p,x,from,at,id,actor);
       }else if(action==='offerSalePickup'||action==='confirmSalePickup'){
         requireThat(p.status==='SOLD'&&p.pickupStatus!=='RECEIVED','SALE_CLOSED');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');
-        const x=await state(tx,s,p,at);requireThat(x.custody,'STALE_PICKUP');requireThat(input.confirmation===x.pickupConfirmation,'STALE_PICKUP');
+        const x=await state(tx,s,p,at);requireThat(x.custody&&x.pickupAllowed,'STALE_PICKUP');requireThat(input.confirmation===x.pickupConfirmation,'STALE_PICKUP');
         requireGameAction(s,x.seller.c,'transfer');requireGameAction(s,x.buyer.c,'transfer');
         let next={...p,revision:p.revision+1};
         if(action==='offerSalePickup'){
           next={...next,pickupStatus:'READY',pickupLotRevision:x.lot.revision,pickupSellerVersion:x.seller.version,pickupBuyerVersion:x.buyer.version};
         }else{
           requireThat(x.ready,'STALE_PICKUP');requireThat(input.received===true,'HANDOVER_REQUIRED');
-          const moved={...x.lot,holderId:p.buyerId,location:{kind:'CHARACTER',id:p.buyerId},revision:x.lot.revision+1};
+          const moved={...x.lot,holderId:p.buyerId,location:hasItemCircuits(s)?receivedItemLocation(x.lot.item,p.buyerId,x.lot.location.portId??null):{kind:'CHARACTER',id:p.buyerId},revision:x.lot.revision+1};
           tx.set(`${base}/inventory/${moved.id}`,moved);tx.set(`${base}/inventory/${moved.id}/history/${id}`,{id,kind:'PICKUP',at,actorUid:actor.uid,saleId:p.id,reason:'Retrait physique confirmé, sans paiement supplémentaire',before:movement(x.lot),after:movement(moved)});
           next={...next,pickupStatus:'RECEIVED',pickedUpAt:at};
         }
@@ -131,6 +138,7 @@ export function createSaleService({store,signed,now,uuid}){
         requireThat(p.status==='PENDING','SALE_CLOSED');requireThat(version===p[`${role}Version`],'STALE_SALE');requireThat(input.confirmation===proof(p),'STALE_SALE');
         const status=action==='cancelLotSale'?'CANCELLED':'DECLINED';tx.set(`${base}/lotSales/${p.id}`,{...p,status,revision:p.revision+1});result={id:p.id,status};
       }
+      if(hasItemCircuits(s))authorizeSpaceOutlaws(tx,s,'ITEM_COMMERCE');
       tx.set(`${base}/audit/${id}`,{id,action,at,actorUid:actor.uid,saleId:p.id,sellerId:p.sellerId,buyerId:p.buyerId,lotId:p.lotId,quantity:p.quantity,amount:p.amount,...result,id});
       tx.set(op,{fingerprint,result,guard:from?.guard??version,at});return result;
     });

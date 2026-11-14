@@ -1,3 +1,4 @@
+import {hasItemCircuits} from './item-circuits.mjs';
 import {recordFictionalTrace} from './space-fictional-traces.mjs';
 import {activeMalaise} from './space-toxicology-state.mjs';
 import {createHash,randomInt} from 'node:crypto';
@@ -189,7 +190,7 @@ export function createSoForgeryService({store,signed,checkSession,now,uuid,rollD
    let documentIdCreated=null;
    if(success){
     documentIdCreated=uuid();
-    const item={...(target.forgery.reviewTargetId?{reviewTargetId:target.forgery.reviewTargetId}:{}),id:'document_'+hash(tid).slice(0,24),name:target.forgery.documentTitle,
+    const item={...(hasItemCircuits(s)?{usage:'PERSONAL'}:{}),...(target.forgery.reviewTargetId?{reviewTargetId:target.forgery.reviewTargetId}:{}),id:'document_'+hash(tid).slice(0,24),name:target.forgery.documentTitle,
      description:target.forgery.documentText,category:'Document de fiction',unit:'document',
      kind:'INDIVIDUAL',consumable:false,unitVolume:null,legality:'UNSPECIFIED',
      publicationState:'PUBLISHED',revision:1,pillable:true,pickpocketable:true,gmNotes:''};

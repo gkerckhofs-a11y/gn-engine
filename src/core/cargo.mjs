@@ -1,3 +1,5 @@
+import {isBroker} from '../shared/player-access.mjs';
+import {hasItemCircuits} from './item-circuits.mjs';
 import {hasHiddenCargo} from './space-hidden-cargo.mjs';
 import {readBoardingCustody} from './space-boarding-custody.mjs';
 import {reserveCargoBatch,finishCargoBatch} from './cargo-batches.mjs';
@@ -20,11 +22,11 @@ import {publicClearance,quoteCargoFees,prepareCargoFees,settleCargoFees} from '.
 const writes=['saveShip','startCargoTransfer','receiveCargoTransfer','cancelCargoTransfer','cancelCargoTransferAdmin'];
 export const cargoCommands=[...writes,'cargoAdmin','cargoPort','cargoPortAdmin','myCargo','cargoLot','shipHold','prepareCargoTransfer','cargoTransfer','prepareCargoReceipt'];
 export const cargoAction=a=>cargoCommands.includes(a);
-const same=(a,b)=>a.kind===b.kind&&a.id===b.id;
+const same=(a,b)=>a.kind===b.kind&&a.id===b.id&&(a.kind!=='COMMERCIAL'||a.portId===b.portId);
 const ownerOf=l=>({type:l.ownerType??'CHARACTER',id:l.ownerId});
 const sameOwner=(a,b)=>a.type===b.type&&a.id===b.id;
 const state=l=>({quantity:l.quantity,status:l.status,revision:l.revision,ownerType:l.ownerType??'CHARACTER',ownerId:l.ownerId,holderId:l.holderId,location:l.location});
-const locationInput=v=>{requireThat(v&&['CHARACTER','WAREHOUSE','HOLD','SHOP','PORT'].includes(v.kind),'INVALID_DESTINATION');return {kind:v.kind,id:documentId(v.id)};};
+const locationInput=v=>{requireThat(v&&['CHARACTER','COMMERCIAL','WAREHOUSE','HOLD','SHOP','PORT'].includes(v.kind),'INVALID_DESTINATION');return {kind:v.kind,id:documentId(v.id),...(v.kind==='COMMERCIAL'?{portId:v.portId==null?null:documentId(v.portId)}:{})};};
 const publicTransfer=t=>({...Object.fromEntries(['id','status','revision','lotId','name','quantity','volume','source','destination','sourceName','destinationName','at','closedAt'].filter(k=>t[k]!==undefined).map(k=>[k,t[k]])),...(t.boardingContext?{boardingContext:{combatId:t.boardingContext.combatId,boardingId:t.boardingContext.boardingId}}:{}),clearance:publicClearance(t.clearance),feeReceipt:t.feeReceipt??null});
 
 export function createCargoService({store,signed,checkSession,now,uuid}){
@@ -71,6 +73,9 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
      return {location:loc,name:source?transport.c.sourceName:`${transport.t.recipient} · ${transport.t.toPort}`,owner:transport.owner,read:true,withdraw:source&&transport.active&&available&&transport.ship.portId===transport.t.fromPort,deposit:available&&(source?transport.ship.portId===transport.t.fromPort:transport.deliveryAllowed),revision:transport.c.revision,record:null,capacity:null,used:0,incoming:0};
     }
     if(so)requireThat(loc.kind!=='WAREHOUSE','SO_GAMEPLAY_NOT_OPEN');
+    if(loc.kind==='COMMERCIAL'){
+     requireThat(hasItemCircuits(s)&&(admin||loc.id===c.id&&isBroker(c)),'FORBIDDEN');const ch=admin?await tx.get(`${base}/characters/${loc.id}`):c;requireThat(ch,'FORBIDDEN');const local=!!loc.portId&&(admin||(c.spacePortId??s.transportRules?.homePort)===loc.portId);return {location:loc,name:'Stock commercial',owner:{type:'CHARACTER',id:ch.id},read:true,withdraw:local,deposit:local,revision:ch.contentRevision??0,record:null,capacity:null,used:0,incoming:0};
+    }
     if(loc.kind==='CHARACTER'){
      const ch=admin?await tx.get(`${base}/characters/${loc.id}`):c;requireThat(ch&&(admin||loc.id===c.id),'FORBIDDEN');return {location:loc,name:admin?ch.public.displayName:'Mon sac',owner:{type:'CHARACTER',id:ch.id},read:true,withdraw:true,deposit:true,revision:ch.contentRevision??0,record:null,capacity:null,used:0,incoming:0};
     }
@@ -88,9 +93,9 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
     requireThat(p.read&&(transport||sameOwner(ownerOf(lot),p.owner)),'FORBIDDEN');return p;
    };
    async function destinations(lot){
-    if(so&&lot.location.kind==='CHARACTER')return [];
+    if(so&&(lot.location.kind==='CHARACTER'||hasItemCircuits(s)&&lot.item.usage!=='COMMERCIAL'&&!transport))return [];
     if(transport){const list=[];for(const loc of [{kind:'HOLD',id:transport.t.shipId},{kind:'SHOP',id:transport.t.shopId},{kind:'PORT',id:transport.t.toPort}]){const p=await place(loc);if(p.deposit&&!same(loc,lot.location))list.push(viewPlace(p));}return list;}
-    const locs=[{kind:'CHARACTER',id:c.id},...(so?[]:await tx.list(`${base}/warehouses`)).map(w=>({kind:'WAREHOUSE',id:w.id})),...(await tx.list(`${base}/ships`)).map(w=>({kind:'HOLD',id:w.id}))],list=[];
+    const locs=[{kind:hasItemCircuits(s)?'COMMERCIAL':'CHARACTER',id:c.id,...(hasItemCircuits(s)?{portId:c.spacePortId??s.transportRules?.homePort??null}:{})},...(so?[]:await tx.list(`${base}/warehouses`)).map(w=>({kind:'WAREHOUSE',id:w.id})),...(await tx.list(`${base}/ships`)).map(w=>({kind:'HOLD',id:w.id}))],list=[];
     for(const loc of locs){const p=await place(loc);if(p.deposit&&sameOwner(p.owner,ownerOf(lot))&&!same(loc,lot.location))list.push(viewPlace(p));}return list;
    }
    async function transferState(t){
@@ -154,12 +159,13 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
    }
    if(action==='cargoLot'){
     const lot=await readLot(tx,sid,documentId(input.lotId),at),p=await visibleLot(lot);
-    return {session:{id:sid,stage:s.stage,...(so?{spaceOutlaws:true}:{})},lot:publicLot(lot),source:viewPlace(p),owner:{...ownerOf(lot),name:transport?transport.c.sourceName:lot.ownerType==='GROUP'?groups.find(g=>g.id===lot.ownerId)?.name??'Bande':c.public.displayName},canMove:canMove&&(!so||lot.location.kind!=='CHARACTER')&&p.withdraw&&lot.status==='AVAILABLE'&&lot.quantity>0,destinations:await destinations(lot)};
+    return {session:{id:sid,stage:s.stage,...(so?{spaceOutlaws:true}:{})},lot:publicLot(lot),source:viewPlace(p),owner:{...ownerOf(lot),name:transport?transport.c.sourceName:lot.ownerType==='GROUP'?groups.find(g=>g.id===lot.ownerId)?.name??'Bande':c.public.displayName},canMove:canMove&&(!so||lot.location.kind!=='CHARACTER'&&(!hasItemCircuits(s)||lot.item.usage==='COMMERCIAL'||transport))&&p.withdraw&&lot.status==='AVAILABLE'&&lot.quantity>0,destinations:await destinations(lot)};
    }
    if(['prepareCargoTransfer','startCargoTransfer'].includes(action)){
     requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireThat(movable(),'OUT_OF_COMBAT');
     const lot=await readLot(tx,sid,documentId(input.lotId),at),source=await visibleLot(lot),dest=await place(input.destination);
     requireThat(!so||source.location.kind!=='CHARACTER','SO_PERSONAL_NOT_FREIGHT');
+    requireThat(!hasItemCircuits(s)||transport||lot.item.usage==='COMMERCIAL','SO_PERSONAL_NOT_FREIGHT');
     requireThat(source.withdraw&&dest.deposit,'FORBIDDEN');requireThat(transport||sameOwner(ownerOf(lot),dest.owner),'CARGO_OWNER_MISMATCH');requireThat(!same(source.location,dest.location),'INVALID_DESTINATION');
     requireThat(lot.status==='AVAILABLE','INSUFFICIENT_STOCK');const quantity=itemQuantity(lot.item,input.quantity);requireThat(quantity<=lot.quantity,'INSUFFICIENT_STOCK');
     const volume=stockVolume([{...lot,quantity}]);if(so){requireThat(volume>0&&volume<=5,'SO_CARGO_BATCH');const pending=await tx.list(`${base}/cargoTransfers`);requireThat(!pending.some(t=>t.status==='LOADING'&&same(t.source,source.location)),'CARGO_TRANSFERS_OPEN');requireThat(source.location.kind==='HOLD'||dest.location.kind==='HOLD','INVALID_DESTINATION');}if(dest.capacity!==null)requireThat(whole(dest.used+dest.incoming+volume,'STORAGE_OVERFLOW')<=dest.capacity,'WAREHOUSE_FULL');

@@ -1,3 +1,4 @@
+import {hasItemCircuits,itemUsages} from './item-circuits.mjs';
 import {negotiationTarget} from './space-merchant-negotiation.mjs';
 import {initialFieldState} from './field-state.mjs';
 import {hasCompleteTowing} from './space-module-flight.mjs';
@@ -11,7 +12,7 @@ export function moduleOfferValid(offer,options={}){
  const item=offer?.item,q=playableShipModuleQuote(item?.shipModule,options);
  return !!q&&Object.keys(item.shipModule).length===2&&item.kind==='INDIVIDUAL'&&item.consumable===false&&offer.unitPrice===q.price;
 }
-export const shopOfferAvailable=(s,o)=>o?.item?.shipModule?hasSoModulePurchases(s)&&moduleOfferValid(o,{hiddenCargo:hasHiddenCargo(s),towing:hasCompleteTowing(s)}):o?.item?.consumable===true;
+export const shopOfferAvailable=(s,o)=>hasItemCircuits(s)&&!itemUsages.includes(o?.item?.usage)?false:o?.item?.usage==='FUEL'&&o.unitPrice!==25?false:o?.item?.shipModule?hasSoModulePurchases(s)&&moduleOfferValid(o,{hiddenCargo:hasHiddenCargo(s),towing:hasCompleteTowing(s)}):hasItemCircuits(s)?itemUsages.includes(o?.item?.usage):o?.item?.consumable===true;
 export const shopAccountId=id=>hash(`shop:${id}`);
 export const shopStockId=id=>hash(`shop-stock:${id}`);
 // Definitions only. Stock and a zero-balance till require a separate MJ command.
@@ -21,7 +22,8 @@ export function soShops(changes){
   location:find('fieldTarget',s.locationTargetId)?.title??'',offers:active.filter(c=>c.type==='offer'&&c.data.shopId===s.id).map(({data:o})=>({id:o.id,...(o.negotiationLevel!=null?{negotiationLevel:o.negotiationLevel}:{}),name:o.name,unitPrice:o.unitPrice,conditions:o.conditions,item:publicItem(find('item',o.itemId))}))}));
 }
 export function shopBlockers(changes){
- const active=changes.filter(c=>c.operation==='UPSERT'),out=[];
+ const active=changes.filter(c=>c.operation==='UPSERT'),out=[],classified=active.some(c=>c.type==='item'&&c.data.usage);
+
  const add=(c,detailField,message)=>out.push({detailField,code:'SO_SHOP_NOT_CONNECTED',changeId:c.id,entityId:c.entityId,message});
  for(const c of active){
   if(c.type==='shop'){
@@ -30,9 +32,11 @@ export function shopBlockers(changes){
   }
   if(c.type==='offer'){
    const item=active.find(x=>x.type==='item'&&x.entityId===c.data.itemId);
+   if(classified&&!itemUsages.includes(item?.data.usage))add(c,'itemId','Classer explicitement cet article dans M1 avant une nouvelle publication : personnel, commercial ou voucher carburant.');
+   if(item?.data.usage==='FUEL'&&c.data.unitPrice!==25)add(c,'unitPrice','Un voucher représente une unité de réservoir par unité de lot, au tarif de 25 Cr.');
    if(item?.data.shipModule){
     if(!moduleOfferValid({...c.data,item:item.data},{hiddenCargo:true,towing:true})||c.data.buybackPrice!==null)add(c,c.data.buybackPrice!==null?'buybackPrice':'unitPrice','Un module standard exige le tarif canonique de son gabarit, sans reprise par le comptoir.');
-   }else if(!item?.data.consumable||c.data.buybackPrice!==null)add(c,c.data.buybackPrice!==null?'buybackPrice':'itemId','Ce parcours ouvre la vente de consommables et de modules standards du comptoir, sans rachat. Préparer les autres offres lors de leur raccordement.');
+   }else if(!(classified?itemUsages.includes(item?.data.usage):item?.data.consumable)||c.data.buybackPrice!==null)add(c,c.data.buybackPrice!==null?'buybackPrice':'itemId',classified?'Définir le circuit de l’article et une offre sans rachat par le fournisseur.':'Ce parcours ouvre la vente de consommables et de modules standards du comptoir, sans rachat. Préparer les autres offres lors de leur raccordement.');
   }
  }
  return out;

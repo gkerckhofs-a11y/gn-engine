@@ -37,7 +37,7 @@ export async function seedSoloDemo(call){
     const itemId=`kit_${slot.id}`;bindings.push({slotId:slot.id,itemId});
     if(createdItems.has(itemId))continue;
     createdItems.add(itemId);
-    await central('saveCentralItem',{itemId,itemRevision:0,draftRevision:revision++,item:{name:slot.label,description:'Objet fictif de recette',category:'Recette',unit:'unité',kind:slot.requiresConsumable?'STACKABLE':'INDIVIDUAL',consumable:slot.requiresConsumable,unitVolume:1,legality:'UNSPECIFIED',pillable:true,gmNotes:'SECRET_RECETTE_M1'},reason:'Kit natif de recette'});
+    await central('saveCentralItem',{itemId,itemRevision:0,draftRevision:revision++,item:{usage:'PERSONAL',name:slot.label,description:'Objet fictif de recette',category:'Recette',unit:'unité',kind:slot.requiresConsumable?'STACKABLE':'INDIVIDUAL',consumable:slot.requiresConsumable,unitVolume:1,legality:'UNSPECIFIED',pillable:true,gmNotes:'SECRET_RECETTE_M1'},reason:'Kit natif de recette'});
    }
    await central('saveCentralClassKit',{classKitId:classId,classKitRevision:0,draftRevision:revision++,classKit:{bindings,gmNotes:'Kit synthétique'},reason:'Kit de classe natif'});
   }
