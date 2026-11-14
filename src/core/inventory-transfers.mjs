@@ -1,3 +1,4 @@
+import {shipFuelContribution,publicContribution} from './ship-fuel-contribution.mjs';
 import {personalTransferAllowed,personalTransferActorReady} from './personal-transfer-policy.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {inventoryHash as hash,itemQuantity,publicItem,personalLot,readLot} from './inventory-state.mjs';
@@ -25,7 +26,7 @@ async function player(tx,actor,input){
   requireThat(['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s.stage),'BRIEFING_CLOSED');
   requireThat(published(c),'CONTENT_UNPUBLISHED');return {s,c,r,version:partyVersion(c,r)};
 }
-const view=p=>({id:p.id,status:p.status,revision:p.revision,createdAt:p.createdAt,updatedAt:p.updatedAt,
+const view=p=>({...(p.contribution?{contribution:publicContribution(p.contribution)}:{}),id:p.id,status:p.status,revision:p.revision,createdAt:p.createdAt,updatedAt:p.updatedAt,
   source:{id:p.sourceId,name:p.sourceName},recipient:{id:p.recipientId,name:p.recipientName},
   item:publicItem(p.item),quantity:p.quantity,lotId:p.lotId,receivedLotId:p.receivedLotId??null});
 const confirmation=p=>hash(JSON.stringify(view(p)));
@@ -35,7 +36,8 @@ async function current(tx,s,p,at){
   const source=await party(tx,s.id,p.sourceId),recipient=await party(tx,s.id,p.recipientId);
   const lot=await readLot(tx,s.id,p.lotId,at);
   const forgedValid=await forgedLotIntegrity(tx,s.id,lot);
-  const valid=forgedValid&&personalTransferAllowed(s,lot,p.sourceId)&&source.active&&recipient.active&&source.version===p.sourceVersion&&recipient.version===p.recipientVersion&&
+  let contributionValid=true;if(p.contribution){try{contributionValid=(await shipFuelContribution(tx,s,source.c,lot,p.recipientId,p.contribution.shipId,at)).guard===p.contribution.guard;}catch{contributionValid=false;}}
+  const valid=contributionValid&&forgedValid&&personalTransferAllowed(s,lot,p.sourceId)&&source.active&&recipient.active&&source.version===p.sourceVersion&&recipient.version===p.recipientVersion&&
     !!lot&&personalLot(lot,p.sourceId)&&lot.status==='AVAILABLE'&&lot.revision===p.lotRevision&&lot.quantity>=p.quantity;
   return {source,recipient,lot,valid,canAccept:!!valid&&s.stage==='EN_JEU'&&await personalTransferActorReady(tx,s,source.c)&&await personalTransferActorReady(tx,s,recipient.c)};
 }
@@ -61,9 +63,10 @@ export function createLotTransferService({store,signed,now,uuid}){
     requireThat(await forgedLotIntegrity(tx,s.id,lot),'SO_INF03_RECORD');
     const quantity=itemQuantity(lot.item,input.quantity);requireThat(lot.status==='AVAILABLE'&&lot.quantity>=quantity,'INSUFFICIENT_STOCK');
     if(s.spaceOutlaws)requireThat(personalTransferAllowed(s,lot,c.id),'SO_PERSONAL_TRANSFER_RESTRICTED');
-    const result={source:{id:c.id,name:c.public.displayName},recipient:{id:recipientId,name:recipient.c.public.displayName},
+    const contribution=input.contributionShipId?await shipFuelContribution(tx,s,c,lot,recipientId,input.contributionShipId,at):null;
+    const result={...(contribution?{contribution:publicContribution(contribution)}:{}),source:{id:c.id,name:c.public.displayName},recipient:{id:recipientId,name:recipient.c.public.displayName},
       item:publicItem(lot.item),lotId:lot.id,quantity,before:lot.quantity,remaining:lot.quantity-quantity};
-    return {lot,recipient,result:{...result,confirmation:hash(JSON.stringify([s.id,version,recipient.version,lot.revision,result]))}};
+    return {lot,recipient,contribution,result:{...result,confirmation:hash(JSON.stringify([s.id,version,recipient.version,lot.revision,result,...(contribution?[contribution.guard]:[])]))}};
   }
   return async(action,actor,input)=>{
     signed(actor);const at=now(),newId=uuid();
@@ -92,7 +95,7 @@ export function createLotTransferService({store,signed,now,uuid}){
           authorizeSpaceOutlaws(tx,s,'PERSONAL_TRANSFER');
         }
         requireThat(input.confirmation===x.result.confirmation,'STALE_REVISION');
-        p={id:newId,status:'PENDING',revision:1,createdAt:at,updatedAt:at,sourceId:c.id,sourceName:c.public.displayName,sourceVersion:version,
+        p={...(x.contribution?{contribution:x.contribution}:{}),id:newId,status:'PENDING',revision:1,createdAt:at,updatedAt:at,sourceId:c.id,sourceName:c.public.displayName,sourceVersion:version,
           recipientId:x.recipient.c.id,recipientName:x.recipient.c.public.displayName,recipientVersion:x.recipient.version,
           lotId:x.lot.id,lotRevision:x.lot.revision,item:publicItem(x.lot.item),quantity:x.result.quantity,
           ...(s.spaceOutlaws?{personalTransfer:true,...(x.lot.origin?.kind==='SO_FORGERY'?{forgeryTransfer:true}:{})}:{})};

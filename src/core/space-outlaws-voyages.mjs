@@ -1,3 +1,4 @@
+import {shipCrewAccess,requireCrewPilot,shipPilot} from './ship-crew-state.mjs';
 import {recordShipDeparture,myTraceAlerts} from './space-fictional-traces.mjs';
 import {malaiseAt} from './space-toxicology-state.mjs';
 import {startTowingOutage,waitingTowingOutage} from './space-towing-outage.mjs';
@@ -61,7 +62,9 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
   const at=now(),id=uuid(),dice=action==='finishSoPreparation'?[rollD6(),rollD6(),rollD6(),rollD6()]:action==='attemptSoDetour'?[rollD6()]:null;
   return store.runTransaction(async tx=>{
    if(stationRead)action='cockpitStation';
-   const admin=admins.has(action),ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId))}:await inventoryPlayer(tx,actor,input),{s,c,version}=ctx,base=`sessions/${s.id}`,time=gameTime(s.clock,at);
+   let admin=admins.has(action),ctx;const pilotChange=['prepareSoPilot','changeSoPilot'].includes(action);
+   if(admin){try{ctx={s:await checkSession(tx,actor,documentId(input.sessionId))};}catch(e){if(!pilotChange||e.code!=='FORBIDDEN')throw e;admin=false;ctx=await inventoryPlayer(tx,actor,input);}}else ctx=await inventoryPlayer(tx,actor,input);
+   const {s,c,version}=ctx,base=`sessions/${s.id}`,time=gameTime(s.clock,at);
    requireThat(hasSoNavigation(s),'SO_GAMEPLAY_NOT_OPEN');requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
    const cockpitSettings=await tx.get(`${base}/cockpitSettings/main`);
    if(action==='enableSoCockpits'){
@@ -71,7 +74,7 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
    }
    if(action==='spaceportAdmin'||action==='mySpaceport'){
     const groups=hasSoGroupPilot(s)?await tx.list(`${base}/groups`):[];
-    const ships=(await tx.list(`${base}/ships`)).map(x=>flightShip(s,x,time)).filter(x=>{
+    let ships=(await tx.list(`${base}/ships`)).map(x=>flightShip(s,x,time)).filter(x=>{
      if(!x.soProfile)return false;
      if(admin)return true;
      const onBoard=(x.journey?.manifest??[]).some(m=>m.id===c.id);
@@ -81,6 +84,7 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
      }
      return shipAccess(x,c.id,[]).access||onBoard||(x.operation?.manifest??[]).some(m=>m.id===c.id);
     });
+    if(!admin){const visible=[];for(const sh of ships){try{await requireCrewPilot(tx,s,sh,c,'shipNavigation',at);visible.push(sh);}catch(e){if(e.code!=='SHIP_CREW_REVOKED')throw e;}}ships=visible;}
     const confirmations=new Map();
     for(const sh of ships){
      const tow=sh.towingAttachment?.role==='TUG'?await towingFlightContext(tx,s,sh,'shipNavigation',time):null;
@@ -111,12 +115,15 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
     group=await tx.get(`${base}/groups/${ship.ownerId}`);
     if(!admin&&designatedPilot(ship)===c.id&&groupPilotGrant(s,group,c))grant=groupPilotRevision(group,c);
    }
+   const crew=ship&&!admin?await shipCrewAccess(tx,s,ship,c,at):null;
+   if(pilotChange&&!admin)requireThat(crew?.bound&&crew.authority.pilot,'FORBIDDEN');
+   if(!admin&&!pilotChange)await requireCrewPilot(tx,s,ship,c,action,at);
    if(!provisioning){
     requireThat(ship?.soProfile,'CARGO_UNAVAILABLE');
     if(!admin){
      const manifest=ship.journey?.manifest??(groupShip?[]:ship.operation?.manifest??[]);
      const passenger=action==='shipNavigation'&&manifest.some(m=>m.id===c.id);
-     requireThat((groupShip?!!grant:shipAccess(ship,c.id,[]).access)||passenger,'FORBIDDEN');
+     requireThat(pilotChange&&crew.authority.pilot||(groupShip?!!grant:shipAccess(ship,c.id,[]).access)||passenger,'FORBIDDEN');
     }
    }
    if(groupShip&&!provisioning&&action!=='shipNavigation')requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
@@ -159,6 +166,8 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
     const pilot=await inventoryParty(tx,s.id,documentId(input.pilotId)),reason=moneyText(input.reason);
     requireThat(pilot.active&&pilot.c.birth&&pilot.c.id!==designatedPilot(ship),'INVALID_RECIPIENT');
     requireThat(navigationSkill(pilot.c,'PIL-02')>=1,'FIELD_SKILL_REQUIRED');
+    const pilotCrew=await shipCrewAccess(tx,s,ship,pilot.c,at);
+    if(!admin||pilotCrew.member)requireThat(ship.ownerType==='CHARACTER'&&ship.ownerId===pilot.c.id||pilotCrew.active&&['PILOT','CAPTAIN'].includes(pilotCrew.member.role),'SHIP_CREW_REVOKED');
     if(groupShip)requireThat(groupPilotGrant(s,group,pilot.c),'FORBIDDEN');
     requireThat(available(s,pilot.c,time)&&!pilot.c.activeNavigationId&&!pilot.c.activeVoyageId,'OUT_OF_COMBAT');
     requireThat(characterPort(s,pilot.c)===ship.portId,'SHIP_NOT_LOCAL');
@@ -168,7 +177,7 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
     requireThat(!contracts.some(x=>[x.terms?.transport?.shipId,x.terms?.escort?.shipId,x.terms?.escort?.cargoShipId].includes(ship.id)&&x.acceptedAt!=null&&(['ACTIVE','SUBMITTED','REVIEWED','DISPUTED'].includes(x.status)||(x.escortFuel?.remaining??0)>0)),'SO_PILOT_CONTRACT_OPEN');
     requireThat(!(await warehouseStock(tx,s.id,ship.id,'HOLD')).some(l=>l.transportContractId&&l.quantity>0),'SO_PILOT_CONTRACT_OPEN');
     const previousId=designatedPilot(ship),previous=previousId?await tx.get(`${base}/characters/${previousId}`):null,result={shipName:ship.name,portId:ship.portId,previousPilotName:previous?.public?.displayName??previousId??null,pilotName:pilot.c.public.displayName,reason};
-    const confirmation=hash(JSON.stringify([receipt(s,ship),pilot.version,pilot.c,result,...(groupShip?[groupPilotRevision(group,pilot.c)]:[])]));
+    const confirmation=hash(JSON.stringify([receipt(s,ship),pilot.version,pilot.c,result,...(!admin?[crew.root?.authorityRevision??0,crew.member?.revision??0,version,pilotCrew.member?.revision??0]:[]),...(groupShip?[groupPilotRevision(group,pilot.c)]:[])]));
     if(action==='prepareSoPilot')return {...result,confirmation};
     requireThat(input.confirmation===confirmation,'STALE_REVISION');requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');
     const next={...ship,...(groupShip?{groupPilotId:pilot.c.id}:{pilotId:pilot.c.id}),revision:ship.revision+1};tx.set(`${base}/ships/${ship.id}`,next);

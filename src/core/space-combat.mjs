@@ -1,3 +1,4 @@
+import {requireCrewPilot} from './ship-crew-state.mjs';
 import {malaiseAt} from './space-toxicology-state.mjs';
 import {towingInterceptable,towingCombatContext,registerTowingEncounter,releaseTowingInSpace} from './space-towing-combat.mjs';
 import {flightShip,hasTowingCombat} from './space-module-flight.mjs';
@@ -52,6 +53,7 @@ export function createSpaceCombatService({store,signed,checkSession,now,uuid,rol
    let ship=input.shipId?flightShip(s,await tx.get(`${base}/ships/${documentId(input.shipId)}`),time):null;
    const towVictim=e?.status!=='CLOSED'&&ship?.towingAttachment?(towContexts.get(ship.id)??await towingCombatContext(tx,s,ship,time,e??null)):null;if(towVictim&&(['prepareSpaceAmbush','armSpaceAmbush','cancelSpaceAmbush'].includes(action)||pirateAllianceFields[action]))requireThat(false,'TOWING_ACTION_NOT_OPEN');
    if(!admin&&action!=='spaceCombat'){requireThat(ship?.pilotId===c.id&&(!e||e.shipIds.includes(ship.id)),'FORBIDDEN');}
+   if(!admin&&ship)await requireCrewPilot(tx,s,ship,c,action,at);
    const op=reads.has(action)?null:`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`,fingerprint=hash(JSON.stringify([action,input]));
    if(op){const old=await tx.get(op);if(old){requireThat(old.towingCombatVersion!==1||hasTowingCombat(s),'TOWING_COMBAT_NOT_OPEN');requireThat(old.fingerprint===fingerprint,'REQUEST_ID_REUSED');requireThat(admin||old.guard===version,'FORBIDDEN');return old.result;}}
    if(action.startsWith('leavePirateAlliance')){requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage),'SESSION_NOT_RUNNING');}else active(s);

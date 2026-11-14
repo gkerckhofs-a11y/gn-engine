@@ -1,3 +1,4 @@
+import {shipCardHtml,shipInvitationHtml} from './ship-workspace.mjs';
 import {skillLevel} from './player-capabilities.mjs';
 import {escapeHtml as esc} from './groups.mjs';
 import {isTracker,isBroker} from '../src/shared/player-access.mjs';
@@ -7,7 +8,7 @@ const active=rows=>(rows??[]).filter(x=>x.status&&!closed.has(x.status)).length;
 // Read only the native player projections: no catalogue of private ships or accounts.
 export async function loadTerminal(api,own){
  const f=own.session.spaceOutlaws;if(!f)return {};
- const tasks=[['sabacc','sabaccHome',true],['shops','shops',f.shopsVersion===1],['market','market',own.economyEnabled&&isBroker(own.character)],['missions','announcements',f.missionsVersion===1],['contracts','myContracts',f.missionsVersion===1],['intelligence','myIntelligence',f.intelligenceVersion===1],['bounties','bounties',f.bountyVersion===1&&isTracker(own.character)],['ships','mySpaceport',f.navigationVersion===1],['cargo','myCargo',f.logisticsVersion===1],['maintenance','spaceMaintenance',f.logisticsVersion===1],['towing','towingDesk',f.towingWorkVersion===1],['modules','moduleMandates',f.moduleMandatesVersion===1],['combats','spaceCombats',f.combatVersion===1],['rescues','spaceRescues',f.combatVersion===1],['consents','myCustomsConsents',f.hiddenCargoVersion===1],['customs','customsDesk',f.hiddenCargoVersion===1],['receipts','myCustomsSeizures',f.customsDetentionVersion===1],['accounts','myAccounts',own.economyEnabled&&(own.groups??[]).some(g=>g.permissions?.readWallet||g.permissions?.payWallet)]];
+ const tasks=[['sabacc','sabaccHome',true],['shops','shops',f.shopsVersion===1],['market','market',own.economyEnabled&&isBroker(own.character)],['missions','announcements',f.missionsVersion===1],['contracts','myContracts',f.missionsVersion===1],['intelligence','myIntelligence',f.intelligenceVersion===1],['bounties','bounties',f.bountyVersion===1&&isTracker(own.character)],['ships','myShips',f.navigationVersion===1],['crewInvitations','myShipInvitations',f.navigationVersion===1],['cargo','myCargo',f.logisticsVersion===1],['maintenance','spaceMaintenance',f.logisticsVersion===1],['towing','towingDesk',f.towingWorkVersion===1],['modules','moduleMandates',f.moduleMandatesVersion===1],['combats','spaceCombats',f.combatVersion===1],['rescues','spaceRescues',f.combatVersion===1],['consents','myCustomsConsents',f.hiddenCargoVersion===1],['customs','customsDesk',f.hiddenCargoVersion===1],['receipts','myCustomsSeizures',f.customsDetentionVersion===1],['accounts','myAccounts',own.economyEnabled&&(own.groups??[]).some(g=>g.permissions?.readWallet||g.permissions?.payWallet)]];
  const context={errors:[]};
  await Promise.all(tasks.filter(([, ,enabled])=>enabled).map(async([key,action])=>{
   try{context[key]=await api(action,action==='sabaccHome'?{}:{sessionId:own.session.id});}
@@ -18,6 +19,8 @@ export async function loadTerminal(api,own){
 export function terminalItems(own,d={}){
  const f=own.session.spaceOutlaws??{},sid=own.session.id,items=[];
  const add=(id,title,group,description,rows=[],extra={})=>items.push({id,path:`${id}/${sid}`,title,group,description,pending:active(rows),history:rows.length>0&&active(rows)===0,...extra});
+ const shipIds=new Set((d.ships?.ships??[]).map(s=>s.id??s.shipId));
+ const outside=rows=>(rows??[]).filter(r=>!r.shipId||!shipIds.has(r.shipId));
  const port='Services du port',special='Mes services spécialisés',assets='Mes biens, vaisseaux et mandats';
  if(f.shopsVersion===1&&count(d.shops,'shops','orders'))add('shops','Boutiques d’objets personnels',port,'Acheter des fournitures et retirer mes commandes.',d.shops.orders);
  if(own.economyEnabled)add('public-prices','Cours publics',port,'Consulter gratuitement les cours publiés.');
@@ -32,13 +35,13 @@ export function terminalItems(own,d={}){
  if(f.merchantContactsVersion===1&&skillLevel(own.character,'COU-03')>0)add('merchant-contacts','Réseau de contacts',special,'Rechercher une information, un fournisseur, un acheteur ou un contrat préparé.',[],{path:`act/${sid}/COU-03`});
  if(f.merchantAnalysisVersion===1&&skillLevel(own.character,'COU-01')>0)add('merchant-analysis','Expertise marchande',special,'Analyser une marchandise ou une offre préparée.',[],{path:`act/${sid}/COU-01`});
  if(f.bountyVersion===1&&isTracker(own.character)&&d.bounties)add('bounties','Primes ouvertes',special,'Cibles recherchées et suivi de mes preuves.',d.bounties.bounties);
- if(count(d.ships,'ships','invitations'))add('spaceport','Mes vaisseaux et vols',assets,'Informations du vaisseau et commandes selon mon mandat.',d.ships.invitations);
- if(count(d.cargo,'holds','transfers'))add('cargo','Soutes et fret',assets,'Soutes autorisées et transferts de marchandises.',d.cargo.transfers);
- if(count(d.maintenance,'jobs'))add('space-maintenance','Entretien des vaisseaux',assets,'Accorder ou suivre une intervention ; réaliser les travaux autorisés.',d.maintenance.jobs);
- if(count(d.modules,'jobs'))add('module-mandates','Travaux de modules',assets,'Mes accords et interventions sur les modules.',d.modules.jobs);
+ for(const ship of d.ships?.ships??[])items.push({id:`ship-${ship.id??ship.shipId}`,path:`ship/${sid}/${ship.id??ship.shipId}`,title:ship.name??'Vaisseau',group:'Mes vaisseaux',description:'Ouvrir le vaisseau',ship,pending:ship.operation||ship.journey?1:0});
+ if((d.cargo?.holds??[]).some(h=>!shipIds.has(h.location?.id??h.id))||(d.cargo?.transfers??[]).some(t=>![t.source?.id,t.destination?.id].some(id=>shipIds.has(id))))add('cargo','Soutes et fret',assets,'Soutes autorisées et transferts de marchandises.',d.cargo.transfers);
+ if(outside(d.maintenance?.jobs).length)add('space-maintenance','Entretien des vaisseaux',assets,'Accorder ou suivre une intervention ; réaliser les travaux autorisés.',d.maintenance.jobs);
+ if(outside(d.modules?.jobs).length)add('module-mandates','Travaux de modules',assets,'Mes accords et interventions sur les modules.',d.modules.jobs);
  if(count(d.towing,'jobs')||count(d.towing?.recovery,'jobs'))add('towing','Mes attelages',assets,'Accords, attelages et récupérations qui me concernent.',[...(d.towing.jobs??[]),...(d.towing.recovery?.jobs??[])]);
- if(count(d.combats,'combats','ambushes'))add('space-combats','Rencontres spatiales',assets,'Consulter la rencontre et les commandes autorisées.',d.combats.combats);
- if(count(d.rescues,'rescues'))add('space-rescues','Assistance spatiale',assets,'Mes offres de dépannage et leur suivi.',d.rescues.rescues);
+ if([...(d.combats?.combats??[]),...(d.combats?.ambushes??[])].some(r=>!shipIds.has(r.ownShipId??r.shipId)))add('space-combats','Rencontres spatiales',assets,'Consulter la rencontre et les commandes autorisées.',d.combats.combats);
+ if(outside(d.rescues?.rescues).length)add('space-rescues','Assistance spatiale',assets,'Mes offres de dépannage et leur suivi.',d.rescues.rescues);
  if(count(d.consents,'eligible','eligibleShips','consents','shipConsents'))add('customs-consents','Autorisations de transport',assets,'Accorder ou retirer un consentement sur mes biens.',[...(d.consents.consents??[]),...(d.consents.shipConsents??[])],{history:!count(d.consents,'eligible','eligibleShips')&&!active([...(d.consents.consents??[]),...(d.consents.shipConsents??[])])});
  if(d.customs?.level>=1)add('customs','Contrôle douanier',special,'Accès lié à mon habilitation des douanes.',d.customs.inspections);
  if(count(d.receipts,'receipts'))add('customs-receipts','Mes dossiers douaniers',assets,'Reçus, contestations et restitutions de mes marchandises.',d.receipts.receipts);
@@ -47,7 +50,7 @@ export function terminalItems(own,d={}){
  return items.map(i=>({...i,state:i.history?'READ_ONLY':paused?'BLOCKED':'AVAILABLE',reason:i.history?'Historique consultable.':paused??'Ouvrir le service'}));
 }
 export function personalTerminalHtml(own,d={}){
- const items=terminalItems(own,d),groups=['Services du port','Mes services spécialisés','Mes biens, vaisseaux et mandats'];
- const card=i=>`<a class="panel player-card terminal-card" href="${esc(i.url??`#/${i.path}`)}" data-terminal="${esc(i.id)}" data-state="${i.state}"><h3>${esc(i.title)} <span aria-hidden="true">→</span></h3><p>${esc(i.description)}</p>${i.pending?`<strong>${i.pending} dossier(s) à suivre</strong>`:''}<small>${esc(i.reason)}</small></a>`;
- return `<h1>Terminal</h1><p class="rp lead">Vos comptoirs, vos services et vos opérations au port.</p><button class="quiet" data-action="refresh">Actualiser mes services</button>${d.errors?.length?'<p role="status">Certains services n’ont pas pu être vérifiés. Actualisez pour réessayer.</p>':''}${groups.filter(g=>items.some(i=>i.group===g)).map(g=>`<section class="terminal-family"><h2>${esc(g)}</h2><div class="player-cards">${items.filter(i=>i.group===g).sort((a,b)=>b.pending-a.pending).map(card).join('')}</div></section>`).join('')}${!items.length?'<p>Aucun service accessible actuellement.</p>':''}`;
+ const items=terminalItems(own,d),groups=['Mes vaisseaux','Services du port','Mes services spécialisés','Mes biens, vaisseaux et mandats'];
+ const card=i=>i.ship?shipCardHtml(own.session.id,i.ship):`<a class="panel player-card terminal-card" href="${esc(i.url??`#/${i.path}`)}" data-terminal="${esc(i.id)}" data-state="${i.state}"><h3>${esc(i.title)} <span aria-hidden="true">→</span></h3><p>${esc(i.description)}</p>${i.pending?`<strong>${i.pending} dossier(s) à suivre</strong>`:''}<small>${esc(i.reason)}</small></a>`;
+ return `<h1>Terminal</h1><p class="rp lead">Vos comptoirs, vos services et vos opérations au port.</p><button class="quiet" data-action="refresh">Actualiser mes services</button>${d.errors?.length?'<p role="status">Certains services n’ont pas pu être vérifiés. Actualisez pour réessayer.</p>':''}${(d.crewInvitations?.invitations??[]).filter(p=>p.status==='PENDING'||p.status==='STALE').map(p=>shipInvitationHtml(own.session.id,p)).join('')}${groups.filter(g=>items.some(i=>i.group===g)).map(g=>`<section class="terminal-family"><h2>${esc(g)}</h2><div class="player-cards">${items.filter(i=>i.group===g).sort((a,b)=>b.pending-a.pending).map(card).join('')}</div></section>`).join('')}${!items.length?'<p>Aucun service accessible actuellement.</p>':''}`;
 }

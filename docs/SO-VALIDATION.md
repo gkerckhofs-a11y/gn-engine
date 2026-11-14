@@ -1,5 +1,7 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+Module Vaisseau partagé du 14 novembre 2026 : [audit, réutilisation, permissions et validation](SO-SHARED-SHIP-CREW.md). Page par vaisseau, capitaine volontaire, équipages et opérations natives ; candidat sur branche après #36, aucune fusion ni publication Firebase. Résultats et SHA exacts dans la PR.
+
 Navigation organisateur et essai solo du 14 novembre 2026 : [parcours, sécurité et tests ciblés](SO-ORGANIZER-TEST-NAVIGATION.md). Administration prioritaire, huit profils directs, retour à la régie et guide Préparer ; candidat sur branche, aucun déploiement autorisé. Le pipeline Firebase antérieur 43574851449 a été annulé et la publication automatique suspendue à la demande de Guillaume.
 
 Intégration du 14 novembre 2026 : PR [#34](https://github.com/gkerckhofs-a11y/gn-engine/pull/34), version candidate `0.38.0-rc.2`. Lots de compétences #16–#33 cumulés et départ FIL depuis le quai avec balise conservée. 3 130 tests applicatifs et compilation réussis localement sur l’arbre du complément ; CI exacte et publication à constater dans la PR. **Publication intermédiaire ; clôture des 34 capacités toujours partielle**, sans migration des sessions existantes. Voir la [matrice courante](SO-COMPETENCES-V07-CLOTURE.md).
