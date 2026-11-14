@@ -18,7 +18,7 @@ export const publicCrewPerson=c=>({id:c.id,name:c.public.displayName,code:c.publ
 export async function shipCrewAccess(tx,s,ship,c,at){
  const base=shipCrewBase(s,ship),root=await tx.get(base),member=await tx.get(`${base}/members/${c.id}`),party=await inventoryParty(tx,s.id,c.id);
  const bound=root?.ownerBinding===crewOwnerBinding(ship),own=ship.ownerType==='CHARACTER'&&ship.ownerId===c.id;
- const current=bound&&party.active&&alive(c)&&member?.memberVersion===party.version;
+ const current=bound&&member?.ownerBinding===root.ownerBinding&&party.active&&alive(c)&&member?.memberVersion===party.version;
  const active=current&&member.status==='ACTIVE'&&(member.expiresAtGameMs==null||gameTime(s.clock,at)<member.expiresAtGameMs);
  const captain=bound&&alive(c)&&party.active&&root.captainId===c.id&&root.captainVersion===party.version&&active&&member.role==='CAPTAIN';
  const permissions=Object.fromEntries(crewPermissionKeys.map(k=>[k,!!(alive(c)&&(own||active&&member.permissions?.[k]))]));
