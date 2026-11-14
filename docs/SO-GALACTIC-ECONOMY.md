@@ -29,7 +29,7 @@ Les tranches 1 et le premier parcours de la tranche 2 sont livrés ici ; une pre
 
 ## Modèle et invariants
 
-- `planetMarkets/{hash([portId,itemId])}` : lien explicite port / article / catégorie canonique / offre / état / demande / publication / révision. Un article ne change pas de catégorie selon le port. Une offre ne peut pas être réaffectée à deux planètes.
+- `planetMarkets/{hash([portId,itemId])}` : lien explicite port / article / catégorie canonique / offre / état / demande / publication / révision. Un article ne change pas de catégorie selon le port. Une offre ne peut pas être réaffectée à deux planètes. Un même comptoir ne peut pas publier des marchés sur plusieurs planètes : leurs caisses restent indépendantes.
 - Les articles et offres proviennent de la version publiée de la session ; aucun catalogue fictif n’est injecté dans les sessions réelles. Les douze références sont disponibles pour la configuration, sans création automatique de douze lots.
 - Le stock reste `inventory/{shopStockId(offerId)}` ; la caisse reste `accounts/{shopAccountId(shopId)}`. Configurer un cours ne crée ni unités ni crédits. Le budget affiché est le disponible après les réservations natives.
 - Un achat utilise `prepareShopPurchase` / `buyShopOffer` et `settleLotSale`. Le reçu fixe le port d’origine, le montant payé et le lien au marché. Le propriétaire change ; le lot reste sous garde du comptoir. Un changement de cours ultérieur ne modifie pas ce reçu.

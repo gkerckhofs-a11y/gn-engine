@@ -54,7 +54,7 @@ export function createPlanetMarketService({store,signed,checkSession,now,uuid}){
     requireThat((old?.revision??0)===input.recordRevision,'STALE_REVISION');
     const shopId=documentId(input.shopId),offerId=documentId(input.offerId),offer=await tx.get(`${base}/shops/${shopId}/offers/${offerId}`),shop=await tx.get(`${base}/shops/${shopId}`);
     requireThat(shop?.versionId===s.versionId&&offer?.versionId===s.versionId&&offer.item.id===itemId&&offer.item.kind===item.kind&&offer.item.legality===item.legality&&offer.item.usage==='COMMERCIAL','PLANET_MARKET_INVALID');
-    requireThat(!markets.some(m=>m.id!==id&&(m.offerId===offerId||m.portId===portId&&m.commodityCode===input.commodityCode||m.itemId===itemId&&m.commodityCode!==input.commodityCode)),'PLANET_MARKET_CONFLICT');
+    requireThat(!markets.some(m=>m.id!==id&&(m.offerId===offerId||m.shopId===shopId&&m.portId!==portId||m.portId===portId&&m.commodityCode===input.commodityCode||m.itemId===itemId&&m.commodityCode!==input.commodityCode)),'PLANET_MARKET_CONFLICT');
     // Do not reinterpret physical stock or paid orders by rebinding a counter to another port.
     requireThat(!old||old.offerId===offerId&&old.shopId===shopId&&old.commodityCode===input.commodityCode,'PLANET_MARKET_CONFLICT');
     const sales=await tx.list(`${base}/lotSales`);requireThat(!sales.some(p=>p.shopId===shopId&&p.item.id===itemId&&p.stockPortId!==portId),'PLANET_MARKET_CONFLICT');

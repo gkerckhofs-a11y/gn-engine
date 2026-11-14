@@ -62,7 +62,8 @@ export function planetMarketsSuite(makeStore,prefix='Marchés planétaires'){
  });
  test(`${prefix} : deux planètes indépendantes, caisse finie et politique douanière inconnue`,async()=>{
   const f=await planetMarketsFixture(makeStore);await f.configure();
-  await f.store.runTransaction(async tx=>{const offer=await tx.get(`${f.base}/shops/counter/offers/supply`),shop=await tx.get(`${f.base}/shops/counter`);tx.set(`${f.base}/shops/second`,{...shop,id:'second'});tx.set(`${f.base}/shops/second/offers/second-offer`,{...offer,id:'second-offer',shopId:'second'});});
+  await f.store.runTransaction(async tx=>{const offer=await tx.get(`${f.base}/shops/counter/offers/supply`),shop=await tx.get(`${f.base}/shops/counter`);tx.set(`${f.base}/shops/counter/offers/same-till`,{...offer,id:'same-till'});tx.set(`${f.base}/shops/second`,{...shop,id:'second'});tx.set(`${f.base}/shops/second/offers/second-offer`,{...offer,id:'second-offer',shopId:'second'});});
+  await assert.rejects(f.configure({portId:'home',offerId:'same-till'}),{code:'PLANET_MARKET_CONFLICT'});
   await f.configure({portId:'home',shopId:'second',offerId:'second-offer',marketState:'SHORTAGE'});let board=await f.read('galacticMarkets');assert.deepEqual(board.markets.map(m=>m.quote.unitPrice).sort((a,b)=>a-b),[40,52]);
   const sale=await f.buy(1);await f.move('away');await f.pickup(sale);await f.configure({marketState:'SHORTAGE'});await assert.rejects(f.sell(sale.purchasedLotId),{code:'INSUFFICIENT_FUNDS'});assert.equal((await f.till()).balance,40);
   await f.store.runTransaction(async tx=>{const port=await tx.get(`${f.base}/ports/away`);tx.set(`${f.base}/ports/away`,{...port,customsRules:[]});});board=await f.read('galacticMarkets');assert.equal(board.markets.find(m=>m.portId==='away').canBuy,false);await assert.rejects(f.buy(1),{code:'PLANET_TRADE_RESTRICTED'});
