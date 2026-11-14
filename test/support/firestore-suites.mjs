@@ -1,6 +1,7 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {id:"planet-markets",module:"../support/planet-markets-suite.mjs",exportName:"planetMarketsSuite",label:"Marchés planétaires sur Firestore",seconds:30},
   {id:"ship-workspace",module:"../support/ship-workspace-suite.mjs",exportName:"shipWorkspaceSuite",label:"ship-workspace sur Firestore",seconds:45},
   {id:"ship-crew",module:"../support/ship-crew-suite.mjs",exportName:"shipCrewSuite",label:"ship-crew sur Firestore",seconds:45},
   {id:"ship-crew-cargo",module:"../support/ship-crew-cargo-suite.mjs",exportName:"crewCargoSuite",label:"ship-crew-cargo sur Firestore",seconds:45},

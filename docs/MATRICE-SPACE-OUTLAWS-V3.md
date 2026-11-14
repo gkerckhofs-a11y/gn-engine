@@ -1,5 +1,7 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+Économie galactique du 14 novembre 2026 : [audit, matrice de réutilisation et premier parcours de marchés planétaires](SO-GALACTIC-ECONOMY.md). Dépend de #38 ; cours locaux, achats distants et rachat ordinaire limités aux contrôles raccordés. Carte, contrats libres et logistique intégrée restent à développer. Aucun déploiement.
+
 Refonte pédagogique HRP du 14 novembre 2026 : [audit, corrections et tests ciblés](SO-HRP-EDITORIAL.md). Candidat après #37 ; textes et présentation uniquement, règles et droits conservés. CI exacte dans la PR ; aucun déploiement.
 
 Intégration du 14 novembre 2026 : PR [#34](https://github.com/gkerckhofs-a11y/gn-engine/pull/34), version candidate `0.38.0-rc.2`. Lots de compétences #16–#33 cumulés et départ FIL depuis le quai avec balise conservée. 3 130 tests applicatifs et compilation réussis localement sur l’arbre du complément ; CI exacte et publication à constater dans la PR. **Publication intermédiaire ; clôture des 34 capacités toujours partielle**, sans migration des sessions existantes. Voir la [matrice courante](SO-COMPETENCES-V07-CLOTURE.md).

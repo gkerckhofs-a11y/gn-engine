@@ -5,7 +5,7 @@ import {centralWorkshops} from '../src/shared/central-workshops.mjs';
 const stages={PREPARATION:'Préparation',BRIEFING:'Briefing',EN_JEU:'En jeu',PAUSE:'En pause',FINISHED:'Terminée',ARCHIVED:'Archivée'};
 const eventLabels={setStage:'Rythme de jeu modifié',releaseSpaceOutlaws:'Version publiée',birthSpaceOutlaws:'Personnage attribué',requestSoLaunch:'Décollage demandé',assignSoCockpit:'Poste cockpit attribué',stopSafetyMJ:'STOP SÉCURITÉ',resumeSafety:'Reprise après STOP',decideCustomsAppeal:'Décision sur un recours'};
 const views={prepare:'Préparer',animate:'Animer',supervise:'Superviser'};
-const direct=new Set(['session','so-entry','group-admin','admissions-admin','directory-admin','announcements-admin','contracts-admin','contract-admin','bounties-admin','bounty-admin','spaceport-admin','ship-admin','space-combats-admin','space-rescues-admin','boarding-admin','space-maintenance-admin','towing-admin','module-mandates-admin','cargo-admin','cargo-port-admin','warehouses-admin','prices-admin','shops-admin','customs-admin','customs-inspection-admin','customs-detention-admin','intrusion-admin','forgery-inspect-admin','escape-admin','intelligence-admin','learning-admin','succession-admin']);
+const direct=new Set(['galactic-admin','session','so-entry','group-admin','admissions-admin','directory-admin','announcements-admin','contracts-admin','contract-admin','bounties-admin','bounty-admin','spaceport-admin','ship-admin','space-combats-admin','space-rescues-admin','boarding-admin','space-maintenance-admin','towing-admin','module-mandates-admin','cargo-admin','cargo-port-admin','warehouses-admin','prices-admin','shops-admin','customs-admin','customs-inspection-admin','customs-detention-admin','intrusion-admin','forgery-inspect-admin','escape-admin','intelligence-admin','learning-admin','succession-admin']);
 const pathLink=(path,label,extra='')=>`<a href="${path.startsWith('/')?esc(path):`#/${esc(path)}`}" ${extra}>${esc(label)}</a>`;
 const campaignPages=new Set(['central','central-check','central-snapshots','central-snapshot','campaign']);
 export function organizerRoute(page,id,token,sessionHint){
@@ -35,6 +35,7 @@ export function organizerTools(s,sabacc){
    ['combatVersion','Dépannage spatial','space-rescues-admin','Suivre les interventions et les vaisseaux immobilisés.'],
    ['moduleMandatesVersion','Mandats des modules','module-mandates-admin','Gérer les interventions autorisées sur les modules.'],
    ['combatVersion','Combats spatiaux','space-combats-admin','Suivre les rencontres et les interventions en combat.'],
+   ['itemCircuitsVersion','Économie galactique','galactic-admin','Publier les cours locaux, suivre la demande et les stocks par planète.'],
    ['shopsVersion','Boutiques et caisses','shops-admin','Gérer les stocks et les retraits auprès des comptoirs.'],
    ['intelligenceVersion','Réseau d’informateurs','intelligence-admin','Consulter et suivre les demandes de renseignements.'],
    ['learningVersion','Apprentissages','learning-admin','Suivre les formations et les apprentissages.'],

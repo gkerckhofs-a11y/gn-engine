@@ -41,6 +41,7 @@ import {createGroupManagementService,groupManagementAction} from './group-manage
 import {preserveSessionNature} from './character-nature.mjs';
 import {validateCargoTariffReferences} from './customs-state.mjs';
 import {validateEconomicReferences} from './price-state.mjs';
+import {createPlanetMarketService,planetMarketCommands} from './planet-markets.mjs';
 import {createPriceService,priceAction} from './prices.mjs';
 import {validateNavigationReferences} from './navigation-state.mjs';
 import {createVoyageService,voyageAction} from './voyages.mjs';
@@ -180,6 +181,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     }
     return record.mediaImages?.[slot]??null;
   }});
+  const planetMarketService=createPlanetMarketService({store,signed,checkSession,now,uuid});
   const priceService=createPriceService({store,signed,checkSession,now,uuid});
   const towingWorkService=createTowingWorkService({store,signed,checkSession,now,uuid});
   const moduleWorkService=createModuleWorkService({store,signed,checkSession,now,uuid});
@@ -278,6 +280,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(admissionAction(action))return admissionService(action,actor,input);
     if(centralMasterAction(action))return centralMasterService(action,actor,input);
     if(groupManagementAction(action))return groupManagementService(action,actor,input);
+    if(planetMarketCommands.includes(action))return planetMarketService(action,actor,input);
     if(priceAction(action))return priceService(action,actor,input);
     if(towingWorkActions.includes(action))return towingWorkService(action,actor,input);
     if(moduleWorkActions.includes(action))return moduleWorkService(action,actor,input);
