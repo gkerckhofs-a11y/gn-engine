@@ -24,13 +24,13 @@ export async function episodeHarness(f){
 }
 export function spaceEpisodesSuite(makeStore,prefix='Épisodes SO'){
  test(`${prefix} : clôture, copie reprenable et mêmes identités, biens, PV et droits`,async()=>{
-  const f=await spaceMissionsFixture(makeStore),e=await episodeHarness(f);await f.edit(`characters/${f.cid}`,c=>({...c,hp:2,convalescentUntilGameMs:9999999}));
+  const f=await spaceMissionsFixture(makeStore),e=await episodeHarness(f);await f.edit(`characters/${f.cid}`,c=>({...c,hp:2,convalescentUntilGameMs:9999999,concealment:{lotId:'fixture-cache',lotRevision:1,level:2,expiresAtGameMs:9999999999,actionId:'fixture-hide'}}));
   const r=await e.get(`registrations/${hash(f.player.uid)}`),lots=await f.store.list(`sessions/${e.sid}/inventory`),wallet=await f.wallet();await e.close();
   assert.equal((await e.get(`characters/${f.cid}`)).xp,3);assert.equal((await e.get('')).campaignSealed,true);await assert.rejects(e.stage('EN_JEU'),{code:'INVALID_TRANSITION'});
   const b=await e.begin();assert.ok(b.pages>1);await e.cmd('advanceCampaignEpisode',{campaignId:e.campaignId,buildId:b.buildId});assert.equal(await f.store.get(`sessions/${b.id}`),null);
   const input={campaignId:e.campaignId,buildId:b.buildId,requestId:randomUUID()},once=await e.cmd('advanceCampaignEpisode',input);assert.deepEqual(await e.cmd('advanceCampaignEpisode',input),once);
   f.advance(30*86400000);await e.resume(b);const s=await e.get(''),next=await e.get(`characters/${f.cid}`),nr=await e.get(`registrations/${r.id}`),nw=await e.get(`accounts/${accountId(f.cid)}`);
-  assert.equal(s.campaignEpisode,2);assert.equal(s.stage,'BRIEFING');assert.equal(next.assignedUid,f.player.uid);assert.equal(nr.accessVersion,r.accessVersion);assert.equal(next.hp,2);assert.equal(next.convalescentUntilGameMs,0);assert.equal(next.xp,3);
+  assert.equal(s.campaignEpisode,2);assert.equal(s.stage,'BRIEFING');assert.equal(next.assignedUid,f.player.uid);assert.equal(nr.accessVersion,r.accessVersion);assert.equal(next.hp,2);assert.equal(next.convalescentUntilGameMs,0);assert.equal(next.concealment,null);assert.equal((await f.store.get(`sessions/${e.firstSid}/characters/${f.cid}`)).concealment.lotId,'fixture-cache');assert.equal(next.xp,3);
   assert.equal(nw.balance,wallet.balance+wallet.protectedCredits);assert.equal(nw.protectedCredits,0);assert.deepEqual(sorted(await f.store.list(`sessions/${e.sid}/inventory`)),sorted(lots));
   const me=await e.read('mySession',{},f.player);assert.equal(me.character.id,f.cid);assert.equal(me.actionPoints.available,5);await e.stage('EN_JEU');assert.ok((await e.get('')).vitalClock.runningSince);
   assert.equal((await e.read('spaceOutlawsEntry')).campaignEpisode,2);await assert.rejects(e.read('previewSpaceOutlawsBirth',{uid:f.player.uid,options:{weaponApplicable:true,startingInformation:''}}),{code:'SO_ENTRY_CLOSED'});

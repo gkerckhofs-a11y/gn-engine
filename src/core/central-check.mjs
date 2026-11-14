@@ -66,7 +66,7 @@ export function validateCentralChange(c,revision){
    const {id,revision,masterArchived,publicationState,...input}=d;normalized={...centralKnowledgeInput(input,c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
   }
   if(c.type==='shop')normalized={...centralShopInput({name:d.name,description:d.description,sellerCharacterId:d.sellerCharacterId,locationTargetId:d.locationTargetId,gmNotes:d.gmNotes},c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
-  if(c.type==='offer')normalized={...centralOfferInput({name:d.name,shopId:d.shopId,itemId:d.itemId,unitPrice:d.unitPrice,buybackPrice:d.buybackPrice,conditions:d.conditions,gmNotes:d.gmNotes},c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
+  if(c.type==='offer')normalized={...centralOfferInput({...('negotiationLevel' in d?{negotiationLevel:d.negotiationLevel}:{}),name:d.name,shopId:d.shopId,itemId:d.itemId,unitPrice:d.unitPrice,buybackPrice:d.buybackPrice,conditions:d.conditions,gmNotes:d.gmNotes},c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
   if(c.type==='fieldTarget')normalized={...centralFieldTargetInput(centralFieldTargetEditable(d),c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
   if(c.type==='group')normalized={...centralGroupInput(centralGroupEditable(d),c.entityId),revision:d.revision,masterArchived:c.operation==='ARCHIVE'};
   if(c.type==='character')normalized={...centralCharacterInput(centralCharacterEditable(d),c.entityId),contentRevision:d.contentRevision,masterArchived:c.operation==='ARCHIVE'};
@@ -87,7 +87,9 @@ function centralEdges(records,invalid){
  for(const c of records.filter(c=>c.operation==='UPSERT')){
   if(centralSpaceTypes.includes(c.type))for(const ref of centralSpaceReferences(c))edge(c,ref.field,ref.type,ref.id);
   if(c.type==='mission')for(const ref of centralMissionReferences(c.data))edge(c,ref.field,ref.type,ref.id);
-  if(c.type==='knowledge'){for(const key of ['initialCharacterIds','qrCharacterIds'])c.data[key].forEach((id,i)=>edge(c,`${key}.${i}`,'character',id));edge(c,'qrSkillId','skill',c.data.qrSkillId);}
+  if(c.type==='knowledge'){for(const key of ['initialCharacterIds','qrCharacterIds'])c.data[key].forEach((id,i)=>edge(c,`${key}.${i}`,'character',id));edge(c,'qrSkillId','skill',c.data.qrSkillId);(c.data.cipher?.bonusItemIds??[]).forEach((id,i)=>edge(c,`cipher.bonusItemIds.${i}`,'item',id));}
+  if(c.type==='item'&&c.data.reviewTargetId)edge(c,'reviewTargetId','fieldTarget',c.data.reviewTargetId);
+  if(c.type==='item'&&c.data.knowledgeId)edge(c,'knowledgeId','knowledge',c.data.knowledgeId);
   if(c.type==='shop'){edge(c,'sellerCharacterId','character',c.data.sellerCharacterId);edge(c,'locationTargetId','fieldTarget',c.data.locationTargetId);}
   if(c.type==='offer'){edge(c,'shopId','shop',c.data.shopId);edge(c,'itemId','item',c.data.itemId);}
   if(c.type==='classKit')for(const b of c.data.bindings)edge(c,`bindings.${b.slotId}.itemId`,'item',b.itemId);

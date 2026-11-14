@@ -1,5 +1,13 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+Intégration du 14 novembre 2026 : PR [#34](https://github.com/gkerckhofs-a11y/gn-engine/pull/34), version candidate `0.38.0-rc.2`. Lots de compétences #16–#33 cumulés et départ FIL depuis le quai avec balise conservée. 3 130 tests applicatifs et compilation réussis localement sur l’arbre du complément ; CI exacte et publication à constater dans la PR. **Publication intermédiaire ; clôture des 34 capacités toujours partielle**, sans migration des sessions existantes. Voir la [matrice courante](SO-COMPETENCES-V07-CLOTURE.md).
+
+Complément spatial du 13 novembre 2026 : [traces de vaisseaux, filature et corrections des tests CI](SO-COMPETENCES-V07-CLOTURE.md#r--départs-de-vaisseaux-filature-et-signature-fictive-13-novembre-2026). Candidat sur branche ; aucune fusion ou publication. Les CI des parents #31/#32 ont des échecs identifiés, distincts des tests locaux du correctif.
+
+Complément toxicologie du 13 novembre 2026 : [périmètre, preuves et limites P](SO-COMPETENCES-V07-CLOTURE.md#p--toxicologie--doses-malaise-et-antidotes-13-novembre-2026). Fabrication et traitement natifs, doses volontaires, malaise et diagnostic N3 raccordés sur branche. Tests locaux et émulateurs réussis ; CI, intégration, publication et terrain restent distincts. Aucun déploiement de ce lot.
+
+Suivi de clôture V0.7 du 13 novembre 2026 : [matrice unique des 34 capacités](SO-COMPETENCES-V07-CLOTURE.md). Les états historiques ci-dessous sont conservés ; ils ne remplacent pas la nouvelle preuve par compétence.
+
 ## Terminal personnel — 13 novembre 2026
 
 [Audit des services, droits et limites](SO-TERMINAL-PERSONNEL.md). Trois ensembles alimentés par les projections autorisées, primes exclusivement Traqueur côté serveur et interface, douanes séparées par responsabilité. 171 tests ciblés et build locaux réussis. Publication de l’ensemble autorisée par Guillaume, sous réserve des vérifications du commit exact ; statut de déploiement à constater dans GitHub.

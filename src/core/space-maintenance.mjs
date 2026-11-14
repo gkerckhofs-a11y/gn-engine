@@ -1,3 +1,4 @@
+import {malaiseAt} from './space-toxicology-state.mjs';
 import {flightShip} from './space-module-flight.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {admissionKeys} from './admission-state.mjs';
@@ -19,7 +20,7 @@ export const hasSoLogistics=s=>s.spaceOutlaws?.logisticsVersion===1&&s.spaceOutl
 const reads=new Set(['spaceMaintenance','spaceMaintenanceAdmin','prepareSpaceMaintenanceOffer','prepareSpaceMaintenance']);
 const admins=new Set(['spaceMaintenanceAdmin','prepareSpaceMaintenanceOffer','offerSpaceMaintenance','cancelSpaceMaintenanceAdmin']);
 const open=r=>['OFFERED','AWAITING_TECH','ACTIVE'].includes(r.status);
-const fit=(c,time,id=null)=>c?.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeNavigationId&&!c.activeCargoId&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&(!c.activeMaintenanceId||c.activeMaintenanceId===id)&&!(c.convalescentUntilGameMs>time);
+const fit=(c,time,id=null)=>c?.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeNavigationId&&!c.activeCargoId&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&(!c.activeMaintenanceId||c.activeMaintenanceId===id)&&!(c.convalescentUntilGameMs>time)&&!malaiseAt(c,time);
 const accessible=(s,ship,c)=>ship.journey?ship.journey.suspended&&c.activeVoyageId===ship.journey.id&&ship.journey.manifest.some(m=>m.id===c.id):ship.docked&&!c.activeVoyageId&&(c.spacePortId??s.transportRules?.homePort)===ship.portId;
 const eligible=(ship,id=null)=>ship?.soProfile&&ship.ownerType!=='GROUP'&&!ship.operation&&!ship.combatId&&!ship.rescueId&&(!ship.maintenanceId||ship.maintenanceId===id)&&(ship.docked&&!ship.journey||ship.journey?.suspended);
 export function maintenancePlan(ship,kind,points){

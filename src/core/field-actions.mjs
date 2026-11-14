@@ -1,3 +1,8 @@
+import {tracePursuitOptions,myTraceAlerts,bindShipTracePoint,requireTraceActor,pursuitContinuity,recordFictionalTrace,traceTarget,traceOptions,myTraceConsents,consentTrace,resolveTrace} from './space-fictional-traces.mjs';
+import {documentReviewTarget,myDocumentReviews} from './space-document-review.mjs';
+import {validSoInstallation} from '../shared/space-installation.mjs';
+import {negotiableOffer,discountResult} from './space-merchant-negotiation.mjs';
+import {requireMerchantAnalysis,merchantProfile,contactQuota,contactUsage} from './space-merchant-analysis.mjs';
 import {isTechnicalAnalysis,requireTechnicalAnalysis} from './space-technical-analysis.mjs';
 import {isRouteAnalysis,requireRouteAnalysis,routeAnalysisByCode,routeAnalysisBinding} from './space-route-analysis.mjs';
 import {isPlaceSearch,searchBonuses} from './space-outlaws-search-state.mjs';
@@ -25,14 +30,14 @@ const ap=(s,a)=>`sessions/${s}/fieldActions/${a}`;
 const claimsFor=(state,cid)=>Object.hasOwn(state.claims,cid)?state.claims[cid]:{};
 const claimed=(state,cid,rid)=>Object.hasOwn(claimsFor(state,cid),rid)?claimsFor(state,cid)[rid]:0;
 const uses=(s,c,f)=>`${cp(s,c)}/fieldCooldowns/${hash(f)}`;
-const publicTarget=(t,state)=>({id:t.id,title:t.title,description:t.description,kind:t.kind,status:state?.status??null,busy:!!state?.activeActionId});
-const viewAction=(a,s,at)=>({id:a.id,...(a.searchVersion===1?{sessionId:s.id,finishedAt:a.finishedAt??null}:{}),characterId:a.characterId,characterName:a.characterName,targetId:a.targetId,targetTitle:a.targetTitle,kind:a.kind,status:a.status,startedAt:a.startedAt,
+const publicTarget=(t,state)=>({id:t.id,title:t.title,description:t.description,kind:t.kind,status:state?.status??null,busy:!!state?.activeActionId,...(t.negotiation?{negotiation:true}:{})});
+const viewAction=(a,s,at)=>({id:a.id,...(a.documentReview?{documentLotId:a.documentReview.lotId}:{}),...(a.searchVersion===1?{sessionId:s.id,finishedAt:a.finishedAt??null}:{}),characterId:a.characterId,characterName:a.characterName,targetId:a.targetId,targetTitle:a.targetTitle,kind:a.kind,status:a.status,startedAt:a.startedAt,
   remainingMs:a.status==='ACTIVE'?Math.max(0,a.readyAtGameMs-gameTime(s.clock,at)):0,durationSeconds:a.durationSeconds,cost:a.cost,level:a.level,bonus:a.bonus,bonusName:a.bonusName,aidName:a.aid?.name??null,test:a.profile.test,threshold:a.searchVersion===1&&!a.showDifficulty?null:a.profile.threshold,
   instructions:a.profile.instructions,cooldownSeconds:a.cooldownSeconds,result:a.result??null,cancelReason:a.cancelReason??null});
 const adminReads=['fieldAdmin'];
-const adminWrites=['saveFieldTarget','replenishFieldTarget','cancelFieldActionMJ','provisionFieldFind'];
-const playerReads=['fieldTarget','myFieldActions','prepareFieldAction'];
-const playerWrites=['startFieldAction','finishFieldAction','cancelFieldAction','cancelFieldActionAid','takeFieldFind'];
+const adminWrites=['bindShipTracePoint','saveFieldTarget','replenishFieldTarget','cancelFieldActionMJ','provisionFieldFind'];
+const playerReads=['tracePursuitOptions','traceOptions','myTraceConsents','myDocumentReviews','fieldTarget','myFieldActions','prepareFieldAction'];
+const playerWrites=['consentTraceErasure','startFieldAction','finishFieldAction','cancelFieldAction','cancelFieldActionAid','takeFieldFind'];
 export const fieldCommands=[...adminReads,...adminWrites,...playerReads,...playerWrites];
 export const fieldAction=a=>fieldCommands.includes(a);
 
@@ -43,14 +48,15 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
   const r=await tx.get(`sessions/${sid}/registrations/${hash(actor.uid)}`);requireThat(r?.status==='ACCEPTED'&&r.accessActive&&r.characterId&&actor.authTime>=r.minAuthTime,'FORBIDDEN');
   const c=await tx.get(cp(sid,r.characterId));requireThat(c?.assignedUid===actor.uid&&c.publicationState==='PUBLISHED'&&c.public?.publicationState==='PUBLISHED','FORBIDDEN');return {s,c,r};
  }
- async function target(tx,s,id,at){const t=await tx.get(`sessions/${s.id}/fieldTargets/${documentId(id)}`),state=await tx.get(sp(s.id,id));requireThat(t?.publicationState==='PUBLISHED'&&state,'FIELD_UNAVAILABLE');if(isRouteAnalysis(t))requireRouteAnalysis(s);if(isTechnicalAnalysis(t)&&s.spaceOutlaws)requireTechnicalAnalysis(s);return {t,state:effectiveFieldState(s,state,at)};}
+ async function target(tx,s,id,at,c=null,documentLotId=null,traceInput=null){const t=traceInput?.traceTargetId?await traceTarget(tx,s,c,traceInput,at):documentLotId?await documentReviewTarget(tx,s,c,documentLotId,at):await tx.get(`sessions/${s.id}/fieldTargets/${documentId(id)}`);requireThat(!t?.documentOnly||!!documentLotId,'SO_DOCUMENT_REVIEW_ACCESS');if(documentLotId&&id)requireThat(id===t.id||id===t.documentReview.templateId,'SO_DOCUMENT_REVIEW_ACCESS');const state=await tx.get(sp(s.id,t?.id??id))??(documentLotId||traceInput?.traceTargetId?initialFieldState(t):null);requireThat(t?.publicationState==='PUBLISHED'&&state,'FIELD_UNAVAILABLE');requireMerchantAnalysis(s,t);if(isRouteAnalysis(t))requireRouteAnalysis(s);if(isTechnicalAnalysis(t)&&s.spaceOutlaws)requireTechnicalAnalysis(s);return {t,state:effectiveFieldState(s,state,at)};}
  async function dependency(tx,s,t,at){if(!t.dependencyId)return;const d=await target(tx,s,t.dependencyId,at);requireThat(d.state.status==='ONLINE','INSTALLATION_OFFLINE');}
  async function ownedAction(tx,ctx,input,actor){const a=await tx.get(ap(ctx.s.id,documentId(input.actionId)));requireThat(a&&(input.aidCancellation?a.aid?.characterId===ctx.c.id&&a.aid.uid===actor.uid&&a.aid.accessVersion===ctx.r.accessVersion:a.characterId===ctx.c.id&&a.actorUid===actor.uid&&a.accessVersion===ctx.r.accessVersion),'FORBIDDEN');return a;}
  async function plan(tx,ctx,input,at){
   const {s,c,r}=ctx;
-  if(s.spaceOutlaws?.escapeVersion===1){const cap=await tx.get(`sessions/${s.id}/soCaptivities/${c.id}`);requireThat(cap?.status!=='ACTIVE','SO_ESCAPE_CAPTIVE');}requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,c,'discover',at);requireThat(!c.activeFieldActionId&&!c.activePersonActionId,'FIELD_ACTOR_BUSY');
-  const {t,state}=await target(tx,s,input.targetId,at),kind=input.kind,p=Object.hasOwn(t.profiles,kind)?t.profiles[kind]:null;requireThat(p,'INVALID_FIELD_TARGET');
-  if(s.spaceOutlaws)requireThat(s.spaceOutlaws.actionsVersion===1&&(t.kind==='ANALYSIS'&&kind==='ANALYZE'||s.spaceOutlaws.searchVersion===1&&isPlaceSearch(t)&&kind==='SEARCH'),'SO_GAMEPLAY_NOT_OPEN');
+  if(s.spaceOutlaws?.escapeVersion===1){const cap=await tx.get(`sessions/${s.id}/soCaptivities/${c.id}`);requireThat(cap?.status!=='ACTIVE','SO_ESCAPE_CAPTIVE');}requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');if(!input.traceTargetId)requireGameAction(s,c,'discover',at);
+  const {t,state}=await target(tx,s,input.targetId,at,c,input.documentLotId,input),kind=input.kind,p=Object.hasOwn(t.profiles,kind)?merchantProfile(t,t.profiles[kind],abilityLevel(c,t.profiles[kind].skillId)):null;requireThat(p,'INVALID_FIELD_TARGET');requireTraceActor(s,c,t,at);requireThat(!c.activeFieldActionId&&!c.activePersonActionId,'FIELD_ACTOR_BUSY');
+  if(s.spaceOutlaws)requireThat(s.spaceOutlaws.actionsVersion===1&&(t.kind==='ANALYSIS'&&kind==='ANALYZE'||s.spaceOutlaws.searchVersion===1&&isPlaceSearch(t)&&kind==='SEARCH'||s.spaceOutlaws.sabotageVersion===1&&validSoInstallation(t)&&['SABOTAGE','REPAIR'].includes(kind)),'SO_GAMEPLAY_NOT_OPEN');
+  const negotiation=p.skillId==='COU-02'?await negotiableOffer(tx,s,c,t,input.tradeQuantity??1):null;
   const routeAnalysis=isRouteAnalysis(t)?routeAnalysisBinding(s,c,t,await routeAnalysisByCode(tx,s,c,input.navigationCode)):null;
   await dependency(tx,s,t,at);const time=gameTime(s.clock,at);requireThat(!state.activeActionId,'FIELD_TARGET_BUSY');requireThat(time>=state.lockedUntilGameMs,'FIELD_TARGET_LOCKED');
   requireThat(kind==='SEARCH'||kind==='ANALYZE'||(kind==='SABOTAGE'?state.status==='ONLINE':state.status==='OFFLINE'),'FIELD_STATE_CHANGED');
@@ -58,6 +64,7 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
   if(isPlaceSearch(t)){requireThat(s.spaceOutlaws?.searchVersion===1,'SO_GAMEPLAY_NOT_OPEN');requireThat(t.search.active&&state.status==='ONLINE','FIELD_UNAVAILABLE');requireThat(t.search.maxAttempts===null||(state.attempts[c.id]??0)<t.search.maxAttempts,'FIELD_ATTEMPTS_EXHAUSTED');requireThat(!input.aidOfferId&&!input.bonusLotId&&!input.consumableLotId,'INVALID_PLACE_SEARCH');}
   const level=p.skillId?abilityLevel(c,p.skillId):0;requireThat(!p.skillId||level>=p.minLevel,'FIELD_SKILL_REQUIRED');
   const family=kind==='SEARCH'?'FOUILLE':p.skillId?`SKILL:${p.skillId}`:kind,use=await tx.get(uses(s.id,c.id,family));requireThat(time>=(use?.readyAtGameMs??0),'COOLDOWN_ACTIVE');
+  if(p.skillId==='COU-03')requireThat(contactUsage(s,use)<contactQuota(level),'CONTACT_QUOTA_EXHAUSTED');
   const cost=s.actionPointRules?.enabled?(p.cost??s.actionPointRules.cost):0,cooldownSeconds=p.cooldownSeconds??s.actionPointRules?.cooldownSeconds??600;
   const points=s.actionPointRules?.enabled?actionPointState(s,c,await tx.get(actionPointPath(s.id,c.id)),at):null;if(points)reserveActionPoints(points,cost);
   let bonusLot=null,consumableLot=null,bonus=0;
@@ -66,7 +73,7 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
   let reward=null;
   const information=[];
   if(kind==='ANALYZE'){
-   requireThat(state.analyses?.[c.id]!==t.revision,'FIELD_ANALYSIS_DONE');
+   requireThat(t.traceWork||state.analyses?.[c.id]!==t.revision,'FIELD_ANALYSIS_DONE');
    for(const r of t.rewards.filter(r=>r.minLevel<=level)){
     const k=await tx.get(`sessions/${s.id}/knowledge/${r.knowledgeId}`),receipt=await tx.get(`${cp(s.id,c.id)}/knowledge/${r.knowledgeId}`);
     requireThat(k?.publicationState==='PUBLISHED'&&(!receipt||receipt.active),'FIELD_UNAVAILABLE');
@@ -89,10 +96,10 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
   if(isPlaceSearch(t))bonus=bonuses.reduce((n,b)=>n+b.value,0);
   const aid=await prepareAid(tx,s,c,input,p,family,at);
   const durationSeconds=p.durationByLevel[level]??p.durationSeconds;
-  const confirmation=digest({...(routeAnalysis?{routeAnalysis}:{}),target:t,state,character:{id:c.id,profile:c.abilityProfile??null,health:c.healthRevision??0},access:r.accessVersion,rules:s.actionPointRules??null,rulesRevision:s.actionPointRulesRevision??0,points,bonusLot,consumableLot,kind,reward,information,aid,bonuses});
-  const preview={target:publicTarget(t,state),kind,level,bonus,aidName:aid?.character.public.displayName??null,aid:aid?1:0,bonusName:bonusLot?.item.name??null,cost,durationSeconds,cooldownSeconds,test:p.test,threshold:isPlaceSearch(t)&&!t.search.showDifficulty?null:p.threshold,bonuses,instructions:p.instructions,
+  const confirmation=digest({...(routeAnalysis?{routeAnalysis}:{}),target:t,state,character:{id:c.id,profile:c.abilityProfile??null,health:c.healthRevision??0},access:r.accessVersion,rules:s.actionPointRules??null,rulesRevision:s.actionPointRulesRevision??0,points,bonusLot,consumableLot,kind,reward,information,aid,bonuses,negotiation});
+  const preview={...(negotiation?{negotiation}:{}),target:publicTarget(t,state),kind,level,bonus,aidName:aid?.character.public.displayName??null,aid:aid?1:0,bonusName:bonusLot?.item.name??null,cost,durationSeconds,cooldownSeconds,test:p.test,threshold:isPlaceSearch(t)&&!t.search.showDifficulty?null:p.threshold,bonuses,instructions:p.instructions,
    consumable:consumableLot?{name:consumableLot.item.name,quantity:p.consumable.quantity}:null,actionPoints:actionPointSummary(s,c,points,at),confirmation};
-  return {t,state,p,reward,information,routeAnalysis,family,points,bonusLot,consumableLot,preview,aid,bonuses};
+  return {t,state,p,negotiation,reward,information,routeAnalysis,family,points,bonusLot,consumableLot,preview,aid,bonuses};
  }
  async function catalog(tx,base){const names=['skills','items','knowledge','fieldTargets'];return Object.fromEntries(await Promise.all(names.map(async k=>[k,await tx.list(`${base}/${k}`)])));}
  return async function dispatch(action,actor,input){
@@ -100,47 +107,57 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
   if([...adminReads,...playerReads].includes(action))return store.runTransaction(async tx=>{
    if(action==='fieldAdmin'){
     const {s,base,session}=await organizer(tx,actor,input),records=await catalog(tx,base),states=session?await tx.list(`${base}/fieldStates`):[],actions=session?await tx.list(`${base}/fieldActions`):[];
-    return {scope:session?'session':'scenario',parent:{id:s.id,title:s.title,stage:s.stage??null,sealed:s.campaignSealed===true||!!s.spaceOutlaws,searchReady:s.spaceOutlaws?.searchVersion===1,canReset:actor.uid===s.ownerUid},...records,...(s.spaceOutlaws?.searchVersion===1?{sources:{lots:(await tx.list(`${base}/inventory`)).filter(l=>l.ownerType==='SHOP'&&l.status==='AVAILABLE'&&l.transferable!==false).map(l=>({id:l.id,name:l.item.name,itemId:l.item.id,quantity:l.quantity})),accounts:(await tx.list(`${base}/accounts`)).filter(a=>a.ownerType==='SHOP'&&a.status==='ACTIVE').map(a=>({id:a.id,name:a.label??a.shopId??a.id,available:a.balance-a.reserved}))}}:{}),states:states.map(st=>effectiveFieldState(s,st,at)),actions:actions.filter(a=>a.status==='ACTIVE').map(a=>viewAction(a,s,at)),history:actions.filter(a=>a.status!=='ACTIVE').sort((a,b)=>b.finishedAt-a.finishedAt).slice(0,30).map(a=>viewAction(a,s,at))};
+    return {scope:session?'session':'scenario',parent:{id:s.id,title:s.title,stage:s.stage??null,sealed:s.campaignSealed===true||!!s.spaceOutlaws,tracesReady:s.spaceOutlaws?.fictionalTracesVersion===1,decryptionReady:s.spaceOutlaws?.inf02Version===1,searchReady:s.spaceOutlaws?.searchVersion===1,canReset:actor.uid===s.ownerUid},...records,...(s.spaceOutlaws?.fictionalTracesVersion===1?{traceShips:(await tx.list(`${base}/ships`)).filter(x=>x.enabled&&x.docked&&!x.journey).map(x=>({id:x.id,name:x.name})),traceBindings:await tx.list(`${base}/fictionalShipTraceBindings`)}:{}),...(s.spaceOutlaws?.searchVersion===1?{sources:{lots:(await tx.list(`${base}/inventory`)).filter(l=>l.ownerType==='SHOP'&&l.status==='AVAILABLE'&&l.transferable!==false).map(l=>({id:l.id,name:l.item.name,itemId:l.item.id,quantity:l.quantity})),accounts:(await tx.list(`${base}/accounts`)).filter(a=>a.ownerType==='SHOP'&&a.status==='ACTIVE').map(a=>({id:a.id,name:a.label??a.shopId??a.id,available:a.balance-a.reserved}))}}:{}),states:states.map(st=>effectiveFieldState(s,st,at)),actions:actions.filter(a=>a.status==='ACTIVE').map(a=>viewAction(a,s,at)),history:actions.filter(a=>a.status!=='ACTIVE').sort((a,b)=>b.finishedAt-a.finishedAt).slice(0,30).map(a=>viewAction(a,s,at))};
    }
    const ctx=await player(tx,actor,input),{s,c}=ctx;
-   if(action==='myFieldActions'){const rows=await tx.list(`sessions/${s.id}/fieldActions`,['characterId',c.id]);const actions=[];for(const a of rows.filter(a=>a.actorUid===actor.uid&&a.accessVersion===ctx.r.accessVersion).sort((a,b)=>b.startedAt-a.startedAt).slice(0,50)){const v=viewAction(a,s,at);if(a.searchVersion===1&&v.result){const st=await tx.get(sp(s.id,a.targetId));v.result={...v.result,discoveries:v.result.discoveries.map(d=>({...d,status:st?.finds[d.id]?.generation!==d.generation?'UNAVAILABLE':st.finds[d.id].status==='TAKEN'?(st.finds[d.id].takenBy===c.id?'TAKEN':'UNAVAILABLE'):d.status}))};}actions.push(v);}return {session:{id:s.id,stage:s.stage},actions};}
+   if(action==='tracePursuitOptions')return tracePursuitOptions(tx,s,c);
+   if(action==='traceOptions')return traceOptions(tx,s,c,documentId(input.traceTargetId),at);
+   if(action==='myTraceConsents')return myTraceConsents(tx,s,c,at);
+   if(action==='myDocumentReviews')return myDocumentReviews(tx,s,c,at);
+   if(action==='myFieldActions'){const rows=await tx.list(`sessions/${s.id}/fieldActions`,['characterId',c.id]);const actions=[];for(const a of rows.filter(a=>a.actorUid===actor.uid&&a.accessVersion===ctx.r.accessVersion).sort((a,b)=>b.startedAt-a.startedAt).slice(0,50)){const v=viewAction(a,s,at);if(a.result?.pursuit)v.result={...v.result,pursuit:{...v.result.pursuit,current:await pursuitContinuity(tx,s,c,a,at)}};if(a.searchVersion===1&&v.result){const st=await tx.get(sp(s.id,a.targetId));v.result={...v.result,discoveries:v.result.discoveries.map(d=>({...d,status:st?.finds[d.id]?.generation!==d.generation?'UNAVAILABLE':st.finds[d.id].status==='TAKEN'?(st.finds[d.id].takenBy===c.id?'TAKEN':'UNAVAILABLE'):d.status}))};}actions.push(v);}return {session:{id:s.id,stage:s.stage},alerts:await myTraceAlerts(tx,s,c),actions};}
    if(action==='prepareFieldAction')return (await plan(tx,ctx,input,at)).preview;
    const route=input.navigationCode!==undefined?await routeAnalysisByCode(tx,s,c,input.navigationCode):null;
-   const {t,state}=await target(tx,s,input.targetId??route?.analysisTargetId,at);
+   const {t,state}=await target(tx,s,input.targetId??route?.analysisTargetId,at,c,input.documentLotId,input);
    if(isRouteAnalysis(t))routeAnalysisBinding(s,c,t,route??await routeAnalysisByCode(tx,s,c,input.navigationCode));
    const lots=(await tx.list(`sessions/${s.id}/inventory`,['holderId',c.id])).filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.quantity>0);
    const time=gameTime(s.clock,at),profiles=[];
-   for(const p of Object.values(t.profiles)){const family=p.kind==='SEARCH'?'FOUILLE':p.skillId?`SKILL:${p.skillId}`:p.kind,use=await tx.get(uses(s.id,c.id,family)),level=p.skillId?abilityLevel(c,p.skillId):0;
-    profiles.push({kind:p.kind,skillId:p.skillId,instructions:p.instructions,level,qualified:isPlaceSearch(t)?t.search.active&&(t.search.maxAttempts===null||(state.attempts[c.id]??0)<t.search.maxAttempts):!p.skillId||level>=p.minLevel,waitMs:Math.max(0,(use?.readyAtGameMs??0)-time),durationSeconds:p.durationByLevel[level]??p.durationSeconds,test:p.test,threshold:isPlaceSearch(t)&&!t.search.showDifficulty?null:p.threshold,bonuses:isPlaceSearch(t)?searchBonuses(t,c,lots):[],
+   for(const original of Object.values(t.profiles)){const p=merchantProfile(t,original,abilityLevel(c,original.skillId));const family=p.kind==='SEARCH'?'FOUILLE':p.skillId?`SKILL:${p.skillId}`:p.kind,use=await tx.get(uses(s.id,c.id,family)),level=p.skillId?abilityLevel(c,p.skillId):0;
+    profiles.push({...(p.skillId==='COU-03'?{remainingUses:Math.max(0,contactQuota(level)-contactUsage(s,use))}:{}),kind:p.kind,skillId:p.skillId,instructions:p.instructions,level,qualified:isPlaceSearch(t)?t.search.active&&(t.search.maxAttempts===null||(state.attempts[c.id]??0)<t.search.maxAttempts):!p.skillId||level>=p.minLevel,waitMs:Math.max(0,(use?.readyAtGameMs??0)-time),durationSeconds:p.durationByLevel[level]??p.durationSeconds,test:p.test,threshold:isPlaceSearch(t)&&!t.search.showDifficulty?null:p.threshold,bonuses:isPlaceSearch(t)?searchBonuses(t,c,lots):[],
      cost:s.actionPointRules?.enabled?(p.cost??s.actionPointRules.cost):0,bonusLots:lots.flatMap(l=>{const b=p.bonusItems.find(b=>b.itemId===l.item.id);return b?[{id:l.id,name:l.item.name,bonus:b.bonus}]:[];}),consumable:p.consumable?{quantity:p.consumable.quantity,lots:lots.filter(l=>l.item.id===p.consumable.itemId&&l.item.consumable&&l.quantity>=p.consumable.quantity).map(l=>({id:l.id,name:l.item.name}))}:null});
    }
-   return {session:{id:s.id,stage:s.stage},...(route?{navigation:{name:route.name,fromPort:route.fromPort,toPort:route.toPort}}:{}),target:publicTarget(t,state),profiles,analysisDone:t.kind==='ANALYSIS'&&state.analyses?.[c.id]===t.revision,aidOffers:await offeredAid(tx,s.id,c.id),activeActionId:c.activeFieldActionId??null,lockedMs:Math.max(0,state.lockedUntilGameMs-time),protectedMs:Math.max(0,state.protectedUntilGameMs-time)};
+   return {...(t.traceInput?{traceInput:t.traceInput}:{}),...(t.documentReview?{documentLotId:t.documentReview.lotId}:{}),session:{id:s.id,stage:s.stage},...(route?{navigation:{name:route.name,fromPort:route.fromPort,toPort:route.toPort}}:{}),target:publicTarget(t,state),profiles,analysisDone:!t.traceWork&&t.kind==='ANALYSIS'&&state.analyses?.[c.id]===t.revision,aidOffers:await offeredAid(tx,s.id,c.id),activeActionId:c.activeFieldActionId??null,lockedMs:Math.max(0,state.lockedUntilGameMs-time),protectedMs:Math.max(0,state.protectedUntilGameMs-time)};
   });
-  const requestId=documentId(input.requestId),op=`operations/${hash(`${actor.uid}:${requestId}`)}`,fingerprint=digest([action,input]),id=uuid(),die=action==='finishFieldAction'?rollD6():null,searchDie=action==='finishFieldAction'?rollD12():null;
+  const requestId=documentId(input.requestId),op=`operations/${hash(`${actor.uid}:${requestId}`)}`,fingerprint=digest([action,input]),id=uuid();
+  // Draw only for an eligible resolution, once even if the transaction retries.
+  let die,searchDie,traceDice;
   return store.runTransaction(async tx=>{
    let org,ctx,a;
    if(adminWrites.includes(action)){org=await organizer(tx,actor,input);requireThat(org.s.stage!=='ARCHIVED','SESSION_CLOSED');}
-   else {ctx=await player(tx,actor,input);if(action!=='startFieldAction')a=await ownedAction(tx,ctx,{...input,aidCancellation:action==='cancelFieldActionAid'},actor);}
+   else {ctx=await player(tx,actor,input);if(!['startFieldAction','consentTraceErasure'].includes(action))a=await ownedAction(tx,ctx,{...input,aidCancellation:action==='cancelFieldActionAid'},actor);}
    const session=(ctx??org).s;
    if(session.spaceOutlaws){
     requireThat(action!=='replenishFieldTarget'&&(action!=='saveFieldTarget'||session.spaceOutlaws.searchVersion===1&&isPlaceSearch(input.target)),'SO_GAMEPLAY_NOT_OPEN');
     authorizeSpaceOutlaws(tx,session,'FIELD');
+    if(session.spaceOutlaws.fictionalTracesVersion===1)authorizeSpaceOutlaws(tx,session,'FICTIONAL_TRACES');
     if(session.spaceOutlaws.searchVersion===1)authorizeSpaceOutlaws(tx,session,'SEARCH');
-    if(a)requireThat(a.kind==='ANALYZE'||session.spaceOutlaws.searchVersion===1&&a.searchVersion===1,'SO_GAMEPLAY_NOT_OPEN');
+    if(a)requireThat(a.kind==='ANALYZE'||session.spaceOutlaws.searchVersion===1&&a.searchVersion===1||session.spaceOutlaws.sabotageVersion===1&&['SABOTAGE','REPAIR'].includes(a.kind),'SO_GAMEPLAY_NOT_OPEN');
    }
+   if(['COU-01','COU-03'].includes(a?.profile.skillId))requireMerchantAnalysis(session,{profiles:{ANALYZE:a.profile}});
    if(a?.profile.skillId==='MEC-01'&&session.spaceOutlaws)requireTechnicalAnalysis(session);
    if(a?.profile.skillId==='PIL-01'&&action==='finishFieldAction')requireRouteAnalysis(session);
-   if(action==='startFieldAction'){const t=await tx.get(`sessions/${session.id}/fieldTargets/${documentId(input.targetId)}`);if(isTechnicalAnalysis(t)&&session.spaceOutlaws)requireTechnicalAnalysis(session);if(isRouteAnalysis(t))routeAnalysisBinding(session,ctx.c,t,await routeAnalysisByCode(tx,session,ctx.c,input.navigationCode));}
+   if(action==='startFieldAction'&&!input.documentLotId&&!input.traceTargetId){const t=await tx.get(`sessions/${session.id}/fieldTargets/${documentId(input.targetId)}`);if(isTechnicalAnalysis(t)&&session.spaceOutlaws)requireTechnicalAnalysis(session);if(isRouteAnalysis(t))routeAnalysisBinding(session,ctx.c,t,await routeAnalysisByCode(tx,session,ctx.c,input.navigationCode));}
    if(session.spaceOutlaws&&action==='saveFieldTarget')requireThat(actor.uid===session.ownerUid,'FORBIDDEN');
    if(action==='provisionFieldFind'){requireThat(session.spaceOutlaws?.searchVersion===1,'SO_GAMEPLAY_NOT_OPEN');if(input.reset===true)requireThat(actor.uid===session.ownerUid,'FIELD_RESET_FORBIDDEN');}
    const previous=await tx.get(op);if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');if(ctx)requireThat(previous.characterId===ctx.c.id&&previous.accessVersion===ctx.r.accessVersion,'FORBIDDEN');return previous.result;}
    let result;
-   if(action==='provisionFieldFind'){const {s}=org;const {t,state}=await target(tx,s,input.targetId,at);result=await provisionPlaceFind(tx,s,t,state,input,actor,id,at);}
+   if(action==='bindShipTracePoint'){result=await bindShipTracePoint(tx,org.s,input,at,actor,id);}
+   else if(action==='consentTraceErasure'){result=await consentTrace(tx,ctx.s,ctx.c,ctx.r,input,at);tx.set(`sessions/${ctx.s.id}/audit/${id}`,{id,at,action,actorUid:actor.uid,traceId:input.traceId,enabled:input.enabled});}
+   else if(action==='provisionFieldFind'){const {s}=org;const {t,state}=await target(tx,s,input.targetId,at);result=await provisionPlaceFind(tx,s,t,state,input,actor,id,at);}
    else if(action==='takeFieldFind'){const {s,c}=ctx;const {t,state}=await target(tx,s,a.targetId,at);result=await takePlaceFind(tx,s,c,t,state,a,input,actor,id,at);}
    else if(action==='saveFieldTarget'){
     const {s,base,session}=org,tid=input.targetId?documentId(input.targetId):id,old=await tx.get(`${base}/fieldTargets/${tid}`),state=session?await tx.get(sp(s.id,tid)):null;
     requireThat((old?.revision??0)===(input.revision??0),'STALE_REVISION');requireThat(!state?.activeActionId,'FIELD_TARGET_BUSY');
-    if(s.spaceOutlaws){requireThat(!old||actor.uid===s.ownerUid,'FORBIDDEN');requireThat(s.stage==='BRIEFING'&&(!old||isPlaceSearch(old)),'FIELD_PREPARATION_REQUIRED');requireThat(!old||JSON.stringify(old.search.bonuses)===JSON.stringify(input.target.search.bonuses),'FIELD_BONUS_PUBLISHED_ONLY');requireThat(old||!input.target.search.bonuses.length,'FIELD_BONUS_PUBLISHED_ONLY');}
+    if(s.spaceOutlaws){requireThat(!old||digest(old.tracePolicy??null)===digest(input.target.tracePolicy??null),'FIELD_STOCK_IMMUTABLE');requireThat(!old||actor.uid===s.ownerUid,'FORBIDDEN');requireThat(s.stage==='BRIEFING'&&(!old||isPlaceSearch(old)),'FIELD_PREPARATION_REQUIRED');requireThat(!old||JSON.stringify(old.search.bonuses)===JSON.stringify(input.target.search.bonuses),'FIELD_BONUS_PUBLISHED_ONLY');requireThat(old||!input.target.search.bonuses.length,'FIELD_BONUS_PUBLISHED_ONLY');}
     const next=fieldTargetInput(input.target,tid,old??{}),records=await catalog(tx,base);records.fieldTargets=records.fieldTargets.filter(t=>t.id!==tid).concat(next);
     requireThat(records.fieldTargets.length<=100,'INVALID_FIELD_TARGET');
     for(const t of records.fieldTargets)validateFieldReferences(t,records);
@@ -157,10 +174,10 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
     tx.set(sp(s.id,tid),next);tx.set(`${base}/audit/${id}`,{id,at,action,actorUid:actor.uid,reason:why,targetId:tid,rewardId:rid,quantity,before:state.stock[rid],after:next.stock[rid]});result={id:tid};
    }else if(action==='startFieldAction'){
     requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');const p=await plan(tx,ctx,input,at);requireThat(p.preview.confirmation===input.confirmation,'STALE_REVISION');const {s,c,r}=ctx,time=gameTime(s.clock,at);
-    a={id,characterId:c.id,characterName:c.public.displayName,actorUid:actor.uid,accessVersion:r.accessVersion,targetId:p.t.id,targetTitle:p.t.title,kind:input.kind,status:'ACTIVE',startedAt:at,startedAtGameMs:time,readyAtGameMs:time+p.preview.durationSeconds*1000,
+    a={id,...(p.t.traceWork?{traceInput:p.t.traceInput}:{}),...(p.t.documentReview?{documentReview:p.t.documentReview}:{}),characterId:c.id,characterName:c.public.displayName,actorUid:actor.uid,accessVersion:r.accessVersion,targetId:p.t.id,targetTitle:p.t.title,kind:input.kind,status:'ACTIVE',startedAt:at,startedAtGameMs:time,readyAtGameMs:time+p.preview.durationSeconds*1000,
      ...(p.routeAnalysis?{routeAnalysis:p.routeAnalysis}:{}),aid:aidSnapshot(p.aid),durationSeconds:p.preview.durationSeconds,cost:p.preview.cost,apEnabled:!!p.points,cooldownSeconds:p.preview.cooldownSeconds,family:p.family,level:p.preview.level,bonus:p.preview.bonus,bonusName:p.preview.bonusName,profile:p.p,reward:p.reward,
      ...(isPlaceSearch(p.t)?{searchVersion:1,searchEpoch:p.state.epoch,showDifficulty:p.t.search.showDifficulty,bonuses:p.bonuses,targetRevision:p.t.revision}:{}),
-     ...(input.kind==='ANALYZE'?{information:p.information,targetRevision:p.t.revision}:{}),
+     ...(p.negotiation?{negotiation:p.negotiation}:{}),...(input.kind==='ANALYZE'?{information:p.information,targetRevision:p.t.revision}:{}),...(['SABOTAGE','REPAIR'].includes(input.kind)?{targetRevision:p.t.revision}:{}),
      bonusLotId:p.bonusLot?.id??null,consumableLotId:p.consumableLot?.id??null,offlineSeconds:p.t.offlineSeconds,failureLockSeconds:p.t.failureLockSeconds,repairProtectionSeconds:p.t.repairProtectionSeconds};
     reserveAid(tx,s,a,p.aid,'fieldActions');tx.set(ap(s.id,id),a);tx.set(cp(s.id,c.id),{...c,activeFieldActionId:id});tx.set(sp(s.id,p.t.id),{...p.state,activeActionId:id,revision:p.state.revision+1});
     if(p.points)tx.set(actionPointPath(s.id,c.id),reserveActionPoints(p.points,a.cost));
@@ -168,31 +185,34 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
     tx.set(`sessions/${s.id}/audit/${id}`,{id,at,action,actorUid:actor.uid,characterId:c.id,targetId:a.targetId,cost:a.cost});result=viewAction(a,s,at);
    }else{
     const gm=action==='cancelFieldActionMJ';let s,c,r;
-    if(gm){requireThat(org.session,'INVALID_ID');s=org.s;a=await tx.get(ap(s.id,documentId(input.actionId)));requireThat(a,'NOT_FOUND');if(s.spaceOutlaws)requireThat(a.kind==='ANALYZE'||s.spaceOutlaws.searchVersion===1&&a.searchVersion===1,'SO_GAMEPLAY_NOT_OPEN');c=await tx.get(cp(s.id,a.characterId));}
+    if(gm){requireThat(org.session,'INVALID_ID');s=org.s;a=await tx.get(ap(s.id,documentId(input.actionId)));requireThat(a,'NOT_FOUND');if(s.spaceOutlaws)requireThat(a.kind==='ANALYZE'||s.spaceOutlaws.searchVersion===1&&a.searchVersion===1||s.spaceOutlaws.sabotageVersion===1&&['SABOTAGE','REPAIR'].includes(a.kind),'SO_GAMEPLAY_NOT_OPEN');c=await tx.get(cp(s.id,a.characterId));}
     else {({s,c,r}=ctx);if(action==='cancelFieldActionAid')c=await tx.get(cp(s.id,a.characterId));}
     const cancel=action!=='finishFieldAction';
     if(a.status!=='ACTIVE')result=viewAction(a,s,at);
     else{
-     requireThat(c&&c.activeFieldActionId===a.id,'FIELD_STATE_CHANGED');const t=await tx.get(`sessions/${s.id}/fieldTargets/${a.targetId}`),stored=await tx.get(sp(s.id,a.targetId));requireThat(stored?.activeActionId===a.id,'FIELD_STATE_CHANGED');
+     requireThat(c&&c.activeFieldActionId===a.id,'FIELD_STATE_CHANGED');const t=a.traceInput?(cancel?null:await traceTarget(tx,s,c,a.traceInput,at)):a.documentReview?(cancel?null:await documentReviewTarget(tx,s,c,a.documentReview.lotId,at)):await tx.get(`sessions/${s.id}/fieldTargets/${a.targetId}`),stored=await tx.get(sp(s.id,a.targetId));requireThat(stored?.activeActionId===a.id,'FIELD_STATE_CHANGED');
      let state=effectiveFieldState(s,stored,at);const time=gameTime(s.clock,at),lots=[];
      for(const lid of new Set([a.bonusLotId,a.consumableLotId].filter(Boolean))){const l=await tx.get(`sessions/${s.id}/inventory/${lid}`);requireThat(l?.status==='FIELD_RESERVED'&&l.fieldActionId===a.id&&personalLot(l,c.id),'FIELD_EQUIPMENT_UNAVAILABLE');lots.push(l);}
      const points=a.apEnabled?actionPointState(s,c,await tx.get(actionPointPath(s.id,c.id)),at):null;
      let outcome=null,why=cancel?reason(input.reason):'';
      if(!cancel){
-      requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,c,'discover',at);requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');requireThat(time>=a.readyAtGameMs,'FIELD_TOO_EARLY');requireThat(t?.publicationState==='PUBLISHED','FIELD_UNAVAILABLE');await dependency(tx,s,t,at);
+      if(s.spaceOutlaws&&['SABOTAGE','REPAIR'].includes(a.kind))requireThat(s.spaceOutlaws.sabotageVersion===1&&validSoInstallation(t)&&t.revision===a.targetRevision,'FIELD_STATE_CHANGED');
+      requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireTraceActor(s,c,t,at);requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');requireThat(time>=a.readyAtGameMs,'FIELD_TOO_EARLY');requireThat(t?.publicationState==='PUBLISHED','FIELD_UNAVAILABLE');await dependency(tx,s,t,at);
       requireThat(!a.profile.skillId||abilityLevel(c,a.profile.skillId)>=a.profile.minLevel,'FIELD_SKILL_REQUIRED');requireThat(a.kind==='SEARCH'||a.kind==='ANALYZE'||(a.kind==='SABOTAGE'?state.status==='ONLINE':state.status==='OFFLINE'),'FIELD_STATE_CHANGED');
-      if(a.profile.skillId==='MEC-01')requireThat(abilityLevel(c,'MEC-01')>=a.level,'FIELD_SKILL_REQUIRED');
+      if(s.spaceOutlaws&&a.profile.skillId)requireThat(abilityLevel(c,a.profile.skillId)>=a.level,'FIELD_SKILL_REQUIRED');
       if(a.profile.skillId==='PIL-01'){
        requireRouteAnalysis(s);requireThat(abilityLevel(c,'PIL-01')>=a.level,'FIELD_SKILL_REQUIRED');
        const route=a.routeAnalysis?await tx.get(`sessions/${s.id}/routes/${a.routeAnalysis.routeId}`):null;
        requireThat(digest(routeAnalysisBinding(s,c,t,route))===digest(a.routeAnalysis),'FIELD_STATE_CHANGED');
       }
-      await checkAid(tx,s,a,at);const roll=a.searchVersion===1?searchDie:a.profile.test==='D6'?die:null;if(roll!==null)requireThat(Number.isInteger(roll)&&roll>=1&&roll<=(a.searchVersion===1?12:6),'INVALID_DIE');
+      await checkAid(tx,s,a,at);const roll=a.searchVersion===1?(searchDie??=rollD12()):a.profile.test==='D6'?(die??=rollD6()):null;if(roll!==null)requireThat(Number.isInteger(roll)&&roll>=1&&roll<=(a.searchVersion===1?12:6),'INVALID_DIE');
       const total=roll===null?null:roll+a.level+a.bonus+(a.aid?1:0),success=roll===null||total>=a.profile.threshold;outcome={success,roll,level:a.level,bonus:a.bonus,aid:a.aid?1:0,total,threshold:a.searchVersion===1&&!a.showDifficulty?null:a.profile.threshold,text:success?a.profile.successText:a.profile.failureText,reward:null};
       if(a.searchVersion===1){
        requireThat(isPlaceSearch(t)&&t.search.active&&t.revision===a.targetRevision&&state.epoch===a.searchEpoch,'FIELD_STATE_CHANGED');
        const live=searchBonuses(t,c,await tx.list(`sessions/${s.id}/inventory`,['holderId',c.id]));requireThat(digest(live)===digest(a.bonuses),'FIELD_EQUIPMENT_UNAVAILABLE');
        const found=await discoverPlace(tx,s,c,t,state,a,total,at);state=found.state;outcome={...outcome,success:found.discoveries.length>0,threshold:a.showDifficulty?a.profile.threshold:null,text:found.discoveries.length?'Découvertes accessibles.':'Vous ne trouvez rien de plus.',bonuses:a.bonuses,discoveries:found.discoveries};
+      }else if(a.traceInput){
+       outcome={...outcome,...await resolveTrace(tx,s,c,a,t,at,()=>traceDice??=[rollD6(),rollD6()])};state={...state,analyses:{...state.analyses,[c.id]:t.revision}};
       }else if(a.kind==='ANALYZE'){
        requireThat(t.revision===a.targetRevision&&state.analyses?.[c.id]!==t.revision,'FIELD_STATE_CHANGED');
        const received=[];
@@ -202,7 +222,8 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
         if(!old)tx.set(path,{id:r.knowledgeId,active:true,snapshot:r.knowledge,receivedAt:at,source:'FIELD',sourceName:a.targetTitle,readAt:null,grantRevision:1});
         received.push({id:r.knowledgeId,title:r.knowledge.title,bonus:r.bonus});
        }
-       outcome={...outcome,success:true,bonusSuccess:a.profile.test==='D6'?success:null,information:received};
+       if(a.profile.skillId==='COU-02'){const current=await negotiableOffer(tx,s,c,t,a.negotiation.quantity);requireThat(digest(current)===digest(a.negotiation),'FIELD_STATE_CHANGED');}
+       outcome={...outcome,...(a.profile.skillId==='COU-02'?{negotiation:true}:{}),...(a.profile.skillId==='COU-02'&&success?{discount:discountResult(s,a.negotiation,at)}:{}),success:a.profile.skillId==='COU-02'?success:true,bonusSuccess:a.profile.test==='D6'?success:null,information:received};
        state={...state,analyses:{...state.analyses,[c.id]:t.revision}};
       }else if(success&&a.kind==='SEARCH'){
        const rw=a.reward;requireThat(state.stock[rw.id]>0,'FIELD_EMPTY');
@@ -216,10 +237,12 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
         tx.set(path,{id:rw.knowledgeId,active:true,snapshot:rw.knowledge,receivedAt:at,source:'FIELD',sourceName:a.targetTitle,readAt:null,grantRevision:1});outcome.reward={kind:rw.kind,name:rw.knowledge.title,knowledgeId:rw.knowledgeId};
        }
        state={...state,stock:{...state.stock,[rw.id]:state.stock[rw.id]-1},claims:{...state.claims,[c.id]:{...claimsFor(state,c.id),[rw.id]:claimed(state,c.id,rw.id)+1}}};
-      }else if(success&&a.kind==='SABOTAGE')state={...state,status:'OFFLINE',offlineUntilGameMs:a.offlineSeconds?time+a.offlineSeconds*1000:null};
+      }else if(success&&a.kind==='SABOTAGE')state={...state,status:'OFFLINE',offlineUntilGameMs:a.offlineSeconds?time+a.offlineSeconds*1000:null,...(s.spaceOutlaws?.sabotageVersion===1?{protectionAfterExpirySeconds:900}:{})};
       else if(success&&a.kind==='REPAIR')state={...state,status:'ONLINE',offlineUntilGameMs:null,protectedUntilGameMs:time+a.repairProtectionSeconds*1000};
       else if(!success&&a.kind!=='SEARCH')state={...state,lockedUntilGameMs:time+a.failureLockSeconds*1000};
-      tx.set(uses(s.id,c.id,a.family),{readyAtGameMs:time+a.cooldownSeconds*1000,actionId:a.id});
+      if(!a.traceInput)await recordFictionalTrace(tx,s,c,t,a.kind,a.id,at);
+      const priorUse=a.profile.skillId==='COU-03'?await tx.get(uses(s.id,c.id,a.family)):null;if(a.profile.skillId==='COU-03')requireThat(contactUsage(s,priorUse)<contactQuota(abilityLevel(c,'COU-03')),'CONTACT_QUOTA_EXHAUSTED');
+      tx.set(uses(s.id,c.id,a.family),{readyAtGameMs:time+a.cooldownSeconds*1000,actionId:a.id,...(a.profile.skillId==='COU-03'?{sessionId:s.id,episode:s.campaignEpisode??1,contactUses:contactUsage(s,priorUse)+1}:{})});
      }
      await finishAid(tx,s,a,at,{cancel});
      for(const l of lots){const quantity=l.quantity-(!cancel&&l.id===a.consumableLotId?a.profile.consumable.quantity:0);requireThat(quantity>=0,'FIELD_EQUIPMENT_UNAVAILABLE');const next={...l,quantity,status:quantity?'AVAILABLE':'CONSUMED',fieldActionId:null,revision:l.revision+1};tx.set(`sessions/${s.id}/inventory/${l.id}`,next);tx.set(`sessions/${s.id}/inventory/${l.id}/history/${id}`,{id,at,kind:cancel?'FIELD_RELEASE':'FIELD_USE',actorUid:actor.uid,actionId:a.id,before:lotState(l),after:lotState(next)});}

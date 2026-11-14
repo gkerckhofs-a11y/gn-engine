@@ -1,3 +1,4 @@
+import {centralTestItem} from './central-master-suite.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID,createHash} from 'node:crypto';
@@ -6,11 +7,12 @@ import {centralTestCharacter} from './central-characters-suite.mjs';
 import {accountId} from '../../src/core/economy-state.mjs';
 import {shopAccountId,shopStockId} from '../../src/core/space-outlaws-shop-state.mjs';
 
-export async function shopsFixture(makeStore,{release=true,stock=4,restricted=true,...options}={}){
+export async function shopsFixture(makeStore,{release=true,stock=4,restricted=true,offerPatch={},createSupply=false,...options}={}){
  const f=await actionsFixture(makeStore,{classId:'MED',helper:true,release:false,...options});let revision=(await f.view()).draft.revision;
  await f.cc('saveCentralCharacter',{characterId:'merchant',characterRevision:0,draftRevision:revision++,character:{...centralTestCharacter,displayName:'Comptoir PNJ',relations:[],objectives:[]},reason:'Vendeur narratif PNJ'});
  await f.cc('saveCentralShop',{shopId:'counter',shopRevision:0,draftRevision:revision++,shop:{name:'Dispensaire',description:'Fournitures de terrain',sellerCharacterId:'merchant',locationTargetId:'scene',gmNotes:'SECRET_SHOP'},reason:'Comptoir préparé'});
- await f.cc('saveCentralOffer',{offerId:'supply',offerRevision:0,draftRevision:revision++,offer:{name:'Trousse de soin',shopId:'counter',itemId:'kit_medical-supplies',unitPrice:30,buybackPrice:null,conditions:'Retrait au comptoir',gmNotes:'SECRET_OFFER'},reason:'Offre préparée'});
+ if(createSupply)await f.cc('saveCentralItem',{itemId:'kit_medical-supplies',itemRevision:0,draftRevision:revision++,item:{...centralTestItem,name:'Trousse de soin',kind:'STACKABLE',consumable:true},reason:'Fourniture du comptoir'});
+ await f.cc('saveCentralOffer',{offerId:'supply',offerRevision:0,draftRevision:revision++,offer:{name:'Trousse de soin',shopId:'counter',itemId:'kit_medical-supplies',unitPrice:30,buybackPrice:null,conditions:'Retrait au comptoir',gmNotes:'SECRET_OFFER',...offerPatch},reason:'Offre préparée'});
  const read=f.actionRead,cmd=f.actionCmd;
  const provisionInput=(patch={})=>({shopId:'counter',offerId:'supply',provisionId:randomUUID(),quantity:stock,restricted,source:'Dotation de scénario autorisée : réserve du dispensaire',reason:'Stock physique préparé',...patch});
  const provision=async(patch={},actor=f.owner)=>{const input=provisionInput(patch),p=await read('prepareShopProvision',input,actor);return cmd('provisionShop',{...input,confirmation:p.confirmation},actor);};
@@ -90,7 +92,7 @@ export function spaceOutlawsShopsSuite(makeStore,prefix='Boutiques SPACE OUTLAWS
  });
  test(`${prefix} : version historique sans boutiques jamais enrichie implicitement`,async()=>{
   const f=await shopsFixture(makeStore,{release:false}),release=await f.release(await f.releasePreview()),path=`campaigns/${f.campaignId}/versions/${release.versionId}`,canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
-  await f.store.runTransaction(async tx=>{const {towingWorkVersion,towingAttachmentVersion,towingFlightVersion,towingCombatVersion,towingOutageVersion,towingRecoveryVersion,hiddenCargoVersion,moduleFlightVersion,boardingRansomSponsorVersion,boardingRansomVersion,targetedAmbushVersion,intelligenceVersion,maintenancePnjVersion,moduleRemovalVersion,moduleInstallationVersion,moduleWorkVersion,moduleMandatesVersion,modulePurchasesVersion,shopsVersion,manifestDigest,...old}=await tx.get(path);tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});await f.birth(await f.birthPreview());assert.deepEqual(await f.store.list(`sessions/${f.sid}/shops`),[]);await assert.rejects(f.actionRead('shops'),{code:'SO_GAMEPLAY_NOT_OPEN'});
+  await f.store.runTransaction(async tx=>{const {merchantNegotiationVersion,towingWorkVersion,towingAttachmentVersion,towingFlightVersion,towingCombatVersion,towingOutageVersion,towingRecoveryVersion,hiddenCargoVersion,moduleFlightVersion,boardingRansomSponsorVersion,boardingRansomVersion,targetedAmbushVersion,intelligenceVersion,maintenancePnjVersion,moduleRemovalVersion,moduleInstallationVersion,moduleWorkVersion,moduleMandatesVersion,modulePurchasesVersion,shopsVersion,manifestDigest,...old}=await tx.get(path);tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});await f.birth(await f.birthPreview());assert.deepEqual(await f.store.list(`sessions/${f.sid}/shops`),[]);await assert.rejects(f.actionRead('shops'),{code:'SO_GAMEPLAY_NOT_OPEN'});
  });
  test(`${prefix} : pas de publication d’un comptoir joueur ou d’un rachat non raccordé`,async()=>{
   const f=await shopsFixture(makeStore,{release:false}),d=await f.view();await f.cc('saveCentralOffer',{offerId:'supply',offerRevision:1,draftRevision:d.draft.revision,offer:{name:'Rachat',shopId:'counter',itemId:'kit_medical-supplies',unitPrice:30,buybackPrice:15,conditions:'',gmNotes:''},reason:'Test'});const p=await f.releasePreview();assert.ok(p.blockers.some(b=>b.code==='SO_SHOP_NOT_CONNECTED'));await assert.rejects(f.release(p),{code:'SO_RELEASE_BLOCKED'});

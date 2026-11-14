@@ -1,3 +1,4 @@
+import {activeMalaise} from './space-toxicology-state.mjs';
 import {createHash} from 'node:crypto';
 import {abilityLevel} from './abilities.mjs';
 import {actionPointPath,actionPointState,actionPointMaximum,reserveActionPoints,resolveActionPoints,releaseActionPoints} from './action-point-state.mjs';
@@ -25,10 +26,10 @@ export function createSoEscapeService({store,signed,checkSession,now,uuid}){
   requireThat(c?.assignedUid===actor.uid&&c.publicationState==='PUBLISHED'&&c.public?.publicationState==='PUBLISHED','FORBIDDEN');
   return {s,c};
  }
- function live(s,c){
+ function live(s,c,at){
   requireThat(s.stage==='EN_JEU'&&s.clock?.runningSince!==null,'SESSION_NOT_RUNNING');
   requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
-  requireThat(!c.survival?.dead&&c.hp>0&&!c.outOfCombat,'SO_ESCAPE_UNAVAILABLE');
+  requireThat(!c.survival?.dead&&c.hp>0&&!c.outOfCombat&&!activeMalaise(s,c,at),'SO_ESCAPE_UNAVAILABLE');
  }
  async function interrupt(tx,s,c,cap,a,at,discovered,reason){
   const p=actionPointPath(s.id,c.id),points=actionPointState(s,c,await tx.get(p),at);
@@ -114,7 +115,7 @@ export function createSoEscapeService({store,signed,checkSession,now,uuid}){
    requireThat(at<cap.expiresAt,'SO_ESCAPE_RELEASE_DUE');
    const time=gameTime(s.clock,at),state=await tx.get(roguePath(sid,c.id))??{activeId:null,cooldownUntil:0};
    if(action==='startSoEscape'){
-    live(s,c);
+    live(s,c,at);
     requireThat(!cap.activeId&&!state.activeId&&time>=state.cooldownUntil,'SO_ESCAPE_COOLDOWN');
     requireThat(!cap.guarded,'SO_ESCAPE_GUARDED');
     requireThat(!c.activeFieldActionId&&!c.activePersonActionId&&!c.activeNavigationId&&!c.activeVoyageId&&!c.activeMaintenanceId&&!c.activeCargoId,'SO_ESCAPE_UNAVAILABLE');
@@ -137,7 +138,7 @@ export function createSoEscapeService({store,signed,checkSession,now,uuid}){
    requireThat(a?.characterId===c.id&&a.captivityId===cap.id&&a.status==='RUNNING'&&cap.activeId===id&&state.activeId===id,'SO_ESCAPE_STALE');
    if(action==='cancelSoEscape')return record(await interrupt(tx,s,c,cap,a,at,false,'VOLUNTARY'));
    requireThat(action==='finishSoEscape','INVALID_ACTION');
-   live(s,c);requireThat(!cap.guarded,'SO_ESCAPE_GUARDED');
+   live(s,c,at);requireThat(!cap.guarded,'SO_ESCAPE_GUARDED');
    requireThat(time>=a.readyAtGameMs,'SO_ESCAPE_TOO_EARLY');
    requireThat(input.safeExit===true,'SO_ESCAPE_SAFE_EXIT');
    const p=actionPointPath(sid,c.id),points=actionPointState(s,c,await tx.get(p),at);

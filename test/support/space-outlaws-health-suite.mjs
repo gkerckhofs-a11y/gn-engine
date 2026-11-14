@@ -20,6 +20,17 @@ export async function healthFixture(makeStore,options={}){
  return {...f,cid,tid,damage,careInput,startCare,finishCare,cancelCare,health};
 }
 export function spaceOutlawsHealthSuite(makeStore,prefix='Santé SPACE OUTLAWS'){
+ test(`${prefix} : neutralisation physique déclarée après scène, Vétéran à zéro et droïde immunisé`,async()=>{
+  const f=await healthFixture(makeStore,{classId:'COM'});
+  assert.equal((await f.health()).hp,4);
+  await f.damage(1,f.other,{damageKind:'STEALTH',secondsSinceDown:30});
+  const h=await f.health();assert.equal(h.hp,0);assert.equal(h.protection,1);
+  assert.equal(h.status,'URGENT');assert.equal(h.remainingMs,270000);
+  assert.equal((await f.points(f.other)).available,5);assert.equal(f.rollCount(),0);
+  const g=await healthFixture(makeStore,{classId:'COM',nature:'DROID'});
+  await assert.rejects(g.damage(1,g.other,{damageKind:'STEALTH'}),{code:'PATIENT_NATURE_MISMATCH'});
+  assert.equal((await g.health()).hp,4);assert.equal((await g.health()).protection,1);
+ });
  test(`${prefix} : soins de terrain, 1 PA et une fourniture réelle, réessai sans double coût`,async()=>{
   const f=await healthFixture(makeStore);await f.damage();const a=await f.startCare();assert.equal(a.remainingMs,105000);assert.equal((await f.points()).reserved,1);const stock=await f.actionRead('myInventory');assert.equal(stock.lots.filter(l=>l.status==='FIELD_RESERVED').length,1);
   await assert.rejects(f.finishCare(a),{code:'FIELD_TOO_EARLY'});f.advance(105000);const requestId=randomUUID(),r=await f.finishCare(a,f.player,{requestId});assert.equal(r.result.restored,1);assert.equal((await f.health()).hp,3);assert.equal((await f.points()).available,4);assert.deepEqual(await f.finishCare(a,f.player,{requestId}),r);assert.deepEqual((await f.finishCare(a)).result,r.result);
@@ -36,7 +47,7 @@ export function spaceOutlawsHealthSuite(makeStore,prefix='Santé SPACE OUTLAWS')
  });
  test(`${prefix} : délai patient commun, aucun délai personnel, auto-soin N1 permis au-dessus de zéro`,async()=>{
   const f=await healthFixture(makeStore);await f.damage(2);const a=await f.startCare();f.advance(105000);await f.finishCare(a);await assert.rejects(f.startCare(f.tid,f.other),{code:'PATIENT_COOLDOWN_ACTIVE'});await f.damage(1,f.player);const self=await f.startCare(f.cid);f.advance(105000);await f.finishCare(self);assert.equal((await f.health(f.player)).hp,3);assert.equal((await f.points()).available,3);
-  const g=await healthFixture(makeStore,{classId:'COM'});const target=await g.actionRead('personTarget',{targetId:g.tid});assert.ok(target.profiles.every(p=>p.id==='SO-STABILIZE'));
+  const g=await healthFixture(makeStore,{classId:'COM'});const target=await g.actionRead('personTarget',{targetId:g.tid});assert.ok(target.profiles.every(p=>['SO-STABILIZE','SO-LOOT-COMMON'].includes(p.id)));
  });
  test(`${prefix} : humanoïdes et droïdes utilisent uniquement leur protocole compatible`,async()=>{
   const f=await healthFixture(makeStore,{classId:'MEC',nature:'DROID'});await f.damage(3);const a=await f.startCare();f.advance(105000);await f.finishCare(a);assert.equal((await f.health()).hp,1);assert.equal((await f.points()).available,4);
@@ -91,8 +102,8 @@ export function spaceOutlawsHealthSuite(makeStore,prefix='Santé SPACE OUTLAWS')
  test(`${prefix} : ancienne version scellée conserve son périmètre sans soins implicites`,async()=>{
   const f=await actionsFixture(makeStore,{release:false}),released=await f.release(await f.releasePreview()),path=`campaigns/${f.campaignId}/versions/${released.versionId}`;
   const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'?Object.fromEntries(Object.keys(v).sort().map(k=>[k,canonical(v[k])])):v;
-  await f.store.runTransaction(async tx=>{const {healthVersion,episodesVersion,successionVersion,learningVersion,careProfiles,manifestDigest,...old}=await tx.get(path);tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});
-  await f.birth(await f.birthPreview());await f.stage('EN_JEU');assert.equal((await f.actionRead('mySession')).session.spaceOutlaws.healthVersion,undefined);assert.deepEqual(await f.store.list(`sessions/${f.sid}/personProfiles`),[]);await assert.rejects(f.actionRead('prepareDamage',{amount:1}),{code:'SO_GAMEPLAY_NOT_OPEN'});
+  await f.store.runTransaction(async tx=>{const {toxicologyVersion,personLootVersion,concealmentVersion,workshopVersion,medicalDiagnosisVersion,healthVersion,episodesVersion,successionVersion,learningVersion,careProfiles,manifestDigest,...old}=await tx.get(path);tx.set(path,{...old,manifestDigest:createHash('sha256').update(JSON.stringify(canonical(old))).digest('hex')});});
+  await f.birth(await f.birthPreview());await f.stage('EN_JEU');assert.equal((await f.actionRead('mySession')).session.spaceOutlaws.healthVersion,undefined);assert.equal((await f.actionRead('mySession')).session.spaceOutlaws.toxicologyVersion,undefined);assert.deepEqual(await f.store.list(`sessions/${f.sid}/personProfiles`),[]);await assert.rejects(f.actionRead('prepareDamage',{amount:1}),{code:'SO_GAMEPLAY_NOT_OPEN'});
  });
 
 }

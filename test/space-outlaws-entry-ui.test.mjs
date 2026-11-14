@@ -4,6 +4,23 @@ import {readFileSync} from 'node:fs';
 import {createEntryUi,entrySkills} from '../web/space-outlaws-entry.mjs';
 import {initialCharacterProfile} from '../src/shared/initial-character-profile.mjs';
 import {playerShell} from '../web/player-spaces.mjs';
+import {soLearningCatalogue} from '../src/shared/space-outlaws-learning.mjs';
+import {playerSkillRules} from '../web/player-skill-rules.mjs';
+test('Fiche : chaque compétence acquise dispose de ses conditions, sans commande de combat',()=>{
+ assert.equal(soLearningCatalogue.length,34);
+ for(const skill of soLearningCatalogue){
+  const html=entrySkills({className:'Compétences',skills:[{...skill,level:1}]});
+  assert.ok(playerSkillRules[skill.id],skill.id);assert.match(html,/Effets et conditions de la compétence/);
+  if(['COM-02','ROG-01','RIPOSTE','GARDE_DU_CORPS','LAS-01'].includes(skill.id)){
+   assert.match(html,/Technique jouée physiquement/);assert.doesNotMatch(html,/<button|data-action=|data-form=/);
+  }
+ }
+ assert.match(playerSkillRules['COM-02'],/Aucun contact sur blaster rigide/);
+ assert.match(playerSkillRules.RIPOSTE,/une seule touche spéciale réussie par adversaire et confrontation/);
+ assert.match(playerSkillRules.GARDE_DU_CORPS,/2 m maximum/);assert.match(playerSkillRules.GARDE_DU_CORPS,/ne transfère pas une Neutralisation furtive/);
+ assert.match(playerSkillRules['LAS-01'],/La compétence et l’arme sont deux acquisitions séparées/);
+ assert.match(playerSkillRules['LAS-01'],/Enregistrer les pertes à l’abri/);
+});
 const ui=createEntryUi({button:(text,action,attrs)=>`<button data-action="${action}" ${attrs}>${text}</button>`,link:(text,path)=>`<a href="#/${path}">${text}</a>`});
 test('Entrée SO UI : fiche fixe sans faux niveau, informations échappées et options explicites',()=>{
  const html=entrySkills(initialCharacterProfile('COM','MED-02'));assert.match(html,/COM-01 · Technique acquise/);assert.match(html,/MED-02 · Niveau 1/);

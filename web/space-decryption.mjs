@@ -1,5 +1,6 @@
 import {escapeHtml as esc} from './groups.mjs';
 export const soDecryptionErrors={
+ SO_INF02_ANSWER:'Saisissez la réponse du cryptogramme : 4 à 64 lettres, chiffres, espaces ou tirets.',
  SO_INF02_CLOSED:'INF-02 n’est pas activé pour cette version de jeu.',
  SO_INF02_SKILL:'Votre niveau de déchiffrement est insuffisant.',
  SO_INF02_DOCUMENT:'Document introuvable ou non obtenu par votre personnage.',
@@ -17,11 +18,18 @@ export function soDecryptionHtml(d,sid){
  let body='';
  if(a?.status==='RUNNING'){
   body='<p>Déchiffrement engagé : encore '+secs(a.remainingMs)+'.</p>'+
-   '<form data-form="soDecryptionFinish" data-sid="'+esc(sid)+'" data-id="'+esc(a.id)+'"><button type="submit" '+(a.remainingMs>0?'disabled':'')+'>Terminer et lancer le D6</button></form>'+
+   '<form data-form="soDecryptionFinish" data-sid="'+esc(sid)+'" data-id="'+esc(a.id)+'">'+(a.mode==='CODE'?'<p class="prose">'+esc(a.challenge?.prompt??'')+'</p><label>Réponse du cryptogramme<input name="answer" maxlength="64" autocomplete="off" required></label>':'')+'<button type="submit" '+(a.remainingMs>0?'disabled':'')+'>'+(a.mode==='CODE'?'Valider la réponse sans dé':'Terminer et lancer le D6')+'</button></form>'+
    '<form data-form="soDecryptionCancel" data-sid="'+esc(sid)+'" data-id="'+esc(a.id)+'"><button type="submit">Annuler avant résolution, sans PA</button></form>';
  }else if(d.cooldownMs>0)body='<p>Récupération personnelle : '+secs(d.cooldownMs)+'.</p>';
  else body=d.documents.map(k=>'<form data-form="soDecryptionStart" data-sid="'+esc(sid)+'" data-id="'+esc(k.id)+'"><p><strong>'+esc(k.title)+'</strong> · N'+esc(k.requiredLevel)+' requis. '+(k.decoded?'Déjà déchiffré.':k.attempted?'Tentative consommée.':'Une seule tentative par version.')+'</p>'+
+  (k.mode==='CODE'?'<p>Cryptogramme : '+esc(k.durationSeconds)+' secondes, sans D6 ni bonus au dé.</p>':'<label>Décrypteur compatible (+1)<select name="bonusLotId"><option value="">Sans équipement</option>'+(k.bonusLots??[]).map(l=>'<option value="'+esc(l.id)+'">'+esc(l.name)+'</option>').join('')+'</select></label>'+
+  '<label>Aide compétente (+1)<select name="aidOfferId"><option value="">Sans aide</option>'+(d.aidOffers??[]).map(o=>'<option value="'+esc(o.id)+'">'+esc(o.helperName)+'</option>').join('')+'</select></label>')+
   '<button type="submit" '+(k.attempted||k.decoded||d.level<k.requiredLevel?'disabled':'')+'>Tenter INF-02</button></form>').join('');
+ if(!a||a.status!=='RUNNING')body+=(d.inventoryDocuments??[]).map(l=>'<p>'+esc(l.name)+' · N'+esc(l.requiredLevel)+' <button data-action="openInventoryDocument" data-sid="'+esc(sid)+'" data-lot="'+esc(l.lotId)+'" data-continue="decryption">Choisir cet original pour le déchiffrement</button></p>').join('');
  if(!body)body='<p>Aucun document chiffré actuellement accessible. Obtenez d’abord un document en jeu.</p>';
- return '<section class="panel"><h2>INF-02 · Déchiffrement</h2><p class="rp">Derrière les signes brouillés, un message attend votre regard.</p><p>Un document obtenu en jeu, 1 PA et 1D6 + niveau contre le seuil du scénario. Révélation uniquement en cas de réussite. Aucun accès technique réel n’est ouvert.</p>'+body+'</section>';
+ return '<section class="panel"><h2>INF-02 · Déchiffrement</h2><p class="rp">Derrière les signes brouillés, un message attend votre regard.</p><p>Un document obtenu en jeu, 1 PA et 1D6 + niveau + un décrypteur compatible éventuel (+1) + une aide compétente éventuelle (+1) contre le seuil du scénario. L’aidant reste présent et récupère dix minutes sans dépenser de PA. Un cryptogramme remplace le dé par une réponse et la durée annoncée. Révélation uniquement en cas de réussite. Aucun accès technique réel n’est ouvert.</p>'+body+'</section>';
+}
+
+export function soDecryptionAdminHtml(d,sid){
+ return '<section class="panel"><h2>Déchiffrements en cours</h2><p>Interrompre libère le PA réservé, sans révéler le texte ni consommer la tentative. Le motif est conservé dans le journal MJ.</p>'+d.actions.map(a=>'<form data-form="soDecryptionCancelMJ" data-sid="'+esc(sid)+'" data-id="'+esc(a.id)+'"><h3>'+esc(a.characterName)+'</h3><p>Document '+esc(a.knowledgeId)+' · '+secs(a.remainingMs)+'</p><label>Motif<input name="reason" maxlength="500" required></label><button type="submit">Interrompre et libérer le PA</button></form>').join('')+(d.actions.length?'':'<p>Aucun déchiffrement en cours.</p>')+'</section>';
 }

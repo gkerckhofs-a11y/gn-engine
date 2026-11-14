@@ -1,6 +1,18 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {id:"space-spatial-traces",module:"../support/space-spatial-traces-suite.mjs",exportName:"spatialTracesSuite",label:"Traces spatiales sur Firestore",seconds:60},
+  {id:"space-fictional-traces",module:"../support/space-fictional-traces-suite.mjs",exportName:"fictionalTracesSuite",label:"Traces fictives sur Firestore",seconds:60},
+  {id:"space-toxicology",module:"../support/space-toxicology-suite.mjs",exportName:"spaceToxicologySuite",label:"Toxicologie sur Firestore",seconds:30},
+  {id:"space-toxicology-cycle",module:"../support/space-toxicology-suite.mjs",exportName:"toxicologyLifecycleSuite",label:"Cycle des doses sur Firestore",seconds:60},
+  {id:"space-loot-concealment",module:"../support/space-loot-concealment-suite.mjs",exportName:"lootConcealmentSuite",label:"Fouille et Dissimulation sur Firestore",seconds:90},
+  {id:"space-merchant-negotiation",module:"../support/space-merchant-negotiation-suite.mjs",exportName:"merchantNegotiationSuite",label:"space-merchant-negotiation Firestore",seconds:30},
+  {id:"space-merchant-contacts",module:"../support/space-merchant-contacts-suite.mjs",exportName:"merchantContactsSuite",label:"space-merchant-contacts Firestore",seconds:30},
+  {id:"space-medical-diagnosis",module:"../support/space-medical-diagnosis-suite.mjs",exportName:"medicalDiagnosisSuite",label:"space-medical-diagnosis Firestore",seconds:30},
+  {id:"space-installation",module:"../support/space-installation-suite.mjs",exportName:"installationSuite",label:"Installations A15 sur Firestore",seconds:45},
+  {id:"space-workshop",module:"../support/space-clinic-suite.mjs",exportName:"workshopSuite",label:"Révision intégrale droïde sur Firestore",seconds:60},
+  {id:"space-clinic",module:"../support/space-clinic-suite.mjs",exportName:"clinicSuite",label:"Clinique SO sur Firestore",seconds:30},
+  {id:"space-merchant-analysis",module:"../support/space-merchant-analysis-suite.mjs",exportName:"merchantAnalysisSuite",label:"Expertise marchande sur Firestore",seconds:25},
   {id:"identity-lifecycle",module:"../support/identity-lifecycle-suite.mjs",exportName:"identityLifecycleSuite",label:"Codes courts et corbeille sur Firestore",seconds:20},
   {id:"sabacc",module:"../support/sabacc-suite.mjs",exportName:"sabaccSuite",label:"Sabacc autonome sur Firestore",seconds:40},
   {id:"sabacc-gn",module:"../support/sabacc-suite.mjs",exportName:"sabaccGnSuite",label:"Sabacc GN sur Firestore",seconds:30},
@@ -118,6 +130,8 @@ export const firestoreSuites = [
   {"id":"space-outlaws-actions","module":"../support/space-outlaws-actions-suite.mjs","exportName":"spaceOutlawsActionsSuite","label":"Actions SO sur Firestore","seconds":29},
   {"id":"space-outlaws-shops","module":"../support/space-outlaws-shops-suite.mjs","exportName":"spaceOutlawsShopsSuite","label":"Boutiques SO sur Firestore","seconds":42},
   {"id":"space-outlaws-health","module":"../support/space-outlaws-health-suite.mjs","exportName":"spaceOutlawsHealthSuite","label":"Santé SO sur Firestore","seconds":69},
+  {"id":"space-stealth","module":"../support/space-stealth-suite.mjs","exportName":"spaceStealthSuite","label":"Neutralisation physique sur Firestore","seconds":30},
+  {"id":"space-document-review","module":"../support/space-document-review-suite.mjs","exportName":"spaceDocumentReviewSuite","label":"Documents TRA-03 sur Firestore","seconds":60},
   {"id":"space-outlaws-voyages","module":"../support/space-outlaws-voyages-suite.mjs","exportName":"spaceOutlawsVoyagesSuite","label":"Vols SO sur Firestore","seconds":98},
   {"id":"space-encounters","module":"../support/space-encounters-suite.mjs","exportName":"spaceEncountersSuite","label":"Rencontres spatiales SO sur Firestore","seconds":111},
   {"id":"space-logistics","module":"../support/space-logistics-suite.mjs","exportName":"spaceLogisticsSuite","label":"Entretien et fret SO sur Firestore","seconds":95},

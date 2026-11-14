@@ -8,7 +8,8 @@ test('Marché SO : Courtier principal autorisé, sept autres classes refusées y
  f.store.data.set(sp,{...s,spaceOutlaws:{ruleProfile:'SPACE_OUTLAWS_V07'}});
  for(const id of ['COM','TRA','PIL','MED','MEC','INF','ROG']){
   f.store.data.set(cp,{...c,abilityProfile:{class:{id},skills:[{id:'COU-01',level:5}]}});
-  for(const action of ['market','commodityMarket','myMarketNegotiations'])await assert.rejects(f.read(action,f.bob,{sessionId:sid}),{code:'FORBIDDEN'});
+  const prices=await f.read('commodityMarket',f.bob,{sessionId:sid});assert.ok(Array.isArray(prices.prices));
+  for(const action of ['market','myMarketNegotiations'])await assert.rejects(f.read(action,f.bob,{sessionId:sid}),{code:'FORBIDDEN'});
  }
  f.store.data.set(cp,{...c,abilityProfile:{class:{id:'COU'},skills:[]}});
  assert.ok((await f.market()).economyEnabled);await f.read('commodityMarket',f.bob,{sessionId:sid});

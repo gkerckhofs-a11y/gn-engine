@@ -14,8 +14,9 @@ export function recipeInput(v,id,old={}){
  const components=v.components.map(c=>{check(c&&typeof c==='object');const quantity=whole(c.quantity,'INVALID_RECIPE');check(quantity>0&&quantity<=1000000);return {itemId:documentId(c.itemId),quantity};});
  check(new Set(components.map(c=>c.itemId)).size===components.length);
  const productItemId=reference(v.productItemId);check(!components.some(c=>c.itemId===productItemId));
+ const compatibleRecipeIds=v.compatibleRecipeIds??[];check(Array.isArray(compatibleRecipeIds)&&compatibleRecipeIds.length<=100&&new Set(compatibleRecipeIds).size===compatibleRecipeIds.length);compatibleRecipeIds.forEach(documentId);check(!compatibleRecipeIds.length||v.kind==='ANTIDOTE');
  const indicativePrice=v.indicativePrice==null?null:whole(v.indicativePrice,'INVALID_RECIPE');
- return {id,name:text(v.name,150,true),description:text(v.description??'',6000),kind:v.kind,minLevel,
+ return {...(compatibleRecipeIds.length?{compatibleRecipeIds}:{}),id,name:text(v.name,150,true),description:text(v.description??'',6000),kind:v.kind,minLevel,
   skillId:reference(v.skillId),productItemId,effectId:reference(v.effectId),laboratoryTargetId:reference(v.laboratoryTargetId),unlockKnowledgeId:reference(v.unlockKnowledgeId),
   components,indicativePrice,gmNotes:text(v.gmNotes??'',10000),publicationState:'DRAFT',masterArchived:v.masterArchived===true,revision:(old.revision??0)+1};
 }

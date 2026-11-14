@@ -16,7 +16,7 @@ const seconds=n=>Math.ceil(n/1000)+' s';
 export function soForgeryHtml(d,sid){
  const target=d.target,a=d.active;
  let body='<p>Document exclusivement fictif. Aucun droit informatique ni habilitation réelle n’est créé.</p>';
- if(!d.enabled)body+='<p>La compétence INF-03 est indisponible.</p>';
+ if(!d.enabled&&!a)body+='<p>La compétence INF-03 est indisponible.</p>';
  else if(a?.status==='RUNNING'){
   body+='<p>Fabrication en cours · '+seconds(a.remainingMs)+' de jeu restantes.</p>';
   body+='<form data-form="soForgeryFinish" data-sid="'+esc(sid)+'" data-target="'+esc(a.targetId)+'" data-id="'+esc(a.id)+'"><label><input type="checkbox" name="present" required>Je suis toujours à l’atelier</label><button type="submit" '+(a.remainingMs>0?'disabled':'')+'>Terminer et résoudre au D6</button></form>';
@@ -51,4 +51,8 @@ export function soForgeryInspectionHtml(d,sid,lotId=''){
     :'<p>Aucune correction de lot enregistrée.</p>')
   +'<p>Ce contrôle ne réalise ni saisie formelle ni transfert en entrepôt. Il conserve les faits enregistrés, sans accorder de droit technique.</p></section>':'<p>Renseignez l’identifiant de lot du document présenté par le joueur.</p>';
  return '<div class="narrow"><h1>Contrôle MJ — faux documents INF-03</h1><form data-form="soForgeryInspect" data-sid="'+esc(sid)+'"><label>Identifiant de lot<input name="lotId" value="'+esc(lotId)+'" maxlength="128" required></label><button>Vérifier la provenance</button></form>'+content+'</div>';
+}
+
+export function soForgeryAdminHtml(d,sid){
+ return '<section class="panel"><h2>Fabrications en cours</h2><p>Interrompre libère le PA, le formulaire et l’atelier, même si l’accès du joueur a été retiré. Aucun document n’est créé.</p>'+(d.actions.length?d.actions.map(a=>'<article><h3>'+esc(a.characterName)+'</h3><p>'+seconds(a.remainingMs)+' de jeu restantes</p><form data-form="soForgeryCancelMJ" data-sid="'+esc(sid)+'" data-id="'+esc(a.id)+'"><label>Motif<input name="reason" maxlength="500" required></label><button>Interrompre la fabrication</button></form></article>').join(''):'<p>Aucune fabrication en cours.</p>')+'</section>';
 }

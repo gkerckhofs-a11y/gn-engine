@@ -45,10 +45,21 @@ test('actions : historique et commandes natives conservés sans actualisations m
  const person=personMineHtml({session:{id:'s',stage:'EN_JEU',spaceOutlaws:true},skills:[],aidOffers:[],actions:[]},{embedded:true,refreshButton:false});assert.doesNotMatch(person,/data-person-action="refresh"/);
 });
 test('actions : un aperçu automatique ne soumet jamais une mutation',()=>{
- let submitted=0;const form={querySelectorAll:()=>[],querySelector:()=>({disabled:false}),requestSubmit:()=>submitted++};
+ let submitted=0;const form={querySelectorAll:()=>[],querySelector:selector=>selector==='button.primary'?{disabled:false}:null,requestSubmit:()=>submitted++};
  previewSelectedAction({querySelector:selector=>{assert.match(selector,/prepare/);assert.doesNotMatch(selector,/start|finish/);return form;}});assert.equal(submitted,1);
  previewSelectedAction({querySelector:()=>null});assert.equal(submitted,1);
 });
 test('actions : aucun profil interdit affiché sur un QR terrain ordinaire',()=>{
  const d={session:{id:'s',stage:'EN_JEU'},target:{id:'t',title:'Lieu'},profiles:[{qualified:false,kind:'ANALYZE',instructions:'INTERDIT'}]};assert.doesNotMatch(fieldTargetHtml(d),/INTERDIT|data-field-form="prepare"/);
+});
+
+test('actions : choisir le lieu clinique ou la quantité du lot avant la confirmation automatique',()=>{
+ let calls=0;const form={querySelector:()=>null,requestSubmit:()=>calls++,querySelectorAll:()=>[]};
+ previewSelectedAction({querySelector:()=>form,querySelectorAll:()=>[{},{}]});assert.equal(calls,0);
+ previewSelectedAction({querySelector:()=>({...form,querySelector:selector=>selector.includes('tradeQuantity')?{}:null}),querySelectorAll:()=>[{}]});assert.equal(calls,0);
+});
+
+test('actions : liens cliniques identiques après encodage navigateur',()=>{
+ const d=own([['MED-02',2],['MED-03',2]]),items=actionMenuItems(d).filter(i=>i.kind?.startsWith('CLINIC'));assert.deepEqual(items.map(i=>i.id),['MED-03-safe','MED-03-fast']);
+ for(const i of items)assert.equal(new URL(`https://example.invalid/#/act/s/${i.id}`).hash.split('/').at(-1),i.id);
 });

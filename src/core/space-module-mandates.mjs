@@ -1,3 +1,4 @@
+import {malaiseAt} from './space-toxicology-state.mjs';
 import {hasCompleteTowing} from './space-module-flight.mjs';
 import {activeModuleOutages} from './space-module-flight.mjs';
 import {DomainError,documentId,requireThat} from './validation.mjs';
@@ -22,7 +23,7 @@ const open=r=>['MODULE_OFFERED','MODULE_APPROVED'].includes(r.status);
 export const hasModuleMandates=s=>s.spaceOutlaws?.moduleMandatesVersion===1&&s.spaceOutlaws.modulePurchasesVersion===1&&s.spaceOutlaws.navigationVersion===1&&s.spaceOutlaws.logisticsVersion===1;
 export const hasModuleRemoval=s=>s.spaceOutlaws?.moduleRemovalVersion===1&&s.spaceOutlaws.moduleInstallationVersion===1&&s.spaceOutlaws.moduleWorkVersion===1&&hasModuleMandates(s);
 export const installedModuleLot=(ship,lot)=>ship?.moduleInstallationVersion===1&&lot?.ownerId===ship.ownerId&&lot.quantity===1&&(lot.ownerType??'CHARACTER')==='CHARACTER'&&lot.holderId===ship.id&&lot.location?.kind==='SHIP_MODULE'&&lot.location.id===ship.id&&ship.modules?.filter(m=>m.lotId===lot.id&&m.code===lot.item?.shipModule?.code&&m.size===lot.item?.shipModule?.size&&m.status==='OPERATIONAL').length===1;
-const fit=(c,time)=>c?.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeVoyageId&&!c.activeNavigationId&&!c.activeMaintenanceId&&!c.activeCargoId&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&!(c.convalescentUntilGameMs>time);
+const fit=(c,time)=>c?.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeVoyageId&&!c.activeNavigationId&&!c.activeMaintenanceId&&!c.activeCargoId&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&!(c.convalescentUntilGameMs>time)&&!malaiseAt(c,time);
 const free=ship=>ship?.enabled&&ship.soProfile&&ship.docked&&!ship.journey&&!ship.operation&&!ship.combatId&&!ship.rescueId&&!ship.maintenanceId&&!ship.ambushId&&!ship.convoy&&!ship.convoyOffer;
 const local=(s,c,ship)=>(c.spacePortId??s.transportRules?.homePort)===ship.portId;
 const proof=(s,r,version)=>hash(JSON.stringify([s.id,s.revision,r,version??null]));

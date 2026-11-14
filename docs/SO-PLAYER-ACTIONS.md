@@ -41,3 +41,43 @@ Les historiques sont regroupés dans un panneau secondaire, ouvert si une action
 - Chromium ne démarre pas dans ce conteneur. Le résultat navigateur et les captures seront ceux de la CI sur le commit exact, pas une recette physique Android/iOS.
 - La CI du parent #12 a révélé deux tests HTTP qui chargeaient encore des objets personnels. Leurs données de préparation sont corrigées : stock de fret explicite / stock historique de soute ; un appel HTTP vérifie désormais le refus du chargement d’un sac. Les contrôles métier ne sont pas assouplis.
 - Aucun backend de production changé par cette refonte, aucune donnée existante modifiée, aucune fusion main, aucun déploiement Firebase.
+
+## Documents du sac et INF-02
+
+L’écran de déchiffrement présente aussi les originaux non encore lus du sac et conserve le parcours sélectionné. Un original M1 associé à un DOCUMENT M6 propose « Lire le document » dans le sac. Son texte rejoint le carnet, sous les droits de la fiche : « Montrer seulement » requiert de conserver l’original ; « Copie permise » conserve le texte déjà acquis après son don. Le don utilise le transfert personnel existant et garde l’identifiant et la provenance de l’objet. Aucun fret de soute ni deuxième exemplaire n’est créé.
+
+Le déchiffrement revérifie le droit de lecture à la résolution. Une perte d’original SHOW empêche la révélation ; le joueur ou le MJ peut interrompre l’action pour libérer les réservations. Une révocation explicite du reçu par le MJ reste prioritaire. Les documents préparés avant cette extension restent utilisables selon leurs droits existants.
+
+## Fouilles de personnages et cache d’un objet
+
+« Fouiller un personnage » et « Fouille méthodique » conservent le choix d’action après identification du personnage. La cible doit être hors combat ou capturée selon l’état enregistré. La fouille ordinaire laisse la victime choisir ; la fouille méthodique laisse le Traqueur choisir. La remise d’une unité est confirmée par la victime. La liste privée cesse d’être accessible après libération.
+
+« Dissimuler un objet » ouvre directement son propre sac. Seuls les modèles M1 préparés comme admissibles sont proposés. Une cache protège une unité pendant trente minutes de jeu ; elle résiste au Rogue et à la fouille commune. Un Traqueur de niveau au moins égal la découvre immédiatement à la résolution de sa fouille. Le quota de prise ne change pas.
+
+Le MJ utilise « Nouvelle rencontre » uniquement pour une situation réellement distincte, avec motif. Attendre dix ou trente minutes, changer de fouilleur ou recapturer la même victime ne recrée pas automatiquement un droit de prise.
+
+
+### Clôture V0.7 — analyses et techniques physiques
+
+Les analyses de terrain revérifient le niveau engagé avant de remettre les informations. Si la fiche a changé, l’action peut être interrompue par son parcours natif pour libérer les ressources. Une analyse automatique ne tire pas de dé ; une résolution déjà enregistrée ne relance pas le test.
+
+La fiche Compétences contient les conditions canoniques des 34 capacités. Désarmement, Neutralisation furtive, Riposte, Garde du corps et Maîtrise du sabre restent des techniques physiques : lire avant la scène, jouer sans téléphone, déclarer ensuite les pertes de santé à l’abri. Afficher la règle d’une capacité ne signifie pas que tous ses parcours numériques sont déjà raccordés : voir la matrice unique de clôture.
+
+
+### ROG-01 — après la scène
+
+La carte « Neutralisation furtive · après la scène » ouvre un formulaire personnel. À l’abri, déclarer toute tentative annoncée, réussie ou échouée, et le temps de jeu écoulé depuis l’annonce, hors pauses. Le délai restant se consulte ici. Une déclaration pendant la récupération est signalée au MJ ; ce formulaire n’autorise jamais une nouvelle attaque et n’applique aucun dégât à une cible. La victime utilise sa déclaration de santé habituelle. La lecture des règles avant la scène et la sécurité physique restent prioritaires.
+
+
+### Vérifier un document présenté (TRA-03)
+
+La carte ouvre les originaux accessibles et les copies dont la lecture est autorisée. Le QR du document ou son code `DOC:<identifiant>` mène au même dossier sans rechoisir l’action. Le modèle M1 ou le modèle de faux M6 doit référencer une analyse TRA-03 réservée aux originaux. La possession, le reçu, le niveau et la version sont revérifiés à la résolution. Une remise ne remet pas à zéro une tentative déjà résolue ; une copie autorisée ne crée aucun objet. Les résultats sont les informations préparées par l’organisation, sans révélation automatique du faussaire.
+
+Dans le contrôle MJ des faux documents, les fabrications en cours peuvent être interrompues avec motif, y compris après retrait d’accès du joueur. Le PA et le formulaire encore réservés sont libérés ; les fabrications terminées restent dans l’historique.
+
+
+### Intrusion préparée et indices
+
+Le parcours INF-01 propose la sonde compatible (+1), les fournitures requises et une aide offerte (+1), avant de réserver les ressources. Les fournitures sont dépensées au jet, y compris en cas d’échec. L’interruption libère ce qui est encore réservé. La régie peut interrompre une intrusion si l’accès du joueur a été retiré.
+
+Dans un mini-jeu, aucun D6 ne suit la réponse. Les indices préparés au niveau 3, 4 ou 5 se consultent pendant la tentative ; chaque indice n’est ouvert qu’une fois par personnage et version, y compris après relance ou reprise d’épisode. Le QR ne révèle jamais la solution. Les droits sur les systèmes réels restent inchangés.

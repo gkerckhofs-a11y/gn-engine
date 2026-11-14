@@ -1,3 +1,5 @@
+import {negotiationTarget} from './space-merchant-negotiation.mjs';
+import {initialFieldState} from './field-state.mjs';
 import {hasCompleteTowing} from './space-module-flight.mjs';
 import {hasHiddenCargo} from './space-module-flight.mjs';
 import {inventoryHash as hash,publicItem} from './inventory-state.mjs';
@@ -16,7 +18,7 @@ export const shopStockId=id=>hash(`shop-stock:${id}`);
 export function soShops(changes){
  const active=changes.filter(c=>c.operation==='UPSERT'),find=(type,id)=>active.find(c=>c.type===type&&c.entityId===id)?.data;
  return active.filter(c=>c.type==='shop').map(({data:s})=>({id:s.id,name:s.name,description:s.description,sellerCharacterId:s.sellerCharacterId,locationTargetId:s.locationTargetId,
-  location:find('fieldTarget',s.locationTargetId)?.title??'',offers:active.filter(c=>c.type==='offer'&&c.data.shopId===s.id).map(({data:o})=>({id:o.id,name:o.name,unitPrice:o.unitPrice,conditions:o.conditions,item:publicItem(find('item',o.itemId))}))}));
+  location:find('fieldTarget',s.locationTargetId)?.title??'',offers:active.filter(c=>c.type==='offer'&&c.data.shopId===s.id).map(({data:o})=>({id:o.id,...(o.negotiationLevel!=null?{negotiationLevel:o.negotiationLevel}:{}),name:o.name,unitPrice:o.unitPrice,conditions:o.conditions,item:publicItem(find('item',o.itemId))}))}));
 }
 export function shopBlockers(changes){
  const active=changes.filter(c=>c.operation==='UPSERT'),out=[];
@@ -38,6 +40,6 @@ export function shopBlockers(changes){
 export function seedSoShops(tx,sid,changes,versionId){
  for(const {offers,...shop} of soShops(changes)){
   tx.set(`sessions/${sid}/shops/${shop.id}`,{...shop,versionId,revision:1});
-  for(const offer of offers)tx.set(`sessions/${sid}/shops/${shop.id}/offers/${offer.id}`,{...offer,shopId:shop.id,versionId,revision:1});
+  for(const offer of offers){tx.set(`sessions/${sid}/shops/${shop.id}/offers/${offer.id}`,{...offer,shopId:shop.id,versionId,revision:1});if(offer.negotiationLevel){const target=negotiationTarget(shop,{...offer,revision:1});tx.set(`sessions/${sid}/fieldTargets/${target.id}`,target);tx.set(`sessions/${sid}/fieldStates/${target.id}`,initialFieldState(target));}}
  }
 }

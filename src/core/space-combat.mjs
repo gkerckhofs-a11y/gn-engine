@@ -1,3 +1,4 @@
+import {malaiseAt} from './space-toxicology-state.mjs';
 import {towingInterceptable,towingCombatContext,registerTowingEncounter,releaseTowingInSpace} from './space-towing-combat.mjs';
 import {flightShip,hasTowingCombat} from './space-module-flight.mjs';
 import {hasAllianceDefense,hasAllianceDuels,pirateAllianceFields,pirateAllianceView,pirateAllianceCommand,pirateAllianceCandidate} from './space-pirate-alliances.mjs';
@@ -22,7 +23,7 @@ export const spaceCombatActions=Object.keys(fields);
 const admins=new Set(['leavePirateAllianceAdmin','spaceCombatAdmin','prepareSpaceInterception','triggerSpaceInterception','startSpaceCombat','resolveSpaceRoundAdmin']);
 const reads=new Set(['preparePirateAlliance','spaceCombats','spaceCombatAdmin','spaceCombat','prepareSpaceAmbush','prepareSpaceInterception']);
 const active=s=>{requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');};
-const fit=(c,time)=>c?.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&!c.activeNavigationId&&!c.activeMaintenanceId&&!c.activeCargoId&&!(c.convalescentUntilGameMs>time);
+const fit=(c,time)=>c?.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&!c.activeNavigationId&&!c.activeMaintenanceId&&!c.activeCargoId&&!(c.convalescentUntilGameMs>time)&&!malaiseAt(c,time);
 const baseInTransit=(ship,time)=>!!ship?.journey&&ship.ownerType!=='GROUP'&&!ship.docked&&!ship.operation&&!ship.combatId&&!ship.rescueId&&!ship.maintenanceId&&ship.hull>0&&(ship.journey.suspended||time<ship.journey.arrivesAtGameMs);
 const normal=o=>({kind:'PASSIVE',fallback:'PASSIVE',acceptSurrender:false,ceasefire:false,...o});
 const visible=(e,ships,c)=>e.participants.includes(c.id)||ships.some(s=>s.ownerId===c.id||s.pilotId===c.id);

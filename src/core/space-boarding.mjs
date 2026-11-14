@@ -1,3 +1,4 @@
+import {malaiseAt} from './space-toxicology-state.mjs';
 import {boardingCargoProjection} from './space-boarding-cargo.mjs';
 import {preparePersonalPayment,settlePersonalPayment} from './economy.mjs';
 import {documentId,requireThat} from './validation.mjs';
@@ -16,7 +17,7 @@ const sponsor=['combatId','boardingId','payerId','reason'];
 const fields={declineBoardingRansomSponsor:['combatId','boardingId','confirmation'],prepareBoardingRansomSponsor:sponsor,assignBoardingRansomSponsor:[...sponsor,'confirmation'],clearBoardingRansomSponsor:['combatId','boardingId','confirmation','reason'],prepareBoardingRansom:ransom,payBoardingRansom:[...ransom,'confirmation'],spaceBoarding:['combatId'],spaceBoardingAdmin:['combatId'],prepareSpaceDocking:docking,startSpaceDocking:[...docking,'confirmation'],finishSpaceDocking:['combatId','boardingId','confirmation','present','safe'],prepareSpaceBoardingOutcome:outcome,resolveSpaceBoarding:[...outcome,'confirmation'],cancelSpaceBoarding:['combatId','boardingId','confirmation','reason'],releaseSpaceBoarding:['combatId','boardingId','confirmation','reason','present']};
 export const spaceBoardingActions=Object.keys(fields);
 const reads=new Set(['prepareBoardingRansomSponsor','prepareBoardingRansom','spaceBoarding','spaceBoardingAdmin','prepareSpaceDocking','prepareSpaceBoardingOutcome']);
-const fit=(c,time)=>c?.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&!c.activeNavigationId&&!c.activeMaintenanceId&&!c.activeCargoId&&!(c.convalescentUntilGameMs>time);
+const fit=(c,time)=>c?.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&!c.activeNavigationId&&!c.activeMaintenanceId&&!c.activeCargoId&&!(c.convalescentUntilGameMs>time)&&!malaiseAt(c,time);
 const attest=input=>{requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');requireThat(input.safe===true,'BOARDING_SAFETY_REQUIRED');};
 const eligibleTarget=(e,x)=>e.fleetBoardingVersion===1?!!(x.hull===0&&e.boardingTargets?.[x.id]?.immobilized||e.boardingTargets?.[x.id]?.surrendered):x.hull===0&&e.lastRound?.after.some(a=>a.id===x.id&&a.hull===0)||(e.lastRound?.surrendered??[]).includes(x.id);
 const opponents=(e,a,b)=>a&&b&&a.id!==b.id&&(!e.teams||e.teams[a.id]!==e.teams[b.id]);

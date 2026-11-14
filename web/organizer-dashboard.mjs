@@ -4,7 +4,7 @@ import {centralWorkshops} from '../src/shared/central-workshops.mjs';
 const stages={PREPARATION:'Préparation',BRIEFING:'Briefing',EN_JEU:'En jeu',PAUSE:'En pause',FINISHED:'Terminée',ARCHIVED:'Archivée'};
 const eventLabels={setStage:'Rythme de jeu modifié',releaseSpaceOutlaws:'Version publiée',birthSpaceOutlaws:'Personnage attribué',requestSoLaunch:'Décollage demandé',assignSoCockpit:'Poste cockpit attribué',stopSafetyMJ:'STOP SÉCURITÉ',resumeSafety:'Reprise après STOP',decideCustomsAppeal:'Décision sur un recours'};
 const views={prepare:'Préparer',animate:'Animer',supervise:'Superviser'};
-const direct=new Set(['session','so-entry','group-admin','admissions-admin','directory-admin','announcements-admin','contracts-admin','contract-admin','bounties-admin','bounty-admin','spaceport-admin','space-combats-admin','space-rescues-admin','boarding-admin','space-maintenance-admin','towing-admin','module-mandates-admin','cargo-admin','cargo-port-admin','warehouses-admin','prices-admin','shops-admin','customs-admin','customs-inspection-admin','customs-detention-admin','forgery-inspect-admin','escape-admin','intelligence-admin','learning-admin','succession-admin']);
+const direct=new Set(['session','so-entry','group-admin','admissions-admin','directory-admin','announcements-admin','contracts-admin','contract-admin','bounties-admin','bounty-admin','spaceport-admin','space-combats-admin','space-rescues-admin','boarding-admin','space-maintenance-admin','towing-admin','module-mandates-admin','cargo-admin','cargo-port-admin','warehouses-admin','prices-admin','shops-admin','customs-admin','customs-inspection-admin','customs-detention-admin','intrusion-admin','forgery-inspect-admin','escape-admin','intelligence-admin','learning-admin','succession-admin']);
 const pathLink=(path,label,extra='')=>`<a href="${path.startsWith('/')?esc(path):`#/${esc(path)}`}" ${extra}>${esc(label)}</a>`;
 const campaignPages=new Set(['central','central-check','central-snapshots','central-snapshot','campaign']);
 export function organizerRoute(page,id,token,sessionHint){
@@ -40,6 +40,7 @@ export function organizerTools(s,sabacc){
    ['successionVersion','Relèves après décès','succession-admin','Préparer le retour en jeu avec une nouvelle identité.'],
    ['customsDetentionVersion','Incidents douaniers','customs-detention-admin','Examiner les retenues, saisies et recours.'],
    ['escapeVersion','Captivité et évasions','escape-admin','Suivre les captifs et leurs tentatives.'],
+   ['inf01Version','Intrusions en cours','intrusion-admin','Interrompre une opération et libérer ses réservations.'],
    ['inf03Version','Contrôle des documents','forgery-inspect-admin','Vérifier un document présenté au MJ.'],
   ];
   for(const [flag,label,page,help]of live)if(so?.[flag]===1||!so&&['announcements-admin','contracts-admin','bounties-admin'].includes(page))add('animate',label,`${page}/${sid}`,help);

@@ -25,5 +25,19 @@ test('M6 central UI : archive et restauration explicites sans suppression des r�
  const edit={...d,rights:{...d.rights,editWorkshops:['M6']}};assert.match(ui.page(edit),/data-action="centralKnowledgeArchive"/);const h=ui.page({...edit,changes:[{...c,operation:'ARCHIVE'}]});assert.match(h,/Restaurer \/ modifier/);assert.doesNotMatch(h,/data-action="centralKnowledgeArchive"/);const form=ui.knowledgeArchiveForm(d,c);assert.match(form,/data-revision="3"/);assert.match(form,/data-form="centralKnowledgeArchive"/);assert.match(form,/Aucun reçu joueur n’est modifié/);assert.match(form,/&lt;b&gt;Document/);
 });
 test('M4 central UI : sélection M6 limitée au titre, à la provenance et à l’état',()=>{
- const data={...d,workshop:'M4',changes:[],references:{itemsReadable:false,items:[],knowledgeReadable:true,knowledge:[{id:'document',title:'<b>Document</b>',kind:'DOCUMENT',source:'WEB',revision:3,archived:true}]}},h=ui.recipeForm(data,'formula');assert.match(h,/list="central-recipe-knowledge"/);assert.match(h,/&lt;b&gt;Document/);assert.match(h,/archivée · r3 · WEB/);assert.doesNotMatch(h,/Vérité privée|Note privée|initialCharacterIds/);assert.match(h,/ne débloque aucune fabrication/);const denied=ui.recipeForm({...data,references:{...data.references,knowledgeReadable:false,knowledge:[]}},'formula');assert.match(denied,/Lecture M6 non accordée/);assert.doesNotMatch(denied,/option value="document"/);
+ const data={...d,workshop:'M4',changes:[],references:{itemsReadable:false,items:[],knowledgeReadable:true,knowledge:[{id:'document',title:'<b>Document</b>',kind:'DOCUMENT',source:'WEB',revision:3,archived:true}]}},h=ui.recipeForm(data,'formula');assert.match(h,/list="central-recipe-knowledge"/);assert.match(h,/&lt;b&gt;Document/);assert.match(h,/archivée · r3 · WEB/);assert.doesNotMatch(h,/Vérité privée|Note privée|initialCharacterIds/);assert.match(h,/La connaissance doit être effectivement obtenue par le personnage/);const denied=ui.recipeForm({...data,references:{...data.references,knowledgeReadable:false,knowledge:[]}},'formula');assert.match(denied,/Lecture M6 non accordée/);assert.doesNotMatch(denied,/option value="document"/);
+});
+
+test('M6 INF-02 : compatibilité matérielle explicite conservée dans le formulaire',()=>{
+ const h=ui.knowledgeForm(d,'document',{...c,data:{...c.data,cipher:{minLevel:1,threshold:6,plaintext:'Secret',bonusItemIds:['decoder']}}});
+ assert.match(h,/name="cipherBonusItems" value="decoder"/);
+ const p=centralKnowledgePayload({...c.data,qrSkillLevel:'',qrSkillId:'',cipherEnabled:'on',cipherMinLevel:'1',cipherThreshold:'6',cipherPlaintext:'Secret',cipherBonusItems:'decoder, second'});
+ assert.deepEqual(p.cipher.bonusItemIds,['decoder','second']);
+});
+test('M6 INF-02 : préparation du cryptogramme sans réafficher la réponse ni son empreinte',()=>{
+ const challenge={type:'CODE',prompt:'Consigne',durationSeconds:90,answerDigest:'a'.repeat(64)};
+ const h=ui.knowledgeForm(d,'document',{...c,data:{...c.data,cipher:{minLevel:1,threshold:6,plaintext:'Secret',challenge}}});
+ assert.match(h,/name="cipherChallengeEnabled" checked/);assert.match(h,/name="cipherAnswer" value=""/);assert.ok(!h.includes(challenge.answerDigest));
+ const payload=centralKnowledgePayload({...c.data,qrSkillLevel:'',qrSkillId:'',cipherEnabled:'on',cipherChallengeEnabled:'on',cipherMinLevel:'1',cipherThreshold:'6',cipherPlaintext:'Secret',cipherPrompt:'Consigne',cipherDuration:'90',cipherAnswer:'NOVA 2042',cipherBonusItems:'decoder'});
+ assert.equal(payload.cipher.challenge.answerCode,'NOVA 2042');assert.equal(payload.cipher.challenge.durationSeconds,90);assert.equal(payload.cipher.bonusItemIds,undefined);
 });

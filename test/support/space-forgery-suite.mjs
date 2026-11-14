@@ -1,12 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {actionsFixture} from './space-outlaws-actions-suite.mjs';
+import {actionsFixture,analysisTarget} from './space-outlaws-actions-suite.mjs';
 const tid='forge_license',blankItemId='kit_blank-forms';
-export async function forgeryFixture(makeStore,{category='RECEIPT',minLevel=1,threshold=6,second=false}={}){
+export async function forgeryFixture(makeStore,{category='RECEIPT',minLevel=1,threshold=6,second=false,review=false,trace=false}={}){
  const f=await actionsFixture(makeStore,{classId:'INF',release:false,helper:second});
+ if(review)await f.cc('saveCentralFieldTarget',{fieldTargetId:'review',fieldTargetRevision:0,draftRevision:(await f.view()).draft.revision,fieldTarget:analysisTarget('TRA-03',{documentOnly:true}),reason:'Dossier des originaux produits'});
  const view=await f.view();
- const fieldTarget={kind:'FORGERY',title:'Atelier du faussaire',description:'Atelier en jeu avec mobilier fictif.',
-  gmNotes:'ATELIER_MJ_SECRET',profiles:{},rewards:[],forgery:{category,minLevel,threshold,blankItemId,
+ const fieldTarget={...(trace?{tracePolicy:{minLevel:1,actions:['FORGERY'],falseLeads:[]}}:{}),kind:'FORGERY',title:'Atelier du faussaire',description:'Atelier en jeu avec mobilier fictif.',
+  gmNotes:'ATELIER_MJ_SECRET',profiles:{},rewards:[],forgery:{...(review?{reviewTargetId:'review'}:{}),category,minLevel,threshold,blankItemId,
    documentTitle:'Attestation du Port de Brèche',documentText:'DOCUMENT_DE_FICTION_SANS_DROIT',
    anomalies:'FIBRE_PAPIER_INCORRECTE_SECRET_MJ'}};
  await f.cc('saveCentralFieldTarget',{fieldTargetId:tid,fieldTargetRevision:0,draftRevision:view.draft.revision,
@@ -24,6 +25,58 @@ export async function forgeryFixture(makeStore,{category='RECEIPT',minLevel=1,th
  return {...f,tid,cid,forms,formLots,start,finish,cancel};
 }
 export function soForgerySuite(makeStore,prefix='INF-03'){
+ test(prefix+' : annulation MJ après révocation libère exactement le PA, le formulaire et l’atelier',async()=>{
+  const f=await forgeryFixture(makeStore),a=await f.start();await f.actionCmd('revokeAccess',{uid:f.player.uid},f.owner);
+  await assert.rejects(f.finish(a.id),{code:'FORBIDDEN'});
+  const pending=await f.actionRead('soForgeryAdmin',{},f.owner);assert.equal(pending.actions[0].id,a.id);assert.doesNotMatch(JSON.stringify(pending),/SECRET_MJ|DOCUMENT_DE_FICTION/);
+  const body={actionId:a.id,reason:'Accès retiré pendant la scène',requestId:'moderate-once'};
+  const r=await f.actionCmd('cancelSoForgeryMJ',body,f.owner);assert.equal(r.status,'CANCELLED');
+  assert.deepEqual(await f.actionCmd('cancelSoForgeryMJ',body,f.owner),r);
+  assert.deepEqual(await f.actionCmd('cancelSoForgeryMJ',{...body,requestId:'moderate-twice'},f.owner),r);
+  const points=await f.store.get(`sessions/${f.sid}/characters/${f.cid}/resources/actionPoints`);assert.equal(points.available,5);assert.equal(points.reserved,0);
+  assert.equal((await f.formLots()).reduce((n,l)=>n+l.quantity,0),2);assert.ok((await f.formLots()).every(l=>l.status==='AVAILABLE'));
+  assert.equal((await f.store.get(`sessions/${f.sid}/fieldStates/${f.tid}`)).activeActionId,null);
+  assert.equal((await f.actionRead('soForgeryAdmin',{},f.owner)).actions.length,0);
+  assert.equal((await f.store.list(`sessions/${f.sid}/audit`)).filter(a=>a.action==='cancelSoForgeryMJ').length,1);
+ });
+ test(prefix+' : régie de falsification contrôle le rôle au rejeu, le motif et les actions déjà résolues',async()=>{
+  const f=await forgeryFixture(makeStore),a=await f.start(),body={actionId:a.id,reason:'Interruption contrôlée',requestId:'cancel-test'};
+  await assert.rejects(f.actionRead('soForgeryAdmin'),{code:'FORBIDDEN'});
+  await assert.rejects(f.actionCmd('cancelSoForgeryMJ',body),{code:'FORBIDDEN'});
+  await assert.rejects(f.actionCmd('cancelSoForgeryMJ',{...body,reason:' '},f.owner),{code:'REASON_REQUIRED'});
+  await f.role(true,'RECEPTION');await assert.rejects(f.actionRead('soForgeryAdmin',{},f.mj),{code:'FORBIDDEN'});
+  await f.role(true,'MJ');await f.stage('PAUSE');await f.actionCmd('cancelSoForgeryMJ',body,f.mj);
+  await f.role(false,'MJ');await assert.rejects(f.actionCmd('cancelSoForgeryMJ',body,f.mj),{code:'FORBIDDEN'});
+  await f.stage('EN_JEU');const b=await f.start();f.advance(270000);f.setDie(6);await f.finish(b.id);
+  await assert.rejects(f.actionCmd('cancelSoForgeryMJ',{actionId:b.id,reason:'Trop tard'},f.owner),{code:'SO_INF03_STALE'});
+ });
+ test(prefix+' : annulation MJ et résolution concurrentes conservent un seul résultat économique',async()=>{
+  const f=await forgeryFixture(makeStore),a=await f.start();f.advance(270000);f.setDie(6);
+  const results=await Promise.allSettled([f.finish(a.id),f.actionCmd('cancelSoForgeryMJ',{actionId:a.id,reason:'Interruption concurrente'},f.owner)]);
+  assert.equal(results.filter(r=>r.status==='fulfilled').length,1);
+  const ended=await f.store.get(`sessions/${f.sid}/inf03Actions/${a.id}`),success=ended.status==='SUCCESS',points=await f.points();
+  assert.equal(points.reserved,0);assert.equal(points.available,success?4:5);
+  assert.equal((await f.formLots()).reduce((n,l)=>n+l.quantity,0),success?1:2);
+  assert.equal((await f.store.list(`sessions/${f.sid}/forgeryRecords`)).length,success?1:0);
+ });
+
+ test(prefix+' : cinq niveaux, durées canoniques, un seul jet et aucune identité révélée par le modèle',async()=>{
+  const categories=['RECEIPT','MANIFEST','LICENSE','ORDER','EXCEPTIONAL'],durations=[300,270,240,210,180];
+  for(let level=1;level<=5;level++){
+   const f=await forgeryFixture(makeStore,{category:categories[level-1],minLevel:level}),path=`sessions/${f.sid}/characters/${f.cid}`;
+   await f.store.runTransaction(async tx=>{const c=await tx.get(path);tx.set(path,{...c,abilityProfile:{...c.abilityProfile,skills:c.abilityProfile.skills.map(k=>k.id==='INF-03'?{...k,level}:k)}});});
+   const a=await f.start();assert.equal(a.durationSeconds,durations[level-1]);await assert.rejects(f.finish(a.id),{code:'SO_INF03_TOO_EARLY'});assert.equal(f.rollCount(),0);
+   f.setDie(6);f.advance(durations[level-1]*1000);const r=await f.finish(a.id,{requestId:'finish-once'});assert.equal(r.success,true);assert.equal((await f.points()).available,4);assert.equal(f.rollCount(),1);
+   assert.deepEqual(await f.finish(a.id,{requestId:'finish-once'}),r);await assert.rejects(f.finish(a.id),{code:'SO_INF03_STALE'});assert.equal(f.rollCount(),1);
+   const lot=await f.store.get(`sessions/${f.sid}/inventory/${r.documentId}`);assert.equal(lot.quantity,1);assert.ok(lot.item.id.startsWith('document_'));
+  }
+ });
+ test(prefix+' : niveau retiré avant résolution, aucun jet et annulation libérant le formulaire',async()=>{
+  const f=await forgeryFixture(makeStore),a=await f.start(),path=`sessions/${f.sid}/characters/${f.cid}`;
+  await f.store.runTransaction(async tx=>{const c=await tx.get(path);tx.set(path,{...c,abilityProfile:{...c.abilityProfile,skills:c.abilityProfile.skills.filter(k=>k.id!=='INF-03')}});});
+  f.advance(270000);await assert.rejects(f.finish(a.id),{code:'SO_INF03_SKILL'});assert.equal(f.rollCount(),0);
+  await f.cancel(a.id);assert.equal((await f.points()).available,5);assert.equal((await f.formLots()).reduce((n,l)=>n+l.quantity,0),2);
+ });
  test(prefix+' : formulaire initial, durée, PA, faux suivi et qualité privée',async()=>{
   const f=await forgeryFixture(makeStore);
   const view=await f.actionRead('mySoForgery',{targetId:f.tid});
