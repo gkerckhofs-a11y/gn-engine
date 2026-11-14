@@ -1,3 +1,4 @@
+import {demoPlayerPath,loadDemoCharacters,demoCharactersHtml,preparationGuideHtml} from './solo-demo-navigation.mjs';
 import {escapeHtml as esc} from './groups.mjs';
 import {centralWorkshops} from '../src/shared/central-workshops.mjs';
 
@@ -16,11 +17,11 @@ export function organizerRoute(page,id,token,sessionHint){
 export function organizerView(route,s){return route.view??(route.home&&(!s.permissions?.content||['PREPARATION','BRIEFING'].includes(s.stage))?'prepare':route.home&&['FINISHED','ARCHIVED'].includes(s.stage)?'supervise':'animate');}
 export function organizerTools(s,sabacc){
  const sid=s.id,so=s.spaceOutlaws??(s.preparationKind?{}:null),p=s.permissions??{},items=[];
- const add=(view,label,path,help)=>items.push({view,label,path,help});
+ const add=(view,label,path,help,advanced=false)=>items.push({view,label,path,help,advanced});
  add('prepare','Participants et attributions',`session/${sid}/prepare`,'Valider les accès et attribuer les personnages.');
  if(p.content){
   if(s.preparationKind||so)add('prepare','Candidatures et invitations',`admissions-admin/${sid}`,'Examiner les dossiers et préparer l’entrée des joueurs.');
-  if(s.campaignId&&s.role==='OWNER')for(const w of centralWorkshops)add('prepare',w.label,`central/${s.campaignId}/${w.id}?session=${sid}`,`${w.id} · Éditer, importer, exporter et vérifier les définitions.`);
+  if(s.campaignId&&s.role==='OWNER')for(const w of centralWorkshops)add('prepare',w.label,`central/${s.campaignId}/${w.id}?session=${sid}`,`${w.id} · Éditer, importer, exporter et vérifier les définitions.`,true);
   if(!so&&s.scenarioId)add('prepare','Scénario et versions',`scenario/${s.scenarioId}?session=${sid}`,'Retrouver les définitions et les versions publiées.');
   if(so?.groupsVersion===1||!so&&s.groupsEnabled)add('prepare','Groupes et factions',`group-admin/${sid}`,'Définir les groupes, leurs membres et leurs accès.');
   if(!so||so.mediaVersion===1)add('prepare','Images et médias',`media/session/${sid}`,'Attribuer les images de cette session.');
@@ -59,6 +60,7 @@ export async function loadOrganizer(api,route){
  const context={session:s,route,view:organizerView(route,s),loadedAt:new Date(),unavailable:[]};
  // These are projections already protected by their respective services, never new permissions.
  const reads=[];
+ if(s.role==='OWNER'&&s.permissions.content&&s.stage!=='ARCHIVED')reads.push(['demo',async()=>{const demo=await api('soloDemoContext',{sessionId:s.id},true);return route.home?loadDemoCharacters(api,s,demo):demo?.table?demo:null;}]);
  if(s.permissions.content)reads.push(['sabacc',()=>api('sabaccHome')]);
  if(route.home&&s.permissions.content){
   if(s.spaceOutlaws?.healthVersion===1)reads.push(['health',()=>api('survivalAdmin',{sessionId:s.id})]);
@@ -93,7 +95,7 @@ export function organizerJournal(s){
 export function organizerShell(c,content){
  if(!c)return content;
  const s=c.session,view=c.view,tools=organizerTools(s,c.sabacc),home=`session/${s.id}`;
- return `<div class="org-shell"><div class="org-navigation"><header class="org-context"><div><p class="eyebrow">Régie organisateur · ${esc({OWNER:'Propriétaire',MJ:'MJ',RECEPTION:'Accueil'}[s.role]??s.role)}</p><strong class="org-title">${esc(s.title)}</strong><div class="org-context-meta"><span>${s.campaignEpisode?`Épisode ${esc(s.campaignEpisode)} · `:''}${esc(stages[s.stage]??s.stage)}</span><span>Version : ${s.versionId||c.publication==='published'?'publiée':c.publication==='draft'?'non publiée':s.preparationKind?'à vérifier dans Préparer':'non renseignée'}</span><span>${s.registrationOpen?'Inscriptions ouvertes':'Inscriptions fermées'}</span></div></div><div class="row">${pathLink('','Changer de session','class="button quiet"')}${pathLink('','Accueil orga','class="button quiet"')}<button data-action="refresh" class="quiet">Actualiser</button></div></header><nav class="org-tabs" aria-label="Organisation de la session">${Object.entries(views).map(([key,label])=>pathLink(`${home}/${key}`,label,view===key?'aria-current="page"':'')).join('')}</nav></div><div class="org-workspace"><aside class="org-sidebar"><label>Accès rapide<input type="search" data-org-tool placeholder="Cockpit, Sabacc, mission…"></label><details class="org-tool-list" open><summary>Outils de la session</summary><nav aria-label="Outils organisateur">${tools.map(t=>pathLink(t.path,t.label,`data-org-tool-name="${esc(t.label.toLocaleLowerCase('fr'))}" data-org-tool-view="${t.view}" ${t.view===view?'':'hidden'}`)).join('')}</nav></details><p data-org-tools-empty hidden>Aucun outil accessible ne correspond.</p></aside><div class="org-main"><p class="org-breadcrumb">${pathLink(home,s.title)} <span aria-hidden="true">›</span> ${esc(views[view])}${!c.route.home?' › Régie':''}</p>${content}</div></div></div>`;
+ return `<div class="org-shell"><div class="org-navigation"><header class="org-context"><div><p class="eyebrow">Régie organisateur · ${esc({OWNER:'Propriétaire',MJ:'MJ',RECEPTION:'Accueil'}[s.role]??s.role)}</p><strong class="org-title">${esc(s.title)}</strong><div class="org-context-meta"><span>${s.campaignEpisode?`Épisode ${esc(s.campaignEpisode)} · `:''}${esc(stages[s.stage]??s.stage)}</span><span>Version : ${s.versionId||c.publication==='published'?'publiée':c.publication==='draft'?'non publiée':s.preparationKind?'à vérifier dans Préparer':'non renseignée'}</span><span>${s.registrationOpen?'Inscriptions ouvertes':'Inscriptions fermées'}</span></div></div><div class="row">${c.demo?.table?pathLink(demoPlayerPath(s.id).slice(2),'Tester la session','class="button primary"'):''}${pathLink('','Changer de session','class="button quiet"')}${pathLink('','Accueil orga','class="button quiet"')}<button data-action="refresh" class="quiet">Actualiser</button></div></header><nav class="org-tabs" aria-label="Organisation de la session">${Object.entries(views).map(([key,label])=>pathLink(`${home}/${key}`,label,view===key?'aria-current="page"':'')).join('')}</nav></div><div class="org-workspace"><aside class="org-sidebar"><label>Accès rapide<input type="search" data-org-tool placeholder="Cockpit, Sabacc, mission…"></label><details class="org-tool-list" open><summary>Outils de la session</summary><nav aria-label="Outils organisateur">${tools.filter(t=>!t.advanced).map(t=>pathLink(t.path,t.label,`data-org-tool-name="${esc(t.label.toLocaleLowerCase('fr'))}" data-org-tool-view="${t.view}" ${t.view===view?'':'hidden'}`)).join('')}</nav></details>${tools.some(t=>t.advanced)?`<details class="org-advanced-tools"><summary>Configuration avancée</summary><nav aria-label="Ateliers Master M1 à M7">${tools.filter(t=>t.advanced).map(t=>pathLink(t.path,t.label,`data-org-tool-name="${esc(t.label.toLocaleLowerCase('fr'))}" data-org-tool-view="advanced"`)).join('')}</nav></details>`:''}<p data-org-tools-empty hidden>Aucun outil accessible ne correspond.</p></aside><div class="org-main"><p class="org-breadcrumb">${pathLink(home,s.title)} <span aria-hidden="true">›</span> ${esc(views[view])}${!c.route.home?' › Régie':''}</p>${content}</div></div></div>`;
 }
 // Reparent existing controls rather than cloning them: one command, one handler.
 export function organizeHome(root,c){
@@ -110,9 +112,9 @@ export function organizeHome(root,c){
  source.querySelectorAll('[data-org-section]').forEach(el=>{el.hidden=el.dataset.orgSection!==view;});
  target.querySelectorAll('[data-org-extra]').forEach(el=>{el.hidden=el.dataset.orgExtra!==view;});
  const top=root.ownerDocument.createElement('div');top.className='org-home';
- const tools=organizerTools(c.session,c.sabacc).filter(t=>t.view===view&&!t.path.startsWith(`session/${c.session.id}`));
+ const allTools=organizerTools(c.session,c.sabacc),tools=allTools.filter(t=>!t.advanced&&t.view===view&&!t.path.startsWith(`session/${c.session.id}`)),advanced=allTools.filter(t=>t.advanced);
  const frequent=tools.filter(t=>['spaceport-admin','announcements-admin','field-admin'].includes(t.path.split('/')[0])||t.path.startsWith('/sabacc/'));
- top.innerHTML=`<h1>${esc(views[view])}</h1>${view!=='prepare'?organizerOverview(c):''}${view==='animate'?`<nav class="org-frequent" aria-label="Actions fréquentes">${frequent.map(t=>pathLink(t.path,t.label,'class="button quiet"')).join('')}</nav><div class="org-operations"></div>`+organizerCharacters(c.session):''}<div class="org-cards">${tools.map(t=>`<a class="panel org-card" href="${t.path.startsWith('/')?esc(t.path):`#/${esc(t.path)}`}"><h2>${esc(t.label)} <span aria-hidden="true">↗</span></h2><p><em>${esc(t.help)}</em></p>${t.path.startsWith('/sabacc/')?`<span class="pill">${c.sabacc.enabled?'Module activé':'Module désactivé'}</span>`:''}</a>`).join('')}</div>${view==='supervise'?organizerJournal(c.session):''}`;
+ top.innerHTML=`<h1>${esc(views[view])}</h1>${view==='prepare'?preparationGuideHtml(c):''}${demoCharactersHtml(c.demo,root.ownerDocument.defaultView.location.origin)}${view!=='prepare'?organizerOverview(c):''}${view==='animate'?`<nav class="org-frequent" aria-label="Actions fréquentes">${frequent.map(t=>pathLink(t.path,t.label,'class="button quiet"')).join('')}</nav><div class="org-operations"></div>`+organizerCharacters(c.session):''}<div class="org-cards">${tools.map(t=>`<a class="panel org-card" href="${t.path.startsWith('/')?esc(t.path):`#/${esc(t.path)}`}"><h2>${esc(t.label)} <span aria-hidden="true">↗</span></h2><p><em>${esc(t.help)}</em></p>${t.path.startsWith('/sabacc/')?`<span class="pill">${c.sabacc.enabled?'Module activé':'Module désactivé'}</span>`:''}</a>`).join('')}</div>${view==='prepare'&&advanced.length?`<details class="panel org-advanced"><summary>Configuration avancée — Master M1–M7</summary><p>Les sept ateliers restent disponibles pour modifier les définitions. Les contrôles de publication restent obligatoires.</p><div class="org-cards">${advanced.map(t=>`<a class="panel org-card" href="#/${esc(t.path)}"><h2>${esc(t.label)}</h2><p>${esc(t.help)}</p></a>`).join('')}</div></details>`:''}${view==='supervise'?organizerJournal(c.session):''}`;
  source.before(top);
  if(view==='animate'){
   const commands=source.querySelector('[data-org-section="animate"]');
@@ -139,9 +141,9 @@ export function organizerInput(event,root){
   const empty=root.querySelector(participant?'[data-org-no-participant]':'[data-org-no-match]');if(empty)empty.hidden=count>0;
  }
  if(input.matches('[data-org-tool]')){
-  const details=root.querySelector('.org-tool-list');if(details)details.open=true;
+  const details=root.querySelector('.org-tool-list');if(details)details.open=true;const advanced=root.querySelector('.org-advanced-tools');if(advanced)advanced.open=!!input.value.trim();
   const query=input.value.trim().toLocaleLowerCase('fr'),view=root.querySelector('.org-tabs [aria-current="page"]')?.getAttribute('href').split('/').at(-1);let count=0;
-  root.querySelectorAll('[data-org-tool-name]').forEach(row=>{row.hidden=query?!row.dataset.orgToolName.includes(query):row.dataset.orgToolView!==view;if(!row.hidden)count++;});
+  root.querySelectorAll('[data-org-tool-name]').forEach(row=>{row.hidden=query?!row.dataset.orgToolName.includes(query):row.dataset.orgToolView!=='advanced'&&row.dataset.orgToolView!==view;if(!row.hidden)count++;});
   root.querySelector('[data-org-tools-empty]').hidden=count>0;
  }
 }
