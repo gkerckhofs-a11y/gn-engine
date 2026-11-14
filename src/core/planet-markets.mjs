@@ -6,7 +6,7 @@ import {inventoryHash as hash,publicItem,readLot,itemQuantity,lotState} from './
 import {inventoryPlayer} from './inventory-transfers.mjs';
 import {hasItemCircuits,commercialTradeAllowed} from './item-circuits.mjs';
 import {hasSoShops,shopStockId,shopAccountId} from './space-outlaws-shop-state.mjs';
-import {planetMarketId,planetMarketQuote,ordinaryPlanetCommodity,ordinaryPlanetTrade,planetCommerceSession} from './planet-market-state.mjs';
+import {planetMarketId,planetMarketQuote,planetLotOriginPort,ordinaryPlanetCommodity,ordinaryPlanetTrade,planetCommerceSession} from './planet-market-state.mjs';
 import {readPriceBook,commodityTrade} from './price-state.mjs';
 import {accountId,currencyView,moneyState,moneyText,writeLedger} from './economy-state.mjs';
 import {accountEntry,accountParty} from './collective-accounts.mjs';
@@ -71,6 +71,7 @@ export function createPlanetMarketService({store,signed,checkSession,now,uuid}){
    const lot=await readLot(tx,s.id,documentId(input.lotId),at),item=items.find(i=>i.id===market.itemId);
    requireThat(ordinaryPlanetTrade(market,item,ports.find(p=>p.id===market.portId),s),'PLANET_TRADE_RESTRICTED');
    requireThat(commercialTradeAllowed(lot,c.id)&&lot.item.id===market.itemId&&ordinaryPlanetCommodity(market,lot.item)&&lot.location.portId===market.portId&&!lot.hiddenCargo?.concealed,'FORBIDDEN');
+   requireThat(await planetLotOriginPort(tx,s,lot)===market.portId,'PLANET_IMPORT_REQUIRED');
    requireThat(lot.origin?.kind!=='SALVAGE'&&!lot.salvageId&&!lot.salvageWreckId,'PLANET_SPECIAL_TARIFF');
    requireThat(!commodityTrade(book,item).blocked,'TRADE_SUSPENDED');const quantity=itemQuantity(lot.item,input.quantity);requireThat(lot.status==='AVAILABLE'&&lot.quantity>=quantity,'INSUFFICIENT_STOCK');requireThat(market.demand>=quantity,'PLANET_DEMAND_EXCEEDED');
    const stock=await tx.get(`${base}/inventory/${shopStockId(market.offerId)}`),a=await tx.get(`${base}/accounts/${shopAccountId(market.shopId)}`),b=await tx.get(`${base}/accounts/${accountId(c.id)}`);

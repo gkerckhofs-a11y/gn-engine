@@ -30,3 +30,15 @@ export const planetCommerceSession=(s,portId)=>({...s,transportRules:{...s.trans
 
 // Reuse the published-port policy validator only; no vessel or voyage is granted.
 export function ordinaryPlanetTrade(m,item,port,s){const assessment=publishedCustomsCargoAssessment({ship:{id:m.id,docked:true,portId:m.portId},port,sessionVersionId:s.versionId,stock:[{id:item.id,item,quantity:1}]});return ordinaryPlanetCommodity(m,item)&&assessment.portPolicy.status==='PUBLISHED'&&assessment.lots[0].customsStatus==='FREE';}
+
+// Trace native splits back to a paid shop receipt. Unknown or imported stock
+// cannot bypass the SO import-clearance path, which is not connected yet.
+export async function planetLotOriginPort(tx,s,lot){
+ const seen=new Set();let current=lot;
+ for(let depth=0;current&&depth<30;depth++){
+  if(seen.has(current.id))return null;seen.add(current.id);
+  if(current.origin?.saleId){const sale=await tx.get(`sessions/${s.id}/lotSales/${current.origin.saleId}`);if(sale?.shopId&&sale.status==='SOLD'&&sale.purchasedLotId===current.id&&sale.item.id===current.item.id&&sale.stockPortId)return sale.stockPortId;}
+  const parent=current.origin?.parentLotId;if(!parent||parent===current.id)return null;current=await tx.get(`sessions/${s.id}/inventory/${parent}`);
+ }
+ return null;
+}

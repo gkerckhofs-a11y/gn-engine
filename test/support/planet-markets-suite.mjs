@@ -56,7 +56,7 @@ export function planetMarketsSuite(makeStore,prefix='Marchés planétaires'){
  });
  test(`${prefix} : réessais et concurrence sans double dépense, pause et continuité`,async()=>{
   const f=await planetMarketsFixture(makeStore);await f.configure();const p=f.purchaseInput({quantity:2,useProtected:false}),q=await f.read('prepareShopPurchase',p),input={...p,quoteAt:q.quoteAt,confirmation:q.confirmation,requestId:randomUUID()},sale=await f.cmd('buyShopOffer',input);assert.deepEqual(await f.cmd('buyShopOffer',input),sale);await f.move('away');await f.pickup(sale);
-  const i=await f.sellInput(sale.purchasedLotId),preview=await f.read('preparePlanetSale',i),one={...i,confirmation:preview.confirmation,requestId:randomUUID()},two={...one,requestId:randomUUID()},out=await Promise.allSettled([f.cmd('sellToPlanetMarket',one),f.cmd('sellToPlanetMarket',two)]);assert.equal(out.filter(r=>r.status==='fulfilled').length,1);assert.equal(out.find(r=>r.status==='rejected').reason.code,'STALE_REVISION');assert.deepEqual(await f.cmd('sellToPlanetMarket',one),out[0].value);
+  const i=await f.sellInput(sale.purchasedLotId),preview=await f.read('preparePlanetSale',i),one={...i,confirmation:preview.confirmation,requestId:randomUUID()},two={...one,requestId:randomUUID()},out=await Promise.allSettled([f.cmd('sellToPlanetMarket',one),f.cmd('sellToPlanetMarket',two)]);assert.equal(out.filter(r=>r.status==='fulfilled').length,1);assert.equal(out.find(r=>r.status==='rejected').reason.code,'STALE_REVISION');const winner=out.findIndex(r=>r.status==='fulfilled');assert.deepEqual(await f.cmd('sellToPlanetMarket',winner===0?one:two),out[winner].value);
   await f.stage('PAUSE');await assert.rejects(f.sell(sale.purchasedLotId),{code:'SESSION_NOT_RUNNING'});
   const snapshot=await f.store.runTransaction(async tx=>readSoEpisode(tx,await tx.get(f.base)));assert.ok(snapshot.entries.some(e=>e.path.startsWith('planetMarkets/')));assert.ok(snapshot.entries.some(e=>e.path.startsWith('planetPriceHistory/')));
  });
@@ -70,6 +70,18 @@ export function planetMarketsSuite(makeStore,prefix='Marchés planétaires'){
  test(`${prefix} : dernier stock concurrent, accès révoqué et aucun droit conféré par un identifiant`,async()=>{
   const f=await planetMarketsFixture(makeStore);await f.configure();const p=f.purchaseInput({quantity:8,useProtected:false}),q=await f.read('prepareShopPurchase',p),i={...p,quoteAt:q.quoteAt,confirmation:q.confirmation},out=await Promise.allSettled([f.cmd('buyShopOffer',{...i,requestId:randomUUID()}),f.cmd('buyShopOffer',{...i,requestId:randomUUID()})]);assert.equal(out.filter(r=>r.status==='fulfilled').length,1);assert.equal((await f.remaining()).quantity,0);assert.equal((await f.wallet()).balance,680);
   const registration=(await f.store.list(`${f.base}/registrations`)).find(r=>r.characterId===f.cid);await f.store.runTransaction(async tx=>tx.set(`${f.base}/registrations/${registration.id}`,{...registration,accessActive:false}));await assert.rejects(f.read('galacticMarkets'),{code:'FORBIDDEN'});
+ });
+
+ test(`${prefix} : marchandise importée ou provenance inconnue sans dédouanement jamais rachetée`,async()=>{
+  const f=await planetMarketsFixture(makeStore);await f.configure({portId:'home'});const sale=await f.buy(2);await f.pickup(sale);const wallet=await f.wallet();
+  await f.store.runTransaction(async tx=>{const offer=await tx.get(`${f.base}/shops/counter/offers/supply`),shop=await tx.get(`${f.base}/shops/counter`),lot=await tx.get(`${f.base}/inventory/${sale.purchasedLotId}`);tx.set(`${f.base}/shops/destination`,{...shop,id:'destination'});tx.set(`${f.base}/shops/destination/offers/destination-offer`,{...offer,id:'destination-offer',shopId:'destination'});tx.set(`${f.base}/inventory/${lot.id}`,{...lot,location:{kind:'COMMERCIAL',id:f.cid,portId:'away'}});});
+  await f.configure({portId:'away',shopId:'destination',offerId:'destination-offer'});await f.move('away');let market=(await f.read('galacticMarkets')).markets.find(m=>m.portId==='away');await assert.rejects(f.read('preparePlanetSale',{marketId:market.id,lotId:sale.purchasedLotId,quantity:1}),{code:'PLANET_IMPORT_REQUIRED'});
+  await f.move('home');await f.store.runTransaction(async tx=>{const lot=await tx.get(`${f.base}/inventory/${sale.purchasedLotId}`);tx.set(`${f.base}/inventory/${lot.id}`,{...lot,location:{kind:'COMMERCIAL',id:f.cid,portId:'home'},origin:{kind:'UNKNOWN'}});});market=(await f.read('galacticMarkets')).markets.find(m=>m.portId==='home');await assert.rejects(f.read('preparePlanetSale',{marketId:market.id,lotId:sale.purchasedLotId,quantity:1}),{code:'PLANET_IMPORT_REQUIRED'});assert.deepEqual(await f.wallet(),wallet);
+ });
+
+ test(`${prefix} : une modification MJ concurrente invalide le formulaire et sa confirmation`,async()=>{
+  const f=await planetMarketsFixture(makeStore);await f.configure();const before=(await f.admin('galacticEconomyAdmin')).markets[0],input={portId:before.portId,itemId:before.itemId,commodityCode:before.commodityCode,marketState:'SURPLUS',shopId:before.shopId,offerId:before.offerId,demand:before.demand,enabled:true,recordRevision:before.revision,reason:'Formulaire ouvert avant une autre décision'},q=await f.admin('preparePlanetMarket',input);await f.configure({marketState:'TENSION'});
+  await assert.rejects(f.admin('preparePlanetMarket',input),{code:'STALE_REVISION'});await assert.rejects(f.adminCmd('savePlanetMarket',{...input,confirmation:q.confirmation}),{code:'STALE_REVISION'});assert.equal((await f.admin('galacticEconomyAdmin')).markets[0].quote.unitPrice,46);
  });
 
 }
