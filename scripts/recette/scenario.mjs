@@ -1,3 +1,4 @@
+import {prepareGalacticMaster,openGalacticMarkets} from './galactic.mjs';
 import {randomUUID,randomBytes,createHash} from 'node:crypto';
 import {admissionClasses} from '../../src/shared/admission-rules.mjs';
 import {initialClassKit} from '../../src/shared/initial-class-kit.mjs';
@@ -6,7 +7,7 @@ import {preparePilotMaster,provisionPilotShip,fundPilotFinds} from './pilot.mjs'
 
 // All changes go through native commands. No database writes, clock overrides,
 // canned confirmations, free wallet credits or authentication bypass here.
-export async function seedMissionScenario(call,uids,{pilot=false}={}){
+export async function seedMissionScenario(call,uids,{pilot=false,galactic=false}={}){
   const command=(action,input={},role='owner')=>call(action,{requestId:randomUUID(),...input},role);
   const created=await command('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'RECETTE LOCALE · obligations de mission',title:'Épisode fictif',capacity:4,privacy:'Identités et fiction synthétiques, émulateurs locaux uniquement.'});
   const {id:sessionId,campaignId}=created;
@@ -21,18 +22,18 @@ export async function seedMissionScenario(call,uids,{pilot=false}={}){
   for(const [role,name] of [['player','Ari'],['other','Bela']]){
     const revision=(await read('session')).revision,draftRevision=await draft();
     await cmd('beginAdmission',{token,sessionRevision:revision,policyRevision:1,draftRevision,consent:true},role);
-    await cmd('saveAdmissionProposal',{revision:1,sessionRevision:revision,policyRevision:1,draftRevision,proposal:{firstName:name,lastName:'Recette',speciesId:'human-test',classId:pilot&&role==='other'?'PIL':'MED',secondaryId:'COM-03',background:`Fiction privée de ${name}.`,friends:''},submit:true,consent:true},role);
+    await cmd('saveAdmissionProposal',{revision:1,sessionRevision:revision,policyRevision:1,draftRevision,proposal:{firstName:name,lastName:'Recette',speciesId:'human-test',classId:galactic&&role==='player'?'COU':pilot&&role==='other'?'PIL':'MED',secondaryId:'COM-03',background:`Fiction privée de ${name}.`,friends:''},submit:true,consent:true},role);
     await cmd('reviewAdmission',{uid:uids[role],revision:2,policyRevision:1,draftRevision,decision:'APPROVE',reason:'Personnage fictif de recette'});
     await confirm('previewAdmissionM2','prepareAdmissionM2',{uid:uids[role],reason:'Fiction approuvée de recette'});
   }
   let revision=await draft();const createdItems=new Set();
-  for(const classId of pilot?['MED','PIL']:['MED']){
+  for(const classId of galactic?['MED','COU']:pilot?['MED','PIL']:['MED']){
    const bindings=[];
    for(const slot of initialClassKit(classId).slots){
     const itemId=`kit_${slot.id}`;bindings.push({slotId:slot.id,itemId});
     if(createdItems.has(itemId))continue;
     createdItems.add(itemId);
-    await central('saveCentralItem',{itemId,itemRevision:0,draftRevision:revision++,item:{name:slot.label,description:'Objet fictif de recette',category:'Recette',unit:'unité',kind:slot.requiresConsumable?'STACKABLE':'INDIVIDUAL',consumable:slot.requiresConsumable,unitVolume:1,legality:'UNSPECIFIED',pillable:true,gmNotes:'SECRET_RECETTE_M1'},reason:'Kit natif de recette'});
+    await central('saveCentralItem',{itemId,itemRevision:0,draftRevision:revision++,item:{...(galactic?{usage:'PERSONAL'}:{}),name:slot.label,description:'Objet fictif de recette',category:'Recette',unit:'unité',kind:slot.requiresConsumable?'STACKABLE':'INDIVIDUAL',consumable:slot.requiresConsumable,unitVolume:1,legality:'UNSPECIFIED',pillable:true,gmNotes:'SECRET_RECETTE_M1'},reason:'Kit natif de recette'});
    }
    await central('saveCentralClassKit',{classKitId:classId,classKitRevision:0,draftRevision:revision++,classKit:{bindings,gmNotes:'Kit synthétique'},reason:'Kit de classe natif'});
   }
@@ -42,12 +43,13 @@ export async function seedMissionScenario(call,uids,{pilot=false}={}){
   await central('saveCentralFieldTarget',{fieldTargetId:'counter-place',fieldTargetRevision:0,draftRevision:revision++,fieldTarget:{kind:'ANALYSIS',title:'Comptoir balisé de recette',description:'Lieu fictif',gmNotes:'SECRET_RECETTE_LIEU',dependencyId:null,offlineSeconds:0,failureLockSeconds:0,repairProtectionSeconds:0,profiles:{ANALYZE:analysisProfile('COM-03')},rewards:[{id:'notice',kind:'KNOWLEDGE',knowledgeId:'notice',quantity:1,stock:1,perCharacter:1,minLevel:1,bonus:false}]},reason:'Lieu du comptoir'});
   await central('saveCentralShop',{shopId:'counter',shopRevision:0,draftRevision:revision++,shop:{name:'Dispensaire de recette',description:'Comptoir fictif',sellerCharacterId:'merchant',locationTargetId:'counter-place',gmNotes:'SECRET_RECETTE_M5'},reason:'Comptoir fictif'});
   await central('saveCentralOffer',{offerId:'supply',offerRevision:0,draftRevision:revision++,offer:{name:'Trousse de soin de recette',shopId:'counter',itemId:'kit_medical-supplies',unitPrice:30,buybackPrice:null,conditions:'Retrait physique',gmNotes:'Prix de fixture, pas un barème général'},reason:'Offre fictive'});
+  if(galactic)revision=await prepareGalacticMaster(central,revision);
   if(pilot)revision=await preparePilotMaster(central,revision);
   const mission={title:'Mission de recette',description:'Rencontrer le comptoir puis remettre le rapport.',gmNotes:'SECRET_RECETTE_M7',steps:[{id:'meet',title:'Rencontrer le contact',description:'SECRET_RECETTE_ETAPE : code ORION'},{id:'report',title:'Remettre le rapport',description:'Présenter le résultat au MJ'}],giverCharacterId:'merchant',requiredKnowledgeIds:[],rewardItems:[{itemId:'kit_medical-supplies',quantity:3}],conditions:'Présence et rapport',proofExpected:'Rapport examiné par le MJ'};
   await central('saveCentralMission',{missionId:'courier',missionRevision:0,draftRevision:revision++,mission,reason:'Mission fictive'});
   await confirm('previewSpaceOutlawsRelease','releaseSpaceOutlaws',{reason:'Version fictive pour les émulateurs'});
   for(const role of ['player','other']){
-    await confirm('previewSpaceOutlawsBirth','birthSpaceOutlaws',{uid:uids[role],options:{weaponApplicable:true,startingInformation:pilot&&role==='other'?'Itinéraire fictif transmis au pilote lors du briefing.':''},reason:'Naissance de recette'});
+    await confirm('previewSpaceOutlawsBirth','birthSpaceOutlaws',{uid:uids[role],options:{weaponApplicable:true,startingInformation:galactic&&role==='player'?'Cours publics : eau à Breach Port et au relais de Kessel.':pilot&&role==='other'?'Itinéraire fictif transmis au pilote lors du briefing.':''},reason:'Naissance de recette'});
     await cmd('confirmBriefing',{},role);
   }
   // Session staff are distinct from campaign workshop delegations.
@@ -67,6 +69,7 @@ export async function seedMissionScenario(call,uids,{pilot=false}={}){
   const source=(await read('session')).accounts.find(a=>a.ownerType==='SHOP'&&a.shopId==='counter');
   const contract=await confirm('prepareMissionContract','proposeMissionContract',{applicationId:application.id,amount:100,durationMinutes:60,funding:'ACCOUNT',sourceAccountId:source.id,advance:0,guarantee:0,conditions:mission.conditions,proofExpected:mission.proofExpected,confidentiality:'Réservé au titulaire',failureTerms:'Examen contradictoire MJ',rewardSources:[{itemId:'kit_medical-supplies',offerId:'supply'}],reason:'Budget sur caisse réelle du comptoir'});
   await confirm('prepareContractAcceptance','acceptContract',{contractId:contract.id},'player');
+  if(galactic)await openGalacticMarkets(read,cmd,confirm);
   await cmd('setStage',{stage:'PAUSE',revision:(await read('session')).revision});
   if(pilot)await fundPilotFinds(read,cmd);
   const other=await command('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'RECETTE LOCALE · autre session',title:'Isolation sans participant',capacity:2,privacy:'Aucune identité réelle.'});
