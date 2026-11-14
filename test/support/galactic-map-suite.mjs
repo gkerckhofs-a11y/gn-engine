@@ -62,4 +62,8 @@ export function galacticMapSuite(makeStore,prefix='Carte galactique'){
   const g=await spaceGroupPilotFixture(makeStore);await g.refuelGroup(6);const gd=await map(g,{shipId:g.shipId,codes:['AWAY-CODE'],destinationId:'away'}),gq=await g.read('prepareVoyage',{shipId:g.shipId,navigationCode:'AWAY-CODE',passengerCodes:[]});assert.equal(gd.routes[0].fuelCost,gq.route.fuelCost);assert.equal(gd.routes[0].fuelCost,2);assert.equal(gd.routes[0].minimumDepartureFuel,3);await g.reserve();g.advance(180000);await g.navCommand('finishSoPreparation',{shipId:g.shipId});assert.equal((await g.ship()).fuel,4);
  });
 
+ test(`${prefix} : ancienne session de navigation sans moteur d’analyse, aucun outil promis`,async()=>{
+  const f=await routeAnalysisFixture(makeStore);await f.store.runTransaction(async tx=>{const path=`sessions/${f.sid}`,s=await tx.get(path);tx.set(path,{...s,spaceOutlaws:{...s.spaceOutlaws,routeAnalysisVersion:0}});});const d=await map(f,{codes:['AWAY-CODE']});assert.equal(d.canNavigate,true);assert.equal(d.canAnalyze,false);assert.equal(d.routes[0].analysisAvailable,false);assert.equal(d.routes[0].fuelCost,2);
+ });
+
 }

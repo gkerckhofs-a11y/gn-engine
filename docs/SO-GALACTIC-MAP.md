@@ -12,8 +12,8 @@ Guillaume a explicitement autorisé la publication Firebase **une fois tout fina
 
 - Entrée « Carte galactique » dans le Terminal, les outils organisateur et la navigation du vaisseau.
 - Routes `#/galactic-map/SESSION` et `#/galactic-map-admin/SESSION`, paramètres facultatifs `ship` et `destination`. Les anciennes routes restent disponibles. Aucun code de navigation ni accès privé dans ces liens.
-- Carte SVG sombre, étoiles, destinations sélectionnables et flèches orientées ; placement schématique explicitement annoncé, sans invention de coordonnées ni de distances géographiques. Alternative textuelle avec les mêmes liens, conditions et tableaux, clavier et mode mouvement réduit.
-- Comparaison des chemins connus selon la durée puis le carburant, ou le carburant puis la durée ; rejet des tronçons excédant le réservoir, cumul des durées natives, escales intermédiaires et minimum de carburant supplémentaire à prévoir. Aucune disponibilité de ravitaillement garantie. Aucun retour obligatoire à Breach Port.
+- Carte SVG sombre, étoiles, destinations sélectionnables, flèches orientées et itinéraires calculés en doré ; placement schématique explicitement annoncé, sans invention de coordonnées ni de distances géographiques. Alternative textuelle avec les mêmes liens, conditions et tableaux, clavier et mode mouvement réduit.
+- Comparaison des chemins connus selon la durée puis le carburant, ou le carburant puis la durée ; rejet des tronçons excédant le réservoir, distances publiées, cumul des durées natives, escales intermédiaires et minimum de carburant supplémentaire à prévoir. Aucune disponibilité de ravitaillement garantie. Aucun retour obligatoire à Breach Port.
 - Passage au formulaire natif de vol avec le code explicitement saisi déjà connu ; aucune soumission automatique. Un itinéraire connu par une analyse sans code conservé demande encore le code dans ce formulaire.
 
 ## Matrice de réutilisation et droits
@@ -47,7 +47,7 @@ Le contrôle natif du vaisseau collectif exige une unité supplémentaire dispon
 
 ## Vérifications et limites
 
-Les commandes et résultats finaux locaux sont consignés dans la PR avec le SHA candidat. Sélection : carte et rendu, vols, analyses PIL-01, vaisseau, pilote collectif et remorquage ; compléments Terminal, organisateur, marchés et kit de recette. Compilation, syntaxe et `git diff --check` exigés. Huit cas carte Firestore et un cas HTTP/Auth sont exécutés sur `demo-gn-engine`. Le kit synthétique passe aussi en mémoire via ses commandes natives.
+Les commandes et résultats finaux locaux sont consignés dans la PR avec le SHA candidat. Sélection : carte et rendu, vols, analyses PIL-01, vaisseau, pilote collectif et remorquage ; compléments Terminal, organisateur, marchés et kit de recette. Compilation, syntaxe et `git diff --check` exigés. Neuf cas carte Firestore et un cas HTTP/Auth sont exécutés sur `demo-gn-engine`. Le kit synthétique passe aussi en mémoire via ses commandes natives.
 
 La recette Chromium ajoute ports publics sans outil de navigation, code explicite du Pilote, sélection clavier sur SVG, estimation, préremplissage du vol, conservation dans l’onglet, absence de consommation, régie et captures 390/1440 pixels. Son résultat CI et ses captures doivent encore être constatés sur le nouveau SHA ; aucun résultat Android/iOS ou terrain n’est affirmé.
 
