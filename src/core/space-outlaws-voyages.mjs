@@ -23,7 +23,7 @@ import {warehouseStock,stockVolume} from './storage-state.mjs';
 import {gameTime} from './clock.mjs';
 import {moneyText} from './economy-state.mjs';
 import {actionPointPath,actionPointState,reserveActionPoints,resolveActionPoints,releaseActionPoints,actionPointMaximum} from './action-point-state.mjs';
-import {hasItemCircuits} from './item-circuits.mjs';
+import {hasItemCircuits,transferableItem} from './item-circuits.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {hasSoNavigation,navigationSkill,soRoute,soShipProfile,soVoyageEvent} from './space-outlaws-navigation-state.mjs';
 
@@ -187,7 +187,7 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
     towing?hash(JSON.stringify([nativeConfirmation,towing.confirmationState])):nativeConfirmation;
    const isPilot=!admin&&(groupShip?!!grant:ship.pilotId===c.id);
    const mandateChanged=groupShip&&isPilot&&!!ship.operation&&ship.operation.groupPilotGrant!==grant;
-   const fuelAllowed=l=>!!l&&(!hasItemCircuits(s)||l.item.usage==='FUEL')&&personalLot(l,c?.id)&&l.status==='AVAILABLE'&&l.quantity>0&&l.item.id===ship.navigation.fuelItemId&&(l.transferable!==false||!groupShip&&ship.ownerId===c.id)&&(!groupShip||!l.transportContractId);
+   const fuelAllowed=l=>!!l&&(!hasItemCircuits(s)||l.item.usage==='FUEL')&&personalLot(l,c?.id)&&l.status==='AVAILABLE'&&l.quantity>0&&l.item.id===ship.navigation.fuelItemId&&(transferableItem(l)||!groupShip&&ship.ownerId===c.id)&&(!groupShip||!l.transportContractId);
    if(stationRead){
     requireThat(isPilot&&ship.cockpit?.status==='ASSIGNED'&&ship.cockpit.stationId===station.id&&ship.cockpit.operationId===station.operationId&&ship.cockpit.pilotId===c.id,'COCKPIT_UNAVAILABLE');
     requireThat(!mandateChanged,'FORBIDDEN');
@@ -255,7 +255,7 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
     if(a.kind==='REFUEL'){
      requireThat(cancelling||action==='finishSoRefuel','NAVIGATION_OPERATION_CLOSED');const lot=await tx.get(`${base}/inventory/${a.lotId}`);requireThat(lot?.status==='FIELD_RESERVED'&&lot.fieldActionId===a.id,'INVALID_FUEL');
      const quantity=lot.quantity-(cancelling?0:a.quantity);requireThat(quantity>=0,'INSUFFICIENT_STOCK');const nextLot={...lot,quantity,status:quantity?'AVAILABLE':'CONSUMED',fieldActionId:null,revision:lot.revision+1};
-     if(!cancelling){requireThat(!hasItemCircuits(s)||a.escortContractId||personalLot(lot,pilotCharacter.id)&&lot.item.usage==='FUEL'&&lot.item.id===ship.navigation.fuelItemId,'INVALID_FUEL');requireThat(ship.docked&&!ship.journey&&characterPort(s,pilotCharacter)===ship.portId,'SHIP_NOT_LOCAL');next.fuel=whole(ship.fuel+a.quantity,'INVALID_FUEL');requireThat(next.fuel<=ship.navigation.tankCapacity,'TANK_FULL');}
+     if(!cancelling){requireThat(!hasItemCircuits(s)||a.escortContractId||personalLot(lot,pilotCharacter.id)&&lot.item.usage==='FUEL'&&lot.item.id===ship.navigation.fuelItemId&&(transferableItem(lot)||!groupShip&&ship.ownerId===pilotCharacter.id),'INVALID_FUEL');requireThat(ship.docked&&!ship.journey&&characterPort(s,pilotCharacter)===ship.portId,'SHIP_NOT_LOCAL');next.fuel=whole(ship.fuel+a.quantity,'INVALID_FUEL');requireThat(next.fuel<=ship.navigation.tankCapacity,'TANK_FULL');}
      if(a.escortContractId)await finishEscortRefuel(tx,s,ship,lot,cancelling,at,id,actor.uid);else{tx.set(`${base}/inventory/${lot.id}`,nextLot);tx.set(`${base}/inventory/${lot.id}/history/${id}`,{id,at,kind:action,before:lotState(lot),after:lotState(nextLot)});}tx.set(`${base}/characters/${pilotCharacter.id}`,clear);
     }else{
      requireThat(a.kind==='PREPARE'&&(cancelling||action==='finishSoPreparation'),'NAVIGATION_OPERATION_CLOSED');
