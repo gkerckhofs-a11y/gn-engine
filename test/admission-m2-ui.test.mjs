@@ -9,7 +9,7 @@ test('Admission vers M2 UI : accès selon droits et état, consultation après r
  assert.match(admin('APPROVED',true),/data-action="previewAdmissionM2" data-uid="participant"/);
  assert.doesNotMatch(admin('APPROVED',false),/data-action="previewAdmissionM2"/);
  for(const status of ['DRAFT','SUBMITTED','CORRECTION','WAITLISTED','REFUSED','WITHDRAWN'])assert.doesNotMatch(admin(status,true),/data-action="previewAdmissionM2"/);
- const html=admin('WITHDRAWN',true,{changedSincePreparation:true,approved:false});assert.match(html,/Consulter la préparation M2/);assert.match(html,/rapprochement nécessaire/);assert.match(html,/actuellement non approuvée/);
+ const html=admin('WITHDRAWN',true,{changedSincePreparation:true,approved:false});assert.match(html,/Consulter la fiche préparée/);assert.match(html,/rapprochement nécessaire/);assert.match(html,/actuellement non approuvée/);
 });
 test('Admission vers M2 UI : fiction échappée et frontière privée explicite',()=>{
  const html=ui.m2Preview(preview,'participant');assert.doesNotMatch(html,/<script>|<img |<svg>/);assert.match(html,/&lt;script&gt;Ari/);assert.match(html,/Biographie privée/);assert.match(html,/organisateurs habilités/);assert.match(html,/souhaits d’amis/);assert.match(html,/aucun personnage actif, kit, crédit ou QR/);assert.doesNotMatch(html,/name="(?:email|credits|characterId|classId|role)"/);
@@ -19,7 +19,7 @@ test('Admission vers M2 UI : motif et confirmation exigés, empreinte transmise 
  const source=readFileSync(new URL('../web/app.mjs',import.meta.url),'utf8');assert.match(source,/kind==='prepareAdmissionM2'\)\{if\(v.confirmed!=='on'\)return;await mutate\('prepareAdmissionM2',\{sessionId:form.dataset.sid,uid:form.dataset.uid,confirmation:form.dataset.confirmation,reason:v.reason\}\)/);
 });
 test('Admission vers M2 UI : fiche existante archivée sans nouvelle confirmation ni restauration',()=>{
- const html=ui.m2Preview({campaignId:'campaign',alreadyPrepared:{characterId:'existing'},archived:true,state:{changedSincePreparation:true,approved:false}},'participant');assert.doesNotMatch(html,/data-form=|type="submit"|name="confirmed"/);assert.match(html,/ne remplace pas les éditions ultérieures/);assert.match(html,/restauration relève de l’éditeur M2/);assert.match(html,/vérifier le rapprochement/);assert.match(html,/plus approuvée/);assert.match(html,/href="#\/central\/campaign\/M2"/);
+ const html=ui.m2Preview({campaignId:'campaign',alreadyPrepared:{characterId:'existing'},archived:true,state:{changedSincePreparation:true,approved:false}},'participant');assert.doesNotMatch(html,/data-form=|type="submit"|name="confirmed"/);assert.match(html,/ne remplace pas les modifications faites depuis/);assert.match(html,/restauration relève de l’éditeur M2/);assert.match(html,/vérifier le rapprochement/);assert.match(html,/plus approuvée/);assert.match(html,/href="#\/central\/campaign\/M2"/);
 });
 test('Admission vers M2 UI : erreurs actionnables et aucune nouvelle liaison exposée au joueur',()=>{
  for(const code of ['ADMISSION_NOT_APPROVED','ADMISSION_M2_STALE','ADMISSION_M2_NAME_TOO_LONG','ADMISSION_M2_COLLISION','ADMISSION_M2_LINK_BROKEN'])assert.ok(admissionErrors[code]?.length>30,code);

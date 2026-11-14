@@ -1,5 +1,7 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+Refonte pédagogique HRP du 14 novembre 2026 : [audit, corrections et tests ciblés](SO-HRP-EDITORIAL.md). Candidat après #37 ; textes et présentation uniquement, règles et droits conservés. CI exacte dans la PR ; aucun déploiement.
+
 Module Vaisseau partagé du 14 novembre 2026 : [audit, réutilisation, permissions et validation](SO-SHARED-SHIP-CREW.md). Page par vaisseau, capitaine volontaire, équipages et opérations natives ; candidat sur branche après #36, aucune fusion ni publication Firebase. Résultats et SHA exacts dans la PR.
 
 Navigation organisateur et essai solo du 14 novembre 2026 : [parcours, sécurité et tests ciblés](SO-ORGANIZER-TEST-NAVIGATION.md). Administration prioritaire, huit profils directs, retour à la régie et guide Préparer ; candidat sur branche, aucun déploiement autorisé. Le pipeline Firebase antérieur 43574851449 a été annulé et la publication automatique suspendue à la demande de Guillaume.

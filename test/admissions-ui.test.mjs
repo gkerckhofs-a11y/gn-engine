@@ -18,7 +18,7 @@ test('Admissions UI : catalogue sans JSON technique, ajout non soumettant et ouv
 });
 test('Admissions UI : décision MJ distincte de la préparation M2 et de la dotation',()=>{
  const html=ui.admin({sessionId:'s',settings:{open:true},invitations:[],registrations:[{email:'<script>',admission:{status:'SUBMITTED',proposal:{...d.proposal,firstName:'<svg>',lastName:'A',friends:'<img>'}}}]});
- assert.match(html,/aucun kit, crédit ou QR actif/);assert.match(html,/data-action="reviewAdmission"/);assert.doesNotMatch(html,/<script>|<svg>|<img>|data-action="assign"/);
+ assert.match(html,/son équipement, ses crédits et son accès de jeu se préparent ensuite/);assert.match(html,/data-action="reviewAdmission"/);assert.doesNotMatch(html,/<script>|<svg>|<img>|data-action="assign"/);
 });
 
 test('Admissions UI : candidat confirmé verrouillé, message privé échappé et retrait explicite',()=>{

@@ -8,7 +8,7 @@ const ui=createTransferUi(helpers),evil='<img src=x onerror="bad()">';
 const item={id:'item',name:evil,description:evil,unit:'dose',kind:'STACKABLE',category:'Médical',revision:1,consumable:true};
 const transfer={id:'proposal',source:{id:'alice',name:evil},recipient:{id:'bob',name:evil},item,lotId:'lot',quantity:8,before:20,remaining:12,confirmation:'proof',status:'PENDING',direction:'IN',canAccept:true,canClose:true};
 test('remise UI : quantité bornée, badge et récapitulatif avant proposition sans retrait immédiat',()=>{
-  const form=ui.form('session',{id:'lot',item,quantity:20});assert.match(form,/name="badgeUrl" type="text" required/);assert.match(form,/name="quantity"[^>]*max="20"/);assert.match(form,/stock n’est pas réservé/);assert.doesNotMatch(form,/<img/);
+  const form=ui.form('session',{id:'lot',item,quantity:20});assert.match(form,/name="badgeUrl" type="text" required/);assert.match(form,/name="quantity"[^>]*max="20"/);assert.match(form,/proposition seule ne met pas les objets de côté/);assert.doesNotMatch(form,/<img/);
   const confirm=ui.confirm(transfer,{sessionId:'session',quantity:8});assert.match(confirm,/20 → 12/);assert.match(confirm,/seulement après acceptation/);assert.match(confirm,/proposeLotTransfer/);assert.doesNotMatch(confirm,/<img/);
 });
 test('remise UI : acceptation avec consentement obligatoire, refus et annulation distincts',()=>{
