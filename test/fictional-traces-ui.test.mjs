@@ -23,3 +23,14 @@ test('Traces spatiales : carte N4, données préparées et parcours sans seconde
  assert.match(spatialTraceResultHtml({pursuit:{success:true,roll:6,total:10,current:false,nextSegment:'<secret>'}}),/n’est plus actuelle/);assert.match(spatialTraceResultHtml({pursuit:{success:true,nextSegment:'<secret>'}}),/&lt;secret&gt;/);
  assert.equal(shipTraceBindingsHtml({parent:{}}),'');assert.match(shipTraceBindingsHtml({parent:{tracesReady:true},fieldTargets:[{id:'b',title:'Balise',tracePolicy:p}],traceShips:[{id:'s',name:'Vaisseau'}]}),/data-field-form="traceBind"/);
 });
+
+
+test('Filature depuis le quai : préparation native, balise conservée et manifeste autorisé',async()=>{
+ const {pursuitLaunchPath,pursuitLaunchShips,pursuitLaunchHtml,pursuitSelectionHtml}=await import('../web/fictional-traces.mjs');
+ const ships=[{shipId:'mine',pilotId:'pilot',name:'<Cargo>',journey:null},{shipId:'passenger',pilotId:'other',name:'Transport',operation:{manifest:[{id:'pilot'}]}},{shipId:'owner-only',pilotId:'other',ownerId:'pilot'},{shipId:'moving',pilotId:'pilot',journey:{id:'voyage'}},{shipId:'wreck',pilotId:'pilot',wreckSpacePosition:{}}];
+ assert.deepEqual(pursuitLaunchShips({ships},'pilot').map(s=>s.shipId),['mine','passenger']);
+ const path=pursuitLaunchPath('session','beacon','mine');assert.equal(path,'#/act/session/FIL-01-pursuit/beacon?launchShipId=mine');
+ const html=pursuitSelectionHtml({ships:[]},'session','beacon',pursuitLaunchShips({ships},'pilot'));
+ assert.match(html,/Partir depuis le quai/);assert.match(html,/beacon\?launchShipId=mine/);assert.match(html,/&lt;Cargo&gt;/);assert.doesNotMatch(html,/owner-only|moving|wreck/);
+ const launch=pursuitLaunchHtml('session','beacon','mine');assert.match(launch,/data-action="refresh"/);assert.match(launch,/pilote confirme son trajet/);assert.match(launch,/beacon\?launchShipId=mine/);
+});
