@@ -26,3 +26,8 @@ L’interface distingue « installé » et « dans l’inventaire » et ne propo
 ## Limites et prochaine étape
 
 C2.2 est complété pour les modules installés et déposés appartenant à un droïde joueur actif. Une réparation pour un propriétaire humanoïde, un entrepôt ou un comptoir n’est pas ouverte par ce parcours. Les prestations PNJ droïdes restent à raccorder aux paiements natifs. C3 rares/prototypes, C5 soutes/coffres, C6 services/fret/contrats et la recette intégrée restent ouverts. Cette tranche ne certifie ni navigateur réel, ni téléphone, ni GN grandeur nature. Aucun déploiement Firebase, fusion, migration ni changement de permissions.
+
+
+### Complément ultérieur : prestations PNJ
+
+Le parcours PNJ sur les modules personnels du propriétaire droïde est désormais raccordé aux comptes et interventions natifs : [rapport C2/C3 PNJ et limites](SO-CLOTURE-C2-C3-PNJ-DROIDES-2026-11-15.md). Les mentions de prestations PNJ encore ouvertes ci-dessus décrivent le périmètre historique de ce rapport.

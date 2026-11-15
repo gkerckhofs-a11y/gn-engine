@@ -992,3 +992,12 @@ Le cahier des charges de clôture reste en cours. Les rapports suivants décrive
 | Réparation DR-01–06 dans le sac du propriétaire droïde | Implémenté, identité/contenu/emplacement conservés, pas de pose automatique | 55 tests applicatifs ciblés ; 4 Firestore et 1 HTTP/Auth ; compilation | Prestations PNJ et propriétaires non droïdes hors de ce parcours ; recette humaine manquante |
 
 Détails, commandes et base CI : [rapport C2.2 modules déposés](SO-CLOTURE-C2-DROIDES-DEPOSES-2026-11-15.md). Le dernier SHA et sa CI sont suivis dans la PR #45 ; les validations antérieures ne valent pas preuve du nouveau candidat.
+
+
+### Complément C2.2 / C3 — 15 novembre 2026 : prestations PNJ droïdes
+
+| Périmètre | État démontré | Preuve | Limite |
+| --- | --- | --- | --- |
+| Pose, retrait et réparation DR-01–06 par atelier PNJ préparé | Parcours natif, devis, capacité finie, réservation et restitution des catégories de crédits | 193 tests applicatifs ciblés ; 8 scénarios partagés mémoire/Firestore ; 1 HTTP/Auth ; compilation | Propriétaire droïde actif, module et pièces apportés ; négociation des prestations au lot C6 ; recette humaine manquante |
+
+[Sources, barèmes, validations et limites](SO-CLOTURE-C2-C3-PNJ-DROIDES-2026-11-15.md). Base `31b3605592e26ea1a77eddb0c17ca904888e5f21`, CI 43732238948 entièrement réussie. Le SHA du nouveau candidat et sa CI restent suivis dans PR #45.

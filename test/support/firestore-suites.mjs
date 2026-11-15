@@ -1,6 +1,7 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {id:"space-droid-services",module:"../support/space-droid-services-suite.mjs",exportName:"droidServiceSuite",label:"Prestations PNJ droïdes sur Firestore",seconds:90},
   {"id":"space-native-sabotage","module":"../support/space-native-sabotage-suite.mjs","exportName":"nativeSabotageSuite","label":"Sabotages natifs sur Firestore","seconds":85},
   {"id":"space-installation-repair","module":"../support/space-installation-repair-suite.mjs","exportName":"installationRepairSuite","label":"Pannes durables installations sur Firestore","seconds":65},
   {"id":"space-module-repair","module":"../support/space-module-repair-suite.mjs","exportName":"moduleRepairSuite","label":"Réparation durable modules vaisseaux sur Firestore","seconds":65},

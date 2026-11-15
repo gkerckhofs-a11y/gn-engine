@@ -2104,6 +2104,23 @@ test('HTTP + Auth : recharge mécanique, réservation, reçu unique et révocati
  assert.equal((await request('finishPersonAction',{sessionId,...input},player)).status,403);
 });
 
+test('HTTP + Auth : prestation PNJ droïde, crédits réservés et règlement unique',async()=>{
+ const {droidServiceFixture}=await import('../support/space-droid-services-suite.mjs');
+ const f=await droidServiceFixture(()=>firestoreStore(getFirestore()));
+ const {db,base,sessionId,player,outsider,call,cmd,uid}=await towingHttpActors({...f,otherId:f.tid},1000);
+ const input=f.input();
+ assert.equal((await request('preparePersonAction',{sessionId,...input})).status,401);
+ assert.equal((await request('preparePersonAction',{sessionId,...input},outsider)).status,403);
+ const q=await call('preparePersonAction',input,player);assert.equal(q.payment.amount,100);assert.equal(q.payment.protectedAmount,100);assert.equal(q.cost,0);
+ const start={...input,present:true,confirmation:q.confirmation,requestId:randomUUID()},a=await cmd('startPersonAction',start,player);assert.deepEqual(await cmd('startPersonAction',start,player),a);
+ assert.equal((await f.till()).reserved,100);assert.equal((await f.wallet()).protectedCredits,100);
+ const active=(await db.doc(`${base}/personActions/${a.id}`).get()).data();await db.doc(base).update({clock:{elapsedMs:active.readyAtGameMs+1000,runningSince:Date.now()}});
+ const finish={actionId:a.id,present:true,requestId:randomUUID()},r=await cmd('finishPersonAction',finish,player);assert.deepEqual(await cmd('finishPersonAction',finish,player),r);assert.equal(r.payment.status,'PAID');
+ assert.equal((await f.till()).reserved,0);assert.equal((await f.till()).balance,100);assert.equal((await f.profile('INSTALL')).serviceStock.remaining,0);assert.equal((await f.get('inventory/module')).status,'INSTALLED');
+ const mine=await call('myPersonActions',{},player);assert.doesNotMatch(JSON.stringify(mine),/payerAccountId|tillAccountId|serviceStock/);
+ await cmd('revokeAccess',{uid:uid(player)});assert.equal((await request('finishPersonAction',{sessionId,...finish},player)).status,403);
+});
+
 test('HTTP + Auth : module droïde déposé, réparation consentie sans installation et reçu unique',async()=>{
  const {droidWorkFixture}=await import('../support/space-droid-work-suite.mjs');
  const f=await droidWorkFixture(()=>firestoreStore(getFirestore()),{damaged:true});

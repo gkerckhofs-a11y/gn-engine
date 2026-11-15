@@ -1548,3 +1548,10 @@ Voir la [matrice courante](MATRICE-SPACE-OUTLAWS-V3.md#clôture-des-compétences
 Base `f6862d85c55a283595fb0786fcab494663866e18` : [CI 43728819222](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/43728819222) entièrement réussie, dix jobs dont six lots Firestore. Nouveau raccord dans le moteur natif : réparation dans le sac du propriétaire droïde, sans installation ni recharge, consentement et révisions conservés.
 
 55 tests applicatifs ciblés, quatre tests Firestore et un parcours HTTP/Auth réussis sur émulateurs `demo-gn-engine` ; compilation et diff-check réussis. [Rapport et limites](SO-CLOTURE-C2-DROIDES-DEPOSES-2026-11-15.md). Les tests de la base ne valident pas le nouveau SHA : état exact dans la [PR #45](https://github.com/gkerckhofs-a11y/gn-engine/pull/45). Prestations PNJ droïdes, modules rares/prototypes, C5, C6 et recette intégrée restent ouverts. Aucun merge ni déploiement Firebase.
+
+
+## 15 novembre 2026 — C2.2 / C3, prestations PNJ droïdes
+
+Base `31b3605592e26ea1a77eddb0c17ca904888e5f21` : [CI 43732238948](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/43732238948) réussie, dix jobs dont six lots Firestore. Pose, retrait et réparation du module personnel par un atelier PNJ : mêmes objets, protocole et durée, capacité finie, paiement natif réservé et remboursement sans conversion des crédits protégés. Nouvelle capacité de publication `droidServicesVersion=1`, aucune migration implicite.
+
+193 tests applicatifs ciblés réussis ; huit scénarios partagés mémoire/Firestore et un HTTP/Auth couvrent notamment concurrence, crédits protégés, révocation, rollback, STOP et continuité d’épisode. Compilation et diff-check réussis. [Rapport détaillé](SO-CLOTURE-C2-C3-PNJ-DROIDES-2026-11-15.md). CI du nouveau commit suivie dans la [PR #45](https://github.com/gkerckhofs-a11y/gn-engine/pull/45), distincte de la base. Rares/prototypes, C5, C6 et recette intégrée restent ouverts. Aucun merge ni déploiement Firebase.

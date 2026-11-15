@@ -1,3 +1,4 @@
+import {isDroidPnj,requireDroidProvider} from './space-droid-services.mjs';
 import {droidModuleWork} from '../shared/space-droid-modules.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {abilityLevel} from './abilities.mjs';
@@ -28,12 +29,12 @@ export async function requireDroidWorkshop(tx,s,p,at){
 export function installedDroidModule(c,l){return l?.status==='INSTALLED'&&(l.ownerType??'CHARACTER')==='CHARACTER'&&l.ownerId===c.id&&l.holderId===c.id&&l.location?.kind==='DROID_MODULE'&&l.location.id===c.id&&c.droidModules?.some(m=>m.lotId===l.id&&m.code===l.item.droidModule?.code);}
 const binding=(t,l,consent)=>hash(JSON.stringify([t.id,t.droidModules??[],l.id,l.revision,l.ownerId,l.ownerType??'CHARACTER',l.holderId,l.location,l.status,l.item.droidModule,l.moduleState??null,consent??null]));
 export async function droidWorkPlan(tx,s,c,t,p,input,at,{ownerApproval=false}={}){
- await requireDroidWorkshop(tx,s,p,at);requireThat(t.nature==='DROID'&&t.hp>0&&!t.outOfCombat&&!t.survival?.dead,'PATIENT_NATURE_MISMATCH');
+ await requireDroidWorkshop(tx,s,p,at);await requireDroidProvider(tx,s,c,t,p);requireThat(t.nature==='DROID'&&t.hp>0&&!t.outOfCombat&&!t.survival?.dead,'PATIENT_NATURE_MISMATCH');
  const l=await tx.get(`sessions/${s.id}/inventory/${documentId(input.moduleLotId)}`),q=droidModuleWork(l?.item.droidModule?.code,p.moduleOperation);requireThat(q&&l.quantity===1,'SO_DROID_MODULE');
  requireThat(!l.memoryActionId&&!l.sabotageActionId,'FIELD_TARGET_BUSY');const installing=q.operation==='INSTALL';requireThat(!installing||l.ownerId===t.id||l.transferable!==false&&l.origin?.kind!=='SO_BIRTH','SO_DROID_MODULE');
  const deposited=q.operation==='REPAIR'&&l.status==='AVAILABLE'&&personalLot(l,t.id)&&!t.droidModules?.some(m=>m.lotId===l.id);
  requireThat(installing?l.status==='AVAILABLE'&&(personalLot(l,c.id)||personalLot(l,t.id)):deposited||installedDroidModule(t,l),'SO_DROID_MODULE');
- requireThat(abilityLevel(c,q.skillId)>=q.minLevel&&(q.operation!=='REPAIR'||abilityLevel(c,'MEC-03')>=q.level),'FIELD_SKILL_REQUIRED');
+ requireThat(isDroidPnj(p)||abilityLevel(c,q.skillId)>=q.minLevel&&(q.operation!=='REPAIR'||abilityLevel(c,'MEC-03')>=q.level),'FIELD_SKILL_REQUIRED');
  const state=installing||deposited?l.moduleState:t.droidModules.find(m=>m.lotId===l.id);
  requireThat(!installing||(t.droidModules??[]).length<2,'SO_DROID_SLOTS');
  requireThat(q.operation!=='REPAIR'||state?.status==='DAMAGED','MAINTENANCE_NOT_NEEDED');
@@ -49,7 +50,7 @@ export async function droidWorkPlan(tx,s,c,t,p,input,at,{ownerApproval=false}={}
   const parts=await tx.get(`sessions/${s.id}/items/${p.partsItemId}`);requireThat(parts?.versionId===s.versionId&&parts.referenceUnitValueCr===p.partsUnitValue&&q.partsValue%p.partsUnitValue===0,'SO_MODULE_PARTS');
   supply={itemId:p.partsItemId,quantity:q.partsValue/p.partsUnitValue};
  }
- return {lot:l,binding:binding(t,l,consent),profile:{...p,minLevel:q.minLevel,prerequisites:q.operation==='REPAIR'?[{skillId:'MEC-03',minLevel:q.level}]:[],durationSeconds:q.seconds,consumable:supply,moduleCode:q.code,moduleLotId:l.id,moduleOriginalStatus:l.status,moduleConsent:consent,modulePlan:q}};
+ return {lot:l,binding:binding(t,l,consent),profile:{...p,minLevel:isDroidPnj(p)?0:q.minLevel,prerequisites:!isDroidPnj(p)&&q.operation==='REPAIR'?[{skillId:'MEC-03',minLevel:q.level}]:[],durationSeconds:q.seconds,consumable:supply,moduleCode:q.code,moduleLotId:l.id,moduleOriginalStatus:l.status,moduleConsent:consent,modulePlan:q}};
 }
 export async function checkDroidWork(tx,s,c,t,a,at){
  const l=await tx.get(`sessions/${s.id}/inventory/${a.profile.moduleLotId}`);requireThat(l?.status==='FIELD_RESERVED'&&l.fieldActionId===a.id,'SO_DROID_MODULE');
@@ -89,7 +90,7 @@ export async function droidWorkOptions(tx,s,c,t,profiles,at){
  const row=l=>{const installed=installedDroidModule(t,l),m=installed?t.droidModules.find(m=>m.lotId===l.id):l.moduleState;return {id:l.id,name:l.item.name,code:l.item.droidModule.code,status:l.status,condition:m?.status??'OPERATIONAL',repairable:m?.status==='DAMAGED'&&(installed||l.status==='AVAILABLE'&&personalLot(l,t.id)),neutralizedMs:Math.max(0,(m?.neutralizedUntilGameMs??0)-gameTime(s.clock,at)),...(l.item.droidModule.code==='DR-01'?{protectionCharge:t.protectionSourceLotId===l.id?t.protection:m?.protectionCharge??0}:{})};};
  const options={moduleLots:modules.map(row)};
  if(own&&c.nature==='DROID'){
-  const choices=(await tx.list(`sessions/${s.id}/personProfiles`)).filter(p=>isDroidWork(p)&&p.publicationState==='PUBLISHED');
+  const choices=(await tx.list(`sessions/${s.id}/personProfiles`)).filter(p=>isDroidWork(p)&&!isDroidPnj(p)&&p.publicationState==='PUBLISHED');
   options.droidWorkshop={profiles:choices.map(p=>({id:p.id,name:p.name,operation:p.moduleOperation,workshop:p.clinicTitle})),modules:modules.map(row),consent:consent?{moduleLotId:consent.moduleLotId,profileId:consent.profileId}:null};
  }
  return options;

@@ -104,6 +104,7 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
    if(/^(characters\/[^/]+(?:\/healthHistory\/[^/]+)?|healthHistory\/[^/]+)$/.test(relative))continue;
    if(path===base.slice(0,-1)){const next=pending.get(path),strip=({revision,...rest})=>rest;requireThat(next.revision===session.revision+1&&isDeepStrictEqual(strip(session),strip(next)),'SO_GAMEPLAY_NOT_OPEN');continue;}
   }
+  if(scopes.has('DROID_SERVICE')&&session.spaceOutlaws.droidServicesVersion===1&&/^(personProfiles\/SO-DROID-[^/]+|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('CARE')&&/^(personActions\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/(?:resources\/actionPoints|fieldCooldowns\/[^/]+|cooldowns\/field-care|diagnoses\/[^/]+|healthHistory\/[^/]+))?)$/.test(relative))continue;
   if(scopes.has('FICTIONAL_TRACES')&&session.spaceOutlaws.fictionalTracesVersion===1&&/^(fictionalTraces|fictionalTraceHeads|fictionalTraceMasks|fictionalTraceActors|fictionalTraceConsents|fictionalShipTraceBindings|fictionalShipTraceTargets|fictionalPursuits|fictionalTraceAlerts)\/[^/]+$/.test(relative))continue;
   if(scopes.has('TOXICOLOGY')&&session.spaceOutlaws.toxicologyVersion===1&&/^(toxicDoses\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/healthHistory\/[^/]+)?)$/.test(relative))continue;

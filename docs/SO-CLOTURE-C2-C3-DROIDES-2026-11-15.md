@@ -44,3 +44,8 @@ Cette tranche ne clôt pas MEC-03 ni l’ensemble de C2. La réparation livrée 
 ## Complément ultérieur du même jour
 
 La réparation d’un module déposé dans l’inventaire de son propriétaire droïde est désormais raccordée : voir [rapport dédié et preuves](SO-CLOTURE-C2-DROIDES-DEPOSES-2026-11-15.md). Les limites ci-dessus décrivent le périmètre de la livraison initiale ; les prestations PNJ restent ouvertes. C1, C2.3/C2.4 et C4 ont leurs rapports distincts dans la PR #45.
+
+
+### Complément ultérieur : prestations PNJ
+
+Le parcours PNJ sur les modules personnels du propriétaire droïde est désormais raccordé aux comptes et interventions natifs : [rapport C2/C3 PNJ et limites](SO-CLOTURE-C2-C3-PNJ-DROIDES-2026-11-15.md). Les mentions de prestations PNJ encore ouvertes ci-dessus décrivent le périmètre historique de ce rapport.
