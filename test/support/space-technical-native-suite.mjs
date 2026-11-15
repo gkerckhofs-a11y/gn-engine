@@ -1,3 +1,4 @@
+import {fieldTargetHtml} from '../../web/field-actions.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
@@ -49,7 +50,7 @@ export function nativeTechnicalSuite(makeStore,prefix='Diagnostic natif MEC-01')
   f.advance(600000);await f.consent('REPAIR');const repair=await f.startModule('REPAIR');await f.cancelCare(repair);await assert.rejects(f.prepareDiagnostic(),{code:'FIELD_ANALYSIS_DONE'});assert.equal((await f.points()).available,f.initialAvailable-1);const saved=(await f.actionRead('myFieldActions')).actions.find(x=>x.id===a.id);assert.deepEqual(saved.result,r.result);
  });
  test(`${prefix} : scanner installé +1 seulement sur le complément préparé`,async()=>{
-  const f=await nativeTechnicalFixture(makeStore,{level:3,self:true}),a=await f.startDiagnostic({bonusLotId:'module'});assert.equal(a.bonus,1);f.advance(60000);f.setDie(2);const r=await f.finishDiagnostic(a);assert.equal(r.result.technical.hiddenSuccess,true);assert.ok(r.result.technical.information.includes('SECRET_N3'));assert.equal((await f.get('inventory/module')).status,'INSTALLED');
+  const f=await nativeTechnicalFixture(makeStore,{level:3,self:true}),a=await f.startDiagnostic({bonusLotId:'module'});const ui=fieldTargetHtml(await f.actionRead('fieldTarget',{targetId:'diagnostic'}));assert.match(ui,/name="bonusLotId"/);assert.match(ui,/complément caché préparé demande/);assert.equal(a.bonus,1);f.advance(60000);f.setDie(2);const r=await f.finishDiagnostic(a);assert.equal(r.result.technical.hiddenSuccess,true);assert.ok(r.result.technical.information.includes('SECRET_N3'));assert.equal((await f.get('inventory/module')).status,'INSTALLED');
  });
  test(`${prefix} : installation neutralisée et vaisseau à réviser, devis du moteur natif`,async()=>{
   const f=await nativeTechnicalFixture(makeStore,{kind:'INSTALLATION'}),a=await f.startDiagnostic();f.advance(60000);const r=await f.finishDiagnostic(a);assert.match(JSON.stringify(r.result.technical.rows),/Neutralisation temporaire/);assert.equal(r.result.technical.interventions[0].seconds,180);assert.equal((await f.get('fieldStates/switch')).status,'OFFLINE');
