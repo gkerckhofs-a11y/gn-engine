@@ -11,7 +11,7 @@ import {warehouseStock,stockVolume,incomingVolume} from './storage-state.mjs';
 
 export const hasSoTransport=s=>s.spaceOutlaws?.transportVersion===1;
 const base=s=>`sessions/${s.id}`;
-const idle=ship=>ship?.soProfile&&ship.enabled&&ship.docked&&!ship.journey&&!ship.operation&&!ship.combatId&&!ship.rescueId&&!ship.maintenanceId&&!ship.ambushId&&!ship.convoy&&!ship.convoyOffer;
+const idle=ship=>ship?.soProfile&&ship.enabled&&ship.docked&&!ship.journey&&!ship.operation&&!ship.combatId&&!ship.rescueId&&!ship.maintenanceId;
 const sourceOwner=(lot,t)=>t.commercial?lot?.ownerType==='CHARACTER'&&lot.ownerId===t.commercial.clientId:lot?.ownerType==='SHOP'&&lot.ownerId===t.shopId;
 const stockMatches=(lot,t)=>sourceOwner(lot,t)&&sameTransportPlace(lot.location,commercialSource(t))&&lot.status==='AVAILABLE'&&lot.item.id===t.item.id&&lot.item.revision===t.item.revision&&lot.transferable===true&&lot.resellable===true;
 const sourceLotId=t=>t.commercial?t.commercial.sourceLotId:shopStockId(t.offerId);
