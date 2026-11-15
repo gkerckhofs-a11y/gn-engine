@@ -23,7 +23,7 @@ export function itemInput(input,id,old={}){
   if(shipModule!==null)requireThat(typeof shipModule==='object'&&!Array.isArray(shipModule)&&Object.keys(shipModule).length===2&&Object.hasOwn(shipModule,'code')&&Object.hasOwn(shipModule,'size')&&(standardShipModuleQuote(shipModule)||rareShipModuleQuote(shipModule))&&input.kind==='INDIVIDUAL'&&!input.consumable&&laserRecharge===null,'INVALID_SHIP_MODULE');
   const shipFabrication=input.shipFabrication===undefined?old.shipFabrication??null:input.shipFabrication;
   if(shipFabrication!==null){
-    requireThat(['R04-01','R05-01'].includes(shipModule?.code)&&typeof shipFabrication==='object'&&!Array.isArray(shipFabrication)&&Object.keys(shipFabrication).length===3,'INVALID_SHIP_MODULE');
+    requireThat(['R04-01','R04-02','R05-01'].includes(shipModule?.code)&&typeof shipFabrication==='object'&&!Array.isArray(shipFabrication)&&Object.keys(shipFabrication).length===3,'INVALID_SHIP_MODULE');
     for(const id of ['planItemId','commonItemId','rareItemId'])documentId(shipFabrication[id]);
     requireThat(new Set(Object.values(shipFabrication)).size===3,'INVALID_SHIP_MODULE');
   }

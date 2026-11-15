@@ -15,6 +15,7 @@ import {createTowingWorkService,towingWorkActions} from './space-towing-work.mjs
 import {createHiddenCargoService,hiddenCargoActions} from './space-hidden-cargo.mjs';
 import {createModuleWorkService,moduleWorkActions} from './space-module-work.mjs';
 import {createSensorFabricationService,sensorFabricationActions} from './space-sensor-fabrication.mjs';
+import {createVaultCargoService,vaultCargoActions} from './space-vault-cargo.mjs';
 import {createModuleMandateService,moduleMandateActions} from './space-module-mandates.mjs';
 import {createBoardingCargoService,boardingCargoActions} from './space-boarding-cargo.mjs';
 import {createSoLearningService,soLearningActions} from './space-outlaws-learning.mjs';
@@ -196,6 +197,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const towingWorkService=createTowingWorkService({store,signed,checkSession,now,uuid});
   const moduleWorkService=createModuleWorkService({store,signed,checkSession,now,uuid});
   const sensorFabricationService=createSensorFabricationService({store,signed,checkSession,now,uuid});
+  const vaultCargoService=createVaultCargoService({store,signed,now,uuid});
   const moduleMandateService=createModuleMandateService({store,signed,checkSession,now,uuid});
   const shipCrewService=createShipCrewService({store,signed,checkSession,now,uuid});
   const shipWorkspaceService=createShipWorkspaceService({store,signed,checkSession,now,uuid});
@@ -301,6 +303,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(towingWorkActions.includes(action))return towingWorkService(action,actor,input);
     if(moduleWorkActions.includes(action))return moduleWorkService(action,actor,input);
     if(sensorFabricationActions.includes(action))return sensorFabricationService(action,actor,input);
+    if(vaultCargoActions.includes(action))return vaultCargoService(action,actor,input);
     if(shipCrewActions.includes(action))return shipCrewService(action,actor,input);
     if(shipWorkspaceActions.includes(action))return shipWorkspaceService(action,actor,input);
     if(moduleMandateActions.includes(action))return moduleMandateService(action,actor,input);

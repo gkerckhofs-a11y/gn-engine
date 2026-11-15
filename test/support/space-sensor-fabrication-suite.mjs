@@ -6,7 +6,7 @@ import {centralTestItem} from './central-master-suite.mjs';
 import {newLot} from '../../src/core/inventory-state.mjs';
 
 export async function sensorFabricationFixture(makeStore,{code='R04-01'}={}){
- const shield=code==='R05-01',stem=shield?'Shield':'Sensor';
+ const shield=code==='R05-01',vault=code==='R04-02',stem=shield?'Shield':vault?'Vault':'Sensor';
  const f=await soVoyagesFixture(makeStore,{prepareExtra:async(f,rev)=>{
   for(const [id,item] of [['plan',{...centralTestItem,name:'Plan brouilleur',kind:'INDIVIDUAL',consumable:false}],['common',{...centralTestItem,name:'Alliage',referenceUnitValueCr:100}],['rare',{...centralTestItem,name:'Cristaux rares',referenceUnitValueCr:100}],['jammer',{...centralTestItem,name:shield?'Bouclier régénératif cargo':'Brouilleur cargo',kind:'INDIVIDUAL',consumable:false,shipModule:{code,size:2},shipFabrication:{planItemId:'plan',commonItemId:'common',rareItemId:'rare'}}]])await f.cc('saveCentralItem',{itemId:id,itemRevision:0,draftRevision:rev++,item,reason:'Fabrication rare'});
  }});
