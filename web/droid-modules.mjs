@@ -6,8 +6,8 @@ export function droidWorkshopEditor(p,d){
 }
 export function droidWorkSelect(p,d){
  if(p.kind!=='DROID_MODULE')return '';
- const rows=(d.moduleLots??[]).filter(l=>p.moduleOperation==='INSTALL'?l.status==='AVAILABLE':l.status==='INSTALLED'&&(p.moduleOperation!=='REPAIR'||l.condition==='DAMAGED'));
- return `${select('Module concerné','moduleLotId',rows.map(l=>[l.id,`${l.name} · ${l.code}`]))}<p>L’accord du propriétaire doit porter sur ce module, ce technicien et ce protocole. Le coût exact des pièces apparaît avant le démarrage.</p>${p.partsItemId?select('Lot de pièces détachées','modulePartsLotId',d.lots.filter(l=>l.item.id===p.partsItemId&&l.quantity>0).map(l=>[l.id,`${l.item.name} · ${l.quantity} unités`])):''}`;
+ const rows=(d.moduleLots??[]).filter(l=>p.moduleOperation==='INSTALL'?l.status==='AVAILABLE':p.moduleOperation==='REPAIR'?l.repairable:l.status==='INSTALLED');
+ return `${select('Module concerné','moduleLotId',rows.map(l=>[l.id,`${l.name} · ${l.code} · ${l.status==='INSTALLED'?'installé':'dans l’inventaire'}`]))}<p>L’accord du propriétaire doit porter sur ce module, ce technicien et ce protocole. Le coût exact des pièces apparaît avant le démarrage.${p.moduleOperation==='REPAIR'?' Un module réparé dans l’inventaire y reste ; la pose est une intervention séparée.':''}</p>${p.partsItemId?select('Lot de pièces détachées','modulePartsLotId',d.lots.filter(l=>l.item.id===p.partsItemId&&l.quantity>0).map(l=>[l.id,`${l.item.name} · ${l.quantity} unités`])):''}`;
 }
 export function droidOwnerPanel(d){
  const w=d.droidWorkshop;if(!w)return '';

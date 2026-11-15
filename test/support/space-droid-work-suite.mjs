@@ -5,6 +5,7 @@ import {randomUUID} from 'node:crypto';
 import {healthFixture} from './space-outlaws-health-suite.mjs';
 import {droidModules,droidModuleWork} from '../../src/shared/space-droid-modules.mjs';
 import {personAdminHtml,personTargetHtml} from '../../web/person-actions.mjs';
+import {droidWorkSelect} from '../../web/droid-modules.mjs';
 
 export async function droidWorkFixture(makeStore,{level=2,code='DR-03',self=false,damaged=false}={}){
  const f=await healthFixture(makeStore,{classId:'MEC',nature:'DROID'}),base=`sessions/${f.sid}`,targetId=self?f.cid:f.tid;
@@ -27,6 +28,50 @@ export async function droidWorkFixture(makeStore,{level=2,code='DR-03',self=fals
  return {...f,base,targetId,profiles,edit,input,consent,prepare,startModule:start,finishModule:finish,get:p=>f.store.get(`${base}/${p}`)};
 }
 export function droidWorkSuite(makeStore,prefix='Atelier des droïdes'){
+ test(`${prefix} : module déposé, six réparations sans pose ni transfert, contenu et protection conservés`,async()=>{
+  for(const m of droidModules){
+   const f=await droidWorkFixture(makeStore,{code:m.code,damaged:true});
+   await f.edit('inventory/module',l=>({...l,ownerId:f.targetId,holderId:f.targetId,location:{kind:'CHARACTER',id:f.targetId},moduleState:{status:'DAMAGED',protectionCharge:0,neutralizedUntilGameMs:900000,...(['DR-05','DR-06'].includes(m.code)?{contentLotId:'content'}:{})}}));
+   if(['DR-05','DR-06'].includes(m.code))await f.store.runTransaction(async tx=>{const l=await tx.get(`${f.base}/inventory/parts`);tx.set(`${f.base}/inventory/content`,{...l,id:'content',ownerId:f.targetId,holderId:f.targetId,quantity:1,location:{kind:'DROID_CONTENT',id:'module'}});});
+   await f.edit(`characters/${f.targetId}`,c=>({...c,hp:2,protection:0,droidModules:[{lotId:'occupied1',code:'DR-01',status:'OPERATIONAL'},{lotId:'occupied2',code:'DR-02',status:'OPERATIONAL'}]}));
+   const before=await f.get('inventory/module'),content=await f.get('inventory/content'),owner=await f.get(`characters/${f.targetId}`);
+   await assert.rejects(f.prepare('REPAIR'),{code:'SO_DROID_CONSENT'});await f.consent('REPAIR');
+   const d=await f.actionRead('personTarget',{targetId:f.targetId}),p=d.profiles.find(p=>p.id===f.profiles.REPAIR);
+   assert.equal(d.moduleLots.find(l=>l.id==='module').repairable,true);assert.match(droidWorkSelect(p,d),/value="module"/);assert.match(droidWorkSelect(p,d),/pose est une intervention séparée/);
+   const q=await f.prepare('REPAIR');assert.equal(q.cost,1);assert.equal(q.durationSeconds,m.level===1?300:600);
+   const a=await f.startModule('REPAIR');await assert.rejects(f.finishCare(a),{code:'FIELD_TOO_EARLY'});f.advance(a.remainingMs);
+   const requestId=randomUUID(),r=await f.finishCare(a,f.player,{requestId});assert.deepEqual(await f.finishCare(a,f.player,{requestId}),r);
+   const after=await f.get('inventory/module'),target=await f.get(`characters/${f.targetId}`);
+   assert.deepEqual({...after,revision:before.revision,fieldActionId:undefined,moduleState:{...after.moduleState,status:'DAMAGED'}},{...before,fieldActionId:undefined});
+   assert.equal(after.moduleState.status,'OPERATIONAL');assert.deepEqual(await f.get('inventory/content'),content);
+   assert.deepEqual(target.droidModules,owner.droidModules);assert.equal(target.hp,2);assert.equal(target.protection,0);
+   assert.equal((await f.get('inventory/parts')).quantity,20-droidModuleWork(m.code,'REPAIR').partsValue/25);assert.equal((await f.points()).available,4);assert.equal(f.rollCount(),0);
+  }
+ });
+ test(`${prefix} : module déposé, consentement retiré puis annulation sans consommation`,async()=>{
+  const f=await droidWorkFixture(makeStore,{damaged:true});await f.edit('inventory/module',l=>({...l,ownerId:f.targetId,holderId:f.targetId,location:{kind:'CHARACTER',id:f.targetId}}));
+  await f.consent('REPAIR');const a=await f.startModule('REPAIR');await f.actionCmd('consentDroidWork',{grant:false},f.other);f.advance(a.remainingMs);
+  await assert.rejects(f.finishCare(a),{code:'SO_DROID_CONSENT'});await f.cancelCare(a);
+  const l=await f.get('inventory/module');assert.equal(l.status,'AVAILABLE');assert.equal(l.moduleState.status,'DAMAGED');assert.equal(l.ownerId,f.targetId);assert.deepEqual(l.location,{kind:'CHARACTER',id:f.targetId});
+  assert.equal((await f.get('inventory/parts')).quantity,20);assert.equal((await f.points()).available,5);
+ });
+ test(`${prefix} : module déposé, possession, niveaux, atelier et contenu périmé contrôlés`,async()=>{
+  const f=await droidWorkFixture(makeStore,{damaged:true});await assert.rejects(f.consent('REPAIR'),{code:'SO_DROID_MODULE'});
+  const d=await f.actionRead('personTarget',{targetId:f.targetId});assert.equal(d.moduleLots.find(l=>l.id==='module').repairable,false);assert.doesNotMatch(droidWorkSelect(d.profiles.find(p=>p.id===f.profiles.REPAIR),d),/value="module"/);
+  const g=await droidWorkFixture(makeStore,{damaged:true,self:true});
+  await g.edit(`characters/${g.cid}`,c=>({...c,abilityProfile:{...c.abilityProfile,skills:c.abilityProfile.skills.map(k=>k.id==='MEC-03'?{...k,level:1}:k)}}));await assert.rejects(g.prepare('REPAIR'),{code:'FIELD_SKILL_REQUIRED'});
+  await g.edit(`characters/${g.cid}`,c=>({...c,abilityProfile:{...c.abilityProfile,skills:c.abilityProfile.skills.map(k=>k.id==='MEC-03'?{...k,level:2}:k)}}));
+  const a=await g.startModule('REPAIR');await g.edit('inventory/module',l=>({...l,moduleState:{...l.moduleState,contentLotId:'changed'}}));g.advance(a.remainingMs);
+  await assert.rejects(g.finishCare(a),{code:'FIELD_STATE_CHANGED'});await g.cancelCare(a);assert.equal((await g.points()).available,5);assert.equal((await g.get('inventory/parts')).quantity,20);
+  await g.edit('fieldStates/scene',s=>({...s,status:'OFFLINE',offlineUntilGameMs:null}));await assert.rejects(g.prepare('REPAIR'),{code:'FIELD_UNAVAILABLE'});
+ });
+ test(`${prefix} : module déposé, retrait puis réparation puis remontage ne recharge pas DR-01`,async()=>{
+  const f=await droidWorkFixture(makeStore,{code:'DR-01',self:true});await f.edit('inventory/module',l=>({...l,moduleState:{status:'OPERATIONAL',protectionCharge:0}}));await f.edit(`characters/${f.cid}`,c=>({...c,protection:0}));
+  await f.finishModule(await f.startModule());await f.actionCmd('damageDroidModule',{moduleLotId:'module',revision:(await f.get('inventory/module')).revision,reason:'Panne durable de recette'},f.owner);
+  f.advance(600000);await f.finishModule(await f.startModule('REMOVE'));assert.equal((await f.get('inventory/module')).moduleState.status,'DAMAGED');
+  await f.finishModule(await f.startModule('REPAIR'));assert.equal((await f.get('inventory/module')).status,'AVAILABLE');assert.equal((await f.get(`characters/${f.cid}`)).droidModules.length,0);
+  f.advance(600000);await f.finishModule(await f.startModule());assert.equal((await f.get(`characters/${f.cid}`)).droidModules[0].status,'OPERATIONAL');assert.equal((await f.get(`characters/${f.cid}`)).protection,0);assert.equal((await f.points()).available,1);
+ });
  test(`${prefix} : six modules, consentement, pose et retrait du même bien sans protection ni PV créés`,async()=>{
   for(const m of droidModules){
    const f=await droidWorkFixture(makeStore,{code:m.code}),before=await f.get(`characters/${f.targetId}`);

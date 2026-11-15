@@ -983,3 +983,12 @@ Le cahier des charges de clôture reste en cours. Les rapports suivants décrive
 | C3 rares/prototypes | Non livré par cette tranche | Fabrication/pose, effets, retrait, réparation |
 | C5 soutes/coffres | Non livré par cette tranche | Preuves d'intrusion et mouvements natifs |
 | C6 services/contrats | Non livré par cette tranche | Offres préparées, négociation et paiement natif |
+
+
+### Complément C2.2 — 15 novembre 2026 : modules droïdes déposés
+
+| Périmètre | État démontré | Preuve | Limite |
+| --- | --- | --- | --- |
+| Réparation DR-01–06 dans le sac du propriétaire droïde | Implémenté, identité/contenu/emplacement conservés, pas de pose automatique | 55 tests applicatifs ciblés ; 4 Firestore et 1 HTTP/Auth ; compilation | Prestations PNJ et propriétaires non droïdes hors de ce parcours ; recette humaine manquante |
+
+Détails, commandes et base CI : [rapport C2.2 modules déposés](SO-CLOTURE-C2-DROIDES-DEPOSES-2026-11-15.md). Le dernier SHA et sa CI sont suivis dans la PR #45 ; les validations antérieures ne valent pas preuve du nouveau candidat.

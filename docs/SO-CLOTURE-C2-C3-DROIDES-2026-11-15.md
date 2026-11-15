@@ -39,3 +39,8 @@ Les contenants doivent être vidés avant retrait. Le propriétaire reprend le m
 ## Travail restant
 
 Cette tranche ne clôt pas MEC-03 ni l’ensemble de C2. La réparation livrée concerne les modules installés sur un droïde ; le service PNJ et la réparation d’un module déposé restent à compléter. Les rares et prototypes de vaisseaux, leurs effets et les prestations PNJ relèvent des tranches suivantes. La neutralisation est reconnue par les effets, mais sa production par Sabotage N3 reste au lot C4. C1, C2.3/C2.4, C4, C5 et C6 restent ouverts. Les fiches de recette humaine et la publication restent séparées des preuves logicielles. Aucun déploiement Firebase, changement d’IAM ni migration de données réelles.
+
+
+## Complément ultérieur du même jour
+
+La réparation d’un module déposé dans l’inventaire de son propriétaire droïde est désormais raccordée : voir [rapport dédié et preuves](SO-CLOTURE-C2-DROIDES-DEPOSES-2026-11-15.md). Les limites ci-dessus décrivent le périmètre de la livraison initiale ; les prestations PNJ restent ouvertes. C1, C2.3/C2.4 et C4 ont leurs rapports distincts dans la PR #45.

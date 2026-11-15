@@ -2104,6 +2104,24 @@ test('HTTP + Auth : recharge mécanique, réservation, reçu unique et révocati
  assert.equal((await request('finishPersonAction',{sessionId,...input},player)).status,403);
 });
 
+test('HTTP + Auth : module droïde déposé, réparation consentie sans installation et reçu unique',async()=>{
+ const {droidWorkFixture}=await import('../support/space-droid-work-suite.mjs');
+ const f=await droidWorkFixture(()=>firestoreStore(getFirestore()),{damaged:true});
+ await f.edit('inventory/module',l=>({...l,ownerId:f.targetId,holderId:f.targetId,location:{kind:'CHARACTER',id:f.targetId}}));
+ const {db,base,sessionId,player,tech,outsider,call,cmd}=await towingHttpActors({...f,otherId:f.tid},1000);
+ const input={targetId:f.tid,profileId:f.profiles.REPAIR,moduleLotId:'module',supplyLots:{parts25:'parts'}};
+ assert.equal((await request('preparePersonAction',{sessionId,...input})).status,401);
+ assert.equal((await request('preparePersonAction',{sessionId,...input},outsider)).status,403);
+ assert.equal((await request('preparePersonAction',{sessionId,...input},player)).error,'SO_DROID_CONSENT');
+ const permission={technicianId:f.cid,profileId:f.profiles.REPAIR,moduleLotId:'module'},p=await call('prepareDroidConsent',permission,tech);
+ await cmd('consentDroidWork',{...permission,grant:true,present:true,confirmation:p.confirmation},tech);
+ const q=await call('preparePersonAction',input,player),a=await cmd('startPersonAction',{...input,present:true,confirmation:q.confirmation},player);
+ const active=(await db.doc(`${base}/personActions/${a.id}`).get()).data();await db.doc(base).update({clock:{elapsedMs:active.readyAtGameMs+1000,runningSince:Date.now()}});
+ const finish={actionId:a.id,present:true,requestId:randomUUID()},r=await cmd('finishPersonAction',finish,player);assert.deepEqual(await cmd('finishPersonAction',finish,player),r);
+ const lot=(await db.doc(`${base}/inventory/module`).get()).data();assert.equal(lot.moduleState.status,'OPERATIONAL');assert.equal(lot.status,'AVAILABLE');assert.equal(lot.ownerId,f.tid);assert.deepEqual(lot.location,{kind:'CHARACTER',id:f.tid});
+ assert.equal(((await db.doc(`${base}/characters/${f.tid}`).get()).data().droidModules??[]).length,0);assert.equal((await db.doc(`${base}/inventory/parts`).get()).data().quantity,16);
+});
+
 test('HTTP + Auth : modules droïdes, mémoire privée, consentement et retrait révoqué',async()=>{
  const {droidStorageFixture}=await import('../support/space-droid-storage-suite.mjs');
  const f=await droidStorageFixture(()=>firestoreStore(getFirestore()));

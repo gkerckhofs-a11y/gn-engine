@@ -1541,3 +1541,10 @@ Rapport, matrice d'audit, parcours et limites : [SO-PERSONAL-COMMERCE-CIRCUITS.m
 ## 15 novembre 2026 — clôture des compétences, candidat PR #45
 
 Voir la [matrice courante](MATRICE-SPACE-OUTLAWS-V3.md#clôture-des-compétences--pr-45-15-novembre-2026) et les rapports C1/C2/C3/C4 liés. Dernière tranche locale C4 : 82 tests applicatifs ciblés, 9 cas Firestore C4, 3 cas de contenants droïdes, 1 cas Excel et 1 HTTP/Auth et compilation réussis. La CI du SHA exact est suivie dans la PR. Les rapports distinguent les tranches déjà ajoutées des exigences encore ouvertes (PNJ droïdes, rares/prototypes, C5, C6). Aucun déploiement, migration ou recette terrain certifiée.
+
+
+## 15 novembre 2026 — C2.2, réparation de module droïde déposé
+
+Base `f6862d85c55a283595fb0786fcab494663866e18` : [CI 43728819222](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/43728819222) entièrement réussie, dix jobs dont six lots Firestore. Nouveau raccord dans le moteur natif : réparation dans le sac du propriétaire droïde, sans installation ni recharge, consentement et révisions conservés.
+
+55 tests applicatifs ciblés, quatre tests Firestore et un parcours HTTP/Auth réussis sur émulateurs `demo-gn-engine` ; compilation et diff-check réussis. [Rapport et limites](SO-CLOTURE-C2-DROIDES-DEPOSES-2026-11-15.md). Les tests de la base ne valident pas le nouveau SHA : état exact dans la [PR #45](https://github.com/gkerckhofs-a11y/gn-engine/pull/45). Prestations PNJ droïdes, modules rares/prototypes, C5, C6 et recette intégrée restent ouverts. Aucun merge ni déploiement Firebase.
