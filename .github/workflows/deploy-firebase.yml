@@ -19,7 +19,8 @@ jobs:
     # Autorisation de Guillaume : publier une fois les modifications finalisées.
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    # La CI Firestore complète peut dépasser 30 min ; conserver tous ses contrôles.
+    timeout-minutes: 105
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:

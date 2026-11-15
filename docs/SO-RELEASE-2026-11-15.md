@@ -54,6 +54,8 @@ La recette automatisée ne remplace pas les essais humains sur appareils Android
 
 Guillaume a explicitement autorisé la publication Firebase une fois les modifications finalisées, puis demandé de terminer le 15 novembre. Le workflow de publication est réactivé sur `main`, avec son garde existant : les dix jobs de la CI complète doivent être réussis sur le SHA `main` exact. Le projet demeure `gn-engine`, fonction en Belgique et identité temporaire existante. Aucun changement de secret ou d’identité.
 
+Le délai du garde de publication est aligné sur la CI complète : jusqu’à 100 minutes d’attente, job plafonné à 105 minutes, sans modification des dix contrôles ni du refus en cas d’échec. La CI parente #43 a nécessité plus de 30 minutes ; l’ancien plafond de 90 vérifications aurait expiré avant sa fin.
+
 Le manifeste demande 0.39.0 ; l’ancienne consigne de pause est remplacée par cette autorisation conditionnelle. La fusion et le déploiement ne doivent intervenir qu’après les validations. Le contrôle live exige le pied de page et le manifeste de version exacts, les fichiers Master identiques et le refus des commandes privées anonymes, étendu aux nouveaux modules.
 
 En cas d’échec de publication, ne pas réinitialiser les données ni faire de migration pour forcer la réussite. Corriger l’échec ou republier un candidat validé. Un retour de code doit conserver les nouveaux documents de session ; le simple retour de Hosting ne suffit pas si l’API a changé. Le précédent commit main demeure identifiable ci-dessus.
