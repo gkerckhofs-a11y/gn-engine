@@ -8,7 +8,7 @@ export async function installationRepairAdmin(tx,s){return ready(s)?{profiles:aw
 export async function installationRepairCommand(tx,s,input,at,id,actor,action){
  requireThat(ready(s),'SO_GAMEPLAY_NOT_OPEN');requireThat(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)&&!s.safetyStop?.active,'SO_GAMEPLAY_NOT_OPEN');
  requireThat(typeof input.reason==='string'&&input.reason.trim()&&input.reason.length<=500,'REASON_REQUIRED');const targetId=documentId(input.targetId),t=await tx.get(`${base(s)}/fieldTargets/${targetId}`),state=await tx.get(`${base(s)}/fieldStates/${targetId}`),old=await tx.get(`${base(s)}/installationRepairProfiles/${targetId}`);
- requireThat(t?.publicationState==='PUBLISHED'&&validSoInstallation(t)&&state&&!state.activeActionId,'FIELD_UNAVAILABLE');let next;
+ requireThat(t?.publicationState==='PUBLISHED'&&validSoInstallation(t)&&!t.sabotageSystem&&state&&!state.activeActionId,'FIELD_UNAVAILABLE');let next;
  if(action==='configureInstallationRepair'){
   requireThat((old?.revision??0)===input.revision,'STALE_REVISION');requireThat(Number.isInteger(input.minLevel)&&input.minLevel>=1&&input.minLevel<=5&&Number.isInteger(input.threshold)&&input.threshold>=1&&input.threshold<=10000,'SO_INSTALLATION_REPAIR');
   const parts=await tx.get(`${base(s)}/items/${documentId(input.partsItemId)}`);requireThat(parts?.versionId===s.versionId&&parts.kind==='STACKABLE'&&parts.consumable&&parts.usage!=='FUEL'&&!parts.laserRecharge&&!parts.shipModule,'FIELD_REFERENCE');

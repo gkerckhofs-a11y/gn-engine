@@ -1537,3 +1537,7 @@ La CI du commit candidat et les opérations en ligne restent à consigner après
 Nouvelle tranche sur la PR organisateur #35, sans fusion ni déploiement. Classification explicite M1, restrictions modèle/lot cumulées, revente personnelle via le moteur natif, stock commercial fixé au port et centrale Courtier distincte. Voucher d'une unité de réservoir par unité de lot, 25 Cr au fournisseur, utilisation depuis le sac par les aperçus de ravitaillement natifs. Aucun reclassement silencieux d'un ancien lot.
 
 Rapport, matrice d'audit, parcours et limites : [SO-PERSONAL-COMMERCE-CIRCUITS.md](SO-PERSONAL-COMMERCE-CIRCUITS.md). Nouvelle couverture locale : 22 tests ; première exécution Firestore : 12 parcours ; HTTP/Auth : 1 parcours. Les ajouts ultérieurs sont soumis à la CI du candidat. La recette mobile est automatisée et ne remplace pas un appareil réel.
+
+## 15 novembre 2026 — clôture des compétences, candidat PR #45
+
+Voir la [matrice courante](MATRICE-SPACE-OUTLAWS-V3.md#clôture-des-compétences--pr-45-15-novembre-2026) et les rapports C1/C2/C3/C4 liés. Dernière tranche locale C4 : 82 tests applicatifs ciblés, 8 cas Firestore partagés, 1 HTTP/Auth et compilation réussis. La CI du SHA exact est suivie dans la PR. Les rapports distinguent les tranches déjà ajoutées des exigences encore ouvertes (PNJ droïdes, rares/prototypes, C5, C6). Aucun déploiement, migration ou recette terrain certifiée.

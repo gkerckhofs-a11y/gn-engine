@@ -94,6 +94,7 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(scopes.has('NEGOTIATION_REDEEM')&&session.spaceOutlaws.merchantNegotiationVersion===1&&/^fieldActions\/[^/]+$/.test(relative))continue;
   if(scopes.has('DIAGNOSIS_CONFIG')&&session.spaceOutlaws.medicalDiagnosisVersion===1&&/^medicalDossiers\/[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
   if(scopes.has('CLINIC_CONFIG')&&session.spaceOutlaws.healthVersion===1&&/^personProfiles\/SO-CLINIC-[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
+  if(scopes.has('NATIVE_SABOTAGE')&&session.spaceOutlaws.nativeSabotageVersion===1&&/^(nativeSabotageBindings\/[^/]+|ships\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+)$/.test(relative))continue;
   if(scopes.has('INSTALLATION_CONFIG')&&session.spaceOutlaws.installationRepairVersion===1&&/^installationRepairProfiles\/[^/]+$/.test(relative))continue;
   if(scopes.has('TECHNICAL_CONFIG')&&session.spaceOutlaws.nativeTechnicalAnalysisVersion===1&&/^technicalBindings\/[^/]+$/.test(relative))continue;
   if(scopes.has('DROID_CONFIG')&&session.spaceOutlaws.droidModulesVersion===1&&/^personProfiles\/SO-DROID-[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;

@@ -967,3 +967,19 @@ Essai solo commun à huit profils, groupe et Sabacc ; alias personnage `ABC123` 
 corbeille des sessions/scénarios ; boutons explicites de suppression d’images ;
 Marché réservé à la classe principale Courtier. Détail, limites et validation :
 [SO-ESSAI-COMMUN.md](SO-ESSAI-COMMUN.md).
+
+## Clôture des compétences — PR #45, 15 novembre 2026
+
+Le cahier des charges de clôture reste en cours. Les rapports suivants décrivent les preuves et limites propres à chaque tranche ; aucune certification terrain ou publication n'en découle.
+
+| Exigence | Implémentation sur la branche | Limite restante |
+| --- | --- | --- |
+| C1 diagnostic natif | [Rapport C1](SO-CLOTURE-C1-DIAGNOSTIC-2026-11-15.md) : droïde, vaisseau, installation, informations préparées privées | Vérifier les nouveaux modules rares quand ils existent |
+| C2 recharge | Barème autorisé dans `docs/source/SO_Decision_Recharge_Mecanique_2026-11-15.md` ; DR-01/protection personnelle distincts des PV | Recette terrain |
+| C2/C3 droïdes | [Rapport droïdes](SO-CLOTURE-C2-C3-DROIDES-2026-11-15.md) : six modules, effets et contenus natifs | Prestations PNJ et réparation du module déposé |
+| C2 modules vaisseaux | [Rapport modules](SO-CLOTURE-C2-MODULES-VAISSEAUX-2026-11-15.md) : six standards, atelier, pièces et prestation PNJ | Rares/prototypes |
+| C2 installation durable | [Rapport installations](SO-CLOTURE-C2-INSTALLATIONS-2026-11-15.md) : panne distincte du sabotage | Profils avancés non inventés |
+| C4 sabotage avancé | [Rapport C4](SO-CLOTURE-C4-SABOTAGES-2026-11-15.md) : DR N3, MOD N4, N5 complet sur ces références | Rares C3 et certification Excel/appareils |
+| C3 rares/prototypes | Non livré par cette tranche | Fabrication/pose, effets, retrait, réparation |
+| C5 soutes/coffres | Non livré par cette tranche | Preuves d'intrusion et mouvements natifs |
+| C6 services/contrats | Non livré par cette tranche | Offres préparées, négociation et paiement natif |
