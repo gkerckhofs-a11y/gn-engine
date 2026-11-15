@@ -1,5 +1,7 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+Intégration 0.39.0 du 15 novembre 2026 : [périmètre, droits, tests et garde de publication](SO-RELEASE-2026-11-15.md). Complément : caisses autorisées pour les achats, COU-02 au cours réel, événements locaux reliés aux News, budgets PNJ sans création monétaire et réception/revente distante sans déplacement des biens. Résultats CI du candidat exact et publication à constater dans la PR ; les rapports précédents restent historiques.
+
 Entrepôts commerciaux du 15 novembre 2026 : [location native, droits, stock local et tests](SO-COMMERCIAL-STORAGE.md). Capacité et tarif explicitement configurés, bail personnel finançable par caisse autorisée, marchandises privées du même port, échéance et continuité conservées. Candidat après #42 corrigée ; paiement des achats et événements économiques encore à finaliser.
 
 Logistique commerciale du 15 novembre 2026 : [collecte distante, retrait délégué, importation et revente](SO-COMMERCIAL-LOGISTICS.md). Commandes payées confiées au transporteur, présentation MJ et tranches natives, réception propriétaire, quittance et preuve contractuelle conservées. Arrondi des droits explicitement validé par Guillaume : crédit le plus proche, demi-crédit vers le haut. Candidat après #41 ; autres compléments économiques et recette finale encore ouverts.

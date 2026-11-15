@@ -13,8 +13,8 @@ export async function classifyMaster(f,usage='PERSONAL',patch={}){
   await f.cc('saveCentralItem',{itemId:c.entityId,itemRevision:v.revision,draftRevision:revision++,item:{...item,usage:c.entityId==='propellant'?'FUEL':c.entityId==='kit_medical-supplies'?usage:'PERSONAL',...(c.entityId==='kit_medical-supplies'?patch:{})},reason:'Classification explicite de la fixture'});
  }
 }
-export async function circuitsFixture(makeStore,{usage='PERSONAL',classId='MED',restricted=false,...patch}={}){
- const f=await shopsFixture(makeStore,{release:false,classId,createSupply:classId!=='MED',restricted});
+export async function circuitsFixture(makeStore,{usage='PERSONAL',classId='MED',restricted=false,offerPatch={},...patch}={}){
+ const f=await shopsFixture(makeStore,{release:false,classId,createSupply:classId!=='MED',restricted,offerPatch});
  await classifyMaster(f,usage,patch);assert.deepEqual((await f.releasePreview()).blockers,[]);
  await f.release(await f.releasePreview());await f.birth(await f.birthPreview());await f.birth(await f.birthPreview(f.owner,{uid:f.other.uid}),{uid:f.other.uid});
  if(usage==='COMMERCIAL')await f.store.runTransaction(async tx=>{const s=await tx.get(`sessions/${f.sid}`);tx.set(`sessions/${f.sid}`,{...s,transportRules:{homePort:'home'}});});

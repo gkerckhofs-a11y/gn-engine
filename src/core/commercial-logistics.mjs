@@ -37,7 +37,6 @@ export function createCommercialLogisticsService({store,signed,now,uuid}){
    requireThat(contract&&commercialClient(contract,ctx,actor)&&t?.commercial&&contract.acceptedAt!=null,'FORBIDDEN');
    requireThat(lot.ownerType==='CHARACTER'&&lot.ownerId===c.id&&lot.status==='AVAILABLE'&&lot.quantity>0&&lot.location.kind==='PORT'&&lot.location.id===t.toPort&&lot.transportDelivered&&!lot.boardingCustody&&!lot.hiddenCargo?.concealed&&!lot.customsDetention&&!lot.cargoTransferId&&!lot.fieldActionId,'COMMERCIAL_RECEIPT_REQUIRED');
    requireThat(!(contract.commercialFreightReceipts??[]).some(r=>r.lotId===lot.id),'COMMERCIAL_RECEIPT_REQUIRED');
-   requireThat((c.spacePortId??s.transportRules?.homePort)===t.toPort,'SHIP_NOT_LOCAL');
    const port=await tx.get(`${b}/ports/${t.toPort}`),voyage=await tx.get(`${b}/voyages/${lot.transportLastVoyageId??lot.transportVoyageId}`);
    requireThat(voyage?.status==='ARRIVED'&&voyage.shipId===t.shipId&&voyage.toPort===t.toPort&&voyage.departedAt>=contract.acceptedAt,'SO_TRANSPORT_DELIVERY');
    const assessment=publishedCustomsCargoAssessment({ship:{id:t.shipId,docked:true,portId:t.toPort},port,sessionVersionId:s.versionId,stock:[lot]});

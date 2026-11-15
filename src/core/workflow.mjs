@@ -1,3 +1,4 @@
+import {galacticEconomyCommands,createGalacticEconomyService} from './galactic-economy.mjs';
 import {commercialStorageCommands,createCommercialStorageService} from './commercial-storage.mjs';
 import {commercialLogisticsActions,createCommercialLogisticsService} from './commercial-logistics.mjs';
 import {commercialTransportActions,createCommercialTransportService} from './commercial-transport.mjs';
@@ -188,6 +189,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const commercialLogisticsService=createCommercialLogisticsService({store,signed,now,uuid});
   const commercialTransportService=createCommercialTransportService({store,signed,checkSession,now,uuid});
   const galacticMapService=createGalacticMapService({store,signed,checkSession,now});
+  const galacticEconomyService=createGalacticEconomyService({store,signed,checkSession,now,uuid});
   const planetMarketService=createPlanetMarketService({store,signed,checkSession,now,uuid});
   const priceService=createPriceService({store,signed,checkSession,now,uuid});
   const towingWorkService=createTowingWorkService({store,signed,checkSession,now,uuid});
@@ -291,6 +293,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(commercialLogisticsActions.includes(action))return commercialLogisticsService(action,actor,input);
     if(commercialTransportActions.includes(action))return commercialTransportService(action,actor,input);
     if(galacticMapCommands.includes(action))return galacticMapService(action,actor,input);
+    if(galacticEconomyCommands.includes(action))return galacticEconomyService(action,actor,input);
     if(planetMarketCommands.includes(action))return planetMarketService(action,actor,input);
     if(priceAction(action))return priceService(action,actor,input);
     if(towingWorkActions.includes(action))return towingWorkService(action,actor,input);

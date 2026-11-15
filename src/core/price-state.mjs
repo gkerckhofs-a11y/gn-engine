@@ -32,10 +32,10 @@ export async function readPriceBook(tx,s,at){
   return {...e,active:!!active};
  })};
 }
-export function commodityQuote(book,item){
+export function commodityQuote(book,item,portId=null){
  const price=book.prices.find(p=>p.id===item.id),model=book.items.find(i=>i.id===item.id);
  if(!price?.enabled||model?.publicationState!=='PUBLISHED'||price.item.unit!==item.unit||price.item.kind!==item.kind||model.unit!==price.item.unit||model.kind!==price.item.kind)return null;
- const related=book.events.filter(e=>e.itemId===item.id).sort((a,b)=>a.id.localeCompare(b.id));
+ const related=book.events.filter(e=>e.itemId===item.id&&(e.portId==null||e.portId===portId)).sort((a,b)=>a.id.localeCompare(b.id));
  const effects=related.filter(e=>e.active).map(e=>({id:e.id,title:e.title,description:e.description,percent:e.percent}));
  const sum=effects.reduce((n,e)=>n+BigInt(e.percent),0n),factor=100n+sum;
  // Integer arithmetic, nearest whole credit (half rounds up), minimum one credit.
@@ -45,8 +45,8 @@ export function commodityQuote(book,item){
 }
 // Public projections never include the installation that triggers an effect.
 const publicEffect=e=>({id:e.id,title:e.title,description:e.description});
-export function commodityTrade(book,item){
- const related=(book?.events??[]).filter(e=>e.targetKind!=='ROUTE'&&e.itemId===item.id&&e.tradeBlocked).sort((a,b)=>a.id.localeCompare(b.id));
+export function commodityTrade(book,item,portId=null){
+ const related=(book?.events??[]).filter(e=>e.targetKind!=='ROUTE'&&e.itemId===item.id&&(e.portId==null||e.portId===portId)&&e.tradeBlocked).sort((a,b)=>a.id.localeCompare(b.id));
  const effects=related.filter(e=>e.active).map(publicEffect);
  return {blocked:effects.length>0,effects,guard:hash(JSON.stringify(related.map(e=>[e.id,e.revision,e.active])))};
 }

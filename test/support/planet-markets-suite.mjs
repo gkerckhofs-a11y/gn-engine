@@ -7,8 +7,8 @@ import {readSoEpisode} from '../../src/core/space-outlaws-episodes.mjs';
 import {spaceCommodities,planetMarketStates} from '../../src/shared/space-outlaws-commodities.mjs';
 import {planetMarketQuote} from '../../src/core/planet-market-state.mjs';
 
-export async function planetMarketsFixture(makeStore){
- const f=await circuitsFixture(makeStore,{usage:'COMMERCIAL',classId:'COU',legality:'LEGAL'}),base=`sessions/${f.sid}`,session=await f.store.get(base);
+export async function planetMarketsFixture(makeStore,options={}){
+ const f=await circuitsFixture(makeStore,{usage:'COMMERCIAL',classId:'COU',legality:'LEGAL',...options}),base=`sessions/${f.sid}`,session=await f.store.get(base);
  await f.store.runTransaction(async tx=>{for(const id of ['home','away','secret'])tx.set(`${base}/ports/${id}`,{id,name:id==='secret'?'SECRET_PLANET':id,versionId:session.versionId,navigationCode:'SECRET_NAV',customsRules:[{itemId:'kit_medical-supplies',status:'FREE'}]});});
  const admin=(a,p={})=>f.read(a,p,f.owner),adminCmd=(a,p={})=>f.cmd(a,p,f.owner);
  const configure=async(patch={})=>{const rows=(await admin('galacticEconomyAdmin')).markets,old=rows.find(x=>x.portId===(patch.portId??'away')),p={portId:'away',itemId:'kit_medical-supplies',commodityCode:'WATER',marketState:'NORMAL',shopId:'counter',offerId:'supply',demand:20,enabled:true,recordRevision:old?.revision??0,reason:'SECRET_ADMIN_REASON',...patch},q=await admin('preparePlanetMarket',p);return adminCmd('savePlanetMarket',{...p,confirmation:q.confirmation});};
@@ -51,7 +51,7 @@ export function planetMarketsSuite(makeStore,prefix='Marchés planétaires'){
  });
  test(`${prefix} : fonds, demande, tiers, soute et mauvaise escale refusés`,async()=>{
   const f=await planetMarketsFixture(makeStore);await f.configure({demand:1});const sale=await f.buy(3);await f.move('away');await f.pickup(sale);const i=await f.sellInput(sale.purchasedLotId,2);
-  await assert.rejects(f.read('preparePlanetSale',i),{code:'PLANET_DEMAND_EXCEEDED'});await f.move('home');await assert.rejects(f.read('preparePlanetSale',{...i,quantity:1}),{code:'SHIP_NOT_LOCAL'});await f.move('away');
+  await assert.rejects(f.read('preparePlanetSale',i),{code:'PLANET_DEMAND_EXCEEDED'});await f.move('home');assert.equal((await f.read('preparePlanetSale',{...i,quantity:1})).quantity,1);await f.move('away');
   await f.store.runTransaction(async tx=>{const l=await tx.get(`${f.base}/inventory/${sale.purchasedLotId}`);tx.set(`${f.base}/inventory/${l.id}`,{...l,location:{kind:'HOLD',id:'ship'}});});await assert.rejects(f.read('preparePlanetSale',{...i,quantity:1}),{code:'FORBIDDEN'});
  });
  test(`${prefix} : réessais et concurrence sans double dépense, pause et continuité`,async()=>{

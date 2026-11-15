@@ -1,6 +1,7 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {id:"galactic-economy",module:"../support/galactic-economy-suite.mjs",exportName:"galacticEconomySuite",label:"Économie galactique intégrée sur Firestore",seconds:35},
   {id:"galactic-map",module:"../support/galactic-map-suite.mjs",exportName:"galacticMapSuite",label:"Carte galactique sur Firestore",seconds:30},
   {id:"planet-markets",module:"../support/planet-markets-suite.mjs",exportName:"planetMarketsSuite",label:"Marchés planétaires sur Firestore",seconds:30},
   {id:"ship-workspace",module:"../support/ship-workspace-suite.mjs",exportName:"shipWorkspaceSuite",label:"ship-workspace sur Firestore",seconds:45},

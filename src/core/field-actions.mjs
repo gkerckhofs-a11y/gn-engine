@@ -56,7 +56,7 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
   if(s.spaceOutlaws?.escapeVersion===1){const cap=await tx.get(`sessions/${s.id}/soCaptivities/${c.id}`);requireThat(cap?.status!=='ACTIVE','SO_ESCAPE_CAPTIVE');}requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');if(!input.traceTargetId)requireGameAction(s,c,'discover',at);
   const {t,state}=await target(tx,s,input.targetId,at,c,input.documentLotId,input),kind=input.kind,p=Object.hasOwn(t.profiles,kind)?merchantProfile(t,t.profiles[kind],abilityLevel(c,t.profiles[kind].skillId)):null;requireThat(p,'INVALID_FIELD_TARGET');requireTraceActor(s,c,t,at);requireThat(!c.activeFieldActionId&&!c.activePersonActionId,'FIELD_ACTOR_BUSY');
   if(s.spaceOutlaws)requireThat(s.spaceOutlaws.actionsVersion===1&&(t.kind==='ANALYSIS'&&kind==='ANALYZE'||s.spaceOutlaws.searchVersion===1&&isPlaceSearch(t)&&kind==='SEARCH'||s.spaceOutlaws.sabotageVersion===1&&validSoInstallation(t)&&['SABOTAGE','REPAIR'].includes(kind)),'SO_GAMEPLAY_NOT_OPEN');
-  const negotiation=p.skillId==='COU-02'?await negotiableOffer(tx,s,c,t,input.tradeQuantity??1):null;
+  const negotiation=p.skillId==='COU-02'?await negotiableOffer(tx,s,c,t,input.tradeQuantity??1,at):null;
   const routeAnalysis=isRouteAnalysis(t)?routeAnalysisBinding(s,c,t,await routeAnalysisByCode(tx,s,c,input.navigationCode)):null;
   await dependency(tx,s,t,at);const time=gameTime(s.clock,at);requireThat(!state.activeActionId,'FIELD_TARGET_BUSY');requireThat(time>=state.lockedUntilGameMs,'FIELD_TARGET_LOCKED');
   requireThat(kind==='SEARCH'||kind==='ANALYZE'||(kind==='SABOTAGE'?state.status==='ONLINE':state.status==='OFFLINE'),'FIELD_STATE_CHANGED');
@@ -222,7 +222,7 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
         if(!old)tx.set(path,{id:r.knowledgeId,active:true,snapshot:r.knowledge,receivedAt:at,source:'FIELD',sourceName:a.targetTitle,readAt:null,grantRevision:1});
         received.push({id:r.knowledgeId,title:r.knowledge.title,bonus:r.bonus});
        }
-       if(a.profile.skillId==='COU-02'){const current=await negotiableOffer(tx,s,c,t,a.negotiation.quantity);requireThat(digest(current)===digest(a.negotiation),'FIELD_STATE_CHANGED');}
+       if(a.profile.skillId==='COU-02'){const current=await negotiableOffer(tx,s,c,t,a.negotiation.quantity,at);requireThat(digest(current)===digest(a.negotiation),'FIELD_STATE_CHANGED');}
        outcome={...outcome,...(a.profile.skillId==='COU-02'?{negotiation:true}:{}),...(a.profile.skillId==='COU-02'&&success?{discount:discountResult(s,a.negotiation,at)}:{}),success:a.profile.skillId==='COU-02'?success:true,bonusSuccess:a.profile.test==='D6'?success:null,information:received};
        state={...state,analyses:{...state.analyses,[c.id]:t.revision}};
       }else if(success&&a.kind==='SEARCH'){

@@ -24,6 +24,7 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(!path.startsWith(base)&&path!==base.slice(0,-1))continue;
   if(path.startsWith(`${base}audit/`))continue;
   const relative=path.slice(base.length);
+  if(scopes.has('ECONOMIC_EVENT')&&session.spaceOutlaws.itemCircuitsVersion===1&&/^(priceEvents\/[^/]+|priceHistory\/[^/]+)$/.test(relative))continue;
   if(scopes.has('COMMERCIAL_STORAGE')&&session.spaceOutlaws.itemCircuitsVersion===1&&session.spaceOutlaws.logisticsVersion===1&&/^(warehouses\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|logisticsHistory\/[^/]+|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('PLANET_MARKET')&&session.spaceOutlaws.itemCircuitsVersion===1&&/^(planetMarkets\/[^/]+|planetPriceHistory\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('SHIP_CREW')&&session.spaceOutlaws.navigationVersion===1&&/^(shipCrews\/[^/]+(?:\/(?:members|history|requests)\/[^/]+)?|shipCrewInvitations\/[^/]+)$/.test(relative))continue;

@@ -1,3 +1,4 @@
+import {accessAccount,accountParty} from './collective-accounts.mjs';
 import {delegatedCommercialPickup} from './commercial-transport-state.mjs';
 import {planetPurchase,planetOffer,planetMarketQuote,ordinaryPlanetCommodity,ordinaryPlanetTrade,planetCommerceSession} from './planet-market-state.mjs';
 import {readPriceBook,commodityTrade} from './price-state.mjs';
@@ -24,7 +25,7 @@ import {shopMissionRewards} from './space-outlaws-mission-rewards.mjs';
 const admins=new Set(['shopAdmin','prepareShopProvision','provisionShop','offerShopPickup']);
 const reads=new Set(['shops','shop','shopAdmin','prepareShopProvision','prepareShopPurchase']);
 export const shopActions=[...reads,'provisionShop','buyShopOffer','offerShopPickup','confirmShopPickup'];
-const fields={shops:[],shop:['shopId'],shopAdmin:[],prepareShopProvision:['shopId','offerId','provisionId','quantity','restricted','source','reason'],provisionShop:['shopId','offerId','provisionId','quantity','restricted','source','reason','confirmation'],prepareShopPurchase:['shopId','offerId','quantity','useProtected','discountActionId'],buyShopOffer:['shopId','offerId','quantity','useProtected','quoteAt','confirmation','discountActionId'],offerShopPickup:['saleId','confirmation'],confirmShopPickup:['saleId','confirmation','received']};
+const fields={shops:[],shop:['shopId'],shopAdmin:[],prepareShopProvision:['shopId','offerId','provisionId','quantity','restricted','source','reason'],provisionShop:['shopId','offerId','provisionId','quantity','restricted','source','reason','confirmation'],prepareShopPurchase:['shopId','offerId','quantity','useProtected','discountActionId','fromAccountId'],buyShopOffer:['shopId','offerId','quantity','useProtected','quoteAt','confirmation','discountActionId','fromAccountId'],offerShopPickup:['saleId','confirmation'],confirmShopPickup:['saleId','confirmation','received']};
 const active=s=>{requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');};
 const stockValid=(l,s,o)=>l?.ownerType==='SHOP'&&l.ownerId===s.id&&l.holderId===s.id&&l.location.kind==='SHOP'&&l.location.id===s.id&&l.item.id===o.item.id&&l.item.revision===o.item.revision&&l.status==='AVAILABLE'&&(!o.item.shipModule||l.item.shipModule?.code===o.item.shipModule.code&&l.item.shipModule?.size===o.item.shipModule.size&&l.item.kind==='INDIVIDUAL'&&l.item.consumable===false&&l.quantity<=1);
 const movement=l=>({...lotState(l),ownerType:l.ownerType,ownerId:l.ownerId,holderId:l.holderId,location:l.location});
@@ -48,23 +49,23 @@ export function createShopService({store,signed,checkSession,now,uuid}){
   requireThat(offer.item.usage!=='COMMERCIAL'||isBroker(c),'FORBIDDEN');
   const planet=offer.item.usage==='COMMERCIAL'?await planetPurchase(tx,s,c,offer,at):null;
   const actionSession=planet?planetCommerceSession(s,c.spacePortId??s.transportRules?.homePort):s;requireGameAction(actionSession,c,'transfer',at);requireThat(!hasItemCircuits(s)||await personalTransferActorReady(tx,actionSession,c),'SO_PERSONAL_TRANSFER_RESTRICTED');
-  if(planet){requireThat(ordinaryPlanetCommodity(planet.market,offer.item),'PLANET_TRADE_RESTRICTED');requireThat(!commodityTrade(await readPriceBook(tx,s,at),offer.item).blocked,'TRADE_SUSPENDED');requireThat(!input.discountActionId,'NEGOTIATION_UNAVAILABLE');}
+  if(planet){requireThat(ordinaryPlanetCommodity(planet.market,offer.item),'PLANET_TRADE_RESTRICTED');requireThat(!commodityTrade(await readPriceBook(tx,s,at),offer.item,planet.stockPortId).blocked,'TRADE_SUSPENDED');}
   const stockPortId=offer.item.usage==='COMMERCIAL'?planet?.stockPortId??c.spacePortId??s.transportRules?.homePort??null:null;requireThat(offer.item.usage!=='COMMERCIAL'||stockPortId,'COMMERCIAL_PORT_REQUIRED');
   requireThat(stockValid(lot,shop,offer)&&lot.quantity>=quantity,'INSUFFICIENT_STOCK');
   if(offer.item.shipModule)requireThat(lot.transferable===true&&lot.resellable===true,'SO_MODULE_STOCK_RESTRICTED');
-  const a=await tx.get(`sessions/${s.id}/accounts/${accountId(c.id)}`),b=await tx.get(`sessions/${s.id}/accounts/${shopAccountId(shop.id)}`);
-  requireThat(a?.ownerType==='CHARACTER'&&a.characterId===c.id&&a.sessionId===s.id&&b?.ownerType==='SHOP'&&b.shopId===shop.id&&b.sessionId===s.id,'ACCOUNT_UNAVAILABLE');
+  const from=await accessAccount(tx,{...ctx,guard:version},input.fromAccountId??accountId(c.id),{allowSoGroup:!!planet});requireThat(from.spend&&((from.a.ownerType==='CHARACTER'&&from.a.characterId===c.id)||planet&&from.a.ownerType==='GROUP'),'FORBIDDEN');const a=from.a,b=await tx.get(`sessions/${s.id}/accounts/${shopAccountId(shop.id)}`);
+  requireThat(a?.sessionId===s.id&&b?.ownerType==='SHOP'&&b.shopId===shop.id&&b.sessionId===s.id,'ACCOUNT_UNAVAILABLE');
   const before=moneyState(a);moneyState(b);
   const eligible=lot.transferable===false&&lot.resellable===false&&lot.pillable===false&&lot.item.consumable&&lot.item.usage!=='COMMERCIAL';
   requireThat(!input.useProtected||eligible,'SO_PROTECTED_PURCHASE');
-  const discountAction=input.discountActionId?await tx.get(`sessions/${s.id}/fieldActions/${documentId(input.discountActionId)}`):null;if(input.discountActionId)requireThat(validDiscount(discountAction,ctx,offer,lot,quantity,at),'NEGOTIATION_UNAVAILABLE');
+  const discountAction=input.discountActionId?await tx.get(`sessions/${s.id}/fieldActions/${documentId(input.discountActionId)}`):null;if(input.discountActionId)requireThat(validDiscount(discountAction,ctx,{...offer,unitPrice:planet?.quote.unitPrice??offer.unitPrice},lot,quantity,at,planet?.quote.guard??null),'NEGOTIATION_UNAVAILABLE');
   const amount=discountAction?discountAction.result.discount.amount:whole((planet?.quote.unitPrice??offer.unitPrice)*quantity,'BALANCE_OVERFLOW'),protectedAmount=input.useProtected?Math.min(before.protectedCredits??0,amount):0,ordinaryAmount=amount-protectedAmount;
   requireThat(amount>0&&before.available>=ordinaryAmount,'INSUFFICIENT_FUNDS');whole(b.balance+amount,'BALANCE_OVERFLOW');
   const quoteAt=input.quoteAt??at;requireThat(Number.isSafeInteger(quoteAt)&&quoteAt<=at&&at-quoteAt<=300000,'SHOP_QUOTE_EXPIRED');
   const sale={...(stockPortId?{stockPortId}:{}),...(planet?{planetMarketId:planet.market.id,planetPortName:planet.portName}:{}),id:uuid(),shopId:shop.id,sellerKind:'SHOP',sellerId:shop.id,sellerName:shop.name,buyerId:c.id,buyerName:c.public.displayName,buyerVersion:version,status:'PENDING',revision:1,createdAt:at,expiresAt:quoteAt+300000,lotId:lot.id,item:offer.item,quantity,amount,protectedAmount,currency:currencyView(s.economyRules),conditions:offer.conditions,pickupPlace:shop.location};
   const after=moneyState({...a,balance:a.balance-ordinaryAmount,...(a.protectedCredits!==undefined?{protectedCredits:a.protectedCredits-protectedAmount}:{}),revision:a.revision+1});
-  const result={...(planet?{planetMarket:{id:planet.market.id,portId:stockPortId,portName:planet.portName,guard:planet.quote.guard,unitPrice:planet.quote.unitPrice}}:{}),...(stockPortId?{stockPortId}:{}),shop:{id:shop.id,name:shop.name,location:shop.location},offer:{id:offer.id,name:offer.name,item:offer.item,unitPrice:planet?.quote.unitPrice??offer.unitPrice,conditions:offer.conditions},quantity,amount,protectedAmount,ordinaryAmount,restricted:eligible,before,after,quoteAt,expiresAt:quoteAt+300000};
-  return {...x,discountAction,sale,from:{a,name:c.public.displayName},to:{a:b,name:shop.name},result:{...result,confirmation:hash(JSON.stringify([s.id,s.revision,version,lot.revision,b.revision,result]))}};
+  const result={...(planet?{planetMarket:{id:planet.market.id,portId:stockPortId,portName:planet.portName,guard:planet.quote.guard,unitPrice:planet.quote.unitPrice}}:{}),...(stockPortId?{stockPortId}:{}),shop:{id:shop.id,name:shop.name,location:shop.location},offer:{id:offer.id,name:offer.name,item:offer.item,unitPrice:planet?.quote.unitPrice??offer.unitPrice,conditions:offer.conditions},quantity,amount,protectedAmount,ordinaryAmount,restricted:eligible,source:accountParty(from),sourceCanRead:from.read,...(from.read?{before,after}:{}),quoteAt,expiresAt:quoteAt+300000};
+  return {...x,discountAction,sale,from,to:{a:b,name:shop.name},result:{...result,confirmation:hash(JSON.stringify([s.id,s.revision,version,from.guard,a.revision,lot.revision,b.revision,result]))}};
  }
  async function order(tx,s,p,at){
   const buyer=await inventoryParty(tx,s.id,p.buyerId),lot=await tx.get(`sessions/${s.id}/inventory/${p.purchasedLotId}`);
@@ -87,10 +88,10 @@ export function createShopService({store,signed,checkSession,now,uuid}){
       if(!shopOfferAvailable(s,o)||!admin&&o.item.usage==='COMMERCIAL'&&!isBroker(c))continue;
       const lot=await tx.get(`${base}/inventory/${shopStockId(o.id)}`),valid=stockValid(lot,shop,o),quantity=valid?lot.quantity:0;
       const item=await tx.get(`${base}/items/${o.item.id}`);
-      const planet=o.item.usage==='COMMERCIAL'?await planetOffer(tx,s,o.id):null,quote=planet?planetMarketQuote(planet,o.item):null;
+      const planet=o.item.usage==='COMMERCIAL'?await planetOffer(tx,s,o.id):null,quote=planet?planetMarketQuote(planet,o.item,(await readPriceBook(tx,s,at)).events):null;
       const port=planet?await tx.get(`${base}/ports/${planet.portId}`):null,planetBuyerReady=!admin&&planet?await personalTransferActorReady(tx,planetCommerceSession(s,c.spacePortId??s.transportRules?.homePort),c):buyerReady;
-      const discounts=!planet&&!admin&&s.spaceOutlaws.merchantNegotiationVersion===1?(await tx.list(`${base}/fieldActions`,['characterId',c.id])).filter(a=>validDiscount(a,ctx,o,lot,a.result?.discount?.quantity,at)):[];
-      offers.push({...o,...(planet?{unitPrice:quote?.unitPrice??null,planetMarket:{id:planet.id,portId:planet.portId,enabled:planet.enabled}}:{}),...(!planet&&!admin&&o.negotiationLevel&&s.spaceOutlaws.merchantNegotiationVersion===1&&abilityLevel(c,'COU-02')>=o.negotiationLevel?{negotiationTargetId:negotiationTargetId(o.id)}:{}),...(discounts.length?{discount:{id:discounts[0].id,...discounts[0].result.discount}}:{}),item:{...o.item,...mediaFields(item,['illustration'])},stock:quantity,restricted:valid&&lot.transferable===false,canBuy:planetBuyerReady&&(!planet||planet.enabled&&ordinaryPlanetTrade(planet,o.item,port,s)&&!commodityTrade(await readPriceBook(tx,s,at),o.item).blocked)&&quantity>0&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&canGameAction(s,c,'pay',at)});
+      const discounts=!admin&&s.spaceOutlaws.merchantNegotiationVersion===1?(await tx.list(`${base}/fieldActions`,['characterId',c.id])).filter(a=>validDiscount(a,ctx,{...o,unitPrice:quote?.unitPrice??o.unitPrice},lot,a.result?.discount?.quantity,at,quote?.guard??null)):[];
+      offers.push({...o,...(planet?{unitPrice:quote?.unitPrice??null,planetMarket:{id:planet.id,portId:planet.portId,enabled:planet.enabled}}:{}),...(!admin&&o.negotiationLevel&&s.spaceOutlaws.merchantNegotiationVersion===1&&abilityLevel(c,'COU-02')>=o.negotiationLevel?{negotiationTargetId:negotiationTargetId(o.id)}:{}),...(discounts.length?{discount:{id:discounts[0].id,...discounts[0].result.discount}}:{}),item:{...o.item,...mediaFields(item,['illustration'])},stock:quantity,restricted:valid&&lot.transferable===false,canBuy:planetBuyerReady&&(!planet||planet.enabled&&ordinaryPlanetTrade(planet,o.item,port,s)&&!commodityTrade(await readPriceBook(tx,s,at),o.item,planet.portId).blocked)&&quantity>0&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&canGameAction(s,c,'pay',at)});
      }
      const a=admin?await tx.get(`${base}/accounts/${shopAccountId(shop.id)}`):null;
      result.push({id:shop.id,name:shop.name,description:shop.description,location:shop.location,offers,...(admin?{account:a?moneyState(a):null}:{})});
@@ -106,8 +107,9 @@ export function createShopService({store,signed,checkSession,now,uuid}){
     const sale=await tx.get(`${base}/lotSales/${documentId(input.saleId)}`);
     if(sale?.shopId&&sale.item?.shipModule)requireThat(hasSoModulePurchases(s),'SO_GAMEPLAY_NOT_OPEN');
    }
-   if(op){const prev=await tx.get(op);if(prev){requireThat(prev.fingerprint===fingerprint,'REQUEST_ID_REUSED');requireThat(admin||prev.guard===version,'FORBIDDEN');return prev.result;}}
-   let result;
+   let replayFrom=null;if(action==='buyShopOffer'&&input.fromAccountId&&input.fromAccountId!==accountId(c.id)){const definitionNow=await definition(tx,s,input);requireThat(definitionNow.offer.item.usage==='COMMERCIAL'&&await planetOffer(tx,s,definitionNow.offer.id),'FORBIDDEN');replayFrom=await accessAccount(tx,{...ctx,guard:version},input.fromAccountId,{allowSoGroup:true});requireThat(replayFrom.spend,'FORBIDDEN');}
+   if(op){const prev=await tx.get(op);if(prev){requireThat(prev.fingerprint===fingerprint,'REQUEST_ID_REUSED');requireThat(admin||prev.guard===version,'FORBIDDEN');requireThat(!prev.sourceGuard||replayFrom?.guard===prev.sourceGuard,'FORBIDDEN');return prev.result;}}
+   let result,sourceGuard=null;
    if(action==='prepareShopProvision'||action==='provisionShop'){
     const provisionId=documentId(input.provisionId),source=moneyText(input.source),reason=moneyText(input.reason),x=await definition(tx,s,input),{shop,offer,lot}=x;
     const quantity=itemQuantity(offer.item,input.quantity);requireThat(quantity<=10000&&typeof input.restricted==='boolean','INVALID_QUANTITY');
@@ -129,7 +131,7 @@ export function createShopService({store,signed,checkSession,now,uuid}){
    }else if(action==='prepareShopPurchase'||action==='buyShopOffer'){
     const x=await purchase(tx,ctx,input,at);if(action==='prepareShopPurchase')return x.result;
     requireThat(x.result.confirmation===input.confirmation,'STALE_REVISION');
-    result=settleLotSale(tx,s,c,x.sale,x,x.from,at,eventId,actor);
+    result=settleLotSale(tx,s,c,x.sale,x,x.from,at,eventId,actor);sourceGuard=x.from.a.ownerType==='GROUP'?x.from.guard:null;
     if(x.discountAction){authorizeSpaceOutlaws(tx,s,'NEGOTIATION_REDEEM');tx.set(`${base}/fieldActions/${x.discountAction.id}`,{...x.discountAction,result:{...x.discountAction.result,discount:{...x.discountAction.result.discount,usedAt:at,saleId:x.sale.id}}});}
    }else{
     active(s);const p=await tx.get(`${base}/lotSales/${documentId(input.saleId)}`);requireThat(p?.shopId&&(admin||p.buyerId===c.id),'FORBIDDEN');requireThat(p.status==='SOLD'&&p.pickupStatus!=='RECEIVED','SALE_CLOSED');
@@ -144,7 +146,7 @@ export function createShopService({store,signed,checkSession,now,uuid}){
     tx.set(`${base}/lotSales/${p.id}`,next);result={id:p.id,pickupStatus:next.pickupStatus,purchasedLotId:p.purchasedLotId};
    }
    authorizeSpaceOutlaws(tx,s,'SHOP');
-   tx.set(`${base}/audit/${eventId}`,{id:eventId,action,at,actorUid:actor.uid,result});tx.set(op,{fingerprint,result,guard:version??null,at});return result;
+   tx.set(`${base}/audit/${eventId}`,{id:eventId,action,at,actorUid:actor.uid,result});tx.set(op,{fingerprint,result,guard:version??null,sourceGuard,at});return result;
   });
  };
 }

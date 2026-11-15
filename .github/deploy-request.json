@@ -1,8 +1,8 @@
 {
   "project": "gn-engine",
-  "sourceCommit": "61322a6e5afc9eb976f5502931e83b9bae55b9f4",
-  "version": "0.38.0-rc.2",
-  "requestedAt": "2026-11-14",
-  "reason": "Guillaume reporte explicitement la publication Firebase le 14 novembre 2026 : autres modifications à travailler. Aucun déploiement autorisé avant une nouvelle instruction. Le workflow est suspendu et remplace le pipeline en attente.",
-  "status": "PAUSED"
+  "sourceRef": "main",
+  "version": "0.39.0",
+  "requestedAt": "2026-11-15",
+  "reason": "Autorisation explicite de Guillaume dans la conversation GN : publier sur Firebase une fois toutes les modifications finalisées ; instruction de terminer confirmée le 15 novembre. Le garde existant exige les dix jobs CI complets du SHA main exact avant publication. Aucune migration ni réinitialisation de données.",
+  "status": "AUTHORIZED_AFTER_FULL_CI"
 }
