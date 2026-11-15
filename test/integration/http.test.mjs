@@ -2086,3 +2086,20 @@ test('HTTP + Auth : événements galactiques, devis réel, accès anonyme et dro
  const {planetMarketsFixture}=await import('../support/planet-markets-suite.mjs'),db=getFirestore(),f=await planetMarketsFixture(()=>firestoreStore(db));await f.configure();const owner=await googleTestAccount(process.env.OWNER_EMAIL),client=await googleTestAccount(`economy-client-${randomUUID()}@example.invalid`),uid=t=>JSON.parse(Buffer.from(t.split('.')[1],'base64url').toString()).sub,old=db.doc(`${f.base}/registrations/${hash(f.player.uid)}`),r=(await old.get()).data();await old.delete();await db.doc(`${f.base}/registrations/${hash(uid(client))}`).set({...r,id:hash(uid(client)),uid:uid(client),minAuthTime:0});await db.doc(`${f.base}/characters/${f.cid}`).update({assignedUid:uid(client)});await db.doc(f.base).update({ownerUid:uid(owner),clock:{elapsedMs:0,runningSince:Date.now()}});await db.doc(`campaigns/${f.campaignId}`).update({ownerUid:uid(owner)});
  const call=async(a,p={},t=owner)=>{const r=await request(a,{sessionId:f.sid,...p},t);assert.equal(r.status,200,JSON.stringify(r));return r.result;};assert.equal((await request('galacticEventsAdmin',{sessionId:f.sid})).status,401);assert.equal((await request('galacticEventsAdmin',{sessionId:f.sid},client)).status,403);const d=await call('galacticEventsAdmin'),p={revision:d.session.revision,recordRevision:0,itemId:'kit_medical-supplies',title:'Hausse locale',description:'Réserves en baisse',percent:15,tradeBlocked:false,enabled:true,portId:'away',announcementId:null,reason:'SECRET_HTTP_REASON'},q=await call('prepareGalacticEvent',p),i={...p,confirmation:q.confirmation,requestId:randomUUID()},saved=await call('saveGalacticEvent',i);assert.deepEqual(await call('saveGalacticEvent',i),saved);const board=await call('galacticMarkets',{},client);assert.equal(board.markets[0].quote.unitPrice,46);assert.doesNotMatch(JSON.stringify(board),/SECRET_HTTP_REASON/);const purchase={shopId:'counter',offerId:'supply',quantity:1,useProtected:false},preview=await call('prepareShopPurchase',purchase,client);assert.equal(preview.amount,46);const sale=await call('buyShopOffer',{...purchase,quoteAt:preview.quoteAt,confirmation:preview.confirmation,requestId:randomUUID()},client);assert.equal(sale.amount,46);await call('revokeAccess',{uid:uid(client),requestId:randomUUID()});assert.equal((await request('galacticMarkets',{sessionId:f.sid},client)).status,403);
 });
+
+test('HTTP + Auth : recharge mécanique, réservation, reçu unique et révocation',async()=>{
+ const {mechanicalProtectionFixture}=await import('../support/space-mechanical-protection-suite.mjs');
+ const f=await mechanicalProtectionFixture(()=>firestoreStore(getFirestore()),{self:true});
+ const {db,base,sessionId,player,outsider,call,cmd,uid}=await towingHttpActors({...f,otherId:f.tid},0);
+ assert.equal((await request('preparePersonAction',{sessionId,...f.input})).status,401);
+ assert.equal((await request('preparePersonAction',{sessionId,...f.input},outsider)).status,403);
+ const p=await call('preparePersonAction',f.input,player),a=await cmd('startPersonAction',{...f.input,confirmation:p.confirmation,present:true},player);
+ assert.equal((await request('finishPersonAction',{sessionId,actionId:a.id,present:true,requestId:randomUUID()},player)).error,'FIELD_TOO_EARLY');
+ const saved=(await db.doc(`${base}/personActions/${a.id}`).get()).data();
+ await db.doc(base).update({clock:{elapsedMs:saved.readyAtGameMs+1000,runningSince:Date.now()}});
+ const input={actionId:a.id,present:true,requestId:randomUUID()},r=await cmd('finishPersonAction',input,player);
+ assert.equal(r.result.protection,1);assert.deepEqual(await cmd('finishPersonAction',input,player),r);
+ assert.equal((await db.doc(`${base}/inventory/cell`).get()).data().quantity,2);
+ await cmd('revokeAccess',{uid:uid(player)});
+ assert.equal((await request('finishPersonAction',{sessionId,...input},player)).status,403);
+});

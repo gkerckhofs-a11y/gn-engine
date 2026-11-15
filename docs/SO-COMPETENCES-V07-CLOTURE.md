@@ -2,6 +2,16 @@
 
 Travail du 13 novembre 2026. Référence : [règles V0.7 du 23 octobre 2026](source/SO_Regles_V07.txt). Périmètre : 34 capacités joueurs ; FOR-01 reste exclu. Ce document est la matrice unique de la nouvelle clôture, pas une attestation de recette terrain.
 
+## Reprise du 15 novembre 2026 — C2.1
+
+Référence de travail : [cahier des charges de clôture V1](source/SO_CDC_Competences_Cloture_V1.md), avec la [décision de recharge mécanique](source/SO_Decision_Recharge_Mecanique_2026-11-15.md). Base vérifiée : `98a3342d6f9c789f2edcc2c75faf1776296d7171`, CI [43699909418](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/43699909418) réussie sur ce SHA. Branche : `work/skills-closure-v1`.
+
+C2.1 utilise les profils PROTECTION, les PA, les réservations de fournitures et les reçus existants. La régie choisit équipement et fourniture compatibles ; MEC-02 restaure au plus un point, sans PV ni jet. Durées 120/105/90/75/60 secondes de jeu, 1 PA, récupération propre de 600 secondes. Les équipements et profils sont revérifiés au démarrage et à la résolution. Une interruption libère les ressources réservées. Une panne, neutralisation ou protection pleine interdit la recharge. La nouvelle capacité `mechanicalProtectionVersion` est inscrite uniquement dans les nouvelles publications.
+
+La recharge du bouclier personnel a un parcours complet régie/joueur/serveur. Le raccord du blindage exige un DR-01 installé : son cycle d’acquisition, pose et retrait relève de C3 encore à terminer. C2 ne doit donc pas être annoncé clos. C1, les autres réparations C2, les modules et rares C3, C4, C5 et C6 restent à livrer. La recette mobile et GN reste à faire. Aucun déploiement ni migration.
+
+Validation locale : compilation, 41 tests applicatifs ciblés (recharge, clinique, santé et publication). Firestore : 19 cas de recharge/clinique/santé réussis avant le dernier renforcement de liaison à l’équipement ; contrôle final de 7 cas recharge Firestore et 1 cas HTTP/Auth réussi (réservation, reçu et révocation). Ces groupes se recouvrent et ne constituent pas une certification intégrale. CI du candidat à vérifier séparément sur son SHA exact.
+
 ## Candidat d’intégration du 14 novembre 2026
 
 La PR [#34](https://github.com/gkerckhofs-a11y/gn-engine/pull/34) regroupe les lots #16 à #33. Le complément de parcours FIL conserve la balise et le vaisseau choisi pendant le plein, la préparation PIL-02 et l’affectation du cockpit. Le pilote utilise ses commandes natives ; un passager prévu attend le départ. Après décollage, l’actualisation reprend la vérification de filature. Aucune route secrète n’est déduite et l’opposition conserve ses contrôles de liaison et de voyage courant.
@@ -83,7 +93,7 @@ Dans « Commit / PR », **B** = base main `49ec5ea12100f9efb62ea23773b216d465d06
 | MED-02 Soins de terrain | Médecin | ch. 10, 6 | person-actions, santé SO | Action | À vérifier | space-outlaws-health | B/C | Non vérifié | À faire | Clôture intégrée avec diagnostics, clinique et toxicologie |
 | MED-03 Traitement clinique | Médecin | ch. 10, 4 | person-actions CLINIC | Action/régie | À vérifier | space-clinic | C | Non | À faire | CI exacte, interaction avec états TOXI et recette clinique |
 | MEC-01 Diagnostic technique | Mécano | ch. 11 | analyse M6/space-technical-analysis | Action | Partiel | space-technical-analysis | B/C | Non vérifié | À faire | Profils de droïdes, installations et pannes dynamiques |
-| MEC-02 Réparation | Mécano | ch. 11, 17 | person-actions, maintenance/vaisseaux | Action/Terminal | Partiel | health, maintenance, space-clinic/workshop | B/C/W | Non vérifié | À faire | Révision atelier raccordée sur W ; blindage/boucliers, modules et autres profils spécialisés à compléter |
+| MEC-02 Réparation | Mécano | ch. 11, 17 | person-actions, maintenance/vaisseaux | Action/Terminal | Partiel | health, maintenance, space-clinic/workshop | B/C/W | Non vérifié | À faire | Révision atelier raccordée sur W ; recharge mécanique C2.1 ajoutée le 15/11 ; cycle DR-01, modules et autres profils spécialisés à compléter |
 | MEC-03 Amélioration | Mécano | ch. 11, 17 | module-mandates/module-work | Action/Terminal | Partiel | module-work/module-mandates | B | Non vérifié | À faire | Couvrir modules droïdes, rares et prototypes |
 | PIL-01 Navigation | Pilote | ch. 12, 18 | route-analysis, detours | Action/Terminal | À vérifier | route-analysis/detours | B/C | Non vérifié | À faire | Recette cinq niveaux, codes et changements de route |
 | PIL-02 Préparation de vol | Pilote | ch. 12, 18 | voyages/cockpit-launch | Terminal/cockpit | À vérifier | voyages/cockpit-launch | B | Non vérifié | À faire | Recette mandats, manifeste et décollage |
