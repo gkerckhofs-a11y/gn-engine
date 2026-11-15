@@ -20,6 +20,7 @@ Node 22, projet isolé `demo-gn-engine`, aucun service de production.
 - 82 tests applicatifs ciblés réussis : sabotages natifs, installations ordinaires/durables, droïdes, réparations des modules, entrée SO et ateliers M6.
 - 8 cas partagés Firestore réussis : deux acteurs concurrents ; bonus DR-03/restauration/reçu ; expiration/protection/panne durable ; vaisseau et MEC-03 ; départ réel avant résolution ; échec/verrou/révocation ; N5 complet/incomplet ; accès/interface/épisode.
 - 1 parcours HTTP/Auth réussi : refus anonyme et tiers, préparation et réalisation, effet sur le module installé, reçu unique et refus après révocation.
+- Complément Excel : 57 tests applicatifs ciblés réussis (sélection recouvrant la précédente) et un cas Firestore ciblé d’aller-retour et de refus.
 - Compilation et contrôle des espaces réussis. Les derniers ajouts de texte/projection joueur ont été revérifiés dans les 82 tests et la compilation après les émulateurs.
 
 Commandes :
@@ -32,4 +33,4 @@ npm run build
 
 ## Limites
 
-Cette tranche ne clôt pas tout le cahier des charges. Les modules rares R04/R05 doivent encore être construits et raccordés à C2/C3/C4/C5. Le N5 ici concerne un module natif déjà pris en charge, avec restauration explicitement préparée ; aucun effet arbitraire n'est exécuté depuis un texte libre. La préparation avancée utilise le formulaire M6 web ; l'Excel historique n'est pas déclaré certifié pour ces profils. Pas de recette sur appareil réel : Chromium local est bloqué avant le lancement de l'application dans cet environnement. Pas de fusion, déploiement ou migration. Le résultat CI du commit exact est consigné séparément dans la PR, sans réutiliser celui de sa base.
+Cette tranche ne clôt pas tout le cahier des charges. Les modules rares R04/R05 doivent encore être construits et raccordés à C2/C3/C4/C5. Le N5 ici concerne un module natif déjà pris en charge, avec restauration explicitement préparée ; aucun effet arbitraire n'est exécuté depuis un texte libre. La préparation avancée utilise le formulaire M6 web et la colonne facultative `sabotage_systeme_json` de l’Excel M6. Un aller-retour conserve la fiche sans changement ; une restauration N5 incomplète est refusée à cette colonne. Les anciens fichiers sans cette colonne conservent les données existantes. Pas de recette sur appareil réel : Chromium local est bloqué avant le lancement de l'application dans cet environnement. Pas de fusion, déploiement ou migration. Le résultat CI du commit exact est consigné séparément dans la PR, sans réutiliser celui de sa base.

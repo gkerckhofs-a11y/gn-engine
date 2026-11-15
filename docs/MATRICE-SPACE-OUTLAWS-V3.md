@@ -979,7 +979,7 @@ Le cahier des charges de clôture reste en cours. Les rapports suivants décrive
 | C2/C3 droïdes | [Rapport droïdes](SO-CLOTURE-C2-C3-DROIDES-2026-11-15.md) : six modules, effets et contenus natifs | Prestations PNJ et réparation du module déposé |
 | C2 modules vaisseaux | [Rapport modules](SO-CLOTURE-C2-MODULES-VAISSEAUX-2026-11-15.md) : six standards, atelier, pièces et prestation PNJ | Rares/prototypes |
 | C2 installation durable | [Rapport installations](SO-CLOTURE-C2-INSTALLATIONS-2026-11-15.md) : panne distincte du sabotage | Profils avancés non inventés |
-| C4 sabotage avancé | [Rapport C4](SO-CLOTURE-C4-SABOTAGES-2026-11-15.md) : DR N3, MOD N4, N5 complet sur ces références | Rares C3 et certification Excel/appareils |
+| C4 sabotage avancé | [Rapport C4](SO-CLOTURE-C4-SABOTAGES-2026-11-15.md) : DR N3, MOD N4, N5 complet sur ces références | Rares C3 et recette sur appareils |
 | C3 rares/prototypes | Non livré par cette tranche | Fabrication/pose, effets, retrait, réparation |
 | C5 soutes/coffres | Non livré par cette tranche | Preuves d'intrusion et mouvements natifs |
 | C6 services/contrats | Non livré par cette tranche | Offres préparées, négociation et paiement natif |
