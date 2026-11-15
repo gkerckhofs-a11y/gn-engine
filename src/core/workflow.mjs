@@ -1,3 +1,4 @@
+import {commercialStorageCommands,createCommercialStorageService} from './commercial-storage.mjs';
 import {commercialLogisticsActions,createCommercialLogisticsService} from './commercial-logistics.mjs';
 import {commercialTransportActions,createCommercialTransportService} from './commercial-transport.mjs';
 import {createGalacticMapService,galacticMapCommands} from './galactic-map.mjs';
@@ -203,6 +204,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const voyageService=createVoyageService({store,signed,checkSession,now,uuid,rollD6});
   const hiddenCargoService=createHiddenCargoService({store,signed,checkSession,now,uuid,rollD6});
   const cargoService=createCargoService({store,signed,checkSession,now,uuid});
+  const commercialStorageService=createCommercialStorageService({store,signed,checkSession,now,uuid});
   const logisticsService=createLogisticsService({store,signed,checkSession,now,uuid});
   const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,readSoEntryVersion,now,uuid});
   const admissionService=createAdmissionService({store,signed,isAdmin,checkSession,now,uuid});
@@ -305,6 +307,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(voyageAction(action))return voyageService(action,actor,input);
     if(hiddenCargoActions.includes(action))return hiddenCargoService(action,actor,input);
     if(cargoAction(action))return cargoService(action,actor,input);
+    if(Object.hasOwn(commercialStorageCommands,action))return commercialStorageService(action,actor,input);
     if(logisticsAction(action))return logisticsService(action,actor,input);
     if(personAction(action))return personService(action,actor,input);
     if(fieldAction(action))return fieldService(action,actor,input);

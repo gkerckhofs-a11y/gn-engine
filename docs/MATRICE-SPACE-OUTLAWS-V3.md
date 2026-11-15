@@ -1,5 +1,7 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+Entrepôts commerciaux du 15 novembre 2026 : [location native, droits, stock local et tests](SO-COMMERCIAL-STORAGE.md). Capacité et tarif explicitement configurés, bail personnel finançable par caisse autorisée, marchandises privées du même port, échéance et continuité conservées. Candidat après #42 corrigée ; paiement des achats et événements économiques encore à finaliser.
+
 Logistique commerciale du 15 novembre 2026 : [collecte distante, retrait délégué, importation et revente](SO-COMMERCIAL-LOGISTICS.md). Commandes payées confiées au transporteur, présentation MJ et tranches natives, réception propriétaire, quittance et preuve contractuelle conservées. Arrondi des droits explicitement validé par Guillaume : crédit le plus proche, demi-crédit vers le haut. Candidat après #41 ; autres compléments économiques et recette finale encore ouverts.
 
 Transport commercial entre joueurs du 14 novembre 2026 : [audit, contrôleurs réutilisés, droits, tests et limites](SO-COMMERCIAL-TRANSPORT.md). Tranche 4 après #40 : demandes, négociations et contrats natifs financés par le Courtier ; fret et salaires conservés, sans moteur parallèle. Livraison commerciale finale et douanes restent à raccorder. Aucun déploiement de cette tranche.
