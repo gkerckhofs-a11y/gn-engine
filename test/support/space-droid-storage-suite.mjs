@@ -1,3 +1,4 @@
+import {exposedDroidContent} from '../../src/core/space-droid-storage.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
@@ -16,6 +17,16 @@ export async function droidStorageFixture(makeStore,code='DR-05'){
  return {...f,move,decrypt};
 }
 export function droidStorageSuite(makeStore,prefix='Contenants droïdes'){
+ test(`${prefix} : mémoire neutralisée ferme la lecture propriétaire sans retirer ni copier le document`,async()=>{
+  const f=await droidStorageFixture(makeStore);await f.move('STORE');await f.actionCmd('openInventoryDocument',{lotId:'content'},f.other);await f.edit(`characters/${f.tid}`,c=>({...c,droidModules:c.droidModules.map(m=>({...m,neutralizedUntilGameMs:999999999}))}));await assert.rejects(f.actionCmd('openInventoryDocument',{lotId:'content'},f.other));await assert.rejects(f.decrypt(),{code:'SO_DROID_STORAGE'});assert.equal((await f.get('inventory/content')).location.kind,'DROID_CONTENT');await f.edit(`characters/${f.tid}`,c=>({...c,droidModules:c.droidModules.map(m=>({...m,neutralizedUntilGameMs:0}))}));await f.actionCmd('openInventoryDocument',{lotId:'content'},f.other);assert.equal((await f.get(`characters/${f.tid}`)).droidModules[0].contentLotId,'content');
+ });
+ test(`${prefix} : compartiment neutralisé expose une unité au vol natif, sans duplication ni retour après expiration`,async()=>{
+  const f=await droidStorageFixture(makeStore,'DR-06');await f.move('STORE');const exposed=()=>f.store.runTransaction(async tx=>exposedDroidContent(tx,await tx.get(f.base),await tx.get(`${f.base}/characters/${f.tid}`),await tx.get(`${f.base}/inventory/content`),(await tx.get(f.base)).clock.runningSince));assert.equal(await exposed(),false);await f.edit(`characters/${f.tid}`,c=>({...c,droidModules:c.droidModules.map(m=>({...m,neutralizedUntilGameMs:999999999}))}));assert.equal(await exposed(),true);
+  const a=await f.actionCmd('startSoPickpocket',{targetId:f.tid,firstName:'Bela',lastName:'Test',present:true});f.advance(45000);const r=await f.actionCmd('finishSoPickpocket',{actionId:a.id});assert.equal(r.status,'SUCCESS');assert.equal((await f.get('inventory/content')).holderId,f.cid);assert.equal((await f.get(`characters/${f.tid}`)).droidModules[0].contentLotId,null);await f.edit(`characters/${f.tid}`,c=>({...c,droidModules:c.droidModules.map(m=>({...m,neutralizedUntilGameMs:0}))}));assert.equal((await f.get('inventory/content')).ownerId,f.cid);assert.equal((await f.store.list(`${f.base}/inventory`)).filter(l=>l.item.id==='content').length,1);
+ });
+ test(`${prefix} : fouille ordinaire de compartiment neutralisé conserve choix de la victime et remise`,async()=>{
+  const f=await droidStorageFixture(makeStore,'DR-06');await f.move('STORE');await f.edit(`characters/${f.tid}`,c=>({...c,droidModules:c.droidModules.map(m=>({...m,neutralizedUntilGameMs:999999999}))}));await f.actionCmd('setSoCaptivity',{characterId:f.tid,kind:'CELL',safePath:true,reason:'Scène de fouille'},f.owner);const i={targetId:f.tid,profileId:'SO-LOOT-COMMON'},p=await f.actionRead('preparePersonAction',i),a=await f.actionCmd('startPersonAction',{...i,confirmation:p.confirmation,present:true});f.advance(60000);await f.finishCare(a);await assert.rejects(f.actionCmd('chooseLoot',{actionId:a.id,lotId:'content',present:true}),{code:'FORBIDDEN'});await f.actionCmd('chooseLoot',{actionId:a.id,lotId:'content',present:true},f.other);await f.actionCmd('confirmLootHandover',{actionId:a.id,present:true,handedOver:true},f.other);assert.equal((await f.get('inventory/content')).holderId,f.cid);assert.equal((await f.get(`characters/${f.tid}`)).droidModules[0].contentLotId,null);
+ });
  test(`${prefix} : mémoire privée, ouverture N2 sans copie ni déchiffrement du contenu`,async()=>{
   const f=await droidStorageFixture(makeStore);await f.move('STORE');
   const count=(await f.store.list(`${f.base}/inventory`)).length;

@@ -12,13 +12,13 @@ export async function droidStorageModule(tx,s,c,id,{write=false}={}){
  if(write)requireThat(!lot.memoryActionId&&!c.activeFieldActionId&&!c.activePersonActionId,'FIELD_TARGET_BUSY');
  return {lot,module};
 }
-export async function droidStorageView(tx,s,c){
+export async function droidStorageView(tx,s,c,at){
  if(s.spaceOutlaws?.droidModulesVersion!==1||c.nature!=='DROID')return null;
  const modules=[];
  for(const m of c.droidModules??[]){if(!['DR-05','DR-06'].includes(m.code))continue;
   const l=await tx.get(path(s,m.lotId));if(!installedDroidModule(c,l))continue;
   const content=m.contentLotId?await tx.get(path(s,m.contentLotId)):null;
-  modules.push({id:l.id,code:m.code,name:l.item.name,revision:l.revision,busy:!!l.memoryActionId,content:content?.location?.kind==='DROID_CONTENT'&&content.location.id===l.id?{id:content.id,name:content.item.name,knowledgeId:content.item.knowledgeId??null}:null});
+  modules.push({disabled:m.status!=='OPERATIONAL'||(m.neutralizedUntilGameMs??0)>gameTime(s.clock,at),id:l.id,code:m.code,name:l.item.name,revision:l.revision,busy:!!l.memoryActionId,content:content?.location?.kind==='DROID_CONTENT'&&content.location.id===l.id?{id:content.id,name:content.item.name,knowledgeId:content.item.knowledgeId??null}:null});
  }
  const lots=(await tx.list(`sessions/${s.id}/inventory`,['holderId',c.id])).filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.quantity>0&&!l.item.shipModule&&!l.item.droidModule&&!l.boardingCustody);
  return {modules,lots:lots.filter(l=>l.item.knowledgeId||l.item.concealable).map(l=>({id:l.id,name:l.item.name,document:!!l.item.knowledgeId,concealable:l.item.concealable===true}))};
@@ -74,3 +74,17 @@ export async function droidMemorySource(tx,s,c,moduleId,at,action=null){
 }
 export function reserveDroidMemory(tx,s,source,id){tx.set(path(s,source.moduleLot.id),{...source.moduleLot,memoryActionId:id,revision:source.moduleLot.revision+1});}
 export async function releaseDroidMemory(tx,s,a){if(!a.memory)return;const l=await tx.get(path(s,a.memory.lotId));requireThat(l?.memoryActionId===a.id,'SO_INF02_STALE');tx.set(path(s,l.id),{...l,memoryActionId:null,revision:l.revision+1});}
+
+// A disabled DR-06 keeps its content identity and location, but no longer grants
+// concealment. Expiry restores that benefit only if the unit was not taken.
+export async function exposedDroidContent(tx,s,c,l,at){
+ if(s.spaceOutlaws?.nativeSabotageVersion!==1||!l||l.quantity!==1||(l.ownerType??'CHARACTER')!=='CHARACTER'||l.ownerId!==c.id||l.holderId!==c.id||l.location?.kind!=='DROID_CONTENT')return false;
+ const module=c.droidModules?.find(m=>m.lotId===l.location.id&&m.code==='DR-06'&&m.contentLotId===l.id);if(!module||module.status==='OPERATIONAL'&&(module.neutralizedUntilGameMs??0)<=gameTime(s.clock,at))return false;
+ return installedDroidModule(c,await tx.get(path(s,module.lotId)));
+}
+export async function detachDroidContent(tx,s,c,l,at,id){
+ if(l.location?.kind!=='DROID_CONTENT')return c;
+ const lot=await tx.get(path(s,l.location.id)),m=c.droidModules?.find(m=>m.lotId===lot?.id&&m.code==='DR-06'&&m.contentLotId===l.id);requireThat(m&&installedDroidModule(c,lot),'SO_DROID_STORAGE');
+ const next={...c,droidModules:c.droidModules.map(x=>x.lotId===lot.id?{...x,contentLotId:null}:x)};
+ tx.set(path(s,lot.id),{...lot,revision:lot.revision+1});tx.set(`sessions/${s.id}/characters/${c.id}`,next);tx.set(`${path(s,lot.id)}/history/${id}`,{id,at,kind:'DROID_EXPOSED_CONTENT_TAKEN',contentLotId:l.id});return next;
+}

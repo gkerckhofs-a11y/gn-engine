@@ -1540,4 +1540,4 @@ Rapport, matrice d'audit, parcours et limites : [SO-PERSONAL-COMMERCE-CIRCUITS.m
 
 ## 15 novembre 2026 — clôture des compétences, candidat PR #45
 
-Voir la [matrice courante](MATRICE-SPACE-OUTLAWS-V3.md#clôture-des-compétences--pr-45-15-novembre-2026) et les rapports C1/C2/C3/C4 liés. Dernière tranche locale C4 : 82 tests applicatifs ciblés, 8 cas Firestore partagés, 1 HTTP/Auth et compilation réussis. La CI du SHA exact est suivie dans la PR. Les rapports distinguent les tranches déjà ajoutées des exigences encore ouvertes (PNJ droïdes, rares/prototypes, C5, C6). Aucun déploiement, migration ou recette terrain certifiée.
+Voir la [matrice courante](MATRICE-SPACE-OUTLAWS-V3.md#clôture-des-compétences--pr-45-15-novembre-2026) et les rapports C1/C2/C3/C4 liés. Dernière tranche locale C4 : 82 tests applicatifs ciblés, 9 cas Firestore C4, 3 cas de contenants droïdes, 1 cas Excel et 1 HTTP/Auth et compilation réussis. La CI du SHA exact est suivie dans la PR. Les rapports distinguent les tranches déjà ajoutées des exigences encore ouvertes (PNJ droïdes, rares/prototypes, C5, C6). Aucun déploiement, migration ou recette terrain certifiée.

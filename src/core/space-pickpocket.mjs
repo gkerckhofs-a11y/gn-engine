@@ -1,3 +1,4 @@
+import {exposedDroidContent,detachDroidContent} from './space-droid-storage.mjs';
 import {activeMalaise} from './space-toxicology-state.mjs';
 import {activeConcealment} from './space-person-loot.mjs';
 import {createHash} from 'node:crypto';
@@ -52,7 +53,7 @@ export function createSoPickpocketService({store,signed,now,uuid}){
   const byType=new Map();
   for(const raw of lots){
    const l=await readLot(tx,sid,raw.id,at);
-   if(activeConcealment(s,target,l,at)||!eligible(l)||!personalLot(l,targetId)||!await forgedLotIntegrity(tx,sid,l))continue;
+   if(activeConcealment(s,target,l,at)||!eligible(l)||!(personalLot(l,targetId)||await exposedDroidContent(tx,s,target,l,at))||!await forgedLotIntegrity(tx,sid,l))continue;
    if(!byType.has(l.item.id))byType.set(l.item.id,{itemId:l.item.id,name:l.item.name});
   }
   return [...byType.values()];
@@ -61,7 +62,7 @@ export function createSoPickpocketService({store,signed,now,uuid}){
   const s=await tx.get(prefix(sid)),target=await tx.get(characterPath(sid,targetId)),lots=await tx.list(prefix(sid)+'/inventory',['holderId',targetId]);
   for(const raw of lots){
    const l=await readLot(tx,sid,raw.id,at);
-   if(l.item?.id===itemId&&!activeConcealment(s,target,l,at)&&eligible(l)&&personalLot(l,targetId)&&await forgedLotIntegrity(tx,sid,l))return l;
+   if(l.item?.id===itemId&&!activeConcealment(s,target,l,at)&&eligible(l)&&(personalLot(l,targetId)||await exposedDroidContent(tx,s,target,l,at))&&await forgedLotIntegrity(tx,sid,l))return l;
   }
   return null;
  }
@@ -76,6 +77,7 @@ export function createSoPickpocketService({store,signed,now,uuid}){
    tx.set(actionPointPath(s.id,rogue.id),releaseActionPoints(points,1,actionPointMaximum(s.actionPointRules,rogue)));
    return compact(ended);
   }
+  if(lot.location?.kind==='DROID_CONTENT'){authorizeSpaceOutlaws(tx,s,'DROID_CONTENT_LOOT');await detachDroidContent(tx,s,await tx.get(characterPath(s.id,a.targetId)),lot,at,a.id);}
   const destination=lot.quantity===1?lot.id:uuid();
   const sourceNext=lot.quantity===1?{...lot,ownerId:rogue.id,holderId:rogue.id,location:{kind:'CHARACTER',id:rogue.id},revision:lot.revision+1}:
    {...lot,quantity:lot.quantity-1,revision:lot.revision+1};
