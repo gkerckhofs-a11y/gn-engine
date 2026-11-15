@@ -980,7 +980,7 @@ Le cahier des charges de clôture reste en cours. Les rapports suivants décrive
 | C2 modules vaisseaux | [Rapport modules](SO-CLOTURE-C2-MODULES-VAISSEAUX-2026-11-15.md) : six standards, atelier, pièces et prestation PNJ | Rares/prototypes |
 | C2 installation durable | [Rapport installations](SO-CLOTURE-C2-INSTALLATIONS-2026-11-15.md) : panne distincte du sabotage | Profils avancés non inventés |
 | C4 sabotage avancé | [Rapport C4](SO-CLOTURE-C4-SABOTAGES-2026-11-15.md) : DR N3, MOD N4, N5 complet sur ces références | Rares C3 et recette sur appareils |
-| C3 rares/prototypes | Non livré par cette tranche | Fabrication/pose, effets, retrait, réparation |
+| C3 rares/prototypes | [R04-01 préparatoire](SO-CLOTURE-C3-BROUILLEUR-PREPARATOIRE-2026-11-15.md) : calcul et effet du brouilleur testés, capacité de publication volontairement fermée | Fabrication réelle/pose unique et trois autres références ; C3 non jouable |
 | C5 soutes/coffres | Non livré par cette tranche | Preuves d'intrusion et mouvements natifs |
 | C6 services/contrats | Non livré par cette tranche | Offres préparées, négociation et paiement natif |
 
@@ -1010,3 +1010,8 @@ Détails, commandes et base CI : [rapport C2.2 modules déposés](SO-CLOTURE-C2-
 | Retrait et remontage des six modules standards endommagés | Même lot et calibration, panne conservée, aucun effet ni point restauré ; annulation et consentement natifs | 192 tests applicatifs ciblés ; 4 Firestore et 1 HTTP/Auth ; compilation | Rares/prototypes et réparation directement dans le sac non ajoutés ; recette humaine manquante |
 
 [Rapport, sources et commandes](SO-CLOTURE-C3-CYCLE-MODULES-2026-11-15.md). Base `ae83845c39323b018bd829882180b76e482709c0` ; CI exacte du candidat suivie dans la PR #45. Ce correctif préalable ne clôt pas C3.
+
+
+### Complément C3 — 15 novembre 2026 : brouilleur R04-01 préparatoire
+
+Le [rapport R04-01](SO-CLOTURE-C3-BROUILLEUR-PREPARATOIRE-2026-11-15.md) distingue le bonus réel testé sur exemplaire synthétique de la fabrication encore absente. La capacité n’est pas émise dans une nouvelle publication. Aucune recette de C3 en jeu n’est revendiquée.

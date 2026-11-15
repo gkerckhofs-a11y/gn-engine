@@ -3,7 +3,7 @@ import {itemUsages,classificationFields} from './item-circuits.mjs';
 import {mediaFields} from './media-state.mjs';
 import {createHash} from 'node:crypto';
 import {documentId,requireThat,whole} from './validation.mjs';
-import {standardShipModuleQuote} from '../shared/space-ship-modules.mjs';
+import {standardShipModuleQuote,sensorJammerQuote} from '../shared/space-ship-modules.mjs';
 export const inventoryHash=v=>createHash('sha256').update(v).digest('hex');
 const text=(v,max,required=false)=>{requireThat(typeof v==='string'&&v.length<=max&&(!required||v.trim()),'INVALID_ITEM');return v.trim();};
 export function itemInput(input,id,old={}){
@@ -20,7 +20,7 @@ export function itemInput(input,id,old={}){
   const laserRecharge=input.laserRecharge===undefined?old.laserRecharge??null:input.laserRecharge;
   if(laserRecharge!==null)requireThat(input.consumable&&Number.isSafeInteger(laserRecharge?.pelletsPerUnit)&&laserRecharge.pelletsPerUnit>0,'INVALID_RECHARGE');
   const shipModule=input.shipModule===undefined?old.shipModule??null:input.shipModule;
-  if(shipModule!==null)requireThat(typeof shipModule==='object'&&!Array.isArray(shipModule)&&Object.keys(shipModule).length===2&&Object.hasOwn(shipModule,'code')&&Object.hasOwn(shipModule,'size')&&standardShipModuleQuote(shipModule)!==null&&input.kind==='INDIVIDUAL'&&!input.consumable&&laserRecharge===null,'INVALID_SHIP_MODULE');
+  if(shipModule!==null)requireThat(typeof shipModule==='object'&&!Array.isArray(shipModule)&&Object.keys(shipModule).length===2&&Object.hasOwn(shipModule,'code')&&Object.hasOwn(shipModule,'size')&&(standardShipModuleQuote(shipModule)||sensorJammerQuote(shipModule))&&input.kind==='INDIVIDUAL'&&!input.consumable&&laserRecharge===null,'INVALID_SHIP_MODULE');
   const droidModule=input.droidModule===undefined?old.droidModule??null:input.droidModule;
   if(droidModule!==null)requireThat(droidModule&&typeof droidModule==='object'&&!Array.isArray(droidModule)&&Object.keys(droidModule).length===1&&droidModuleDefinition(droidModule.code)&&input.kind==='INDIVIDUAL'&&!input.consumable&&!shipModule&&!laserRecharge&&classification.usage!=='FUEL','INVALID_DROID_MODULE');
   const reviewTargetId=input.reviewTargetId===undefined?old.reviewTargetId??null:input.reviewTargetId;

@@ -28,7 +28,7 @@ const free=ship=>ship?.enabled&&ship.soProfile&&ship.docked&&!ship.journey&&!shi
 const local=(s,c,ship)=>(c.spacePortId??s.transportRules?.homePort)===ship.portId;
 const proof=(s,r,version)=>hash(JSON.stringify([s.id,s.revision,r,version??null]));
 // MOD-04 requires the complete hidden-cargo capability of this session.
-const moduleQuote=(s,calibration)=>playableShipModuleQuote(calibration,{hiddenCargo:hasHiddenCargo(s),towing:hasCompleteTowing(s)});
+const moduleQuote=(s,calibration)=>playableShipModuleQuote(calibration,{hiddenCargo:hasHiddenCargo(s),towing:hasCompleteTowing(s),rare:s.spaceOutlaws?.sensorJammerVersion===1});
 const view=(s,r,version,valid)=>({...((r.moduleState||r.binding?.moduleState)?{moduleCondition:(r.moduleState??r.binding.moduleState).status}:{}),...((r.moduleOperation==='REMOVE')?{moduleOperation:'REMOVE'}:{}),id:r.id,status:r.status,shipId:r.shipId,shipName:r.shipName,lotId:r.lotId,module:r.module,ownerId:r.ownerId,ownerName:r.ownerName,technicianId:r.technicianId,technicianName:r.technicianName,portName:r.portName,install:r.install,valid,confirmation:proof(s,r,version)});
 
 export async function moduleMandateBinding(tx,s,input,at){
@@ -41,6 +41,7 @@ export async function moduleMandateBinding(tx,s,input,at){
   const lot=await tx.get(`${base}/inventory/${documentId(input.lotId)}`),q=moduleQuote(s,lot?.item?.shipModule),profile=spaceShipProfiles.find(p=>p.id===ship.soProfile.id);
   requireThat(q&&profile&&profile.size===q.size&&Array.isArray(ship.modules)&&(removing?ship.modules.length<=profile.moduleSlots&&installedModuleLot(ship,lot,{durableModules:s.spaceOutlaws?.moduleRepairVersion===1}):ship.modules.length<profile.moduleSlots&&!ship.modules.some(m=>m.code===q.code)),'INVALID_MODULE_CALIBRATION');
   requireThat(lot.item.kind==='INDIVIDUAL'&&!lot.item.consumable&&(removing?installedModuleLot(ship,lot,{durableModules:s.spaceOutlaws?.moduleRepairVersion===1})&&lot.status==='INSTALLED':personalLot(lot,ship.ownerId)&&lot.status==='AVAILABLE')&&!lot.fieldActionId&&!lot.sabotageActionId&&!lot.cargoTransferId&&lot.quantity===1&&lot.transferable===true&&lot.resellable===true&&!lot.transportContractId,'MODULE_LOT_UNAVAILABLE');
+  if(q.code==='R04-01')requireThat(lot.origin?.kind==='SHIP_RARE_FABRICATION','MODULE_LOT_UNAVAILABLE');
   const moduleState=removing?ship.modules.find(m=>m.lotId===lot.id):lot.moduleState??{status:'OPERATIONAL'};
   requireThat((moduleState.status==='OPERATIONAL'||s.spaceOutlaws?.moduleRepairVersion===1&&moduleState.status==='DAMAGED')&&(moduleState.code===undefined||moduleState.code===q.code)&&(moduleState.size===undefined||moduleState.size===q.size)&&(moduleState.lotId===undefined||moduleState.lotId===lot.id),'INVALID_MODULE_CALIBRATION');
   requireThat(tech.active&&fit(tech.c,time)&&local(s,tech.c,ship)&&navigationSkill(tech.c,'MEC-03')>=(removing?q.remove:q.install).level,'MODULE_TECH_REQUIRED');

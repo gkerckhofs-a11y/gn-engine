@@ -6,12 +6,13 @@ export const hasSoCombat=s=>s.spaceOutlaws?.combatVersion===1&&s.spaceOutlaws?.n
 export const boardingEncounterEnabled=(s,e)=>s.spaceOutlaws?.boardingVersion===1&&e?.boardingVersion===1&&e.status==='CLOSED'&&(e.shipIds?.length===2||s.spaceOutlaws.fleetBoardingVersion===1&&e.fleetBoardingVersion===1&&e.shipIds?.length>=3&&e.shipIds.length<=4&&new Set(e.shipIds).size===e.shipIds.length&&e.shipIds.every(id=>typeof e.teams?.[id]==='string')&&new Set(e.shipIds.map(id=>e.teams[id])).size===2);
 export const spaceOrderKinds=['ATTACK','DEFEND','FLEE','PURSUE','PASSIVE','SURRENDER','PIL03_2','PIL03_3','PIL03_4','PIL03_5','ESC01'];
 export function spaceOrderInput(v,targets=false){
- admissionKeys(v,['kind','fallback','acceptSurrender','ceasefire',...(targets?['targetId','defenseIds']:[])]);
+ admissionKeys(v,['kind','fallback','acceptSurrender','ceasefire','sensorJammer',...(targets?['targetId','defenseIds']:[])]);
  requireThat(spaceOrderKinds.includes(v.kind)&&typeof v.acceptSurrender==='boolean'&&typeof v.ceasefire==='boolean','INVALID_SPACE_ORDER');
  requireThat(v.kind!=='ESC01'||targets&&Array.isArray(v.defenseIds)&&v.defenseIds.length===0,'INVALID_SPACE_ORDER');
  const fallback=v.fallback??'PASSIVE';requireThat(['ATTACK','DEFEND','FLEE','PURSUE','PASSIVE'].includes(fallback),'INVALID_SPACE_ORDER');
+ requireThat(v.sensorJammer===undefined||typeof v.sensorJammer==='boolean'&&v.kind==='FLEE','INVALID_SPACE_ORDER');
  if(targets)requireThat(typeof v.targetId==='string'&&Array.isArray(v.defenseIds)&&v.defenseIds.length<=(v.kind==='PIL03_2'?2:1)&&new Set(v.defenseIds).size===v.defenseIds.length&&v.defenseIds.every(x=>typeof x==='string'),'INVALID_SPACE_ORDER');
- return {...(targets?{targetId:v.targetId,defenseIds:v.defenseIds}:{}),kind:v.kind,fallback,acceptSurrender:v.acceptSurrender,ceasefire:v.ceasefire};
+ return {...(targets?{targetId:v.targetId,defenseIds:v.defenseIds}:{}),...(v.sensorJammer===true?{sensorJammer:true}:{}),kind:v.kind,fallback,acceptSurrender:v.acceptSurrender,ceasefire:v.ceasefire};
 }
 export const spaceSpecialLevel=o=>o.kind.startsWith('PIL03_')?Number(o.kind.slice(-1)):0;
 export function pauseSpaceJourney(ship,time){
@@ -27,8 +28,8 @@ const damage=(s,n)=>{const shield=Math.max(0,s.shield-n);return {...s,shield,hul
 // Two-ship encounters only. Orders and dice are fixed before resolving either ship.
 export function resolveSpaceDuel(ships,orders,dice,quietRounds=0){
  requireThat(ships.length===2&&orders.length===2&&dice.length===8&&dice.every(n=>Number.isInteger(n)&&n>=1&&n<=6),'INVALID_SPACE_ROUND');
- const before=ships.map(s=>({...s})),after=ships.map(s=>({...s})),used=[false,false],fuelSpent=[0,0],rolls=[],shots=[],escaped=[];
- const close=(reason,hostile=false)=>({after,used,fuelSpent,rolls,shots,escaped,hostile,quietRounds:hostile?0:quietRounds+1,closed:true,reason});
+ const before=ships.map(s=>({...s})),after=ships.map(s=>({...s})),used=[false,false],jammerUsed=[false,false],fuelSpent=[0,0],rolls=[],shots=[],escaped=[];
+ const close=(reason,hostile=false)=>({after,used,jammerUsed,fuelSpent,rolls,shots,escaped,hostile,quietRounds:hostile?0:quietRounds+1,closed:true,reason});
  if(orders.every(o=>o.ceasefire))return close('CEASEFIRE');
  const acceptedSurrenderIds=orders.flatMap((o,i)=>o.kind==='SURRENDER'&&orders[1-i].acceptSurrender?[before[i].id]:[]);
  if(acceptedSurrenderIds.length)return {...close('SURRENDER'),acceptedSurrenderIds};
@@ -51,8 +52,9 @@ export function resolveSpaceDuel(ships,orders,dice,quietRounds=0){
   if(!fleeing(kinds[i])||after[i].hull===0)continue;
   if(pursuer!==1-i||after[pursuer].hull===0){escaped.push(before[i].id);continue;}
   const special=kinds[i]==='PIL03_4';if(special&&before[i].fuel<1)continue;
-  const total=dice[4+i]+before[i].maneuverability+(special?2:0),opposed=dice[6]+before[pursuer].maneuverability,success=total>opposed;
-  hostile=true;rolls.push({kind:'PURSUIT',shipId:before[pursuer].id,targetId:before[i].id,roll:dice[6],total:opposed});rolls.push({kind:'FLEE',shipId:before[i].id,roll:dice[4+i],total,opposed,success});
+  const jammer=orders[i].sensorJammer===true&&!special;jammerUsed[i]=jammer;
+  const total=dice[4+i]+before[i].maneuverability+(special?2:0)+Number(jammer),opposed=dice[6]+before[pursuer].maneuverability,success=total>opposed;
+  hostile=true;rolls.push({kind:'PURSUIT',shipId:before[pursuer].id,targetId:before[i].id,roll:dice[6],total:opposed});rolls.push({kind:'FLEE',shipId:before[i].id,roll:dice[4+i],total,opposed,success,...(jammer?{sensorJammerBonus:1}:{})});
   if(special){used[i]=true;fuelSpent[i]=1;after[i].fuel--;if(!success){after[i]=damage(after[i],1);after[i].revisionRequired=true;}}
   if(success)escaped.push(before[i].id);
  }
@@ -60,5 +62,5 @@ export function resolveSpaceDuel(ships,orders,dice,quietRounds=0){
  if(escaped.length)return close('FLED',hostile);
  if(after.some(s=>s.hull===0))return close('IMMOBILIZED',hostile);
  if(quiet>=2)return close('QUIET',hostile);
- return {after,used,fuelSpent,rolls,shots,escaped,hostile,quietRounds:quiet,closed:false,reason:null};
+ return {after,used,jammerUsed,fuelSpent,rolls,shots,escaped,hostile,quietRounds:quiet,closed:false,reason:null};
 }

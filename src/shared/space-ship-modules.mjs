@@ -10,6 +10,18 @@ export const standardShipModules=Object.freeze([
  Object.freeze({code:'MOD-06',label:'Canon lourd',pricePercent:20,installLevel:3,installSeconds:900}),
 ]);
 
+// Rare values are fabrication costs, never shop prices. The other three
+// references remain closed until their effects and physical custody exist.
+export const sensorJammer=Object.freeze({code:'R04-01',label:'Brouilleur de capteurs',level:4});
+export function sensorJammerQuote(calibration){
+ const ship=spaceShipProfiles.find(p=>p.size===calibration?.size);
+ if(calibration?.code!==sensorJammer.code||!ship)return null;
+ return {code:sensorJammer.code,size:ship.size,label:sensorJammer.label,shipLabel:ship.label,
+  price:ship.referencePrice*30/100,commonCost:ship.referencePrice*20/100,rareCost:ship.referencePrice*10/100,
+  install:{skillId:'MEC-03',level:4,seconds:1200,actionPoints:1},
+  remove:{skillId:'MEC-03',level:4,seconds:600,actionPoints:1}};
+}
+
 export function standardShipModuleQuote(calibration){
  if(!calibration||typeof calibration!=='object')return null;
  const {code,size}=calibration;
@@ -23,7 +35,8 @@ export function standardShipModuleQuote(calibration){
 }
 
 // A definition alone never grants a session-specific equipment capability.
-export function playableShipModuleQuote(calibration,{hiddenCargo=false,towing=false}={}){
+export function playableShipModuleQuote(calibration,{hiddenCargo=false,towing=false,rare=false}={}){
+ if(rare&&calibration?.code===sensorJammer.code)return sensorJammerQuote(calibration);
  const q=standardShipModuleQuote(calibration);
  return q&&(!q.requiresTowing||towing)&&(!q.requiresHiddenCargo||hiddenCargo)?q:null;
 }
@@ -40,6 +53,6 @@ export const towingVersionKeys=Object.freeze(['towingWorkVersion','towingAttachm
 
 // V0.7 chapter 17: a repair is distinct from fitting, hull and shield work.
 export function shipModuleRepairPlan(module){
- const q=standardShipModuleQuote(module);if(!q)return null;
- return {kind:'MODULE',points:1,unitCost:q.price/4,secondsPerPoint:300,moduleLotId:module.lotId,moduleCode:q.code,moduleName:q.label,moduleLevel:q.install.level};
+ const q=standardShipModuleQuote(module)||sensorJammerQuote(module);if(!q)return null;
+ return {kind:'MODULE',points:1,unitCost:q.price/4,secondsPerPoint:q.code===sensorJammer.code?600:300,moduleLotId:module.lotId,moduleCode:q.code,moduleName:q.label,moduleLevel:q.install.level};
 }

@@ -1562,3 +1562,8 @@ Base `31b3605592e26ea1a77eddb0c17ca904888e5f21` : [CI 43732238948](https://githu
 Correction du cycle standard avant l'extension rare/prototype : retrait autorisé avec la capacité de panne durable, même lot/calibration/état dans le sac puis au remontage. La finalisation revérifie l'état lié au consentement ; l'annulation libère les réserves sans réparer. Une réparation réelle reste une opération distincte.
 
 192 tests applicatifs ciblés, quatre scénarios Firestore et un HTTP/Auth réussis ; compilation et diff-check réussis. [Rapport et commandes](SO-CLOTURE-C3-CYCLE-MODULES-2026-11-15.md). Base `ae83845c39323b018bd829882180b76e482709c0` : CI 43736632388 encore en cours à la rédaction, application et HTTP réussis. SHA et CI du nouveau candidat suivis dans la PR #45. C3 rares/prototypes, C5, C6 et recette intégrée restent ouverts ; aucun déploiement Firebase.
+
+
+## 15 novembre 2026 — C3, brouilleur R04-01 préparatoire
+
+Base `821b0c14af35606d8f754e00ec49d3cf02ccc256` : [CI 43738212280](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/43738212280) réussie sur les dix jobs. Le raccord R04-01 calcule le devis canonique et applique +1 au décrochage ou à une fuite annoncée, une fois par voyage, dans les moteurs de duel et convoi. Il refuse la vente standard, l’origine non fabriquée et le technicien sous N4. 152 tests applicatifs ciblés, cinq tests Firestore émulés et compilation réussis ; [rapport et limites](SO-CLOTURE-C3-BROUILLEUR-PREPARATOIRE-2026-11-15.md). La fabrication/pose depuis plan et composants réels reste absente, le marqueur de publication n’est pas émis : C3 demeure non jouable en publication ordinaire. CI du nouveau SHA suivie dans la PR #45.

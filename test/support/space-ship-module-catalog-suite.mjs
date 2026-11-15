@@ -15,7 +15,7 @@ export function shipModuleCatalogSuite(makeStore,prefix='Catalogue modules M1'){
  });
  test(`${prefix} : calibration fermée et conditionnement obligatoire sans écriture partielle`,async()=>{
   const f=await centralFixture(makeStore);
-  for(const shipModule of [{code:'MOD-01',size:0},{code:'MOD-01',size:'2'},{code:'MOD-01',size:1.5},{code:'MOD-04',size:1},{code:'R04-01',size:2},{code:'MOD-01',size:2,price:1},{code:'MOD-01'},[],false,'MOD-01'])await assert.rejects(f.save({item:{...moduleItem,shipModule}}),{code:'INVALID_SHIP_MODULE'});
+  for(const shipModule of [{code:'MOD-01',size:0},{code:'MOD-01',size:'2'},{code:'MOD-01',size:1.5},{code:'MOD-04',size:1},{code:'R05-01',size:2},{code:'MOD-01',size:2,price:1},{code:'MOD-01'},[],false,'MOD-01'])await assert.rejects(f.save({item:{...moduleItem,shipModule}}),{code:'INVALID_SHIP_MODULE'});
   for(const patch of [{kind:'STACKABLE'},{consumable:true}])await assert.rejects(f.save({item:{...moduleItem,...patch}}),{code:'INVALID_SHIP_MODULE'});
   assert.equal((await f.view()).draft.revision,0);assert.equal((await f.view()).history.length,0);
  });
