@@ -3,7 +3,7 @@ import {itemUsages,classificationFields} from './item-circuits.mjs';
 import {mediaFields} from './media-state.mjs';
 import {createHash} from 'node:crypto';
 import {documentId,requireThat,whole} from './validation.mjs';
-import {standardShipModuleQuote,sensorJammerQuote} from '../shared/space-ship-modules.mjs';
+import {standardShipModuleQuote,rareShipModuleQuote} from '../shared/space-ship-modules.mjs';
 export const inventoryHash=v=>createHash('sha256').update(v).digest('hex');
 const text=(v,max,required=false)=>{requireThat(typeof v==='string'&&v.length<=max&&(!required||v.trim()),'INVALID_ITEM');return v.trim();};
 export function itemInput(input,id,old={}){
@@ -20,10 +20,10 @@ export function itemInput(input,id,old={}){
   const laserRecharge=input.laserRecharge===undefined?old.laserRecharge??null:input.laserRecharge;
   if(laserRecharge!==null)requireThat(input.consumable&&Number.isSafeInteger(laserRecharge?.pelletsPerUnit)&&laserRecharge.pelletsPerUnit>0,'INVALID_RECHARGE');
   const shipModule=input.shipModule===undefined?old.shipModule??null:input.shipModule;
-  if(shipModule!==null)requireThat(typeof shipModule==='object'&&!Array.isArray(shipModule)&&Object.keys(shipModule).length===2&&Object.hasOwn(shipModule,'code')&&Object.hasOwn(shipModule,'size')&&(standardShipModuleQuote(shipModule)||sensorJammerQuote(shipModule))&&input.kind==='INDIVIDUAL'&&!input.consumable&&laserRecharge===null,'INVALID_SHIP_MODULE');
+  if(shipModule!==null)requireThat(typeof shipModule==='object'&&!Array.isArray(shipModule)&&Object.keys(shipModule).length===2&&Object.hasOwn(shipModule,'code')&&Object.hasOwn(shipModule,'size')&&(standardShipModuleQuote(shipModule)||rareShipModuleQuote(shipModule))&&input.kind==='INDIVIDUAL'&&!input.consumable&&laserRecharge===null,'INVALID_SHIP_MODULE');
   const shipFabrication=input.shipFabrication===undefined?old.shipFabrication??null:input.shipFabrication;
   if(shipFabrication!==null){
-    requireThat(shipModule?.code==='R04-01'&&typeof shipFabrication==='object'&&!Array.isArray(shipFabrication)&&Object.keys(shipFabrication).length===3,'INVALID_SHIP_MODULE');
+    requireThat(['R04-01','R05-01'].includes(shipModule?.code)&&typeof shipFabrication==='object'&&!Array.isArray(shipFabrication)&&Object.keys(shipFabrication).length===3,'INVALID_SHIP_MODULE');
     for(const id of ['planItemId','commonItemId','rareItemId'])documentId(shipFabrication[id]);
     requireThat(new Set(Object.values(shipFabrication)).size===3,'INVALID_SHIP_MODULE');
   }

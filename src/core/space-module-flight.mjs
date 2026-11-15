@@ -15,17 +15,18 @@ export function flightShip(s,ship,time){
  if(ship?.wreckSpacePosition||ship?.journey?.releasedTowing)requireThat(hasTowingCombat(s),'TOWING_COMBAT_NOT_OPEN');
  if(ship?.moduleNeutralizations?.length)requireThat(hasModuleFlights(s),'MODULE_FLIGHT_NOT_OPEN');
  if(!ship?.modules?.length||!hasModuleFlights(s))return ship;
- requireThat(installedShipProfile(ship.soProfile,ship.modules,{rare:s.spaceOutlaws?.sensorJammerVersion===1,durableModules:s.spaceOutlaws?.moduleRepairVersion===1,hiddenCargo:hasHiddenCargo(s),towingProfile:hasTowingFlights(s)}),'INVALID_MODULE_CALIBRATION');
- const off=new Set(activeModuleOutages(ship,time).map(n=>n.lotId)),profile=installedShipProfile(ship.soProfile,ship.modules.filter(m=>!off.has(m.lotId)),{rare:s.spaceOutlaws?.sensorJammerVersion===1,durableModules:s.spaceOutlaws?.moduleRepairVersion===1,hiddenCargo:hasHiddenCargo(s),towingProfile:hasTowingFlights(s)});
+ requireThat(installedShipProfile(ship.soProfile,ship.modules,{rare:s.spaceOutlaws?.sensorJammerVersion===1,regenerative:s.spaceOutlaws?.regenerativeShieldVersion===1,durableModules:s.spaceOutlaws?.moduleRepairVersion===1,hiddenCargo:hasHiddenCargo(s),towingProfile:hasTowingFlights(s)}),'INVALID_MODULE_CALIBRATION');
+ const off=new Set(activeModuleOutages(ship,time).map(n=>n.lotId)),profile=installedShipProfile(ship.soProfile,ship.modules.filter(m=>!off.has(m.lotId)),{rare:s.spaceOutlaws?.sensorJammerVersion===1,regenerative:s.spaceOutlaws?.regenerativeShieldVersion===1,durableModules:s.spaceOutlaws?.moduleRepairVersion===1,hiddenCargo:hasHiddenCargo(s),towingProfile:hasTowingFlights(s)});
  // Rebuild from the canonical base on every use, including after expiry. Never heal.
  return {...ship,soProfile:profile,hull:Math.min(ship.hull,profile.hullMax),shield:Math.min(ship.shield,profile.shieldMax),...(ship.journey?.towing?{soProfile:{...profile,maneuverability:Math.max(0,profile.maneuverability-1)}}:{})};
 }
 export const eligibleFlightModules=(s,ship,time)=>hasModuleFlights(s)?(ship.modules??[]).filter(m=>m.status==='OPERATIONAL'&&!activeModuleOutages(ship,time).some(n=>n.lotId===m.lotId)):[];
+export const readyRegenerativeShield=(s,ship,encounter,time)=>s.spaceOutlaws?.regenerativeShieldVersion===1&&!encounter?.regenerativeShieldUses?.[ship.id]&&eligibleFlightModules(s,ship,time).some(m=>m.code==='R05-01');
 export const readySensorJammer=(s,ship,time)=>s.spaceOutlaws?.sensorJammerVersion===1&&!ship.journey?.sensorJammerUsed&&eligibleFlightModules(s,ship,time).some(m=>m.code==='R04-01');
 export async function validateModuleFlight(tx,s,ship){
  if(!ship.modules?.length)return;
  requireThat(hasModuleFlights(s),'MODULE_FLIGHT_NOT_OPEN');
- requireThat(ship.moduleInstallationVersion===1&&installedShipProfile(ship.soProfile,ship.modules,{rare:s.spaceOutlaws?.sensorJammerVersion===1,durableModules:s.spaceOutlaws?.moduleRepairVersion===1,hiddenCargo:hasHiddenCargo(s),towingProfile:hasTowingFlights(s)}),'INVALID_MODULE_CALIBRATION');
+ requireThat(ship.moduleInstallationVersion===1&&installedShipProfile(ship.soProfile,ship.modules,{rare:s.spaceOutlaws?.sensorJammerVersion===1,regenerative:s.spaceOutlaws?.regenerativeShieldVersion===1,durableModules:s.spaceOutlaws?.moduleRepairVersion===1,hiddenCargo:hasHiddenCargo(s),towingProfile:hasTowingFlights(s)}),'INVALID_MODULE_CALIBRATION');
  requireThat(new Set(ship.modules.map(m=>m.lotId)).size===ship.modules.length,'INVALID_MODULE_CALIBRATION');
  for(const m of ship.modules){
   const lot=await tx.get(`sessions/${s.id}/inventory/${m.lotId}`);

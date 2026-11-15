@@ -22,6 +22,14 @@ export function sensorJammerQuote(calibration){
   remove:{skillId:'MEC-03',level:4,seconds:600,actionPoints:1}};
 }
 
+export const regenerativeShield=Object.freeze({code:'R05-01',label:'Bouclier régénératif',level:5});
+export function regenerativeShieldQuote(calibration){
+ const ship=spaceShipProfiles.find(p=>p.size===calibration?.size);
+ if(calibration?.code!==regenerativeShield.code||!ship)return null;
+ return {code:regenerativeShield.code,size:ship.size,label:regenerativeShield.label,shipLabel:ship.label,price:ship.referencePrice*50/100,commonCost:ship.referencePrice*30/100,rareCost:ship.referencePrice*20/100,install:{skillId:'MEC-03',level:5,seconds:1800,actionPoints:1},remove:{skillId:'MEC-03',level:5,seconds:900,actionPoints:1}};
+}
+export const rareShipModuleQuote=calibration=>sensorJammerQuote(calibration)||regenerativeShieldQuote(calibration);
+
 export function standardShipModuleQuote(calibration){
  if(!calibration||typeof calibration!=='object')return null;
  const {code,size}=calibration;
@@ -35,8 +43,9 @@ export function standardShipModuleQuote(calibration){
 }
 
 // A definition alone never grants a session-specific equipment capability.
-export function playableShipModuleQuote(calibration,{hiddenCargo=false,towing=false,rare=false}={}){
+export function playableShipModuleQuote(calibration,{hiddenCargo=false,towing=false,rare=false,regenerative=false}={}){
  if(rare&&calibration?.code===sensorJammer.code)return sensorJammerQuote(calibration);
+ if(regenerative&&calibration?.code===regenerativeShield.code)return regenerativeShieldQuote(calibration);
  const q=standardShipModuleQuote(calibration);
  return q&&(!q.requiresTowing||towing)&&(!q.requiresHiddenCargo||hiddenCargo)?q:null;
 }
@@ -53,6 +62,6 @@ export const towingVersionKeys=Object.freeze(['towingWorkVersion','towingAttachm
 
 // V0.7 chapter 17: a repair is distinct from fitting, hull and shield work.
 export function shipModuleRepairPlan(module){
- const q=standardShipModuleQuote(module)||sensorJammerQuote(module);if(!q)return null;
- return {kind:'MODULE',points:1,unitCost:q.price/4,secondsPerPoint:q.code===sensorJammer.code?600:300,moduleLotId:module.lotId,moduleCode:q.code,moduleName:q.label,moduleLevel:q.install.level};
+ const q=standardShipModuleQuote(module)||rareShipModuleQuote(module);if(!q)return null;
+ return {kind:'MODULE',points:1,unitCost:q.price/4,secondsPerPoint:q.code===regenerativeShield.code?900:q.code===sensorJammer.code?600:300,moduleLotId:module.lotId,moduleCode:q.code,moduleName:q.label,moduleLevel:q.install.level};
 }

@@ -6,13 +6,14 @@ export const hasSoCombat=s=>s.spaceOutlaws?.combatVersion===1&&s.spaceOutlaws?.n
 export const boardingEncounterEnabled=(s,e)=>s.spaceOutlaws?.boardingVersion===1&&e?.boardingVersion===1&&e.status==='CLOSED'&&(e.shipIds?.length===2||s.spaceOutlaws.fleetBoardingVersion===1&&e.fleetBoardingVersion===1&&e.shipIds?.length>=3&&e.shipIds.length<=4&&new Set(e.shipIds).size===e.shipIds.length&&e.shipIds.every(id=>typeof e.teams?.[id]==='string')&&new Set(e.shipIds.map(id=>e.teams[id])).size===2);
 export const spaceOrderKinds=['ATTACK','DEFEND','FLEE','PURSUE','PASSIVE','SURRENDER','PIL03_2','PIL03_3','PIL03_4','PIL03_5','ESC01'];
 export function spaceOrderInput(v,targets=false){
- admissionKeys(v,['kind','fallback','acceptSurrender','ceasefire','sensorJammer',...(targets?['targetId','defenseIds']:[])]);
+ admissionKeys(v,['kind','fallback','acceptSurrender','ceasefire','sensorJammer','regenerativeShield',...(targets?['targetId','defenseIds']:[])]);
  requireThat(spaceOrderKinds.includes(v.kind)&&typeof v.acceptSurrender==='boolean'&&typeof v.ceasefire==='boolean','INVALID_SPACE_ORDER');
  requireThat(v.kind!=='ESC01'||targets&&Array.isArray(v.defenseIds)&&v.defenseIds.length===0,'INVALID_SPACE_ORDER');
  const fallback=v.fallback??'PASSIVE';requireThat(['ATTACK','DEFEND','FLEE','PURSUE','PASSIVE'].includes(fallback),'INVALID_SPACE_ORDER');
  requireThat(v.sensorJammer===undefined||typeof v.sensorJammer==='boolean'&&v.kind==='FLEE','INVALID_SPACE_ORDER');
+ requireThat(v.regenerativeShield===undefined||typeof v.regenerativeShield==='boolean','INVALID_SPACE_ORDER');
  if(targets)requireThat(typeof v.targetId==='string'&&Array.isArray(v.defenseIds)&&v.defenseIds.length<=(v.kind==='PIL03_2'?2:1)&&new Set(v.defenseIds).size===v.defenseIds.length&&v.defenseIds.every(x=>typeof x==='string'),'INVALID_SPACE_ORDER');
- return {...(targets?{targetId:v.targetId,defenseIds:v.defenseIds}:{}),...(v.sensorJammer===true?{sensorJammer:true}:{}),kind:v.kind,fallback,acceptSurrender:v.acceptSurrender,ceasefire:v.ceasefire};
+ return {...(targets?{targetId:v.targetId,defenseIds:v.defenseIds}:{}),...(v.sensorJammer===true?{sensorJammer:true}:{}),...(v.regenerativeShield===true?{regenerativeShield:true}:{}),kind:v.kind,fallback,acceptSurrender:v.acceptSurrender,ceasefire:v.ceasefire};
 }
 export const spaceSpecialLevel=o=>o.kind.startsWith('PIL03_')?Number(o.kind.slice(-1)):0;
 export function pauseSpaceJourney(ship,time){

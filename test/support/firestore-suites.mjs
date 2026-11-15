@@ -151,6 +151,7 @@ export const firestoreSuites = [
   {"id":"space-document-review","module":"../support/space-document-review-suite.mjs","exportName":"spaceDocumentReviewSuite","label":"Documents TRA-03 sur Firestore","seconds":60},
   {"id":"space-outlaws-voyages","module":"../support/space-outlaws-voyages-suite.mjs","exportName":"spaceOutlawsVoyagesSuite","label":"Vols SO sur Firestore","seconds":98},
   {"id":"space-sensor-fabrication","module":"../support/space-sensor-fabrication-suite.mjs","exportName":"sensorFabricationSuite","label":"Fabrication brouilleur sur Firestore","seconds":45},
+  {"id":"space-regenerative-shield","module":"../support/space-regenerative-shield-suite.mjs","exportName":"regenerativeShieldSuite","label":"Bouclier régénératif sur Firestore","seconds":50},
   {"id":"space-sensor-jammer","module":"../support/space-sensor-jammer-suite.mjs","exportName":"sensorJammerSuite","label":"Brouilleur rare sur Firestore","seconds":35},
   {"id":"space-encounters","module":"../support/space-encounters-suite.mjs","exportName":"spaceEncountersSuite","label":"Rencontres spatiales SO sur Firestore","seconds":111},
   {"id":"space-logistics","module":"../support/space-logistics-suite.mjs","exportName":"spaceLogisticsSuite","label":"Entretien et fret SO sur Firestore","seconds":95},
