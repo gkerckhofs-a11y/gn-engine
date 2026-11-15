@@ -1,3 +1,4 @@
+import {droidBonusOptions,requireDroidBonus} from './space-droid-work.mjs';
 import {recordFictionalTrace} from './space-fictional-traces.mjs';
 import {readLot,personalLot,lotState} from './inventory-state.mjs';
 import {prepareAid,reserveAid,checkAid,finishAid,aidSnapshot,cooldownPath} from './aid-state.mjs';
@@ -83,7 +84,7 @@ export function createSoIntrusionService({store,signed,checkSession,now,uuid,rol
     requireThat(last.length<=1000,'SO_RELEASE_LIMIT');
     const inventory=await tx.list(base(sid)+'/inventory',['holderId',c.id],{limit:1001});requireThat(inventory.length<=1000,'SO_RELEASE_LIMIT');const lots=inventory.filter(l=>personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.quantity>0);
     const hintViews=(t.intrusion.hints??[]).filter(h=>h.minLevel<=level).map(h=>({id:h.id,minLevel:h.minLevel,used:!!field.hintClaims?.[hash(JSON.stringify([c.id,t.revision,h.id]))]}));
-    return {bonusLots:lots.filter(l=>(t.intrusion.bonusItemIds??[]).includes(l.item.id)&&!l.item.consumable&&!l.item.shipModule).map(l=>({id:l.id,name:l.item.name})),consumable:t.intrusion.consumable??null,consumableLots:lots.filter(l=>l.item.id===t.intrusion.consumable?.itemId&&l.item.consumable&&l.quantity>=t.intrusion.consumable.quantity).map(l=>({id:l.id,name:l.item.name,quantity:l.quantity})),aidOffers:(await offeredAid(tx,sid,c.id)).filter(a=>a.skillId==='INF-01'),hints:hintViews,enabled:level>0,level,session:{id:sid,stage:s.stage},
+    return {bonusLots:[...await droidBonusOptions(tx,s,c,{...t.intrusion,skillId:'INF-01',test:t.intrusion.challenge?'CODE':'D6'},at),...lots.filter(l=>(t.intrusion.bonusItemIds??[]).includes(l.item.id)&&!l.item.consumable&&!l.item.shipModule&&!l.item.droidModule).map(l=>({id:l.id,name:l.item.name}))],consumable:t.intrusion.consumable??null,consumableLots:lots.filter(l=>l.item.id===t.intrusion.consumable?.itemId&&l.item.consumable&&l.quantity>=t.intrusion.consumable.quantity).map(l=>({id:l.id,name:l.item.name,quantity:l.quantity})),aidOffers:(await offeredAid(tx,sid,c.id)).filter(a=>a.skillId==='INF-01'),hints:hintViews,enabled:level>0,level,session:{id:sid,stage:s.stage},
      target:{id:t.id,title:t.title,description:t.description,category:t.intrusion.category,
       minLevel:t.intrusion.minLevel,threshold:t.intrusion.challenge?null:t.intrusion.threshold,busy:!!field.activeActionId||field.lockedUntilGameMs>time,lockedMs:Math.max(0,(field.lockedUntilGameMs??0)-time),
       ...(t.intrusion.challenge&&level>=t.intrusion.minLevel?{challenge:{type:'CODE',
@@ -126,18 +127,18 @@ export function createSoIntrusionService({store,signed,checkSession,now,uuid,rol
      const decoding=await tx.get(base(sid)+'/inf02Actors/'+c.id);requireThat(!decoding?.activeId,'SO_INF01_BUSY');
     }
     requireThat(!t.intrusion.challenge||!input.bonusLotId&&!input.consumableLotId&&!input.aidOfferId,'AID_NOT_ALLOWED');
-    const resources=[],selected=[];
+    const resources=[],selected=[];let droidMaterial=null;
     for(const [key,consume] of [['bonusLotId',false],['consumableLotId',true]]){
      const need=consume?t.intrusion.consumable:null;if(consume&&need)requireThat(input[key],'FIELD_CONSUMABLE_REQUIRED');
-     if(!input[key])continue;const l=await readLot(tx,sid,documentId(input[key]),at),quantity=need?.quantity??1;
-     requireThat(l&&personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.quantity>=quantity&&!l.item.shipModule&&(consume?need&&l.item.consumable&&l.item.id===need.itemId:!l.item.consumable&&(t.intrusion.bonusItemIds??[]).includes(l.item.id)),'FIELD_EQUIPMENT_UNAVAILABLE');
+     if(!input[key])continue;if(!consume){droidMaterial=(await droidBonusOptions(tx,s,c,{...t.intrusion,skillId:'INF-01',test:'D6'},at)).find(m=>m.id===input[key])??null;if(droidMaterial)continue;}const l=await readLot(tx,sid,documentId(input[key]),at),quantity=need?.quantity??1;
+     requireThat(l&&personalLot(l,c.id)&&l.status==='AVAILABLE'&&l.quantity>=quantity&&!l.item.shipModule&&!l.item.droidModule&&(consume?need&&l.item.consumable&&l.item.id===need.itemId:!l.item.consumable&&(t.intrusion.bonusItemIds??[]).includes(l.item.id)),'FIELD_EQUIPMENT_UNAVAILABLE');
      resources.push({id:l.id,itemId:l.item.id,revision:l.revision+1,quantity,consume});selected.push(l);
     }
     const profile={test:t.intrusion.challenge?'CODE':'D6',skillId:'INF-01',minLevel:t.intrusion.minLevel},aid=await prepareAid(tx,s,c,input,profile,family,at);
     if(aid){live(s,aid.character,at);const helper=await tx.get(actorPath(sid,aid.character.id));requireThat((helper?.cooldownUntil??0)<=time,'SO_INF01_COOLDOWN');if(s.spaceOutlaws.escapeVersion===1){const cap=await tx.get(base(sid)+'/soCaptivities/'+aid.character.id);requireThat(cap?.status!=='ACTIVE','SO_ESCAPE_CAPTIVE');}}
     const path=actionPointPath(sid,c.id),points=actionPointState(s,c,await tx.get(path),at),id=uuid();
     const seconds=t.intrusion.challenge?.durationSeconds??durations[level],a={id,characterId:c.id,targetId:tid,targetRevision:t.revision,
-     resources,bonus:input.bonusLotId?1:0,aid:aidSnapshot(aid),profile,family,cooldownSeconds:600,actorUid:actor.uid,mode:t.intrusion.challenge?'CODE':'D6',
+     resources,...(droidMaterial?{droidMaterial}:{}),bonus:input.bonusLotId?1:0,aid:aidSnapshot(aid),profile,family,cooldownSeconds:600,actorUid:actor.uid,mode:t.intrusion.challenge?'CODE':'D6',
      accessVersion:r.accessVersion,status:'RUNNING',durationSeconds:seconds,level,
      startedAtGameMs:time,readyAtGameMs:time+seconds*1000};
     reserveAid(tx,s,a,aid,'inf01Actions');for(const l of selected)tx.set(base(sid)+'/inventory/'+l.id,{...l,status:'FIELD_RESERVED',fieldActionId:id,revision:l.revision+1});
@@ -158,7 +159,7 @@ export function createSoIntrusionService({store,signed,checkSession,now,uuid,rol
    requireThat(time>=a.readyAtGameMs,'SO_INF01_TOO_EARLY');
    requireThat(input.present===true,'SO_INF01_PRESENCE');
    requireThat(t.revision===a.targetRevision&&field.status==='ONLINE','SO_INF01_STALE');
-   requireThat(level>=a.level,'SO_INF01_SKILL');const lots=await reservedLots(tx,s,c,a);await checkAid(tx,s,a,at);
+   requireThat(level>=a.level,'SO_INF01_SKILL');const lots=await reservedLots(tx,s,c,a);await requireDroidBonus(tx,s,c,{...t.intrusion,skillId:'INF-01',test:'D6'},a.droidMaterial,at);await checkAid(tx,s,a,at);
    if(a.aid&&s.spaceOutlaws.escapeVersion===1){const cap=await tx.get(base(sid)+'/soCaptivities/'+a.aid.characterId);requireThat(cap?.status!=='ACTIVE','SO_ESCAPE_CAPTIVE');}
    const challenge=t.intrusion.challenge;
    requireThat(a.mode===(challenge?'CODE':'D6'),'SO_INF01_STALE');

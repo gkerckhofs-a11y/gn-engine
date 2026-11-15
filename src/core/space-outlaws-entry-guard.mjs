@@ -94,6 +94,7 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(scopes.has('NEGOTIATION_REDEEM')&&session.spaceOutlaws.merchantNegotiationVersion===1&&/^fieldActions\/[^/]+$/.test(relative))continue;
   if(scopes.has('DIAGNOSIS_CONFIG')&&session.spaceOutlaws.medicalDiagnosisVersion===1&&/^medicalDossiers\/[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
   if(scopes.has('CLINIC_CONFIG')&&session.spaceOutlaws.healthVersion===1&&/^personProfiles\/SO-CLINIC-[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
+  if(scopes.has('DROID_CONFIG')&&session.spaceOutlaws.droidModulesVersion===1&&/^personProfiles\/SO-DROID-[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
   if(scopes.has('PROTECTION_CONFIG')&&session.spaceOutlaws.healthVersion===1&&/^personProfiles\/SO-ARMOR-[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
   if(scopes.has('HEALTH_CORRECTION')&&session.spaceOutlaws.healthVersion===1){
    if(/^(characters\/[^/]+(?:\/healthHistory\/[^/]+)?|healthHistory\/[^/]+)$/.test(relative))continue;

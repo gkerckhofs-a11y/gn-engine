@@ -1,3 +1,4 @@
+import {droidBonusOptions,requireDroidBonus} from './space-droid-work.mjs';
 import {tracePursuitOptions,myTraceAlerts,bindShipTracePoint,requireTraceActor,pursuitContinuity,recordFictionalTrace,traceTarget,traceOptions,myTraceConsents,consentTrace,resolveTrace} from './space-fictional-traces.mjs';
 import {documentReviewTarget,myDocumentReviews} from './space-document-review.mjs';
 import {validSoInstallation} from '../shared/space-installation.mjs';
@@ -67,8 +68,8 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
   if(p.skillId==='COU-03')requireThat(contactUsage(s,use)<contactQuota(level),'CONTACT_QUOTA_EXHAUSTED');
   const cost=s.actionPointRules?.enabled?(p.cost??s.actionPointRules.cost):0,cooldownSeconds=p.cooldownSeconds??s.actionPointRules?.cooldownSeconds??600;
   const points=s.actionPointRules?.enabled?actionPointState(s,c,await tx.get(actionPointPath(s.id,c.id)),at):null;if(points)reserveActionPoints(points,cost);
-  let bonusLot=null,consumableLot=null,bonus=0;
-  if(input.bonusLotId){bonusLot=await readLot(tx,s.id,documentId(input.bonusLotId),at);const b=p.bonusItems.find(b=>b.itemId===bonusLot?.item.id);requireThat(b&&bonusLot.quantity>0&&bonusLot.status==='AVAILABLE'&&personalLot(bonusLot,c.id),'FIELD_EQUIPMENT_UNAVAILABLE');bonus=b.bonus;}
+  let bonusLot=null,consumableLot=null,bonus=0,droidMaterial=null;
+  if(input.bonusLotId){droidMaterial=(await droidBonusOptions(tx,s,c,p,at)).find(m=>m.id===input.bonusLotId)??null;if(droidMaterial)bonus=1;else{bonusLot=await readLot(tx,s.id,documentId(input.bonusLotId),at);const b=p.bonusItems.find(b=>b.itemId===bonusLot?.item.id);requireThat(b&&!bonusLot.item.droidModule&&bonusLot.quantity>0&&bonusLot.status==='AVAILABLE'&&personalLot(bonusLot,c.id),'FIELD_EQUIPMENT_UNAVAILABLE');bonus=b.bonus;}}
   if(p.consumable){consumableLot=await readLot(tx,s.id,documentId(input.consumableLotId),at);requireThat(consumableLot&&personalLot(consumableLot,c.id)&&consumableLot.status==='AVAILABLE'&&consumableLot.item.id===p.consumable.itemId&&consumableLot.item.consumable&&consumableLot.quantity>=p.consumable.quantity,'FIELD_EQUIPMENT_UNAVAILABLE');}
   let reward=null;
   const information=[];
@@ -96,10 +97,10 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
   if(isPlaceSearch(t))bonus=bonuses.reduce((n,b)=>n+b.value,0);
   const aid=await prepareAid(tx,s,c,input,p,family,at);
   const durationSeconds=p.durationByLevel[level]??p.durationSeconds;
-  const confirmation=digest({...(routeAnalysis?{routeAnalysis}:{}),target:t,state,character:{id:c.id,profile:c.abilityProfile??null,health:c.healthRevision??0},access:r.accessVersion,rules:s.actionPointRules??null,rulesRevision:s.actionPointRulesRevision??0,points,bonusLot,consumableLot,kind,reward,information,aid,bonuses,negotiation});
-  const preview={...(negotiation?{negotiation}:{}),target:publicTarget(t,state),kind,level,bonus,aidName:aid?.character.public.displayName??null,aid:aid?1:0,bonusName:bonusLot?.item.name??null,cost,durationSeconds,cooldownSeconds,test:p.test,threshold:isPlaceSearch(t)&&!t.search.showDifficulty?null:p.threshold,bonuses,instructions:p.instructions,
+  const confirmation=digest({...(routeAnalysis?{routeAnalysis}:{}),target:t,state,character:{id:c.id,profile:c.abilityProfile??null,health:c.healthRevision??0},access:r.accessVersion,rules:s.actionPointRules??null,rulesRevision:s.actionPointRulesRevision??0,points,bonusLot,droidMaterial,consumableLot,kind,reward,information,aid,bonuses,negotiation});
+  const preview={...(negotiation?{negotiation}:{}),target:publicTarget(t,state),kind,level,bonus,aidName:aid?.character.public.displayName??null,aid:aid?1:0,bonusName:droidMaterial?.name??bonusLot?.item.name??null,cost,durationSeconds,cooldownSeconds,test:p.test,threshold:isPlaceSearch(t)&&!t.search.showDifficulty?null:p.threshold,bonuses,instructions:p.instructions,
    consumable:consumableLot?{name:consumableLot.item.name,quantity:p.consumable.quantity}:null,actionPoints:actionPointSummary(s,c,points,at),confirmation};
-  return {t,state,p,negotiation,reward,information,routeAnalysis,family,points,bonusLot,consumableLot,preview,aid,bonuses};
+  return {t,state,p,negotiation,reward,information,routeAnalysis,family,points,bonusLot,droidMaterial,consumableLot,preview,aid,bonuses};
  }
  async function catalog(tx,base){const names=['skills','items','knowledge','fieldTargets'];return Object.fromEntries(await Promise.all(names.map(async k=>[k,await tx.list(`${base}/${k}`)])));}
  return async function dispatch(action,actor,input){
@@ -123,7 +124,7 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
    const time=gameTime(s.clock,at),profiles=[];
    for(const original of Object.values(t.profiles)){const p=merchantProfile(t,original,abilityLevel(c,original.skillId));const family=p.kind==='SEARCH'?'FOUILLE':p.skillId?`SKILL:${p.skillId}`:p.kind,use=await tx.get(uses(s.id,c.id,family)),level=p.skillId?abilityLevel(c,p.skillId):0;
     profiles.push({...(p.skillId==='COU-03'?{remainingUses:Math.max(0,contactQuota(level)-contactUsage(s,use))}:{}),kind:p.kind,skillId:p.skillId,instructions:p.instructions,level,qualified:isPlaceSearch(t)?t.search.active&&(t.search.maxAttempts===null||(state.attempts[c.id]??0)<t.search.maxAttempts):!p.skillId||level>=p.minLevel,waitMs:Math.max(0,(use?.readyAtGameMs??0)-time),durationSeconds:p.durationByLevel[level]??p.durationSeconds,test:p.test,threshold:isPlaceSearch(t)&&!t.search.showDifficulty?null:p.threshold,bonuses:isPlaceSearch(t)?searchBonuses(t,c,lots):[],
-     cost:s.actionPointRules?.enabled?(p.cost??s.actionPointRules.cost):0,bonusLots:lots.flatMap(l=>{const b=p.bonusItems.find(b=>b.itemId===l.item.id);return b?[{id:l.id,name:l.item.name,bonus:b.bonus}]:[];}),consumable:p.consumable?{quantity:p.consumable.quantity,lots:lots.filter(l=>l.item.id===p.consumable.itemId&&l.item.consumable&&l.quantity>=p.consumable.quantity).map(l=>({id:l.id,name:l.item.name}))}:null});
+     cost:s.actionPointRules?.enabled?(p.cost??s.actionPointRules.cost):0,bonusLots:[...await droidBonusOptions(tx,s,c,p,at),...lots.filter(l=>!l.item.droidModule).flatMap(l=>{const b=p.bonusItems.find(b=>b.itemId===l.item.id);return b?[{id:l.id,name:l.item.name,bonus:b.bonus}]:[];})],consumable:p.consumable?{quantity:p.consumable.quantity,lots:lots.filter(l=>l.item.id===p.consumable.itemId&&l.item.consumable&&l.quantity>=p.consumable.quantity).map(l=>({id:l.id,name:l.item.name}))}:null});
    }
    return {...(t.traceInput?{traceInput:t.traceInput}:{}),...(t.documentReview?{documentLotId:t.documentReview.lotId}:{}),session:{id:s.id,stage:s.stage},...(route?{navigation:{name:route.name,fromPort:route.fromPort,toPort:route.toPort}}:{}),target:publicTarget(t,state),profiles,analysisDone:!t.traceWork&&t.kind==='ANALYSIS'&&state.analyses?.[c.id]===t.revision,aidOffers:await offeredAid(tx,s.id,c.id),activeActionId:c.activeFieldActionId??null,lockedMs:Math.max(0,state.lockedUntilGameMs-time),protectedMs:Math.max(0,state.protectedUntilGameMs-time)};
   });
@@ -175,7 +176,7 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
    }else if(action==='startFieldAction'){
     requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');const p=await plan(tx,ctx,input,at);requireThat(p.preview.confirmation===input.confirmation,'STALE_REVISION');const {s,c,r}=ctx,time=gameTime(s.clock,at);
     a={id,...(p.t.traceWork?{traceInput:p.t.traceInput}:{}),...(p.t.documentReview?{documentReview:p.t.documentReview}:{}),characterId:c.id,characterName:c.public.displayName,actorUid:actor.uid,accessVersion:r.accessVersion,targetId:p.t.id,targetTitle:p.t.title,kind:input.kind,status:'ACTIVE',startedAt:at,startedAtGameMs:time,readyAtGameMs:time+p.preview.durationSeconds*1000,
-     ...(p.routeAnalysis?{routeAnalysis:p.routeAnalysis}:{}),aid:aidSnapshot(p.aid),durationSeconds:p.preview.durationSeconds,cost:p.preview.cost,apEnabled:!!p.points,cooldownSeconds:p.preview.cooldownSeconds,family:p.family,level:p.preview.level,bonus:p.preview.bonus,bonusName:p.preview.bonusName,profile:p.p,reward:p.reward,
+     ...(p.droidMaterial?{droidMaterial:p.droidMaterial}:{}),...(p.routeAnalysis?{routeAnalysis:p.routeAnalysis}:{}),aid:aidSnapshot(p.aid),durationSeconds:p.preview.durationSeconds,cost:p.preview.cost,apEnabled:!!p.points,cooldownSeconds:p.preview.cooldownSeconds,family:p.family,level:p.preview.level,bonus:p.preview.bonus,bonusName:p.preview.bonusName,profile:p.p,reward:p.reward,
      ...(isPlaceSearch(p.t)?{searchVersion:1,searchEpoch:p.state.epoch,showDifficulty:p.t.search.showDifficulty,bonuses:p.bonuses,targetRevision:p.t.revision}:{}),
      ...(p.negotiation?{negotiation:p.negotiation}:{}),...(input.kind==='ANALYZE'?{information:p.information,targetRevision:p.t.revision}:{}),...(['SABOTAGE','REPAIR'].includes(input.kind)?{targetRevision:p.t.revision}:{}),
      bonusLotId:p.bonusLot?.id??null,consumableLotId:p.consumableLot?.id??null,offlineSeconds:p.t.offlineSeconds,failureLockSeconds:p.t.failureLockSeconds,repairProtectionSeconds:p.t.repairProtectionSeconds};
@@ -205,7 +206,7 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
        const route=a.routeAnalysis?await tx.get(`sessions/${s.id}/routes/${a.routeAnalysis.routeId}`):null;
        requireThat(digest(routeAnalysisBinding(s,c,t,route))===digest(a.routeAnalysis),'FIELD_STATE_CHANGED');
       }
-      await checkAid(tx,s,a,at);const roll=a.searchVersion===1?(searchDie??=rollD12()):a.profile.test==='D6'?(die??=rollD6()):null;if(roll!==null)requireThat(Number.isInteger(roll)&&roll>=1&&roll<=(a.searchVersion===1?12:6),'INVALID_DIE');
+      await requireDroidBonus(tx,s,c,a.profile,a.droidMaterial,at);await checkAid(tx,s,a,at);const roll=a.searchVersion===1?(searchDie??=rollD12()):a.profile.test==='D6'?(die??=rollD6()):null;if(roll!==null)requireThat(Number.isInteger(roll)&&roll>=1&&roll<=(a.searchVersion===1?12:6),'INVALID_DIE');
       const total=roll===null?null:roll+a.level+a.bonus+(a.aid?1:0),success=roll===null||total>=a.profile.threshold;outcome={success,roll,level:a.level,bonus:a.bonus,aid:a.aid?1:0,total,threshold:a.searchVersion===1&&!a.showDifficulty?null:a.profile.threshold,text:success?a.profile.successText:a.profile.failureText,reward:null};
       if(a.searchVersion===1){
        requireThat(isPlaceSearch(t)&&t.search.active&&t.revision===a.targetRevision&&state.epoch===a.searchEpoch,'FIELD_STATE_CHANGED');

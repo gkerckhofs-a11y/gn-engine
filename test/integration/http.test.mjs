@@ -2103,3 +2103,29 @@ test('HTTP + Auth : recharge mécanique, réservation, reçu unique et révocati
  await cmd('revokeAccess',{uid:uid(player)});
  assert.equal((await request('finishPersonAction',{sessionId,...input},player)).status,403);
 });
+
+test('HTTP + Auth : modules droïdes, mémoire privée, consentement et retrait révoqué',async()=>{
+ const {droidStorageFixture}=await import('../support/space-droid-storage-suite.mjs');
+ const f=await droidStorageFixture(()=>firestoreStore(getFirestore()));
+ const {db,base,sessionId,player,tech,outsider,call,cmd,uid}=await towingHttpActors({...f,otherId:f.tid},601000);
+ const module=()=>db.doc(`${base}/inventory/module`).get().then(d=>d.data());
+ assert.equal((await request('moveDroidContent',{sessionId,moduleLotId:'module',operation:'STORE',lotId:'content',revision:(await module()).revision,requestId:randomUUID()})).status,401);
+ assert.equal((await request('personTarget',{sessionId,targetId:f.tid},outsider)).status,403);
+ await cmd('moveDroidContent',{moduleLotId:'module',operation:'STORE',lotId:'content',revision:(await module()).revision},tech);
+ const privateView=await call('personTarget',{targetId:f.tid},player);assert.equal(privateView.droidStorage,undefined);assert.doesNotMatch(JSON.stringify(privateView),/Support privé|Texte chiffré/);
+ const a=await cmd('startSoDecryption',{memoryLotId:'module',present:true},player);
+ assert.equal((await request('moveDroidContent',{sessionId,moduleLotId:'module',operation:'TAKE',revision:(await module()).revision,requestId:randomUUID()},tech)).error,'FIELD_TARGET_BUSY');
+ await db.doc(base).update({clock:{elapsedMs:a.readyAtGameMs+1000,runningSince:Date.now()}});
+ const r=await cmd('finishSoDecryption',{actionId:a.id},player);assert.equal(r.memory,true);assert.equal(r.durationSeconds,165);
+ if(r.success){assert.equal(r.memoryResult.body,'Texte chiffré fictif');assert.equal((await call('mySoDecryption',{},player)).memoryReads.length,1);}
+ assert.equal((await call('mySoDecryption',{},tech)).memoryReads.length,0);
+ assert.equal((await db.doc(`${base}/inventory/content`).get()).data().holderId,f.tid);
+ await cmd('moveDroidContent',{moduleLotId:'module',operation:'TAKE',revision:(await module()).revision},tech);
+ await db.doc(base).update({clock:{elapsedMs:1301000,runningSince:Date.now()}});
+ const permission={technicianId:f.cid,profileId:f.profiles.REMOVE,moduleLotId:'module'},p=await call('prepareDroidConsent',permission,tech);
+ await cmd('consentDroidWork',{...permission,grant:true,present:true,confirmation:p.confirmation},tech);
+ const input={targetId:f.tid,profileId:f.profiles.REMOVE,moduleLotId:'module'},preview=await call('preparePersonAction',input,player),work=await cmd('startPersonAction',{...input,present:true,confirmation:preview.confirmation},player);
+ await cmd('revokeAccess',{uid:uid(tech)});const active=(await db.doc(`${base}/personActions/${work.id}`).get()).data();await db.doc(base).update({clock:{elapsedMs:active.readyAtGameMs+1000,runningSince:Date.now()}});
+ assert.equal((await request('finishPersonAction',{sessionId,actionId:work.id,present:true,requestId:randomUUID()},player)).error,'INVALID_RECIPIENT');
+ await cmd('cancelPersonActionMJ',{actionId:work.id,reason:'Révocation de l’accord'});assert.equal((await module()).status,'INSTALLED');
+});

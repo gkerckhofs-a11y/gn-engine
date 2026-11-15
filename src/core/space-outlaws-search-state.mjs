@@ -20,7 +20,7 @@ export function searchTargetInput(v,id,old={}){
 }
 export function searchBonuses(t,c,lots){
  return t.search.bonuses.flatMap(b=>{
-  const lot=b.kind==='ITEM'?lots.find(l=>l.item.id===b.sourceId&&l.quantity>0&&l.status==='AVAILABLE'&&personalLot(l,c.id)):null;
+  const lot=b.kind==='ITEM'?lots.find(l=>l.item.id===b.sourceId&&!l.item.droidModule&&l.quantity>0&&l.status==='AVAILABLE'&&personalLot(l,c.id)):null;
   return (b.kind==='SKILL'?abilityLevel(c,b.sourceId)>=b.minLevel:!!lot)?[{...b,lotId:lot?.id??null}]:[];
  });
 }
