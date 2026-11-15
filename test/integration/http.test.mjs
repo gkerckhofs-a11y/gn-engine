@@ -2129,3 +2129,17 @@ test('HTTP + Auth : modules droïdes, mémoire privée, consentement et retrait 
  assert.equal((await request('finishPersonAction',{sessionId,actionId:work.id,present:true,requestId:randomUUID()},player)).error,'INVALID_RECIPIENT');
  await cmd('cancelPersonActionMJ',{actionId:work.id,reason:'Révocation de l’accord'});assert.equal((await module()).status,'INSTALLED');
 });
+
+test('HTTP + Auth : diagnostic technique natif, panne modifiée et résultat privé daté',async()=>{
+ const {nativeTechnicalFixture}=await import('../support/space-technical-native-suite.mjs');const f=await nativeTechnicalFixture(()=>firestoreStore(getFirestore()));
+ const {db,base,sessionId,player,outsider,call,cmd,uid}=await towingHttpActors({...f,otherId:f.tid},1300000),input={targetId:'diagnostic',kind:'ANALYZE'};
+ assert.equal((await request('fieldTarget',{sessionId,targetId:'diagnostic'})).status,401);assert.equal((await request('fieldTarget',{sessionId,targetId:'diagnostic'},outsider)).status,403);
+ const scan=await call('fieldTarget',{targetId:'diagnostic'},player);assert.doesNotMatch(JSON.stringify(scan),/SECRET_N3|Observation N2/);
+ const p=await call('prepareFieldAction',input,player),a=await cmd('startFieldAction',{...input,confirmation:p.confirmation,present:true},player);
+ const armor=(await db.doc(`${base}/inventory/armor`).get()).data();await cmd('damageDroidModule',{moduleLotId:'armor',revision:armor.revision,reason:'Incident joué pendant l’observation'});
+ const active=(await db.doc(`${base}/fieldActions/${a.id}`).get()).data();await db.doc(base).update({clock:{elapsedMs:active.readyAtGameMs+1000,runningSince:Date.now()}});
+ assert.equal((await request('finishFieldAction',{sessionId,actionId:a.id,present:true,requestId:randomUUID()},player)).error,'FIELD_STATE_CHANGED');await cmd('cancelFieldAction',{actionId:a.id,reason:'Nouvel état technique'},player);
+ const q=await call('prepareFieldAction',input,player),b=await cmd('startFieldAction',{...input,confirmation:q.confirmation,present:true},player),saved=(await db.doc(`${base}/fieldActions/${b.id}`).get()).data();await db.doc(base).update({clock:{elapsedMs:saved.readyAtGameMs+1000,runningSince:Date.now()}});
+ const finish={actionId:b.id,present:true,requestId:randomUUID()},r=await cmd('finishFieldAction',finish,player);assert.deepEqual(await cmd('finishFieldAction',finish,player),r);assert.equal(r.result.roll,null);assert.ok(r.result.technical.observedAt>0);assert.match(JSON.stringify(r.result.technical.rows),/2 \/ 3 PV/);assert.doesNotMatch(JSON.stringify(r),/SECRET_N3/);
+ assert.equal((await db.doc(`${base}/characters/${f.tid}`).get()).data().protection,0);await cmd('revokeAccess',{uid:uid(player)});assert.equal((await request('finishFieldAction',{sessionId,...finish},player)).status,403);
+});

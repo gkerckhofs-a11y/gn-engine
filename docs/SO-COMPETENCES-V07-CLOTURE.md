@@ -22,6 +22,12 @@ Les tests ciblés locaux, Firestore et HTTP sont décrits dans ce rapport. La CI
 
 **Clôture globale encore partielle** : C1, réparations vaisseaux/installations de C2, rares/prototypes C3, sabotages avancés C4, intrusion des soutes/coffres C5 et services PNJ C6 restent à terminer. Les prestations PNJ des droïdes ne sont pas activées par cette tranche. Aucun déploiement Firebase ni migration d’une session existante.
 
+## Complément C1 — diagnostic technique natif, 15 novembre 2026
+
+Le [rapport C1](SO-CLOTURE-C1-DIAGNOSTIC-2026-11-15.md) décrit le diagnostic des états réels des droïdes, installations et vaisseaux. Informations ordinaires sans jet, compléments cachés uniquement préparés, 60 secondes, 1 PA, dix minutes de récupération, résultat privé daté et tentative approfondie liée à la panne. Scanner installé et aide compétente suivent les règles natives. Les devis utilisent les calculs des réparations déjà raccordées ; les branches C2/C4 manquantes restent explicites.
+
+Huit tests métier mémoire et Firestore, un HTTP/Auth, 70 tests de régression finaux et compilation réussis. Ces nombres se recouvrent. La preuve CI du nouveau commit reste à vérifier dans la PR #45. Aucun test navigateur/terrain ni déploiement. La clôture globale reste partielle pour les réparations C2 restantes, les rares/prototypes C3 et les lots C4–C6.
+
 ## Candidat d’intégration du 14 novembre 2026
 
 La PR [#34](https://github.com/gkerckhofs-a11y/gn-engine/pull/34) regroupe les lots #16 à #33. Le complément de parcours FIL conserve la balise et le vaisseau choisi pendant le plein, la préparation PIL-02 et l’affectation du cockpit. Le pilote utilise ses commandes natives ; un passager prévu attend le départ. Après décollage, l’actualisation reprend la vérification de filature. Aucune route secrète n’est déduite et l’opposition conserve ses contrôles de liaison et de voyage courant.
