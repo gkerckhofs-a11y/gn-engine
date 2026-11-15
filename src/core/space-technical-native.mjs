@@ -1,3 +1,4 @@
+import {installationRepairTarget} from './space-installation-repair.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {aidHash as hash,activeCharacter} from './aid-state.mjs';
 import {abilityLevel} from './abilities.mjs';
@@ -62,10 +63,11 @@ async function snapshot(tx,s,c,b,level,at){
   if(level>=2)for(const [kind,name,points] of [['REVISION','Révision',ship.revisionRequired?1:0],['HULL','Réparer la coque',Math.max(0,ship.soProfile.hullMax-ship.hull)],['SHIELD','Recharger le bouclier',Math.max(0,ship.soProfile.shieldMax-ship.shield)]])if(points){const q=maintenancePlan(ship,kind,points);interventions.push({name,seconds:q.secondsPerPoint*q.points,partsCr:q.unitCost*q.points,requirements:'MEC-02 N2, fournitures et mandat du propriétaire ; frais PNJ éventuels vérifiés dans le devis natif',qualified:min(c,'MEC-02',2),href:`#/space-maintenance/${s.id}`});}
   return {name:ship.name,rows,interventions,concurrency:[raw.revision??null,raw.maintenanceId??null,raw.operation??null,raw.ownerId,raw.pilotId,raw.portId],state:[ship.id,ship.hull,ship.shield,ship.revisionRequired,ship.soProfile,ship.modules??[],outages]};
  }
- const t=await tx.get(`${base(s)}/fieldTargets/${b.entityId}`),raw=await tx.get(`${base(s)}/fieldStates/${b.entityId}`);requireThat(t?.publicationState==='PUBLISHED'&&t.kind==='INSTALLATION'&&raw&&!c.activeVoyageId,'FIELD_UNAVAILABLE');const state=effectiveFieldState(s,raw,at);
+ let t=await tx.get(`${base(s)}/fieldTargets/${b.entityId}`),raw=await tx.get(`${base(s)}/fieldStates/${b.entityId}`);requireThat(t?.publicationState==='PUBLISHED'&&t.kind==='INSTALLATION'&&raw&&!c.activeVoyageId,'FIELD_UNAVAILABLE');const state=effectiveFieldState(s,raw,at);t=await installationRepairTarget(tx,s,t,state);
+ if(state.durableFailure)add('Panne durable','Réparation spécifique nécessaire ; aucune expiration automatique');
  add('Installation',state.status==='ONLINE'?'En service':state.offlineUntilGameMs!==null?'Neutralisation temporaire':'Hors service');
- if(level>=2&&state.status==='OFFLINE'&&t.profiles?.REPAIR){const p=t.profiles.REPAIR;interventions.push({name:'Remise en service de l’installation',seconds:p.durationByLevel?.[abilityLevel(c,p.skillId)]??p.durationSeconds,supplies:p.consumable?{quantity:p.consumable.quantity,itemId:p.consumable.itemId}:null,requirements:`${p.skillId} N${p.minLevel} ; ${p.cost??1} PA ; ${p.test==='D6'?`test au seuil ${p.threshold}`:'sans jet'} ; fournitures consommées selon le protocole`,qualified:min(c,p.skillId,p.minLevel),href:`#/field/${s.id}/${t.id}`});}
- return {name:t.title,rows,interventions,state:[t.revision,state.status,state.offlineUntilGameMs,state.protectedUntilGameMs,raw.revision??null]};
+ if(level>=2&&state.status==='OFFLINE')for(const kind of ['REPAIR','REPAIR_DURABLE'])if(t.profiles?.[kind]&&(kind==='REPAIR_DURABLE'||!state.durableFailure||state.offlineUntilGameMs>time)){const p=t.profiles[kind];interventions.push({name:kind==='REPAIR_DURABLE'?'Réparer la panne durable de l’installation':'Remise en service après sabotage',seconds:p.durationByLevel?.[abilityLevel(c,p.skillId)]??p.durationSeconds,supplies:p.consumable?{quantity:p.consumable.quantity,itemId:p.consumable.itemId}:null,requirements:`${p.skillId} N${p.minLevel} ; ${p.cost??1} PA ; ${p.test==='D6'?`test au seuil ${p.threshold}`:'sans jet'} ; ${p.consumable?`${p.consumable.quantity} pièces consommées au jet, même sur échec`:'sans pièces'}`,qualified:min(c,p.skillId,p.minLevel),href:`#/field/${s.id}/${t.id}`});}
+ return {name:t.title,rows,interventions,state:[t.revision,state.status,state.offlineUntilGameMs,state.protectedUntilGameMs,raw.revision??null,t.durableWork??null]};
 }
 export async function nativeTechnicalTarget(tx,s,c,t,at,levelOverride=null){
  if(!isTechnicalAnalysis(t)||!c)return t;const b=await tx.get(`${base(s)}/technicalBindings/${t.id}`);if(!b)return t;requireReady(s);requireThat(b.active,'FIELD_UNAVAILABLE');

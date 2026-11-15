@@ -1,3 +1,4 @@
+import {installationRepairAdmin,installationRepairCommand,installationRepairTarget,ordinaryInstallation} from './space-installation-repair.mjs';
 import {nativeTechnicalTarget,technicalAdmin,bindTechnicalTarget,technicalOutcome,technicalDone} from './space-technical-native.mjs';
 import {droidBonusOptions,requireDroidBonus} from './space-droid-work.mjs';
 import {tracePursuitOptions,myTraceAlerts,bindShipTracePoint,requireTraceActor,pursuitContinuity,recordFictionalTrace,traceTarget,traceOptions,myTraceConsents,consentTrace,resolveTrace} from './space-fictional-traces.mjs';
@@ -32,12 +33,12 @@ const ap=(s,a)=>`sessions/${s}/fieldActions/${a}`;
 const claimsFor=(state,cid)=>Object.hasOwn(state.claims,cid)?state.claims[cid]:{};
 const claimed=(state,cid,rid)=>Object.hasOwn(claimsFor(state,cid),rid)?claimsFor(state,cid)[rid]:0;
 const uses=(s,c,f)=>`${cp(s,c)}/fieldCooldowns/${hash(f)}`;
-const publicTarget=(t,state)=>({...(t.technicalWork?{nativeTechnical:true}:{}),id:t.id,title:t.title,description:t.description,kind:t.kind,status:state?.status??null,busy:!!state?.activeActionId,...(t.negotiation?{negotiation:true}:{})});
+const publicTarget=(t,state)=>({...(t.technicalWork?{nativeTechnical:true}:{}),id:t.id,title:t.title,description:t.description,kind:t.kind,...(state?.durableFailure?{durableFailure:true}:{}),status:state?.status??null,busy:!!state?.activeActionId,...(t.negotiation?{negotiation:true}:{})});
 const viewAction=(a,s,at)=>({id:a.id,...(a.documentReview?{documentLotId:a.documentReview.lotId}:{}),...(a.searchVersion===1?{sessionId:s.id,finishedAt:a.finishedAt??null}:{}),characterId:a.characterId,characterName:a.characterName,targetId:a.targetId,targetTitle:a.targetTitle,kind:a.kind,status:a.status,startedAt:a.startedAt,
   remainingMs:a.status==='ACTIVE'?Math.max(0,a.readyAtGameMs-gameTime(s.clock,at)):0,durationSeconds:a.durationSeconds,cost:a.cost,level:a.level,bonus:a.bonus,bonusName:a.bonusName,aidName:a.aid?.name??null,test:a.profile.test,threshold:a.searchVersion===1&&!a.showDifficulty?null:a.profile.threshold,
   instructions:a.profile.instructions,cooldownSeconds:a.cooldownSeconds,result:a.result??null,cancelReason:a.cancelReason??null});
 const adminReads=['fieldAdmin'];
-const adminWrites=['bindTechnicalTarget','bindShipTracePoint','saveFieldTarget','replenishFieldTarget','cancelFieldActionMJ','provisionFieldFind'];
+const adminWrites=['configureInstallationRepair','damageInstallation','bindTechnicalTarget','bindShipTracePoint','saveFieldTarget','replenishFieldTarget','cancelFieldActionMJ','provisionFieldFind'];
 const playerReads=['tracePursuitOptions','traceOptions','myTraceConsents','myDocumentReviews','fieldTarget','myFieldActions','prepareFieldAction'];
 const playerWrites=['consentTraceErasure','startFieldAction','finishFieldAction','cancelFieldAction','cancelFieldActionAid','takeFieldFind'];
 export const fieldCommands=[...adminReads,...adminWrites,...playerReads,...playerWrites];
@@ -50,18 +51,18 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
   const r=await tx.get(`sessions/${sid}/registrations/${hash(actor.uid)}`);requireThat(r?.status==='ACCEPTED'&&r.accessActive&&r.characterId&&actor.authTime>=r.minAuthTime,'FORBIDDEN');
   const c=await tx.get(cp(sid,r.characterId));requireThat(c?.assignedUid===actor.uid&&c.publicationState==='PUBLISHED'&&c.public?.publicationState==='PUBLISHED','FORBIDDEN');return {s,c,r};
  }
- async function target(tx,s,id,at,c=null,documentLotId=null,traceInput=null){let t=traceInput?.traceTargetId?await traceTarget(tx,s,c,traceInput,at):documentLotId?await documentReviewTarget(tx,s,c,documentLotId,at):await tx.get(`sessions/${s.id}/fieldTargets/${documentId(id)}`);requireThat(!t?.documentOnly||!!documentLotId,'SO_DOCUMENT_REVIEW_ACCESS');if(documentLotId&&id)requireThat(id===t.id||id===t.documentReview.templateId,'SO_DOCUMENT_REVIEW_ACCESS');const state=await tx.get(sp(s.id,t?.id??id))??(documentLotId||traceInput?.traceTargetId?initialFieldState(t):null);requireThat(t?.publicationState==='PUBLISHED'&&state,'FIELD_UNAVAILABLE');requireMerchantAnalysis(s,t);if(isRouteAnalysis(t))requireRouteAnalysis(s);if(isTechnicalAnalysis(t)&&s.spaceOutlaws)requireTechnicalAnalysis(s);t=await nativeTechnicalTarget(tx,s,c,t,at);return {t,state:effectiveFieldState(s,state,at)};}
+ async function target(tx,s,id,at,c=null,documentLotId=null,traceInput=null){let t=traceInput?.traceTargetId?await traceTarget(tx,s,c,traceInput,at):documentLotId?await documentReviewTarget(tx,s,c,documentLotId,at):await tx.get(`sessions/${s.id}/fieldTargets/${documentId(id)}`);requireThat(!t?.documentOnly||!!documentLotId,'SO_DOCUMENT_REVIEW_ACCESS');if(documentLotId&&id)requireThat(id===t.id||id===t.documentReview.templateId,'SO_DOCUMENT_REVIEW_ACCESS');const state=await tx.get(sp(s.id,t?.id??id))??(documentLotId||traceInput?.traceTargetId?initialFieldState(t):null);requireThat(t?.publicationState==='PUBLISHED'&&state,'FIELD_UNAVAILABLE');requireMerchantAnalysis(s,t);if(isRouteAnalysis(t))requireRouteAnalysis(s);if(isTechnicalAnalysis(t)&&s.spaceOutlaws)requireTechnicalAnalysis(s);t=await nativeTechnicalTarget(tx,s,c,t,at);t=await installationRepairTarget(tx,s,t,state);return {t,state:effectiveFieldState(s,state,at)};}
  async function dependency(tx,s,t,at){if(!t.dependencyId)return;const d=await target(tx,s,t.dependencyId,at);requireThat(d.state.status==='ONLINE','INSTALLATION_OFFLINE');}
  async function ownedAction(tx,ctx,input,actor){const a=await tx.get(ap(ctx.s.id,documentId(input.actionId)));requireThat(a&&(input.aidCancellation?a.aid?.characterId===ctx.c.id&&a.aid.uid===actor.uid&&a.aid.accessVersion===ctx.r.accessVersion:a.characterId===ctx.c.id&&a.actorUid===actor.uid&&a.accessVersion===ctx.r.accessVersion),'FORBIDDEN');return a;}
  async function plan(tx,ctx,input,at){
   const {s,c,r}=ctx;
   if(s.spaceOutlaws?.escapeVersion===1){const cap=await tx.get(`sessions/${s.id}/soCaptivities/${c.id}`);requireThat(cap?.status!=='ACTIVE','SO_ESCAPE_CAPTIVE');}requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');if(!input.traceTargetId)requireGameAction(s,c,'discover',at);
   const {t,state}=await target(tx,s,input.targetId,at,c,input.documentLotId,input),kind=input.kind,p=Object.hasOwn(t.profiles,kind)?merchantProfile(t,t.profiles[kind],abilityLevel(c,t.profiles[kind].skillId)):null;requireThat(p,'INVALID_FIELD_TARGET');requireTraceActor(s,c,t,at);requireThat(!c.activeFieldActionId&&!c.activePersonActionId,'FIELD_ACTOR_BUSY');
-  if(s.spaceOutlaws)requireThat(s.spaceOutlaws.actionsVersion===1&&(t.kind==='ANALYSIS'&&kind==='ANALYZE'||s.spaceOutlaws.searchVersion===1&&isPlaceSearch(t)&&kind==='SEARCH'||s.spaceOutlaws.sabotageVersion===1&&validSoInstallation(t)&&['SABOTAGE','REPAIR'].includes(kind)),'SO_GAMEPLAY_NOT_OPEN');
+  if(s.spaceOutlaws)requireThat(s.spaceOutlaws.actionsVersion===1&&(t.kind==='ANALYSIS'&&kind==='ANALYZE'||s.spaceOutlaws.searchVersion===1&&isPlaceSearch(t)&&kind==='SEARCH'||s.spaceOutlaws.sabotageVersion===1&&validSoInstallation(ordinaryInstallation(t))&&['SABOTAGE','REPAIR','REPAIR_DURABLE'].includes(kind)),'SO_GAMEPLAY_NOT_OPEN');
   const negotiation=p.skillId==='COU-02'?await negotiableOffer(tx,s,c,t,input.tradeQuantity??1,at):null;
   const routeAnalysis=isRouteAnalysis(t)?routeAnalysisBinding(s,c,t,await routeAnalysisByCode(tx,s,c,input.navigationCode)):null;
   await dependency(tx,s,t,at);const time=gameTime(s.clock,at);requireThat(!state.activeActionId,'FIELD_TARGET_BUSY');requireThat(time>=state.lockedUntilGameMs,'FIELD_TARGET_LOCKED');
-  requireThat(kind==='SEARCH'||kind==='ANALYZE'||(kind==='SABOTAGE'?state.status==='ONLINE':state.status==='OFFLINE'),'FIELD_STATE_CHANGED');
+  requireThat(kind==='SEARCH'||kind==='ANALYZE'||(kind==='REPAIR_DURABLE'?!!state.durableFailure:kind==='SABOTAGE'?state.status==='ONLINE':state.status==='OFFLINE'&&(!state.durableFailure||state.offlineUntilGameMs>time)),'FIELD_STATE_CHANGED');
   if(kind==='SABOTAGE')requireThat(time>=state.protectedUntilGameMs,'FIELD_TARGET_LOCKED');
   if(isPlaceSearch(t)){requireThat(s.spaceOutlaws?.searchVersion===1,'SO_GAMEPLAY_NOT_OPEN');requireThat(t.search.active&&state.status==='ONLINE','FIELD_UNAVAILABLE');requireThat(t.search.maxAttempts===null||(state.attempts[c.id]??0)<t.search.maxAttempts,'FIELD_ATTEMPTS_EXHAUSTED');requireThat(!input.aidOfferId&&!input.bonusLotId&&!input.consumableLotId,'INVALID_PLACE_SEARCH');}
   const level=p.skillId?abilityLevel(c,p.skillId):0;requireThat(!p.skillId||level>=p.minLevel,'FIELD_SKILL_REQUIRED');
@@ -109,7 +110,7 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
   if([...adminReads,...playerReads].includes(action))return store.runTransaction(async tx=>{
    if(action==='fieldAdmin'){
     const {s,base,session}=await organizer(tx,actor,input),records=await catalog(tx,base),states=session?await tx.list(`${base}/fieldStates`):[],actions=session?await tx.list(`${base}/fieldActions`):[];
-    return {scope:session?'session':'scenario',parent:{id:s.id,title:s.title,stage:s.stage??null,sealed:s.campaignSealed===true||!!s.spaceOutlaws,tracesReady:s.spaceOutlaws?.fictionalTracesVersion===1,decryptionReady:s.spaceOutlaws?.inf02Version===1,searchReady:s.spaceOutlaws?.searchVersion===1,canReset:actor.uid===s.ownerUid},...records,technical:session?await technicalAdmin(tx,s):null,...(s.spaceOutlaws?.fictionalTracesVersion===1?{traceShips:(await tx.list(`${base}/ships`)).filter(x=>x.enabled&&x.docked&&!x.journey).map(x=>({id:x.id,name:x.name})),traceBindings:await tx.list(`${base}/fictionalShipTraceBindings`)}:{}),...(s.spaceOutlaws?.searchVersion===1?{sources:{lots:(await tx.list(`${base}/inventory`)).filter(l=>l.ownerType==='SHOP'&&l.status==='AVAILABLE'&&l.transferable!==false).map(l=>({id:l.id,name:l.item.name,itemId:l.item.id,quantity:l.quantity})),accounts:(await tx.list(`${base}/accounts`)).filter(a=>a.ownerType==='SHOP'&&a.status==='ACTIVE').map(a=>({id:a.id,name:a.label??a.shopId??a.id,available:a.balance-a.reserved}))}}:{}),states:states.map(st=>effectiveFieldState(s,st,at)),actions:actions.filter(a=>a.status==='ACTIVE').map(a=>viewAction(a,s,at)),history:actions.filter(a=>a.status!=='ACTIVE').sort((a,b)=>b.finishedAt-a.finishedAt).slice(0,30).map(a=>viewAction(a,s,at))};
+    return {scope:session?'session':'scenario',parent:{id:s.id,title:s.title,stage:s.stage??null,sealed:s.campaignSealed===true||!!s.spaceOutlaws,tracesReady:s.spaceOutlaws?.fictionalTracesVersion===1,decryptionReady:s.spaceOutlaws?.inf02Version===1,searchReady:s.spaceOutlaws?.searchVersion===1,canReset:actor.uid===s.ownerUid},...records,technical:session?await technicalAdmin(tx,s):null,installationRepair:session?await installationRepairAdmin(tx,s):null,...(s.spaceOutlaws?.fictionalTracesVersion===1?{traceShips:(await tx.list(`${base}/ships`)).filter(x=>x.enabled&&x.docked&&!x.journey).map(x=>({id:x.id,name:x.name})),traceBindings:await tx.list(`${base}/fictionalShipTraceBindings`)}:{}),...(s.spaceOutlaws?.searchVersion===1?{sources:{lots:(await tx.list(`${base}/inventory`)).filter(l=>l.ownerType==='SHOP'&&l.status==='AVAILABLE'&&l.transferable!==false).map(l=>({id:l.id,name:l.item.name,itemId:l.item.id,quantity:l.quantity})),accounts:(await tx.list(`${base}/accounts`)).filter(a=>a.ownerType==='SHOP'&&a.status==='ACTIVE').map(a=>({id:a.id,name:a.label??a.shopId??a.id,available:a.balance-a.reserved}))}}:{}),states:states.map(st=>effectiveFieldState(s,st,at)),actions:actions.filter(a=>a.status==='ACTIVE').map(a=>viewAction(a,s,at)),history:actions.filter(a=>a.status!=='ACTIVE').sort((a,b)=>b.finishedAt-a.finishedAt).slice(0,30).map(a=>viewAction(a,s,at))};
    }
    const ctx=await player(tx,actor,input),{s,c}=ctx;
    if(action==='tracePursuitOptions')return tracePursuitOptions(tx,s,c);
@@ -139,10 +140,11 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
    const session=(ctx??org).s;
    if(session.spaceOutlaws){
     requireThat(action!=='replenishFieldTarget'&&(action!=='saveFieldTarget'||session.spaceOutlaws.searchVersion===1&&isPlaceSearch(input.target)),'SO_GAMEPLAY_NOT_OPEN');
-    authorizeSpaceOutlaws(tx,session,'FIELD');if(action==='bindTechnicalTarget')authorizeSpaceOutlaws(tx,session,'TECHNICAL_CONFIG');
+    if(['configureInstallationRepair','damageInstallation'].includes(action)||input.kind==='REPAIR_DURABLE'||a?.kind==='REPAIR_DURABLE')requireThat(session.spaceOutlaws.installationRepairVersion===1,'SO_GAMEPLAY_NOT_OPEN');
+    authorizeSpaceOutlaws(tx,session,'FIELD');if(action==='configureInstallationRepair')authorizeSpaceOutlaws(tx,session,'INSTALLATION_CONFIG');if(action==='bindTechnicalTarget')authorizeSpaceOutlaws(tx,session,'TECHNICAL_CONFIG');
     if(session.spaceOutlaws.fictionalTracesVersion===1)authorizeSpaceOutlaws(tx,session,'FICTIONAL_TRACES');
     if(session.spaceOutlaws.searchVersion===1)authorizeSpaceOutlaws(tx,session,'SEARCH');
-    if(a)requireThat(a.kind==='ANALYZE'||session.spaceOutlaws.searchVersion===1&&a.searchVersion===1||session.spaceOutlaws.sabotageVersion===1&&['SABOTAGE','REPAIR'].includes(a.kind),'SO_GAMEPLAY_NOT_OPEN');
+    if(a)requireThat(a.kind==='ANALYZE'||session.spaceOutlaws.searchVersion===1&&a.searchVersion===1||session.spaceOutlaws.sabotageVersion===1&&['SABOTAGE','REPAIR','REPAIR_DURABLE'].includes(a.kind),'SO_GAMEPLAY_NOT_OPEN');
    }
    if(['COU-01','COU-03'].includes(a?.profile.skillId))requireMerchantAnalysis(session,{profiles:{ANALYZE:a.profile}});
    if(a?.profile.skillId==='MEC-01'&&session.spaceOutlaws)requireTechnicalAnalysis(session);
@@ -152,7 +154,8 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
    if(action==='provisionFieldFind'){requireThat(session.spaceOutlaws?.searchVersion===1,'SO_GAMEPLAY_NOT_OPEN');if(input.reset===true)requireThat(actor.uid===session.ownerUid,'FIELD_RESET_FORBIDDEN');}
    const previous=await tx.get(op);if(previous){requireThat(previous.fingerprint===fingerprint,'REQUEST_ID_REUSED');if(ctx)requireThat(previous.characterId===ctx.c.id&&previous.accessVersion===ctx.r.accessVersion,'FORBIDDEN');return previous.result;}
    let result;
-   if(action==='bindTechnicalTarget'){requireThat(org.session,'INVALID_ID');result=await bindTechnicalTarget(tx,org.s,input,at,id,actor);}
+   if(['configureInstallationRepair','damageInstallation'].includes(action)){requireThat(org.session,'INVALID_ID');result=await installationRepairCommand(tx,org.s,input,at,id,actor,action);}
+   else if(action==='bindTechnicalTarget'){requireThat(org.session,'INVALID_ID');result=await bindTechnicalTarget(tx,org.s,input,at,id,actor);}
    else if(action==='bindShipTracePoint'){result=await bindShipTracePoint(tx,org.s,input,at,actor,id);}
    else if(action==='consentTraceErasure'){result=await consentTrace(tx,ctx.s,ctx.c,ctx.r,input,at);tx.set(`sessions/${ctx.s.id}/audit/${id}`,{id,at,action,actorUid:actor.uid,traceId:input.traceId,enabled:input.enabled});}
    else if(action==='provisionFieldFind'){const {s}=org;const {t,state}=await target(tx,s,input.targetId,at);result=await provisionPlaceFind(tx,s,t,state,input,actor,id,at);}
@@ -177,10 +180,10 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
     tx.set(sp(s.id,tid),next);tx.set(`${base}/audit/${id}`,{id,at,action,actorUid:actor.uid,reason:why,targetId:tid,rewardId:rid,quantity,before:state.stock[rid],after:next.stock[rid]});result={id:tid};
    }else if(action==='startFieldAction'){
     requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');const p=await plan(tx,ctx,input,at);requireThat(p.preview.confirmation===input.confirmation,'STALE_REVISION');const {s,c,r}=ctx,time=gameTime(s.clock,at);
-    a={id,...(p.t.technicalWork?{technicalWork:p.t.technicalWork}:{}),...(p.t.traceWork?{traceInput:p.t.traceInput}:{}),...(p.t.documentReview?{documentReview:p.t.documentReview}:{}),characterId:c.id,characterName:c.public.displayName,actorUid:actor.uid,accessVersion:r.accessVersion,targetId:p.t.id,targetTitle:p.t.title,kind:input.kind,status:'ACTIVE',startedAt:at,startedAtGameMs:time,readyAtGameMs:time+p.preview.durationSeconds*1000,
+    a={id,...(input.kind==='REPAIR_DURABLE'?{durableWork:p.t.durableWork}:{}),...(p.t.technicalWork?{technicalWork:p.t.technicalWork}:{}),...(p.t.traceWork?{traceInput:p.t.traceInput}:{}),...(p.t.documentReview?{documentReview:p.t.documentReview}:{}),characterId:c.id,characterName:c.public.displayName,actorUid:actor.uid,accessVersion:r.accessVersion,targetId:p.t.id,targetTitle:p.t.title,kind:input.kind,status:'ACTIVE',startedAt:at,startedAtGameMs:time,readyAtGameMs:time+p.preview.durationSeconds*1000,
      ...(p.droidMaterial?{droidMaterial:p.droidMaterial}:{}),...(p.routeAnalysis?{routeAnalysis:p.routeAnalysis}:{}),aid:aidSnapshot(p.aid),durationSeconds:p.preview.durationSeconds,cost:p.preview.cost,apEnabled:!!p.points,cooldownSeconds:p.preview.cooldownSeconds,family:p.family,level:p.preview.level,bonus:p.preview.bonus,bonusName:p.preview.bonusName,profile:p.p,reward:p.reward,
      ...(isPlaceSearch(p.t)?{searchVersion:1,searchEpoch:p.state.epoch,showDifficulty:p.t.search.showDifficulty,bonuses:p.bonuses,targetRevision:p.t.revision}:{}),
-     ...(p.negotiation?{negotiation:p.negotiation}:{}),...(input.kind==='ANALYZE'?{information:p.information,targetRevision:p.t.revision}:{}),...(['SABOTAGE','REPAIR'].includes(input.kind)?{targetRevision:p.t.revision}:{}),
+     ...(p.negotiation?{negotiation:p.negotiation}:{}),...(input.kind==='ANALYZE'?{information:p.information,targetRevision:p.t.revision}:{}),...(['SABOTAGE','REPAIR','REPAIR_DURABLE'].includes(input.kind)?{targetRevision:p.t.revision}:{}),
      bonusLotId:p.bonusLot?.id??null,consumableLotId:p.consumableLot?.id??null,offlineSeconds:p.t.offlineSeconds,failureLockSeconds:p.t.failureLockSeconds,repairProtectionSeconds:p.t.repairProtectionSeconds};
     reserveAid(tx,s,a,p.aid,'fieldActions');tx.set(ap(s.id,id),a);tx.set(cp(s.id,c.id),{...c,activeFieldActionId:id});tx.set(sp(s.id,p.t.id),{...p.state,activeActionId:id,revision:p.state.revision+1});
     if(p.points)tx.set(actionPointPath(s.id,c.id),reserveActionPoints(p.points,a.cost));
@@ -188,7 +191,7 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
     tx.set(`sessions/${s.id}/audit/${id}`,{id,at,action,actorUid:actor.uid,characterId:c.id,targetId:a.targetId,cost:a.cost});result=viewAction(a,s,at);
    }else{
     const gm=action==='cancelFieldActionMJ';let s,c,r;
-    if(gm){requireThat(org.session,'INVALID_ID');s=org.s;a=await tx.get(ap(s.id,documentId(input.actionId)));requireThat(a,'NOT_FOUND');if(s.spaceOutlaws)requireThat(a.kind==='ANALYZE'||s.spaceOutlaws.searchVersion===1&&a.searchVersion===1||s.spaceOutlaws.sabotageVersion===1&&['SABOTAGE','REPAIR'].includes(a.kind),'SO_GAMEPLAY_NOT_OPEN');c=await tx.get(cp(s.id,a.characterId));}
+    if(gm){requireThat(org.session,'INVALID_ID');s=org.s;a=await tx.get(ap(s.id,documentId(input.actionId)));requireThat(a,'NOT_FOUND');if(s.spaceOutlaws)requireThat(a.kind==='ANALYZE'||s.spaceOutlaws.searchVersion===1&&a.searchVersion===1||s.spaceOutlaws.sabotageVersion===1&&['SABOTAGE','REPAIR','REPAIR_DURABLE'].includes(a.kind),'SO_GAMEPLAY_NOT_OPEN');c=await tx.get(cp(s.id,a.characterId));}
     else {({s,c,r}=ctx);if(action==='cancelFieldActionAid')c=await tx.get(cp(s.id,a.characterId));}
     const cancel=action!=='finishFieldAction';
     if(a.status!=='ACTIVE')result=viewAction(a,s,at);
@@ -199,10 +202,11 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
      const points=a.apEnabled?actionPointState(s,c,await tx.get(actionPointPath(s.id,c.id)),at):null;
      let outcome=null,why=cancel?reason(input.reason):'';
      if(!cancel){
+      if(a.durableWork){t=await installationRepairTarget(tx,s,t,state);requireThat(digest(t.durableWork)===digest(a.durableWork),'FIELD_STATE_CHANGED');}
       if(a.technicalWork){t=await nativeTechnicalTarget(tx,s,c,t,at,a.level);requireThat(t.technicalWork?.version===a.technicalWork.version&&t.technicalWork.binding===a.technicalWork.binding&&!technicalDone(state,c.id,t),'FIELD_STATE_CHANGED');}
-      if(s.spaceOutlaws&&['SABOTAGE','REPAIR'].includes(a.kind))requireThat(s.spaceOutlaws.sabotageVersion===1&&validSoInstallation(t)&&t.revision===a.targetRevision,'FIELD_STATE_CHANGED');
+      if(s.spaceOutlaws&&['SABOTAGE','REPAIR','REPAIR_DURABLE'].includes(a.kind))requireThat(s.spaceOutlaws.sabotageVersion===1&&validSoInstallation(ordinaryInstallation(t))&&t.revision===a.targetRevision,'FIELD_STATE_CHANGED');
       requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireTraceActor(s,c,t,at);requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');requireThat(time>=a.readyAtGameMs,'FIELD_TOO_EARLY');requireThat(t?.publicationState==='PUBLISHED','FIELD_UNAVAILABLE');await dependency(tx,s,t,at);
-      requireThat(!a.profile.skillId||abilityLevel(c,a.profile.skillId)>=a.profile.minLevel,'FIELD_SKILL_REQUIRED');requireThat(a.kind==='SEARCH'||a.kind==='ANALYZE'||(a.kind==='SABOTAGE'?state.status==='ONLINE':state.status==='OFFLINE'),'FIELD_STATE_CHANGED');
+      requireThat(!a.profile.skillId||abilityLevel(c,a.profile.skillId)>=a.profile.minLevel,'FIELD_SKILL_REQUIRED');requireThat(a.kind==='SEARCH'||a.kind==='ANALYZE'||(a.kind==='REPAIR_DURABLE'?!!state.durableFailure:a.kind==='SABOTAGE'?state.status==='ONLINE':state.status==='OFFLINE'&&(!state.durableFailure||state.offlineUntilGameMs>time)),'FIELD_STATE_CHANGED');
       if(s.spaceOutlaws&&a.profile.skillId)requireThat(abilityLevel(c,a.profile.skillId)>=a.level,'FIELD_SKILL_REQUIRED');
       if(a.profile.skillId==='PIL-01'){
        requireRouteAnalysis(s);requireThat(abilityLevel(c,'PIL-01')>=a.level,'FIELD_SKILL_REQUIRED');
@@ -243,10 +247,10 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
         tx.set(path,{id:rw.knowledgeId,active:true,snapshot:rw.knowledge,receivedAt:at,source:'FIELD',sourceName:a.targetTitle,readAt:null,grantRevision:1});outcome.reward={kind:rw.kind,name:rw.knowledge.title,knowledgeId:rw.knowledgeId};
        }
        state={...state,stock:{...state.stock,[rw.id]:state.stock[rw.id]-1},claims:{...state.claims,[c.id]:{...claimsFor(state,c.id),[rw.id]:claimed(state,c.id,rw.id)+1}}};
-      }else if(success&&a.kind==='SABOTAGE')state={...state,status:'OFFLINE',offlineUntilGameMs:a.offlineSeconds?time+a.offlineSeconds*1000:null,...(s.spaceOutlaws?.sabotageVersion===1?{protectionAfterExpirySeconds:900}:{})};
-      else if(success&&a.kind==='REPAIR')state={...state,status:'ONLINE',offlineUntilGameMs:null,protectedUntilGameMs:time+a.repairProtectionSeconds*1000};
+      }else if(a.kind==='REPAIR_DURABLE'){if(success)state={...state,durableFailure:null,status:state.offlineUntilGameMs>time?'OFFLINE':'ONLINE'};}else if(success&&a.kind==='SABOTAGE')state={...state,status:'OFFLINE',offlineUntilGameMs:a.offlineSeconds?time+a.offlineSeconds*1000:null,...(s.spaceOutlaws?.sabotageVersion===1?{protectionAfterExpirySeconds:900}:{})};
+      else if(success&&a.kind==='REPAIR')state={...state,status:state.durableFailure?'OFFLINE':'ONLINE',offlineUntilGameMs:null,protectedUntilGameMs:time+a.repairProtectionSeconds*1000};
       else if(!success&&a.kind!=='SEARCH')state={...state,lockedUntilGameMs:time+a.failureLockSeconds*1000};
-      if(!a.traceInput)await recordFictionalTrace(tx,s,c,t,a.kind,a.id,at);
+      if(!a.traceInput)await recordFictionalTrace(tx,s,c,t,a.kind==='REPAIR_DURABLE'?'REPAIR':a.kind,a.id,at);
       const priorUse=a.profile.skillId==='COU-03'?await tx.get(uses(s.id,c.id,a.family)):null;if(a.profile.skillId==='COU-03')requireThat(contactUsage(s,priorUse)<contactQuota(abilityLevel(c,'COU-03')),'CONTACT_QUOTA_EXHAUSTED');
       tx.set(uses(s.id,c.id,a.family),{readyAtGameMs:time+a.cooldownSeconds*1000,actionId:a.id,...(a.profile.skillId==='COU-03'?{sessionId:s.id,episode:s.campaignEpisode??1,contactUses:contactUsage(s,priorUse)+1}:{})});
      }

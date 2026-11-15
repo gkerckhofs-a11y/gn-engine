@@ -24,3 +24,7 @@ La CI exacte du candidat reste à consulter dans la PR. Aucun test navigateur ou
 ## Limites
 
 Seuls les six modules standards déjà exécutables sont ouverts. Les durées et effets des rares N4/prototypes N5 seront raccordés avec leur catalogue C3 ; aucune technologie absente n’est inventée. La réparation d’un module déposé n’est pas incluse ici. C2.4 (installation durable), les compléments droïdes/PNJ, C3 rare et C4–C6 restent ouverts. Un test terrain demeure nécessaire après intégration et publication autorisées.
+
+## Retour de CI du candidat e05d2373c22f3118bae5de4c26ef849353115bb7
+
+La [CI 43725283024](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/43725283024) a exécuté 3 304 tests applicatifs : 3 302 réussis, deux échecs dans les fixtures d’interface `space-logistics-ui`. Ces objets synthétiques omettaient `unitPrice`, pourtant présent dans la projection serveur utilisée pour filtrer les pièces de 50 Cr. Le correctif renseigne cette valeur et vérifie aussi que les pièces de 25 Cr n’apparaissent pas dans les entretiens ordinaires. Aucun contrôle de production ni assertion de visibilité n’est supprimé. Cette CI historique reste en échec ; seule une nouvelle CI peut valider le correctif.

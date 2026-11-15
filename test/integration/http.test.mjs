@@ -2155,3 +2155,13 @@ test('HTTP + Auth : réparation durable de module, pièces uniques, reçu et ré
  const after=(await db.doc(`${base}/ships/ship`).get()).data();assert.equal(after.modules[0].status,'OPERATIONAL');assert.equal(after.hull,ship.hull);assert.equal(after.shield,ship.shield);assert.equal((await db.doc(`${base}/inventory/personal-parts`).get()).data().quantity,50-q.unitCost/25);
  await cmd('revokeAccess',{uid:uid(tech)});assert.equal((await request('finishSpaceMaintenancePoint',{sessionId,...finish},tech)).status,403);
 });
+
+test('HTTP + Auth : installation durable, échec payé puis réparation et reçu privé',async()=>{
+ const {installationRepairFixture}=await import('../support/space-installation-repair-suite.mjs'),f=await installationRepairFixture(()=>firestoreStore(getFirestore()));const {db,base,sessionId,player,outsider,call,cmd,uid}=await towingHttpActors({...f,otherId:f.tid},1000000),input=f.input;
+ assert.equal((await request('fieldTarget',{sessionId,targetId:'generator'})).status,401);assert.equal((await request('configureInstallationRepair',{sessionId,...f.config,requestId:randomUUID()},outsider)).status,403);
+ await cmd('configureInstallationRepair',{...f.config,revision:1,threshold:10000});
+ const run=async()=>{const q=await call('prepareFieldAction',input,player),a=await cmd('startFieldAction',{...input,confirmation:q.confirmation,present:true},player),saved=(await db.doc(`${base}/fieldActions/${a.id}`).get()).data();await db.doc(base).update({clock:{elapsedMs:saved.readyAtGameMs+1000,runningSince:Date.now()}});const p={actionId:a.id,present:true,requestId:randomUUID()},r=await cmd('finishFieldAction',p,player);assert.deepEqual(await cmd('finishFieldAction',p,player),r);return {r,p,ready:saved.readyAtGameMs};};
+ const failed=await run();assert.equal(failed.r.result.success,false);assert.equal((await db.doc(`${base}/inventory/${f.lot.id}`).get()).data().quantity,6);assert.ok((await db.doc(`${base}/fieldStates/generator`).get()).data().durableFailure);
+ await cmd('configureInstallationRepair',{...f.config,revision:2,threshold:1});await db.doc(base).update({clock:{elapsedMs:failed.ready+602000,runningSince:Date.now()}});const success=await run();assert.equal(success.r.result.success,true);assert.equal((await db.doc(`${base}/inventory/${f.lot.id}`).get()).data().quantity,4);assert.equal((await db.doc(`${base}/fieldStates/generator`).get()).data().durableFailure,null);
+ await cmd('revokeAccess',{uid:uid(player)});assert.equal((await request('finishFieldAction',{sessionId,...success.p},player)).status,403);
+});

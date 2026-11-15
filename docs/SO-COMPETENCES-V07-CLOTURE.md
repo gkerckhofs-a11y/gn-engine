@@ -34,6 +34,12 @@ Le [rapport C2.3](SO-CLOTURE-C2-MODULES-VAISSEAUX-2026-11-15.md) décrit la rép
 
 Sept cas métier mémoire et Firestore, un HTTP/Auth et 126 régressions ciblées réussis, avec recouvrement entre campagnes ; compilation réussie. Nouveau marqueur uniquement dans les futures publications. Rares/prototypes, installation durable et autres branches de clôture encore ouvertes ; aucun déploiement ou test terrain.
 
+## Complément C2.4 — installation durable, 15 novembre 2026
+
+Le [rapport C2.4](SO-CLOTURE-C2-INSTALLATIONS-2026-11-15.md) décrit les conditions préparées en régie, le signalement d’une panne durable et sa réparation native : cinq minutes, deux pièces consommées au jet, 1 PA. Panne et sabotage restent indépendants dans les deux ordres et après expiration. Le diagnostic propose les bonnes opérations ; l’épisode conserve la panne.
+
+Sept cas mémoire/Firestore, un HTTP/Auth, 59 régressions ciblées et compilation réussis ; contrôles du dernier commit à vérifier séparément. La CI applicative du parent e05d237 a échoué sur deux fixtures UI sans prix unitaire, désormais corrigées et revérifiées avec 64 tests ciblés. Ces groupes se recouvrent. Les autres branches C2/C3 et C4–C6, puis la recette terrain, restent ouvertes. Aucun déploiement.
+
 ## Candidat d’intégration du 14 novembre 2026
 
 La PR [#34](https://github.com/gkerckhofs-a11y/gn-engine/pull/34) regroupe les lots #16 à #33. Le complément de parcours FIL conserve la balise et le vaisseau choisi pendant le plein, la préparation PIL-02 et l’affectation du cockpit. Le pilote utilise ses commandes natives ; un passager prévu attend le départ. Après décollage, l’actualisation reprend la vérification de filature. Aucune route secrète n’est déduite et l’opposition conserve ses contrôles de liaison et de voyage courant.
