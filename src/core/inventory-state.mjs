@@ -21,6 +21,12 @@ export function itemInput(input,id,old={}){
   if(laserRecharge!==null)requireThat(input.consumable&&Number.isSafeInteger(laserRecharge?.pelletsPerUnit)&&laserRecharge.pelletsPerUnit>0,'INVALID_RECHARGE');
   const shipModule=input.shipModule===undefined?old.shipModule??null:input.shipModule;
   if(shipModule!==null)requireThat(typeof shipModule==='object'&&!Array.isArray(shipModule)&&Object.keys(shipModule).length===2&&Object.hasOwn(shipModule,'code')&&Object.hasOwn(shipModule,'size')&&(standardShipModuleQuote(shipModule)||sensorJammerQuote(shipModule))&&input.kind==='INDIVIDUAL'&&!input.consumable&&laserRecharge===null,'INVALID_SHIP_MODULE');
+  const shipFabrication=input.shipFabrication===undefined?old.shipFabrication??null:input.shipFabrication;
+  if(shipFabrication!==null){
+    requireThat(shipModule?.code==='R04-01'&&typeof shipFabrication==='object'&&!Array.isArray(shipFabrication)&&Object.keys(shipFabrication).length===3,'INVALID_SHIP_MODULE');
+    for(const id of ['planItemId','commonItemId','rareItemId'])documentId(shipFabrication[id]);
+    requireThat(new Set(Object.values(shipFabrication)).size===3,'INVALID_SHIP_MODULE');
+  }
   const droidModule=input.droidModule===undefined?old.droidModule??null:input.droidModule;
   if(droidModule!==null)requireThat(droidModule&&typeof droidModule==='object'&&!Array.isArray(droidModule)&&Object.keys(droidModule).length===1&&droidModuleDefinition(droidModule.code)&&input.kind==='INDIVIDUAL'&&!input.consumable&&!shipModule&&!laserRecharge&&classification.usage!=='FUEL','INVALID_DROID_MODULE');
   const reviewTargetId=input.reviewTargetId===undefined?old.reviewTargetId??null:input.reviewTargetId;
@@ -33,7 +39,7 @@ export function itemInput(input,id,old={}){
   requireThat(referenceUnitValueCr===null||Number.isSafeInteger(referenceUnitValueCr)&&referenceUnitValueCr>0,'INVALID_REFERENCE_VALUE');
   return {...classification,...(reviewTargetId?{reviewTargetId}:{}),...(input.concealable!==undefined||old.concealable!==undefined?{concealable:input.concealable??old.concealable}:{}),...(knowledgeId?{knowledgeId}:{}),...mediaFields(old,['illustration']),id,name:text(input.name,150,true),description:text(input.description??'',6000),category:text(input.category??'',150),
     pillable:input.pillable??old.pillable??false,...(input.pickpocketable!==undefined||old.pickpocketable!==undefined?{pickpocketable:input.pickpocketable??old.pickpocketable}:{}),unit:text(input.unit??'unité',50,true),kind:input.kind,consumable:input.consumable,unitVolume,legality:input.legality??'UNSPECIFIED',...(referenceUnitValueCr===null?{}:{referenceUnitValueCr}),
-    ...(droidModule?{droidModule:{code:droidModule.code}}:{}),...(shipModule?{shipModule:{code:shipModule.code,size:shipModule.size}}:{}),...(laserRecharge?{laserRecharge:{pelletsPerUnit:laserRecharge.pelletsPerUnit}}:{}),gmNotes:text(input.gmNotes??'',10000),publicationState:input.publicationState,revision:(old.revision??0)+1};
+    ...(droidModule?{droidModule:{code:droidModule.code}}:{}),...(shipModule?{shipModule:{code:shipModule.code,size:shipModule.size}}:{}),...(shipFabrication?{shipFabrication:{...shipFabrication}}:{}),...(laserRecharge?{laserRecharge:{pelletsPerUnit:laserRecharge.pelletsPerUnit}}:{}),gmNotes:text(input.gmNotes??'',10000),publicationState:input.publicationState,revision:(old.revision??0)+1};
 }
 export const publicItem=d=>({...(d.droidModule?{droidModule:{code:d.droidModule.code}}:{}),...classificationFields(d),...(d.reviewTargetId?{reviewTargetId:d.reviewTargetId}:{}),...(d.concealable!==undefined?{concealable:d.concealable}:{}),...(d.knowledgeId?{knowledgeId:d.knowledgeId}:{}),...(d.shipModule?{shipModule:{code:d.shipModule.code,size:d.shipModule.size}}:{}),...(d.laserRecharge?{laserRecharge:{pelletsPerUnit:d.laserRecharge.pelletsPerUnit}}:{}),...mediaFields(d,['illustration']),id:d.id,name:d.name,pillable:d.pillable??false,pickpocketable:d.pickpocketable??false,description:d.description,category:d.category,unit:d.unit,kind:d.kind,consumable:d.consumable,unitVolume:d.unitVolume,legality:d.legality,...(d.referenceUnitValueCr==null?{}:{referenceUnitValueCr:d.referenceUnitValueCr}),revision:d.revision});
 export function itemQuantity(definition,value,allowZero=false){

@@ -433,7 +433,8 @@ export function createCentralMasterService({store,signed,isAdmin,now,uuid}){
     }else if(action==='saveCentralCharacter'){
      data=centralCharacterInput(input.character,id,old?.data);
     }else if(action==='saveCentralItem'){
-     keys(input.item,['usage','transferable','resellable','name','description','category','unit','kind','consumable','unitVolume','legality','referenceUnitValueCr','pillable','pickpocketable','gmNotes','laserRecharge','shipModule','droidModule','knowledgeId','concealable','reviewTargetId']);
+     keys(input.item,['usage','transferable','resellable','name','description','category','unit','kind','consumable','unitVolume','legality','referenceUnitValueCr','pillable','pickpocketable','gmNotes','laserRecharge','shipModule','shipFabrication','droidModule','knowledgeId','concealable','reviewTargetId']);
+     if(input.item.shipFabrication!=null)keys(input.item.shipFabrication,['planItemId','commonItemId','rareItemId']);
      if(input.item.laserRecharge!=null)keys(input.item.laserRecharge,['pelletsPerUnit']);
      data=itemInput({...input.item,publicationState:'DRAFT'},id,old?.data);
     }else if(action==='saveCentralRecipe'){
