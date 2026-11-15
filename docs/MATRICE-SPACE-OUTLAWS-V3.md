@@ -976,7 +976,7 @@ Le cahier des charges de clôture reste en cours. Les rapports suivants décrive
 | --- | --- | --- |
 | C1 diagnostic natif | [Rapport C1](SO-CLOTURE-C1-DIAGNOSTIC-2026-11-15.md) : droïde, vaisseau, installation, informations préparées privées | Vérifier les nouveaux modules rares quand ils existent |
 | C2 recharge | Barème autorisé dans `docs/source/SO_Decision_Recharge_Mecanique_2026-11-15.md` ; DR-01/protection personnelle distincts des PV | Recette terrain |
-| C2/C3 droïdes | [Rapport droïdes](SO-CLOTURE-C2-C3-DROIDES-2026-11-15.md) : six modules, effets et contenus natifs | Prestations PNJ et réparation du module déposé |
+| C2/C3 droïdes | [Rapport droïdes](SO-CLOTURE-C2-C3-DROIDES-2026-11-15.md), [réparation déposée](SO-CLOTURE-C2-DROIDES-DEPOSES-2026-11-15.md) et [prestations PNJ](SO-CLOTURE-C2-C3-PNJ-DROIDES-2026-11-15.md) : six modules, effets et contenus natifs | Négociation PNJ C6 et recette humaine |
 | C2 modules vaisseaux | [Rapport modules](SO-CLOTURE-C2-MODULES-VAISSEAUX-2026-11-15.md) : six standards, atelier, pièces et prestation PNJ | Rares/prototypes |
 | C2 installation durable | [Rapport installations](SO-CLOTURE-C2-INSTALLATIONS-2026-11-15.md) : panne distincte du sabotage | Profils avancés non inventés |
 | C4 sabotage avancé | [Rapport C4](SO-CLOTURE-C4-SABOTAGES-2026-11-15.md) : DR N3, MOD N4, N5 complet sur ces références | Rares C3 et recette sur appareils |
@@ -1001,3 +1001,12 @@ Détails, commandes et base CI : [rapport C2.2 modules déposés](SO-CLOTURE-C2-
 | Pose, retrait et réparation DR-01–06 par atelier PNJ préparé | Parcours natif, devis, capacité finie, réservation et restitution des catégories de crédits | 193 tests applicatifs ciblés ; 8 scénarios partagés mémoire/Firestore ; 1 HTTP/Auth ; compilation | Propriétaire droïde actif, module et pièces apportés ; négociation des prestations au lot C6 ; recette humaine manquante |
 
 [Sources, barèmes, validations et limites](SO-CLOTURE-C2-C3-PNJ-DROIDES-2026-11-15.md). Base `31b3605592e26ea1a77eddb0c17ca904888e5f21`, CI 43732238948 entièrement réussie. Le SHA du nouveau candidat et sa CI restent suivis dans PR #45.
+
+
+### Complément C2/C3 — 15 novembre 2026 : cycle des modules de vaisseau endommagés
+
+| Périmètre | État démontré | Preuve | Limite |
+| --- | --- | --- | --- |
+| Retrait et remontage des six modules standards endommagés | Même lot et calibration, panne conservée, aucun effet ni point restauré ; annulation et consentement natifs | 192 tests applicatifs ciblés ; 4 Firestore et 1 HTTP/Auth ; compilation | Rares/prototypes et réparation directement dans le sac non ajoutés ; recette humaine manquante |
+
+[Rapport, sources et commandes](SO-CLOTURE-C3-CYCLE-MODULES-2026-11-15.md). Base `ae83845c39323b018bd829882180b76e482709c0` ; CI exacte du candidat suivie dans la PR #45. Ce correctif préalable ne clôt pas C3.

@@ -2179,6 +2179,24 @@ test('HTTP + Auth : diagnostic technique natif, panne modifiée et résultat pri
  assert.equal((await db.doc(`${base}/characters/${f.tid}`).get()).data().protection,0);await cmd('revokeAccess',{uid:uid(player)});assert.equal((await request('finishFieldAction',{sessionId,...finish},player)).status,403);
 });
 
+test('HTTP + Auth : cycle durable du module, retrait puis remontage sans effacer la panne',async()=>{
+ const {moduleRepairFixture}=await import('../support/space-module-repair-suite.mjs'),f=await moduleRepairFixture(()=>firestoreStore(getFirestore()));
+ const {db,base,sessionId,player,tech,outsider,call,cmd}=await towingHttpActors(f,1000000);
+ assert.equal((await request('moduleMandatesAdmin',{sessionId})).status,401);assert.equal((await request('moduleMandatesAdmin',{sessionId},outsider)).status,403);
+ for(const moduleOperation of ['REMOVE','INSTALL']){
+  const input={shipId:'ship',lotId:f.moduleLotId,technicianId:f.otherId,moduleOperation,present:true,workshopConfirmed:true,source:'Atelier préparé',reason:'Conserver la panne et le même exemplaire'};
+  assert.equal((await request('prepareModuleMandateOffer',{sessionId,...input},player)).status,403);
+  const q=await call('prepareModuleMandateOffer',input),r=await cmd('offerModuleMandate',{...input,confirmation:q.confirmation});assert.equal(q.moduleState.status,'DAMAGED');
+  const approval=await call('prepareModuleMandateApproval',{mandateId:r.id},player);await cmd('approveModuleMandate',{mandateId:r.id,confirmation:approval.confirmation,present:true},player);
+  const start=await call('prepareModuleWorkStart',{mandateId:r.id},tech);await cmd('startModuleWork',{mandateId:r.id,confirmation:start.confirmation,present:true,workshopConfirmed:true},tech);
+  const active=(await db.doc(`${base}/shipMaintenance/${r.id}`).get()).data();await db.doc(base).update({clock:{elapsedMs:active.readyAtGameMs+1000,runningSince:Date.now()}});
+  const preview=await call(moduleOperation==='REMOVE'?'prepareModuleRemoval':'prepareModuleInstallation',{mandateId:r.id},tech),finish={mandateId:r.id,confirmation:preview.confirmation,present:true,workshopConfirmed:true,performed:true,requestId:randomUUID()},action=moduleOperation==='REMOVE'?'finishModuleRemoval':'finishModuleInstallation';
+  const result=await cmd(action,finish,tech);assert.deepEqual(await cmd(action,finish,tech),result);
+  const lot=(await db.doc(`${base}/inventory/${f.moduleLotId}`).get()).data();assert.equal(lot.id,f.moduleLotId);assert.equal(lot.moduleState.status,'DAMAGED');assert.equal(lot.status,moduleOperation==='REMOVE'?'AVAILABLE':'INSTALLED');
+ }
+ const ship=(await db.doc(`${base}/ships/ship`).get()).data();assert.equal(ship.modules[0].status,'DAMAGED');assert.equal(ship.soProfile.shieldMax,2);assert.equal((await db.doc(`${base}/inventory/personal-parts`).get()).data().quantity,50);
+});
+
 test('HTTP + Auth : réparation durable de module, pièces uniques, reçu et révocation',async()=>{
  const {moduleRepairFixture}=await import('../support/space-module-repair-suite.mjs'),f=await moduleRepairFixture(()=>firestoreStore(getFirestore()));
  const {db,base,sessionId,player,tech,outsider,call,cmd,uid}=await towingHttpActors(f,1000000),input=f.input({supplyLotId:'personal-parts'});

@@ -1555,3 +1555,10 @@ Base `f6862d85c55a283595fb0786fcab494663866e18` : [CI 43728819222](https://githu
 Base `31b3605592e26ea1a77eddb0c17ca904888e5f21` : [CI 43732238948](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/43732238948) réussie, dix jobs dont six lots Firestore. Pose, retrait et réparation du module personnel par un atelier PNJ : mêmes objets, protocole et durée, capacité finie, paiement natif réservé et remboursement sans conversion des crédits protégés. Nouvelle capacité de publication `droidServicesVersion=1`, aucune migration implicite.
 
 193 tests applicatifs ciblés réussis ; huit scénarios partagés mémoire/Firestore et un HTTP/Auth couvrent notamment concurrence, crédits protégés, révocation, rollback, STOP et continuité d’épisode. Compilation et diff-check réussis. [Rapport détaillé](SO-CLOTURE-C2-C3-PNJ-DROIDES-2026-11-15.md). CI du nouveau commit suivie dans la [PR #45](https://github.com/gkerckhofs-a11y/gn-engine/pull/45), distincte de la base. Rares/prototypes, C5, C6 et recette intégrée restent ouverts. Aucun merge ni déploiement Firebase.
+
+
+## 15 novembre 2026 — C2/C3, retrait et remontage des modules endommagés
+
+Correction du cycle standard avant l'extension rare/prototype : retrait autorisé avec la capacité de panne durable, même lot/calibration/état dans le sac puis au remontage. La finalisation revérifie l'état lié au consentement ; l'annulation libère les réserves sans réparer. Une réparation réelle reste une opération distincte.
+
+192 tests applicatifs ciblés, quatre scénarios Firestore et un HTTP/Auth réussis ; compilation et diff-check réussis. [Rapport et commandes](SO-CLOTURE-C3-CYCLE-MODULES-2026-11-15.md). Base `ae83845c39323b018bd829882180b76e482709c0` : CI 43736632388 encore en cours à la rédaction, application et HTTP réussis. SHA et CI du nouveau candidat suivis dans la PR #45. C3 rares/prototypes, C5, C6 et recette intégrée restent ouverts ; aucun déploiement Firebase.
