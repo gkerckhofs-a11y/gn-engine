@@ -12,11 +12,12 @@ export const galacticEconomyCommands=[...Object.keys(eventActions),'galacticBudg
 export function createGalacticEconomyService(options){
  const {store,signed,checkSession,now,uuid}=options,prices=createPriceService({...options,spaceEconomy:true});
  return async(action,actor,input)=>{
+  signed(actor);
   if(Object.hasOwn(eventActions,action)){
    const fields=action==='galacticEventsAdmin'?[]:['revision','recordRevision','eventId','itemId','title','description','percent','tradeBlocked','enabled','portId','announcementId','reason',...(action==='saveGalacticEvent'?['confirmation','requestId']:[])];admissionKeys(input,['sessionId',...fields]);
    return prices(eventActions[action],actor,action==='galacticEventsAdmin'?input:{...input,targetKind:'COMMODITY',trigger:'MANUAL'});
   }
-  signed(actor);const write=action==='transferShopBudget',at=now(),id=uuid();admissionKeys(input,['sessionId',...(action==='galacticBudgetsAdmin'?[]:['sourceShopId','targetShopId','amount','reason']),...(write?['confirmation','requestId']:[])]);
+  const write=action==='transferShopBudget',at=now(),id=uuid();admissionKeys(input,['sessionId',...(action==='galacticBudgetsAdmin'?[]:['sourceShopId','targetShopId','amount','reason']),...(write?['confirmation','requestId']:[])]);
   return store.runTransaction(async tx=>{
    const s=await checkSession(tx,actor,documentId(input.sessionId)),b=`sessions/${s.id}`;requireThat(hasItemCircuits(s)&&s.economyRules?.enabled,'SO_GAMEPLAY_NOT_OPEN');requireThat(s.stage!=='ARCHIVED'&&!s.campaignSealed,'SESSION_CLOSED');
    const shops=(await tx.list(`${b}/shops`)).filter(sh=>sh.versionId===s.versionId),rows=[];for(const sh of shops){const a=await tx.get(`${b}/accounts/${shopAccountId(sh.id)}`);requireThat(!a||a.sessionId===s.id&&a.ownerType==='SHOP'&&a.shopId===sh.id,'ACCOUNT_UNAVAILABLE');rows.push({id:sh.id,name:sh.name,account:a?moneyState(a):null});}
