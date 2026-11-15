@@ -71,7 +71,7 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
      requireThat(so&&transport&&transportPlaceAllowed(transport,loc),'FORBIDDEN');
      const chLocal=admin||(c.spacePortId??s.transportRules?.homePort)===transport.ship.portId;
      const source=sameTransportPlace(loc,commercialSource(transport.t)),available=(transport.active||transport.returnOnly)&&transport.local&&chLocal;
-     return {location:loc,name:source?transport.c.sourceName:`${transport.t.recipient} · ${transport.t.toPort}`,owner:transport.owner,read:true,withdraw:source&&transport.active&&available&&transport.ship.portId===transport.t.fromPort,deposit:available&&(source?transport.ship.portId===transport.t.fromPort:transport.deliveryAllowed),revision:transport.c.revision,record:null,capacity:null,used:0,incoming:0};
+     return {location:loc,name:source?transport.c.sourceName:`${transport.t.recipient} · ${transport.t.toPort}`,owner:transport.owner,read:true,withdraw:source&&transport.active&&available&&transport.pickupReady&&transport.ship.portId===transport.t.fromPort,deposit:available&&(source?transport.ship.portId===transport.t.fromPort:transport.deliveryAllowed),revision:transport.c.revision,record:null,capacity:null,used:0,incoming:0};
     }
     if(so)requireThat(loc.kind!=='WAREHOUSE','SO_GAMEPLAY_NOT_OPEN');
     if(loc.kind==='COMMERCIAL'){
@@ -206,9 +206,11 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
    if(action==='prepareCargoReceipt')return {session:{id:sid},transfer:publicTransfer(t),...(payment?payment.result:{fees:publicClearance(t.clearance),payer:null}),confirmation};
    if(!admin)requireThat(input.confirmation===confirmation,'STALE_REVISION');
    if(receive)requireThat(input.received===true,'CARGO_RECEIPT_REQUIRED');
+   let pickupCompleted=null;if(receive&&transport?.t.commercial?.saleId&&t.source.kind==='SHOP'&&t.destination.kind==='HOLD'){const p=await tx.get(`${base}/lotSales/${transport.t.commercial.saleId}`),remaining=(await tx.list(`${base}/inventory`)).filter(l=>l.transportContractId===transport.c.id&&l.quantity>0&&l.location.kind==='SHOP'&&l.id!==lot.id);if(!remaining.length)pickupCompleted=p;}
    const feeReceipt=payment?settleCargoFees(tx,s,{...t,receivedByCharacterId:c.id},payment,paymentFrom,at,eventId,actor):null;
    const reason=admin?moneyText(input.reason):receive?'Réception à destination confirmée':'Chargement annulé ; biens conservés à la source';
    if(so){const mover=await tx.get(`${base}/characters/${t.characterId}`);requireThat(mover?.activeCargoId===t.id,'CARGO_TRANSFER_CLOSED');tx.set(`${base}/characters/${mover.id}`,{...mover,activeCargoId:null});}
+   if(pickupCompleted){authorizeSpaceOutlaws(tx,s,'SHOP');tx.set(`${base}/lotSales/${pickupCompleted.id}`,{...pickupCompleted,pickupStatus:'RECEIVED',pickedUpAt:at,revision:pickupCompleted.revision+1});}
    const batch=finishCargoBatch(tx,sid,{lot,transfer:t,receive,id:eventId,at,actorUid:actor.uid,reason,feeReceipt,patch:receive&&transport&&t.destination.kind==='PORT'?{transportDelivered:true,transportDeliveredGameMs:time}:{}});bump(source);bump(dest);
    return audit(batch.result,batch.event);
   });

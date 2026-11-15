@@ -5,7 +5,7 @@ import {soVoyagesFixture} from './space-outlaws-voyages-suite.mjs';
 import {classifyMaster} from './item-circuits-suite.mjs';
 import {centralSpaceEditable} from '../../src/core/central-space.mjs';
 import {accountId} from '../../src/core/economy-state.mjs';
-export async function commercialTransportFixture(makeStore,{buyQuantity=6,requestQuantity=4,initialBalance=1000}={}){
+export async function commercialTransportFixture(makeStore,{buyQuantity=6,requestQuantity=4,initialBalance=1000,pickup=true,beforePurchase=null}={}){
  const f=await soVoyagesFixture(makeStore,{release:false,prepareExtra:async(f,revision)=>{
   await f.cc('saveCentralPort',{portId:'hub',portRevision:0,draftRevision:revision++,port:{name:'Escale intermédiaire',description:'Port fictif',gmNotes:'SECRET_HUB',navigationCode:'HUB-CODE',locationTargetId:null},reason:'Escale préparée'});
   for(const [routeId,fromPort,toPort,navigationCode] of [['via-hub','home','hub','FIRST-LEG'],['from-hub','hub','away','SECOND-LEG']])await f.cc('saveCentralRoute',{routeId,routeRevision:0,draftRevision:revision++,route:{name:routeId,description:'Tronçon fictif',gmNotes:'SECRET_PATH',fromPort,toPort,navigationCode,distanceId:'SHORT',riskId:'SECURED'},reason:'Trajet avec escale'});
@@ -22,8 +22,9 @@ export async function commercialTransportFixture(makeStore,{buyQuantity=6,reques
  for(const [portId,shopId,offerId] of [['home','counter','supply'],['away','far','far-water']])await confirm('preparePlanetMarket','savePlanetMarket',{portId,shopId,offerId,itemId:'kit_medical-supplies',commodityCode:'WATER',marketState:'NORMAL',demand:20,enabled:true,recordRevision:0,reason:'Cours fictifs'},f.owner);
  await confirm('prepareShopProvision','provisionShop',{shopId:'counter',offerId:'supply',provisionId:'water',quantity:Math.max(8,buyQuantity),restricted:false,source:'Huit lots fictifs existants',reason:'Stock'},f.owner);
  await confirm('prepareShopProvision','provisionShop',{shopId:'counter',offerId:'fuel',provisionId:'fuel',quantity:8,restricted:false,source:'Huit unités fictives existantes',reason:'Stock'},f.owner);
+ if(beforePurchase)await beforePurchase({...f,base,cid,clientId,client:f.other});
  const fuel=await f.buy({offerId:'fuel',quantity:4,useProtected:false});await f.pickup(fuel);await f.refuel(4);f.setDie(6);
- const sale=await f.buy({quantity:buyQuantity,useProtected:false},f.other);await f.pickup(sale,f.other);const lotId=sale.purchasedLotId;
+ const sale=await f.buy({quantity:buyQuantity,useProtected:false},f.other);if(pickup)await f.pickup(sale,f.other);const lotId=sale.purchasedLotId;
  const requestInput={lotId,quantity:requestQuantity,destinationId:'away',durationMinutes:60,proposedAmount:100,conditions:'Livrer toutes les caisses au port prévu.',expenses:'Carburant du transporteur ; douanes à charge du propriétaire ; aucune assurance automatique.'};
  const publish=(patch={})=>confirm('prepareCommercialRequest','publishCommercialRequest',{...requestInput,...patch},f.other);
  const offer=async(a,patch={},actor=f.player)=>{const q={announcementId:a.id,revision:0,shipId:'ship',codes:['AWAY-CODE'],amount:100,durationMinutes:60,rate:'ORDINARY',expenses:requestInput.expenses,body:'Proposition de transport',...patch};return confirm('prepareCommercialQuote','sendCommercialQuote',q,actor);};
@@ -34,7 +35,7 @@ export async function commercialTransportFixture(makeStore,{buyQuantity=6,reques
  const edit=(path,fn)=>f.store.runTransaction(async tx=>{const p=base+(path?'/'+path:'');tx.set(p,fn(await tx.get(p)));});
  const newParty=async(name='Capitaine fictif')=>{const id='extra-'+randomUUID(),actor={...f.player,uid:'extra-'+randomUUID(),email:'extra@example.invalid'},hash=v=>createHash('sha256').update(v).digest('hex');await f.store.runTransaction(async tx=>{const ch=await tx.get(`${base}/characters/${cid}`),reg=await tx.get(`${base}/registrations/${hash(f.player.uid)}`),wallet=await tx.get(`${base}/accounts/${accountId(cid)}`);tx.set(`${base}/characters/${id}`,{...ch,id,assignedUid:actor.uid,public:{...ch.public,displayName:name},birth:{...ch.birth,classId:'MEC'},abilityProfile:{...ch.abilityProfile,class:{...ch.abilityProfile.class,id:'MEC'},skills:[{id:'MEC-02',level:1}]}});tx.set(`${base}/registrations/${hash(actor.uid)}`,{...reg,id:hash(actor.uid),uid:actor.uid,characterId:id,minAuthTime:0});tx.set(`${base}/accounts/${accountId(id)}`,{...wallet,id:accountId(id),characterId:id,balance:1000,reserved:0,protectedCredits:0});});return {id,actor};};
  const captain=async(party,shipId='ship')=>{const inv=await confirm('prepareShipCaptainOffer','offerShipCaptain',{shipId,targetId:party.id,authority:{recruit:true,roles:true,pilot:true,logistics:true,workRequests:true},reason:'Mandat opérationnel explicite'}),q=await f.read('shipInvitation',{invitationId:inv.id},party.actor);await f.cmd('respondShipInvitation',{invitationId:inv.id,accept:true,confirmation:q.confirmation},party.actor);};
- return {...f,base,cid,clientId,lotId,requestInput,publish,offer,select,accept,lots,move,confirm,edit,newParty,captain,client:f.other,clientWallet:()=>f.store.get(`${base}/accounts/${accountId(clientId)}`),pilotWallet:()=>f.store.get(`${base}/accounts/${accountId(cid)}`)};
+ return {...f,base,cid,clientId,lotId,sale,requestInput,publish,offer,select,accept,lots,move,confirm,edit,newParty,captain,client:f.other,clientWallet:()=>f.store.get(`${base}/accounts/${accountId(clientId)}`),pilotWallet:()=>f.store.get(`${base}/accounts/${accountId(cid)}`)};
 }
 export function commercialTransportSuite(makeStore,prefix='Transport entre joueurs'){
  test(`${prefix} : demande sans déplacement, offre privée et double consentement natif`,async()=>{

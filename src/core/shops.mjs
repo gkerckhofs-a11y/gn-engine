@@ -1,3 +1,4 @@
+import {delegatedCommercialPickup} from './commercial-transport-state.mjs';
 import {planetPurchase,planetOffer,planetMarketQuote,ordinaryPlanetCommodity,ordinaryPlanetTrade,planetCommerceSession} from './planet-market-state.mjs';
 import {readPriceBook,commodityTrade} from './price-state.mjs';
 import {isBroker} from '../shared/player-access.mjs';
@@ -67,9 +68,9 @@ export function createShopService({store,signed,checkSession,now,uuid}){
  }
  async function order(tx,s,p,at){
   const buyer=await inventoryParty(tx,s.id,p.buyerId),lot=await tx.get(`sessions/${s.id}/inventory/${p.purchasedLotId}`);
-  const {custody,ready,allowed:basicAllowed}=shopCustody(s,p,buyer,lot,at);
-  const allowed=basicAllowed&&(!hasItemCircuits(s)||await personalTransferActorReady(tx,p.planetMarketId?planetCommerceSession(s,p.stockPortId):s,buyer.c))&&(p.item.usage!=='COMMERCIAL'||isBroker(buyer.c));
-  return {buyer,lot,custody,ready,allowed,view:{...saleView(p),pickupStatus:p.pickupStatus==='READY'&&!ready?'STALE':p.pickupStatus,canOfferPickup:!!allowed&&p.pickupStatus!=='RECEIVED'&&!ready,canPickup:!!allowed&&ready,confirmation:hash(JSON.stringify([p.id,p.revision,lot?.revision??null,buyer.version]))}};
+  const delegation=await delegatedCommercialPickup(tx,s,p,buyer,at);const {custody,ready,allowed:basicAllowed}=delegation??shopCustody(s,p,buyer,lot,at);
+  const allowed=basicAllowed&&(delegation||!hasItemCircuits(s)||await personalTransferActorReady(tx,p.planetMarketId?planetCommerceSession(s,p.stockPortId):s,buyer.c))&&(p.item.usage!=='COMMERCIAL'||isBroker(buyer.c));
+  return {buyer,lot:delegation?.lot??lot,delegation,custody,ready,allowed,view:{...saleView(p),pickupStatus:p.pickupStatus==='READY'&&!ready?'STALE':p.pickupStatus,canOfferPickup:!!allowed&&p.pickupStatus!=='RECEIVED'&&!ready,canPickup:!!allowed&&ready&&!delegation,confirmation:hash(JSON.stringify([p.id,p.revision,(delegation?.lot??lot)?.revision??null,buyer.version]))}};
  }
  return async(action,actor,input)=>{
   signed(actor);admissionKeys(input,['sessionId',...fields[action],...(reads.has(action)?[]:['requestId'])]);
@@ -136,7 +137,7 @@ export function createShopService({store,signed,checkSession,now,uuid}){
     let next={...p,revision:p.revision+1};
     if(action==='offerShopPickup')next={...next,pickupStatus:'READY',pickupBuyerVersion:x.buyer.version,pickupLotRevision:x.lot.revision};
     else{
-     requireThat(x.ready,'STALE_PICKUP');requireThat(input.received===true,'HANDOVER_REQUIRED');
+     requireThat(x.ready&&!x.delegation,'STALE_PICKUP');requireThat(input.received===true,'HANDOVER_REQUIRED');
      const moved=receivedShopLot(x.lot,c.id,c.spacePortId??s.transportRules?.homePort??null);tx.set(`${base}/inventory/${moved.id}`,moved);tx.set(`${base}/inventory/${moved.id}/history/${eventId}`,{id:eventId,kind:'PICKUP',at,actorUid:actor.uid,saleId:p.id,reason:'Remise du comptoir présentée puis réception confirmée par le joueur',before:movement(x.lot),after:movement(moved)});
      next={...next,pickupStatus:'RECEIVED',pickedUpAt:at};
     }

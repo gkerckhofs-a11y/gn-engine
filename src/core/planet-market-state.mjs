@@ -37,6 +37,7 @@ export async function planetLotOriginPort(tx,s,lot){
  const seen=new Set();let current=lot;
  for(let depth=0;current&&depth<30;depth++){
   if(seen.has(current.id))return null;seen.add(current.id);
+  if(current.commercialReceipt){const r=current.commercialReceipt,e=await tx.get(`sessions/${s.id}/contracts/${r.contractId}/history/${r.receiptId}`);if(e?.action==='COMMERCIAL_IMPORT_RECEIPT'&&e.lotId===current.id&&e.ownerId===current.ownerId&&e.itemId===current.item.id&&e.itemRevision===current.item.revision&&e.quantity>=current.quantity&&e.feeReceipt?.total>=0&&e.feeReceipt.fees?.direction==='IMPORT')return e.portId;}
   if(current.origin?.saleId){const sale=await tx.get(`sessions/${s.id}/lotSales/${current.origin.saleId}`);if(sale?.shopId&&sale.status==='SOLD'&&sale.purchasedLotId===current.id&&sale.item.id===current.item.id&&sale.stockPortId)return sale.stockPortId;}
   const parent=current.origin?.parentLotId;if(!parent||parent===current.id)return null;current=await tx.get(`sessions/${s.id}/inventory/${parent}`);
  }

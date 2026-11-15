@@ -475,7 +475,7 @@ async function warehousesPage(sid,wid=null,admin=false){const render=pageRendere
 async function priceAdminPage(sid){const render=pageRenderer(),d=await api('priceAdmin',{sessionId:sid});render(priceUi.page(d));}
 async function publicPricesPage(sid){const render=pageRenderer();if(!auth.currentUser){render(`<div class="narrow"><h1>Cours publics</h1>${loginPanel()}</div>`);return;}const d=await api('commodityMarket',{sessionId:sid});render(`<div class="narrow"><h1>Cours publics</h1><p>Consultation gratuite des cours publiés.</p>${priceBoardHtml(d.prices,d.currency)}${button('Actualiser','refresh','','quiet')}</div>`);}
 function mapCodeKey(sid){return mapStorageKey(auth.currentUser.uid,sid,currentPlayer.character.id);}
-async function freightPage(sid,id=null,admin=false){const render=pageRenderer(),d=await api(id?(admin?'commercialTransportAdmin':'commercialTransport'):(admin?'commercialTransportsAdmin':'commercialTransports'),{sessionId:sid,...(id?{announcementId:id}:{})});render(id?commercialTransportHtml(d):commercialTransportsHtml(d));}
+async function freightPage(sid,id=null,admin=false){const render=pageRenderer(),d=await api(id?(admin?'commercialTransportAdmin':'commercialTransport'):(admin?'commercialTransportsAdmin':'commercialTransports'),{sessionId:sid,...(id?{announcementId:id}:{})});if(!admin)d.receipts=(await api('commercialReceipts',{sessionId:sid})).receipts;render(id?commercialTransportHtml(d):commercialTransportsHtml(d));}
 async function galacticMapPage(sid,admin=false,query=''){
  const render=pageRenderer(),params=new URLSearchParams(query),codes=admin||mapSkillLevel(currentPlayer.character,'PIL-01')<1?[]:loadMapCodes(sessionStorage,mapCodeKey(sid));
  const d=await api(admin?'galacticMapAdmin':'galacticMap',{sessionId:sid,codes,...(params.get('ship')?{shipId:params.get('ship')}:{}),...(params.get('destination')?{destinationId:params.get('destination')}:{} )});
@@ -824,15 +824,16 @@ document.addEventListener('submit',async event=>{
   const form=event.target.closest('[data-form]');if(!form)return;event.preventDefault();if(busy)return;
   busy=true;const b=form.querySelector('button[type="submit"],button:not([type])');if(b)b.disabled=true;
   try{const v=formValues(form),kind=form.dataset.form;let destination,successMessage='Enregistré.';const submitVersion=routeVersion;
-    if(['freightRequest','freightQuote','freightSelect','freightClose'].includes(kind)){
+    if(['freightRequest','freightQuote','freightSelect','freightClose','freightReceipt'].includes(kind)){
      const base=form.dataset.payload?JSON.parse(form.dataset.payload):{sessionId:form.dataset.sid};let p,type,action;
      if(kind==='freightRequest'){p={...base,lotId:v.lotId,quantity:Number(v.quantity),destinationId:v.destinationId,proposedAmount:v.proposedAmount?Number(v.proposedAmount):null,durationMinutes:v.durationMinutes?Number(v.durationMinutes):null,conditions:v.conditions,expenses:v.expenses};type='request';action='prepareCommercialRequest';}
      else if(kind==='freightQuote'){p={...base,amount:Number(v.amount),durationMinutes:Number(v.durationMinutes),expenses:v.expenses,body:v.body,...(form.dataset.counter==='true'?{}:{shipId:v.shipId,codes:v.codes.split(/\r?\n/).map(s=>s.trim()).filter(Boolean),rate:v.rate})};type='quote';action='prepareCommercialQuote';}
+     else if(kind==='freightReceipt'){p=base;type='receipt';action='prepareCommercialReceipt';}
      else if(kind==='freightSelect'){p=base;type='select';action='prepareCommercialContract';}
      else{p={...base,reason:v.reason};type='close';action='prepareCommercialRequestClose';}
      const d=await api(action,p);if(submitVersion!==routeVersion)return;modal(freightConfirmation(type,d,p,crypto.randomUUID()));return;
     }
-    if(kind==='freightCommand'){const p=JSON.parse(form.dataset.payload),r=await mutate(form.dataset.command,p);if(submitVersion!==routeVersion)return;dialog.close();notice(form.dataset.kind==='select'?'Contrat préparé ; le transporteur doit encore le signer.':'Accord enregistré.');location.hash=form.dataset.kind==='select'?`#/contract/${p.sessionId}/${r.id}`:form.dataset.kind==='request'?`#/freight/${p.sessionId}/${r.id}`:`#/freight/${p.sessionId}/${p.announcementId}`;await route();return;}
+    if(kind==='freightCommand'){const p=JSON.parse(form.dataset.payload),r=await mutate(form.dataset.command,p);if(submitVersion!==routeVersion)return;dialog.close();notice(form.dataset.kind==='receipt'?'Marchandises réceptionnées ; droits réglés.':form.dataset.kind==='select'?'Contrat préparé ; le transporteur doit encore le signer.':'Accord enregistré.');location.hash=form.dataset.kind==='receipt'?`#/freight/${p.sessionId}`:form.dataset.kind==='select'?`#/contract/${p.sessionId}/${r.id}`:form.dataset.kind==='request'?`#/freight/${p.sessionId}/${r.id}`:`#/freight/${p.sessionId}/${p.announcementId}`;await route();return;}
     if(kind==='mapPlan'){location.hash=mapHref(form.dataset.sid,v.shipId,v.destinationId,form.dataset.admin==='true');return;}
     if(kind==='mapCode'){if(!mapData||mapData.admin)return;const key=mapCodeKey(mapData.session.id),codes=loadMapCodes(sessionStorage,key);if(codes.length>=20&&!codes.includes(v.code.trim()))throw new Error(galacticMapErrors.INVALID_MAP_CODES);saveMapCodes(sessionStorage,key,[...codes,v.code]);await route();return;}
     if(kind==='directorySettings'){await mutate('savePlayerDirectorySettings',{sessionId:form.dataset.sid,revision:Number(form.dataset.revision),classIds:new FormData(form).getAll('classIds')});notice('Accès au répertoire enregistrés.');await route();return;}

@@ -148,6 +148,7 @@ export const firestoreSuites = [
   {"id":"space-episodes","module":"../support/space-episodes-suite.mjs","exportName":"spaceEpisodesSuite","label":"Épisodes SO sur Firestore","seconds":166},
   {"id":"space-search","module":"../support/space-search-suite.mjs","exportName":"spaceSearchSuite","label":"Fouilles V3.6 sur Firestore","seconds":91},
   {"id":"space-succession","module":"../support/space-succession-suite.mjs","exportName":"spaceSuccessionSuite","label":"Succession SO sur Firestore","seconds":68},
+  {"id":"commercial-logistics","module":"../support/commercial-logistics-suite.mjs","exportName":"commercialLogisticsSuite","label":"Logistique commerciale sur Firestore","seconds":100},
   {"id":"commercial-transport","module":"../support/commercial-transport-suite.mjs","exportName":"commercialTransportSuite","label":"Transport entre joueurs sur Firestore","seconds":100},
   {"id":"space-transport","module":"../support/space-transport-suite.mjs","exportName":"spaceTransportSuite","label":"Transport SO sur Firestore","seconds":65},
   {"id":"space-learning","module":"../support/space-learning-suite.mjs","exportName":"spaceLearningSuite","label":"Apprentissage SO sur Firestore","seconds":201},
