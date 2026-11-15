@@ -2143,3 +2143,15 @@ test('HTTP + Auth : diagnostic technique natif, panne modifiée et résultat pri
  const finish={actionId:b.id,present:true,requestId:randomUUID()},r=await cmd('finishFieldAction',finish,player);assert.deepEqual(await cmd('finishFieldAction',finish,player),r);assert.equal(r.result.roll,null);assert.ok(r.result.technical.observedAt>0);assert.match(JSON.stringify(r.result.technical.rows),/2 \/ 3 PV/);assert.doesNotMatch(JSON.stringify(r),/SECRET_N3/);
  assert.equal((await db.doc(`${base}/characters/${f.tid}`).get()).data().protection,0);await cmd('revokeAccess',{uid:uid(player)});assert.equal((await request('finishFieldAction',{sessionId,...finish},player)).status,403);
 });
+
+test('HTTP + Auth : réparation durable de module, pièces uniques, reçu et révocation',async()=>{
+ const {moduleRepairFixture}=await import('../support/space-module-repair-suite.mjs'),f=await moduleRepairFixture(()=>firestoreStore(getFirestore()));
+ const {db,base,sessionId,player,tech,outsider,call,cmd,uid}=await towingHttpActors(f,1000000),input=f.input({supplyLotId:'personal-parts'});
+ assert.equal((await request('spaceMaintenanceAdmin',{sessionId})).status,401);assert.equal((await request('spaceMaintenanceAdmin',{sessionId},outsider)).status,403);
+ assert.equal((await request('damageShipModule',{sessionId,shipId:'ship',moduleLotId:f.moduleLotId,revision:1,reason:'Refus joueur',requestId:randomUUID()},player)).status,403);
+ const q=await call('prepareSpaceMaintenanceOffer',input),r=await cmd('offerSpaceMaintenance',{...input,confirmation:q.confirmation}),p=await call('prepareSpaceMaintenance',{maintenanceId:r.id},player);await cmd('acceptSpaceMaintenance',{maintenanceId:r.id,confirmation:p.confirmation,present:true},player);
+ const j=(await call('spaceMaintenance',{},tech)).jobs.find(j=>j.id===r.id);await cmd('startSpaceMaintenance',{maintenanceId:r.id,confirmation:j.confirmation,present:true},tech);const active=(await db.doc(`${base}/shipMaintenance/${r.id}`).get()).data(),ship=(await db.doc(`${base}/ships/ship`).get()).data();await db.doc(base).update({clock:{elapsedMs:active.readyAtGameMs+1000,runningSince:Date.now()}});
+ const done=(await call('spaceMaintenance',{},tech)).jobs.find(j=>j.id===r.id),finish={maintenanceId:r.id,confirmation:done.confirmation,performed:true,requestId:randomUUID()},result=await cmd('finishSpaceMaintenancePoint',finish,tech);assert.deepEqual(await cmd('finishSpaceMaintenancePoint',finish,tech),result);
+ const after=(await db.doc(`${base}/ships/ship`).get()).data();assert.equal(after.modules[0].status,'OPERATIONAL');assert.equal(after.hull,ship.hull);assert.equal(after.shield,ship.shield);assert.equal((await db.doc(`${base}/inventory/personal-parts`).get()).data().quantity,50-q.unitCost/25);
+ await cmd('revokeAccess',{uid:uid(tech)});assert.equal((await request('finishSpaceMaintenancePoint',{sessionId,...finish},tech)).status,403);
+});

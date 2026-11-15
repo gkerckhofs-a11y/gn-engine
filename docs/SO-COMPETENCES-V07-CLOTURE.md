@@ -28,6 +28,12 @@ Le [rapport C1](SO-CLOTURE-C1-DIAGNOSTIC-2026-11-15.md) décrit le diagnostic de
 
 Huit tests métier mémoire et Firestore, un HTTP/Auth, 70 tests de régression finaux et compilation réussis. Ces nombres se recouvrent. La preuve CI du nouveau commit reste à vérifier dans la PR #45. Aucun test navigateur/terrain ni déploiement. La clôture globale reste partielle pour les réparations C2 restantes, les rares/prototypes C3 et les lots C4–C6.
 
+## Complément C2.3 — modules standards de vaisseaux, 15 novembre 2026
+
+Le [rapport C2.3](SO-CLOTURE-C2-MODULES-VAISSEAUX-2026-11-15.md) décrit la réparation durable à quai des six modules standards dans le moteur d’entretien existant. Devis, pièces, supplément PNJ, PA et interruption restent natifs. Le diagnostic C1 réutilise ce devis. Une réparation ne restaure aucun point et ne supprime pas une neutralisation temporaire ; la panne et le même objet persistent entre épisodes.
+
+Sept cas métier mémoire et Firestore, un HTTP/Auth et 126 régressions ciblées réussis, avec recouvrement entre campagnes ; compilation réussie. Nouveau marqueur uniquement dans les futures publications. Rares/prototypes, installation durable et autres branches de clôture encore ouvertes ; aucun déploiement ou test terrain.
+
 ## Candidat d’intégration du 14 novembre 2026
 
 La PR [#34](https://github.com/gkerckhofs-a11y/gn-engine/pull/34) regroupe les lots #16 à #33. Le complément de parcours FIL conserve la balise et le vaisseau choisi pendant le plein, la préparation PIL-02 et l’affectation du cockpit. Le pilote utilise ses commandes natives ; un passager prévu attend le départ. Après décollage, l’actualisation reprend la vérification de filature. Aucune route secrète n’est déduite et l’opposition conserve ses contrôles de liaison et de voyage courant.

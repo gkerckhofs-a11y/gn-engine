@@ -31,9 +31,15 @@ export function playableShipModuleQuote(calibration,{hiddenCargo=false,towing=fa
 // Recalculate from the canonical base; never compound an already upgraded profile.
 export function installedShipProfile(profile,modules,options={}){
  const base=spaceShipProfiles.find(p=>p.id===profile?.id);
- if(!base||!Array.isArray(modules)||modules.length>base.moduleSlots||modules.some(m=>!(playableShipModuleQuote(m,options)||options.towingProfile===true&&m.code==='MOD-05'&&standardShipModuleQuote(m))||m.size!==base.size||m.status!=='OPERATIONAL')||new Set(modules.map(m=>m.code)).size!==modules.length)return null;
- const has=code=>modules.some(m=>m.code===code);
+ if(!base||!Array.isArray(modules)||modules.length>base.moduleSlots||modules.some(m=>!(playableShipModuleQuote(m,options)||options.towingProfile===true&&m.code==='MOD-05'&&standardShipModuleQuote(m))||m.size!==base.size||!(m.status==='OPERATIONAL'||options.durableModules===true&&m.status==='DAMAGED'))||new Set(modules.map(m=>m.code)).size!==modules.length)return null;
+ const has=code=>modules.some(m=>m.code===code&&m.status==='OPERATIONAL');
  return {...base,hullMax:base.hullMax+Number(has('MOD-02')),shieldMax:base.shieldMax+Number(has('MOD-01')),maneuverability:Math.min(3,base.maneuverability+Number(has('MOD-03'))),...(has('MOD-06')?{weapon:'HEAVY'}:{})};
 }
 
 export const towingVersionKeys=Object.freeze(['towingWorkVersion','towingAttachmentVersion','towingFlightVersion','towingCombatVersion','towingOutageVersion','towingRecoveryVersion']);
+
+// V0.7 chapter 17: a repair is distinct from fitting, hull and shield work.
+export function shipModuleRepairPlan(module){
+ const q=standardShipModuleQuote(module);if(!q)return null;
+ return {kind:'MODULE',points:1,unitCost:q.price/4,secondsPerPoint:300,moduleLotId:module.lotId,moduleCode:q.code,moduleName:q.label,moduleLevel:q.install.level};
+}
