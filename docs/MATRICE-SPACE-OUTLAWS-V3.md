@@ -1,5 +1,19 @@
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
+Intégration 0.39.0 du 15 novembre 2026 : [périmètre, droits, tests et garde de publication](SO-RELEASE-2026-11-15.md). Complément : caisses autorisées pour les achats, COU-02 au cours réel, événements locaux reliés aux News, budgets PNJ sans création monétaire et réception/revente distante sans déplacement des biens. Résultats CI du candidat exact et publication à constater dans la PR ; les rapports précédents restent historiques.
+
+Entrepôts commerciaux du 15 novembre 2026 : [location native, droits, stock local et tests](SO-COMMERCIAL-STORAGE.md). Capacité et tarif explicitement configurés, bail personnel finançable par caisse autorisée, marchandises privées du même port, échéance et continuité conservées. Candidat après #42 corrigée ; paiement des achats et événements économiques encore à finaliser.
+
+Logistique commerciale du 15 novembre 2026 : [collecte distante, retrait délégué, importation et revente](SO-COMMERCIAL-LOGISTICS.md). Commandes payées confiées au transporteur, présentation MJ et tranches natives, réception propriétaire, quittance et preuve contractuelle conservées. Arrondi des droits explicitement validé par Guillaume : crédit le plus proche, demi-crédit vers le haut. Candidat après #41 ; autres compléments économiques et recette finale encore ouverts.
+
+Transport commercial entre joueurs du 14 novembre 2026 : [audit, contrôleurs réutilisés, droits, tests et limites](SO-COMMERCIAL-TRANSPORT.md). Tranche 4 après #40 : demandes, négociations et contrats natifs financés par le Courtier ; fret et salaires conservés, sans moteur parallèle. Livraison commerciale finale et douanes restent à raccorder. Aucun déploiement de cette tranche.
+
+Carte galactique du 14 novembre 2026 : [parcours, matrice de réutilisation et contrôles](SO-GALACTIC-MAP.md). Dépend de #39 ; lecture filtrée, codes explicites, autonomie native, escales et accès au formulaire de vol. Publication Firebase autorisée par Guillaume une fois tous les chantiers finalisés ; condition non remplie, aucun déploiement de cette tranche.
+
+Économie galactique du 14 novembre 2026 : [audit, matrice de réutilisation et premier parcours de marchés planétaires](SO-GALACTIC-ECONOMY.md). Dépend de #38 ; cours locaux, achats distants et rachat ordinaire limités aux contrôles raccordés. Carte, contrats libres et logistique intégrée restent à développer. Aucun déploiement.
+
+Refonte pédagogique HRP du 14 novembre 2026 : [audit, corrections et tests ciblés](SO-HRP-EDITORIAL.md). Candidat après #37 ; textes et présentation uniquement, règles et droits conservés. CI exacte dans la PR ; aucun déploiement.
+
 Intégration du 14 novembre 2026 : PR [#34](https://github.com/gkerckhofs-a11y/gn-engine/pull/34), version candidate `0.38.0-rc.2`. Lots de compétences #16–#33 cumulés et départ FIL depuis le quai avec balise conservée. 3 130 tests applicatifs et compilation réussis localement sur l’arbre du complément ; CI exacte et publication à constater dans la PR. **Publication intermédiaire ; clôture des 34 capacités toujours partielle**, sans migration des sessions existantes. Voir la [matrice courante](SO-COMPETENCES-V07-CLOTURE.md).
 
 Complément spatial du 13 novembre 2026 : [traces de vaisseaux, filature et corrections des tests CI](SO-COMPETENCES-V07-CLOTURE.md#r--départs-de-vaisseaux-filature-et-signature-fictive-13-novembre-2026). Candidat sur branche ; aucune fusion ou publication. Les CI des parents #31/#32 ont des échecs identifiés, distincts des tests locaux du correctif.

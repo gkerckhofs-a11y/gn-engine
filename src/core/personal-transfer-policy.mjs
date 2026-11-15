@@ -1,10 +1,12 @@
+import {hasItemCircuits,personalItem,transferableItem,resellableItem} from './item-circuits.mjs';
 import {canGameAction} from './health-state.mjs';
 import {personalLot} from './inventory-state.mjs';
 // Explicit restrictions survive transfers and partial splits. A volume is not a freight designation.
 export const personalTransferAllowed=(s,l,cid)=>!!l&&personalLot(l,cid)&&l.status==='AVAILABLE'&&l.quantity>0
-  &&(!s.spaceOutlaws||(s.spaceOutlaws.actionsVersion===1&&l.transferable!==false
+  &&(!s.spaceOutlaws||(s.spaceOutlaws.actionsVersion===1&&transferableItem(l)&&(!hasItemCircuits(s)||personalItem(l.item))
     &&l.origin?.kind!=='SO_BIRTH'&&!l.transportContractId&&!l.boardingCustody
     &&(l.origin?.kind!=='SO_FORGERY'||s.spaceOutlaws.inf03Version===1)));
+export const personalSaleAllowed=(s,l,cid)=>!s.spaceOutlaws?!!l&&personalLot(l,cid)&&l.status==='AVAILABLE':hasItemCircuits(s)&&personalTransferAllowed(s,l,cid)&&resellableItem(l);
 export const personalTransferActorAllowed=(s,c)=>!!c&&canGameAction(s,c,'transfer')
   &&(!s.spaceOutlaws||(!s.safetyStop?.active&&!c.survival?.dead&&!c.activeFieldActionId&&!c.activePersonActionId));
 

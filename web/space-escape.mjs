@@ -1,3 +1,4 @@
+import {uiStatus} from './ui-language.mjs';
 import {escapeHtml as esc} from './groups.mjs';
 export const soEscapeErrors={
  SO_ESCAPE_CLOSED:'ROG-03 indisponible dans cette version de session.',
@@ -41,7 +42,7 @@ export function soEscapeAdminHtml(d,sid){
  let caps='';
  for(const c of d.captivities){
   const name=d.characters.find(x=>x.id===c.characterId)?.name??c.characterId;
-  caps+='<article class="card"><h3>'+esc(name)+'</h3><p>'+esc(c.kind)+' · '+esc(c.status)+' · '+(c.guarded?'Gardien actif':'Non surveillé')+(c.releaseDue?' · Libération due':'')+'</p>';
+  caps+='<article class="card"><h3>'+esc(name)+'</h3><p>'+esc(c.kind)+' · '+esc(uiStatus(c.status))+' · '+(c.guarded?'Gardien actif':'Non surveillé')+(c.releaseDue?' · Libération due':'')+'</p>';
   if(c.status==='ACTIVE'){
    caps+='<button type="button" data-action="soEscapeQr" data-sid="'+esc(sid)+'" data-code="'+esc(c.code)+'">Afficher le QR</button>';
    caps+='<form data-form="soEscapeGuard" data-sid="'+esc(sid)+'" data-id="'+esc(c.characterId)+'"><label>Gardien<select name="guarded"><option value="false" '+(!c.guarded?'selected':'')+'>Pas de surveillance</option><option value="true" '+(c.guarded?'selected':'')+'>Gardien présent : découverte</option></select></label><button>Enregistrer</button></form>';

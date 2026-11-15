@@ -1,3 +1,4 @@
+import {requireCrewPilot} from './ship-crew-state.mjs';
 import {flightShip,hasTowingFlights} from './space-module-flight.mjs';
 import {towingFlightContext} from './space-towing-flight.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
@@ -45,7 +46,7 @@ export function createSpaceRescueService({store,signed,checkSession,now,uuid}){
     const r={id,...(tow?{towingWorkId:tow.r.id}:{}),shipId:ship.id,shipName:ship.name,journeyId:ship.journey.id,pilotId:ship.pilotId,pilotVersion:pilot.version,provider:shop.name,shopId:shop.id,offerId:offer.id,fuelItemId:offer.item.id,quantity,amount,status:'OFFERED',revision:1,createdAt:at,source,reason};tx.set(`${base}/spaceRescues/${id}`,r);return audit({id,status:'OFFERED'},null,r);
    }
    const r=await tx.get(`${base}/spaceRescues/${documentId(input.rescueId)}`);requireThat(r&&(admin||r.pilotId===c.id),'FORBIDDEN');
-   const {ship,tow}=await load(r.shipId);towing=!!tow;requireThat(!r.towingWorkId||tow?.r.id===r.towingWorkId,'TOWING_RESERVATION');const pilot=await inventoryParty(tx,s.id,r.pilotId),cancel=action.startsWith('cancel');
+   const {ship,tow}=await load(r.shipId);towing=!!tow;requireThat(!r.towingWorkId||tow?.r.id===r.towingWorkId,'TOWING_RESERVATION');const pilot=await inventoryParty(tx,s.id,r.pilotId);if(!admin)await requireCrewPilot(tx,s,ship,c,action,at);const cancel=action.startsWith('cancel');
    if(cancel){requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(['EN_JEU','PAUSE'].includes(s.stage),'SESSION_NOT_RUNNING');}else {active(s);requireThat(pilot.active&&pilot.version===r.pilotVersion&&ship?.pilotId===c.id&&c.hp>0&&!c.outOfCombat,'INVALID_RECIPIENT');}
    const lot=await tx.get(`${base}/inventory/${shopStockId(r.offerId)}`),a=await tx.get(`${base}/accounts/${accountId(r.pilotId)}`),b=await tx.get(`${base}/accounts/${shopAccountId(r.shopId)}`);
    if(action==='prepareSpaceRescue'||action==='startSpaceRescue'){

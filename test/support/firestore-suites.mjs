@@ -1,6 +1,15 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {id:"galactic-economy",module:"../support/galactic-economy-suite.mjs",exportName:"galacticEconomySuite",label:"Économie galactique intégrée sur Firestore",seconds:35},
+  {id:"galactic-map",module:"../support/galactic-map-suite.mjs",exportName:"galacticMapSuite",label:"Carte galactique sur Firestore",seconds:30},
+  {id:"planet-markets",module:"../support/planet-markets-suite.mjs",exportName:"planetMarketsSuite",label:"Marchés planétaires sur Firestore",seconds:30},
+  {id:"ship-workspace",module:"../support/ship-workspace-suite.mjs",exportName:"shipWorkspaceSuite",label:"ship-workspace sur Firestore",seconds:45},
+  {id:"ship-crew",module:"../support/ship-crew-suite.mjs",exportName:"shipCrewSuite",label:"ship-crew sur Firestore",seconds:45},
+  {id:"ship-crew-cargo",module:"../support/ship-crew-cargo-suite.mjs",exportName:"crewCargoSuite",label:"ship-crew-cargo sur Firestore",seconds:45},
+  {id:"ship-fuel-contribution",module:"../support/ship-fuel-contribution-suite.mjs",exportName:"shipFuelContributionSuite",label:"ship-fuel-contribution sur Firestore",seconds:45},
+
+  {id:"item-circuits",module:"../support/item-circuits-suite.mjs",exportName:"itemCircuitsSuite",label:"Circuits explicites sur Firestore",seconds:45},
   {id:"space-spatial-traces",module:"../support/space-spatial-traces-suite.mjs",exportName:"spatialTracesSuite",label:"Traces spatiales sur Firestore",seconds:60},
   {id:"space-fictional-traces",module:"../support/space-fictional-traces-suite.mjs",exportName:"fictionalTracesSuite",label:"Traces fictives sur Firestore",seconds:60},
   {id:"space-toxicology",module:"../support/space-toxicology-suite.mjs",exportName:"spaceToxicologySuite",label:"Toxicologie sur Firestore",seconds:30},
@@ -140,6 +149,9 @@ export const firestoreSuites = [
   {"id":"space-episodes","module":"../support/space-episodes-suite.mjs","exportName":"spaceEpisodesSuite","label":"Épisodes SO sur Firestore","seconds":166},
   {"id":"space-search","module":"../support/space-search-suite.mjs","exportName":"spaceSearchSuite","label":"Fouilles V3.6 sur Firestore","seconds":91},
   {"id":"space-succession","module":"../support/space-succession-suite.mjs","exportName":"spaceSuccessionSuite","label":"Succession SO sur Firestore","seconds":68},
+  {"id":"commercial-storage","module":"../support/commercial-storage-suite.mjs","exportName":"commercialStorageSuite","label":"Entrepôts commerciaux sur Firestore","seconds":100},
+  {"id":"commercial-logistics","module":"../support/commercial-logistics-suite.mjs","exportName":"commercialLogisticsSuite","label":"Logistique commerciale sur Firestore","seconds":100},
+  {"id":"commercial-transport","module":"../support/commercial-transport-suite.mjs","exportName":"commercialTransportSuite","label":"Transport entre joueurs sur Firestore","seconds":100},
   {"id":"space-transport","module":"../support/space-transport-suite.mjs","exportName":"spaceTransportSuite","label":"Transport SO sur Firestore","seconds":65},
   {"id":"space-learning","module":"../support/space-learning-suite.mjs","exportName":"spaceLearningSuite","label":"Apprentissage SO sur Firestore","seconds":201},
   {"id":"space-convoy","module":"../support/space-convoy-suite.mjs","exportName":"spaceConvoySuite","label":"Convois SO sur Firestore","seconds":120},

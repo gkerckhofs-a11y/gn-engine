@@ -11,7 +11,7 @@ test('8 classes: only acquired specialist capabilities; commerce remains common'
  for(const {id} of admissionClasses){
   const profile=initialCharacterProfile(id,id==='MED'?'COM-03':'MED-02'),d={session,character:{spaceOutlawsSkills:profile},economyEnabled:true,terminal:{shops:{shops:[{id:'shop'}]}}},cap=playerCapabilities(d),html=terminalHtml(d);
   assert.equal(cap.pickpocket,id==='ROG');assert.equal(cap.escape,id==='ROG');assert.equal(cap.decryption,id==='INF');assert.equal(cap.maintenance,id==='MEC');
-  assert.equal(html.includes('#/space-maintenance/'),false);assert.equal(html.includes('#/spaceport/'),false);
+  assert.equal(html.includes('#/space-maintenance/'),false);assert.equal(html.includes('#/ship/'),false);
   assert.ok(html.includes('#/shops/'));assert.ok(html.includes('#/wallet/'));
   const skills=entrySkills(profile);assert.ok(skills.includes('class="rp"'));assert.ok(skills.includes('<em>'));assert.equal((skills.match(/class="panel skill-card"/g)||[]).length,4);
  }
@@ -21,7 +21,7 @@ test('secondary skills and actual published abilities override class stereotypes
  assert.equal(playerCapabilities(d).maintenance,false);
  d.character.abilities={skills:[{id:'MEC-02',level:2},{id:'ROG-02',level:1}]};assert.equal(playerCapabilities(d).maintenance,true);assert.equal(playerCapabilities(d).pickpocket,true);
  d.character.abilities={skills:[]};assert.equal(playerCapabilities(d).maintenance,false);assert.equal(playerCapabilities(d).pickpocket,false);
- d.ownsShip=true;d.terminal={ships:{ships:[{id:'own'}]},maintenance:{jobs:[{id:'job',status:'OFFERED'}]}};assert.ok(terminalHtml(d).includes('#/space-maintenance/'));assert.ok(terminalHtml(d).includes('#/spaceport/'));
+ d.ownsShip=true;d.terminal={ships:{ships:[{id:'own'}]},maintenance:{jobs:[{id:'job',status:'OFFERED'}]}};assert.ok(terminalHtml(d).includes('#/space-maintenance/'));assert.ok(terminalHtml(d).includes('#/ship/'+session.id+'/own'));
 });
 test('directory menu requires permission; player identity rendering escapes public content',()=>{
  const d={session,character:{id:'one',displayName:'Test'}};

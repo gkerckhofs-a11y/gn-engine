@@ -3,7 +3,7 @@ const randomUUID=()=>crypto.randomUUID();
 export async function preparePilotMaster(central,revision){
  const save=async(action,input)=>central(action,{draftRevision:revision++,...input,reason:'Master fictif du pilote'});
  await save('saveCentralItem',{itemId:'propellant',itemRevision:0,item:{
-  name:'Carburant fictif',description:'Carburant de recette',category:'Navigation',unit:'unité',
+  usage:'FUEL',name:'Carburant fictif',description:'Carburant de recette',category:'Navigation',unit:'unité',
   kind:'STACKABLE',consumable:true,unitVolume:1,legality:'UNSPECIFIED',pillable:true,gmNotes:'SECRET_PILOT_FUEL'}});
  await save('saveCentralKnowledge',{knowledgeId:'clue',knowledgeRevision:0,knowledge:{
   kind:'DOCUMENT',title:'Indice de la balise',body:'Le convoi est passé par le relais extérieur.',

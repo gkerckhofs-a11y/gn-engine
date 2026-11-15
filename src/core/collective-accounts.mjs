@@ -28,6 +28,13 @@ export async function accessAccount(tx,ctx,id,{allowSoGroup=false}={}){
     requireThat(read||spend,'FORBIDDEN');moneyState(a);requireThat(a.label===g.walletConfig.label,'INVALID_ACCOUNT');
     return {a,name:a.label,read,spend,guard:hash(JSON.stringify([guard,g.id,g.revision,m.permissions.readWallet===true,m.permissions.payWallet===true]))};
   }
+export function settleAccountTransfer(tx,s,from,to,amount,{id,at,actorUid,operatorCharacterId=null,memo,reason}){
+ const a=from.a,b=to.a;requireThat(a.id!==b.id&&amount>0&&moneyState(a).available>=amount,'INSUFFICIENT_FUNDS');
+ const fromNext={...a,balance:whole(a.balance-amount,'BALANCE_OVERFLOW'),revision:a.revision+1},toNext={...b,balance:whole(b.balance+amount,'BALANCE_OVERFLOW'),revision:b.revision+1};moneyState(fromNext);moneyState(toNext);
+ tx.set(`sessions/${s.id}/accounts/${a.id}`,fromNext);tx.set(`sessions/${s.id}/accounts/${b.id}`,toNext);
+ writeLedger(tx,s.id,{id,kind:'TRANSFER',at,actorUid,operatorCharacterId,memo,reason,source:accountParty(from),recipient:accountParty(to),createdCurrency:0,removedCurrency:0,entries:[accountEntry(a,-amount,fromNext),accountEntry(b,amount,toNext)]});
+ return {fromNext,toNext};
+}
 export function createCollectiveService({store,signed,checkSession,checkScenario,now,uuid}){
   async function context(tx,actor,input,preview=false){
     const sid=documentId(input.sessionId),s=preview?await checkSession(tx,actor,sid):await tx.get(`sessions/${sid}`);
@@ -137,9 +144,7 @@ export function createCollectiveService({store,signed,checkSession,checkScenario
       }
       const x=await payment(tx,ctx,from,input);requireThat(x.result.confirmation===input.confirmation,'STALE_REVISION');
       if(s.spaceOutlaws)authorizeSpaceOutlaws(tx,s,'PAYMENT');
-      const amount=x.result.amount,a=from.a,b=x.to.a,fromNext={...a,balance:a.balance-amount,revision:a.revision+1},toNext={...b,balance:b.balance+amount,revision:b.revision+1};
-      tx.set(`sessions/${s.id}/accounts/${a.id}`,fromNext);tx.set(`sessions/${s.id}/accounts/${b.id}`,toNext);
-      writeLedger(tx,s.id,{id,kind:'TRANSFER',at,actorUid:actor.uid,operatorCharacterId:c.id,memo:x.result.memo,reason:'Paiement confirmé par un titulaire autorisé',source:accountParty(from),recipient:accountParty(x.to),createdCurrency:0,removedCurrency:0,entries:[accountEntry(a,-amount,fromNext),accountEntry(b,amount,toNext)]});
+      const amount=x.result.amount,a=from.a,b=x.to.a,{fromNext}=settleAccountTransfer(tx,s,from,x.to,amount,{id,at,actorUid:actor.uid,operatorCharacterId:c.id,memo:x.result.memo,reason:'Paiement confirmé par un titulaire autorisé'});
       tx.set(`sessions/${s.id}/audit/${id}`,{id,action,at,actorUid:actor.uid,operatorCharacterId:c.id,fromAccountId:a.id,toAccountId:b.id,amount});
       const result={id,amount,source:accountParty(from),recipient:accountParty(x.to),currency:x.result.currency,...(from.read?{account:moneyState(fromNext)}:{})};
       tx.set(op,{fingerprint,result,guard:from.guard,at});return result;

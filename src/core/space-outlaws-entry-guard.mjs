@@ -24,6 +24,11 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(!path.startsWith(base)&&path!==base.slice(0,-1))continue;
   if(path.startsWith(`${base}audit/`))continue;
   const relative=path.slice(base.length);
+  if(scopes.has('ECONOMIC_EVENT')&&session.spaceOutlaws.itemCircuitsVersion===1&&/^(priceEvents\/[^/]+|priceHistory\/[^/]+)$/.test(relative))continue;
+  if(scopes.has('COMMERCIAL_STORAGE')&&session.spaceOutlaws.itemCircuitsVersion===1&&session.spaceOutlaws.logisticsVersion===1&&/^(warehouses\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|logisticsHistory\/[^/]+|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
+  if(scopes.has('PLANET_MARKET')&&session.spaceOutlaws.itemCircuitsVersion===1&&/^(planetMarkets\/[^/]+|planetPriceHistory\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
+  if(scopes.has('SHIP_CREW')&&session.spaceOutlaws.navigationVersion===1&&/^(shipCrews\/[^/]+(?:\/(?:members|history|requests)\/[^/]+)?|shipCrewInvitations\/[^/]+)$/.test(relative))continue;
+  if(scopes.has('ITEM_COMMERCE')&&session.spaceOutlaws.itemCircuitsVersion===1&&/^(inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+|lotSales\/[^/]+|marketListings\/[^/]+|marketNegotiations\/[^/]+(?:\/history\/[^/]+)?)$/.test(relative))continue;
   if(scopes.has('GROUP_CHAT')&&session.spaceOutlaws.groupsVersion===1&&/^groups\/[^/]+\/(?:messages\/[^/]+|inboxes\/[^/]+\/messages\/[^/]+)$/.test(relative))continue;
   if(scopes.has('GROUP_MANAGEMENT')&&session.spaceOutlaws.groupsVersion===1&&/^groups\/[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
   if(scopes.has('GROUP_WALLET_CONFIG')&&hasSoGroupWallets(session)&&/^(groups\/[^/]+(?:\/history\/[^/]+)?|accounts\/[a-f0-9]{64}(?:\/history\/[a-f0-9]{64})?|ledger\/[a-f0-9]{64})$/.test(relative))continue;
@@ -65,7 +70,7 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(scopes.has('SPACE_COMBAT')&&/^(ships\/[^/]+|voyages\/[^/]+|spaceAmbushes\/[^/]+|spaceCombats\/[^/]+(?:\/rounds\/[^/]+)?|characters\/[^/]+\/resources\/actionPoints|logisticsHistory\/[^/]+)$/.test(relative))continue;
   if(scopes.has('SPACE_RESCUE')&&/^(ships\/[^/]+|voyages\/[^/]+|spaceRescues\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+|logisticsHistory\/[^/]+)$/.test(relative))continue;
   if(scopes.has('COCKPIT')&&(/^(cockpitStations\/[^/]+|cockpitSettings\/main)$/.test(relative)))continue;
-  if(scopes.has('NAVIGATION')&&/^(ships\/[^/]+|voyages\/[^/]+|logisticsHistory\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/resources\/actionPoints)?)$/.test(relative))continue;
+  if(scopes.has('NAVIGATION')&&/^(shipCrews\/[^/]+\/(?:members|history)\/[^/]+|ships\/[^/]+|voyages\/[^/]+|logisticsHistory\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/resources\/actionPoints)?)$/.test(relative))continue;
   if(scopes.has('NAVIGATION_CONFIG')&&path===base.slice(0,-1)){const next=pending.get(path),strip=({transportRules,revision,...rest})=>rest;requireThat(!session.transportRules&&next.transportRules?.homePort&&next.revision===session.revision+1&&isDeepStrictEqual(strip(session),strip(next)),'SO_GAMEPLAY_NOT_OPEN');continue;}
   if(scopes.has('SHOP')&&/^(inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+|lotSales\/[^/]+|shopProvisions\/[^/]+)$/.test(relative))continue;
   if(scopes.has('SABACC_WALLET')&&/^(accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;

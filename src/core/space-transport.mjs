@@ -1,3 +1,6 @@
+import {commercialAcceptance,commercialCarrier,commercialSource,sameTransportPlace} from './commercial-transport-state.mjs';
+import {shipPilot,crewOwnerBinding} from './ship-crew-state.mjs';
+import {inventoryParty} from './inventory-transfers.mjs';
 import {participantCurrent} from './mission-parties.mjs';
 import {requireThat,documentId,whole} from './validation.mjs';
 import {admissionKeys,admissionText} from './admission-state.mjs';
@@ -9,7 +12,10 @@ import {warehouseStock,stockVolume,incomingVolume} from './storage-state.mjs';
 export const hasSoTransport=s=>s.spaceOutlaws?.transportVersion===1;
 const base=s=>`sessions/${s.id}`;
 const idle=ship=>ship?.soProfile&&ship.enabled&&ship.docked&&!ship.journey&&!ship.operation&&!ship.combatId&&!ship.rescueId&&!ship.maintenanceId;
-const stockMatches=(lot,t)=>lot?.ownerType==='SHOP'&&lot.ownerId===t.shopId&&lot.location.kind==='SHOP'&&lot.location.id===t.shopId&&lot.status==='AVAILABLE'&&lot.item.id===t.item.id&&lot.item.revision===t.item.revision&&lot.transferable===true&&lot.resellable===true;
+const sourceOwner=(lot,t)=>t.commercial?lot?.ownerType==='CHARACTER'&&lot.ownerId===t.commercial.clientId:lot?.ownerType==='SHOP'&&lot.ownerId===t.shopId;
+const stockMatches=(lot,t)=>sourceOwner(lot,t)&&sameTransportPlace(lot.location,commercialSource(t))&&lot.status==='AVAILABLE'&&lot.item.id===t.item.id&&lot.item.revision===t.item.revision&&lot.transferable===true&&lot.resellable===true;
+const sourceLotId=t=>t.commercial?t.commercial.sourceLotId:shopStockId(t.offerId);
+const returnedSource=(lot,t)=>stockMatches(lot,t)||!!(t.commercial&&lot?.quantity===0&&lot.status==='CONSUMED'&&stockMatches({...lot,status:'AVAILABLE'},t));
 export async function transportOptions(tx,s){
  if(!hasSoTransport(s))return {};
  return {transportShips:(await tx.list(`${base(s)}/ships`)).filter(x=>x.soProfile&&x.capacity>0).map(x=>({id:x.id,name:x.name,ownerId:x.ownerId})),transportReady:true};
@@ -33,8 +39,8 @@ export async function prepareTransport(tx,s,a,input,source,characterId){
  t.referenceSalary=Math.max(100,t.value*(p.rate==='RISK'?15:10)/100);
  return {terms:t,lot,guard:[ship.revision,lot.revision,offer.revision,route.revision]};
 }
-export async function transportAcceptance(tx,s,c){
- if(!c.terms.transport)return null;
+export async function transportAcceptance(tx,s,c,at){
+ if(!c.terms.transport)return null;if(c.terms.transport.commercial)return commercialAcceptance(tx,s,c,at);
  const t=c.terms.transport;
  const x=await prepareTransport(tx,s,{category:'TRANSPORT',rewardItems:[]},{transport:{shipId:t.shipId,routeId:t.routeId,offerId:t.offerId,quantity:t.quantity,rate:t.rate,recipient:t.recipient,expenses:t.expenses}},{ownerType:'SHOP',shopId:t.shopId},c.characterId);
  requireThat(JSON.stringify(x.terms)===JSON.stringify(t),'STALE_CONTRACT');return x;
@@ -44,6 +50,7 @@ export function reserveTransport(tx,s,c,x,at,actorUid){
  authorizeSpaceOutlaws(tx,s,'TRANSPORT');const id=hash(`transport:${c.id}`),lot=x.lot,quantity=x.terms.quantity;
  const next={...lot,quantity:lot.quantity-quantity,revision:lot.revision+1},reserved={...lot,id,quantity,revision:1,transportContractId:c.id,createdAt:at,origin:{kind:'TRANSPORT_RESERVE',parentLotId:lot.id,rootLotId:id}};
  tx.set(`${base(s)}/inventory/${lot.id}`,next);tx.set(`${base(s)}/inventory/${id}`,reserved);
+ if(x.sale){authorizeSpaceOutlaws(tx,s,'SHOP');tx.set(`${base(s)}/lotSales/${x.sale.id}`,{...x.sale,pickupContractId:c.id,pickupStatus:'PENDING',revision:x.sale.revision+1});}
  for(const [l,before,after] of [[lot,lot,next],[reserved,null,reserved]])tx.set(`${base(s)}/inventory/${l.id}/history/${id}`,{id,kind:'TRANSPORT_RESERVE',at,actorUid,contractId:c.id,before,after});
 }
 export async function transportLots(tx,s,c){return (await tx.list(`${base(s)}/inventory`)).filter(l=>l.transportContractId===c.id&&l.quantity>0);}
@@ -53,7 +60,8 @@ export function transportProgress(c,lots){
 }
 export function transportDeliveryState(c,lots,transfers){
  const delivered=lots.filter(l=>!l.boardingCustody&&l.transportDelivered&&l.location.kind==='PORT'&&l.location.id===c.terms.transport.toPort),quantity=delivered.reduce((n,l)=>n+l.quantity,0);
- return {delivered:quantity,complete:quantity===c.terms.transport.quantity&&transfers.length===0,deliveredGameMs:quantity===c.terms.transport.quantity?Math.max(...delivered.map(l=>l.transportDeliveredGameMs)):null};
+ const receipts=c.commercialFreightReceipts??[],total=quantity+receipts.reduce((n,r)=>n+r.quantity,0);
+ return {delivered:total,complete:total===c.terms.transport.quantity&&transfers.length===0,deliveredGameMs:total===c.terms.transport.quantity?Math.max(...delivered.map(l=>l.transportDeliveredGameMs),...receipts.map(r=>r.deliveredGameMs)):null};
 }
 export async function transportView(tx,s,c){
  if(!c.terms.transport||c.acceptedAt==null)return null;
@@ -63,7 +71,10 @@ export async function transportView(tx,s,c){
  const detour=s.spaceOutlaws.detourVersion===1?lots[0]?.transportDetour:null,voyage=detour?await tx.get(`${base(s)}/voyages/${detour.voyageId}`):null;
  const recovery=voyage?.status==='ARRIVED'&&voyage.toPort!==detour.toPort?{fromPort:voyage.toPort,toPort:detour.toPort}:null;
  const recoveryRoutes=recovery?(await tx.list(`${base(s)}/routes`)).filter(r=>r.versionId===s.versionId&&r.fromPort===recovery.fromPort&&r.toPort===recovery.toPort):[];
- return {lots:lots.map(publicLot),transfers:transfers.map(x=>({id:x.id,name:x.name,quantity:x.quantity})),...delivery,navigationCode:recovery?(recoveryRoutes.length===1?recoveryRoutes[0].navigationCode:null):route?.navigationCode??port?.navigationCode??null,...(recovery?{recovery}:{}),...(c.transportPlan?{itinerary:{routes:c.transportPlan.routes,index:progress.index}}:{})};
+ const agreed=t.commercial?await tx.get(`${base(s)}/applications/${c.applicationId}`):null;
+ const navigationCode=t.commercial?(recovery?null:agreed?.quote?.codes?.[progress.index]??null):recovery?(recoveryRoutes.length===1?recoveryRoutes[0].navigationCode:null):route?.navigationCode??port?.navigationCode??null;
+ const pickup=t.commercial?.saleId?await tx.get(`${base(s)}/lotSales/${t.commercial.saleId}`):null;
+ return {...(pickup?{pickup:{status:pickup.pickupStatus}}:{}),lots:lots.map(publicLot),transfers:transfers.map(x=>({id:x.id,name:x.name,quantity:x.quantity})),...delivery,navigationCode,...(recovery?{recovery}:{}),...(c.transportPlan?{itinerary:{routes:c.transportPlan.routes,index:progress.index}}:{})};
 }
 export async function transportProof(tx,s,c){
  const d=await transportView(tx,s,c);if(!d)return {};
@@ -77,31 +88,33 @@ export async function transportReview(tx,s,c,input){
 }
 export async function transportReleasePlan(tx,s,c){
  if(!c.terms.transport||c.acceptedAt==null)return null;
- const t=c.terms.transport,lots=await transportLots(tx,s,c),source=await tx.get(`${base(s)}/inventory/${shopStockId(t.offerId)}`);
+ const t=c.terms.transport,lots=await transportLots(tx,s,c),source=await tx.get(`${base(s)}/inventory/${sourceLotId(t)}`);
  requireThat(lots.reduce((n,l)=>n+l.quantity,0)===t.quantity&&lots.every(l=>stockMatches(l,t)&&!l.transportVoyageId),'SO_TRANSPORT_IN_PROGRESS');
- requireThat(stockMatches(source,t),'SO_TRANSPORT_INVALID');return {lots,source};
+ requireThat(returnedSource(source,t),'SO_TRANSPORT_INVALID');const sale=t.commercial?.saleId?await tx.get(`${base(s)}/lotSales/${t.commercial.saleId}`):null;return {lots,source,sale};
 }
 export function releaseTransport(tx,s,c,p,at,actorUid,id){
  if(!p)return;authorizeSpaceOutlaws(tx,s,'TRANSPORT');
- const next={...p.source,quantity:whole(p.source.quantity+p.lots.reduce((n,l)=>n+l.quantity,0)),revision:p.source.revision+1};
+ const next={...p.source,...(c.terms.transport.commercial?{status:'AVAILABLE'}:{}),quantity:whole(p.source.quantity+p.lots.reduce((n,l)=>n+l.quantity,0)),revision:p.source.revision+1};
+ if(p.sale){authorizeSpaceOutlaws(tx,s,'SHOP');tx.set(`${base(s)}/lotSales/${p.sale.id}`,{...p.sale,pickupContractId:null,pickupStatus:'PENDING',revision:p.sale.revision+1});}
  tx.set(`${base(s)}/inventory/${next.id}`,next);tx.set(`${base(s)}/inventory/${next.id}/history/${id}`,{id,kind:'TRANSPORT_RELEASE',at,actorUid,contractId:c.id,before:p.source,after:next});
  for(const l of p.lots){const n={...l,quantity:0,status:'CONSUMED',revision:l.revision+1};tx.set(`${base(s)}/inventory/${l.id}`,n);tx.set(`${base(s)}/inventory/${l.id}/history/${id}`,{id,kind:'TRANSPORT_RELEASE',at,actorUid,contractId:c.id,before:l,after:n});}
 }
 // Narrow custody grant. It never grants access to the rest of the client's stock.
-export async function transportCargoAccess(tx,s,lot,cid,admin=false){
+export async function transportCargoAccess(tx,s,lot,cid,admin=false,at=Date.now(),transferId=null){
  if(!lot?.transportContractId)return null;
  requireThat(hasSoTransport(s),'SO_GAMEPLAY_NOT_OPEN');const c=await tx.get(`${base(s)}/contracts/${lot.transportContractId}`),t=c?.terms.transport;
- requireThat(t&&(admin||c.characterId===cid)&&c.acceptedAt!=null,'FORBIDDEN');
- if(!admin)requireThat((await participantCurrent(tx,s,c)).current,'FORBIDDEN');
- requireThat(lot.ownerType==='SHOP'&&lot.ownerId===t.shopId&&lot.item.id===t.item.id,'SO_TRANSPORT_INVALID');
+ requireThat(t&&(admin||c.characterId===cid||t.commercial&&[t.commercial.operatorId,t.commercial.clientId].includes(cid))&&c.acceptedAt!=null,'FORBIDDEN');
+ if(!admin){if(t.commercial?.clientId===cid){const client=await inventoryParty(tx,s.id,cid);requireThat(client.active&&client.version===c.commercialClient.version&&client.c.assignedUid===c.commercialClient.uid,'FORBIDDEN');}else requireThat((await participantCurrent(tx,s,c)).current,'FORBIDDEN');}
+ requireThat(sourceOwner(lot,t)&&lot.item.id===t.item.id,'SO_TRANSPORT_INVALID');
  requireThat(!lot.boardingCustody,'BOARDING_CARGO_REGIE');
  const ship=await tx.get(`${base(s)}/ships/${t.shipId}`),voyage=lot.transportVoyageId?await tx.get(`${base(s)}/voyages/${lot.transportLastVoyageId??lot.transportVoyageId}`):null;
- const active=c.status==='ACTIVE',returnOnly=['SUBMITTED','REVIEWED','DISPUTED'].includes(c.status),local=idle(ship)&&(admin||ship.ownerId===cid&&ship.pilotId===cid);
+ const active=c.status==='ACTIVE',returnOnly=['SUBMITTED','REVIEWED','DISPUTED'].includes(c.status);let local=idle(ship)&&(admin||ship.ownerId===cid&&ship.pilotId===cid);if(t.commercial&&!admin){const party=await inventoryParty(tx,s.id,cid),access=await commercialCarrier(tx,s,ship,party.c,at,{transferId,read:true});local=idle(ship)&&hash(crewOwnerBinding(ship))===t.commercial.ownerBinding&&(access.allowed&&shipPilot(ship)===t.commercial.operatorId||access.continuation);if(cid===t.commercial.clientId)local=false;}
  const routeId=s.spaceOutlaws.detourVersion===1&&lot.transportDetour&&lot.transportDetour.voyageId===voyage?.id&&voyage?.toPort===lot.transportDetour.toPort?lot.transportDetour.routeId:voyage?.routeId;
  const routeDelivered=c.transportPlan?lot.transportLegIndex===c.transportPlan.routes.length&&routeId===c.transportPlan.routes.at(-1).id:routeId===t.routeId;
- return {c,t,ship,active,returnOnly,local,deliveryAllowed:!!(active&&local&&ship.portId===t.toPort&&voyage?.status==='ARRIVED'&&voyage.shipId===t.shipId&&routeDelivered&&voyage.departedAt>=c.acceptedAt),owner:{type:'SHOP',id:t.shopId}};
+ const pickup=t.commercial?.saleId?await tx.get(`${base(s)}/lotSales/${t.commercial.saleId}`):null;
+ return {c,t,ship,active,returnOnly,local,pickupReady:!pickup||pickup.pickupContractId===c.id&&pickup.pickupStatus==='READY'&&pickup.pickupBuyerVersion===c.commercialClient.version,deliveryAllowed:!!(active&&local&&ship.portId===t.toPort&&voyage?.status==='ARRIVED'&&voyage.shipId===t.shipId&&routeDelivered&&voyage.departedAt>=c.acceptedAt),owner:t.commercial?{type:'CHARACTER',id:t.commercial.clientId}:{type:'SHOP',id:t.shopId}};
 }
-export function transportPlaceAllowed(grant,loc){return !!grant&&(loc.kind==='SHOP'&&loc.id===grant.t.shopId||loc.kind==='PORT'&&loc.id===grant.t.toPort||loc.kind==='HOLD'&&loc.id===grant.t.shipId);}
+export function transportPlaceAllowed(grant,loc){return !!grant&&(sameTransportPlace(loc,commercialSource(grant.t))||loc.kind==='PORT'&&loc.id===grant.t.toPort||loc.kind==='HOLD'&&loc.id===grant.t.shipId);}
 export async function transportDeparture(tx,s,ship,route,journeyId,at){
  const held=(await warehouseStock(tx,s.id,ship.id,'HOLD')).filter(l=>l.transportContractId);
  for(const lot of held.filter(l=>l.boardingCustody)){const custody=lot.boardingCustody,r=await tx.get(`${base(s)}/spaceCombats/${documentId(custody.combatId)}/boardings/${documentId(custody.boardingId)}`);requireThat(s.spaceOutlaws.boardingFreightVersion===1&&r?.freightVersion===1&&r.status==='RELEASED'&&r.attackerShipId===ship.id&&custody.receiverShipId===ship.id&&r.targetShipId===custody.sourceShipId&&lot.status==='AVAILABLE','SO_TRANSPORT_CUSTODY');}
@@ -110,7 +123,8 @@ export async function transportDeparture(tx,s,ship,route,journeyId,at){
  for(const cid of new Set(lots.map(l=>l.transportContractId))){
   const c=await tx.get(`${base(s)}/contracts/${cid}`),t=c?.terms.transport,rows=lots.filter(l=>l.transportContractId===cid);
   const returning=rows.every(l=>l.transportVoyageId);
-  requireThat((c?.status==='ACTIVE'||returning&&['SUBMITTED','REVIEWED','DISPUTED'].includes(c?.status))&&t?.shipId===ship.id&&c.characterId===ship.pilotId&&rows.every(l=>l.status==='AVAILABLE'&&l.ownerType==='SHOP'&&l.ownerId===t.shopId)&&(returning||(c.transportPlan?.routes[0]?.id??t.routeId)===route.id&&rows.every(l=>!l.transportVoyageId)&&rows.reduce((n,l)=>n+l.quantity,0)===t.quantity),'SO_TRANSPORT_LOAD');
+  if(t?.commercial&&!journeyId){const carrier=await inventoryParty(tx,s.id,c.characterId);requireThat(carrier.active&&carrier.version===c.applicantVersion&&hash(crewOwnerBinding(ship))===t.commercial.ownerBinding,'STALE_CONTRACT');await commercialCarrier(tx,s,ship,carrier.c,at);}
+  requireThat((c?.status==='ACTIVE'||returning&&['SUBMITTED','REVIEWED','DISPUTED'].includes(c?.status))&&t?.shipId===ship.id&&(t.commercial?t.commercial.operatorId===shipPilot(ship):c.characterId===ship.pilotId)&&rows.every(l=>l.status==='AVAILABLE'&&sourceOwner(l,t))&&(returning||(c.transportPlan?.routes[0]?.id??t.routeId)===route.id&&rows.every(l=>!l.transportVoyageId)&&rows.reduce((n,l)=>n+l.quantity,0)===t.quantity),'SO_TRANSPORT_LOAD');
   const progress=transportProgress(c,rows),last=rows[0].transportDetour,previous=last?await tx.get(`${base(s)}/voyages/${last.voyageId}`):null;
   const recovery=s.spaceOutlaws.detourVersion===1&&last&&previous?.status==='ARRIVED'&&previous.toPort!==last.toPort&&c.status==='ACTIVE';
   if(recovery)requireThat(previous.shipId===ship.id&&ship.portId===previous.toPort&&rows.every(l=>l.transportDetour?.voyageId===last.voyageId&&l.transportDetour?.routeId===last.routeId)&&route.toPort===last.toPort,'SO_TRANSPORT_RECOVERY');
@@ -137,6 +151,6 @@ export async function transportSettlementPlan(tx,s,c){
  if(!c.terms.transport)return null;
  const t=c.terms.transport,lots=await transportLots(tx,s,c);
  requireThat(lots.every(l=>l.status==='AVAILABLE'&&(l.location.kind==='PORT'&&l.location.id===t.toPort&&l.transportDelivered||stockMatches(l,t))),'SO_TRANSPORT_CUSTODY');
- const returned=lots.filter(l=>l.location.kind==='SHOP');if(!returned.length)return null;
- const source=await tx.get(`${base(s)}/inventory/${shopStockId(t.offerId)}`);requireThat(stockMatches(source,t),'SO_TRANSPORT_INVALID');return {lots:returned,source};
+ const returned=lots.filter(l=>sameTransportPlace(l.location,commercialSource(t)));if(!returned.length)return null;
+ const source=await tx.get(`${base(s)}/inventory/${sourceLotId(t)}`);requireThat(returnedSource(source,t),'SO_TRANSPORT_INVALID');return {lots:returned,source};
 }

@@ -1,3 +1,8 @@
+import {galacticEconomyCommands,createGalacticEconomyService} from './galactic-economy.mjs';
+import {commercialStorageCommands,createCommercialStorageService} from './commercial-storage.mjs';
+import {commercialLogisticsActions,createCommercialLogisticsService} from './commercial-logistics.mjs';
+import {commercialTransportActions,createCommercialTransportService} from './commercial-transport.mjs';
+import {createGalacticMapService,galacticMapCommands} from './galactic-map.mjs';
 import {demoActors,resolveDemoActor} from './solo-demo.mjs';
 import {recycleBinStore,createRecycleBinService} from './recycle-bin.mjs';
 import {createCharacterCodeService} from './character-codes.mjs';
@@ -22,6 +27,8 @@ import {createCustomsSeizureService,customsSeizureActions} from './space-customs
 import {createCustomsAppealService,customsAppealActions} from './space-customs-appeals.mjs';
 import {createSpaceOutlawsSuccessionService,spaceOutlawsSuccessionActions} from './space-outlaws-succession.mjs';
 import {rewardsOpen} from './space-outlaws-mission-rewards.mjs';
+import {createShipCrewService,shipCrewActions} from './ship-crew.mjs';
+import {createShipWorkspaceService,shipWorkspaceActions} from './ship-workspace.mjs';
 import {createSpaceMaintenanceService,spaceMaintenanceActions} from './space-maintenance.mjs';
 import {createSpaceCombatService,spaceCombatActions} from './space-combat.mjs';
 import {createSpaceBoardingService,spaceBoardingActions} from './space-boarding.mjs';
@@ -39,6 +46,7 @@ import {createGroupManagementService,groupManagementAction} from './group-manage
 import {preserveSessionNature} from './character-nature.mjs';
 import {validateCargoTariffReferences} from './customs-state.mjs';
 import {validateEconomicReferences} from './price-state.mjs';
+import {createPlanetMarketService,planetMarketCommands} from './planet-markets.mjs';
 import {createPriceService,priceAction} from './prices.mjs';
 import {validateNavigationReferences} from './navigation-state.mjs';
 import {createVoyageService,voyageAction} from './voyages.mjs';
@@ -171,17 +179,24 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
       else if(context.kind==='inventory'){const d=await dispatch('myInventory',actor,{sessionId:scopeId}),l=[...d.lots,...d.stored,...d.ownedElsewhere,...d.heldForOthers].find(l=>l.id===id);requireThat(l,'FORBIDDEN');record=l.item;}
       else if(context.kind==='item'){requireThat(slot==='illustration','FORBIDDEN');const d=await dispatch('shops',actor,{sessionId:scopeId});const offer=d.shops.flatMap(s=>s.offers).find(o=>o.item.id===id);requireThat(offer,'FORBIDDEN');record=offer.item;}
       else if(context.kind==='fieldFind'){requireThat(slot==='illustration','FORBIDDEN');const d=await dispatch('myFieldActions',actor,{sessionId:scopeId});record=d.actions.find(a=>a.id===id)?.result?.discoveries?.find(f=>f.id===context.findId)?.item;requireThat(record,'FORBIDDEN');}
-      else if(context.kind==='ship'){requireThat(slot==='illustration','FORBIDDEN');record=(await dispatch('shipNavigation',actor,{sessionId:scopeId,shipId:id})).ship;}
+      else if(context.kind==='ship'){requireThat(slot==='illustration','FORBIDDEN');record=(await dispatch('shipWorkspace',actor,{sessionId:scopeId,shipId:id})).ship;}
       else if(context.kind==='announcement')record=(await dispatch('announcementDetail',actor,{sessionId:scopeId,announcementId:id})).announcement;
       else if(context.kind==='contract')record=(await dispatch('contractDetail',actor,{sessionId:scopeId,contractId:id})).contract;
       else requireThat(false,'FORBIDDEN');
     }
     return record.mediaImages?.[slot]??null;
   }});
+  const commercialLogisticsService=createCommercialLogisticsService({store,signed,now,uuid});
+  const commercialTransportService=createCommercialTransportService({store,signed,checkSession,now,uuid});
+  const galacticMapService=createGalacticMapService({store,signed,checkSession,now});
+  const galacticEconomyService=createGalacticEconomyService({store,signed,checkSession,now,uuid});
+  const planetMarketService=createPlanetMarketService({store,signed,checkSession,now,uuid});
   const priceService=createPriceService({store,signed,checkSession,now,uuid});
   const towingWorkService=createTowingWorkService({store,signed,checkSession,now,uuid});
   const moduleWorkService=createModuleWorkService({store,signed,checkSession,now,uuid});
   const moduleMandateService=createModuleMandateService({store,signed,checkSession,now,uuid});
+  const shipCrewService=createShipCrewService({store,signed,checkSession,now,uuid});
+  const shipWorkspaceService=createShipWorkspaceService({store,signed,checkSession,now,uuid});
   const spaceMaintenanceService=createSpaceMaintenanceService({store,signed,checkSession,now,uuid});
   const spaceCombatService=createSpaceCombatService({store,signed,checkSession,now,uuid,rollD6});
   const boardingCargoService=createBoardingCargoService({store,signed,checkSession,now,uuid});
@@ -191,6 +206,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const voyageService=createVoyageService({store,signed,checkSession,now,uuid,rollD6});
   const hiddenCargoService=createHiddenCargoService({store,signed,checkSession,now,uuid,rollD6});
   const cargoService=createCargoService({store,signed,checkSession,now,uuid});
+  const commercialStorageService=createCommercialStorageService({store,signed,checkSession,now,uuid});
   const logisticsService=createLogisticsService({store,signed,checkSession,now,uuid});
   const campaignService=createCampaignService({store,signed,admin,checkSession,checkScenario,readSoEntryVersion,now,uuid});
   const admissionService=createAdmissionService({store,signed,isAdmin,checkSession,now,uuid});
@@ -274,9 +290,16 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(admissionAction(action))return admissionService(action,actor,input);
     if(centralMasterAction(action))return centralMasterService(action,actor,input);
     if(groupManagementAction(action))return groupManagementService(action,actor,input);
+    if(commercialLogisticsActions.includes(action))return commercialLogisticsService(action,actor,input);
+    if(commercialTransportActions.includes(action))return commercialTransportService(action,actor,input);
+    if(galacticMapCommands.includes(action))return galacticMapService(action,actor,input);
+    if(galacticEconomyCommands.includes(action))return galacticEconomyService(action,actor,input);
+    if(planetMarketCommands.includes(action))return planetMarketService(action,actor,input);
     if(priceAction(action))return priceService(action,actor,input);
     if(towingWorkActions.includes(action))return towingWorkService(action,actor,input);
     if(moduleWorkActions.includes(action))return moduleWorkService(action,actor,input);
+    if(shipCrewActions.includes(action))return shipCrewService(action,actor,input);
+    if(shipWorkspaceActions.includes(action))return shipWorkspaceService(action,actor,input);
     if(moduleMandateActions.includes(action))return moduleMandateService(action,actor,input);
     if(spaceMaintenanceActions.includes(action))return spaceMaintenanceService(action,actor,input);
     if(spaceCombatActions.includes(action))return spaceCombatService(action,actor,input);
@@ -287,6 +310,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(voyageAction(action))return voyageService(action,actor,input);
     if(hiddenCargoActions.includes(action))return hiddenCargoService(action,actor,input);
     if(cargoAction(action))return cargoService(action,actor,input);
+    if(Object.hasOwn(commercialStorageCommands,action))return commercialStorageService(action,actor,input);
     if(logisticsAction(action))return logisticsService(action,actor,input);
     if(personAction(action))return personService(action,actor,input);
     if(fieldAction(action))return fieldService(action,actor,input);

@@ -20,7 +20,7 @@ export function seedSoMissions(tx,sid,changes,versionId){
  for(const c of changes)if(c.type==='mission'&&c.operation==='UPSERT')tx.set(`sessions/${sid}/missions/${c.entityId}`,{...c.data,versionId,publicationState:'PUBLISHED'});
 }
 export async function soAnnouncement(tx,s,input,old){
- if(!s.spaceOutlaws)return {};
+ if(!s.spaceOutlaws)return {};requireThat(!old?.commercialTransport,'COMMERCIAL_CONTRACT_REQUIRED');
  requireThat(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)&&!s.safetyStop?.active,'SESSION_NOT_RUNNING');
  if(input.mode==='BULLETIN'||input.sessionMission===true){
   requireThat(['BULLETIN','ASSIGNMENT'].includes(input.mode)&&['NPC','AUTHORITY'].includes(input.sponsorKind)&&(input.participation??'PERSONAL')==='PERSONAL'&&input.audience?.kind==='ALL','SO_MISSION_UNSUPPORTED');
@@ -40,6 +40,7 @@ export async function soAnnouncement(tx,s,input,old){
 }
 export async function soMissionReadable(tx,s,a,cid){
  if(!s.spaceOutlaws)return true;
+ if(a.commercialTransport)return false;
  if(s.spaceOutlaws.missionsVersion!==1||a.missionVersionId!==s.spaceOutlaws.versionId)return false;
  if(a.mode==='OPEN_BOUNTY'&&!isTracker(await tx.get(`sessions/${s.id}/characters/${cid}`)))return false;
  for(const id of a.requiredKnowledgeIds??[])if(!await tx.get(`sessions/${s.id}/characters/${cid}/knowledge/${id}`))return false;
@@ -47,6 +48,7 @@ export async function soMissionReadable(tx,s,a,cid){
 }
 export async function soMissionFunding(tx,s,a,source){
  if(!s.spaceOutlaws)return null;
+ const client=a.terms?.transport?.commercial?.clientId;if(client){requireThat(s.spaceOutlaws.transportVersion===1&&s.spaceOutlaws.itemCircuitsVersion===1&&a.commercialClient?.id===client&&source?.ownerType==='CHARACTER'&&source.characterId===client&&source.id===accountId(client),'SO_MISSION_FUNDING_REQUIRED');return a.sourceName;}
  requireThat(source?.ownerType==='SHOP'&&source.id===shopAccountId(source.shopId),'SO_MISSION_FUNDING_REQUIRED');
  const shop=await tx.get(`sessions/${s.id}/shops/${source.shopId}`);
  requireThat(shop?.versionId===s.spaceOutlaws.versionId&&(!a.giverCharacterId||a.giverCharacterId===shop.sellerCharacterId),'SO_MISSION_FUNDING_REQUIRED');

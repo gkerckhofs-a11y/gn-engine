@@ -1,0 +1,82 @@
+import {requireThat,documentId,whole} from './validation.mjs';
+import {admissionKeys,admissionText} from './admission-state.mjs';
+import {inventoryPlayer,inventoryParty} from './inventory-transfers.mjs';
+import {inventoryHash as hash,publicLot} from './inventory-state.mjs';
+import {accountId,moneyState,amountInput,currencyView} from './economy-state.mjs';
+import {isBroker} from '../shared/player-access.mjs';
+import {requireGameAction} from './health-state.mjs';
+import {soMissionAccess,soMissionRunning} from './space-outlaws-mission-state.mjs';
+import {commercialTransportEnabled,commercialStock,commercialCarrier,commercialQuote} from './commercial-transport-state.mjs';
+import {contractProposal} from './contracts.mjs';
+export const commercialTransportActions=['commercialTransportsAdmin','commercialTransportAdmin','commercialTransports','commercialTransport','prepareCommercialRequest','publishCommercialRequest','prepareCommercialQuote','sendCommercialQuote','prepareCommercialContract','proposeCommercialContract','prepareCommercialRequestClose','closeCommercialRequest'];
+const digest=x=>hash(JSON.stringify(x)),base=s=>`sessions/${s.id}`;
+const duration=v=>{const n=whole(v,'INVALID_CONTRACT');requireThat(n>0&&n<=10080,'INVALID_CONTRACT');return n;};
+const publicRequest=a=>({id:a.id,title:a.title,status:a.publication==='PUBLISHED'?(a.assignedCount?'ASSIGNED':'OPEN'):a.publication,client:{id:a.request.client.id,name:a.sponsorName},item:a.request.item,quantity:a.request.quantity,volume:a.request.volume,fromPort:a.request.fromPort,toPort:a.request.toPort,fromName:a.request.fromName,toName:a.request.toName,conditions:a.conditions,expenses:a.request.expenses,proposedAmount:a.request.proposedAmount,durationMinutes:a.request.durationMinutes,revision:a.revision,selectedApplicationId:a.selectedApplicationId??null});
+const quoteView=t=>({id:t.id,revision:t.revision,carrier:t.participant,status:t.status,authorId:t.authorId,quote:t.quote,contractId:t.contractId??null});
+export function createCommercialTransportService({store,signed,checkSession,now,uuid}){
+ return async(action,actor,input)=>{
+  signed(actor);const at=now(),id=uuid(),write=['publishCommercialRequest','sendCommercialQuote','proposeCommercialContract','closeCommercialRequest'].includes(action),kind=action.includes('Quote')?'quote':action.includes('Contract')?'contract':(action.includes('Close')||action==='closeCommercialRequest')?'close':'request';
+  const fields=kind==='quote'?['announcementId','applicationId','revision','shipId','codes','amount','durationMinutes','rate','expenses','body']:kind==='contract'?['announcementId','applicationId','revision']:kind==='close'?['announcementId','revision','reason']:['lotId','quantity','destinationId','durationMinutes','proposedAmount','conditions','expenses'];
+  admissionKeys(input,['sessionId',...(['commercialTransports','commercialTransport','commercialTransportsAdmin','commercialTransportAdmin'].includes(action)?['announcementId']:fields),...(write?['requestId','confirmation']:[])]);
+  return store.runTransaction(async tx=>{
+   const admin=['commercialTransportsAdmin','commercialTransportAdmin'].includes(action),ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId))}:await inventoryPlayer(tx,actor,input),{s,c}=ctx,b=base(s);requireThat(commercialTransportEnabled(s)&&s.stage!=='ARCHIVED','SO_GAMEPLAY_NOT_OPEN');soMissionAccess(tx,s);
+   let a=input.announcementId?await tx.get(`${b}/announcements/${documentId(input.announcementId)}`):null;
+   if(input.announcementId)requireThat(a?.commercialTransport,'FORBIDDEN');
+   const own=!!c&&a?.request.client.id===c.id&&a.request.client.uid===actor.uid&&a.request.client.version===ctx.version;
+   const fleets=[];for(const sh of admin?[]:await tx.list(`${b}/ships`)){if(!sh.soProfile||sh.capacity<=0)continue;const grant=await commercialCarrier(tx,s,sh,c,at,{read:true});if(grant.allowed)fleets.push({id:sh.id,name:sh.name,capacity:sh.capacity,portId:sh.portId,fuel:sh.fuel,ready:sh.enabled&&sh.docked&&!sh.journey&&!sh.operation&&!sh.combatId&&!sh.rescueId&&!sh.maintenanceId&&sh.hull>0&&!sh.revisionRequired});}
+   const mine=admin?[]:(await tx.list(`${b}/applications`,['characterId',c.id])).filter(t=>t.commercialTransport&&t.applicantUid===actor.uid&&t.applicantVersion===ctx.version);
+   if(a)requireThat(admin||own||fleets.length>0||!write&&action==='commercialTransport'&&mine.some(t=>t.announcementId===a.id),'FORBIDDEN');
+   const op=write?`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`:null,previous=op?await tx.get(op):null;
+   if(previous){requireThat(previous.fingerprint===digest([action,input]),'REQUEST_ID_REUSED');requireThat(previous.guard===ctx.version,'FORBIDDEN');if(kind==='quote'&&!own)requireThat(fleets.some(sh=>sh.id===input.shipId),'FORBIDDEN');if(action==='publishCommercialRequest'){const old=await tx.get(`${b}/announcements/${previous.result.id}`);requireThat(old?.request.client.id===c.id&&old.request.client.version===ctx.version,'FORBIDDEN');}return previous.result;}
+   if(action==='commercialTransports'||action==='commercialTransportsAdmin'){
+    const rows=(await tx.list(`${b}/announcements`)).filter(a=>a.commercialTransport&&(admin||a.request.client.id===c.id&&a.request.client.version===ctx.version||mine.some(t=>t.announcementId===a.id)||fleets.length>0&&a.publication==='PUBLISHED'&&!a.assignedCount));
+    const orders=!admin&&isBroker(c)?(await tx.list(`${b}/lotSales`,['buyerId',c.id])).filter(p=>p.shopId&&p.stockPortId&&p.status==='SOLD'&&p.pickupStatus!=='RECEIVED'&&!p.pickupContractId):[];const lots=!admin&&isBroker(c)?(await tx.list(`${b}/inventory`)).filter(l=>l.ownerType==='CHARACTER'&&l.ownerId===c.id&&(l.location?.kind==='COMMERCIAL'||orders.some(p=>p.purchasedLotId===l.id&&p.quantity===l.quantity))&&l.status==='AVAILABLE'&&l.quantity>0&&l.item.usage==='COMMERCIAL'&&!l.transportContractId&&!l.cargoTransferId&&l.resellable&&l.transferable).map(l=>({...publicLot(l),location:{...l.location,...(l.location.kind==='SHOP'?{portId:orders.find(p=>p.purchasedLotId===l.id).stockPortId}:{})}})):[];
+    const portIds=new Set([...(await tx.list(`${b}/planetMarkets`)).filter(m=>m.enabled).map(m=>m.portId),...lots.map(l=>l.location.portId)]);
+    return {session:{id:s.id,stage:s.stage},admin,canRequest:!admin&&isBroker(c),fleets,ports:(await tx.list(`${b}/ports`)).filter(p=>p.versionId===s.versionId&&portIds.has(p.id)).map(p=>({id:p.id,name:p.name})),lots,requests:rows.map(publicRequest)};
+   }
+   if(action==='commercialTransport'||action==='commercialTransportAdmin'){
+    const offers=(await tx.list(`${b}/applications`,['announcementId',a.id])).filter(t=>t.commercialTransport&&(admin||own||t.characterId===c.id&&t.applicantVersion===ctx.version)),quotes=[];
+    for(const t of offers){const history=await tx.list(`${b}/applications/${t.id}/messages`,null,{orderBy:'sequence'});const contract=t.contractId?await tx.get(`${b}/contracts/${t.contractId}`):null;quotes.push({...quoteView(t),contractClosed:!!contract&&['DECLINED','CANCELLED','EXPIRED'].includes(contract.status),contractStatus:contract?.status??null,history:history.map(m=>({id:m.id,sequence:m.sequence,at:m.at,authorName:m.authorName,body:m.body,amount:m.amount}))});}
+    return {session:{id:s.id,stage:s.stage},admin,own:!!own,characterId:c?.id??null,request:publicRequest(a),offers:quotes,fleets};
+   }
+   soMissionRunning(s);requireGameAction(s,c,kind==='request'||kind==='contract'?'pay':'publish',at);
+   const save=(result)=>{tx.set(`${b}/audit/${id}`,{id,action,actorUid:actor.uid,at,announcementId:a?.id??result.id});tx.set(op,{fingerprint:digest([action,input]),guard:ctx.version,result,at});return result;};
+   if(kind==='request'){
+    requireThat(isBroker(c),'FORBIDDEN');const lotId=documentId(input.lotId),lot=await tx.get(`${b}/inventory/${lotId}`);requireThat(lot?.ownerId===c.id&&['SHOP','COMMERCIAL'].includes(lot.location?.kind),'COMMERCIAL_FREIGHT_UNAVAILABLE');const sale=lot.location.kind==='SHOP'&&lot.origin?.saleId?await tx.get(`${b}/lotSales/${lot.origin.saleId}`):null;const fromPort=lot.location.portId??sale?.stockPortId,ports=await tx.list(`${b}/ports`),toPort=documentId(input.destinationId),from=ports.find(p=>p.id===fromPort&&p.versionId===s.versionId),to=ports.find(p=>p.id===toPort&&p.versionId===s.versionId);
+    const known=new Set((await tx.list(`${b}/planetMarkets`)).filter(m=>m.enabled).map(m=>m.portId));requireThat(from&&to&&fromPort!==toPort&&known.has(toPort),'MAP_DESTINATION_UNAVAILABLE');
+    const request={client:{id:c.id,uid:actor.uid,version:ctx.version},lotId,quantity:input.quantity,fromPort,toPort},x=await commercialStock(tx,s,request),conditions=admissionText(input.conditions,2000,true),expenses=admissionText(input.expenses,2000,true),proposedAmount=input.proposedAmount==null?null:amountInput(input.proposedAmount),durationMinutes=input.durationMinutes==null?null:duration(input.durationMinutes);
+    Object.assign(request,{quantity:x.quantity,item:publicLot(x.lot).item,volume:x.volume,fromName:from.name,toName:to.name,conditions,expenses,proposedAmount,durationMinutes});
+    const draft={id,revision:1,commercialTransport:true,request,title:`${x.quantity} ${request.item.name} · ${from.name} → ${to.name}`,description:conditions,conditions,category:'TRANSPORT',mode:'ASSIGNMENT',participation:'PERSONAL',sponsorKind:'CHARACTER',sponsorName:c.public.displayName,rewardType:'NEGOTIABLE',rewardText:proposedAmount==null?'À négocier':`${proposedAmount} Cr proposés`,places:1,assignedCount:0,publication:'PUBLISHED',opensAt:0,deadline:8640000000000000,audience:{kind:'ALL',characterIds:[],groupIds:[]},briefing:'',gmNotes:'',requiredKnowledgeIds:[],rewardItems:[],missionId:null,missionVersionId:s.versionId,missionSteps:[{id:'delivery',title:'Livrer la cargaison',description:conditions}],giverCharacterId:null,createdAt:at,updatedAt:at};
+    const view=publicRequest(draft),confirmation=digest([ctx.version,{...view,id:null},lot.revision]);if(!write)return {...view,id:null,confirmation};requireThat(input.confirmation===confirmation,'STALE_REVISION');tx.set(`${b}/announcements/${id}`,draft);tx.set(`${b}/announcements/${id}/history/${id}`,{id,at,actorUid:actor.uid,action});return save({id,status:'OPEN'});
+   }
+   requireThat(a&&a.publication==='PUBLISHED'&&!a.assignedCount,'ANNOUNCEMENT_CLOSED');
+   if(kind==='close'){
+    requireThat(own,'FORBIDDEN');requireThat(input.revision===a.revision,'STALE_REVISION');const reason=admissionText(input.reason,1000,true);
+    if(a.selectedApplicationId){const t=await tx.get(`${b}/applications/${a.selectedApplicationId}`),old=t?.contractId?await tx.get(`${b}/contracts/${t.contractId}`):null;requireThat(!old||['CANCELLED','EXPIRED','DECLINED'].includes(old.status),'CONTRACT_EXISTS');}
+    const confirmation=digest([a.id,a.revision,ctx.version,reason]);if(!write)return {request:publicRequest(a),reason,confirmation};requireThat(input.confirmation===confirmation,'STALE_REVISION');tx.set(`${b}/announcements/${a.id}`,{...a,publication:'CANCELLED',revision:a.revision+1,updatedAt:at});return save({id:a.id,status:'CANCELLED'});
+   }
+   let t=input.applicationId?await tx.get(`${b}/applications/${documentId(input.applicationId)}`):null;
+   if(input.applicationId)requireThat(t?.commercialTransport&&t.announcementId===a.id&&(own||t.characterId===c.id&&t.applicantVersion===ctx.version),'FORBIDDEN');
+   if(kind==='quote'){
+    if(!t){requireThat(!own,'FORBIDDEN');t=await tx.get(`${b}/applications/${hash(JSON.stringify([a.id,actor.uid,ctx.version]))}`);}
+    if(t?.contractId){const old=await tx.get(`${b}/contracts/${t.contractId}`);requireThat(['DECLINED','CANCELLED','EXPIRED'].includes(old?.status),'CONTRACT_EXISTS');}
+    requireThat((t?.revision??0)===input.revision,'STALE_REVISION');requireThat(!t||t.authorId!==c.id||t.contractId,'NEGOTIATION_TURN');requireThat(!t||['SENT','DISCUSSION'].includes(t.status)||t.contractId,'APPLICATION_CLOSED');
+    if(own)requireThat(input.shipId===undefined&&input.codes===undefined&&input.rate===undefined,'INVALID_ADMISSION');
+    const quote={...(own?t.quote:{shipId:documentId(input.shipId),codes:input.codes,rate:input.rate}),amount:amountInput(input.amount),durationMinutes:duration(input.durationMinutes),expenses:admissionText(input.expenses,2000,true)};
+    requireThat(!a.request.durationMinutes||quote.durationMinutes<=a.request.durationMinutes,'COMMERCIAL_DEADLINE_REQUIRED');
+    const carrier=t?await inventoryParty(tx,s.id,t.characterId):{c,version:ctx.version,active:true};requireThat(carrier.active&&(!t||carrier.version===t.applicantVersion),'STALE_CONTRACT');
+    const x=await commercialQuote(tx,s,a.request,quote,carrier,at),body=admissionText(input.body??'',2000),confirmation=digest([a.id,a.revision,t?.revision??0,ctx.version,quote,body,x.guard]);
+    if(!write)return {request:publicRequest(a),carrier:{name:carrier.c.public.displayName},quote,ship:{name:x.ship.name,capacity:x.ship.capacity,...(own?{}:{fuel:x.ship.fuel})},path:x.path,volume:x.volume,body,confirmation};
+    requireThat(input.confirmation===confirmation,'STALE_REVISION');const tid=t?.id??hash(JSON.stringify([a.id,actor.uid,ctx.version])),next={...t,id:tid,revision:(t?.revision??0)+1,commercialTransport:true,announcementId:a.id,announcementRevision:a.revision,status:t?'DISCUSSION':'SENT',intent:'APPLICATION',participant:{kind:'CHARACTER',id:carrier.c.id,name:carrier.c.public.displayName},characterId:carrier.c.id,applicantUid:carrier.c.assignedUid,applicantVersion:carrier.version,authorId:c.id,quote,contractId:null,terms:{title:a.title},reviewedTerms:{revision:a.revision},createdAt:t?.createdAt??at,updatedAt:at,lastReadRevision:0};
+    tx.set(`${b}/applications/${tid}`,next);tx.set(`${b}/applications/${tid}/messages/${id}`,{id,sequence:next.revision,at,from:own?'SPONSOR':'PLAYER',authorName:c.public.displayName,body,amount:quote.amount,announcementRevision:a.revision,proposedReward:`${quote.amount} Cr`});return save({id:tid,status:next.status,revision:next.revision});
+   }
+   requireThat(kind==='contract'&&own&&t&&t.authorId!==c.id&&input.revision===t.revision,'STALE_REVISION');
+   if(a.selectedApplicationId){const oldApp=await tx.get(`${b}/applications/${a.selectedApplicationId}`),old=oldApp?.contractId?await tx.get(`${b}/contracts/${oldApp.contractId}`):null;requireThat(!old||['DECLINED','CANCELLED','EXPIRED'].includes(old.status),'CONTRACT_EXISTS');}
+   const carrier=await inventoryParty(tx,s.id,t.characterId);requireThat(carrier.active&&carrier.version===t.applicantVersion,'STALE_CONTRACT');const x=await commercialQuote(tx,s,a.request,t.quote,carrier,at),wallet=await tx.get(`${b}/accounts/${accountId(c.id)}`);requireThat(wallet?.ownerType==='CHARACTER'&&wallet.characterId===c.id&&moneyState(wallet).available>=t.quote.amount,'INSUFFICIENT_FUNDS');
+   const terms={spaceOutlaws:true,transport:x.terms,title:a.title,description:a.description,sponsor:{kind:'CHARACTER',name:a.sponsorName},applicant:t.participant,announcementReward:a.rewardText,amount:t.quote.amount,currency:currencyView(s.economyRules),funding:'ACCOUNT',durationMinutes:t.quote.durationMinutes,conditions:a.conditions,proofExpected:'Voyage et réception complète constatés par le MJ.',confidentiality:'Réservé aux parties et à la régie.',failureTerms:'Délais, force majeure et recours selon les règles V0.7 ; arbitrage MJ.',validator:'MJ',advance:0,guarantee:0},confirmation=digest([a.id,a.revision,t.id,t.revision,ctx.version,terms,x.guard,wallet.revision]);
+   if(!write)return {request:publicRequest(a),terms,available:moneyState(wallet).available,confirmation};requireThat(input.confirmation===confirmation,'STALE_REVISION');
+   const quoteHash=digest(t.quote),record=contractProposal(s,{a,t,terms,missionSteps:a.missionSteps,rewards:[],source:wallet,sourceGuard:ctx.version,sourceName:a.sponsorName,reason:'Accord du commanditaire sur la proposition négociée',transport:x,commercialClient:a.request.client,commercialQuoteHash:quoteHash},actor,id,at);
+   tx.set(`${b}/contracts/${id}`,record);tx.set(`${b}/contracts/${id}/history/${id}`,{id,at,action:'proposeCommercialContract',actorUid:actor.uid,terms});tx.set(`${b}/applications/${t.id}`,{...t,contractId:id,commercialQuoteHash:quoteHash,revision:t.revision+1,updatedAt:at});tx.set(`${b}/announcements/${a.id}`,{...a,selectedApplicationId:t.id,revision:a.revision+1,updatedAt:at});return save({id,status:'PROPOSED',revision:1});
+  });
+ };
+}

@@ -1,3 +1,4 @@
+import {uiStatus} from './ui-language.mjs';
 import {escapeHtml as esc} from './groups.mjs';
 export const soForgeryErrors={
  SO_INF03_CLOSED:'INF-03 n’est pas actif dans cette version de jeu.',
@@ -46,7 +47,7 @@ export function soForgeryInspectionHtml(d,sid,lotId=''){
   +'<h3>Corrections du lot consignées</h3>'
   +(d.inventoryEvents?.length
     ?'<ul>'+d.inventoryEvents.map(e=>'<li>'+esc(e.beforeStatus??'inconnu')
-      +' → '+esc(e.status)+' · quantité : '+esc(e.quantity)
+      +' → '+esc(uiStatus(e.status))+' · quantité : '+esc(e.quantity)
       +' · motif MJ : '+esc(e.reason)+'</li>').join('')+'</ul>'
     :'<p>Aucune correction de lot enregistrée.</p>')
   +'<p>Ce contrôle ne réalise ni saisie formelle ni transfert en entrepôt. Il conserve les faits enregistrés, sans accorder de droit technique.</p></section>':'<p>Renseignez l’identifiant de lot du document présenté par le joueur.</p>';

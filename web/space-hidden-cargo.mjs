@@ -1,3 +1,4 @@
+import {uiStatus} from './ui-language.mjs';
 import {escapeHtml as esc} from './groups.mjs';
 
 const kinds={ORDINARY:'Contrôle documentaire',DEEP:'Inspection approfondie'},statuses={ACTIVE:'En cours',COMPLETED:'Terminé',CANCELLED:'Annulé'};
@@ -26,7 +27,7 @@ const licenseQuoteForm=d=>'<section class="panel"><h2>Licences douanières · es
   +d.ships.map(s=>'<option value="'+esc(s.id)+'">'+esc(s.name)+'</option>').join('')+'</select></label>'
   +'<label>Valeur de référence en Cr (obligatoire uniquement pour LIC-02)'
   +'<input type="number" name="referenceValue" step="1" min="1" inputmode="numeric"></label>',
-  'Consulter le tarif canonique')+'</section>';
+  'Consulter le tarif prévu par les règles')+'</section>';
 const scopeForm=q=>{
  const ctx=q.cargoContext;
  if(q.code!=='LIC-02'||ctx?.portPolicy?.status!=='PUBLISHED'||!ctx.sessionId||!ctx.routeChoices?.length)return '';
@@ -43,12 +44,12 @@ const scopeForm=q=>{
 export function customsLicenseScopeHtml(q){
  return '<div class="cargo-customs"><h2>LIC-02 · périmètre proposé (non délivré)</h2>'
   +'<p>Vaisseau : '+esc(q.ship.name)+' · port '+esc(q.ship.portId)+'.</p>'
-  +'<p>Liaison M3 identifiée : '+esc(q.route.name)+' ('+esc(q.route.fromPort)+' → '+esc(q.route.toPort)+'). Ce n’est pas une autorisation douanière de voyage.</p>'
+  +'<p>Trajet identifié : '+esc(q.route.name)+' ('+esc(q.route.fromPort)+' → '+esc(q.route.toPort)+'). Ce n’est pas une autorisation douanière de voyage.</p>'
   +(q.applicant?'<p>Titulaire pressenti actif : '+esc(q.applicant.name)+' ('+esc(q.applicant.id)+'). Son identité ne vaut pas mandat.</p>':'<p>Aucun titulaire pressenti identifié : mandat non vérifié.</p>')
   +'<h3>Lots réglementés sélectionnés</h3><ul>'+q.selectedLots.map(l=>'<li>'+esc(l.name)+' · '+esc(l.quantity)+' '+esc(l.unit)+' · propriétaire '+esc(l.ownerId)+' · '+esc(l.referenceTotalCr)+' Cr</li>').join('')+'</ul>'
   +(q.ownershipEvidence?.length?'<h3>Propriété et mandats à vérifier</h3><ul>'+q.ownershipEvidence.map(e=>'<li>Lot '+esc(e.lotId)+' · '+esc(e.relation==='DIRECT_OWNER'?'propriété directe du titulaire pressenti':e.relation==='THIRD_PARTY'?'propriétaire différent, mandat nécessaire':e.relation==='NON_PERSONAL_OWNER'?'propriété collective ou commerciale, habilitation à établir':'titulaire non renseigné, droit à établir')+(e.consentVerified?' · consentement personnel courant vérifié':' · consentement absent, révoqué ou caduc')+'</li>').join('')+'</ul>':'')
   +(q.shipOwnershipEvidence?'<p>Vaisseau : '+esc(q.shipOwnershipEvidence.relation==='DIRECT_OWNER'?'même propriétaire pressenti':'droit d’utilisation à vérifier séparément')+' · '+esc(q.shipOwnershipEvidence.consentVerified?'accord personnel actuel du propriétaire vérifié':'accord du propriétaire du vaisseau absent, révoqué ou caduc')+'. Aucun mandat de pilotage ni permis de voyage n’est attesté.</p>':'')
-  +(q.voyageScopeEvidence?'<p>Escale de référence : '+esc(q.voyageScopeEvidence.sourcePortVisitId)+' · Master '+esc(q.voyageScopeEvidence.masterVersionId)+'. Période de validité du permis non définie et voyage non autorisé.</p>':'')
+  +(q.voyageScopeEvidence?'<p>Escale de référence : '+esc(q.voyageScopeEvidence.sourcePortVisitId)+' · version du scénario '+esc(q.voyageScopeEvidence.masterVersionId)+'. Période de validité du permis non définie et voyage non autorisé.</p>':'')
   +'<p>Valeur de référence totale envisagée : <strong>'+esc(q.totalReferenceCr)+' Cr</strong>.</p>'
   +'<p>Tarif LIC-02 indicatif, 2 % avec minimum 50 Cr : <strong>'+esc(q.exactFeeCr.replace('.',','))+' Cr</strong>.</p>'
   +'<p>Le consentement du propriétaire est distinct de l’autorisation du voyage ou du droit d’utiliser le vaisseau.</p>'
@@ -63,8 +64,8 @@ export function customsLicenseQuoteHtml(q){
     +'<p>Vaisseau : '+esc(q.cargoContext.ship.name)+' · port '+esc(q.cargoContext.ship.portId??'non renseigné')+'.</p>'
     +(q.cargoContext.voyage?'<p>Voyage engagé : '+esc(q.cargoContext.voyage.id)+' · route '+esc(q.cargoContext.voyage.routeId??'non renseignée')+'.</p>':'<p>Aucun voyage engagé : la portée du permis reste à vérifier.</p>')
     +(q.cargoContext.portPolicy?'<p>Politique locale : '+esc(portPolicyLabels[q.cargoContext.portPolicy.status]??'statut inconnu')+'.</p>':'<p>Politique locale non vérifiée.</p>')
-    +(q.cargoContext.lots.length?'<ul>'+q.cargoContext.lots.map(l=>'<li>'+esc(l.name)+' · '+esc(l.quantity)+' '+esc(l.unit)+' · '+esc(l.status)+(l.customsStatus?' · régime local : '+esc(customsStatusLabels[l.customsStatus]??'indéterminé'):'')+(l.referenceTotalCr!=null?' · valeur de référence du lot : '+esc(l.referenceTotalCr)+' Cr':'')+(l.referenceUnitValueCr!=null?' · valeur M1 : '+esc(l.referenceUnitValueCr)+' Cr / unité (instantané du lot)':' · valeur M1 absente')+'</li>').join('')+'</ul>':'<p>Aucun lot réel présent en soute.</p>')
-    +(q.cargoContext.regulatedKnownSubtotalCr!==undefined?'<p>Lots réglementés explicitement classés : '+esc(q.cargoContext.regulatedLots)+'. Sous-total indicatif des valeurs M1 connues : '+esc(q.cargoContext.regulatedKnownSubtotalCr)+' Cr. '+esc(q.cargoContext.regulatedMissingReference)+' lot(s) réglementé(s) sans valeur ; '+esc(q.cargoContext.unclassifiedLots)+' lot(s) non classé(s) ; '+esc(q.cargoContext.prohibitedLots)+' lot(s) interdit(s).</p>':'')
+    +(q.cargoContext.lots.length?'<ul>'+q.cargoContext.lots.map(l=>'<li>'+esc(l.name)+' · '+esc(l.quantity)+' '+esc(l.unit)+' · '+esc(uiStatus(l.status))+(l.customsStatus?' · régime local : '+esc(customsStatusLabels[l.customsStatus]??'indéterminé'):'')+(l.referenceTotalCr!=null?' · valeur de référence du lot : '+esc(l.referenceTotalCr)+' Cr':'')+(l.referenceUnitValueCr!=null?' · valeur M1 : '+esc(l.referenceUnitValueCr)+' Cr / unité (instantané du lot)':' · valeur M1 absente')+'</li>').join('')+'</ul>':'<p>Aucun lot réel présent en soute.</p>')
+    +(q.cargoContext.regulatedKnownSubtotalCr!==undefined?'<p>Lots réglementés explicitement classés : '+esc(q.cargoContext.regulatedLots)+'. Sous-total indicatif des valeurs connues des marchandises : '+esc(q.cargoContext.regulatedKnownSubtotalCr)+' Cr. '+esc(q.cargoContext.regulatedMissingReference)+' lot(s) réglementé(s) sans valeur ; '+esc(q.cargoContext.unclassifiedLots)+' lot(s) non classé(s) ; '+esc(q.cargoContext.prohibitedLots)+' lot(s) interdit(s).</p>':'')
     +'<p>Ce sous-total ne constitue pas une assiette fiscale certifiée : biens couverts, titulaire, voyage autorisé et paiement restent à vérifier. Aucune licence ni taxe n’est produite.</p></section>':'')
   +scopeForm(q)
   +'<h3>Éléments à vérifier avant toute délivrance</h3><ul>'
@@ -107,7 +108,7 @@ export function customsConsentsHtml(d){
     +'</article>').join(''):'<p>Aucun vaisseau personnel éligible à quai.</p>')
   +'</section><section class="panel"><h2>Accords de vaisseau enregistrés</h2>'
   +((d.shipConsents??[]).length?(d.shipConsents??[]).map(sh=>'<article class="card"><p>Vaisseau '+esc(sh.shipId)+' · bénéficiaire '+esc(sh.applicantId)+' · liaison '+esc(sh.routeId)+' · '+esc(sh.status==='GRANTED'?'accord donné':'révoqué')+'.</p>'
-    +'<p>Accord réévalué à chaque contrôle : une révision du vaisseau ou nouvelle escale peut le rendre caduc.</p>'
+    +'<p>Accord réévalué à chaque contrôle : une modification du vaisseau ou une nouvelle escale peut le rendre caduc.</p>'
     +(sh.status==='GRANTED'&&enabled?form('revokeCustomsShipConsent',{sessionId:sid,shipId:sh.shipId,confirmation:sh.confirmation},
        check('confirmed','Je révoque mon accord sur ce vaisseau.'),'Révoquer cet accord de vaisseau'):'')
     +'</article>').join(''):'<p>Aucun accord personnel de vaisseau.</p>')

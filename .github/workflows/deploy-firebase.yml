@@ -15,17 +15,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  publication-paused:
-    runs-on: ubuntu-latest
-    timeout-minutes: 2
-    steps:
-      - run: echo 'Publication Firebase suspendue à la demande de Guillaume le 14 novembre 2026. Aucune ressource de production modifiée.'
-
   verify:
-    # Publication reportée : restaurer explicitement ce garde lors d’une future autorisation.
-    if: ${{ false }}
+    # Autorisation de Guillaume : publier une fois les modifications finalisées.
+    if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    # La CI Firestore complète peut dépasser 30 min ; conserver tous ses contrôles.
+    timeout-minutes: 105
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -40,7 +35,7 @@ jobs:
         run: node scripts/await-release-ci.mjs
 
   deploy:
-    if: ${{ false }}
+    if: ${{ github.ref == 'refs/heads/main' }}
     needs: verify
     runs-on: ubuntu-latest
     timeout-minutes: 40

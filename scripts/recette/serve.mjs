@@ -20,7 +20,9 @@ try{
     const response=await fetch(`${origin}/api/command`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${tokens[role]}`},body:JSON.stringify({action,input})});
     const data=await response.json();if(!response.ok)throw new Error(`${action}: ${data.error??response.status}`);return data.result;
   };
-  Object.assign(scenario,await seedMissionScenario(call,uids,{pilot:process.env.GN_RECETTE_PILOT_MODE==='1'}));
+  const mainScenario=await seedMissionScenario(call,uids,{pilot:process.env.GN_RECETTE_PILOT_MODE==='1'});
+  const galactic=await seedMissionScenario(call,uids,{galactic:true});
+  Object.assign(scenario,{...mainScenario,galactic});
   console.log(`Recette locale prête : ${origin}/recette.html · session ${scenario.sessionId} en pause. Aucune recette humaine exécutée.`);
 }catch(error){server.closeAllConnections();server.close();throw error;}
 for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>{server.closeAllConnections();server.close(()=>process.exit(0));});

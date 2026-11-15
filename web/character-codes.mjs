@@ -1,4 +1,5 @@
 const fields={
+ prepareShipCaptainOffer:['targetId'],prepareShipCaptainOfferAdmin:['targetId'],offerShipCaptain:['targetId'],offerShipCaptainAdmin:['targetId'],prepareShipRecruitment:['targetId'],prepareShipRecruitmentAdmin:['targetId'],inviteShipMember:['targetId'],inviteShipMemberAdmin:['targetId'],prepareSoPilot:['pilotId'],changeSoPilot:['pilotId'],
  consentTraceErasure:['recipientId'],
  personTarget:['targetId'],preparePersonAction:['targetId'],startPersonAction:['targetId'],offerAid:['targetId'],
  startSoPickpocket:['targetId'],prepareTreatment:['targetId'],applyTreatment:['targetId'],

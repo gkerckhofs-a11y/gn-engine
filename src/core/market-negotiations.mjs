@@ -1,3 +1,5 @@
+import {hasItemCircuits} from './item-circuits.mjs';
+import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {isBroker} from '../shared/player-access.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {inventoryHash as hash} from './inventory-state.mjs';
@@ -52,7 +54,7 @@ export function createNegotiationService({store,signed,now,uuid}){
     signed(actor);const at=now(),id=uuid();return store.runTransaction(async tx=>{
       const ctx=await inventoryPlayer(tx,actor,input),{s,c,version}=ctx,base=`sessions/${s.id}`;
       requireThat(!s.spaceOutlaws||isBroker(c),'FORBIDDEN');
-      requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');
+      requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');if(hasItemCircuits(s))requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
       if(action==='myMarketNegotiations'){
         const rows=[...await tx.list(`${base}/marketNegotiations`,['buyerId',c.id]),...await tx.list(`${base}/marketNegotiations`,['sellerId',c.id])].sort((a,b)=>b.updatedAt-a.updatedAt||a.id.localeCompare(b.id));
         const book=rows.length?await readPriceBook(tx,s,at):null,negotiations=[];let closed=0;
@@ -89,6 +91,7 @@ export function createNegotiationService({store,signed,now,uuid}){
       }
       const event={id,revision:next.revision,at,kind,author:{id:c.id,name:c.public.displayName},amount:next.amount,message:kind==='OFFER'||kind==='COUNTER'?next.message:''};
       tx.set(`${base}/marketNegotiations/${next.id}`,next);tx.set(`${base}/marketNegotiations/${next.id}/history/${id}`,event);
+      if(hasItemCircuits(s))authorizeSpaceOutlaws(tx,s,'ITEM_COMMERCE');
       tx.set(`${base}/audit/${id}`,{...event,action,actorUid:actor.uid,listingId:next.listingId,negotiationId:next.id});
       const result={id:next.id,status:next.status};tx.set(op,{fingerprint,result,guard:version,at});return result;
     });

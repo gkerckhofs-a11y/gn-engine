@@ -1,7 +1,7 @@
 import {escapeHtml as esc} from './groups.mjs';
 export const soDecryptionErrors={
  SO_INF02_ANSWER:'Saisissez la réponse du cryptogramme : 4 à 64 lettres, chiffres, espaces ou tirets.',
- SO_INF02_CLOSED:'INF-02 n’est pas activé pour cette version de jeu.',
+ SO_INF02_CLOSED:'Le déchiffrement n’est pas disponible dans cette session. Demandez au MJ comment traiter ce document.',
  SO_INF02_SKILL:'Votre niveau de déchiffrement est insuffisant.',
  SO_INF02_DOCUMENT:'Document introuvable ou non obtenu par votre personnage.',
  SO_INF02_COOLDOWN:'Récupération en cours : 10 minutes de jeu après chaque tentative résolue.',

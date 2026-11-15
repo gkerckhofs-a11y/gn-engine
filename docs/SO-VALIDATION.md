@@ -1,5 +1,23 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+Intégration 0.39.0 du 15 novembre 2026 : [périmètre, droits, tests et garde de publication](SO-RELEASE-2026-11-15.md). Complément : caisses autorisées pour les achats, COU-02 au cours réel, événements locaux reliés aux News, budgets PNJ sans création monétaire et réception/revente distante sans déplacement des biens. Résultats CI du candidat exact et publication à constater dans la PR ; les rapports précédents restent historiques.
+
+Entrepôts commerciaux du 15 novembre 2026 : [location native, droits, stock local et tests](SO-COMMERCIAL-STORAGE.md). Capacité et tarif explicitement configurés, bail personnel finançable par caisse autorisée, marchandises privées du même port, échéance et continuité conservées. Candidat après #42 corrigée ; paiement des achats et événements économiques encore à finaliser.
+
+Logistique commerciale du 15 novembre 2026 : [collecte distante, retrait délégué, importation et revente](SO-COMMERCIAL-LOGISTICS.md). Commandes payées confiées au transporteur, présentation MJ et tranches natives, réception propriétaire, quittance et preuve contractuelle conservées. Arrondi des droits explicitement validé par Guillaume : crédit le plus proche, demi-crédit vers le haut. Candidat après #41 ; autres compléments économiques et recette finale encore ouverts.
+
+Transport commercial entre joueurs du 14 novembre 2026 : [audit, contrôleurs réutilisés, droits, tests et limites](SO-COMMERCIAL-TRANSPORT.md). Tranche 4 après #40 : demandes, négociations et contrats natifs financés par le Courtier ; fret et salaires conservés, sans moteur parallèle. Livraison commerciale finale et douanes restent à raccorder. Aucun déploiement de cette tranche.
+
+Carte galactique du 14 novembre 2026 : [parcours, matrice de réutilisation et contrôles](SO-GALACTIC-MAP.md). Dépend de #39 ; lecture filtrée, codes explicites, autonomie native, escales et accès au formulaire de vol. Publication Firebase autorisée par Guillaume une fois tous les chantiers finalisés ; condition non remplie, aucun déploiement de cette tranche.
+
+Économie galactique du 14 novembre 2026 : [audit, matrice de réutilisation et premier parcours de marchés planétaires](SO-GALACTIC-ECONOMY.md). Dépend de #38 ; cours locaux, achats distants et rachat ordinaire limités aux contrôles raccordés. Carte, contrats libres et logistique intégrée restent à développer. Aucun déploiement.
+
+Refonte pédagogique HRP du 14 novembre 2026 : [audit, corrections et tests ciblés](SO-HRP-EDITORIAL.md). Candidat après #37 ; textes et présentation uniquement, règles et droits conservés. CI exacte dans la PR ; aucun déploiement.
+
+Module Vaisseau partagé du 14 novembre 2026 : [audit, réutilisation, permissions et validation](SO-SHARED-SHIP-CREW.md). Page par vaisseau, capitaine volontaire, équipages et opérations natives ; candidat sur branche après #36, aucune fusion ni publication Firebase. Résultats et SHA exacts dans la PR.
+
+Navigation organisateur et essai solo du 14 novembre 2026 : [parcours, sécurité et tests ciblés](SO-ORGANIZER-TEST-NAVIGATION.md). Administration prioritaire, huit profils directs, retour à la régie et guide Préparer ; candidat sur branche, aucun déploiement autorisé. Le pipeline Firebase antérieur 43574851449 a été annulé et la publication automatique suspendue à la demande de Guillaume.
+
 Intégration du 14 novembre 2026 : PR [#34](https://github.com/gkerckhofs-a11y/gn-engine/pull/34), version candidate `0.38.0-rc.2`. Lots de compétences #16–#33 cumulés et départ FIL depuis le quai avec balise conservée. 3 130 tests applicatifs et compilation réussis localement sur l’arbre du complément ; CI exacte et publication à constater dans la PR. **Publication intermédiaire ; clôture des 34 capacités toujours partielle**, sans migration des sessions existantes. Voir la [matrice courante](SO-COMPETENCES-V07-CLOTURE.md).
 
 Complément spatial du 13 novembre 2026 : [traces de vaisseaux, filature et corrections des tests CI](SO-COMPETENCES-V07-CLOTURE.md#r--départs-de-vaisseaux-filature-et-signature-fictive-13-novembre-2026). Candidat sur branche ; aucune fusion ou publication. Les CI des parents #31/#32 ont des échecs identifiés, distincts des tests locaux du correctif.
@@ -1513,3 +1531,9 @@ Tranche en cours : [essai commun, codes courts, corbeille et marché COU](SO-ESS
 Tests ciblés de création native des huit profils, reprise après réponse perdue,
 isolation des identités de démonstration, codes et corbeille exécutés localement.
 La CI du commit candidat et les opérations en ligne restent à consigner après exécution.
+
+## 14 novembre 2026 — circuits personnels, commerce et voucher carburant
+
+Nouvelle tranche sur la PR organisateur #35, sans fusion ni déploiement. Classification explicite M1, restrictions modèle/lot cumulées, revente personnelle via le moteur natif, stock commercial fixé au port et centrale Courtier distincte. Voucher d'une unité de réservoir par unité de lot, 25 Cr au fournisseur, utilisation depuis le sac par les aperçus de ravitaillement natifs. Aucun reclassement silencieux d'un ancien lot.
+
+Rapport, matrice d'audit, parcours et limites : [SO-PERSONAL-COMMERCE-CIRCUITS.md](SO-PERSONAL-COMMERCE-CIRCUITS.md). Nouvelle couverture locale : 22 tests ; première exécution Firestore : 12 parcours ; HTTP/Auth : 1 parcours. Les ajouts ultérieurs sont soumis à la CI du candidat. La recette mobile est automatisée et ne remplace pas un appareil réel.

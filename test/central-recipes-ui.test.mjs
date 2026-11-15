@@ -6,7 +6,7 @@ import {centralWorkshops} from '../src/shared/central-workshops.mjs';
 const ui=createCentralUi({button:(label,action,extra='')=>`<button data-action="${action}" ${extra}>${label}</button>`,link:(label,path)=>`<a href="#/${path}">${label}</a>`});
 const d={campaign:{id:'campaign',title:'Recettes'},draft:{revision:3},rights:{readWorkshops:['M4'],editWorkshops:[],manageStaff:false},workshop:'M4',workshops:centralWorkshops.map(w=>({...w,canRead:w.id==='M4',canEdit:false})),changes:[],history:[],staff:[],references:{itemsReadable:false,items:[]},diagnostics:[{entityId:'formula',field:'productItemId',reference:'<b>secret</b>',message:'À préparer'}]};
 test('Central M4 UI : lecture seule, diagnostics échappés et absence de publication',()=>{
- const h=ui.page(d);assert.match(h,/&lt;b&gt;secret/);assert.match(h,/lecture de M1 n’est pas accordée/);assert.doesNotMatch(h,/<b>secret|data-action="centralRecipe"|data-action="publish/);
+ const h=ui.page(d);assert.match(h,/&lt;b&gt;secret/);assert.match(h,/ne pouvez pas consulter les objets/);assert.doesNotMatch(h,/<b>secret|data-action="centralRecipe"|data-action="publish/);
  assert.match(ui.staffForm(d),/name="edit_M4"/);assert.match(ui.staffForm(d),/name="edit_M3"/);
 });
 test('Central M4 UI : formulaire stable, sélecteur partagé et provenance sans stock',()=>{

@@ -1,3 +1,4 @@
+import {uiStatus} from './ui-language.mjs';
 import {shipTraceBindingsHtml,spatialTraceResultHtml,traceResultHtml} from './fictional-traces.mjs';
 import {placeDiscoveriesHtml,findLabels,placeFields,placePayload} from './place-search.mjs';
 import {escapeHtml as esc} from './groups.mjs';
@@ -61,4 +62,4 @@ export function createFieldController({api,mutate,notice,refresh,document:doc=do
  dialog.addEventListener('cancel',e=>{e.preventDefault();close();});return {clear,mount};
 }
 
-function placeAdminFinds(t,s,d){return `<ol>${t.finds.map(f=>{const st=s.finds[f.id];return `<li><strong>${esc(f.title)}</strong> · ${esc(findLabels[f.kind])} · difficulté ${f.difficulty??t.search.difficulty} · ${esc(st.status)}<p>Découvert par : ${st.discoveredBy.map(esc).join(', ')||'personne'}${st.takenBy?` · pris par ${esc(st.takenBy)} · ${new Date(st.takenAt).toLocaleString('fr-FR')} · session ${esc(st.takenSessionId)}`:''}</p>${st.status==='UNFUNDED'?btn('Affecter stock / caisse','provision',`data-id="${esc(t.id)}" data-find="${esc(f.id)}"`):''}${st.status==='TAKEN'&&d.parent.canReset&&d.parent.stage==='BRIEFING'&&st.takenSessionId!==d.parent.id?btn('Réinitialiser pour cet épisode','resetFind',`data-id="${esc(t.id)}" data-find="${esc(f.id)}"`):''}</li>`;}).join('')}</ol>`;}
+function placeAdminFinds(t,s,d){return `<ol>${t.finds.map(f=>{const st=s.finds[f.id];return `<li><strong>${esc(f.title)}</strong> · ${esc(findLabels[f.kind])} · difficulté ${f.difficulty??t.search.difficulty} · ${esc(uiStatus(st.status))}<p>Découvert par : ${st.discoveredBy.map(esc).join(', ')||'personne'}${st.takenBy?` · pris par ${esc(st.takenBy)} · ${new Date(st.takenAt).toLocaleString('fr-FR')} · session ${esc(st.takenSessionId)}`:''}</p>${st.status==='UNFUNDED'?btn('Affecter stock / caisse','provision',`data-id="${esc(t.id)}" data-find="${esc(f.id)}"`):''}${st.status==='TAKEN'&&d.parent.canReset&&d.parent.stage==='BRIEFING'&&st.takenSessionId!==d.parent.id?btn('Réinitialiser pour cet épisode','resetFind',`data-id="${esc(t.id)}" data-find="${esc(f.id)}"`):''}</li>`;}).join('')}</ol>`;}

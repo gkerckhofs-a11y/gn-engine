@@ -1,5 +1,6 @@
+import {hasItemCircuits,commercialLot} from './item-circuits.mjs';
 import {activeConcealment} from './space-person-loot.mjs';
-import {personalTransferAllowed,personalTransferActorReady} from './personal-transfer-policy.mjs';
+import {personalTransferAllowed,personalTransferActorReady,personalSaleAllowed} from './personal-transfer-policy.mjs';
 import {checkStoredCorrection} from './storage-state.mjs';
 import {validateRecipeItem} from './recipe-state.mjs';
 import {listLotSales} from './sales.mjs';
@@ -9,7 +10,7 @@ import {canGameAction} from './health-state.mjs';
 import {inventoryHash as hash,itemInput,itemQuantity,publicItem,publicLot,lotState,newLot,personalLot,effectiveLot,readLot} from './inventory-state.mjs';
 const reason=v=>{requireThat(typeof v==='string'&&v.trim()&&v.length<=500,'INVALID_ITEM');return v.trim();};
 const writes=new Set(['saveItem','saveSessionItem','setStartingInventory','grantItem','correctLot']);
-export const inventoryAction=a=>writes.has(a)||['prepareStartingInventory','prepareGrantItem','itemHistory','myInventory','previewInventory'].includes(a);
+export const inventoryAction=a=>writes.has(a)||['prepareStartingInventory','prepareGrantItem','itemHistory','myLotHistory','myInventory','previewInventory'].includes(a);
 export function createInventoryService({store,signed,checkSession,checkScenario,now,uuid}){
   const context=async(tx,actor,input)=>{
     requireThat(!!input.sessionId!==!!input.scenarioId,'INVALID_ITEM');const session=!!input.sessionId,id=documentId(session?input.sessionId:input.scenarioId);
@@ -33,7 +34,7 @@ export function createInventoryService({store,signed,checkSession,checkScenario,
   return async(action,actor,input)=>{
     signed(actor);const at=now(),newId=uuid();
     return store.runTransaction(async tx=>{
-      if(action==='myInventory'||action==='previewInventory'){
+      if(action==='myInventory'||action==='previewInventory'||action==='myLotHistory'){
         const preview=action==='previewInventory',sid=documentId(input.sessionId),s=preview?await checkSession(tx,actor,sid):await tx.get(`sessions/${sid}`);
         requireThat(s&&s.stage!=='ARCHIVED','FORBIDDEN');
         const r=preview?null:await tx.get(`sessions/${sid}/registrations/${hash(actor.uid)}`);
@@ -42,14 +43,19 @@ export function createInventoryService({store,signed,checkSession,checkScenario,
         requireThat(c&&(preview||c.assignedUid===actor.uid),'FORBIDDEN');
         requireThat(['BRIEFING','EN_JEU','PAUSE','FINISHED'].includes(s.stage),'BRIEFING_CLOSED');
         requireThat(c.publicationState==='PUBLISHED'&&c.public?.publicationState==='PUBLISHED','CONTENT_UNPUBLISHED');
+        if(action==='myLotHistory'){
+          const lot=await readLot(tx,sid,documentId(input.lotId),at);requireThat(lot&&(lot.ownerType??'CHARACTER')==='CHARACTER'&&(lot.ownerId===c.id||lot.holderId===c.id),'FORBIDDEN');
+          const rows=await tx.list(`sessions/${sid}/inventory/${lot.id}/history`,null,{orderBy:'at',direction:'desc',limit:30});
+          return {name:lot.item.name,events:rows.map(e=>({kind:e.kind,at:e.at,before:e.before?.quantity??null,after:e.after?.quantity??null}))};
+        }
         const lots=(await tx.list(`sessions/${sid}/inventory`,['holderId',c.id])).filter(l=>l.ownerType!=='GROUP').map(l=>effectiveLot(l,at)),owned=(await tx.list(`sessions/${sid}/inventory`,['ownerId',c.id])).filter(l=>l.ownerType!=='GROUP').map(l=>effectiveLot(l,at));
         // Opaque transfer affordance: no authenticity, quality, origin or MJ evidence
         // is sent to the player inventory projection.
         const handoverReady=s.spaceOutlaws?await personalTransferActorReady(tx,s,c):false;
-        const playerLot=l=>({...publicLot(l),...(activeConcealment(s,c,l,at)?{concealment:{level:c.concealment.level,expiresAtGameMs:c.concealment.expiresAtGameMs}}:{}),...(s.spaceOutlaws?{canTransferByHand:!preview&&s.stage==='EN_JEU'&&handoverReady&&personalTransferAllowed(s,l,c.id)}:{})});
+        const playerLot=l=>({...publicLot(l),...(activeConcealment(s,c,l,at)?{concealment:{level:c.concealment.level,expiresAtGameMs:c.concealment.expiresAtGameMs}}:{}),...(s.spaceOutlaws?{canSellPersonal:!preview&&s.stage==='EN_JEU'&&handoverReady&&s.economyRules?.enabled===true&&personalSaleAllowed(s,l,c.id),canTransferByHand:!preview&&s.stage==='EN_JEU'&&handoverReady&&personalTransferAllowed(s,l,c.id)}:{})});
         return {session:{id:sid,stage:s.stage,...(s.spaceOutlaws?{spaceOutlaws:s.spaceOutlaws}:{})},healthEnabled:s.healthRules?.enabled===true,economyEnabled:s.economyRules?.enabled===true,preview,character:{id:c.id,name:c.public.displayName},lots:lots.filter(l=>personalLot(l,c.id)).map(playerLot),
-          installed:owned.filter(l=>l.status==='INSTALLED'&&l.location?.kind==='SHIP_MODULE').map(publicLot),stored:owned.filter(l=>['WAREHOUSE','HOLD'].includes(l.location?.kind)&&l.quantity>0).map(publicLot),ownedElsewhere:owned.filter(l=>l.holderId!==c.id&&l.location?.kind!=='SHIP_MODULE').map(publicLot),heldForOthers:lots.filter(l=>l.ownerId!==c.id).map(publicLot),sales:await listLotSales(tx,s,c,at,preview),
-          canSell:!s.spaceOutlaws&&!preview&&s.stage==='EN_JEU'&&s.economyRules?.enabled===true&&canGameAction(s,c,'transfer'),canTransfer:!s.spaceOutlaws&&!preview&&s.stage==='EN_JEU'&&canGameAction(s,c,'transfer'),transfers:await listLotTransfers(tx,s,c,preview,at)};
+          commercial:owned.filter(l=>commercialLot(l,c.id)).map(playerLot),unclassified:owned.filter(l=>!!s.spaceOutlaws&&!l.item.usage).map(publicLot),installed:owned.filter(l=>l.status==='INSTALLED'&&l.location?.kind==='SHIP_MODULE').map(publicLot),stored:owned.filter(l=>['WAREHOUSE','HOLD'].includes(l.location?.kind)&&l.quantity>0).map(publicLot),ownedElsewhere:owned.filter(l=>l.holderId!==c.id&&l.location?.kind!=='SHIP_MODULE').map(publicLot),heldForOthers:lots.filter(l=>l.ownerId!==c.id).map(publicLot),sales:await listLotSales(tx,s,c,at,preview),
+          canSell:(!s.spaceOutlaws||hasItemCircuits(s)&&handoverReady)&&!preview&&s.stage==='EN_JEU'&&s.economyRules?.enabled===true&&canGameAction(s,c,'transfer'),canTransfer:!s.spaceOutlaws&&!preview&&s.stage==='EN_JEU'&&canGameAction(s,c,'transfer'),transfers:await listLotTransfers(tx,s,c,preview,at)};
       }
       const {session,parent,base}=await context(tx,actor,input);
       if(action==='itemHistory'){
