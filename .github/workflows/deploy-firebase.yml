@@ -146,6 +146,8 @@ jobs:
           test -f world-encyclopedia-data.mjs
           grep -q 'HOLOPÉDIA' index.html
           grep -q 'planete-corellia' world-encyclopedia-data.mjs
+      - name: Tests ciblés des hyperliens publics
+        run: node --test test/world-encyclopedia-links.test.mjs
       - name: Installer Firebase CLI
         run: npm install --global firebase-tools@15.34.0 --no-audit --no-fund
       - name: Identité Google déjà autorisée pour le workflow de production
