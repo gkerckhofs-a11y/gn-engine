@@ -6,7 +6,7 @@ import {holopediaArticleHtml,holopediaIndexHtml} from '../world-encyclopedia.mjs
 
 test('Liens : chaque terme renvoie uniquement vers une page publique existante',()=>{
  const ids=new Set(worldEncyclopedia.map(a=>a.id));
- assert.equal(worldEncyclopedia.length,61);
+ assert.equal(worldEncyclopedia.length,62);
  assert.equal(worldEncyclopedia.filter(a=>a.kind==='planète').length,30);
  for(const id of publicWikiTargetIds)assert.ok(ids.has(id),'Destination inconnue : '+id);
  for(const page of worldEncyclopedia)for(const ref of wikiReferences(page))assert.ok(ids.has(ref),'Référence invalide : '+ref);
@@ -64,4 +64,29 @@ test('Histoire : République, guerre des Clones, Ordre 66 et Empire en cinq arti
  const link=wikiTextHtml('L’Ordre 66 a suivi la guerre des Clones.','prologue');
  assert.match(link,/histoire-ordre-66-et-disparition-des-jedi/);
  assert.match(link,/histoire-guerre-des-clones/);
+});
+
+test('Histoire impériale : six archives, cinq affiches, propagande cadrée et aucun secret',()=>{
+ const pages=worldEncyclopedia.filter(x=>x.imperialArchive===true);
+ assert.equal(pages.length,6);
+ assert.equal(worldEncyclopedia.filter(x=>x.kind==='planète').length,30);
+ assert.equal(worldEncyclopedia.filter(x=>x.category==='Histoire').length,7);
+ const posters=new Set(pages.map(x=>x.poster));
+ assert.equal(posters.size,5);
+ for(const article of pages){
+  assert.equal(article.category,'Histoire');
+  assert.ok(article.slogan&&article.paragraphs.length>=5);
+  assert.ok(article.paragraphs[0].startsWith('ARCHIVES'));
+  assert.match(article.poster,/^posters\/[a-z-]+\.svg$/);
+  assert.ok(!/Darth Sidious|Darth Vader|Anakin Skywalker|Yoda|Obi-Wan Kenobi/.test(article.paragraphs.join(' ')));
+  const html=holopediaArticleHtml('public',article.id);
+  assert.match(html,/history-banner/);
+  assert.match(html,/history-poster-hero/);
+  assert.match(html,/history-stamp/);
+  assert.match(html,/archive|officielle|propagande/i);
+  assert.match(html,/Retour à votre terminal/);
+ }
+ const newPage=worldEncyclopedia.find(x=>x.id==='histoire-crise-separatiste');
+ assert.equal(newPage.title,'La crise séparatiste');
+ assert.match(holopediaIndexHtml('public'),/histoire-crise-separatiste/);
 });
