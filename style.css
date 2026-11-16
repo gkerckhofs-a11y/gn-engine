@@ -41,3 +41,11 @@ main{max-width:1140px;min-height:80vh;margin:auto;padding:2.5rem 2rem 5rem}foote
 .holopedia .history-banner-disclaimer{font-size:.91rem;line-height:1.6;color:#d8c8c0}
 .holopedia details.wiki-sources summary{cursor:pointer;font-weight:650;font-size:.94rem;color:#e8b98e;padding:.3rem 0}
 @media(max-width:620px){.holopedia .history-banner{grid-template-columns:1fr}.holopedia .history-banner figure{max-width:250px;margin:auto}.holopedia .history-banner-quote{font-size:1.3rem}}
+
+/* Chroniqueurs impériaux : attribution éditoriale discrète sans cacher l'origine politique. */
+.holopedia .archive-card-label{font-size:.68rem;font-weight:750;text-transform:uppercase;letter-spacing:.08em;color:#d5ad84;line-height:1.35;margin:.2rem 0 .55rem}
+.holopedia .archive-byline{display:flex;flex-wrap:wrap;gap:.15rem;align-items:center;margin:0 0 1.15rem;padding:.7rem .85rem;border-left:3px solid #a73b32;background:linear-gradient(90deg,rgba(127,43,44,.18),rgba(16,30,49,.2));color:#f1caa6;font-size:.84rem;font-weight:650}
+.holopedia .archive-byline .archive-edition{font-weight:450;color:#b9c7d6}
+.holopedia .holopedia-card[data-holopedia-category="Planètes"]{border-top:2px solid rgba(207,151,105,.32)}
+.holopedia .holopedia-reading p{font-style:normal}
+@media(max-width:600px){.holopedia .archive-byline{font-size:.77rem;line-height:1.55}.holopedia .archive-card-label{font-size:.63rem}}

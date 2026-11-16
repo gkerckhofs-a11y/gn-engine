@@ -8,12 +8,15 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Culture et galaxie",
     "kind": "thème",
     "paragraphs": [
-      "Il existe encore des habitants de Breach Port qui se souviennent de la République. Ils parlent du Sénat, de la guerre des Clones et de l'époque où les Jedi pouvaient traverser une place sans que l'on baisse la voix à leur passage. D'autres étaient trop jeunes. Pour eux, l'Empire a toujours été là, dans les signatures officielles, les règles de commerce et la silhouette de ses soldats au bout de la rue.",
-      "La guerre a laissé une galaxie épuisée. Palpatine règne depuis Coruscant ; le Sénat existe encore, mais les décisions qui comptent se prennent de plus en plus loin de ses débats. Les grands gouverneurs imposent la volonté impériale, les garnisons contrôlent les routes et les services de sécurité recherchent ce qui pourrait ressembler à une opposition organisée. Le nom de l'ISB suffit parfois à vider une conversation.",
-      "Notre histoire se déroule avant que la rébellion ne devienne une armée connue de tous. Ailleurs, de petits groupes se découvrent des ennemis communs, échangent des messages et apprennent difficilement à se faire confiance. À Breach Port, on entend parler d'un convoi détourné, d'une arrestation injustifiée ou d'un sénateur qui aurait protesté. Les nouvelles arrivent tard, déformées par les intérêts de ceux qui les transportent.",
-      "L'Empire n'a pas besoin de surveiller chaque porte. Ses ordres vivent dans les habitudes : présenter un manifeste, déclarer un passager, montrer une licence, expliquer pourquoi l'on transporte autant de cellules énergétiques. L'uniforme qui partage votre repas à la cantina peut vous demander votre nom au dessert. Le lendemain, ce même homme peut vous reconnaître dans une file de personnes retenues devant le bureau du préfet.",
-      "Certains habitants soutiennent cet ordre. Ils ont connu les pillages, les dettes qu'on ne rembourse jamais et les routes où les cargos disparaissaient. D'autres n'attendent plus rien des autorités. Entre eux se trouvent tous ceux qui souhaitent surtout garder leur emploi, protéger un proche ou payer leur prochain plein de carburant. À Breach Port, les convictions ont rarement la simplicité d'une affiche de propagande."
-    ]
+      "CHRONIQUE DU NOUVEL ORDRE — À Breach Port, les générations se distinguent moins par l'âge que par les souvenirs. Les anciens évoquent encore le Sénat de la République, les batailles de la guerre des Clones et les chevaliers Jedi qui traversaient autrefois les places publiques. Les plus jeunes ont grandi sous les emblèmes de l'Empire ; pour eux, un uniforme au coin de la rue fait partie du paysage ordinaire.",
+      "Les services impériaux présentent la paix actuelle comme le fruit d'un pouvoir enfin capable d'agir. Depuis Coruscant, Palpatine dirige l'Empire ; le Sénat subsiste, mais gouverneurs, garnisons et administrations de sécurité appliquent désormais plus directement les décisions. Les autorités vantent la régularité des contrôles et la sûreté des routes. Les habitants se demandent parfois à quel moment une vérification devient une suspicion.",
+      "L'ISB, dont le nom revient dans certaines conversations, est associé à la protection de l'État contre la subversion. Les rumeurs de groupes opposés à l'Empire voyagent d'un port à l'autre, se déforment et parviennent tard jusqu'à Breach Port. Aucun drapeau rebelle n'y rassemble encore la population ; on y parle plutôt de convois disparus, de restrictions contestées et de différends avec les autorités.",
+      "La vie quotidienne révèle mieux que les proclamations ce changement d'époque. Un capitaine présente ses manifestes, un passager justifie sa présence, un commerçant explique ses réserves de cellules énergétiques. Le garde qui prend un repas à la Traverse peut, une heure plus tard, contrôler les documents de ses voisins.",
+      "Les chroniqueurs officiels voient là le prix raisonnable de la stabilité. Les témoignages locaux sont plus nuancés : certains se félicitent de la sécurité retrouvée, d'autres redoutent de perdre leur travail ou de voir un proche retenu. À Breach Port, aucune opinion ne résume à elle seule le rapport des habitants au nouvel ordre."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniqueur provincial — Archives impériales",
+    "archiveLabel": "Chronique provinciale · édition impériale"
   },
   {
     "id": "chapitre-02",
@@ -21,12 +24,15 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Culture et galaxie",
     "kind": "thème",
     "paragraphs": [
-      "Breach Port est un petit astroport d'Ord Mantell, monde montagneux de la Bordure médiane. Il ne se trouve pas dans la Bordure extérieure, même si beaucoup de ses visiteurs arrivent de cette région plus lointaine. Les équipages qui traversent ces frontières ont appris une leçon : la distance qui vous sépare de Coruscant ne mesure pas votre liberté.",
-      "Ord Mantell possède ses anciennes cités, ses exploitations minières et ses histoires criminelles. Les guerres des Clones y ont laissé des mémoires contradictoires. On raconte qu'autrefois le Soleil Noir y entretenait des intérêts ; les voyageurs discutent encore de ce que ses anciens réseaux ont pu laisser derrière eux. Rien n'oblige pourtant les petites villes de la planète à obéir aux mêmes maîtres.",
-      "Sur les routes de la Bordure extérieure, une colonie peut manquer de filtres alors qu'une autre écoule des pièces de moteurs dont personne ne veut. Les équipages rapportent des nouvelles de Tatooine, des exigences d'un comptoir hutt, des restrictions qui frappent les ateliers de Lothal. Leurs récits se contredisent souvent ; un port se nourrit aussi de ces contradictions. Ce qu'un capitaine appelle une taxe, son concurrent le décrit comme le prix d'une protection bien méritée.",
-      "Breach Port ne possède ni le prestige ni les infrastructures d'un grand port planétaire. C'est précisément pour cela qu'on y fait escale. On y accepte les petits chargements, les réparations compliquées et les clients qui trouvent les grands établissements trop chers ou trop curieux. Un cargo peut repartir avec moins de fret qu'à son arrivée, mais davantage de renseignements, de dettes et de passagers.",
-      "Les habitants regardent les navires comme d'autres regardent la météo. Leur arrivée annonce du travail, des histoires, parfois une pénurie. Un départ retardé suffit à immobiliser les marchandises d'un voisin. Personne ici n'ignore que les décisions prises au-delà des étoiles finissent par se traduire en factures sur le Comptoir."
-    ]
+      "ANNEXE GÉOGRAPHIQUE — Ord Mantell appartient à la Bordure médiane. Ses reliefs, ses anciennes villes, ses concessions minières et ses circuits de transport en font un monde de passage dont l'histoire commerciale est plus ancienne que les récentes réformes impériales. Breach Port est un modeste astroport de ce monde ; beaucoup de ses visiteurs arrivent pourtant de la Bordure extérieure.",
+      "Les archives rappellent que la distance avec Coruscant n'efface pas les obligations communes. Les anciens réseaux criminels attribués au Soleil Noir occupent encore certains récits de voyageurs, sans que cela implique qu'une seule puissance gouverne toutes les petites villes de la planète. Les guerres des Clones ont laissé ici des souvenirs contradictoires et des affaires à reprendre.",
+      "Les convois apportent des nouvelles de Tatooine, de comptoirs hutts ou des ateliers de Lothal. Chaque équipage possède sa version : ce qu'un marchand nomme une taxe, un autre le dénonce comme une protection forcée. L'administration préfère les déclarations écrites ; le port continue néanmoins de vivre des informations racontées au déchargement.",
+      "Breach Port ne dispose ni des hangars immenses ni des services luxueux d'une capitale planétaire. Son avantage tient aux petites cargaisons, aux réparations délicates et à la familiarité des quais. Un cargo y entre pour vendre ses lots et peut en repartir chargé de nouvelles obligations, de passagers ou de promesses.",
+      "Le chroniqueur impérial conclut qu'aucun réseau de transit, si modeste soit-il, n'est insignifiant. Une escale retardée immobilise une livraison ; une pénurie se transmet d'un atelier à l'autre. Les décisions galactiques finissent toujours, d'une manière ou d'une autre, sur le registre d'un comptoir local."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des relevés civils",
+    "archiveLabel": "Chronique provinciale · édition impériale"
   },
   {
     "id": "chapitre-03",
@@ -34,13 +40,16 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Breach Port",
     "kind": "thème",
     "paragraphs": [
-      "Avant l'astroport, il y eut un chemin de débardage. Il descendait des versants boisés, traversait une entaille de roche et rejoignait quelques installations de prospection. Les premiers habitants n'étaient ni des pionniers héroïques ni des aventuriers de légende : c'étaient des ouvriers, des charpentiers, des mécaniciens, des prospecteurs et leurs familles. Ils avaient besoin d'un abri pour les machines, puis d'une chambre, puis d'un endroit où se réunir après leur journée.",
-      "Le bois se trouvait sur place. Les systèmes énergétiques, les pompes et les appareils de mesure venaient d'ailleurs et coûtaient cher. On préféra donc réparer les façades avec des planches nouvelles et réserver les crédits aux pièces que personne ne savait fabriquer. Cette habitude n'a jamais quitté Breach Port : un porche ancien peut abriter un terminal moderne, et la porte d'un atelier tient parfois grâce à trois générations de réparations.",
-      "Lorsque les guerres des Clones stimulèrent la demande en minerai et en matériel, le petit bourg agrandit ses entrepôts et ses aires de chargement. On y prit l'habitude de garder quelques jours des marchandises qui n'avaient plus rien à voir avec les galeries. Une propriétaire transforma sa remise en dépôt. Un manutentionnaire apprit à négocier les tarifs. Des réparateurs furent engagés pour remettre en service des appareils délaissés par les grands chantiers.",
-      "Puis les mines déclinèrent. Certaines galeries coûtèrent davantage à entretenir qu'elles ne rapportaient. Les ateliers, eux, étaient toujours là ; les équipages savaient trouver la vallée. Breach Port changea de métier sans changer de visage. Elle cessa peu à peu de vivre de ce qu'on arrachait à la roche pour vivre de ce qui passait entre ses quais.",
-      "De cette histoire subsistent des concessions compliquées, des limites de parcelles discutées et des familles qui estiment avoir construit la ville de leurs propres mains. Le cimetière des hauteurs rassemble des noms que l'on retrouve encore au-dessus des portes. Dans une discussion sur un hangar, un vieux titre de propriété peut compter davantage que la parole du propriétaire actuel.",
-      "La mémoire du port n'est pas conservée seulement dans les registres. Elle se lit sur les murs réparés, dans les accents des familles, dans les habitudes des dockers et dans la façon qu'ont les anciens de regarder un étranger annoncer qu'il va enfin moderniser la ville."
-    ]
+      "ANNALES DE LA VALLÉE — Avant le spatioport, les premiers habitants de Breach Port empruntaient un chemin de débardage qui descendait les versants boisés vers des installations de prospection. Ouvriers, charpentiers, mécaniciens, mineurs et familles s'y établirent sans cérémonie. Leur œuvre ne fut pas de conquérir une planète, mais de construire des abris, des ateliers et un lieu où terminer leurs journées.",
+      "Le bois local servit d'abord à réparer les façades et les porches. Les pompes, les capteurs et les systèmes d'énergie, trop coûteux pour être remplacés, étaient entretenus avec une ténacité devenue une tradition. Aujourd'hui encore, un ancien bâtiment peut abriter un terminal récent derrière une porte réparée par trois générations.",
+      "Les guerres des Clones augmentèrent la demande de minerai et de fret. Les entrepôts s'agrandirent ; des remises furent transformées en dépôts ; des manutentionnaires apprirent à négocier les tarifs et des réparateurs prirent en charge les équipements laissés de côté par les grandes usines.",
+      "Quand l'exploitation minière déclina, la vallée ne disparut pas. Certaines galeries fermèrent, mais les ateliers et les quais conservèrent leur clientèle. Breach Port passa progressivement de l'extraction à la circulation des marchandises, évolution que les archives impériales présentent volontiers comme une capacité exemplaire d'adaptation productive.",
+      "Les titres de concession et les limites de parcelles suscitent encore des discussions que le registre préfectoral ne tranche pas toujours aisément. Le cimetière des hauteurs porte des noms que l'on lit aussi au-dessus des portes. Dans cette petite ville, l'histoire n'est pas seulement l'affaire des archives : elle est inscrite dans chaque planche remplacée et chaque facture conservée.",
+      "Les réformateurs de passage évoquent parfois une modernisation totale. Le chroniqueur local leur recommande d'observer les habitants avant de tracer leurs plans : le savoir de Breach Port tient autant dans ses réparations patientes que dans les documents soigneusement classés."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques administratives du district",
+    "archiveLabel": "Chronique provinciale · édition impériale"
   },
   {
     "id": "chapitre-04",
@@ -48,12 +57,15 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Breach Port",
     "kind": "thème",
     "paragraphs": [
-      "La vallée doit son nom à une brèche dans la roche. Le même passage qui laisse entrer les convois canalise des courants d'air capricieux. Dans les couches minérales des hauteurs, le vent arrache de minuscules paillettes abrasives. Les anciens appellent ces rafales le vent d'aiguilles. Le phénomène existait avant les mines ; les déblais abandonnés l'ont rendu plus familier encore.",
-      "Il n'a pas besoin de faire tempête pour être dangereux. À la faveur d'une brusque bourrasque, des grains presque invisibles piquent les yeux, rayent les surfaces optiques et s'insinuent dans les joints des appareils. Les voyageurs découvrent parfois le problème après avoir essuyé distraitement leurs paupières ou le capteur d'un viseur. Les gens du pays préfèrent ne pas attendre cette leçon.",
-      "À Breach Port, tout le monde porte des lunettes de protection, dans les rues comme à l'intérieur des établissements ouverts sur le vent. Les humanoïdes comme les droïdes. Les uns protègent leurs yeux, les autres leurs capteurs optiques. Les modèles varient : lunettes d'ouvrier cerclées de métal, verres fumés de pilote, montures empruntées à l'équipement militaire, protections ajustées autour du visage d'un droïde. La paire que l'on porte en dit parfois autant que les bottes ou l'écusson d'un équipage.",
-      "Les habitants se moquent gentiment des nouveaux venus qui demandent pourquoi une telle précaution est nécessaire sous un ciel clair. Ils cessent de rire lorsqu'une bourrasque traverse la rue et que les enseignes se mettent à vibrer. Dans les cours, on a appris à couvrir les marchandises, à protéger les évents des machines et à fermer les volets avant que les grains n'atteignent les vitrines.",
-      "Cette habitude a façonné le port. Un inconnu dissimulé derrière des verres épais est plus difficile à reconnaître. Les gens apprennent à lire la voix, la démarche et les gestes. On retire ses lunettes pour les nettoyer, jamais par bravade. Même les gardiens de la maison du préfet gardent leurs protections lorsqu'ils surveillent la rue."
-    ]
+      "NOTICE SUR LES CONDITIONS LOCALES — La vallée de Breach Port s'ouvre dans une brèche rocheuse que traversent les convois et les vents. Les courants y arrachent aux couches minérales de minuscules particules abrasives. Les habitants appellent ce phénomène le vent d'aiguilles ; les débris d'anciennes exploitations en ont rendu les effets plus familiers.",
+      "Ce danger ne nécessite aucune tempête spectaculaire. Une bourrasque peut suffire à piquer les yeux, rayer un capteur ou abîmer les joints d'une machine. Les services techniques recommandent d'attendre la fin du souffle avant de nettoyer les surfaces optiques, et surtout de protéger ce qui doit l'être avant de sortir.",
+      "Les lunettes de protection sont devenues une marque de la ville. Humanoïdes comme droïdes en portent dans les rues et les bâtiments exposés. Lunettes d'ouvrier, verres de pilote, protections militaires réemployées ou montures adaptées aux capteurs : chaque paire raconte un métier, une origine ou un niveau de prudence.",
+      "Les voyageurs nouvellement arrivés s'étonnent parfois de ces précautions sous un ciel clair. Les anciens sourient, jusqu'à ce que les enseignes se mettent à vibrer et que les marchandises soient prestement recouvertes. On ferme les évents, les volets et les bâches avec un empressement appris au fil des années.",
+      "Le port s'est adapté jusque dans ses rapports sociaux. Derrière des verres sombres, on reconnaît moins facilement un visage ; la voix et la démarche prennent davantage d'importance. Même les gardiens de la préfecture gardent leurs protections en service. L'Empire peut édicter des consignes, mais certaines règles locales ont été écrites bien avant lui par le climat lui-même."
+    ],
+    "imperialRecord": true,
+    "archivist": "Service impérial d'histoire locale",
+    "archiveLabel": "Chronique provinciale · édition impériale"
   },
   {
     "id": "chapitre-05",
@@ -61,8 +73,13 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Breach Port",
     "kind": "thème",
     "paragraphs": [
-      "Breach Port tient sur peu de rues. Ses établissements principaux ne sont pas dispersés dans une métropole ; on peut les traverser à pied, passer d'une négociation à une réparation et retrouver le soir à la cantina une personne rencontrée le matin devant les docks. Chaque lieu a pourtant ses usages, ses fidélités et sa manière de faire payer les services."
-    ]
+      "GUIDE CIVIL DU DISTRICT — Breach Port rassemble ses principaux établissements dans quelques rues que l'on parcourt à pied. Ce modeste périmètre concentre la préfecture et sa prison, la cantina de la Traverse, le Comptoir, le spatioport, les docks, l'Hospice et l'Atelier.",
+      "Les services officiels soulignent la proximité de l'administration, du commerce et des fonctions essentielles. Cette organisation fait la force du district : une cargaison débarquée peut être contrôlée, négociée et réparée sans traverser une ville entière. Elle explique aussi pourquoi une dispute commencée sur un quai se prolonge parfois autour d'une table de cantina.",
+      "Chaque lieu conserve ses horaires, ses coutumes et ses fidélités. Le visiteur gagnera à respecter les indications du personnel, à présenter les documents demandés et à se souvenir qu'à Breach Port un service rendu aujourd'hui peut avoir des conséquences longtemps après le départ du vaisseau."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniqueur provincial — Archives impériales",
+    "archiveLabel": "Chronique provinciale · édition impériale"
   },
   {
     "id": "chapitre-06",
@@ -70,12 +87,15 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Breach Port",
     "kind": "thème",
     "paragraphs": [
-      "On pourrait croire, à voir les vaisseaux se succéder, que Breach Port appartient aux voyageurs. Lorsque les balises s'éteignent et que les moteurs se taisent, il reste pourtant une ville entière à nourrir : des familles, des artisans, des enfants, des retraités des mines, des employés de bureau et des droïdes qui accomplissent le même service depuis assez longtemps pour reconnaître trois générations de voix.",
-      "Les vieilles familles conservent des titres et des habitudes. Certaines possèdent des hangars prospères ; d'autres n'ont hérité que d'une toiture qui fuit et d'une dette qu'on préférerait oublier. Les nouveaux venus arrivent avec leurs propres raisons de rester. Un pilote trouve du travail, une mécanicienne reprend un établi, un fugitif loue une chambre et décide un jour de ne plus repartir. Il n'est pas rare qu'un habitant soit connu sous un nom dont aucun registre de naissance ne porte la trace.",
-      "Les espèces venues d'autres mondes partagent les mêmes espaces, sans forcément manger, dormir ou commercer de la même manière. Le Basic permet de commencer une discussion ; il ne dispense pas d'apprendre à écouter. Une fête peut réunir des traditions différentes, puis laisser derrière elle trois versions de ce qui a été promis. Cela contribue au charme du port et, parfois, à la difficulté d'y conclure des affaires.",
-      "La place des droïdes nourrit des débats bien réels. Pour certains propriétaires, ce sont des équipements coûteux et indispensables. Pour d'autres habitants, ce sont des collègues auxquels on confie depuis des années ses clés, ses messages et sa sécurité. Un droïde d'inventaire peut posséder une mémoire plus ancienne que le bureau qui l'emploie. Un modèle réparé tant de fois qu'il ne reste presque rien de ses pièces originales continue néanmoins à répondre au même surnom.",
-      "L'entraide existe, mais elle a sa mémoire. Une famille offre un repas à un équipage sans ressources, puis se souvient de l'avoir fait lorsqu'elle a besoin d'un transport. Un atelier prête un outil en sachant qu'il pourra le réclamer un jour. On danse à la cantina ; on se dispute au Comptoir ; on se réconcilie parfois sur les docks. Le lendemain, les comptes et les sentiments sont rarement aussi faciles à séparer qu'on le croyait la veille."
-    ]
+      "CHRONIQUE DE LA POPULATION — De loin, Breach Port paraît appartenir aux équipages qui y font escale. Une fois les moteurs éteints, le district retrouve pourtant ses habitants permanents : familles, artisans, anciens mineurs, employés, enfants et droïdes attachés depuis longtemps aux mêmes tâches. Le chroniqueur impérial rappelle qu'un port est d'abord une communauté que le passage des cargaisons ne saurait résumer.",
+      "Les vieilles familles possèdent des concessions, des hangars ou parfois seulement des dettes anciennes. Les nouveaux arrivants sont venus pour un travail, une réparation à entreprendre ou un refuge durable. Certains habitants sont connus sous des noms que les registres les plus anciens ne contiennent pas ; les bureaux du district préfèrent naturellement une identification régulière.",
+      "Humanoïdes d'espèces diverses et droïdes partagent les mêmes rues, sans toujours partager les mêmes habitudes alimentaires, les mêmes horaires ou les mêmes usages commerciaux. Le Basic permet de négocier une première fois ; la connaissance des coutumes permet de conserver un partenaire. Une fête réussie peut laisser derrière elle plusieurs versions d'une promesse.",
+      "Les droïdes occupent une place singulière. Les inventaires les classent souvent parmi les équipements ; leurs collègues se souviennent pourtant des conseils d'un modèle ancien ou de la fidélité d'une machine réparée mille fois. Une mémoire mécanique peut conserver le nom d'un propriétaire disparu longtemps après que le bureau a changé de direction.",
+      "Les archives impériales recommandent le respect des obligations contractuelles. Les habitants connaissent surtout la loi des services rendus : un repas offert, un outil prêté, un transport assuré. À la cantina comme aux docks, la gratitude et la dette ne figurent pas toujours sur des factures, mais personne ne les oublie."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des relevés civils",
+    "archiveLabel": "Chronique provinciale · édition impériale"
   },
   {
     "id": "chapitre-07",
@@ -83,12 +103,15 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Breach Port",
     "kind": "thème",
     "paragraphs": [
-      "Le préfet administre Breach Port et son district portuaire au nom de l'Empire. Il ne gouverne pas Ord Mantell, mais son autorité locale suffit à transformer un retard en crise. Il signe, autorise, retient et interdit. Une cargaison peut rester immobilisée parce qu'un document manque ; une faveur suffit parfois à retrouver le document avec une étonnante rapidité.",
-      "La préfecture s'appuie sur une garnison limitée, des gardiens et des agents chargés des contrôles. Ce ne sont pas tous les mêmes hommes, ni les mêmes consciences. Un douanier peut croire sincèrement qu'il protège la ville contre des cargaisons dangereuses. Un autre traite une licence comme un moyen de rappeler sa puissance. Un garde peut détester son supérieur et défendre néanmoins la prison avec une fidélité absolue.",
-      "Les registres sont leur propre forme d'autorité. On peut contester un témoin, mentir à un créancier, faire disparaître une facture. Il est plus difficile de changer l'histoire d'un vaisseau lorsqu'une copie se trouve à la maison du préfet, une autre au Comptoir et une troisième dans la mémoire d'un droïde. Pourtant, ce sont parfois les erreurs d'écriture qui décident d'un procès, d'une saisie ou d'une succession.",
-      "Le préfet tient à ce que le port continue de gagner sa vie. Une répression trop brutale ruinerait les négociants dont dépendent ses recettes. Une indulgence trop visible lui vaudrait des comptes à rendre. Dans cette marge de manœuvre prospèrent les arrangements et les intermédiaires. Les habitants s'en accommodent jusqu'au jour où la faveur accordée à un voisin devient une injustice qui les frappe eux-mêmes.",
-      "La loi ne fait pas disparaître les coutumes locales. On préfère souvent régler une dette en discutant, ramener une marchandise à son propriétaire plutôt que provoquer une guerre et donner à chacun la possibilité d'expliquer ce qu'il a fait. Mais certains conflits ne se règlent plus autour d'une table. Lorsque l'autorité se durcit, la petite prison paraît soudain très proche de toutes les maisons."
-    ]
+      "RELEVÉ DE L'ADMINISTRATION — La préfecture de Breach Port administre le district portuaire au nom de l'Empire, sans gouverner pour autant toute la planète Ord Mantell. Son autorité concerne les autorisations, les registres, les taxes et les contrôles des marchandises. Les bulletins officiels présentent cette présence comme la garantie d'un commerce ordonné.",
+      "Une petite garnison, des gardiens et des agents de contrôle accompagnent l'administration. Les fonctions sont distinctes, comme les tempéraments : un douanier peut examiner une cargaison par souci véritable de sécurité, un autre se montrer plus attaché à la démonstration de son autorité. La chronique locale distingue volontiers la règle de ceux qui l'appliquent.",
+      "Les registres conservent l'histoire des vaisseaux, des cargaisons et des concessions. Une copie peut être déposée à la maison du préfet, une autre gardée au Comptoir, une troisième retenue dans la mémoire d'un droïde. Cette redondance protège les transactions ; elle permet aussi qu'une erreur d'écriture ancienne soit disputée pendant des années.",
+      "Le préfet doit concilier le fonctionnement du port avec les demandes de sa hiérarchie. Une inspection trop sévère retarde des recettes nécessaires ; une indulgence trop manifeste expose l'administration aux reproches. Les intermédiaires prospèrent dans cet espace étroit entre procédure et négociation.",
+      "Les coutumes ne disparaissent pas devant un formulaire. Beaucoup préfèrent régler une dette autour d'une table ou restituer une marchandise sans procès. Les chroniqueurs officiels y voient une preuve de civisme tant que la loi n'est pas contournée. Les habitants savent, eux, que la prison toute proche rappelle à chacun où s'achève la discussion."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques administratives du district",
+    "archiveLabel": "Chronique provinciale · édition impériale"
   },
   {
     "id": "chapitre-08",
@@ -96,13 +119,16 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Breach Port",
     "kind": "thème",
     "paragraphs": [
-      "Il se dit à Breach Port que les affaires illégales seraient plus dangereuses sans quelqu'un pour en fixer les usages. Ceux qui répètent cette phrase avec le plus de conviction connaissent souvent un homme à qui ils doivent de l'argent. Le nom du Syndicat des Amarres apparaît dans les conversations comme celui d'une entreprise qu'aucun bureau officiel n'a jamais enregistrée.",
-      "Le Syndicat ne se montre pas sous une bannière. Ses affaires se lisent ailleurs : une dette de jeu soudain rachetée, une protection qu'on propose un peu trop insistamment, un chargement pour lequel on suggère de ne pas poser de questions. Il finance des passages clandestins, achète des renseignements et sert d'intermédiaire aux marchandises dont les vendeurs souhaitent rester inconnus. Il prospère dans les marges de la loi, mais dépend autant que les commerçants du bon fonctionnement du port.",
-      "Le Comptoir est l'un des endroits où ses hommes aiment traiter, surtout lorsque le casino officieux ouvre ses tables. Aux docks, ses associés préfèrent les faveurs aux démonstrations de force : obtenir un créneau de chargement, retrouver une caisse égarée, avertir qu'un inspecteur prend son service. À la cantina, il arrive qu'on entende une proposition qui ressemble à une aide jusqu'au moment où l'on comprend le prix du refus.",
-      "Tous les contrebandiers n'appartiennent pas au Syndicat. La Ligne Grise, réseau de passeurs et d'équipages aux papiers imparfaits, traite parfois avec lui et refuse parfois ses conditions. Certains transportent des vivres bloqués par l'administration ; d'autres ne demandent jamais ce que contiennent les caisses. Les habitants savent faire la différence entre un arrangement nécessaire, une fraude lucrative et une menace déguisée en service.",
-      "L'influence du Syndicat dépasse la vallée sans pour autant en faire le maître d'Ord Mantell. Des intérêts liés au Soleil Noir ont laissé leur trace sur la planète. Des courtiers hutts et des intermédiaires venus de la Bordure extérieure cherchent régulièrement des ports où placer leurs marchandises. Le Syndicat négocie avec de tels visiteurs quand cela l'arrange, mais personne n'ose dire publiquement lequel de ces partenaires lui donne des ordres — ni même si l'un d'eux le fait vraiment.",
-      "Sa plus grande force est peut-être de laisser les autres croire qu'il voit tout. Ses ennemis le jugent trop organisé ; ses amis savent qu'il compte aussi des opportunistes, des débiteurs et des hommes qui se détestent. Une ville entière ne tient pas dans une seule main, pas même lorsqu'on porte des gants de cuir et qu'on connaît le prix de chaque cargaison."
-    ]
+      "RAPPORT SUR LES RÉSEAUX NON DÉCLARÉS — Le Syndicat des Amarres revient régulièrement dans les conversations de Breach Port, bien qu'aucune inscription au registre ne définisse officiellement l'entreprise. Certains habitants prétendent qu'un réseau organisé impose au commerce clandestin des règles que les trafiquants isolés respecteraient moins. Cette affirmation est consignée ici comme une opinion, non comme une garantie.",
+      "Les activités attribuées au Syndicat comprennent le rachat de dettes de jeu, des offres de protection insistantes, des passages discrets et l'intermédiation pour des cargaisons dont les propriétaires ne souhaitent pas être nommés. Les enquêteurs impériaux distinguent ces pratiques du commerce autorisé ; les observateurs locaux constatent qu'elles dépendent pourtant des mêmes quais et des mêmes transporteurs.",
+      "Le Comptoir, notamment lorsque ses tables de jeu officieuses sont actives, est associé à certaines de ces rencontres. Aux docks, les faveurs et les créneaux de chargement valent parfois davantage que les menaces. À la cantina, une proposition peut commencer comme une aide et se terminer par une obligation dont personne n'avait parlé.",
+      "La Ligne Grise, réseau de passeurs et d'équipages aux papiers imparfaits, ne se confond pas avec le Syndicat des Amarres. Les deux groupes traiteraient parfois ensemble et se disputeraient parfois le même passage. Tous les déplacements clandestins n'ont d'ailleurs pas la même motivation : certains concernent des denrées retenues, d'autres des affaires dont la nature demeure inconnue.",
+      "Des intérêts liés au Soleil Noir, des courtiers hutts et des intermédiaires venus de la Bordure extérieure ont laissé des traces dans l'histoire criminelle de la région. Les archives publiques ne permettent pas d'affirmer qu'un commandement unique dirige le Syndicat ni même que tous ceux qui s'en réclament obéissent à la même autorité.",
+      "Les services impériaux invitent les citoyens à se méfier des réseaux qui se présentent comme indispensables. Le chroniqueur notera cependant qu'un groupe dont chacun exagère la puissance peut finir par influencer les décisions de ceux qui ne l'ont jamais rencontré."
+    ],
+    "imperialRecord": true,
+    "archivist": "Service impérial d'histoire locale",
+    "archiveLabel": "Chronique provinciale · édition impériale"
   },
   {
     "id": "chapitre-09",
@@ -110,12 +136,15 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Breach Port",
     "kind": "thème",
     "paragraphs": [
-      "La plupart des cargaisons qui passent par Breach Port sont parfaitement ordinaires : eau, rations, composants, minerai, cellules énergétiques, pièces de droïdes. Elles font vivre les ateliers et permettent aux familles de traverser les mauvaises semaines. C'est parce que le trafic ordinaire est abondant que les marchandises litigieuses peuvent s'y dissimuler. Un port où chaque caisse renfermerait un secret aurait cessé depuis longtemps d'être crédible.",
-      "La valeur d'un objet dépend moins de son éclat que de l'urgence de celui qui en a besoin. Une pompe peut ne rien valoir tant que la réserve fonctionne ; elle devient une fortune lorsque l'eau commence à manquer. Une capsule médicale bloquée derrière une signature peut compter davantage qu'une caisse d'alliages. Les spéculateurs disent qu'ils rendent service en faisant circuler les biens vers ceux qui paient le mieux. Les soignants n'utilisent pas toujours les mêmes mots.",
-      "Les crédits circulent entre plusieurs mains. Le transporteur facture la route, le docker la manutention, le courtier le client trouvé, le mécanicien la pièce et les heures de travail. Des équipages achètent une escorte pour ne pas risquer de perdre leur cargaison. D'autres préfèrent miser sur la discrétion, les faux papiers ou la chance. Une livraison peut nourrir une famille et ruiner celle qui attendait une autre destination.",
-      "Le marché légal et le marché clandestin se rencontrent sans se confondre. Une licence de transit peut être honnête ; un faux manifeste peut dissimuler des biens volés, mais aussi une personne recherchée pour de mauvaises raisons. Le Comptoir est le lieu des prix affichés. Le casino nocturne, celui des dettes dont on parle plus bas. Les mêmes intermédiaires connaissent parfois les deux tarifs.",
-      "À Breach Port, la réputation vaut de l'argent sans apparaître sur aucun reçu. Un courtier qui tient parole garde ses clients. Un assureur qui refuse de payer le jour du sinistre n'en trouve plus. Un mécanicien qui rend un appareil fiable peut demander une avance la prochaine fois. Les habitants se souviennent des affaires, même lorsqu'ils prétendent ne rien savoir de leurs auteurs."
-    ]
+      "ANNALES ÉCONOMIQUES — La prospérité de Breach Port repose principalement sur des biens sans éclat : eau, rations, minerai, composants, cellules énergétiques et pièces destinées aux droïdes. Leur circulation assure du travail aux ateliers et de quoi vivre aux familles. Les administrations estiment à juste titre qu'un flux ordinaire et déclaré constitue la base d'un port stable.",
+      "Le cours d'un objet ne dépend pas seulement de sa matière, mais de la nécessité qu'il représente. Une pompe longtemps négligée acquiert une grande valeur quand l'eau vient à manquer. Une préparation médicale retenue par une formalité peut devenir plus importante qu'une caisse d'alliages. Les marchands et les soignants n'emploient pas toujours les mêmes mots pour décrire cette situation.",
+      "Le transporteur facture son voyage ; le docker compte ses heures ; le courtier réclame sa commission ; le mécanicien vend la pièce et le temps consacré à son installation. Les convois peuvent engager une escorte ou préférer des itinéraires discrets. Les archives impériales recommandent de distinguer les économies réelles des risques que les négociants ne font pas figurer dans leurs propositions.",
+      "Le Comptoir publie certains prix et traite les marchandises ordinaires. Ses activités nocturnes, dont le casino officieux, obéissent à d'autres usages et à une discrétion que l'administration ne reconnaît pas pour une garantie. Les manifestes réguliers et les papiers falsifiés se ressemblent parfois assez pour égarer les plus expérimentés.",
+      "À Breach Port, le crédit ne se résume pas à la somme portée sur un écran. La réputation du courtier fidèle, de l'assureur qui honore ses engagements ou du mécanicien qui livre un appareil fiable circule plus longtemps qu'un affichage de prix. Les registres impériaux enregistrent les transactions ; la ville conserve la mémoire des manières."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniqueur provincial — Archives impériales",
+    "archiveLabel": "Chronique provinciale · édition impériale"
   },
   {
     "id": "chapitre-10",
@@ -123,12 +152,15 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Breach Port",
     "kind": "thème",
     "paragraphs": [
-      "Un port vit de ce qu'il peut remettre en état. À l'Atelier, les pièces ne sont pas toujours neuves et les manuels ne décrivent pas toutes les réparations. Les mécaniciens apprennent à écouter une vibration, à reconnaître la couleur d'un composant fatigué et à se méfier du capitaine qui assure avoir simplement « effleuré » un obstacle. Certains travaillent sur les moteurs, d'autres sur les droïdes et leurs capteurs, d'autres encore sur les équipements qui maintiennent les quais en activité.",
-      "Réparer ne signifie pas toujours améliorer. Un module plus puissant attire les convoitises ; un blindage ajouté alourdit les comptes ; une réparation provisoire peut sauver un voyage sans garantir le suivant. Les récupérateurs apportent des éléments sauvés d'épaves, mais leur provenance suscite parfois des discussions jusque dans les bureaux du préfet. Une bonne affaire à l'Atelier commence souvent par la question : à qui appartient vraiment cette pièce ?",
-      "À l'Hospice, le problème est moins différent qu'il n'y paraît. Les soignants disposent de réserves limitées, de médicaments réglementés et d'instruments qui mériteraient parfois eux-mêmes une visite à l'Atelier. Les blessures viennent du travail, des routes et des mauvais choix. On y voit entrer un commerçant blessé par une caisse mal arrimée et un contrebandier poursuivi par ses créanciers. Les deux saignent avec la même honnêteté.",
-      "Les préparateurs de remèdes et d'antidotes font partie de cette économie de la réparation. Ils connaissent les propriétés de composants fictifs venus d'autres mondes, les recettes que l'on se transmet et les dangers d'un mauvais dosage. Une formule rare vaut cher, mais ne remplace ni les ingrédients ni les mains capables de l'utiliser. Les personnes venues chercher une dose découvrent parfois qu'il leur manque moins des crédits qu'un fournisseur digne de confiance.",
-      "Les droïdes franchissent eux aussi les portes des ateliers pour retrouver leurs fonctions. Leur mémoire conserve une facture ancienne, une promesse, parfois le nom d'un propriétaire qui n'existe plus. Les habitants ne s'accordent pas tous sur ce que cela signifie. Dans une ville où presque tout se répare, certains secrets résistent obstinément à la réparation."
-    ]
+      "CHRONIQUE DES SERVICES ESSENTIELS — Un port qui ne sait pas réparer finit par ne plus savoir accueillir. À l'Atelier de Breach Port, mécaniciens et techniciens travaillent sur les moteurs, les droïdes, les capteurs et les appareils qui font vivre les quais. Les manuels ne décrivent pas toutes les pannes, et une machine ancienne exige parfois davantage d'écoute que de pièces neuves.",
+      "Réparer ne signifie pas toujours améliorer. Un module puissant peut alourdir les charges ; un blindage modifie l'équilibre d'un appareil ; un dépannage provisoire permet de rentrer sans garantir le voyage suivant. Les composants récupérés dans des épaves soulagent les ateliers, mais la question de leur propriété reste parfois entière.",
+      "L'Hospice applique à la santé une économie de moyens que l'administration impériale appelle volontiers une gestion responsable. Les soignants, eux, parlent de stocks limités, d'instruments usés et de livraisons réglementées. Marchands blessés et contrebandiers poursuivis franchissent la même porte lorsque leur état exige des soins.",
+      "Les préparateurs de remèdes et d'antidotes dépendent d'ingrédients venus de plusieurs mondes. Un dosage erroné peut être dangereux, et une formule ne remplace ni les produits ni la compétence de celui qui l'emploie. Les autorités recommandent le respect des procédures d'approvisionnement ; les praticiens rappellent le coût humain des retards.",
+      "Les droïdes bénéficient eux aussi de réparations qui prolongent leur service et parfois leur mémoire. Certains conservent des factures ou des promesses datant de propriétaires disparus. La chronique impériale souligne l'utilité des ateliers ; elle laisse aux habitants le soin de débattre de ce qu'il reste d'une machine que l'on a réparée toute une vie."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des relevés civils",
+    "archiveLabel": "Chronique provinciale · édition impériale"
   },
   {
     "id": "chapitre-11",
@@ -136,13 +168,16 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Culture et galaxie",
     "kind": "thème",
     "paragraphs": [
-      "Les familles des premières concessions se surnomment parfois les Signataires. Leur pouvoir se lit dans les actes de propriété et les vieilles dettes plutôt que dans leurs fortunes réelles. Une famille cherche à agrandir son dépôt, une autre refuse de vendre le dernier bâtiment qu'elle possède. Elles se disputent souvent, mais savent faire front lorsqu'un acteur extérieur prétend réorganiser la vallée sans leur demander leur avis.",
-      "Les Bras du Quai, manutentionnaires, conducteurs et petits transporteurs, possèdent une force plus directe : quand ils s'arrêtent, les marchandises aussi. Leur solidarité peut sauver un voisin ou bloquer une livraison urgente. Les uns veulent des salaires meilleurs, les autres des horaires sûrs, et certains souhaitent seulement qu'on cesse de les soupçonner à chaque disparition de caisse.",
-      "Le Cercle des Rivets n'est guère plus qu'une communauté d'ateliers qui se prêtent des pièces et se disputent les bons clients. Les mécaniciens y parlent le langage des réparations, des fournisseurs et des garanties. Ils ne constituent pas une armée, mais un capitaine qui a offensé la moitié des ateliers découvre vite combien il lui reste d'endroits où faire réparer ses moteurs.",
-      "Les Courtiers de la Traverse, eux, ne se réunissent pas derrière une seule enseigne. Leur richesse est faite de noms et de rendez-vous. Ils peuvent présenter deux adversaires l'un à l'autre, trouver du carburant à un vaisseau immobilisé ou rendre une affaire suffisamment compliquée pour qu'on ait encore besoin d'eux le lendemain.",
-      "Enfin, il existe des habitants qui aident discrètement des personnes recherchées, acheminent une lettre ou offrent une chambre sans demander de justificatifs. Certains les appellent les Guetteurs ; d'autres affirment que ce nom n'est qu'une invention de la préfecture. Ils ne se connaissent pas tous, n'ont pas les mêmes convictions et ne rêvent pas nécessairement d'une nouvelle guerre. Dans un monde inquiet, une entraide ordinaire peut déjà paraître subversive.",
-      "Il serait trop simple de répartir tous les habitants dans des cases. On peut être fille de Signataire, travailler aux docks et devoir de l'argent au Syndicat des Amarres. On peut soigner un garde impérial le matin et abriter son frère fugitif le soir. Les alliances de Breach Port naissent le plus souvent d'une nécessité concrète. Elles ne se confondent pas avec une carte de factions gravée une fois pour toutes."
-    ]
+      "NOTICE SUR LES CORPORATIONS ET LES SOLIDARITÉS — Breach Port connaît plusieurs groupements dont l'influence ne figure pas toujours sur une carte officielle. Les familles des premières concessions, parfois nommées les Signataires, tirent leur poids de titres de propriété anciens et de dettes mémorisées. Elles se divisent sur les hangars et les héritages, mais savent se rassembler face aux réformes décidées sans elles.",
+      "Les Bras du Quai réunissent manutentionnaires, conducteurs et petits transporteurs. Leur travail maintient les cargaisons en mouvement ; un arrêt concerté peut retarder les livraisons d'un district entier. Leurs revendications concernent aussi bien le salaire que la sécurité et la fin des soupçons systématiques après chaque caisse manquante.",
+      "Le Cercle des Rivets rassemble des ateliers qui échangent outils, pièces et conseils tout en se disputant parfois les mêmes clients. Ce réseau sans uniforme possède un pouvoir discret : un capitaine fâché avec plusieurs mécaniciens découvre vite le prix de l'isolement professionnel.",
+      "Les Courtiers de la Traverse vivent des relations qu'ils entretiennent entre acheteurs, transporteurs et créanciers. Ils peuvent trouver une pièce rare ou un partenaire financier ; ils savent aussi rendre les échanges assez compliqués pour demeurer nécessaires. Les services impériaux recommandent des contrats écrits, même lorsque la présentation est faite par un ami.",
+      "D'autres habitants aident discrètement des personnes recherchées, transmettent des messages ou offrent une chambre sans demander de justificatifs. Certains parlent des Guetteurs ; d'autres soutiennent que ce nom aurait été inventé par la préfecture. Les archives publiques ne certifient pas l'existence d'une organisation unifiée.",
+      "Un citoyen peut appartenir à plusieurs de ces cercles sans y voir de contradiction : héritier d'une concession, docker de métier et débiteur d'un intermédiaire, par exemple. Pour l'administration, cette superposition complique les classements. Pour Breach Port, elle constitue la réalité quotidienne de ses alliances."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques administratives du district",
+    "archiveLabel": "Chronique provinciale · édition impériale"
   },
   {
     "id": "chapitre-12",
@@ -150,12 +185,15 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Culture et galaxie",
     "kind": "thème",
     "paragraphs": [
-      "Les informations voyagent presque aussi vite que les cargaisons. Un horaire de départ, le nom d'un acheteur, une dette contractée autour d'une table ou l'identité d'un passager peuvent valoir plus cher qu'une pièce de moteur. Les habitants l'ont compris depuis longtemps. Celui qui semble ne rien vendre au Comptoir tient peut-être commerce de ce que tout le monde dit à voix basse.",
-      "Le port conserve des traces de lui-même. La maison du préfet abrite les dossiers administratifs ; le Comptoir garde des manifestes et des contrats ; les docks conservent la mémoire des chargements ; les droïdes retiennent parfois des détails qu'aucun employé n'a eu la patience d'archiver. Aucun registre n'est parfait. Une erreur ancienne, une concession modifiée ou un nom remplacé au mauvais endroit peut faire naître des disputes longtemps après le départ de ceux qui avaient rédigé le document.",
-      "Les faussaires prospèrent sur cette fragilité. Un bon faux ressemble à une pièce authentique dont tout le monde a oublié l'origine. Un marchand peut présenter une licence irréprochable sans posséder ce qu'elle prétend autoriser. Un pilote peut voyager sous un nom différent sans avoir jamais changé de visage. Mais fabriquer une apparence de vérité ne suffit pas toujours : quelqu'un se souvient d'une signature, d'un accent ou de la manière dont le propriétaire précédent réparait ses lunettes.",
-      "Les secrets ne sont pas tous criminels. Une famille dissimule une dette pour ne pas perdre sa maison. Un droïde garde un souvenir qu'on lui a demandé d'effacer. Une soignante protège la confidentialité de ses patients. Une personne surveillée cherche simplement un lieu où prendre un repas sans devoir fournir de rapport sur sa présence. Dans cette ville, révéler une information peut être aussi lourd de conséquences que la voler.",
-      "À la cantina, les rumeurs prennent vite une apparence d'évidence. On y connaît toujours quelqu'un qui connaît quelqu'un. Les plus prudents attendent d'avoir vérifié les faits. Les autres découvrent parfois qu'une fausse piste peut devenir vraie si assez de personnes commencent à agir comme si elle l'était."
-    ]
+      "CHRONIQUE DES REGISTRES ET DES INFORMATIONS — Dans un port de transit, la nouvelle arrive parfois avant la cargaison et vaut davantage qu'elle. L'identité d'un acheteur, la date d'un départ ou une dette contractée à une table de jeu deviennent des renseignements dont certains font profession. Les services impériaux souhaitent que les données essentielles soient enregistrées ; les habitants en conservent aussi une partie dans leur mémoire.",
+      "La préfecture garde des dossiers officiels, le Comptoir conserve des manifestes, les docks se souviennent des lots et les droïdes retiennent des détails oubliés des employés. Ces archives se complètent sans jamais se recouvrir exactement. Une erreur ancienne peut devenir l'origine d'un procès, d'une concession contestée ou d'une succession difficile.",
+      "Les faussaires profitent des écarts entre documents. Une licence peut paraître irréprochable et autoriser pourtant un bien que le porteur ne possède pas. Un voyageur peut présenter un nom différent sans modifier son visage. Le contrôle des sources exige parfois de reconnaître une signature, un accent ou la manière dont un mécanicien entretenait autrefois un appareil.",
+      "L'information n'est pas toujours un instrument de fraude. Elle peut protéger une famille endettée, un malade ou une personne qui craint d'être reconnue. Les autorités défendent le principe de registres fiables ; la chronique locale rappelle que la divulgation imprudente d'un détail peut avoir des conséquences aussi graves que sa dissimulation.",
+      "À la Traverse, les rumeurs circulent vite et prennent parfois la forme de certitudes. Les historiens de l'administration recommandent de distinguer le témoignage, le document et l'affirmation répétée. Ceux qui omettent cette distinction découvrent souvent qu'une fausse nouvelle, une fois crue, peut produire des effets tout à fait réels."
+    ],
+    "imperialRecord": true,
+    "archivist": "Service impérial d'histoire locale",
+    "archiveLabel": "Chronique provinciale · édition impériale"
   },
   {
     "id": "chapitre-13",
@@ -163,12 +201,15 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Culture et galaxie",
     "kind": "thème",
     "paragraphs": [
-      "Les pilotes ne parlent pas de la galaxie comme d'une carte immobile. Ils parlent des relais qui ont encore du carburant, des mécaniciens capables de travailler sans délais, des patrouilles qui changent de secteur et des appels de détresse auxquels il vaut mieux répondre avec prudence. Une route peut être réputée sûre pendant des mois avant qu'une seule attaque ne transforme les habitudes de tous ceux qui l'empruntent.",
-      "Les chasseurs légers escortent, reconnaissent et interviennent rapidement. Les cargos gagnent leur vie sur les petites marchandises que les grands transporteurs dédaignent. Les transports renforcés intéressent les gros négociants et ceux qui pensent qu'une grande soute contient forcément une fortune. Chaque capitaine choisit une manière de voyager : prudent et bien accompagné, rapide et discret, ou assez désespéré pour croire qu'il passera une fois de plus.",
-      "Une escorte ne promet pas l'absence de danger. Elle promet d'être présente quand il survient. Certains pilotes honorent un contrat jusqu'à en perdre leur appareil. D'autres exigent une garantie avant de décoller, ou refusent de suivre une route dont le client ne veut pas expliquer le détour. Les pirates connaissent ces tensions. Ils cherchent les convois isolés, les renseignements exacts et, surtout, les occasions de s'emparer d'un butin qu'ils auront réellement les moyens d'emporter.",
-      "Les épaves alimentent une autre profession. Un bâtiment abandonné peut contenir un module rare, des marchandises dont le propriétaire demeure connu ou un transpondeur susceptible de rappeler une histoire gênante. Les récupérateurs cherchent à sauver de la valeur là où les pilotes n'aperçoivent qu'une carcasse. Les propriétaires, les assureurs et les agents du port ne partagent pas toujours leur définition du mot « abandonné ».",
-      "Les pertes dans l'espace ont des conséquences sur la terre ferme. Un cargo immobilisé prive un atelier de pièces. Un chasseur détruit laisse une dette. Une escorte défaillante peut ruiner un accord commercial et une victoire sur des pirates ne rembourse pas automatiquement le carburant dépensé. C'est pourquoi les conversations du spatioport finissent presque toujours au Comptoir ou à la Traverse, devant quelqu'un qui tient les comptes."
-    ]
+      "ANNALES DES ROUTES ET DE LA RÉCUPÉRATION — La carte d'une galaxie ne décrit jamais seule les conditions du voyage. Les pilotes parlent aussi des relais de carburant, des ateliers encore capables de réparer une coque, des patrouilles qui changent de secteur et des signaux de détresse auxquels il faut répondre avec mesure. Une liaison sûre hier peut devenir dangereuse après une seule attaque.",
+      "Les chasseurs légers assurent reconnaissance et escorte ; les cargos transportent les marchandises modestes dont les grandes compagnies ne veulent pas ; les transports renforcés intéressent les négociants exposés à des risques élevés. L'administration impériale encourage la déclaration exacte des trajets et des cargaisons. Les capitaines savent que chaque appareil impose ses propres limites.",
+      "Une escorte garantit une présence, non l'absence de danger. Certains pilotes honorent leur contrat au prix de leur vaisseau ; d'autres réclament des garanties ou refusent un détour inexpliqué. Les pirates recherchent moins le combat pour lui-même que les convois isolés et les informations nécessaires pour emporter leur prise.",
+      "Les épaves créent une économie parallèle. Un bâtiment abandonné peut contenir une pièce rare, un transpondeur reconnaissable ou un fret dont le propriétaire est encore légalement identifié. Récupérateurs, assureurs et autorités ne donnent pas toujours le même sens au mot « abandonné ».",
+      "Les pertes se répercutent jusque dans les ateliers de la vallée. Un cargo immobilisé empêche une livraison, un chasseur détruit laisse une dette, une victoire contre des pillards consomme du carburant. Ainsi, les conversations du spatioport se poursuivent souvent au Comptoir devant les contrats et les comptes. Aucun article public ne saurait tenir lieu de code de navigation utilisable."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniqueur provincial — Archives impériales",
+    "archiveLabel": "Chronique provinciale · édition impériale"
   },
   {
     "id": "chapitre-14",
@@ -176,12 +217,15 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Culture et galaxie",
     "kind": "thème",
     "paragraphs": [
-      "Il existe des gens qui regrettent la République sans vouloir se battre. D'autres ne se soucient guère de l'ancien régime, mais ne supportent plus de voir leurs voisins arrêtés pour un papier manquant. Quelques-uns commencent à imaginer qu'il serait possible de s'opposer à l'Empire en s'organisant. Ailleurs, ces idées prennent des formes différentes ; à Breach Port, elles commencent par des services demandés à voix basse.",
-      "Un moteur réparé gratuitement permet à un fugitif de repartir. Un carton de fournitures médicales arrive chez une famille qui n'aurait pas pu payer les droits imposés. Une liste de détenus passe de main en main. Il se peut que celui qui aide ignore tout de l'organisation qui bénéficiera de son geste. Il se peut aussi qu'il le sache parfaitement et prétende l'ignorer pour se protéger.",
-      "Ces actes divisent même ceux qui les accomplissent. Certains refusent que la résistance mette en danger les habitants. D'autres estiment qu'on ne peut demander la permission d'agir à ceux qui profitent du pouvoir. Les marchands craignent pour leurs contrats, les ouvriers pour leurs emplois, les soignants pour leurs patients. Il arrive qu'un officier impérial sincère rende service à des gens qu'il serait tenu d'arrêter s'il connaissait leur histoire.",
-      "Le Syndicat des Amarres et les passeurs de la Ligne Grise voient passer des marchandises dont ils préfèrent parfois ignorer la destination. Certains acceptent de perdre de l'argent pour une cause ; d'autres facturent plus cher les risques politiques que les dangers ordinaires. Le préfet, de son côté, sait qu'une simple fraude se négocie plus facilement qu'une affaire susceptible d'attirer l'ISB.",
-      "Il n'y a pas encore de drapeau rebelle sur les murs de Breach Port. Il y a des silences, des regrets, des solidarités et des refus. Celui qui viendra un jour demander de choisir un camp trouvera des habitants qui ont déjà choisi bien des choses, sans jamais avoir donné un nom à leur engagement."
-    ]
+      "NOTICE SUR LES CONTESTATIONS DE L'ORDRE PUBLIC — Certains habitants de Breach Port expriment leur attachement à l'ancienne République ; d'autres contestent des règlements sans souhaiter un changement de régime. Les services impériaux rangent volontiers ces attitudes sous le terme de dissidence. Le chroniqueur local observe qu'elles recouvrent des motivations bien plus diverses.",
+      "Une réparation offerte permet parfois à une personne recherchée de repartir ; des fournitures médicales peuvent atteindre une famille sans suivre toutes les procédures prévues ; une liste de détenus circule de main en main. Les autorités y voient des infractions possibles. Ceux qui rendent ces services affirment souvent avoir répondu à une situation urgente plutôt qu'à un mot d'ordre.",
+      "Les habitants ne s'accordent pas sur les limites de cette aide. Les commerçants craignent pour leurs contrats, les ouvriers pour leur emploi, les soignants pour leurs patients. Un agent impérial peut lui-même rendre service à quelqu'un dont il ignore la situation administrative et ne pas considérer son geste comme politique.",
+      "Des intermédiaires du Syndicat des Amarres ou de la Ligne Grise rencontrent parfois des cargaisons dont la destination suscite des questions. Certains acceptent un risque par conviction, d'autres facturent plus cher un acheminement devenu délicat. Le préfet sait qu'une fraude ordinaire ne présente pas les mêmes conséquences qu'une affaire susceptible d'attirer l'ISB.",
+      "Dans les rues de Breach Port, aucune organisation rebelle connue n'affiche encore son drapeau. On parle de refus, de nostalgies, d'entraide et de silences. Les services impériaux invitent à la vigilance ; la population continue de distinguer, au cas par cas, la solidarité d'un voisin et l'appel à la révolte."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des relevés civils",
+    "archiveLabel": "Chronique provinciale · édition impériale"
   },
   {
     "id": "chapitre-15",
@@ -189,11 +233,14 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Culture et galaxie",
     "kind": "thème",
     "paragraphs": [
-      "Les adultes les plus âgés affirment parfois avoir croisé un Jedi dans leur jeunesse. Certains en conservent une image très précise : une démarche calme, une manière de parler qui faisait taire une assemblée, une lame de lumière aperçue de loin pendant la guerre. D'autres racontent simplement une histoire qu'ils tenaient eux-mêmes de leurs parents. Les enfants écoutent, intrigués ; les responsables de la préfecture préfèrent que ces récits restent des histoires.",
-      "Depuis la chute de la République, les Jedi sont devenus des absents dont on discute avec prudence. L'Empire les traite comme des ennemis d'un autre âge, mais se montre étonnamment attentif à toute rumeur de survivant. À la Traverse, l'évocation d'un sabre lumineux peut faire sourire un pilote ivre. La même phrase répétée devant un enquêteur risque d'entraîner des questions beaucoup moins amusantes.",
-      "On parle aussi de guérisons inexplicables, de coïncidences impossibles et d'étrangers dont la voix aurait écarté un garde de son devoir. Les témoins sont souvent incertains, parfois intéressés, toujours prompts à compléter les trous de leur mémoire. Une lumière dans les anciennes galeries n'est peut-être qu'un outil de maintenance ; elle peut suffire à remplir la cantina de récits pour une semaine.",
-      "Breach Port a d'autres préoccupations plus pressantes : nourrir ses habitants, faire repartir ses cargos, réparer ses machines et conserver ses droits. Que la Force existe ne dispense personne de ces tâches. Peut-être est-ce pour cela que les rares histoires qu'on lui prête y paraissent si extraordinaires : la ville sait reconnaître un phénomène qui échappe aux réparations ordinaires."
-    ]
+      "NOTICE SUR LES TRADITIONS ANCIENNES — Certains habitants âgés affirment avoir rencontré un Jedi avant la transformation de la République en Empire. Leurs récits évoquent la calme autorité d'un négociateur, une lame lumineuse aperçue pendant la guerre ou des histoires héritées de leurs parents. La préfecture recommande de traiter ces témoignages avec prudence.",
+      "Depuis la dissolution de l'Ordre Jedi, le nom de ses membres ne se prononce pas partout avec la même facilité. La doctrine impériale les présente comme des acteurs d'une crise grave ; dans les ports, d'anciens souvenirs demeurent cependant attachés à leur rôle de protecteurs. L'évocation d'un survivant peut attirer l'attention des services de sécurité, sans que la rumeur constitue une preuve.",
+      "À la cantina circulent aussi des récits de guérisons inexplicables, d'étranges coïncidences et de voyageurs dont la voix aurait fait changer d'avis un garde. Les historiens des archives impériales classent la plupart de ces anecdotes parmi les récits non vérifiés. Une simple lampe dans une ancienne galerie peut devenir l'origine d'une légende.",
+      "Les affaires quotidiennes exigent des soins, du carburant, des réparations et du travail, avec ou sans mystère. Les chroniqueurs officiels invitent les citoyens à ne pas confondre croyance et information attestée. Les habitants continuent pourtant de prêter une oreille attentive aux histoires qui échappent aux explications ordinaires."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques administratives du district",
+    "archiveLabel": "Chronique provinciale · édition impériale"
   },
   {
     "id": "chapitre-16",
@@ -201,12 +248,15 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Breach Port",
     "kind": "thème",
     "paragraphs": [
-      "Depuis quelques semaines, Breach Port a changé de rythme. Les avis administratifs sont plus fréquents, les demandes de justificatifs plus précises et les cargaisons retenues plus nombreuses. Un document autrefois accepté sans discussion revient désormais avec une annotation. Une marchandise annoncée n'arrive pas ; une autre se présente au nom d'un destinataire que personne ne connaît. Le préfet parle de remise en ordre. Les habitants essaient de comprendre qui lui a demandé de s'y mettre.",
-      "Certains se réjouissent de cette nouvelle rigueur. Ils espèrent voir disparaître les racketteurs, les faux transitaires et les marchands qui changent de nom au moment de payer. D'autres redoutent que les contrôles ne servent surtout à déplacer les affaires lucratives vers les proches de l'administration. Les dockers craignent des journées perdues, les courtiers des contrats impossibles à honorer, les familles des visites qui ne se limitent plus aux cargaisons.",
-      "Au Comptoir, les négociations deviennent nerveuses. Un acheteur demande à revoir une facture déjà signée. Aux docks, une équipe refuse de charger tant que le propriétaire d'un lot n'est pas clairement identifié. À l'Hospice, on compte les fournitures, car les livraisons réglementées prennent du retard. Le soir, les tables du casino clandestin se remplissent de gens qui cherchent à récupérer en une heure les crédits que leur journée leur a coûtés.",
-      "Les visiteurs aussi changent. Quelques équipages repartent plus vite que prévu. D'autres semblent s'intéresser aux registres davantage qu'à la qualité du carburant. Des commerçants découvrent des alliances inhabituelles ; des partenaires de toujours commencent à préparer leur défense séparément. Les plus prudents gardent une réserve et un second itinéraire. Les plus audacieux flairent une occasion de prendre la place d'un concurrent.",
-      "La ville continue pourtant de vivre. On danse à la Traverse. On répare une pompe à l'Atelier. Un droïde cherche des verres neufs pour ses capteurs. Les familles passent devant la maison du préfet sans s'arrêter, même lorsqu'elles savent que l'un des dossiers derrière ces murs concerne leur avenir. Les balises du spatioport restent allumées, et d'autres cargaisons continuent de descendre dans la brume."
-    ]
+      "BULLETIN DU DISTRICT — Depuis plusieurs semaines, la préfecture de Breach Port a renforcé les contrôles de marchandises et la vérification des pièces de transit. Les avis administratifs sont plus nombreux, les signatures examinées avec davantage de soin et certaines cargaisons restent immobilisées plus longtemps. L'autorité présente ces mesures comme un retour à la régularité.",
+      "Une partie des commerçants espère voir reculer les faux transitaires, les racketteurs et les débiteurs changeant d'identité. D'autres redoutent que des formalités trop strictes avantagent des partenaires proches des bureaux. Les dockers comptent les heures perdues, les courtiers recalculent leurs contrats et les familles s'interrogent sur les nouvelles demandes de justificatifs.",
+      "Au Comptoir, certains acheteurs réclament de revoir des documents déjà signés. Aux docks, un chargement attend qu'un propriétaire soit clairement identifié. L'Hospice surveille ses réserves, car les livraisons réglementées se font attendre. Le soir, les tables de jeu officieuses attirent ceux qui espèrent récupérer les crédits perdus dans la journée.",
+      "Des équipages repartent sans s'attarder ; d'autres paraissent plus attentifs aux registres qu'aux stocks de carburant. Des alliances commerciales anciennes sont renégociées, et quelques négociants mettent de côté une réserve ou un itinéraire de secours. Les archives ne concluent pas encore à une cause unique de cette agitation.",
+      "La vie demeure pourtant reconnaissable. On danse à la Traverse, une pompe est réparée à l'Atelier et les capteurs d'un droïde reçoivent des verres neufs. Les agents de la préfecture continuent de travailler, les familles traversent la place et les balises du spatioport restent allumées. Le chroniqueur impérial rappelle que la stabilité se mesure autant à la continuité des gestes ordinaires qu'au nombre de contrôles effectués."
+    ],
+    "imperialRecord": true,
+    "archivist": "Service impérial d'histoire locale",
+    "archiveLabel": "Bulletin de district · édition impériale"
   },
   {
     "id": "planete-ord-mantell",
@@ -215,8 +265,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Breach Port est le lieu où l’on rassemble ce qui vient d’ailleurs. Les cargos y cherchent du carburant, les pilotes des contrats, les mécaniciens des pièces et les courtiers une seconde chance de vendre leur chargement. On y entrepose des lots en attendant un acheteur ou un départ plus favorable. La ville ne contrôle pas les marchés de la galaxie ; elle vit des voyageurs qui cherchent à les relier."
-    ]
+      "RELEVÉ IMPÉRIAL DES PORTS — Ord Mantell figure parmi ces mondes dont les cités anciennes, les concessions minières et les établissements de transit ont appris à prospérer loin des grandes cérémonies de Coruscant. Dans le district de Breach Port, les cargaisons venues de plusieurs systèmes se croisent avec les demandes des ateliers, des pilotes et des négociants.",
+      "L'administration souligne l'utilité d'un tel relais dans la continuité du commerce galactique. Les quais accueillent des lots en attente de propriétaire, de pièces ou de transport ; les manifestes donnent à ces mouvements une nécessaire lisibilité. Un chroniqueur local observera cependant qu'ici une réputation solide ouvre parfois plus de portes qu'un formulaire parfaitement rempli."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des routes et des marchés",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-corellia",
@@ -225,8 +279,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Sur Corellia, les silhouettes des vaisseaux dominent les quartiers ouvriers. Les chantiers navals, les moteurs et les matériaux industriels font vivre une population habituée aux départs. Il y a toujours quelqu’un pour chercher une pièce difficile à trouver, négocier une cargaison d’alliages ou faire réparer une machine. Les meilleurs marchés sont rarement ceux dont les affiches promettent les prix les plus bas : un contrat y tient parfois à un délai de livraison."
-    ]
+      "ANNALES INDUSTRIELLES — Corellia demeure l'un des noms que les constructeurs et les capitaines prononcent avec respect. Ses chantiers, ses ateliers de moteurs et ses quartiers ouvriers témoignent d'un savoir-faire longtemps mis au service de la circulation entre les systèmes. Les coques qui y prennent forme sont autant d'instruments de commerce que de symboles de puissance technique.",
+      "Les autorités impériales encouragent la fiabilité des contrats et la traçabilité des équipements. Les capitaines savent néanmoins que l'industrie vit aussi de délais, de commandes urgentes et de négociations âpres : un alliage précieux n'est pas nécessairement celui qui se vend le plus cher, mais celui que le bon atelier peut livrer lorsque le vaisseau ne peut plus attendre."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques provinciales de l'Empire",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-tatooine",
@@ -235,8 +293,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Sous les deux soleils de Tatooine, rien d’utile ne se gaspille. Les fermes d’humidité, les ateliers et les villes portuaires comptent les filtres, les cellules énergétiques, l’eau et les pièces de récupération. Les affaires se concluent loin des bureaux impeccables, autour d’un hangar ou d’une table poussiéreuse. On peut y trouver un acheteur pressé ou un intermédiaire qui promet davantage qu’il ne possède. Les voyageurs prudents vérifient toujours qui garantit la transaction."
-    ]
+      "CHRONIQUE DES CONFINS — Sous les deux soleils de Tatooine, l'eau demeure la première mesure de toute richesse. Fermes d'humidité, ateliers de récupération et comptoirs poussiéreux y constituent une économie adaptée à la rareté. Les visiteurs des mondes centraux découvrent parfois avec surprise qu'un filtre fonctionnel peut être plus estimé qu'un objet d'apparat.",
+      "Les services impériaux recommandent aux transporteurs de contrôler soigneusement manifestes et garanties. Sur ce monde, beaucoup d'affaires se règlent au bord d'un hangar plutôt que dans un bureau homologué, et la parole d'un intermédiaire n'engage pas toujours les marchandises qu'il promet. L'ordre administratif gagne à connaître ces usages avant de prétendre les corriger."
+    ],
+    "imperialRecord": true,
+    "archivist": "Service impérial des échanges",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-ryloth",
@@ -245,8 +307,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Ryloth est la terre des Twi’leks, marquée par les occupations et les luttes pour disposer de ses propres ressources. Les cargaisons n’y racontent jamais toute l’histoire : derrière un lot de matières premières, il peut y avoir des travailleurs, des familles et des autorités dont les intérêts s’opposent. Des acheteurs cherchent du matériel et des approvisionnements ; des vendeurs veulent faire sortir leurs biens avant qu’une nouvelle restriction ne tombe. Le bon prix ne règle pas toujours la question du bon interlocuteur."
-    ]
+      "NOTICE SUR LES MONDES PRODUCTEURS — Ryloth, terre des Twi'leks, porte encore les marques de conflits, d'occupations et de rivalités autour de ses ressources. Les rapports officiels insistent sur la nécessité d'un approvisionnement régulier et de circuits déclarés ; les habitants, de leur côté, connaissent depuis longtemps la différence entre les intérêts d'un acheteur et ceux d'une famille.",
+      "Le chroniqueur impérial retiendra qu'aucun manifeste ne suffit à décrire une cargaison. Matières premières, fournitures et matériel transitent entre des interlocuteurs dont les objectifs ne coïncident pas toujours. Les restrictions et les changements d'autorité compliquent les échanges ; il convient donc d'identifier le véritable détenteur d'un lot avant d'engager transport, crédits ou réputation."
+    ],
+    "imperialRecord": true,
+    "archivist": "Annales civiles du gouvernorat",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-lothal",
@@ -255,8 +321,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Sur Lothal, les grandes plaines et les terres agricoles côtoient des installations industrielles toujours plus exigeantes. Le développement voulu par l’Empire attire des commandes de composants et de matériaux, mais il pèse aussi sur les habitants et les circuits d’approvisionnement. Les cargos croisent aussi bien des producteurs ordinaires que des acheteurs travaillant pour de puissants clients. Une commande abondante peut sembler rassurante ; encore faut-il savoir qui la paiera, et à quelles conditions."
-    ]
+      "CHRONIQUE DE LA MODERNISATION — Lothal offre le spectacle de grandes terres agricoles voisines d'installations industrielles en expansion. L'administration impériale présente ce développement comme une preuve de reconstruction : routes de fret, commandes de composants et nouvelles capacités de production y transforment l'économie d'un monde longtemps voué aux récoltes.",
+      "Les rapports des convois rappellent toutefois que les besoins des usines ne sont pas ceux des exploitants ruraux. Une commande importante peut mobiliser matériaux et transporteurs, puis laisser d'autres acheteurs attendre. Le Bureau des échanges invite chacun à distinguer les perspectives annoncées des stocks disponibles et des paiements effectivement garantis."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des routes et des marchés",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-kessel",
@@ -265,8 +335,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Les mines de Kessel ont la réputation de rapporter beaucoup à ceux qui les contrôlent et de coûter cher à ceux qui y travaillent. Substances convoitées, cargaisons sensibles et intermédiaires du Syndicat Pyke y entretiennent un commerce où le manifeste compte autant que le contenu des caisses. Les noms des acheteurs circulent moins librement que les rumeurs de leurs bénéfices. Pour un Courtier, Kessel est moins la promesse d’une fortune qu’une invitation à examiner chaque autorisation et chaque clause."
-    ]
+      "RAPPORT SUR LES EXPLOITATIONS SENSIBLES — Le nom de Kessel est associé aux mines, aux cargaisons surveillées et à des substances dont la valeur attire des intérêts puissants. Les intermédiaires du Syndicat Pyke occupent une place dans les récits commerciaux du secteur, tandis que les conditions de travail des exploitations suscitent depuis longtemps des commentaires moins officiels.",
+      "Pour l'administration, la priorité demeure le contrôle des autorisations et des manifestes. Un marchand prudent ne confondra pas la réputation d'une cargaison avec le droit de l'acquérir : les clauses, l'identité des acheteurs et les restrictions de circulation comptent autant que le produit lui-même. Les archives ne sauraient tenir une promesse de fortune pour une preuve de provenance."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques provinciales de l'Empire",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-sullust",
@@ -275,8 +349,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Sullust est un monde de chaleur et de reliefs volcaniques, dont les habitants sont réputés savoir vivre et travailler dans des conditions difficiles. Des équipages de Breach Port associent volontiers son nom aux réparations exigeantes, aux équipements techniques et aux pièces qui doivent résister longtemps. Rien ne dit qu’un composant y sera bon marché le jour où l’on en aura besoin. Sur les routes industrielles, les délais et la fiabilité se négocient presque aussi cher que les marchandises."
-    ]
+      "ANNALES TECHNIQUES — Sullust, monde volcanique où l'on travaille dans la chaleur et sous des reliefs difficiles, a développé des pratiques industrielles adaptées à des conditions exigeantes. Réparations, outillage et équipements destinés à durer sont fréquemment associés à son nom dans les carnets des équipages.",
+      "La normalisation impériale apprécie les pièces dont la qualité peut être attestée, mais la circulation des biens ne se résume jamais à un cachet. Les délais de fabrication, la disponibilité des matériaux et la fiabilité du fournisseur commandent souvent davantage le prix final qu'une étiquette. Le chroniqueur conseille de vérifier la destination d'usage avant de déclarer une commande acquittée."
+    ],
+    "imperialRecord": true,
+    "archivist": "Service impérial des échanges",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-mon-cala",
@@ -285,8 +363,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Les mers de Mon Cala abritent des cités et des savoir-faire très différents de ceux des ports poussiéreux d’Ord Mantell. Mon Calamari et Quarren y partagent une longue histoire, parfois difficile. La réputation de leurs constructions navales attire l’attention des capitaines en quête de matériel spécialisé. Mais les cargaisons destinées à un monde sous pression politique exigent plus qu’un joli devis : elles demandent des papiers solides, des partenaires fiables et une raison crédible de traverser les contrôles."
-    ]
+      "ARCHIVES DES MONDES OCÉANIQUES — Les cités de Mon Cala se déploient dans un environnement que les habitants des ports terrestres connaissent surtout par les récits de navigateurs. Mon Calamari et Quarren y portent des traditions distinctes et une histoire commune parfois difficile. La construction navale du monde jouit d'une réputation qui dépasse largement ses mers.",
+      "Les autorités impériales considèrent les marchés spécialisés de Mon Cala comme des échanges à documenter avec rigueur. Les capitaines de passage ont appris que la pression politique et les exigences administratives peuvent peser sur les cargaisons autant que les conditions naturelles. Un devis avantageux ne dispense ni de l'identification du fournisseur ni des papiers nécessaires au transit."
+    ],
+    "imperialRecord": true,
+    "archivist": "Annales civiles du gouvernorat",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-geonosis",
@@ -295,8 +377,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Les anciennes ruches de Geonosis et ses usines de guerre appartiennent aux récits que les vétérans des guerres des Clones racontent à voix basse. Sous l’Empire, le système n’est pas une destination commerciale ordinaire : les accès sont restreints, et les renseignements fiables rares. Un marchand qui prétend y tenir un comptoir ouvert à tous mérite davantage de questions que de crédits. Les contrats portant ce nom relèvent des autorisations exceptionnelles, quand ils ne sont pas de simples mensonges."
-    ]
+      "ARCHIVE MILITAIRE — Geonosis occupe une place singulière dans la mémoire de la guerre des Clones. Les ruches et les anciennes installations industrielles de ce monde sont associées aux premiers grands affrontements du conflit. Les vétérans en rapportent des récits qui mêlent machines de guerre, poussière et combats d'une ampleur exceptionnelle.",
+      "Le système relève aujourd'hui d'un régime d'accès restreint et ne doit pas être présenté comme un comptoir commercial ordinaire. L'autorité impériale rappelle qu'un contrat prétendant garantir librement une livraison sur Geonosis appelle des vérifications extraordinaires. Les rumeurs circulant dans les ports ne tiennent lieu ni de laissez-passer ni de renseignement certifié."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des routes et des marchés",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-coruscant",
@@ -305,8 +391,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "À Coruscant, la ville s’étend au-dessus et au-dessous des nuages, sur des niveaux que beaucoup d’habitants ne quittent jamais. La capitale impériale absorbe une quantité immense de fournitures, de matériaux et de services. La demande peut être considérable ; la concurrence, les intermédiaires et les formalités le sont aussi. Un cargo venu de Breach Port y arrive comme une goutte d’eau dans un océan de trafic. Cela n’empêche pas un petit marchand d’y faire fortune, ni de s’y ruiner en frais avant la première vente."
-    ]
+      "CHRONIQUE DE LA CAPITALE — Coruscant étend ses niveaux urbains bien au-delà de ce que peut embrasser un regard. Capitale de la République hier, centre de l'administration impériale aujourd'hui, elle rassemble bureaux, quartiers résidentiels, institutions et marchés d'une échelle qui défie les équipages des petits ports.",
+      "Le gouvernement présente cette concentration comme le cœur organisateur de la galaxie. Les transporteurs observent surtout l'ampleur des formalités et des besoins : matériaux, denrées et services y affluent sans relâche. Une petite cargaison de Breach Port peut y rencontrer un acheteur, mais elle doit d'abord traverser l'immensité des intermédiaires, des quais et des procédures."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques provinciales de l'Empire",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-naboo",
@@ -315,8 +405,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Les lacs, les collines et les villes de pierre claire de Naboo donnent aux voyageurs l’impression d’un monde soigneusement préservé. Les communautés naboo et gungan y possèdent chacune leurs usages, leurs savoir-faire et leurs relations avec l’extérieur. Un capitaine habitué aux docks de Breach Port y découvre que la politesse et les papiers comptent autant que le prix annoncé. Les fournitures, les instruments et les produits de qualité trouvent parfois preneur, mais un contrat élégant n’est pas nécessairement un contrat simple."
-    ]
+      "NOTICE CULTURELLE — Naboo est connue pour ses lacs, ses collines et ses cités de pierre claire, où les traditions de ses habitants Naboo et Gungans façonnent des usages particuliers. La crise autrefois provoquée par la Fédération du Commerce a donné à ce monde une place durable dans les récits officiels de la fin de la République.",
+      "Les archives impériales recommandent aux visiteurs de respecter les usages et les autorisations locales. Les négociants y recherchent instruments, fournitures et biens de qualité, mais la courtoisie d'un accord ne garantit pas son exécution. La bonne tenue des échanges exige ici, comme ailleurs, autant de documents fiables que de bonnes intentions."
+    ],
+    "imperialRecord": true,
+    "archivist": "Service impérial des échanges",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-alderaan",
@@ -325,8 +419,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Sur Alderaan, les sommets enneigés dominent des cités où la culture, les arts et la diplomatie restent des sujets de fierté. On y parle volontiers d’entraide entre mondes et des conséquences de la guerre, sans que chaque visiteur partage les mêmes convictions. Les marchands apprécient les clients exigeants et les engagements tenus ; les transporteurs, eux, apprennent que la réputation d’un commanditaire peut valoir davantage qu’une promesse de prime. Nul ne devrait confondre le prestige d’un lieu avec une invitation à y entrer sans contrôle."
-    ]
+      "CHRONIQUE DIPLOMATIQUE — Sous ses montagnes enneigées, Alderaan entretient la réputation d'un monde attaché à la culture, à la diplomatie et aux engagements publics. Ses cités et ses institutions inspirent un prestige dont l'effet se fait sentir jusque dans les discussions commerciales des ports éloignés.",
+      "Un historien impérial notera que la réputation d'un monde ne saurait le soustraire aux règles communes de transit et de déclaration. Les marchands apprécient les contrats honorés et les clients exigeants ; les transporteurs vérifient pour leur part les conditions exactes d'une réception. La dignité d'un commanditaire, si renommé soit-il, ne constitue pas une autorisation d'accès."
+    ],
+    "imperialRecord": true,
+    "archivist": "Annales civiles du gouvernorat",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-kashyyyk",
@@ -335,8 +433,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Les cités des Wookiees s’élèvent parmi les arbres gigantesques de Kashyyyk. Leurs habitants possèdent un savoir technique et une culture que les étrangers réduisent trop souvent à leur force physique. Depuis la fin des guerres des Clones, l’occupation impériale a apporté contraintes, violences et exploitation. Les équipages qui évoquent ce monde parlent de bois rares, de matériel et de main-d’œuvre ; les plus attentifs demandent d’où proviennent réellement les biens proposés. Certaines affaires n’ont pas besoin d’être illégales pour être honteuses."
-    ]
+      "NOTICE FORESTIÈRE ET INDUSTRIELLE — Les Wookiees de Kashyyyk ont bâti leurs communautés parmi des arbres d'une taille remarquable. Leur connaissance du milieu forestier et leurs savoir-faire techniques comptent parmi les traits les plus souvent relevés dans les rapports de voyageurs. Depuis la fin de la guerre des Clones, la présence impériale y a profondément modifié les conditions de vie et de travail.",
+      "Les communiqués officiels parlent de surveillance des ressources et d'organisation de la production. Les témoignages qui arrivent avec les équipages décrivent aussi des contraintes sévères et une exploitation contestée. Les bureaux du commerce rappellent l'importance des certificats d'origine : la légalité proclamée d'un lot ne suffit pas toujours à apaiser les questions soulevées par son acquisition."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des routes et des marchés",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-mandalore",
@@ -345,8 +447,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Le sol aride de Mandalore porte les traces de conflits anciens. Ses villes protégées, ses clans et sa tradition de combattants inspirent fascination ou méfiance, selon celui qui raconte l’histoire. Un casque mandalorien peut susciter davantage de questions qu’un manifeste entier. Les artisans et les mercenaires de passage connaissent la valeur d’un équipement robuste, mais les fidélités et les querelles politiques compliquent les échanges. Sur Mandalore, acheter une protection n’équivaut pas à obtenir la confiance de celui qui la fabrique."
-    ]
+      "CHRONIQUE DES TRADITIONS MARTIALES — Mandalore porte les cicatrices de conflits anciens et la mémoire de clans pour lesquels l'armure n'est pas seulement un équipement. Derrière les villes protégées et les paysages arides subsistent des fidélités et des traditions que les étrangers interprètent rarement avec justesse.",
+      "L'autorité impériale classe les équipements de protection et les services armés parmi les activités nécessitant une attention particulière. Les artisans et mercenaires mandaloriens connaissent la valeur d'une pièce bien conçue ; ils n'accordent pas nécessairement leur confiance à celui qui peut la payer. Un casque peut porter une histoire que nul inventaire ne parvient à résumer."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques provinciales de l'Empire",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-rodia",
@@ -355,8 +461,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "La jungle humide de Rodia recouvre de vastes étendues autour des villes protégées par leurs dômes. Les Rodians connaissent les avantages de vivre derrière des parois solides quand la végétation reprend sans cesse du terrain. Les voyageurs y entendent des récits de chasseurs, de convoyeurs et de communautés soucieuses de leurs approvisionnements. Entre une commande de fournitures et une offre d’escorte, les négociations peuvent changer de ton très vite. La réputation d’un habitant ne dit pourtant rien, à elle seule, de l’honnêteté de sa proposition."
-    ]
+      "RELEVÉ DES SYSTÈMES HABITÉS — Rodia se distingue par ses jungles et par les cités protégées de dômes qui permettent à ses habitants de vivre au milieu d'une végétation tenace. Les récits de chasse, d'escorte et de convoyage occupent une place importante dans sa réputation auprès des visiteurs.",
+      "Pour les observateurs impériaux, les échanges y demandent une connaissance des risques locaux et des accords d'approvisionnement. Une commande de fournitures peut se transformer en discussion sur la sécurité d'un trajet ; une proposition d'escorte exige un examen des responsabilités. Le chroniqueur recommande de juger les contrats sur leurs termes plutôt que sur les préjugés attachés aux espèces."
+    ],
+    "imperialRecord": true,
+    "archivist": "Service impérial des échanges",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-nal-hutta",
@@ -365,8 +475,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Nal Hutta est un monde chaud de marais, de pluies lourdes et de cités bâties sur les rares terres fermes. Les Hutts y dominent des réseaux d’influence dont les ramifications atteignent bien au-delà de leurs quais. Le bazar de Bilbousa attire vendeurs, intermédiaires et voyageurs en quête d’une transaction qu’ils ne trouveraient pas ailleurs. À Breach Port, certains vantent la souplesse de ces négociants ; d’autres rappellent qu’une faveur acceptée aujourd’hui peut devenir une dette demain. Le plus difficile n’est pas toujours de fixer un prix, mais de définir à qui l’on doit payer."
-    ]
+      "CHRONIQUE DES INFLUENCES — Les marais de Nal Hutta, ses pluies et ses établissements installés sur les terres fermes composent un paysage aussi difficile qu'actif. Les Hutts y exercent une influence considérable sur des circuits d'affaires qui dépassent leurs propres ports. Le bazar de Bilbousa attire une foule d'intermédiaires et de vendeurs.",
+      "Les autorités impériales considèrent avec prudence les accords conclus sous la seule garantie de relations personnelles. Certains visiteurs apprécient la souplesse des transactions, d'autres en découvrent trop tard les obligations implicites. Sur Nal Hutta, une faveur peut constituer une dette durable ; la signature ne protège que celui qui a compris à quoi il s'engage."
+    ],
+    "imperialRecord": true,
+    "archivist": "Annales civiles du gouvernorat",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-cato-neimoidia",
@@ -375,8 +489,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Au-dessus des vallées de Cato Neimoidia, les cités semblent suspendues entre les falaises. Les palais et les fortunes de négociants neimoidiens rappellent l’ancienne puissance de la Fédération du Commerce. Après la guerre, la richesse n’y a pas effacé les méfiances. On y échange autant de contrats que de démonstrations de prestige, et un invité peut se retrouver au milieu d’une compétition dont il ignore les règles. Le petit Courtier venu d’Ord Mantell devra y reconnaître les bons interlocuteurs avant d’espérer y reconnaître une bonne affaire."
-    ]
+      "ANNALES MARCHANDES — Les villes suspendues de Cato Neimoidia dominent des vallées où les palais témoignent de fortunes anciennes. La Fédération du Commerce y a laissé une mémoire visible dans l'architecture et dans les usages des négociants, mémoire que la fin de la guerre n'a pas effacée.",
+      "Les chroniques impériales distinguent la prospérité héritée de la confiance réellement méritée. Dans ces cités, l'étiquette et les manifestations de prestige accompagnent les contrats ; un étranger peut ignorer les rivalités qui se déroulent sous les politesses. Le courtier d'Ord Mantell cherchera d'abord à savoir qui décide, avant de s'inquiéter du prix promis."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des routes et des marchés",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-christophsis",
@@ -385,8 +503,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Les formations cristallines de Christophsis donnent aux horizons des couleurs que les voyageurs peinent à décrire. La planète fut un champ de bataille important pendant les guerres des Clones, et certaines familles se souviennent encore des blocus qui les privèrent de ravitaillement. Les cargaisons de matériaux, d’outillage et de denrées peuvent attirer l’attention, mais la mémoire des pénuries rend les promesses faciles peu convaincantes. Les capitaines prudents parlent autant de la fiabilité des livraisons que des bénéfices possibles."
-    ]
+      "ARCHIVES DE RECONSTRUCTION — Les formations cristallines de Christophsis donnent à ce monde un visage reconnaissable entre tous. La guerre des Clones y provoqua de violents affrontements et des blocus dont de nombreuses familles gardent encore le souvenir.",
+      "Les services impériaux présentent le rétablissement du ravitaillement comme une nécessité première. Matériaux, outillage et denrées demeurent des besoins concrets, mais les habitants des villes qui ont connu la pénurie se méfient des promesses trop faciles. Le bon transporteur ne se distingue pas seulement par le prix annoncé : il livre ce qu'il a promis, au quai convenu et à la date possible."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques provinciales de l'Empire",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-raxus",
@@ -395,8 +517,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Raxus fut l’une des grandes vitrines politiques de la Confédération séparatiste. Ses bâtiments officiels et ses quartiers élégants portent le souvenir d’un Sénat qui n’existe plus. Sous l’Empire, l’ancien engagement de certains habitants peut compliquer les rapports avec l’administration. Les transporteurs qui cherchent des clients dans ce monde apprennent vite à distinguer une maison de commerce d’un bureau surveillé. Une demande de pièces industrielles peut être parfaitement ordinaire ; son origine et son destinataire méritent néanmoins d’être vérifiés."
-    ]
+      "NOTICE SUR L'HÉRITAGE SÉPARATISTE — Raxus fut l'un des centres politiques de la Confédération des systèmes indépendants. Ses bâtiments officiels et ses quartiers soignés gardent le souvenir d'un Sénat séparatiste désormais disparu. Les archives impériales y voient un avertissement sur le coût de la division.",
+      "Les engagements politiques de la guerre continuent d'influencer les relations administratives. Les négociants de passage gagnent à distinguer les maisons de commerce des institutions placées sous contrôle. Une commande industrielle peut être légitime sans que son origine ou son destinataire échappent aux vérifications. Sur Raxus, la prudence documentaire est devenue un usage autant qu'une obligation."
+    ],
+    "imperialRecord": true,
+    "archivist": "Service impérial des échanges",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-dantooine",
@@ -405,8 +531,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Dantooine offre de vastes paysages verts, des espaces agricoles et des communautés plus éloignées des grandes métropoles galactiques. Les cargaisons y suivent souvent les besoins d’une économie rurale : entretien des machines, approvisionnement des exploitations, transport de récoltes et matériel médical. Le monde attire ceux qui veulent vivre à distance des agitations politiques, sans que cette distance protège de toutes les décisions impériales. Un voyage rentable peut y commencer par un service modeste rendu à quelqu’un qui se souviendra du nom de l’équipage."
-    ]
+      "CHRONIQUE RURALE — Les vastes plaines de Dantooine accueillent des exploitations agricoles et des communautés plus éloignées des grandes métropoles. Le commerce y dépend d'une circulation modeste mais régulière de machines, de fournitures médicales, de récoltes et de pièces d'entretien.",
+      "L'administration impériale célèbre l'apport de ces mondes à l'approvisionnement de la galaxie. Les habitants, moins préoccupés des proclamations que de l'état de leurs outils, jugent les voyageurs à la constance de leurs engagements. Un service rendu sur une exploitation peut établir une relation durable ; une promesse non tenue s'y raconte longtemps."
+    ],
+    "imperialRecord": true,
+    "archivist": "Annales civiles du gouvernorat",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-malastare",
@@ -415,8 +545,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Sur Malastare, les réserves de carburant ont longtemps attiré les armées et les industriels. Le monde des Dugs connaît la valeur de ses ressources, mais aussi les conséquences des combats menés pour les contrôler. Pour un capitaine, le nom de Malastare évoque aussitôt des discussions sur les fournitures énergétiques, les prix d’approvisionnement et les intermédiaires autorisés. Cela ne signifie pas qu’un ravitaillement attend chaque vaisseau qui s’y présente. Dans un marché sous tension, savoir qui détient le stock importe parfois plus que connaître son cours."
-    ]
+      "ANNALES ÉNERGÉTIQUES — Les réserves de carburant de Malastare ont attiré armées, industriels et transporteurs bien avant la paix impériale. Les Dugs connaissent les bénéfices et les risques liés à ces ressources, dont le contrôle fut lui-même un enjeu des combats passés.",
+      "Les autorités encouragent la déclaration claire des stocks et des circuits d'approvisionnement. Un capitaine ne doit pas supposer qu'un monde réputé pour ses réserves peut ravitailler à volonté son appareil. Les prix, les autorisations et l'identité du détenteur d'un lot demeurent des questions distinctes. Dans l'énergie comme ailleurs, la réputation ne remplace pas l'inventaire."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des routes et des marchés",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-saleucami",
@@ -425,8 +559,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Saleucami mêle étendues arides, terres humides et implantations de colons qui ont longtemps voulu rester à l’écart des batailles. La guerre a fini par atteindre leurs routes, puis la nouvelle administration impériale. Les exploitations et les petits établissements ont besoin de machines, de médicaments, de pièces et de transporteurs dignes de confiance. Les marchés les plus utiles n’y ressemblent pas forcément à des places bruyantes : une commande peut commencer dans une ferme, autour d’un moteur qui refuse de redémarrer."
-    ]
+      "CHRONIQUE DES COLONIES — Saleucami réunit des étendues sèches, des terrains humides et des établissements de colons dont les activités ont longtemps dépendu de pistes modestes. La guerre a pourtant atteint ces communautés et laissé des besoins que la fin des combats n'a pas fait disparaître.",
+      "Les archives impériales insistent sur le retour des transports et de l'administration. Les fermes et les petits comptoirs ont surtout besoin de machines fiables, de médicaments, de réparations et de négociants qui tiennent parole. Là où certains imaginent une place de marché agitée, un contrat utile peut commencer autour d'un moteur en panne et se conclure après plusieurs visites."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques provinciales de l'Empire",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-felucia",
@@ -435,8 +573,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Les forêts de Felucia semblent faites de champignons géants, de couleurs irréelles et de plantes dont les formes défient l’habitude. Ce monde fertile a souffert de combats répétés pendant les guerres des Clones. Les habitants qui cultivent ses terres connaissent les dangers de la jungle et ceux des pillards. Pour les équipages étrangers, l’approvisionnement en vivres ou en produits végétaux exige des partenaires connaissant le terrain. Une cargaison promise au départ peut se perdre entre une récolte retardée et une piste devenue impraticable."
-    ]
+      "NOTICE NATURALISTE — Felucia présente des jungles aux champignons gigantesques et aux végétaux de couleurs saisissantes. La fertilité du monde attire les prospecteurs de produits végétaux ; les chemins y demeurent pourtant difficiles et les ressources ne se laissent pas prélever sans connaissance du terrain.",
+      "Les combats de la guerre des Clones y ont interrompu des récoltes et mis certaines communautés à l'épreuve. Les bulletins impériaux privilégient désormais la sécurité des approvisionnements, mais les habitants doivent toujours compter avec la jungle et les pillards. Un capitaine qui promet une cargaison sans connaître les récoltes ni la piste de sortie s'engage sur bien plus qu'un simple délai."
+    ],
+    "imperialRecord": true,
+    "archivist": "Service impérial des échanges",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-utapau",
@@ -445,8 +587,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "À la surface d’Utapau, les vents parcourent une terre sèche percée d’immenses gouffres. Plus bas, l’eau et les villes se cachent dans les profondeurs de la roche. Pau’ans, Utai et autres habitants y vivent de métiers où la maintenance des installations et l’exploitation des ressources sont essentielles. Les pilotes y découvrent un monde dont les ports ne se ressemblent guère. Les marchands ont intérêt à vérifier le lieu exact de livraison : arriver dans le bon système ne garantit pas que l’on puisse déposer sa cargaison au bon quai."
-    ]
+      "CHRONIQUE DES HABITATS EXCEPTIONNELS — Utapau est un monde sec, percé de gouffres immenses au fond desquels se trouvent des villes et des réserves d'eau. Pau'ans, Utai et autres habitants y ont développé des savoir-faire adaptés à des infrastructures dont l'entretien ne souffre pas l'improvisation.",
+      "Les rapports administratifs soulignent que les ports de ce système ne sont pas interchangeables. Une livraison correctement déclarée doit encore atteindre l'installation concernée, parfois au cœur d'un gouffre. Le pilote prudent distingue toujours la destination planétaire du quai effectivement accessible : une erreur de localisation peut anéantir le bénéfice d'un transport."
+    ],
+    "imperialRecord": true,
+    "archivist": "Annales civiles du gouvernorat",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-mygeeto",
@@ -455,8 +601,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Mygeeto est un monde glacé de roches et de formations cristallines, autrefois lié à la puissance financière du Clan Bancaire Intergalactique. Les guerres des Clones ont laissé leurs marques dans ce décor austère. Les conversations commerciales y reviennent vite aux garanties, aux créances et à ceux qui possèdent encore les moyens de payer. Un chargement peut avoir une grande valeur sur le papier et ne trouver personne pour le financer. Les Courtiers de Breach Port connaissent ce problème : les crédits inscrits dans un contrat n’existent pas toujours dans une caisse."
-    ]
+      "ANNALES FINANCIÈRES — Mygeeto, monde de glace et de formations cristallines, reste associé à l'influence qu'y exerça jadis le Clan Bancaire Intergalactique. La guerre des Clones a profondément marqué ses paysages et laissé derrière elle des contrats, des dettes et des créances difficiles à démêler.",
+      "Les services impériaux rappellent qu'un commerce durable dépend de garanties vérifiables. Un lot peut figurer pour une somme considérable sur un registre sans trouver d'acheteur solvable le jour de la livraison. Les courtiers de Breach Port connaissent cette vérité : les chiffres d'un contrat représentent une promesse, non des crédits déjà disponibles."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des routes et des marchés",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-bracca",
@@ -465,8 +615,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Sur Bracca, des coques de guerre déclassées s’empilent sous un ciel peu accueillant. Les ouvriers de récupération démontent les anciens appareils et trient les pièces que de nouveaux acheteurs feront repartir ailleurs. L’Empire surveille une partie de ce commerce de métal, de moteurs et de composants. Un mécanicien patient peut reconnaître la valeur d’un débris que d’autres laisseraient rouiller ; un marchand pressé peut acheter une montagne de ferraille sans savoir comment la transporter. Ici, la provenance et l’état réel d’une pièce comptent autant que son étiquette."
-    ]
+      "CHRONIQUE DES MATÉRIAUX RÉCUPÉRÉS — Bracca accueille d'immenses accumulations de coques de guerre déclassées. Des ouvriers démontent les anciens vaisseaux pour en retirer moteurs, alliages et composants qui repartiront vers d'autres ateliers. La fin du conflit a fait de ces carcasses une ressource aussi précieuse qu'encombrante.",
+      "L'administration impériale surveille les opérations de récupération et les circuits déclarés des pièces. La qualité d'un élément ne se juge pas à son origine prestigieuse : elle dépend de son état réel, de son numéro et de sa traçabilité. Un mécanicien expérimenté reconnaît parfois un trésor dans un débris ; un marchand négligent risque d'acheter un poids mort impossible à transporter."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques provinciales de l'Empire",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-onderon",
@@ -475,8 +629,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Sur Onderon, de grandes villes fortifiées dominent une jungle où vivent des créatures dangereuses. Les conflits de la guerre ont opposé différentes fidélités politiques et laissé des souvenirs tenaces. Dans les rues d’Iziz, un visiteur peut entendre plusieurs versions d’une même histoire, racontées avec une conviction égale. Les transporteurs peuvent y rencontrer des demandes d’approvisionnement ordinaires, mais les engagements politiques des intermédiaires ne sont pas toujours faciles à lire. Acheter quelque chose n’oblige pas à adopter les idées de son vendeur ; cela n’empêche pas les autorités de poser des questions."
-    ]
+      "CHRONIQUE DES CITÉS FORTIFIÉES — Onderon est connu pour ses jungles dangereuses et pour les grandes villes protégées qui leur font face. Les conflits politiques et militaires de la guerre y ont laissé des fidélités tenaces. Dans les rues d'Iziz, il arrive que deux témoins racontent la même bataille en termes opposés.",
+      "Les autorités impériales présentent la surveillance des approvisionnements comme une mesure de stabilité. Les visiteurs y découvrent que l'achat de matériel ou la conclusion d'un transport peuvent néanmoins être interprétés à travers d'anciennes rivalités. Les chroniqueurs conseillent de distinguer les obligations commerciales des affiliations politiques prêtées aux interlocuteurs."
+    ],
+    "imperialRecord": true,
+    "archivist": "Service impérial des échanges",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-eriadu",
@@ -485,8 +643,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Eriadu est un monde montagneux lié à de puissants intérêts impériaux. Les responsables civils et militaires y disposent d’infrastructures que les petits équipages de Breach Port n’ont guère l’habitude de fréquenter. Un visiteur peut y trouver des prestataires efficaces et des procédures interminables, parfois dans la même rue. Les marchandises destinées à des clients influents exigent des déclarations irréprochables. Beaucoup de capitaines apprécieraient une grosse commande ; ils préfèrent pourtant savoir à qui ils parlent avant d’accepter un chargement qui pourrait leur coûter leur liberté."
-    ]
+      "ANNALES ADMINISTRATIVES — Les reliefs d'Eriadu abritent des infrastructures liées à d'importants intérêts civils et militaires impériaux. La présence des services officiels y marque la circulation des marchandises et l'organisation des activités locales, parfois à une échelle étrangère aux petits équipages d'Ord Mantell.",
+      "Les autorités invoquent la rigueur documentaire pour assurer le bon fonctionnement des approvisionnements. Un capitaine peut rencontrer des prestataires efficaces et, le même jour, devoir patienter devant plusieurs bureaux. La valeur d'une grosse commande se mesure aussi aux vérifications qu'elle impose : mieux vaut comprendre le destinataire et les conditions de remise avant de charger la soute."
+    ],
+    "imperialRecord": true,
+    "archivist": "Annales civiles du gouvernorat",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-batuu",
@@ -495,8 +657,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Batuu se trouve loin des grands centres. Autour des anciennes flèches de pierre de Black Spire, des marchands, des voyageurs et des aventuriers échangent ce qui a réussi à parvenir jusque-là. Ses forêts et ses montagnes donnent au monde des allures tranquilles, mais ses marchés ne vivent pas uniquement de clients paisibles. Un objet sans valeur dans une capitale peut y intéresser un collectionneur ou un réparateur ; encore faut-il rencontrer la bonne personne. Les équipages qui s’y aventurent savent qu’une destination lointaine ne se résume jamais à un prix attractif."
-    ]
+      "CHRONIQUE DES CONFINS — Batuu se tient loin des principaux centres administratifs. Les anciennes flèches de pierre de Black Spire se dressent au-dessus d'un carrefour où voyageurs, marchands et aventuriers échangent les biens qui ont réussi à traverser de longues distances.",
+      "La faible proximité des grands bureaux n'abolit ni les usages ni les risques du commerce. Un objet délaissé dans une capitale peut trouver ici un acheteur inattendu ; encore faut-il savoir reconnaître cet interlocuteur. L'administration recommande de ne jamais confondre l'isolement d'un monde avec l'absence de responsabilités pour ceux qui y transportent des cargaisons."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des routes et des marchés",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-bespin",
@@ -505,8 +671,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Bespin n’offre pas de terres où se poser : c’est une immense planète gazeuse dont certaines couches d’atmosphère abritent des installations flottantes. Des exploitants y recherchent des gaz précieux, tandis que les ouvriers et les machines dépendent d’approvisionnements venus de l’espace. Pour un Pilote, il ne suffit pas de viser la planète : il faut connaître l’installation qui recevra le vaisseau. Pour un Courtier, l’espoir d’un chargement rentable doit intégrer la fragilité des accès et le coût d’une erreur de destination."
-    ]
+      "NOTICE SUR LES INSTALLATIONS AÉRIENNES — Bespin est une géante gazeuse dépourvue de surface solide où poser un appareil. Certaines couches de son atmosphère accueillent des installations flottantes consacrées notamment à l'exploitation de gaz précieux. Les travailleurs y dépendent d'approvisionnements et d'équipements venus d'ailleurs.",
+      "Pour les bureaux impériaux du transit, la précision du manifeste est essentielle : un nom de planète ne suffit pas à désigner une plateforme. Les pilotes doivent identifier la station qui les recevra ; les courtiers tiennent compte de la fragilité des accès et de la capacité réelle de livraison. Sur Bespin, l'erreur de destination est parfois plus coûteuse que le voyage lui-même."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques provinciales de l'Empire",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "lieu-la-maison-du-prefet-et-la-prison",
@@ -514,9 +684,13 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Lieux de Breach Port",
     "kind": "lieu",
     "paragraphs": [
-      "La maison du préfet occupe l'ancien bâtiment du registre. On y reçoit les requêtes, on examine les autorisations, on consulte les actes et l'on accueille les agents qui parlent au nom de l'Empire. Les murs sont plus vieux que les terminaux. Un propriétaire y vient défendre sa concession ; un pilote y discute une taxe ; un parent attend qu'on veuille bien lui dire pourquoi quelqu'un a été retenu.",
-      "La prison fait partie du même ensemble. Ce ne sont pas les geôles d'une capitale, mais quelques cellules suffisent à rappeler qui dispose officiellement du pouvoir de retenir un habitant. Il s'y échange des témoignages, des menaces et des promesses. Ceux qui gardent les portes connaissent souvent ceux qui se retrouvent derrière elles. Cette proximité ne rend pas toujours la justice plus douce."
-    ]
+      "GUIDE CIVIL DU DISTRICT — La maison du préfet occupe l'ancien bâtiment du registre, dont les murs portent la mémoire des premières concessions de Breach Port. Les demandes d'autorisation, les actes de propriété, les litiges de taxes et les dossiers d'inspection y sont examinés au nom de l'administration impériale. Les autorités y voient un service de proximité ; les habitants savent que l'attente devant un guichet peut parfois décider du départ d'un cargo.",
+      "La prison dépend du même ensemble. Elle compte peu de cellules, mais elles suffisent à rappeler la compétence de la préfecture pour retenir une personne dans le cadre des procédures locales. Les gardiens connaissent souvent ceux dont ils surveillent la porte. Les chroniques impériales célèbrent cette surveillance comme une garantie de tranquillité ; les témoignages du port montrent que la proximité du pouvoir n'en rend pas les décisions moins difficiles à vivre.",
+      "Il est recommandé aux visiteurs de conserver copies de leurs titres et manifestes. À Breach Port, un document ancien peut compter davantage qu'une promesse récente ; mieux vaut ne pas laisser sa seule preuve de propriété sur une table de cantina."
+    ],
+    "imperialRecord": true,
+    "archiveLabel": "Registre civil des établissements · édition impériale",
+    "archivist": "Inspecteur civil des services du port"
   },
   {
     "id": "lieu-la-cantina-de-la-traverse",
@@ -524,9 +698,13 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Lieux de Breach Port",
     "kind": "lieu",
     "paragraphs": [
-      "La Traverse est le cœur sonore de la ville. On y mange avant son service, on y attend un équipage, on y raconte la panne d'un transport comme si elle avait été provoquée par le destin. La musique couvre assez les conversations pour en rendre certaines discrètes, mais personne ne peut être certain de n'avoir pas été entendu.",
-      "Un capitaine peut y chercher un pilote de remplacement. Un marchand y rencontre un client qui refuse de traiter devant les douaniers. Des amis s'y retrouvent pour danser après une longue semaine. La cantina ne choisit pas les opinions de sa clientèle : elle exige surtout que les conflits ne l'empêchent pas de rouvrir le lendemain."
-    ]
+      "CHRONIQUE DES ÉTABLISSEMENTS CIVILS — La cantina de la Traverse tient lieu de salle commune à un port où les équipages ne demeurent pas longtemps. Les ouvriers y mangent avant leur service, les capitaines y recherchent des contacts et les voyageurs y racontent leurs avaries. La musique couvre parfois des conversations que leurs auteurs préféreraient garder privées ; les archivistes rappellent qu'un lieu animé n'est pas un lieu où personne n'écoute.",
+      "Les registres officiels décrivent l'établissement comme une activité de restauration et de rencontre. Son utilité réelle dépasse les tables : un pilote y trouve parfois un employeur, un marchand un partenaire ou deux familles une occasion de danser après une semaine difficile. La cantina ne choisit pas les opinions de ses clients ; elle exige surtout que chacun puisse repartir et qu'elle ouvre encore le lendemain.",
+      "Le chroniqueur impérial y voit un indice de la vitalité civile de Breach Port. Les habitants savent, eux, qu'une rencontre banale autour d'un verre peut valoir davantage qu'un long échange de messages."
+    ],
+    "imperialRecord": true,
+    "archiveLabel": "Registre civil des établissements · édition impériale",
+    "archivist": "Chroniqueur du district de Breach Port"
   },
   {
     "id": "lieu-le-comptoir",
@@ -534,9 +712,13 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Lieux de Breach Port",
     "kind": "lieu",
     "paragraphs": [
-      "Le Comptoir est à la fois maison de négoce, bureau des manifestes et place du marché. On y discute les prix, les cargaisons, les licences et les contrats d'importation ou d'exportation. On y trouve les marchandises courantes, des offres de transport et des intermédiaires capables de faire apparaître une pièce introuvable — pour un prix qui se négocie souvent en privé.",
-      "De jour, les registres et les factures occupent les tables. À la tombée de la nuit, certains rideaux se ferment et d'autres jeux commencent. Derrière une porte que les habitués reconnaissent, les mises s'échangent autour de tables de hasard. Le casino clandestin n'est pas un établissement séparé : il vit à l'intérieur du Comptoir, à des heures où l'on préfère que les agents impériaux aient d'autres affaires."
-    ]
+      "ANNALES DU COMMERCE PORTUAIRE — Le Comptoir de Breach Port réunit maison de négoce, registres de manifestes et espace de marché. On y discute chargements, licences, prix et contrats d'importation ou d'exportation. Les bureaux impériaux apprécient ce point de rassemblement des transactions ; les négociants y apprécient surtout la possibilité de trouver un client avant que la cargaison ne coûte davantage en stockage.",
+      "Les biens ordinaires y côtoient les demandes inhabituelles et les propositions d'intermédiaires. Un acheteur peut obtenir une pièce introuvable ailleurs, mais une promesse ne tient lieu ni de stock ni de droit de propriété. Le chroniqueur recommande des contrats clairs, même lorsque les partenaires affirment se connaître depuis toujours.",
+      "Lorsque le jour décline, des rideaux se ferment et les tables accueillent parfois des mises que les rapports officiels ne rangent pas parmi les opérations commerciales autorisées. Le casino clandestin fait partie des usages nocturnes du Comptoir ; il ne constitue pas un établissement séparé. L'administration rappelle que les dettes de jeu ne sont pas de simples lignes effaçables d'un registre."
+    ],
+    "imperialRecord": true,
+    "archiveLabel": "Registre civil des établissements · édition impériale",
+    "archivist": "Bureau impérial des établissements"
   },
   {
     "id": "lieu-le-spatioport",
@@ -544,9 +726,13 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Lieux de Breach Port",
     "kind": "lieu",
     "paragraphs": [
-      "Le spatioport est le lieu des autorisations de départ, des équipages qui se cherchent et des plans de route qu'on préfère ne pas laisser traîner. Les pilotes y apprennent les couloirs disponibles, les escales risquées, les variations de trafic et les conditions du prochain trajet. Un petit chasseur peut y côtoyer un transport qui remplirait à lui seul plusieurs hangars de la vallée.",
-      "Un vaisseau n'est pas seulement un moyen de voyager. C'est un capital, une responsabilité et parfois la dernière propriété d'une bande. Une nouvelle couche de peinture ne change pas nécessairement son histoire, surtout lorsque le numéro inscrit dans un vieux registre dit autre chose que celui présenté par le capitaine."
-    ]
+      "GUIDE DES INSTALLATIONS DE TRANSIT — Le spatioport de Breach Port reçoit les demandes de départ, les équipages en quête de contrat et les vaisseaux de dimensions très diverses. Un chasseur léger peut y stationner près d'un transport imposant. Les services impériaux y attendent des identifications correctes et des autorisations correspondant à chaque mouvement.",
+      "Les pilotes échangent des indications sur les escales possibles, les délais, l'état des relais et les dangers signalés. Les itinéraires détaillés et les codes de navigation ne font pas partie de la présente notice publique : ils relèvent des compétences et des connaissances particulières des navigateurs.",
+      "Un vaisseau représente une valeur et une histoire. Une nouvelle peinture ne remplace pas le numéro consigné sur d'anciens manifestes ; un équipage peut dépendre de sa coque comme d'autres dépendent de leur maison. Le chroniqueur rappelle que la bonne tenue des registres protège les propriétaires autant qu'elle facilite les contrôles."
+    ],
+    "imperialRecord": true,
+    "archiveLabel": "Registre civil des établissements · édition impériale",
+    "archivist": "Inspecteur civil des services du port"
   },
   {
     "id": "lieu-les-docks",
@@ -554,9 +740,13 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Lieux de Breach Port",
     "kind": "lieu",
     "paragraphs": [
-      "Les docks reçoivent le fret et ses véritables propriétaires, qui ne sont pas toujours ceux qui déchargent les caisses. On y scelle les lots, on y réserve des emplacements et l'on surveille les manutentions. Les dockers savent qu'un chargement peut être honnête tout en voyageant avec des papiers faux, et que les documents irréprochables peuvent accompagner des marchandises très contestées.",
-      "Les docks sont aussi un lieu de solidarité et de rivalité. Un équipage attend parfois des heures pour une seule palette ; une grève de quelques personnes peut retarder plusieurs départs. Des marchandises restent sous bâche le temps de trouver un acheteur, un assureur ou quelqu'un prêt à prendre la responsabilité du transport."
-    ]
+      "CHRONIQUE DU FRET — Les docks reçoivent les marchandises et les équipes chargées de les décharger, de les sceller et de les entreposer. Le vrai propriétaire d'un lot n'est pas nécessairement celui qui en pousse le chariot. Les autorités impériales justifient ainsi le contrôle des manifestes et l'identification des destinataires avant toute remise.",
+      "Les travailleurs des quais connaissent mieux que personne l'écart possible entre une belle déclaration et la réalité d'une caisse. Des papiers irréguliers peuvent accompagner des biens sans danger ; des documents apparemment parfaits peuvent masquer une propriété discutée. Les chroniqueurs recommandent de vérifier les deux sans confondre contrôle et accusation.",
+      "Les docks constituent aussi une communauté. Un arrêt de quelques manutentionnaires retarde parfois plusieurs vols ; une palette oubliée sous une bâche peut attendre un acheteur, un assureur ou un transporteur prêt à l'emporter. Les chiffres officiels dénombrent des lots ; les anciens savent combien de vies dépendent de leur mouvement."
+    ],
+    "imperialRecord": true,
+    "archiveLabel": "Registre civil des établissements · édition impériale",
+    "archivist": "Chroniqueur du district de Breach Port"
   },
   {
     "id": "lieu-l-hospice",
@@ -564,9 +754,13 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Lieux de Breach Port",
     "kind": "lieu",
     "paragraphs": [
-      "L'Hospice accueille blessés, malades et voyageurs que personne n'a envie de garder chez soi. C'est un établissement modeste, habitué à économiser ses fournitures et à faire durer les appareils médicaux. On y répare davantage de vies qu'on ne soigne de consciences : on pose rarement des questions sur le métier d'une personne avant de s'assurer qu'elle pourra encore respirer demain.",
-      "Les préparations médicales et les antidotes exigent des produits qui n'arrivent pas toujours à temps. Certains ingrédients se négocient au Comptoir ; d'autres viennent des routes marchandes. Des soignants préfèrent obtenir une livraison discrète plutôt que laisser mourir un patient en attendant un tampon officiel. Leur choix peut leur attirer autant de gratitude que d'ennuis."
-    ]
+      "NOTICE SUR LES SERVICES DE SOIN — L'Hospice de Breach Port accueille blessés, malades et voyageurs dans un établissement modeste. Ses équipes ménagent les médicaments et prolongent l'usage d'instruments souvent réparés. Les bulletins impériaux soulignent l'importance des services de santé pour la continuité du travail portuaire ; les patients s'intéressent d'abord à la compétence des soignants.",
+      "On y reçoit des personnes aux métiers différents, parfois dans le même état d'urgence. Les préparations médicales et les antidotes dépendent d'ingrédients dont les approvisionnements ne sont pas toujours réguliers. Certains produits sont commandés au Comptoir, d'autres arrivent par des routes plus longues et des intermédiaires discrets.",
+      "Les autorités préfèrent les circuits déclarés et les stocks suivis. Le chroniqueur local constate que les médecins doivent parfois choisir entre attendre un tampon et aider un patient. Il serait imprudent de réduire ce dilemme à une simple statistique de gestion."
+    ],
+    "imperialRecord": true,
+    "archiveLabel": "Registre civil des établissements · édition impériale",
+    "archivist": "Bureau impérial des établissements"
   },
   {
     "id": "lieu-l-atelier",
@@ -574,9 +768,13 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Lieux de Breach Port",
     "kind": "lieu",
     "paragraphs": [
-      "L'Atelier est le domaine des outils usés, des pièces incompatibles et des miracles qui n'en sont pas. On y entretient les droïdes, les équipements et les vaisseaux qu'un grand constructeur refuserait peut-être de revoir. Les réparations se paient en crédits, en fournitures ou, dans les mauvaises périodes, en promesses de retour.",
-      "Un bon mécanicien sait qu'une machine remise en marche peut rapporter davantage qu'une caisse neuve. Il sait aussi qu'une réparation mal faite peut ruiner une réputation en une nuit. Des modules rares, des épaves contestées et des appareils dont les numéros ont été limés finissent un jour ou l'autre sur un de ses établis. À Breach Port, les mains capables de réparer sont presque aussi importantes que les mains capables de signer."
-    ]
+      "ANNALES TECHNIQUES DU PORT — L'Atelier de Breach Port entretient droïdes, moteurs, équipements et vaisseaux que les grands constructeurs jugeraient parfois trop anciens pour mériter une intervention. Les outils portent les marques de longues années de service et les composants ne proviennent pas toujours d'une chaîne d'approvisionnement impeccable.",
+      "Les services impériaux souhaitent encourager la fiabilité et l'identification des pièces. Les mécaniciens savent qu'une réparation bien faite peut valoir davantage qu'un appareil neuf et qu'une erreur ruine une réputation en une nuit. Les paiements prennent la forme de crédits, de fournitures ou, dans les périodes difficiles, d'engagements à honorer plus tard.",
+      "Des modules rares, des éléments récupérés dans des épaves et des appareils dont le numéro a été effacé peuvent finir sur les établis. La provenance compte autant que la compétence technique. À Breach Port, la main capable de remettre une machine en route est presque aussi précieuse que celle qui signe un contrat."
+    ],
+    "imperialRecord": true,
+    "archiveLabel": "Registre civil des établissements · édition impériale",
+    "archivist": "Inspecteur civil des services du port"
   },
   {
     "id": "prologue",
@@ -584,14 +782,17 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Breach Port",
     "kind": "récit",
     "paragraphs": [
-      "Le cargo descend sous les nuages avec une vibration que son pilote connaît trop bien. À tribord, un voyant orange clignote depuis le dernier saut. Il suffirait de remplacer une pièce, d'après le mécanicien qui l'a examiné au départ. Le pilote a gardé ses crédits pour le carburant.",
-      "Entre deux pentes sombres, des balises apparaissent. Puis une aire d'atterrissage rapiécée, des hangars bas et la silhouette d'une grue dont le bras se détache sur les arbres. La voix du contrôle demande une identification. Elle semble venir d'une cuisine : on entend de la vaisselle et quelqu'un qui appelle derrière l'opérateur. Le pilote transmet ses codes. Un silence suit, juste assez long pour qu'il se demande lequel pose problème. Enfin, la voix lui attribue un emplacement.",
-      "Les vérins se déploient. Sous la coque, une poussière sombre se soulève en tourbillons secs. Deux manutentionnaires attendent que les moteurs s'arrêtent. Ils portent tous deux des lunettes aux verres épais, comme le droïde qui arrive avec le chariot de déchargement. Le pilote les remarque à peine. Il n'a pas encore compris ce que le vent transporte dans cette vallée.",
-      "La ville commence derrière les docks. Une rue monte entre des façades de bois, bordée de porches et de passages couverts. Sous un auvent, un droïde recharge une batterie près d'une pile de bûches. Plus loin, une enseigne grésille au-dessus d'une porte réparée avec des planches claires. Une odeur de cuisine traverse celle du carburant.",
-      "Le pilote s'arrête devant la cantina. Il avait prévu de repartir avant la nuit. Il lui faut maintenant un mécanicien, un acheteur et quelqu'un capable de lui expliquer pourquoi les droits de quai ont changé pendant son voyage.",
-      "De l'autre côté de la rue, un employé de la maison du préfet affiche un avis. Deux personnes viennent le lire. Une troisième passe sans ralentir, puis revient après avoir vérifié que personne ne l'accompagne. Le pilote reconnaît l'emblème impérial au sommet de la feuille. Derrière lui, dans la soute, une caisse attend sous un chargement de filtres industriels. Elle porte le nom d'une entreprise qui a cessé d'exister depuis plusieurs années.",
-      "Il ajuste enfin ses lunettes et pousse la porte de la cantina."
-    ]
+      "CHRONIQUE D'ARRIVÉE — L'exemple suivant, recueilli dans les usages du port, montre les difficultés ordinaires d'un débarquement à Breach Port. Un cargo descend un matin sous les nuages avec une vibration persistante dans sa coque. Un voyant orange clignote depuis le dernier saut. Son pilote sait qu'une pièce devra être remplacée ; il a préféré conserver ses crédits pour le carburant.",
+      "Entre les pentes sombres apparaissent les balises, puis une aire d'atterrissage rapiécée, des hangars bas et une grue découpée sur les arbres. Le contrôle demande une identification, dans une ambiance où l'on entend de la vaisselle derrière la voix de l'opérateur. Le pilote transmet ses informations. Un court silence précède l'attribution de son emplacement : le registre, même modeste, accomplit son œuvre.",
+      "Les vérins touchent le sol et soulèvent une poussière sombre. Deux manutentionnaires attendent l'arrêt des moteurs. Ils portent des lunettes de protection épaisses, comme le droïde venu avec le chariot. Le pilote n'a pas encore compris la particularité du vent d'aiguilles qui traverse la vallée.",
+      "La ville s'ouvre derrière les docks : une rue aux façades de bois, des porches, des réparations visibles et un droïde en charge près d'une pile de bûches. L'odeur de cuisine se mêle à celle du carburant. Les chroniqueurs impériaux classent ces modestes constructions parmi les signes de la continuité des établissements de province.",
+      "À la cantina de la Traverse, le pilote espère trouver un mécanicien et un acheteur. Il comptait repartir avant la nuit ; les nouveaux droits de quai et sa panne en ont décidé autrement. Ainsi en va-t-il des transports, dont le calendrier réel se moque parfois des heures inscrites au manifeste.",
+      "De l'autre côté de la rue, un employé de la maison du préfet affiche un avis portant l'emblème impérial. Deux habitants viennent le lire ; un troisième revient discrètement après s'être assuré qu'on ne le suit pas. Dans la soute, une caisse repose sous des filtres industriels. Le nom inscrit sur son étiquette appartient à une entreprise disparue depuis des années. Les registres n'expliquent pas encore cette anomalie.",
+      "Le pilote ajuste ses lunettes et entre dans la Traverse. L'administration aurait peut-être préféré qu'il se présente d'abord au bureau des déclarations. Le chroniqueur se contentera d'observer qu'à Breach Port chaque nouvel arrivant apporte plus d'une histoire."
+    ],
+    "imperialRecord": true,
+    "archiveLabel": "Chronique illustrée du quotidien · édition impériale",
+    "archivist": "Chroniques civiles du gouvernorat"
   },
   {
     "id": "chronologie",
@@ -599,12 +800,15 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Histoire",
     "kind": "chronologie",
     "paragraphs": [
-      "Avant les guerres des Clones. Des travailleurs du bois et des mineurs établissent les premières maisons et une aire d'atterrissage. La vallée prend peu à peu le nom de Breach Port.",
-      "Pendant les guerres des Clones. La demande de minerai et de fret augmente. Les entrepôts s'agrandissent et les premiers transporteurs indépendants découvrent l'intérêt du port.",
-      "Après la naissance de l'Empire. Plusieurs galeries ferment. Les réparations, la récupération et le commerce deviennent les principales activités. La maison du registre devient le siège du préfet impérial.",
-      "Au cours des années impériales. Les familles conservent leurs concessions ; de nouveaux habitants s'installent. Les arrangements, les réseaux clandestins et les institutions du port prennent leur forme actuelle.",
-      "Aujourd'hui. À l'époque des premières résistances à l'Empire, la saison des contrôles rend les affaires incertaines. Le prochain cargo peut apporter un client, un ami, une enquête ou une raison de fuir."
-    ]
+      "AVANT LA GUERRE DES CLONES — Des travailleurs du bois et des mineurs installent les premières maisons de la vallée, ouvrent une aire d'atterrissage et établissent des chemins vers les prospections. Les chroniques du district situent dans ces travaux les débuts de Breach Port.",
+      "PENDANT LA GUERRE DES CLONES — La demande en minerai et en fret augmente. Les entrepôts s'agrandissent, les quais se développent et des transporteurs indépendants découvrent l'intérêt commercial de cette escale.",
+      "APRÈS LA PROCLAMATION DE L'EMPIRE — Plusieurs galeries cessent d'être rentables et ferment. La réparation, la récupération et les échanges prennent le relais de l'extraction. L'ancien bâtiment du registre devient le siège du préfet impérial.",
+      "LES ANNÉES IMPÉRIALES — Les familles conservent leurs concessions et de nouveaux habitants s'installent. Les services administratifs se structurent ; corporations, réseaux d'entraide et circuits non déclarés continuent de façonner la vie du port.",
+      "LA SAISON PRÉSENTE — Les contrôles sont renforcés et certains échanges deviennent plus difficiles. Les archives officielles annoncent une remise en ordre. Les habitants, eux, attendent chaque cargo avec une question bien plus immédiate : apportera-t-il du travail, une bonne nouvelle ou une nouvelle complication ?"
+    ],
+    "imperialRecord": true,
+    "archiveLabel": "Annales locales · édition impériale",
+    "archivist": "Archives impériales — histoire locale"
   },
   {
     "id": "atlas",
@@ -612,11 +816,15 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Culture et galaxie",
     "kind": "atlas",
     "paragraphs": [
-      "À Breach Port, les planètes n’existent pas seulement sur les cartes. Elles se reconnaissent à leurs marchandises, aux accents de leurs équipages et aux factures qui accompagnent les cargaisons. Un lot d’alliages peut être banal à un endroit, indispensable à un autre. Entre les deux, il faut un cargo, du carburant, du temps et quelqu’un prêt à répondre des risques.",
-      "Ces trente mondes appartiennent à la culture générale des habitants de Breach Port : chacun peut en connaître le nom et la réputation. En revanche, ce livre ne livre ni codes de navigation, ni itinéraires réservés, ni liste de clients, ni cours non publiés. Les marchés n’ont pas toujours de stocks, les routes ne sont pas toutes ouvertes et un capitaine n’accepte pas nécessairement de s’y rendre. Les cours changent, les autorisations aussi ; une escale qui promettait un profit peut finir par coûter une fortune.",
-      "Les navigateurs ne vendent pas seulement un itinéraire : ils vendent la possibilité de livrer. Avant de promettre une marge, les courtiers doivent trouver un vaisseau, convenir d’un prix de transport, obtenir les documents nécessaires et accepter que les marchés puissent changer pendant le voyage. Certains préfèrent revendre vite ; d’autres laissent dormir des marchandises dans un entrepôt, dans l’espoir que la prochaine nouvelle galactique fera monter les cours. À Breach Port, attendre est parfois une stratégie. Ce n’est jamais une garantie.",
-      "Tous ces noms appartiennent à la culture commune. Ils peuvent figurer dans les récits des voyageurs et sur un atlas public. En revanche, les codes de navigation, les itinéraires utilisables, les prix effectivement publiés, les acheteurs disponibles et les renseignements spécialisés ne se déduisent pas de ce livre. Un Pilote et un Courtier peuvent connaître la même planète sans posséder la même information à son sujet. Les rencontres, les contacts, les contrats et les découvertes donnent leur vraie valeur à ces savoirs."
-    ]
+      "ATLAS PUBLIC DES ÉCHANGES — Pour les bureaux impériaux, une planète se définit par sa place dans les routes de commerce, les ressources qu'elle peut fournir et les besoins qu'elle exprime. Les capitaines de Breach Port y ajoutent volontiers les accents de leurs équipages, les habitudes de leurs clients et les factures qui accompagnent chaque lot.",
+      "Les trente mondes présentés dans cette encyclopédie relèvent de la culture galactique commune. Tout citoyen peut apprendre leur nom, leur réputation et leur situation générale. Cette connaissance publique ne constitue cependant ni un code de navigation, ni une autorisation d'escale, ni une preuve de stock disponible.",
+      "Les offices impériaux rappellent qu'un transport exige un appareil, du carburant, une destination autorisée et des documents adaptés. Les courtiers doivent également vérifier les acheteurs, les délais et les garanties de règlement. Entre une marchandise achetée et une livraison effectivement reçue, de nombreuses obligations restent à remplir.",
+      "Certains opérateurs préfèrent vendre rapidement, d'autres conservent leurs lots dans un entrepôt dans l'espoir d'une évolution favorable du marché. Les cours peuvent changer, les autorisations aussi, et un trajet rentable hier peut ne plus l'être demain. L'administration se félicite de la bonne tenue des échanges ; le chroniqueur rappelle que l'économie résiste toujours aux certitudes.",
+      "Un Pilote et un Courtier peuvent connaître le même monde sans disposer des mêmes renseignements spécialisés. Les connaissances personnelles, les contacts et les itinéraires s'acquièrent en jeu et ne sont pas révélés par cet atlas. La présente édition appartient aux archives publiques : elle informe les habitants sans se substituer aux compétences de leurs professionnels."
+    ],
+    "imperialRecord": true,
+    "archiveLabel": "Atlas public · édition impériale",
+    "archivist": "Bureau impérial des routes et marchés"
   },
   {
     "id": "histoire-republique-a-empire",
