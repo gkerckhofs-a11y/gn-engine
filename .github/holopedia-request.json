@@ -4,8 +4,8 @@
   "siteId": "holopedia-space-outlaws",
   "sourceRef": "gh-pages",
   "requestedAt": "2026-11-16",
-  "reason": "Publier Holopédia seule : six pages historiques de propagande impériale, 5 affiches SVG, chronologie et liens Wiki, après correction des tests.",
+  "reason": "Publication de 56 articles de l'Holopédia réécrits par des chroniqueurs impériaux. Source: gh-pages; tests Wiki ciblés; aucune publication de GN Engine, Functions ou Firestore.",
   "status": "AUTHORIZED_SECONDARY_HOSTING_ONLY",
-  "attempt": 6,
-  "scope": "holopedia-imperial-archives-illustrated-validated"
+  "attempt": 7,
+  "scope": "holopedia-all-56-imperial-chronicles"
 }
