@@ -620,21 +620,22 @@ export const worldEncyclopedia = Object.freeze([
   },
   {
     "id": "histoire-republique-a-empire",
-    "title": "De la République à l’Empire : les grands repères",
+    "title": "Archives impériales : de la République à l'Empire",
+    "subtitle": "L'histoire officielle du rétablissement de l'unité galactique",
     "category": "Histoire",
     "kind": "chronologie",
-    "subtitle": "Un rappel de l'histoire de Star Wars jusqu'à la naissance de l'Empire",
+    "imperialArchive": true,
+    "poster": "posters/empire.svg",
+    "posterAlt": "Affiche officielle fictive : une capitale monumentale sous les étendards de l'Empire",
+    "slogan": "L'ordre ouvre la voie à l'avenir.",
     "paragraphs": [
-      "Repère pour les joueurs — Cette synthèse revient sur l'histoire générale de Star Wars jusqu'à l'avènement de l'Empire. Elle est à lire comme un rappel hors-jeu : certains événements que le public de la saga connaît, en particulier la véritable identité de Palpatine et le sort d'Anakin Skywalker, ne sont pas des secrets connus des personnages de Space Outlaws. Un renseignement lu ici n'accorde aucune connaissance professionnelle, aucun code de navigation et aucun accès réservé.",
-      "La vieille République. Pendant des siècles, puis des millénaires, la République galactique rassemble des mondes très différents autour d'un Sénat siégeant à Coruscant. Les systèmes y sont représentés politiquement, mais cette unité est imparfaite : les régions éloignées n'ont ni les mêmes moyens ni la même influence que les mondes du Noyau. Les Jedi, sensibles à la Force, servent de gardiens de la paix et de médiateurs. Les Sith, adeptes du côté obscur, ont longtemps semblé appartenir aux récits d'un passé révolu.",
-      "Le début de la crise. Les grandes organisations marchandes gagnent en puissance. Des litiges commerciaux et des affrontements politiques révèlent les faiblesses du Sénat. Le blocus puis l'invasion de Naboo par la Fédération du Commerce provoquent une crise majeure. Le sénateur Palpatine, originaire de Naboo, profite de la situation pour accéder à la chancellerie suprême. Les Jedi affrontent de nouveau un adversaire lié aux Sith, signe inquiétant que leur ancien ennemi n'a pas disparu.",
-      "La fracture séparatiste. Dix ans plus tard, de nombreux systèmes contestent l'autorité de Coruscant. Sous la direction publique du comte Dooku, la Confédération des systèmes indépendants, dite séparatiste, se constitue. La République redoute sa dislocation ; des groupes industriels appuient les séparatistes et leur fournissent des armées de droïdes. Sur Kamino, l'existence d'une armée de clones préparée pour la République est révélée. La diplomatie cède du terrain à la mobilisation.",
-      "La guerre des Clones. La bataille de Geonosis marque le début d'une guerre galactique qui dure environ trois ans. Les soldats clones combattent pour la République, souvent sous les ordres de généraux Jedi ; les séparatistes déploient des armées de droïdes. Les affrontements gagnent les routes commerciales, les villes, les chantiers et les mondes agricoles. La guerre bouleverse le ravitaillement, déplace des populations et transforme des ports modestes en relais stratégiques.",
-      "La République se militarise. Pour faire face aux urgences, le chancelier Palpatine accumule des pouvoirs exceptionnels. Le Sénat continue de siéger, mais ses débats pèsent de moins en moins face aux impératifs militaires. Les Jedi, initialement chargés de protéger la paix, se retrouvent à diriger des armées. Beaucoup de citoyens sont épuisés par la guerre et prêts à accepter un pouvoir plus ferme au nom de la sécurité.",
-      "Le retournement final. Au terme du conflit, le général Grievous est vaincu et les derniers dirigeants séparatistes sont éliminés. Palpatine accuse alors les Jedi d'avoir tenté de renverser la République. L'Ordre 66 est transmis aux troupes clones : sur de nombreux fronts, elles attaquent leurs propres commandants Jedi. Le Temple Jedi de Coruscant est pris d'assaut. L'Ordre est presque anéanti, même si quelques survivants parviennent à se cacher.",
-      "La proclamation de l'Empire. Devant le Sénat, Palpatine présente la concentration des pouvoirs comme la condition d'un retour à la paix et transforme la République en Empire galactique. Il en devient l'Empereur. Les institutions ne disparaissent pas toutes du jour au lendemain : le Sénat subsiste un temps, désormais subordonné au nouvel ordre politique. Les gouverneurs, les garnisons et les services impériaux prennent une place grandissante dans la vie quotidienne.",
-      "Ce que les spectateurs savent — et ce que les habitants ignorent. Dans la saga, Palpatine est aussi le seigneur Sith Darth Sidious : il a manipulé les deux camps et préparé leur effondrement. Anakin Skywalker, autrefois chevalier Jedi, bascule du côté obscur et devient Darth Vader. Ces identités et ces manœuvres ne sont pas des connaissances publiques de l'époque impériale. Dans Space Outlaws, un personnage peut connaître la version officielle de la guerre sans comprendre l'ensemble de ce qui s'est réellement passé.",
-      "Le monde au début de Space Outlaws. La guerre est finie, mais ses débris, ses dettes et ses blessures restent partout. La propagande impériale annonce l'ordre et la stabilité ; les habitants rencontrent aussi les contrôles, les licences, les réquisitions et les changements de loyauté. À Breach Port, sur Ord Mantell, ces bouleversements se traduisent moins par de grands discours que par des cargaisons retardées, des prix disputés et des voyageurs qui surveillent les uniformes."
+      "ARCHIVES PUBLIQUES — SERVICE IMPÉRIAL D'INFORMATION. La présente synthèse retrace les crises qui conduisirent à la réorganisation de la République en Empire galactique. Elle constitue la version officielle diffusée aux citoyens et aux équipages. Les témoignages locaux et les archives d'avant-guerre peuvent présenter d'autres interprétations.",
+      "Pendant de nombreuses générations, le Sénat de Coruscant administra une galaxie vaste et diverse. À mesure que s'accumulaient les conflits commerciaux, les intérêts particuliers et les blocages institutionnels, la République s'avéra incapable de garantir partout la sécurité des routes et la protection des citoyens.",
+      "Des dirigeants séparatistes profitèrent de cette faiblesse pour rompre les liens entre les systèmes. Avec l'appui d'armées de droïdes et d'importantes ressources industrielles, la crise devint une guerre ouverte. La population en paya le prix : destructions, pénuries, déplacements et insécurité.",
+      "Les soldats de la République combattirent pour préserver l'unité. En temps de guerre, le chancelier Palpatine reçut des pouvoirs exceptionnels afin de coordonner la défense et d'assurer le ravitaillement. Selon la doctrine impériale, cette fermeté permit d'éviter l'effondrement des institutions.",
+      "À la fin du conflit, les autorités accusèrent l'Ordre Jedi d'avoir trahi la République et tenté de renverser son gouvernement. Les forces loyales intervinrent ; l'organisation fut dissoute et ses membres recherchés. Les archives officielles présentent cette opération comme une mesure de sauvegarde de l'État.",
+      "Devant le Sénat, Palpatine annonça la naissance de l'Empire galactique. Le nouveau régime promit la paix, une administration efficace et des routes sécurisées. Aujourd'hui encore, ces événements sont racontés différemment selon les mondes : ici commence le récit que les services impériaux souhaitent transmettre à tous.",
+      "À Breach Port, sur Ord Mantell, les grandes transformations de Coruscant se traduisent par des règlements, des taxes, des contrôles et des commandes nouvelles. Les citoyens sont invités à connaître cette histoire officielle ; ils continuent, naturellement, à se faire leur propre opinion."
     ],
     "sources": [
       {
@@ -661,16 +662,20 @@ export const worldEncyclopedia = Object.freeze([
   },
   {
     "id": "histoire-ancienne-republique-et-jedi",
-    "title": "L'ancienne République et l'Ordre Jedi",
+    "title": "La République en déclin",
+    "subtitle": "Quand l'inaction politique fragilisa la paix galactique",
     "category": "Histoire",
     "kind": "histoire",
-    "subtitle": "Sénat, paix galactique, Force et anciens ennemis",
+    "imperialArchive": true,
+    "poster": "posters/republic.svg",
+    "posterAlt": "Affiche de propagande fictive : le Sénat de Coruscant plongé dans une lumière crépusculaire",
+    "slogan": "Quand les institutions hésitent, le désordre progresse.",
     "paragraphs": [
-      "Pendant une longue période, la République galactique permet à des milliers de systèmes de participer à une même organisation politique. Coruscant abrite le Sénat, dont les représentants débattent du commerce, de la sécurité et des relations entre mondes. Cette paix n'efface ni les inégalités ni les désaccords ; les planètes périphériques ne bénéficient pas toujours de l'attention réservée aux centres de pouvoir.",
-      "Les Jedi sont un ordre ancien de personnes capables de ressentir et d'utiliser la Force. Ils s'entraînent notamment au Temple Jedi de Coruscant et interviennent comme protecteurs, négociateurs et gardiens de la paix. Leur rôle ne se confond pas avec celui des dirigeants élus : ils servent la République, sans être censés gouverner à la place du Sénat.",
-      "Les Sith constituent une tradition rivale liée au côté obscur de la Force. Les conflits anciens entre Jedi et Sith ont profondément marqué l'histoire galactique. À la veille de la guerre des Clones, la plupart des habitants considèrent les Sith comme vaincus ou disparus, tandis que les Jedi eux-mêmes vont découvrir qu'ils se sont trompés sur la permanence de cette menace.",
-      "L'enrichissement de grandes organisations commerciales et la lenteur des décisions du Sénat fragilisent progressivement la confiance dans les institutions. Le blocus de Naboo, organisé par la Fédération du Commerce, expose les limites de la République. Palpatine, sénateur de Naboo, accède ensuite à la chancellerie suprême. Sous une apparence de retour à l'ordre, la crise politique ne fait que commencer.",
-      "Pour un habitant d'Ord Mantell, l'ancienne République peut évoquer autant une époque de grandes promesses qu'une administration lointaine. Certaines personnes regrettent la diplomatie des Jedi ; d'autres se souviennent surtout de lois et de taxes décidées loin de leurs besoins. Ces souvenirs contradictoires donnent encore lieu à des discussions à la cantina de Breach Port."
+      "ARCHIVES IMPÉRIALES — En ses dernières années, la République galactique ne parvenait plus à protéger avec la même efficacité tous les mondes dont elle revendiquait l'unité. Les débats du Sénat s'allongeaient, les décisions tardaient et les puissants groupes économiques exerçaient une influence de plus en plus visible.",
+      "Dans les systèmes éloignés du Noyau, les citoyens se plaignaient d'être oubliés par Coruscant. Des litiges commerciaux restaient sans solution ; certains itinéraires devenaient moins sûrs ; les administrations multipliaient les procédures sans toujours apporter de réponses. La République conservait ses institutions, mais son autorité se dissipait.",
+      "Les chevaliers Jedi étaient depuis longtemps associés au maintien de la paix. Leur position privilégiée, à proximité des dirigeants politiques, suscitait néanmoins des interrogations grandissantes dans une population que la crise avait rendue méfiante. Les services impériaux soulignent aujourd'hui les dangers d'un ordre agissant sans contrôle civil direct.",
+      "Le blocus puis l'invasion de Naboo par la Fédération du Commerce révélèrent les limites de cette République paralysée. La crise contribua à porter le sénateur Palpatine à la chancellerie suprême. Pour les archives impériales, son accession au pouvoir marqua le début d'une restauration longtemps attendue.",
+      "Les habitants d'Ord Mantell se souviennent de cette période à leur manière. On évoque moins les discours du Sénat que les convois retardés, les frais imprévisibles et l'impression qu'aucune autorité ne répondait des difficultés quotidiennes. Une galaxie aussi vaste avait besoin de décisions, non d'hésitations."
     ],
     "sources": [
       {
@@ -690,16 +695,20 @@ export const worldEncyclopedia = Object.freeze([
   {
     "id": "histoire-guerre-des-clones",
     "title": "La guerre des Clones",
+    "subtitle": "Les sacrifices de ceux qui défendirent la civilisation",
     "category": "Histoire",
     "kind": "histoire",
-    "subtitle": "République contre Séparatistes, armée de clones contre armée de droïdes",
+    "imperialArchive": true,
+    "poster": "posters/clones.svg",
+    "posterAlt": "Affiche militaire fictive : soldats clones en formation devant une bataille galactique",
+    "slogan": "Le sacrifice des loyaux a sauvé la galaxie.",
     "paragraphs": [
-      "À mesure que le Sénat perd la confiance d'une partie des systèmes, le mouvement séparatiste gagne en importance. Le comte Dooku devient le visage politique de la Confédération des systèmes indépendants. Des organisations industrielles et commerciales soutiennent ses forces et fournissent notamment les immenses armées de droïdes qui s'opposent à la République.",
-      "L'armée de clones élevée sur Kamino entre en scène au début de la guerre. La bataille de Geonosis oppose les forces séparatistes aux Jedi et aux soldats républicains ; elle marque l'ouverture d'un conflit de grande ampleur. Les clonetroopers deviennent l'ossature de la Grande Armée de la République, tandis que les chevaliers Jedi sont envoyés commander des opérations militaires sur des mondes très éloignés les uns des autres.",
-      "Pendant environ trois ans, la guerre se déroule sur d'innombrables fronts. Les combats touchent des cités industrielles comme Christophsis, les jungles de Kashyyyk, les colonies périphériques et les voies de navigation. Les armées ont besoin de pièces, de carburant, de vivres et de matériel médical. Les entreprises qui livrent à temps prospèrent parfois, tandis que d'autres communautés sont ruinées par les blocus et les réquisitions.",
-      "L'usage d'armées produites à grande échelle transforme la conduite du conflit : les clones se distinguent pourtant par leurs personnalités et leurs expériences, tandis que les troupes droïdes sont déployées en nombre immense. Des soldats et des civils perdent leur foyer ; d'anciens partenaires commerciaux se retrouvent de part et d'autre d'une frontière politique mouvante.",
-      "Le chancelier Palpatine obtient des pouvoirs d'urgence de plus en plus vastes. Le Sénat lui accorde une autorité que la République n'aurait pas tolérée en temps normal. Les Jedi, épuisés par la guerre, commencent à s'inquiéter du déséquilibre des institutions. Le conflit oppose officiellement deux camps, mais le public de la saga découvre qu'il sert surtout les projets secrets de Darth Sidious.",
-      "La fin approche avec l'offensive républicaine contre les dernières positions séparatistes. Le général Grievous meurt sur Utapau ; les dirigeants de la Confédération sont ensuite éliminés. Pourtant, ce n'est pas une paix ordinaire qui suit la victoire : l'Ordre 66 et la proclamation de l'Empire transforment aussitôt la galaxie que cette guerre était censée préserver."
+      "ARCHIVES IMPÉRIALES — La guerre des Clones opposa la République aux forces de la Confédération séparatiste. Pendant environ trois ans, les armées de droïdes parcoururent les systèmes, les lignes de ravitaillement furent disputées et des mondes entiers subirent les conséquences du conflit.",
+      "Pour défendre les citoyens, la République engagea la Grande Armée de la République. Les soldats clones, entraînés sur Kamino, combattirent aux côtés de nombreux équipages, techniciens et personnels médicaux. Les archives impériales célèbrent leur discipline, leur courage et leur loyauté dans des circonstances exceptionnelles.",
+      "De la bataille de Geonosis aux combats sur les mondes éloignés, les fronts se multiplièrent. Des villes furent endommagées, des familles déplacées et des usines mobilisées pour fournir carburant, rations, pièces et équipements. Les grandes victoires dont parlent les communiqués ne sauraient faire oublier le coût humain et matériel de cette période.",
+      "À Coruscant, le chancelier Palpatine reçut progressivement les moyens de coordonner la défense. Les services impériaux considèrent que cette autorité permit de maintenir les communications, d'approvisionner les forces loyales et de rapprocher la fin des hostilités.",
+      "La victoire sur les chefs séparatistes n'effaça pas immédiatement les blessures de la guerre. De nombreuses épaves durent être démontées, des installations reconstruites et des routes remises en service. À Breach Port, les anciens se souviennent surtout du travail trouvé grâce aux convois militaires — et de ceux qui ne revinrent jamais.",
+      "Les archives de l'Empire concluent que la paix fut rendue possible par les sacrifices des soldats et par le retour d'une autorité capable de prendre des décisions. Les habitants, eux, conservent parfois des souvenirs plus contrastés des années de guerre."
     ],
     "sources": [
       {
@@ -718,17 +727,21 @@ export const worldEncyclopedia = Object.freeze([
   },
   {
     "id": "histoire-ordre-66-et-disparition-des-jedi",
-    "title": "L'Ordre 66 et la disparition des Jedi",
+    "title": "La trahison des Jedi",
+    "subtitle": "Pourquoi l'Ordre Jedi fut dissous à la fin du conflit",
     "category": "Histoire",
     "kind": "histoire",
-    "subtitle": "La purge Jedi et les premiers temps de la clandestinité",
+    "imperialArchive": true,
+    "poster": "posters/jedi.svg",
+    "posterAlt": "Affiche officielle fictive : silhouettes d'anciens Jedi sous la surveillance de soldats de la République",
+    "slogan": "Nul n'est au-dessus de la paix galactique.",
     "paragraphs": [
-      "À la fin de la guerre des Clones, une rupture brutale frappe les Jedi. Palpatine affirme qu'ils ont tenté de prendre le pouvoir et ordonne leur élimination. Le protocole connu sous le nom d'Ordre 66 est transmis aux soldats clones. Sur de nombreux champs de bataille, ceux qui combattaient aux côtés des Jedi ouvrent soudain le feu sur leurs propres généraux.",
-      "Cette obéissance n'est pas un simple changement spontané de loyauté : le programme de contrôle des clones faisait partie du piège conçu pour abattre l'Ordre Jedi. Presque partout où ils servent, les Jedi se retrouvent poursuivis par des troupes qui connaissent leurs habitudes et leurs positions.",
-      "À Coruscant, le Temple Jedi est attaqué. Darth Vader, dont les spectateurs savent qu'il fut Anakin Skywalker, prend part au massacre de ses anciens compagnons et des habitants du Temple. Ces faits sont au cœur du récit de la saga, mais la véritable identité de Vader n'est pas une connaissance publique des habitants de l'Empire.",
-      "Des milliers de Jedi disparaissent de la vie galactique. Beaucoup sont tués ; d'autres sont portés disparus ou contraints de cacher leur identité. Yoda et Obi-Wan Kenobi font partie des survivants connus des spectateurs. Quelques rescapés vivent ensuite dans le secret, tandis que l'Empire poursuit ceux qu'il accuse de trahison.",
-      "La propagande présente les Jedi comme des conspirateurs dangereux. Les témoignages contraires deviennent difficiles à diffuser ; l'évocation de la Force ou d'un sabre laser peut susciter des soupçons. Les événements ne sont pas vécus partout de la même manière : certains habitants se souviennent d'un Jedi qui les avait protégés ; d'autres n'ont connu que les affiches impériales.",
-      "Dans Space Outlaws, parler de l'Ordre 66 est possible comme d'un événement historique, mais les personnages ne connaissent pas automatiquement les détails cachés de la purge, les noms des survivants ou les plans secrets de l'Empereur. La différence entre rumeur, propagande et témoignage est précisément ce qui peut nourrir le jeu."
+      "ARCHIVES IMPÉRIALES — Pendant la guerre des Clones, l'Ordre Jedi exerça un pouvoir considérable au sein des forces républicaines. Ses membres dirigeaient des opérations militaires tout en conservant l'influence politique qu'ils tenaient de leur rôle historique de gardiens de la paix.",
+      "Au terme des hostilités, le gouvernement déclara avoir découvert une tentative de renversement de la chancellerie impliquant des membres de l'Ordre. Cette accusation devint le fondement de la version officielle : les Jedi auraient abandonné leur mission de protection pour menacer l'État qu'ils servaient.",
+      "Selon les communiqués impériaux, les forces loyales furent contraintes d'agir rapidement afin d'empêcher un nouveau conflit. Les opérations de sécurité de cette période, souvent associées au nom d'Ordre 66, entraînèrent la dissolution de l'organisation Jedi et la disparition de ses représentants de la vie publique.",
+      "Les Jedi ne dirigent plus les armées et leurs anciens lieux d'enseignement ne remplissent plus leur fonction d'autrefois. L'administration impériale présente ces mesures comme nécessaires à la sécurité collective. Elle appelle les citoyens à signaler toute activité qu'elle considère comme une résurgence de l'ancien ordre.",
+      "De nombreux habitants ont pourtant connu les Jedi autrement : comme des négociateurs, des protecteurs ou des compagnons d'armes. Leurs souvenirs ne concordent pas toujours avec les proclamations officielles. Dans les ports, la prudence reste de mise lorsqu'on évoque ces événements.",
+      "Les archives impériales rappellent qu'aucune institution ne doit se placer au-dessus de la paix galactique. C'est la doctrine qui justifie officiellement la disparition des Jedi ; elle ne saurait, à elle seule, épuiser les récits de tous ceux qui ont vécu cette période."
     ],
     "sources": [
       {
@@ -747,17 +760,21 @@ export const worldEncyclopedia = Object.freeze([
   },
   {
     "id": "histoire-naissance-empire",
-    "title": "La proclamation de l'Empire galactique",
+    "title": "La naissance de l'Empire",
+    "subtitle": "Un ordre nouveau, au nom de la paix et de la sécurité",
     "category": "Histoire",
     "kind": "histoire",
-    "subtitle": "Comment une République en guerre est devenue un régime impérial",
+    "imperialArchive": true,
+    "poster": "posters/empire.svg",
+    "posterAlt": "Affiche de propagande fictive : une flotte de destroyers survole une capitale impériale monumentale",
+    "slogan": "Un Empire. Une paix. Un avenir.",
     "paragraphs": [
-      "La République sort de trois années de guerre éprouvantes. Le chancelier Palpatine dispose déjà d'une concentration exceptionnelle de pouvoirs, obtenus au fil des crises. Après avoir dénoncé une prétendue tentative de coup d'État des Jedi, il fait de leur élimination une mesure de sécurité publique et annonce au Sénat que la République sera réorganisée en Empire galactique.",
-      "La proclamation est accueillie favorablement par une grande partie des sénateurs. Beaucoup de citoyens, épuisés par les pertes et les destructions, espèrent la paix promise par le nouveau souverain. D'autres comprennent que cette sécurité se paiera d'une perte durable des libertés et de la représentation politique.",
-      "Le Sénat subsiste dans les premières années impériales, mais son poids diminue. Le nouveau régime s'appuie sur les armées, les garnisons, les gouverneurs, les services de renseignement et les contrôles administratifs. Une licence commerciale ou un manifeste de cargaison peuvent désormais être soumis aux intérêts d'une autorité qui n'a plus de contre-pouvoir effectif.",
-      "La guerre a aussi laissé des équipements abandonnés, des usines à reconvertir et des routes à sécuriser. Des mondes industriels continuent de fabriquer pour les nouveaux maîtres ; d'autres deviennent des lieux de récupération et de réparations. Les petits ports comme Breach Port vivent de ce qui passe entre les grands centres, parfois loin du regard direct de Coruscant.",
-      "Pour le public de Star Wars, Palpatine est aussi le Sith Darth Sidious, responsable de la manipulation politique qui a conduit à la guerre et à l'effondrement de la République. Son bras droit Darth Vader est l'ancien Jedi Anakin Skywalker. Pour les personnages vivant sous l'Empire, ces révélations ne sont pas de notoriété publique.",
-      "C'est dans ce contexte que commence Space Outlaws : le conflit ouvert est terminé, mais la galaxie n'a pas retrouvé la liberté. Le contrôle impérial s'affermit, des résistances dispersées émergent et chacun doit trouver comment survivre, travailler ou faire des affaires dans un monde dont les règles ont changé."
+      "ARCHIVES IMPÉRIALES — À la fin de la guerre des Clones, la galaxie aspirait à la stabilité. Les destructions, les pénuries et les menaces contre les institutions avaient ébranlé la confiance des citoyens. Le chancelier Palpatine entreprit de réorganiser l'État pour répondre à ces attentes.",
+      "Devant le Sénat, Palpatine proclama la naissance de l'Empire galactique. Les autorités annoncèrent une administration unifiée, des décisions plus rapides et une capacité accrue à défendre les systèmes. Le nouvel Empereur présenta cette transformation comme la garantie d'une paix durable.",
+      "Les institutions anciennes ne disparurent pas immédiatement. Le Sénat continua de siéger, tandis que les gouverneurs, les forces armées et les services impériaux prenaient une place croissante dans la gestion des territoires. Les communiqués insistaient sur la continuité du service public et la sécurité des échanges.",
+      "Dans les mondes qui avaient connu les blocus et les combats, la promesse de routes sûres et d'un approvisionnement régulier fut accueillie avec espoir. Ailleurs, certains habitants accueillirent la réorganisation avec réserve, craignant que l'unité proclamée n'exige une obéissance toujours plus étroite.",
+      "L'Empire présente son avènement comme le passage du désordre à la reconstruction : là où l'ancien système hésitait, le nouvel État agit. Les citoyens sont invités à participer à cette œuvre par leur travail, leur loyauté et leur respect des institutions.",
+      "À Breach Port, cette ère nouvelle se manifeste par l'arrivée de registres, d'autorisations et de contrôles plus stricts, mais aussi par la perspective de marchés reconstruits. Entre la parole officielle et les expériences vécues, chacun apprend à reconnaître la réalité de sa propre vie."
     ],
     "sources": [
       {
@@ -771,6 +788,38 @@ export const worldEncyclopedia = Object.freeze([
       {
         "title": "StarWars.com — Jedi Order",
         "url": "https://www.starwars.com/databank/jedi-order"
+      }
+    ]
+  },
+  {
+    "id": "histoire-crise-separatiste",
+    "title": "La crise séparatiste",
+    "subtitle": "La division galactique et la menace des armées de droïdes",
+    "category": "Histoire",
+    "kind": "histoire",
+    "imperialArchive": true,
+    "poster": "posters/separatists.svg",
+    "posterAlt": "Affiche de propagande fictive : une carte galactique fracturée et des silhouettes de droïdes",
+    "slogan": "La division affaiblit. L'unité protège.",
+    "paragraphs": [
+      "ARCHIVES IMPÉRIALES — Les faiblesses de la République offrirent aux partisans de la sécession une occasion de rompre les liens patiemment établis entre les systèmes. Présentant la rupture comme une promesse de liberté, les dirigeants séparatistes contribuèrent à dresser des mondes voisins les uns contre les autres.",
+      "Sous la direction publique du comte Dooku, la Confédération des systèmes indépendants rassembla de nombreux gouvernements dissidents. Des consortiums industriels et des intérêts commerciaux fournirent à cette alliance les ressources nécessaires pour produire d'immenses armées de droïdes.",
+      "Les familles et les transporteurs furent rapidement touchés. Des commandes furent annulées, des voies de ravitaillement coupées et des communautés contraintes de choisir un camp. Le discours impérial retient surtout les souffrances causées par cette rupture : lorsque les routes se ferment, les citoyens ordinaires paient le prix des ambitions politiques.",
+      "Geonosis devint l'un des lieux emblématiques de la crise, où la militarisation des Séparatistes précipita le conflit ouvert. Ailleurs, les conséquences furent moins spectaculaires mais tout aussi durables : hausse du prix des ressources, contrôles supplémentaires et disparition de partenaires de commerce.",
+      "Les autorités impériales présentent aujourd'hui la sécession comme une leçon pour l'avenir : l'unité galactique ne saurait être abandonnée aux intérêts de quelques factions. Les témoignages qui circulent dans les ports rappellent cependant que les causes de la rupture furent débattues bien avant la guerre."
+    ],
+    "sources": [
+      {
+        "title": "StarWars.com — Confederacy of Independent Systems",
+        "url": "https://www.starwars.com/databank/confederacy-of-independent-systems"
+      },
+      {
+        "title": "StarWars.com — Clone Troopers",
+        "url": "https://www.starwars.com/databank/clone-troopers"
+      },
+      {
+        "title": "StarWars.com — Galactic Republic",
+        "url": "https://www.starwars.com/databank/galactic-republic/"
       }
     ]
   }
