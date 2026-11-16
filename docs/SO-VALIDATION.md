@@ -1,5 +1,7 @@
 # SPACE OUTLAWS — rapport de conformité courant
 
+Connaissances galactiques — nouvelle instruction du 16 novembre : [audit et retrait de l’accès global](SO-GALACTIC-KNOWLEDGE-AUDIT-2026-11-16.md). Remplace les codes automatiques annoncés ci-dessous. Carnet, échanges consentis et répartition professionnelle restent à développer ; aucun déploiement.
+
 Carte galactique du 16 novembre 2026 : [codes automatiques et accès par compétence Navigation PIL-01](SO-PILOT-MAP-2026-11-16.md), quelle que soit la classe principale. Cette décision remplace la saisie préalable des codes pour la carte. Tranche séparée, sans déploiement.
 
 Intégration 0.39.0 du 15 novembre 2026 : [périmètre, droits, tests et garde de publication](SO-RELEASE-2026-11-15.md). Complément : caisses autorisées pour les achats, COU-02 au cours réel, événements locaux reliés aux News, budgets PNJ sans création monétaire et réception/revente distante sans déplacement des biens. Résultats CI du candidat exact et publication à constater dans la PR ; les rapports précédents restent historiques.

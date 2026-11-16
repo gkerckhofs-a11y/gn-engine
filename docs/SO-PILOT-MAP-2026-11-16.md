@@ -1,5 +1,7 @@
 # Carte galactique — codes automatiques et accès par compétence
 
+> **Supersédé pour les codes automatiques** par le chantier du 16 novembre : `SO_Galactic_Knowledge_2026-11-16.md` (dans docs/source). La dotation devient individuelle ; voir `docs/SO-GALACTIC-KNOWLEDGE-AUDIT-2026-11-16.md`. Les développements historiques ci-dessous ne décrivent plus la décision finale.
+
 Décision : [instruction organisateur et correction du 16 novembre](source/SO_Pilot_Map_Decisions_2026-11-16.md).
 Base : `98a3342d6f9c789f2edcc2c75faf1776296d7171` (main, 0.39.0).
 Branche : `codex/pilot-default-navigation-20261116`. PR #2 vérifiée fusionnée ; PR #45 laissée intacte.

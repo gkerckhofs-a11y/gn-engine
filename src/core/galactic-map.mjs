@@ -35,7 +35,7 @@ export function createGalacticMapService({store,signed,checkSession,now}){
    const ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId))}:await inventoryPlayer(tx,actor,input),{s,c}=ctx,base=`sessions/${s.id}`,at=now(),time=gameTime(s.clock,at);
    requireThat(admin||navigationSkill(c,'PIL-01')>=1,'FORBIDDEN');
    requireThat(hasSoNavigation(s)&&s.stage!=='ARCHIVED','SO_GAMEPLAY_NOT_OPEN');
-   const level=admin?5:navigationSkill(c,'PIL-01'),canNavigate=admin||navigationSkill(c,'PIL-01')>=1;requireThat(!codes.length||canNavigate,'MAP_SKILL_REQUIRED');
+   const level=admin?5:navigationSkill(c,'PIL-01'),canNavigate=admin||level>=1;requireThat(!codes.length||canNavigate,'MAP_SKILL_REQUIRED');
    const allPorts=(await tx.list(`${base}/ports`)).filter(p=>p.versionId===s.versionId),allRoutes=(await tx.list(`${base}/routes`)).filter(r=>r.versionId===s.versionId&&allPorts.some(p=>p.id===r.fromPort)&&allPorts.some(p=>p.id===r.toPort));
    const ownPort=admin?null:c.spacePortId??s.transportRules?.homePort,ships=[];let chosen=null,chosenNative=null;
    for(const raw of await tx.list(`${base}/ships`)){
@@ -53,9 +53,7 @@ export function createGalacticMapService({store,signed,checkSession,now}){
     if(r&&['SUCCEEDED','FAILED'].includes(a.status)&&a.profile?.skillId==='PIL-01'&&b.versionId===s.versionId&&b.revision===r.revision)analyzed.set(r.id,Math.max(analyzed.get(r.id)??0,Math.min(level,a.level)));
    }
    const publicPorts=(await tx.list(`${base}/planetMarkets`)).filter(m=>m.enabled).map(m=>m.portId);
-   // All published navigation codes are available to qualified navigators by default.
-   // Route analysis still controls danger disclosure; this projection grants no flight mandate.
-   const network={ports:allPorts,routes:allRoutes.map(route=>({route,code:admin?null:route.navigationCode??allPorts.find(p=>p.id===route.toPort)?.navigationCode??null,analyzed:analyzed.has(route.id)})),unavailableCodes:[]};
+   const network=admin?{ports:allPorts,routes:allRoutes.map(route=>({route,code:null,analyzed:true})),unavailableCodes:[]}:knownMapNetwork(allPorts,allRoutes,[...publicPorts,ownPort,origin].filter(Boolean),canNavigate?analyzed:new Map(),[...new Set(codes.map(c=>c.trim()))]);
    const tow=chosen?await towingFlightContext(tx,s,chosen,'shipNavigation',time):null,rows=[];
    for(const x of network.routes){
     const r=x.route;let quote=null,blocked=null;
@@ -64,9 +62,9 @@ export function createGalacticMapService({store,signed,checkSession,now}){
     const riskKnown=admin||(analyzed.get(r.id)??0)>=3;
     rows.push({id:r.id,name:r.name,fromPort:r.fromPort,toPort:r.toPort,distance:spaceDistances.find(d=>d.id===r.distanceId)?.label??'À vérifier',durationSeconds:quote?.durationSeconds??spaceDistances.find(d=>d.id===r.distanceId)?.durationSeconds??null,fuelCost:cost,minimumDepartureFuel,available,blocked:blocked??(chosen&&minimumDepartureFuel>chosen.navigation.tankCapacity?'Ce tronçon dépasse la capacité du réservoir.':chosen?.ownerType==='GROUP'&&r.riskId!=='SECURED'?'Le pilotage collectif actuel exige une liaison sécurisée.':null),risk:riskKnown?spaceRisks.find(v=>v.id===r.riskId)?.label??null:null,analysisAvailable:!admin&&level>0&&s.spaceOutlaws.routeAnalysisVersion===1&&!!r.analysisTargetId,...(x.code?{navigationCode:x.code}:{})});
    }
-   const ports=network.ports.map(p=>({id:p.id,name:p.name,current:p.id===origin,market:publicPorts.includes(p.id),...(!admin&&p.navigationCode?{navigationCode:p.navigationCode}:{})})),destinationId=input.destinationId==null?null:documentId(input.destinationId);
+   const ports=network.ports.map(p=>({id:p.id,name:p.name,current:p.id===origin,market:publicPorts.includes(p.id)})),destinationId=input.destinationId==null?null:documentId(input.destinationId);
    requireThat(!destinationId||ports.some(p=>p.id===destinationId),'MAP_DESTINATION_UNAVAILABLE');
-   return {session:{id:s.id,stage:s.stage},admin,canNavigate,defaultNavigationCodes:true,ships,shipId:chosen?.id??null,origin:origin??null,destinationId,ports,routes:rows,unavailableCodes:network.unavailableCodes,canOpenFlight:!admin&&!!chosenNative?.read&&chosenNative.pilot&&shipPilot(chosen)===c.id&&!chosenNative.continuation&&navigationSkill(c,'PIL-02')>=1,canAnalyze:!admin&&level>0&&s.spaceOutlaws.routeAnalysisVersion===1,itineraries:mapItineraries(rows,origin,destinationId,chosen?{fuel:chosen.fuel,tankCapacity:chosen.navigation.tankCapacity}:null),operation:chosen?.journey?'Voyage en cours : les commandes restent dans le cockpit et le suivi de vol.':chosen?.operation?'Préparation ou intervention en cours : ses engagements sont conservés.':chosen?.towingAttachment?.role==='WRECK'?'Épave remorquée : consultez le remorqueur pour préparer un trajet.':s.safetyStop?.active?'STOP SÉCURITÉ : consultation uniquement.':s.stage!=='EN_JEU'?'Consultation et simulation uniquement pendant cette phase.':null};
+   return {session:{id:s.id,stage:s.stage},admin,canNavigate,ships,shipId:chosen?.id??null,origin:origin??null,destinationId,ports,routes:rows,unavailableCodes:network.unavailableCodes,canOpenFlight:!admin&&!!chosenNative?.read&&chosenNative.pilot&&shipPilot(chosen)===c.id&&!chosenNative.continuation&&navigationSkill(c,'PIL-02')>=1,canAnalyze:!admin&&level>0&&s.spaceOutlaws.routeAnalysisVersion===1,itineraries:mapItineraries(rows,origin,destinationId,chosen?{fuel:chosen.fuel,tankCapacity:chosen.navigation.tankCapacity}:null),operation:chosen?.journey?'Voyage en cours : les commandes restent dans le cockpit et le suivi de vol.':chosen?.operation?'Préparation ou intervention en cours : ses engagements sont conservés.':chosen?.towingAttachment?.role==='WRECK'?'Épave remorquée : consultez le remorqueur pour préparer un trajet.':s.safetyStop?.active?'STOP SÉCURITÉ : consultation uniquement.':s.stage!=='EN_JEU'?'Consultation et simulation uniquement pendant cette phase.':null};
   });
  };
 }

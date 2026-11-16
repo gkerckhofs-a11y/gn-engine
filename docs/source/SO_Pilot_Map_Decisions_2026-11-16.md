@@ -1,5 +1,7 @@
 # Carte galactique — décision organisateur du 16 novembre 2026
 
+> **Supersédé pour les codes automatiques** par le chantier du 16 novembre : `SO_Galactic_Knowledge_2026-11-16.md` (dans docs/source). La dotation devient individuelle ; voir `docs/SO-GALACTIC-KNOWLEDGE-AUDIT-2026-11-16.md`. Les développements historiques ci-dessous ne décrivent plus la décision finale.
+
 Source : instruction explicite de Guillaume dans la conversation GN :
 « les pilotes doivent posséder tous les codes par défaut, mais le module ne doit être visible uniquement dans le terminal des pilotes. Peux tu coder? »
 
