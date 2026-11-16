@@ -13,7 +13,7 @@ function render(){
  }
  for(const link of document.querySelectorAll('[data-return-terminal]')){
    link.href=terminalUrl;
-   link.textContent=validSession?'← Retour au Terminal':'← Retour à GN Engine';
+   link.textContent='← Retour à votre terminal';
  }
  document.title=(id?'Article · ':'')+'Holopédia · Space Outlaws';
  window.scrollTo(0,0);
