@@ -4,8 +4,8 @@
   "siteId": "holopedia-space-outlaws",
   "sourceRef": "gh-pages",
   "requestedAt": "2026-11-16",
-  "reason": "Publication des archives historiques de propagande impériale et des cinq affiches illustrées uniquement sur le site Firebase Holopédia indépendant. Aucun déploiement GN Engine.",
+  "reason": "Publier Holopédia seule : six pages historiques de propagande impériale, 5 affiches SVG, chronologie et liens Wiki, après correction des tests.",
   "status": "AUTHORIZED_SECONDARY_HOSTING_ONLY",
-  "attempt": 5,
-  "scope": "holopedia-imperial-archives-illustrated"
+  "attempt": 6,
+  "scope": "holopedia-imperial-archives-illustrated-validated"
 }
