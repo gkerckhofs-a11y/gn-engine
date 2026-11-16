@@ -2,6 +2,10 @@ name: Publier Holopédia indépendamment sur Firebase
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-holopedia.yml'
 
 permissions:
   contents: read
@@ -30,10 +34,10 @@ jobs:
 
       - name: Vérifier la configuration du site indépendant
         env:
-          SITE_ID: ${{ vars.HOLOPEDIA_SITE_ID }}
+          SITE_ID: holopedia-space-outlaws
         run: |
           if ! [[ "$SITE_ID" =~ ^[a-z0-9][a-z0-9-]{0,29}$ ]]; then
-            echo 'Configurer la variable GitHub HOLOPEDIA_SITE_ID (identifiant Firebase Hosting créé au préalable).' >&2
+            echo 'Identifiant Firebase Hosting invalide.' >&2
             exit 1
           fi
           test -f firebase.holopedia.json
@@ -53,15 +57,26 @@ jobs:
           service_account: gn-engine-deployer@gn-engine.iam.gserviceaccount.com
           create_credentials_file: true
 
+      - name: Créer le site secondaire s'il n'existe pas
+        env:
+          SITE_ID: holopedia-space-outlaws
+        run: |
+          if firebase hosting:sites:get "$SITE_ID" --project gn-engine --non-interactive >/dev/null 2>&1; then
+            echo "Le site secondaire existe déjà dans le projet."
+          else
+            echo "Création du site secondaire Firebase Hosting : $SITE_ID"
+            firebase hosting:sites:create "$SITE_ID" --project gn-engine --non-interactive
+          fi
+
       - name: Déployer uniquement le site Holopédia
         env:
-          SITE_ID: ${{ vars.HOLOPEDIA_SITE_ID }}
+          SITE_ID: holopedia-space-outlaws
         run: |
           firebase target:apply hosting holopedia "$SITE_ID" --project gn-engine
           firebase deploy --project gn-engine --only hosting:holopedia --config firebase.holopedia.json --non-interactive
 
       - name: Contrôler la publication indépendante
         env:
-          SITE_ID: ${{ vars.HOLOPEDIA_SITE_ID }}
+          SITE_ID: holopedia-space-outlaws
         run: |
           curl --fail --location --retry 5 --retry-delay 3 --silent --show-error "https://${SITE_ID}.web.app/" | grep -q 'HOLOPÉDIA'
