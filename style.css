@@ -18,3 +18,11 @@ main{max-width:1140px;min-height:80vh;margin:auto;padding:2.5rem 2rem 5rem}foote
 .holopedia .wiki-keyword-list{display:flex;gap:.5rem;flex-wrap:wrap}
 .holopedia .wiki-keyword{display:inline-flex;align-items:center;padding:.38rem .75rem;font-size:.85rem;color:var(--gold);border:1px solid var(--line);border-radius:999px;background:#14253b}
 .holopedia .wiki-keyword:hover,.holopedia .wiki-keyword:focus-visible{border-color:var(--gold);background:#1b304a}
+
+/* Sources historiques officielles, séparées des notes de fiction. */
+.holopedia .wiki-sources{margin:2rem 0 2.3rem;padding:1rem 1.25rem;background:rgba(18,30,49,.7);border:1px solid var(--line);border-radius:12px}
+.holopedia .wiki-sources h2{margin:.1rem 0 .75rem;font-size:1rem}
+.holopedia .wiki-sources ul{margin:.4rem 0 1rem;padding-left:1.4rem}
+.holopedia .wiki-sources li{margin:.35rem 0;font-size:.9rem}
+.holopedia .wiki-sources a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
+.holopedia .wiki-sources p{font-size:.85rem;margin:0}
