@@ -215,8 +215,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Breach Port est le lieu où l’on rassemble ce qui vient d’ailleurs. Les cargos y cherchent du carburant, les pilotes des contrats, les mécaniciens des pièces et les courtiers une seconde chance de vendre leur chargement. On y entrepose des lots en attendant un acheteur ou un départ plus favorable. La ville ne contrôle pas les marchés de la galaxie ; elle vit des voyageurs qui cherchent à les relier."
-    ]
+      "RELEVÉ IMPÉRIAL DES PORTS — Ord Mantell figure parmi ces mondes dont les cités anciennes, les concessions minières et les établissements de transit ont appris à prospérer loin des grandes cérémonies de Coruscant. Dans le district de Breach Port, les cargaisons venues de plusieurs systèmes se croisent avec les demandes des ateliers, des pilotes et des négociants.",
+      "L'administration souligne l'utilité d'un tel relais dans la continuité du commerce galactique. Les quais accueillent des lots en attente de propriétaire, de pièces ou de transport ; les manifestes donnent à ces mouvements une nécessaire lisibilité. Un chroniqueur local observera cependant qu'ici une réputation solide ouvre parfois plus de portes qu'un formulaire parfaitement rempli."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des routes et des marchés",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-corellia",
@@ -225,8 +229,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Sur Corellia, les silhouettes des vaisseaux dominent les quartiers ouvriers. Les chantiers navals, les moteurs et les matériaux industriels font vivre une population habituée aux départs. Il y a toujours quelqu’un pour chercher une pièce difficile à trouver, négocier une cargaison d’alliages ou faire réparer une machine. Les meilleurs marchés sont rarement ceux dont les affiches promettent les prix les plus bas : un contrat y tient parfois à un délai de livraison."
-    ]
+      "ANNALES INDUSTRIELLES — Corellia demeure l'un des noms que les constructeurs et les capitaines prononcent avec respect. Ses chantiers, ses ateliers de moteurs et ses quartiers ouvriers témoignent d'un savoir-faire longtemps mis au service de la circulation entre les systèmes. Les coques qui y prennent forme sont autant d'instruments de commerce que de symboles de puissance technique.",
+      "Les autorités impériales encouragent la fiabilité des contrats et la traçabilité des équipements. Les capitaines savent néanmoins que l'industrie vit aussi de délais, de commandes urgentes et de négociations âpres : un alliage précieux n'est pas nécessairement celui qui se vend le plus cher, mais celui que le bon atelier peut livrer lorsque le vaisseau ne peut plus attendre."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques provinciales de l'Empire",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-tatooine",
@@ -235,8 +243,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Sous les deux soleils de Tatooine, rien d’utile ne se gaspille. Les fermes d’humidité, les ateliers et les villes portuaires comptent les filtres, les cellules énergétiques, l’eau et les pièces de récupération. Les affaires se concluent loin des bureaux impeccables, autour d’un hangar ou d’une table poussiéreuse. On peut y trouver un acheteur pressé ou un intermédiaire qui promet davantage qu’il ne possède. Les voyageurs prudents vérifient toujours qui garantit la transaction."
-    ]
+      "CHRONIQUE DES CONFINS — Sous les deux soleils de Tatooine, l'eau demeure la première mesure de toute richesse. Fermes d'humidité, ateliers de récupération et comptoirs poussiéreux y constituent une économie adaptée à la rareté. Les visiteurs des mondes centraux découvrent parfois avec surprise qu'un filtre fonctionnel peut être plus estimé qu'un objet d'apparat.",
+      "Les services impériaux recommandent aux transporteurs de contrôler soigneusement manifestes et garanties. Sur ce monde, beaucoup d'affaires se règlent au bord d'un hangar plutôt que dans un bureau homologué, et la parole d'un intermédiaire n'engage pas toujours les marchandises qu'il promet. L'ordre administratif gagne à connaître ces usages avant de prétendre les corriger."
+    ],
+    "imperialRecord": true,
+    "archivist": "Service impérial des échanges",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-ryloth",
@@ -245,8 +257,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Ryloth est la terre des Twi’leks, marquée par les occupations et les luttes pour disposer de ses propres ressources. Les cargaisons n’y racontent jamais toute l’histoire : derrière un lot de matières premières, il peut y avoir des travailleurs, des familles et des autorités dont les intérêts s’opposent. Des acheteurs cherchent du matériel et des approvisionnements ; des vendeurs veulent faire sortir leurs biens avant qu’une nouvelle restriction ne tombe. Le bon prix ne règle pas toujours la question du bon interlocuteur."
-    ]
+      "NOTICE SUR LES MONDES PRODUCTEURS — Ryloth, terre des Twi'leks, porte encore les marques de conflits, d'occupations et de rivalités autour de ses ressources. Les rapports officiels insistent sur la nécessité d'un approvisionnement régulier et de circuits déclarés ; les habitants, de leur côté, connaissent depuis longtemps la différence entre les intérêts d'un acheteur et ceux d'une famille.",
+      "Le chroniqueur impérial retiendra qu'aucun manifeste ne suffit à décrire une cargaison. Matières premières, fournitures et matériel transitent entre des interlocuteurs dont les objectifs ne coïncident pas toujours. Les restrictions et les changements d'autorité compliquent les échanges ; il convient donc d'identifier le véritable détenteur d'un lot avant d'engager transport, crédits ou réputation."
+    ],
+    "imperialRecord": true,
+    "archivist": "Annales civiles du gouvernorat",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-lothal",
@@ -255,8 +271,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Sur Lothal, les grandes plaines et les terres agricoles côtoient des installations industrielles toujours plus exigeantes. Le développement voulu par l’Empire attire des commandes de composants et de matériaux, mais il pèse aussi sur les habitants et les circuits d’approvisionnement. Les cargos croisent aussi bien des producteurs ordinaires que des acheteurs travaillant pour de puissants clients. Une commande abondante peut sembler rassurante ; encore faut-il savoir qui la paiera, et à quelles conditions."
-    ]
+      "CHRONIQUE DE LA MODERNISATION — Lothal offre le spectacle de grandes terres agricoles voisines d'installations industrielles en expansion. L'administration impériale présente ce développement comme une preuve de reconstruction : routes de fret, commandes de composants et nouvelles capacités de production y transforment l'économie d'un monde longtemps voué aux récoltes.",
+      "Les rapports des convois rappellent toutefois que les besoins des usines ne sont pas ceux des exploitants ruraux. Une commande importante peut mobiliser matériaux et transporteurs, puis laisser d'autres acheteurs attendre. Le Bureau des échanges invite chacun à distinguer les perspectives annoncées des stocks disponibles et des paiements effectivement garantis."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des routes et des marchés",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-kessel",
@@ -265,8 +285,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Les mines de Kessel ont la réputation de rapporter beaucoup à ceux qui les contrôlent et de coûter cher à ceux qui y travaillent. Substances convoitées, cargaisons sensibles et intermédiaires du Syndicat Pyke y entretiennent un commerce où le manifeste compte autant que le contenu des caisses. Les noms des acheteurs circulent moins librement que les rumeurs de leurs bénéfices. Pour un Courtier, Kessel est moins la promesse d’une fortune qu’une invitation à examiner chaque autorisation et chaque clause."
-    ]
+      "RAPPORT SUR LES EXPLOITATIONS SENSIBLES — Le nom de Kessel est associé aux mines, aux cargaisons surveillées et à des substances dont la valeur attire des intérêts puissants. Les intermédiaires du Syndicat Pyke occupent une place dans les récits commerciaux du secteur, tandis que les conditions de travail des exploitations suscitent depuis longtemps des commentaires moins officiels.",
+      "Pour l'administration, la priorité demeure le contrôle des autorisations et des manifestes. Un marchand prudent ne confondra pas la réputation d'une cargaison avec le droit de l'acquérir : les clauses, l'identité des acheteurs et les restrictions de circulation comptent autant que le produit lui-même. Les archives ne sauraient tenir une promesse de fortune pour une preuve de provenance."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques provinciales de l'Empire",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-sullust",
@@ -275,8 +299,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Sullust est un monde de chaleur et de reliefs volcaniques, dont les habitants sont réputés savoir vivre et travailler dans des conditions difficiles. Des équipages de Breach Port associent volontiers son nom aux réparations exigeantes, aux équipements techniques et aux pièces qui doivent résister longtemps. Rien ne dit qu’un composant y sera bon marché le jour où l’on en aura besoin. Sur les routes industrielles, les délais et la fiabilité se négocient presque aussi cher que les marchandises."
-    ]
+      "ANNALES TECHNIQUES — Sullust, monde volcanique où l'on travaille dans la chaleur et sous des reliefs difficiles, a développé des pratiques industrielles adaptées à des conditions exigeantes. Réparations, outillage et équipements destinés à durer sont fréquemment associés à son nom dans les carnets des équipages.",
+      "La normalisation impériale apprécie les pièces dont la qualité peut être attestée, mais la circulation des biens ne se résume jamais à un cachet. Les délais de fabrication, la disponibilité des matériaux et la fiabilité du fournisseur commandent souvent davantage le prix final qu'une étiquette. Le chroniqueur conseille de vérifier la destination d'usage avant de déclarer une commande acquittée."
+    ],
+    "imperialRecord": true,
+    "archivist": "Service impérial des échanges",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-mon-cala",
@@ -285,8 +313,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Les mers de Mon Cala abritent des cités et des savoir-faire très différents de ceux des ports poussiéreux d’Ord Mantell. Mon Calamari et Quarren y partagent une longue histoire, parfois difficile. La réputation de leurs constructions navales attire l’attention des capitaines en quête de matériel spécialisé. Mais les cargaisons destinées à un monde sous pression politique exigent plus qu’un joli devis : elles demandent des papiers solides, des partenaires fiables et une raison crédible de traverser les contrôles."
-    ]
+      "ARCHIVES DES MONDES OCÉANIQUES — Les cités de Mon Cala se déploient dans un environnement que les habitants des ports terrestres connaissent surtout par les récits de navigateurs. Mon Calamari et Quarren y portent des traditions distinctes et une histoire commune parfois difficile. La construction navale du monde jouit d'une réputation qui dépasse largement ses mers.",
+      "Les autorités impériales considèrent les marchés spécialisés de Mon Cala comme des échanges à documenter avec rigueur. Les capitaines de passage ont appris que la pression politique et les exigences administratives peuvent peser sur les cargaisons autant que les conditions naturelles. Un devis avantageux ne dispense ni de l'identification du fournisseur ni des papiers nécessaires au transit."
+    ],
+    "imperialRecord": true,
+    "archivist": "Annales civiles du gouvernorat",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-geonosis",
@@ -295,8 +327,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Les anciennes ruches de Geonosis et ses usines de guerre appartiennent aux récits que les vétérans des guerres des Clones racontent à voix basse. Sous l’Empire, le système n’est pas une destination commerciale ordinaire : les accès sont restreints, et les renseignements fiables rares. Un marchand qui prétend y tenir un comptoir ouvert à tous mérite davantage de questions que de crédits. Les contrats portant ce nom relèvent des autorisations exceptionnelles, quand ils ne sont pas de simples mensonges."
-    ]
+      "ARCHIVE MILITAIRE — Geonosis occupe une place singulière dans la mémoire de la guerre des Clones. Les ruches et les anciennes installations industrielles de ce monde sont associées aux premiers grands affrontements du conflit. Les vétérans en rapportent des récits qui mêlent machines de guerre, poussière et combats d'une ampleur exceptionnelle.",
+      "Le système relève aujourd'hui d'un régime d'accès restreint et ne doit pas être présenté comme un comptoir commercial ordinaire. L'autorité impériale rappelle qu'un contrat prétendant garantir librement une livraison sur Geonosis appelle des vérifications extraordinaires. Les rumeurs circulant dans les ports ne tiennent lieu ni de laissez-passer ni de renseignement certifié."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des routes et des marchés",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-coruscant",
@@ -305,8 +341,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "À Coruscant, la ville s’étend au-dessus et au-dessous des nuages, sur des niveaux que beaucoup d’habitants ne quittent jamais. La capitale impériale absorbe une quantité immense de fournitures, de matériaux et de services. La demande peut être considérable ; la concurrence, les intermédiaires et les formalités le sont aussi. Un cargo venu de Breach Port y arrive comme une goutte d’eau dans un océan de trafic. Cela n’empêche pas un petit marchand d’y faire fortune, ni de s’y ruiner en frais avant la première vente."
-    ]
+      "CHRONIQUE DE LA CAPITALE — Coruscant étend ses niveaux urbains bien au-delà de ce que peut embrasser un regard. Capitale de la République hier, centre de l'administration impériale aujourd'hui, elle rassemble bureaux, quartiers résidentiels, institutions et marchés d'une échelle qui défie les équipages des petits ports.",
+      "Le gouvernement présente cette concentration comme le cœur organisateur de la galaxie. Les transporteurs observent surtout l'ampleur des formalités et des besoins : matériaux, denrées et services y affluent sans relâche. Une petite cargaison de Breach Port peut y rencontrer un acheteur, mais elle doit d'abord traverser l'immensité des intermédiaires, des quais et des procédures."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques provinciales de l'Empire",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-naboo",
@@ -315,8 +355,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Les lacs, les collines et les villes de pierre claire de Naboo donnent aux voyageurs l’impression d’un monde soigneusement préservé. Les communautés naboo et gungan y possèdent chacune leurs usages, leurs savoir-faire et leurs relations avec l’extérieur. Un capitaine habitué aux docks de Breach Port y découvre que la politesse et les papiers comptent autant que le prix annoncé. Les fournitures, les instruments et les produits de qualité trouvent parfois preneur, mais un contrat élégant n’est pas nécessairement un contrat simple."
-    ]
+      "NOTICE CULTURELLE — Naboo est connue pour ses lacs, ses collines et ses cités de pierre claire, où les traditions de ses habitants Naboo et Gungans façonnent des usages particuliers. La crise autrefois provoquée par la Fédération du Commerce a donné à ce monde une place durable dans les récits officiels de la fin de la République.",
+      "Les archives impériales recommandent aux visiteurs de respecter les usages et les autorisations locales. Les négociants y recherchent instruments, fournitures et biens de qualité, mais la courtoisie d'un accord ne garantit pas son exécution. La bonne tenue des échanges exige ici, comme ailleurs, autant de documents fiables que de bonnes intentions."
+    ],
+    "imperialRecord": true,
+    "archivist": "Service impérial des échanges",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-alderaan",
@@ -325,8 +369,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Sur Alderaan, les sommets enneigés dominent des cités où la culture, les arts et la diplomatie restent des sujets de fierté. On y parle volontiers d’entraide entre mondes et des conséquences de la guerre, sans que chaque visiteur partage les mêmes convictions. Les marchands apprécient les clients exigeants et les engagements tenus ; les transporteurs, eux, apprennent que la réputation d’un commanditaire peut valoir davantage qu’une promesse de prime. Nul ne devrait confondre le prestige d’un lieu avec une invitation à y entrer sans contrôle."
-    ]
+      "CHRONIQUE DIPLOMATIQUE — Sous ses montagnes enneigées, Alderaan entretient la réputation d'un monde attaché à la culture, à la diplomatie et aux engagements publics. Ses cités et ses institutions inspirent un prestige dont l'effet se fait sentir jusque dans les discussions commerciales des ports éloignés.",
+      "Un historien impérial notera que la réputation d'un monde ne saurait le soustraire aux règles communes de transit et de déclaration. Les marchands apprécient les contrats honorés et les clients exigeants ; les transporteurs vérifient pour leur part les conditions exactes d'une réception. La dignité d'un commanditaire, si renommé soit-il, ne constitue pas une autorisation d'accès."
+    ],
+    "imperialRecord": true,
+    "archivist": "Annales civiles du gouvernorat",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-kashyyyk",
@@ -335,8 +383,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Les cités des Wookiees s’élèvent parmi les arbres gigantesques de Kashyyyk. Leurs habitants possèdent un savoir technique et une culture que les étrangers réduisent trop souvent à leur force physique. Depuis la fin des guerres des Clones, l’occupation impériale a apporté contraintes, violences et exploitation. Les équipages qui évoquent ce monde parlent de bois rares, de matériel et de main-d’œuvre ; les plus attentifs demandent d’où proviennent réellement les biens proposés. Certaines affaires n’ont pas besoin d’être illégales pour être honteuses."
-    ]
+      "NOTICE FORESTIÈRE ET INDUSTRIELLE — Les Wookiees de Kashyyyk ont bâti leurs communautés parmi des arbres d'une taille remarquable. Leur connaissance du milieu forestier et leurs savoir-faire techniques comptent parmi les traits les plus souvent relevés dans les rapports de voyageurs. Depuis la fin de la guerre des Clones, la présence impériale y a profondément modifié les conditions de vie et de travail.",
+      "Les communiqués officiels parlent de surveillance des ressources et d'organisation de la production. Les témoignages qui arrivent avec les équipages décrivent aussi des contraintes sévères et une exploitation contestée. Les bureaux du commerce rappellent l'importance des certificats d'origine : la légalité proclamée d'un lot ne suffit pas toujours à apaiser les questions soulevées par son acquisition."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des routes et des marchés",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-mandalore",
@@ -345,8 +397,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Le sol aride de Mandalore porte les traces de conflits anciens. Ses villes protégées, ses clans et sa tradition de combattants inspirent fascination ou méfiance, selon celui qui raconte l’histoire. Un casque mandalorien peut susciter davantage de questions qu’un manifeste entier. Les artisans et les mercenaires de passage connaissent la valeur d’un équipement robuste, mais les fidélités et les querelles politiques compliquent les échanges. Sur Mandalore, acheter une protection n’équivaut pas à obtenir la confiance de celui qui la fabrique."
-    ]
+      "CHRONIQUE DES TRADITIONS MARTIALES — Mandalore porte les cicatrices de conflits anciens et la mémoire de clans pour lesquels l'armure n'est pas seulement un équipement. Derrière les villes protégées et les paysages arides subsistent des fidélités et des traditions que les étrangers interprètent rarement avec justesse.",
+      "L'autorité impériale classe les équipements de protection et les services armés parmi les activités nécessitant une attention particulière. Les artisans et mercenaires mandaloriens connaissent la valeur d'une pièce bien conçue ; ils n'accordent pas nécessairement leur confiance à celui qui peut la payer. Un casque peut porter une histoire que nul inventaire ne parvient à résumer."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques provinciales de l'Empire",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-rodia",
@@ -355,8 +411,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "La jungle humide de Rodia recouvre de vastes étendues autour des villes protégées par leurs dômes. Les Rodians connaissent les avantages de vivre derrière des parois solides quand la végétation reprend sans cesse du terrain. Les voyageurs y entendent des récits de chasseurs, de convoyeurs et de communautés soucieuses de leurs approvisionnements. Entre une commande de fournitures et une offre d’escorte, les négociations peuvent changer de ton très vite. La réputation d’un habitant ne dit pourtant rien, à elle seule, de l’honnêteté de sa proposition."
-    ]
+      "RELEVÉ DES SYSTÈMES HABITÉS — Rodia se distingue par ses jungles et par les cités protégées de dômes qui permettent à ses habitants de vivre au milieu d'une végétation tenace. Les récits de chasse, d'escorte et de convoyage occupent une place importante dans sa réputation auprès des visiteurs.",
+      "Pour les observateurs impériaux, les échanges y demandent une connaissance des risques locaux et des accords d'approvisionnement. Une commande de fournitures peut se transformer en discussion sur la sécurité d'un trajet ; une proposition d'escorte exige un examen des responsabilités. Le chroniqueur recommande de juger les contrats sur leurs termes plutôt que sur les préjugés attachés aux espèces."
+    ],
+    "imperialRecord": true,
+    "archivist": "Service impérial des échanges",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-nal-hutta",
@@ -365,8 +425,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Nal Hutta est un monde chaud de marais, de pluies lourdes et de cités bâties sur les rares terres fermes. Les Hutts y dominent des réseaux d’influence dont les ramifications atteignent bien au-delà de leurs quais. Le bazar de Bilbousa attire vendeurs, intermédiaires et voyageurs en quête d’une transaction qu’ils ne trouveraient pas ailleurs. À Breach Port, certains vantent la souplesse de ces négociants ; d’autres rappellent qu’une faveur acceptée aujourd’hui peut devenir une dette demain. Le plus difficile n’est pas toujours de fixer un prix, mais de définir à qui l’on doit payer."
-    ]
+      "CHRONIQUE DES INFLUENCES — Les marais de Nal Hutta, ses pluies et ses établissements installés sur les terres fermes composent un paysage aussi difficile qu'actif. Les Hutts y exercent une influence considérable sur des circuits d'affaires qui dépassent leurs propres ports. Le bazar de Bilbousa attire une foule d'intermédiaires et de vendeurs.",
+      "Les autorités impériales considèrent avec prudence les accords conclus sous la seule garantie de relations personnelles. Certains visiteurs apprécient la souplesse des transactions, d'autres en découvrent trop tard les obligations implicites. Sur Nal Hutta, une faveur peut constituer une dette durable ; la signature ne protège que celui qui a compris à quoi il s'engage."
+    ],
+    "imperialRecord": true,
+    "archivist": "Annales civiles du gouvernorat",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-cato-neimoidia",
@@ -375,8 +439,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Au-dessus des vallées de Cato Neimoidia, les cités semblent suspendues entre les falaises. Les palais et les fortunes de négociants neimoidiens rappellent l’ancienne puissance de la Fédération du Commerce. Après la guerre, la richesse n’y a pas effacé les méfiances. On y échange autant de contrats que de démonstrations de prestige, et un invité peut se retrouver au milieu d’une compétition dont il ignore les règles. Le petit Courtier venu d’Ord Mantell devra y reconnaître les bons interlocuteurs avant d’espérer y reconnaître une bonne affaire."
-    ]
+      "ANNALES MARCHANDES — Les villes suspendues de Cato Neimoidia dominent des vallées où les palais témoignent de fortunes anciennes. La Fédération du Commerce y a laissé une mémoire visible dans l'architecture et dans les usages des négociants, mémoire que la fin de la guerre n'a pas effacée.",
+      "Les chroniques impériales distinguent la prospérité héritée de la confiance réellement méritée. Dans ces cités, l'étiquette et les manifestations de prestige accompagnent les contrats ; un étranger peut ignorer les rivalités qui se déroulent sous les politesses. Le courtier d'Ord Mantell cherchera d'abord à savoir qui décide, avant de s'inquiéter du prix promis."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des routes et des marchés",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-christophsis",
@@ -385,8 +453,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Les formations cristallines de Christophsis donnent aux horizons des couleurs que les voyageurs peinent à décrire. La planète fut un champ de bataille important pendant les guerres des Clones, et certaines familles se souviennent encore des blocus qui les privèrent de ravitaillement. Les cargaisons de matériaux, d’outillage et de denrées peuvent attirer l’attention, mais la mémoire des pénuries rend les promesses faciles peu convaincantes. Les capitaines prudents parlent autant de la fiabilité des livraisons que des bénéfices possibles."
-    ]
+      "ARCHIVES DE RECONSTRUCTION — Les formations cristallines de Christophsis donnent à ce monde un visage reconnaissable entre tous. La guerre des Clones y provoqua de violents affrontements et des blocus dont de nombreuses familles gardent encore le souvenir.",
+      "Les services impériaux présentent le rétablissement du ravitaillement comme une nécessité première. Matériaux, outillage et denrées demeurent des besoins concrets, mais les habitants des villes qui ont connu la pénurie se méfient des promesses trop faciles. Le bon transporteur ne se distingue pas seulement par le prix annoncé : il livre ce qu'il a promis, au quai convenu et à la date possible."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques provinciales de l'Empire",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-raxus",
@@ -395,8 +467,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Raxus fut l’une des grandes vitrines politiques de la Confédération séparatiste. Ses bâtiments officiels et ses quartiers élégants portent le souvenir d’un Sénat qui n’existe plus. Sous l’Empire, l’ancien engagement de certains habitants peut compliquer les rapports avec l’administration. Les transporteurs qui cherchent des clients dans ce monde apprennent vite à distinguer une maison de commerce d’un bureau surveillé. Une demande de pièces industrielles peut être parfaitement ordinaire ; son origine et son destinataire méritent néanmoins d’être vérifiés."
-    ]
+      "NOTICE SUR L'HÉRITAGE SÉPARATISTE — Raxus fut l'un des centres politiques de la Confédération des systèmes indépendants. Ses bâtiments officiels et ses quartiers soignés gardent le souvenir d'un Sénat séparatiste désormais disparu. Les archives impériales y voient un avertissement sur le coût de la division.",
+      "Les engagements politiques de la guerre continuent d'influencer les relations administratives. Les négociants de passage gagnent à distinguer les maisons de commerce des institutions placées sous contrôle. Une commande industrielle peut être légitime sans que son origine ou son destinataire échappent aux vérifications. Sur Raxus, la prudence documentaire est devenue un usage autant qu'une obligation."
+    ],
+    "imperialRecord": true,
+    "archivist": "Service impérial des échanges",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-dantooine",
@@ -405,8 +481,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Dantooine offre de vastes paysages verts, des espaces agricoles et des communautés plus éloignées des grandes métropoles galactiques. Les cargaisons y suivent souvent les besoins d’une économie rurale : entretien des machines, approvisionnement des exploitations, transport de récoltes et matériel médical. Le monde attire ceux qui veulent vivre à distance des agitations politiques, sans que cette distance protège de toutes les décisions impériales. Un voyage rentable peut y commencer par un service modeste rendu à quelqu’un qui se souviendra du nom de l’équipage."
-    ]
+      "CHRONIQUE RURALE — Les vastes plaines de Dantooine accueillent des exploitations agricoles et des communautés plus éloignées des grandes métropoles. Le commerce y dépend d'une circulation modeste mais régulière de machines, de fournitures médicales, de récoltes et de pièces d'entretien.",
+      "L'administration impériale célèbre l'apport de ces mondes à l'approvisionnement de la galaxie. Les habitants, moins préoccupés des proclamations que de l'état de leurs outils, jugent les voyageurs à la constance de leurs engagements. Un service rendu sur une exploitation peut établir une relation durable ; une promesse non tenue s'y raconte longtemps."
+    ],
+    "imperialRecord": true,
+    "archivist": "Annales civiles du gouvernorat",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-malastare",
@@ -415,8 +495,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Sur Malastare, les réserves de carburant ont longtemps attiré les armées et les industriels. Le monde des Dugs connaît la valeur de ses ressources, mais aussi les conséquences des combats menés pour les contrôler. Pour un capitaine, le nom de Malastare évoque aussitôt des discussions sur les fournitures énergétiques, les prix d’approvisionnement et les intermédiaires autorisés. Cela ne signifie pas qu’un ravitaillement attend chaque vaisseau qui s’y présente. Dans un marché sous tension, savoir qui détient le stock importe parfois plus que connaître son cours."
-    ]
+      "ANNALES ÉNERGÉTIQUES — Les réserves de carburant de Malastare ont attiré armées, industriels et transporteurs bien avant la paix impériale. Les Dugs connaissent les bénéfices et les risques liés à ces ressources, dont le contrôle fut lui-même un enjeu des combats passés.",
+      "Les autorités encouragent la déclaration claire des stocks et des circuits d'approvisionnement. Un capitaine ne doit pas supposer qu'un monde réputé pour ses réserves peut ravitailler à volonté son appareil. Les prix, les autorisations et l'identité du détenteur d'un lot demeurent des questions distinctes. Dans l'énergie comme ailleurs, la réputation ne remplace pas l'inventaire."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des routes et des marchés",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-saleucami",
@@ -425,8 +509,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Saleucami mêle étendues arides, terres humides et implantations de colons qui ont longtemps voulu rester à l’écart des batailles. La guerre a fini par atteindre leurs routes, puis la nouvelle administration impériale. Les exploitations et les petits établissements ont besoin de machines, de médicaments, de pièces et de transporteurs dignes de confiance. Les marchés les plus utiles n’y ressemblent pas forcément à des places bruyantes : une commande peut commencer dans une ferme, autour d’un moteur qui refuse de redémarrer."
-    ]
+      "CHRONIQUE DES COLONIES — Saleucami réunit des étendues sèches, des terrains humides et des établissements de colons dont les activités ont longtemps dépendu de pistes modestes. La guerre a pourtant atteint ces communautés et laissé des besoins que la fin des combats n'a pas fait disparaître.",
+      "Les archives impériales insistent sur le retour des transports et de l'administration. Les fermes et les petits comptoirs ont surtout besoin de machines fiables, de médicaments, de réparations et de négociants qui tiennent parole. Là où certains imaginent une place de marché agitée, un contrat utile peut commencer autour d'un moteur en panne et se conclure après plusieurs visites."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques provinciales de l'Empire",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-felucia",
@@ -435,8 +523,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Les forêts de Felucia semblent faites de champignons géants, de couleurs irréelles et de plantes dont les formes défient l’habitude. Ce monde fertile a souffert de combats répétés pendant les guerres des Clones. Les habitants qui cultivent ses terres connaissent les dangers de la jungle et ceux des pillards. Pour les équipages étrangers, l’approvisionnement en vivres ou en produits végétaux exige des partenaires connaissant le terrain. Une cargaison promise au départ peut se perdre entre une récolte retardée et une piste devenue impraticable."
-    ]
+      "NOTICE NATURALISTE — Felucia présente des jungles aux champignons gigantesques et aux végétaux de couleurs saisissantes. La fertilité du monde attire les prospecteurs de produits végétaux ; les chemins y demeurent pourtant difficiles et les ressources ne se laissent pas prélever sans connaissance du terrain.",
+      "Les combats de la guerre des Clones y ont interrompu des récoltes et mis certaines communautés à l'épreuve. Les bulletins impériaux privilégient désormais la sécurité des approvisionnements, mais les habitants doivent toujours compter avec la jungle et les pillards. Un capitaine qui promet une cargaison sans connaître les récoltes ni la piste de sortie s'engage sur bien plus qu'un simple délai."
+    ],
+    "imperialRecord": true,
+    "archivist": "Service impérial des échanges",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-utapau",
@@ -445,8 +537,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "À la surface d’Utapau, les vents parcourent une terre sèche percée d’immenses gouffres. Plus bas, l’eau et les villes se cachent dans les profondeurs de la roche. Pau’ans, Utai et autres habitants y vivent de métiers où la maintenance des installations et l’exploitation des ressources sont essentielles. Les pilotes y découvrent un monde dont les ports ne se ressemblent guère. Les marchands ont intérêt à vérifier le lieu exact de livraison : arriver dans le bon système ne garantit pas que l’on puisse déposer sa cargaison au bon quai."
-    ]
+      "CHRONIQUE DES HABITATS EXCEPTIONNELS — Utapau est un monde sec, percé de gouffres immenses au fond desquels se trouvent des villes et des réserves d'eau. Pau'ans, Utai et autres habitants y ont développé des savoir-faire adaptés à des infrastructures dont l'entretien ne souffre pas l'improvisation.",
+      "Les rapports administratifs soulignent que les ports de ce système ne sont pas interchangeables. Une livraison correctement déclarée doit encore atteindre l'installation concernée, parfois au cœur d'un gouffre. Le pilote prudent distingue toujours la destination planétaire du quai effectivement accessible : une erreur de localisation peut anéantir le bénéfice d'un transport."
+    ],
+    "imperialRecord": true,
+    "archivist": "Annales civiles du gouvernorat",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-mygeeto",
@@ -455,8 +551,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Mygeeto est un monde glacé de roches et de formations cristallines, autrefois lié à la puissance financière du Clan Bancaire Intergalactique. Les guerres des Clones ont laissé leurs marques dans ce décor austère. Les conversations commerciales y reviennent vite aux garanties, aux créances et à ceux qui possèdent encore les moyens de payer. Un chargement peut avoir une grande valeur sur le papier et ne trouver personne pour le financer. Les Courtiers de Breach Port connaissent ce problème : les crédits inscrits dans un contrat n’existent pas toujours dans une caisse."
-    ]
+      "ANNALES FINANCIÈRES — Mygeeto, monde de glace et de formations cristallines, reste associé à l'influence qu'y exerça jadis le Clan Bancaire Intergalactique. La guerre des Clones a profondément marqué ses paysages et laissé derrière elle des contrats, des dettes et des créances difficiles à démêler.",
+      "Les services impériaux rappellent qu'un commerce durable dépend de garanties vérifiables. Un lot peut figurer pour une somme considérable sur un registre sans trouver d'acheteur solvable le jour de la livraison. Les courtiers de Breach Port connaissent cette vérité : les chiffres d'un contrat représentent une promesse, non des crédits déjà disponibles."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des routes et des marchés",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-bracca",
@@ -465,8 +565,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Sur Bracca, des coques de guerre déclassées s’empilent sous un ciel peu accueillant. Les ouvriers de récupération démontent les anciens appareils et trient les pièces que de nouveaux acheteurs feront repartir ailleurs. L’Empire surveille une partie de ce commerce de métal, de moteurs et de composants. Un mécanicien patient peut reconnaître la valeur d’un débris que d’autres laisseraient rouiller ; un marchand pressé peut acheter une montagne de ferraille sans savoir comment la transporter. Ici, la provenance et l’état réel d’une pièce comptent autant que son étiquette."
-    ]
+      "CHRONIQUE DES MATÉRIAUX RÉCUPÉRÉS — Bracca accueille d'immenses accumulations de coques de guerre déclassées. Des ouvriers démontent les anciens vaisseaux pour en retirer moteurs, alliages et composants qui repartiront vers d'autres ateliers. La fin du conflit a fait de ces carcasses une ressource aussi précieuse qu'encombrante.",
+      "L'administration impériale surveille les opérations de récupération et les circuits déclarés des pièces. La qualité d'un élément ne se juge pas à son origine prestigieuse : elle dépend de son état réel, de son numéro et de sa traçabilité. Un mécanicien expérimenté reconnaît parfois un trésor dans un débris ; un marchand négligent risque d'acheter un poids mort impossible à transporter."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques provinciales de l'Empire",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-onderon",
@@ -475,8 +579,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Sur Onderon, de grandes villes fortifiées dominent une jungle où vivent des créatures dangereuses. Les conflits de la guerre ont opposé différentes fidélités politiques et laissé des souvenirs tenaces. Dans les rues d’Iziz, un visiteur peut entendre plusieurs versions d’une même histoire, racontées avec une conviction égale. Les transporteurs peuvent y rencontrer des demandes d’approvisionnement ordinaires, mais les engagements politiques des intermédiaires ne sont pas toujours faciles à lire. Acheter quelque chose n’oblige pas à adopter les idées de son vendeur ; cela n’empêche pas les autorités de poser des questions."
-    ]
+      "CHRONIQUE DES CITÉS FORTIFIÉES — Onderon est connu pour ses jungles dangereuses et pour les grandes villes protégées qui leur font face. Les conflits politiques et militaires de la guerre y ont laissé des fidélités tenaces. Dans les rues d'Iziz, il arrive que deux témoins racontent la même bataille en termes opposés.",
+      "Les autorités impériales présentent la surveillance des approvisionnements comme une mesure de stabilité. Les visiteurs y découvrent que l'achat de matériel ou la conclusion d'un transport peuvent néanmoins être interprétés à travers d'anciennes rivalités. Les chroniqueurs conseillent de distinguer les obligations commerciales des affiliations politiques prêtées aux interlocuteurs."
+    ],
+    "imperialRecord": true,
+    "archivist": "Service impérial des échanges",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-eriadu",
@@ -485,8 +593,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Eriadu est un monde montagneux lié à de puissants intérêts impériaux. Les responsables civils et militaires y disposent d’infrastructures que les petits équipages de Breach Port n’ont guère l’habitude de fréquenter. Un visiteur peut y trouver des prestataires efficaces et des procédures interminables, parfois dans la même rue. Les marchandises destinées à des clients influents exigent des déclarations irréprochables. Beaucoup de capitaines apprécieraient une grosse commande ; ils préfèrent pourtant savoir à qui ils parlent avant d’accepter un chargement qui pourrait leur coûter leur liberté."
-    ]
+      "ANNALES ADMINISTRATIVES — Les reliefs d'Eriadu abritent des infrastructures liées à d'importants intérêts civils et militaires impériaux. La présence des services officiels y marque la circulation des marchandises et l'organisation des activités locales, parfois à une échelle étrangère aux petits équipages d'Ord Mantell.",
+      "Les autorités invoquent la rigueur documentaire pour assurer le bon fonctionnement des approvisionnements. Un capitaine peut rencontrer des prestataires efficaces et, le même jour, devoir patienter devant plusieurs bureaux. La valeur d'une grosse commande se mesure aussi aux vérifications qu'elle impose : mieux vaut comprendre le destinataire et les conditions de remise avant de charger la soute."
+    ],
+    "imperialRecord": true,
+    "archivist": "Annales civiles du gouvernorat",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-batuu",
@@ -495,8 +607,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Batuu se trouve loin des grands centres. Autour des anciennes flèches de pierre de Black Spire, des marchands, des voyageurs et des aventuriers échangent ce qui a réussi à parvenir jusque-là. Ses forêts et ses montagnes donnent au monde des allures tranquilles, mais ses marchés ne vivent pas uniquement de clients paisibles. Un objet sans valeur dans une capitale peut y intéresser un collectionneur ou un réparateur ; encore faut-il rencontrer la bonne personne. Les équipages qui s’y aventurent savent qu’une destination lointaine ne se résume jamais à un prix attractif."
-    ]
+      "CHRONIQUE DES CONFINS — Batuu se tient loin des principaux centres administratifs. Les anciennes flèches de pierre de Black Spire se dressent au-dessus d'un carrefour où voyageurs, marchands et aventuriers échangent les biens qui ont réussi à traverser de longues distances.",
+      "La faible proximité des grands bureaux n'abolit ni les usages ni les risques du commerce. Un objet délaissé dans une capitale peut trouver ici un acheteur inattendu ; encore faut-il savoir reconnaître cet interlocuteur. L'administration recommande de ne jamais confondre l'isolement d'un monde avec l'absence de responsabilités pour ceux qui y transportent des cargaisons."
+    ],
+    "imperialRecord": true,
+    "archivist": "Bureau impérial des routes et des marchés",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "planete-bespin",
@@ -505,8 +621,12 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "paragraphs": [
-      "Bespin n’offre pas de terres où se poser : c’est une immense planète gazeuse dont certaines couches d’atmosphère abritent des installations flottantes. Des exploitants y recherchent des gaz précieux, tandis que les ouvriers et les machines dépendent d’approvisionnements venus de l’espace. Pour un Pilote, il ne suffit pas de viser la planète : il faut connaître l’installation qui recevra le vaisseau. Pour un Courtier, l’espoir d’un chargement rentable doit intégrer la fragilité des accès et le coût d’une erreur de destination."
-    ]
+      "NOTICE SUR LES INSTALLATIONS AÉRIENNES — Bespin est une géante gazeuse dépourvue de surface solide où poser un appareil. Certaines couches de son atmosphère accueillent des installations flottantes consacrées notamment à l'exploitation de gaz précieux. Les travailleurs y dépendent d'approvisionnements et d'équipements venus d'ailleurs.",
+      "Pour les bureaux impériaux du transit, la précision du manifeste est essentielle : un nom de planète ne suffit pas à désigner une plateforme. Les pilotes doivent identifier la station qui les recevra ; les courtiers tiennent compte de la fragilité des accès et de la capacité réelle de livraison. Sur Bespin, l'erreur de destination est parfois plus coûteuse que le voyage lui-même."
+    ],
+    "imperialRecord": true,
+    "archivist": "Chroniques provinciales de l'Empire",
+    "archiveLabel": "Dossier planétaire · édition impériale"
   },
   {
     "id": "lieu-la-maison-du-prefet-et-la-prison",
