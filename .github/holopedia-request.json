@@ -4,8 +4,8 @@
   "siteId": "holopedia-space-outlaws",
   "sourceRef": "gh-pages",
   "requestedAt": "2026-11-16",
-  "reason": "Publication indépendante Holopédia des nouveaux mots-clés et hyperliens Wiki, après tests ciblés. Ne redéployer ni GN Engine ni Firestore.",
+  "reason": "Publier les cinq pages historiques Star Wars, les liens Wiki et les sources officielles de l'Holopédia seulement. Aucun déploiement de GN Engine.",
   "status": "AUTHORIZED_SECONDARY_HOSTING_ONLY",
-  "attempt": 3,
-  "scope": "holopedia-wiki-inline-links-and-tags"
+  "attempt": 4,
+  "scope": "holopedia-history-republic-clone-wars-order66-empire"
 }
