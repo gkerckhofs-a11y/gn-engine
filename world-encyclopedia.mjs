@@ -1,10 +1,11 @@
 import {worldEncyclopedia} from './world-encyclopedia-data.mjs';
 import {escapeHtml as esc} from './groups.mjs';
+import {wikiKeywords,wikiReferences,wikiTextHtml} from './world-encyclopedia-links.mjs';
 
 // Public, read-only world information. Never import M6 secrets, player knowledge or GM records.
 export const encyclopediaCategories=['Planètes','Lieux de Breach Port','Breach Port','Culture et galaxie','Histoire'];
 const byId=new Map(worldEncyclopedia.map(article=>[article.id,article]));
-const searchText=new Map(worldEncyclopedia.map(a=>[a.id,`${a.title} ${a.subtitle??''} ${a.paragraphs.join(' ')}`.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr')]));
+const searchText=new Map(worldEncyclopedia.map(a=>[a.id,`${a.title} ${a.subtitle??''} ${a.paragraphs.join(' ')} ${wikiKeywords(a).join(' ')}`.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr')]));
 const norm=value=>String(value??'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr').trim();
 const href=(sessionId,id)=>`#/holopedia/${encodeURIComponent(sessionId)}${id?'/'+encodeURIComponent(id):''}`;
 const short=a=>a.paragraphs.find(p=>p.length>80)?.slice(0,155)??'';
@@ -14,15 +15,15 @@ export function holopediaIndexHtml(sessionId){
  return `<div class="holopedia narrow" data-holopedia-root><p class="eyebrow">Archives publiques · Space Outlaws</p><h1>Holopédia</h1><p class="rp lead">Les mondes, les lieux et les histoires que les habitants de Breach Port connaissent.</p><p><em>Cette encyclopédie rassemble le savoir commun. Les codes de route, les contacts privés et les renseignements commerciaux se découvrent en jeu.</em></p><div class="panel holopedia-search"><label>Rechercher dans l’encyclopédie<input type="search" data-holopedia-search placeholder="Planète, lieu, famille, événement…" autocomplete="off"></label><label>Rubrique<select data-holopedia-filter><option value="">Toutes les rubriques</option>${encyclopediaCategories.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')}</select></label></div><p class="muted" role="status" data-holopedia-count>${worldEncyclopedia.length} articles disponibles.</p><p class="panel" data-holopedia-empty hidden>Aucun article ne correspond à cette recherche.</p>${grouped}</div>`;
 }
 const relatedArticles=(article)=>{
- const text=norm(article.paragraphs.join(' '));
- const related=worldEncyclopedia.filter(a=>a.id!==article.id&&a.kind==='planète'&&text.includes(norm(a.title))).slice(0,5);
- return related;
+ const ids=wikiReferences(article);
+ const direct=ids.map(id=>byId.get(id)).filter(Boolean).slice(0,6);
+ return direct.length?direct:worldEncyclopedia.filter(a=>a.id!==article.id&&a.category===article.category).slice(0,4);
 };
 export function holopediaArticleHtml(sessionId,id){
  const a=byId.get(id);
  if(!a)return `<div class="narrow holopedia"><h1>Article introuvable</h1><p>Ce lien ne correspond à aucun article public.</p><a class="button" href="${esc(href(sessionId))}">Revenir à l’Holopédia</a></div>`;
- const related=relatedArticles(a);
- return `<article class="holopedia narrow"><nav class="holopedia-breadcrumb" aria-label="Fil d’Ariane"><a href="${esc(href(sessionId))}">Holopédia</a><span aria-hidden="true"> / </span>${esc(a.category)}</nav><p class="eyebrow">${esc(a.kind)} · ${esc(a.category)}</p><h1>${esc(a.title)}</h1>${a.subtitle?`<p class="lead">${esc(a.subtitle)}</p>`:''}<div class="holopedia-reading prose">${a.paragraphs.map(t=>`<p>${esc(t)}</p>`).join('')}</div>${related.length?`<section class="panel"><h2>À consulter aussi</h2><ul>${related.map(t=>`<li><a href="${esc(href(sessionId,t.id))}">${esc(t.title)}</a></li>`).join('')}</ul></section>`:''}<p class="muted"><em>Source : Livre du monde de Space Outlaws, édition joueurs enrichie du 16 novembre 2026. Cette page ne dévoile aucun itinéraire ou renseignement réservé.</em></p><nav class="row" aria-label="Retour"><a class="button quiet" href="${esc(href(sessionId))}">Tous les articles</a><a class="button quiet" href="https://gn-engine.web.app/" data-return-terminal>Retour à GN Engine</a></nav></article>`;
+ const related=relatedArticles(a),seen=new Set(),keywords=wikiKeywords(a);
+ return `<article class="holopedia narrow"><nav class="holopedia-breadcrumb" aria-label="Fil d’Ariane"><a href="${esc(href(sessionId))}">Holopédia</a><span aria-hidden="true"> / </span>${esc(a.category)}</nav><p class="eyebrow">${esc(a.kind)} · ${esc(a.category)}</p><h1>${esc(a.title)}</h1>${a.subtitle?`<p class="lead">${esc(a.subtitle)}</p>`:''}<div class="holopedia-reading prose">${a.paragraphs.map(t=>`<p>${wikiTextHtml(t,a.id,sessionId,seen)}</p>`).join('')}</div>${keywords.length?`<section class="wiki-keywords" aria-label="Mots-clés"><h2>Mots-clés</h2><div class="wiki-keyword-list">${keywords.map(k=>`<a class="wiki-keyword" href="${esc(href(sessionId))}?keyword=${encodeURIComponent(k)}"># ${esc(k)}</a>`).join('')}</div></section>`:''}${related.length?`<section class="panel"><h2>À consulter aussi</h2><ul>${related.map(t=>`<li><a href="${esc(href(sessionId,t.id))}">${esc(t.title)}</a></li>`).join('')}</ul></section>`:''}<p class="muted"><em>Source : Livre du monde de Space Outlaws, édition joueurs enrichie du 16 novembre 2026. Cette page ne dévoile aucun itinéraire ou renseignement réservé.</em></p><nav class="row" aria-label="Retour"><a class="button quiet" href="${esc(href(sessionId))}">Tous les articles</a><a class="button quiet" href="https://gn-engine.web.app/" data-return-terminal>Retour à GN Engine</a></nav></article>`;
 }
 export function filterHolopedia(root,term,category=''){
  if(!root)return 0;
