@@ -57,7 +57,7 @@ export const worldEncyclopedia = Object.freeze([
   },
   {
     "id": "chapitre-05",
-    "title": "Les sept lieux de Breach Port",
+    "title": "Découvrir Breach Port",
     "category": "Breach Port",
     "kind": "thème",
     "paragraphs": [
