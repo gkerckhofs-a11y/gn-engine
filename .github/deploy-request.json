@@ -1,8 +1,8 @@
 {
   "project": "gn-engine",
   "sourceRef": "main",
-  "version": "0.39.1",
+  "version": "0.39.2",
   "requestedAt": "2026-11-16",
-  "reason": "Autorisation explicite de Guillaume le 16 novembre 2026 : « tu peux publier ». Publication du Terminal simplifié et de l’accès carte PIL-01 ; pas de carnet galactique nouveau ni de codes globaux. Dix jobs CI complets requis sur le SHA main exact. Aucune migration ni réinitialisation.",
+  "reason": "Autorisation explicite de Guillaume le 16 novembre 2026 : publier le lien Holopédia depuis le Terminal de tous les personnages. CI complète requise sur le SHA main exact. Aucun changement de données de jeu.",
   "status": "AUTHORIZED_AFTER_FULL_CI"
 }

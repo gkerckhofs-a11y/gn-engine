@@ -1,0 +1,82 @@
+name: Publier Holopédia indépendamment sur Firebase
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/deploy-holopedia.yml'
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: gn-engine-holopedia-hosting
+  cancel-in-progress: false
+
+jobs:
+  deploy-holopedia:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Récupérer uniquement les fichiers publics de l'Holopédia
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: gh-pages
+          persist-credentials: false
+
+      - name: Configurer Node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+
+      - name: Vérifier la configuration du site indépendant
+        env:
+          SITE_ID: holopedia-space-outlaws
+        run: |
+          if ! [[ "$SITE_ID" =~ ^[a-z0-9][a-z0-9-]{0,29}$ ]]; then
+            echo 'Identifiant Firebase Hosting invalide.' >&2
+            exit 1
+          fi
+          test -f firebase.holopedia.json
+          test -f index.html
+          test -f world-encyclopedia-data.mjs
+          grep -q 'HOLOPÉDIA' index.html
+          grep -q 'planete-corellia' world-encyclopedia-data.mjs
+
+      - name: Installer la CLI Firebase verrouillée
+        run: npm install --global firebase-tools@15.34.0 --no-audit --no-fund
+
+      - name: Authentifier la publication Google Cloud depuis main
+        uses: google-github-actions/auth@7c6bc770dae815cd3e89ee6cdf493a5fab2cc093 # v3
+        with:
+          project_id: gn-engine
+          workload_identity_provider: projects/936415509528/locations/global/workloadIdentityPools/gn-engine-github/providers/gn-engine-main
+          service_account: gn-engine-deployer@gn-engine.iam.gserviceaccount.com
+          create_credentials_file: true
+
+      - name: Créer le site secondaire s'il n'existe pas
+        env:
+          SITE_ID: holopedia-space-outlaws
+        run: |
+          if firebase hosting:sites:get "$SITE_ID" --project gn-engine --non-interactive >/dev/null 2>&1; then
+            echo "Le site secondaire existe déjà dans le projet."
+          else
+            echo "Création du site secondaire Firebase Hosting : $SITE_ID"
+            firebase hosting:sites:create "$SITE_ID" --project gn-engine --non-interactive
+          fi
+
+      - name: Déployer uniquement le site Holopédia
+        env:
+          SITE_ID: holopedia-space-outlaws
+        run: |
+          firebase target:apply hosting holopedia "$SITE_ID" --project gn-engine
+          firebase deploy --project gn-engine --only hosting:holopedia --config firebase.holopedia.json --non-interactive
+
+      - name: Contrôler la publication indépendante
+        env:
+          SITE_ID: holopedia-space-outlaws
+        run: |
+          curl --fail --location --retry 5 --retry-delay 3 --silent --show-error "https://${SITE_ID}.web.app/" | grep -q 'HOLOPÉDIA'
