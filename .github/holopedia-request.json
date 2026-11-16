@@ -4,6 +4,7 @@
   "siteId": "holopedia-space-outlaws",
   "sourceRef": "gh-pages",
   "requestedAt": "2026-11-16",
-  "reason": "Création et publication du site Holopédia séparé, autorisées explicitement par l'utilisateur. Aucun déploiement de GN Engine, de fonctions, de règles Firestore ou d'index.",
-  "status": "AUTHORIZED_SECONDARY_HOSTING_ONLY"
+  "reason": "Nouvelle tentative de publication du site Holopédia (créé le 16/11/2026), après ajout de firebase.json requis par le workflow et exclusion du fichier des actifs publics. Ne pas déployer GN Engine.",
+  "status": "AUTHORIZED_SECONDARY_HOSTING_ONLY",
+  "attempt": 2
 }
