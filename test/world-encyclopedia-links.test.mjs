@@ -58,9 +58,9 @@ test('Histoire : République, guerre des Clones, Ordre 66 et Empire en cinq arti
  const html=holopediaArticleHtml('public','histoire-republique-a-empire');
  assert.match(html,/Guerres des Clones|guerre des Clones/);
  assert.match(html,/Ordre 66/);
- assert.match(html,/sources officielles/i);
+ assert.match(html,/Références historiques \(hors-jeu\)/i);
  assert.match(html,/starwars.com/);
- assert.match(html,/rappel hors-jeu/);
+ assert.match(html,/version officielle/i);
  const link=wikiTextHtml('L’Ordre 66 a suivi la guerre des Clones.','prologue');
  assert.match(link,/histoire-ordre-66-et-disparition-des-jedi/);
  assert.match(link,/histoire-guerre-des-clones/);
