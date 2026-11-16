@@ -22,6 +22,8 @@ export function terminalItems(own,d={}){
  const shipIds=new Set((d.ships?.ships??[]).map(s=>s.id??s.shipId));
  const outside=rows=>(rows??[]).filter(r=>!r.shipId||!shipIds.has(r.shipId));
  const port='Services du port',special='Mes services spécialisés',assets='Mes biens, vaisseaux et mandats';
+ // Published on a separate Hosting site; lore edits do not require a GN Engine redeploy.
+ add('holopedia','Holopédia',port,'Explorer les planètes, les lieux et l’histoire de Breach Port.',[],{url:`https://holopedia-space-outlaws.web.app/?session=${encodeURIComponent(sid)}`});
  if(f.shopsVersion===1&&count(d.shops,'shops','orders'))add('shops','Boutiques d’objets personnels',port,'Acheter des fournitures et retirer mes commandes.',d.shops.orders);
  if(own.economyEnabled)add('public-prices','Cours publics',port,'Consulter gratuitement les cours publiés.');
  if(own.economyEnabled)add('wallet','Mes crédits',port,`${own.wallet?.account?.available??'—'} crédits disponibles · paiements et historique.`);
