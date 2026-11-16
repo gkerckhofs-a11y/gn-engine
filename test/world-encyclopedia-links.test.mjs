@@ -6,7 +6,7 @@ import {holopediaArticleHtml,holopediaIndexHtml} from '../world-encyclopedia.mjs
 
 test('Liens : chaque terme renvoie uniquement vers une page publique existante',()=>{
  const ids=new Set(worldEncyclopedia.map(a=>a.id));
- assert.equal(worldEncyclopedia.length,56);
+ assert.equal(worldEncyclopedia.length,61);
  assert.equal(worldEncyclopedia.filter(a=>a.kind==='planète').length,30);
  for(const id of publicWikiTargetIds)assert.ok(ids.has(id),'Destination inconnue : '+id);
  for(const page of worldEncyclopedia)for(const ref of wikiReferences(page))assert.ok(ids.has(ref),'Référence invalide : '+ref);
@@ -44,4 +44,24 @@ test('Mots-clés : index des sujets publics et URL de recherche encodée',()=>{
  const html=holopediaArticleHtml('public','atlas');
  assert.match(html,/keyword=/);
  assert.match(holopediaIndexHtml('public'),/data-holopedia-search/);
+});
+
+test('Histoire : République, guerre des Clones, Ordre 66 et Empire en cinq articles sourcés',()=>{
+ const ids=['histoire-republique-a-empire','histoire-ancienne-republique-et-jedi','histoire-guerre-des-clones','histoire-ordre-66-et-disparition-des-jedi','histoire-naissance-empire'];
+ const found=ids.map(id=>worldEncyclopedia.find(a=>a.id===id));
+ assert.ok(found.every(Boolean));
+ assert.ok(found.every(a=>a.category==='Histoire'&&a.paragraphs.length>=5));
+ assert.ok(found.every(a=>a.sources?.length>=2));
+ assert.ok(found.every(a=>a.sources.every(s=>new URL(s.url).hostname==='www.starwars.com')));
+ const index=holopediaIndexHtml('public');
+ for(const id of ids)assert.match(index,new RegExp(id));
+ const html=holopediaArticleHtml('public','histoire-republique-a-empire');
+ assert.match(html,/Guerres des Clones|guerre des Clones/);
+ assert.match(html,/Ordre 66/);
+ assert.match(html,/sources officielles/i);
+ assert.match(html,/starwars.com/);
+ assert.match(html,/rappel hors-jeu/);
+ const link=wikiTextHtml('L’Ordre 66 a suivi la guerre des Clones.','prologue');
+ assert.match(link,/histoire-ordre-66-et-disparition-des-jedi/);
+ assert.match(link,/histoire-guerre-des-clones/);
 });
