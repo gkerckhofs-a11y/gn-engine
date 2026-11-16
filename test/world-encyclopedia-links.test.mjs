@@ -90,3 +90,47 @@ test('Histoire impériale : six archives, cinq affiches, propagande cadrée et a
  assert.equal(newPage.title,'La crise séparatiste');
  assert.match(holopediaIndexHtml('public'),/histoire-crise-separatiste/);
 });
+
+
+test('Chroniqueurs impériaux : chacune des 56 autres pages a une voix d’archives explicite',()=>{
+ const oldPublic=worldEncyclopedia.filter(a=>!a.imperialArchive);
+ const officialHistory=worldEncyclopedia.filter(a=>a.imperialArchive);
+ assert.equal(worldEncyclopedia.length,62);
+ assert.equal(oldPublic.length,56);
+ assert.equal(officialHistory.length,6);
+ assert.equal(oldPublic.filter(a=>a.imperialRecord).length,56);
+ assert.equal(oldPublic.filter(a=>a.kind==='planète').length,30);
+ assert.equal(oldPublic.filter(a=>a.kind==='lieu').length,7);
+ assert.equal(oldPublic.filter(a=>a.id.startsWith('chapitre-')).length,16);
+ for(const a of oldPublic){
+  assert.ok(a.archivist?.length>=15,'Chroniqueur manquant : '+a.id);
+  assert.ok(a.archiveLabel?.includes('impériale'),'Édition manquante : '+a.id);
+  assert.ok(a.paragraphs.length>=2,'Notice incomplète : '+a.id);
+  assert.ok(a.paragraphs.every(t=>t.trim().length>80),'Paragraphe trop court : '+a.id);
+  const html=holopediaArticleHtml('public',a.id);
+  assert.match(html,/archive-byline/,'Attribution invisible : '+a.id);
+  assert.match(html,/Retour à votre terminal/);
+  assert.ok(!html.includes('history-poster-hero'),'Une affiche de guerre apparaît à tort dans '+a.id);
+ }
+});
+test('Chroniqueurs : préserver les faits publics et les limites de connaissances',()=>{
+ const get=id=>worldEncyclopedia.find(a=>a.id===id).paragraphs.join(' ');
+ assert.match(get('chapitre-02'),/Bordure médiane/);
+ assert.match(get('chapitre-04'),/vent d.aiguilles/);
+ assert.match(get('chapitre-08'),/Syndicat des Amarres/);
+ assert.match(get('chapitre-11'),/Signataires/);
+ assert.match(get('chapitre-11'),/Bras du Quai/);
+ assert.match(get('chapitre-11'),/Cercle des Rivets/);
+ assert.match(get('chapitre-11'),/Guetteurs/);
+ assert.match(get('planete-kessel'),/Syndicat Pyke/);
+ assert.match(get('planete-geonosis'),/accès restreint/);
+ assert.match(get('planete-bespin'),/géante gazeuse/);
+ assert.match(get('planete-kashyyyk'),/exploitation contestée/);
+ assert.match(get('lieu-le-comptoir'),/casino clandestin/);
+ assert.match(get('atlas'),/ne constitue cependant ni un code de navigation/);
+ assert.match(get('chapitre-15'),/Jedi/);
+ assert.equal(worldEncyclopedia.filter(a=>a.category==='Histoire').length,7);
+ const all=worldEncyclopedia.filter(a=>a.imperialRecord).map(a=>a.paragraphs.join(' ')).join(' ');
+ assert.doesNotMatch(all,/Darth Sidious|Darth Vader|Anakin Skywalker|Yoda|Obi-Wan Kenobi|gmTruth|gmNotes|navigationCode/);
+ assert.match(holopediaIndexHtml('public'),/chroniqueurs impériaux/);
+});
