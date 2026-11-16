@@ -23,7 +23,7 @@ export function terminalItems(own,d={}){
  const outside=rows=>(rows??[]).filter(r=>!r.shipId||!shipIds.has(r.shipId));
  const port='Services du port',special='Mes services spécialisés',assets='Mes biens, vaisseaux et mandats';
  // Published independently on GitHub Pages; future lore edits never require a Firebase redeploy.
- add('holopedia','Holopédia',port,'Explorer les planètes, les lieux et l’histoire de Breach Port.',[],{url:'https://gkerckhofs-a11y.github.io/gn-engine/'});
+ add('holopedia','Holopédia',port,'Explorer les planètes, les lieux et l’histoire de Breach Port.',[],{url:`https://gkerckhofs-a11y.github.io/gn-engine/?session=${encodeURIComponent(sid)}`});
  if(f.shopsVersion===1&&count(d.shops,'shops','orders'))add('shops','Boutiques d’objets personnels',port,'Acheter des fournitures et retirer mes commandes.',d.shops.orders);
  if(own.economyEnabled)add('public-prices','Cours publics',port,'Consulter gratuitement les cours publiés.');
  if(own.economyEnabled)add('wallet','Mes crédits',port,`${own.wallet?.account?.available??'—'} crédits disponibles · paiements et historique.`);
