@@ -256,7 +256,7 @@ export const worldEncyclopedia = Object.freeze([
     ],
     "imperialRecord": true,
     "archivist": "Service impérial d'histoire locale",
-    "archiveLabel": "Bulletin de district · diffusion publique"
+    "archiveLabel": "Bulletin de district · édition impériale"
   },
   {
     "id": "planete-ord-mantell",
