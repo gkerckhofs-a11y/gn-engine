@@ -24,3 +24,11 @@ La matrice de tests vérifie toutes les classes avec et sans PIL-01, le refus de
 ## État de livraison
 
 Branche séparée, sans fusion ni déploiement. CI du nouveau commit à constater dans la PR ; les résultats locaux ciblés ne constituent pas une certification globale. Une recette navigateur réussie reste à obtenir avant publication.
+
+## Simplification du Terminal — 16 novembre 2026
+
+Instruction de Guillaume : retirer « Choisissez un vaisseau ou un service accessible. Pour une opération en cours, ouvrez son suivi avant d’en commencer une autre. » et le STOP sécurité pour les joueurs. Le conseil du Terminal et le bouton d'arrêt dans l'enveloppe joueur sont supprimés. L'avis d'arrêt actif et les commandes MJ restent visibles. Modification d'interface uniquement ; le moteur de sécurité n'est pas modifié.
+
+La demande initiale d'ajouter un PV au Combattant a été explicitement annulée (« Oublie le bonus de PV combatant il existait déjà désolé »). Aucun changement de PV, de règle de classe, de personnage ou de donnée.
+
+Validation du complément : 18 tests existants `player-spaces`, `hrp-guidance`, `space-outlaws-health-ui` réussis sous Node 22 ; compilation réussie. Contrôle direct du rendu : conseil et bouton absents, avis d'arrêt MJ conservé. Aucun nouvel essai navigateur (limite d'environnement décrite ci-dessus). Parent distant f535fddb3c97d1609b02c14fbb861bf1b4f23156 : CI 43843781590 en cours lors de la reprise ; ce résultat ne valide pas le complément.
