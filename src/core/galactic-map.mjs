@@ -33,6 +33,7 @@ export function createGalacticMapService({store,signed,checkSession,now}){
   const codes=input.codes??[];requireThat(Array.isArray(codes)&&codes.length<=20&&codes.every(c=>typeof c==='string'&&c.trim()&&c.length<=80),'INVALID_MAP_CODES');
   return store.runTransaction(async tx=>{
    const ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId))}:await inventoryPlayer(tx,actor,input),{s,c}=ctx,base=`sessions/${s.id}`,at=now(),time=gameTime(s.clock,at);
+   requireThat(admin||navigationSkill(c,'PIL-01')>=1,'FORBIDDEN');
    requireThat(hasSoNavigation(s)&&s.stage!=='ARCHIVED','SO_GAMEPLAY_NOT_OPEN');
    const level=admin?5:navigationSkill(c,'PIL-01'),canNavigate=admin||level>=1;requireThat(!codes.length||canNavigate,'MAP_SKILL_REQUIRED');
    const allPorts=(await tx.list(`${base}/ports`)).filter(p=>p.versionId===s.versionId),allRoutes=(await tx.list(`${base}/routes`)).filter(r=>r.versionId===s.versionId&&allPorts.some(p=>p.id===r.fromPort)&&allPorts.some(p=>p.id===r.toPort));

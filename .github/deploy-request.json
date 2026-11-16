@@ -1,8 +1,8 @@
 {
   "project": "gn-engine",
   "sourceRef": "main",
-  "version": "0.39.0",
-  "requestedAt": "2026-11-15",
-  "reason": "Autorisation explicite de Guillaume dans la conversation GN : publier sur Firebase une fois toutes les modifications finalisées ; instruction de terminer confirmée le 15 novembre. Le garde existant exige les dix jobs CI complets du SHA main exact avant publication. Aucune migration ni réinitialisation de données.",
+  "version": "0.39.1",
+  "requestedAt": "2026-11-16",
+  "reason": "Autorisation explicite de Guillaume le 16 novembre 2026 : « tu peux publier ». Publication du Terminal simplifié et de l’accès carte PIL-01 ; pas de carnet galactique nouveau ni de codes globaux. Dix jobs CI complets requis sur le SHA main exact. Aucune migration ni réinitialisation.",
   "status": "AUTHORIZED_AFTER_FULL_CI"
 }

@@ -8,7 +8,7 @@ test('Terminal : prime exclusivement à la classe principale, pas aux compétenc
  for(const cl of ['COM','MED','MEC','PIL','COU','INF','ROG']){o.character.primaryClassId=cl;o.character.abilities.skills=[{id:'TRA-03',level:5}];assert.ok(!ids(o,d).includes('bounties'));assert.doesNotMatch(personalTerminalHtml(o,d),/Primes ouvertes/);}
 });
 test('Terminal : Marché réservé au Courtier, boutiques et portefeuille ouverts aux autres classes',()=>{
- for(const cl of ['COU','MED']){const o=own(cl),d={shops:{shops:[{id:'s'}]},market:{economyEnabled:true}};assert.deepEqual(ids(o,d),cl==='COU'?['shops','public-prices','wallet','market','galactic-map']:['shops','public-prices','wallet','galactic-map']);assert.doesNotMatch(personalTerminalHtml(o,d),/licence|COU-03/);}
+ for(const cl of ['COU','MED']){const o=own(cl),d={shops:{shops:[{id:'s'}]},market:{economyEnabled:true}};assert.deepEqual(ids(o,d),cl==='COU'?['shops','public-prices','wallet','market']:['shops','public-prices','wallet']);assert.doesNotMatch(personalTerminalHtml(o,d),/licence|COU-03/);}
 });
 test('Terminal : propriétaire non pilote et pilote mandaté utilisent uniquement les projections autorisées',()=>{
  for(const cl of ['COM','PIL']){const o=own(cl);assert.ok(!ids(o,{}).includes('spaceport'));const d={ships:{ships:[{id:'ship',pilotId:cl==='PIL'?'c':'other'}]}};assert.ok(ids(o,d).includes('ship-ship'));assert.match(personalTerminalHtml(o,d),/#\/ship\/s\/ship/);assert.doesNotMatch(personalTerminalHtml(o,d),/data-action=".*(Pilot|Flight)|SECRET/);}
@@ -40,4 +40,12 @@ test('Terminal : chargement sans droit inventé, modules éteints, erreurs expli
  const o=own('MED');let d=await loadTerminal(api,o);assert.ok(!calls.some(([a])=>a==='bounties'||a==='myAccounts'||a==='market'));assert.equal(d.customs,undefined);assert.deepEqual(d.errors,['shops']);
  calls.length=0;o.session={id:'other',spaceOutlaws:{}};o.economyEnabled=false;d=await loadTerminal(api,o);assert.deepEqual(calls,[['sabaccHome',{}]]);assert.equal(d.shops,undefined);
  calls.length=0;const t=own('TRA');t.groups=[{permissions:{readWallet:true}}];await loadTerminal(api,t);assert.ok(calls.some(([a,p])=>a==='bounties'&&p.sessionId==='s'));assert.ok(calls.some(([a])=>a==='myAccounts'));
+});
+
+test('Terminal : carte accessible avec Navigation, quelle que soit la classe',()=>{
+ for(const classId of ['PIL','COM','COU','TRA','MED','MEC','INF','ROG']){
+  const o=own(classId);assert.equal(ids(o,{}).includes('galactic-map'),false);
+  o.character.abilities.skills=[{id:'PIL-01',level:1}];assert.equal(ids(o,{}).includes('galactic-map'),true);
+  o.session.spaceOutlaws.navigationVersion=0;assert.equal(ids(o,{}).includes('galactic-map'),false);
+ }
 });

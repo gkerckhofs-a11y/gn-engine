@@ -33,7 +33,7 @@ export function galacticMapSuite(makeStore,prefix='Carte galactique'){
   d=await map(f);assert.equal(d.routes.length,1);assert.equal(d.routes[0].risk,'Sécurisée');assert.equal(d.routes[0].navigationCode,undefined);assert.doesNotMatch(JSON.stringify(d),/PREPARED_PRIVATE|SECRET_TRUTH|OUT-SECRET|gmTruth/);
   await f.level(2);assert.equal((await map(f)).routes[0].risk,null);
   await f.edit('routes/out',r=>({...r,revision:r.revision+1}));assert.deepEqual((await map(f)).routes,[]);
-  await f.level(0);await assert.rejects(map(f,{codes:['AWAY-CODE']}),{code:'MAP_SKILL_REQUIRED'});assert.deepEqual((await map(f)).routes,[]);
+  await f.level(0);await assert.rejects(map(f,{codes:['AWAY-CODE']}),{code:'FORBIDDEN'});await assert.rejects(map(f),{code:'FORBIDDEN'});
  });
  test(`${prefix} : destination connue sans origine secrète et codes ambigus refusés`,()=>{
   const ports=['home','away','hidden'].map(id=>({id,navigationCode:id.toUpperCase()})),routes=[{id:'out',fromPort:'home',toPort:'away',navigationCode:'OUT'},{id:'secret',fromPort:'hidden',toPort:'away',navigationCode:'SECRET'}];
@@ -41,9 +41,20 @@ export function galacticMapSuite(makeStore,prefix='Carte galactique'){
   d=knownMapNetwork(ports,routes,['home'],new Map(),['SECRET']);assert.deepEqual(d.routes.map(r=>r.route.id),['secret']);
   d=knownMapNetwork(ports,[...routes,{...routes[0],id:'duplicate',navigationCode:'SECOND'}],['home'],new Map(),['AWAY']);assert.deepEqual(d.routes,[]);
  });
- test(`${prefix} : ports publics sans compétence, données privées exclues`,async()=>{
-  const f=await routeAnalysisFixture(makeStore);await f.level(0);await f.edit('planetMarkets/public',()=>({id:'public',enabled:true,portId:'away',secret:'SECRET_MARKET'}));
-  const d=await map(f);assert.deepEqual(d.ports.map(p=>p.id).sort(),['away','home']);assert.deepEqual(d.routes,[]);assert.equal(d.canAnalyze,false);assert.doesNotMatch(JSON.stringify(d),/SECRET|navigationCode/);
+ test(`${prefix} : ports publics avec Navigation, données privées exclues`,async()=>{
+  const f=await routeAnalysisFixture(makeStore);await f.level(1);await f.edit('planetMarkets/public',()=>({id:'public',enabled:true,portId:'away',secret:'SECRET_MARKET'}));
+  const d=await map(f);assert.deepEqual(d.ports.map(p=>p.id).sort(),['away','home']);assert.deepEqual(d.routes,[]);assert.equal(d.canAnalyze,true);assert.doesNotMatch(JSON.stringify(d),/SECRET|navigationCode/);
+ });
+ test(`${prefix} : Navigation requise indépendamment de la classe, propriété et ancien code`,async()=>{
+  const f=await routeAnalysisFixture(makeStore),path=`characters/${f.cid}`;
+  for(const classId of ['PIL','COM','COU','MED','MEC','TRA','INF','ROG']){
+   await f.edit(path,c=>({...c,birth:{...c.birth,classId}}));await f.level(1);
+   assert.equal((await map(f,{codes:['OUT-SECRET']})).routes.length,1);
+   assert.equal((await f.read('shipWorkspace',{shipId:'ship'})).ship.permissions.galacticMap,true);
+   await f.level(0);await assert.rejects(map(f),{code:'FORBIDDEN'});
+   await assert.rejects(map(f,{codes:['OUT-SECRET'],shipId:'ship'}),{code:'FORBIDDEN'});
+   assert.equal((await f.read('shipWorkspace',{shipId:'ship'})).ship.permissions.galacticMap,false);
+  }
  });
  test(`${prefix} : pause, sécurité et préparation engagée restent consultables`,async()=>{
   const f=await soVoyagesFixture(makeStore);await f.refuel(4);await f.startFlight();const before=await f.ship(),points=await f.points();let d=await map(f,{codes:['AWAY-CODE'],destinationId:'away'});assert.match(d.operation,/cours/);assert.deepEqual(await f.ship(),before);assert.deepEqual(await f.points(),points);

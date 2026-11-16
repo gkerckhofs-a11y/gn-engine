@@ -12,7 +12,6 @@ export const playerGuidance={
  groups:'Ouvrez un groupe pour consulter les informations qui vous sont accessibles. Les responsabilités et les accès peuvent différer entre les membres.',
  group:'Consultez les informations partagées et vos responsabilités dans ce groupe. Les commandes proposées dépendent de vos autorisations.',
  action:'Choisissez l’action voulue, puis identifiez le lieu, le personnage ou l’objet concerné. Vérifiez les conditions et le coût affichés avant de commencer.',
- terminal:'Choisissez un vaisseau ou un service accessible. Pour une opération en cours, ouvrez son suivi avant d’en commencer une autre.',
  shops:'Choisissez une offre et une quantité, puis vérifiez le prix. Après paiement, le retrait des objets auprès du comptoir doit encore être confirmé.',
  market:'Consultez les offres et votre stock commercial. L’achat, le paiement et le déplacement des marchandises restent des étapes distinctes.',
  contracts:'Ouvrez un contrat pour relire vos engagements, les preuves demandées et la récompense prévue. Vérifiez les conséquences avant d’accepter ou de contester.',
