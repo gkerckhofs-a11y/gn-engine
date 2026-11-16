@@ -152,7 +152,7 @@ test('Recette : serveur local refuse Host/Origin étrangers et ne sert pas de so
 
 test('Recette : carte galactique native, Courtier et Pilote séparés, aucun carburant gratuit',async()=>{
  const f=fixture(),s=await seedMissionScenario(f.call,f.uids,{galactic:true}),input={sessionId:s.sessionId};
- const broker=await f.call('galacticMap',input,'player');assert.equal(broker.canNavigate,false);assert.equal(broker.ports.length,2);assert.deepEqual(broker.ships,[]);assert.deepEqual(broker.routes,[]);
+ await assert.rejects(f.call('galacticMap',input,'player'),{code:'FORBIDDEN'});
  const pilot=await f.call('galacticMap',{...input,codes:['MAP-OUT-CODE'],destinationId:'away'},'other');assert.equal(pilot.canNavigate,true);assert.equal(pilot.shipId,'map-cargo');assert.equal(pilot.ships[0].fuel,0);assert.equal(pilot.routes[0].fuelCost,2);assert.equal(pilot.itineraries[0].refuels[0].minimumUnits,2);assert.equal(pilot.canOpenFlight,true);
  assert.equal((await f.call('galacticMarkets',input,'player')).markets.length,2);await assert.rejects(f.call('galacticMarkets',input,'other'),{code:'FORBIDDEN'});
 });
