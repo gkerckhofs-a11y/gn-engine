@@ -4,8 +4,8 @@
   "siteId": "holopedia-space-outlaws",
   "sourceRef": "gh-pages",
   "requestedAt": "2026-11-16",
-  "reason": "Publier les cinq pages historiques Star Wars, les liens Wiki et les sources officielles de l'Holopédia seulement. Aucun déploiement de GN Engine.",
+  "reason": "Publication des archives historiques de propagande impériale et des cinq affiches illustrées uniquement sur le site Firebase Holopédia indépendant. Aucun déploiement GN Engine.",
   "status": "AUTHORIZED_SECONDARY_HOSTING_ONLY",
-  "attempt": 4,
-  "scope": "holopedia-history-republic-clone-wars-order66-empire"
+  "attempt": 5,
+  "scope": "holopedia-imperial-archives-illustrated"
 }
