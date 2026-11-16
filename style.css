@@ -10,3 +10,11 @@ main{max-width:1140px;min-height:80vh;margin:auto;padding:2.5rem 2rem 5rem}foote
 .holopedia [hidden]{display:none!important}.holopedia-breadcrumb{color:var(--muted);margin-bottom:1.7rem;font-size:.87rem}.holopedia-breadcrumb a{color:var(--gold)}.holopedia-reading{margin:2.6rem 0;padding:1.5rem 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}.holopedia-reading p{font-style:normal;line-height:1.9;max-width:72ch;font-size:1.06rem;margin-bottom:1.2rem}.holopedia-subtitle{color:var(--muted)}.holopedia .row{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:2rem}.holopedia .button{display:inline-block;padding:.7rem 1.1rem;border:1px solid var(--line);border-radius:8px}.holopedia .muted{color:var(--muted);font-size:.88rem}
 @media(max-width:700px){.site-header,footer{padding:1rem;flex-wrap:wrap;align-items:flex-start}main{padding:1.3rem 1rem 3rem}.holopedia-search{grid-template-columns:1fr}.brand strong{font-size:1rem}.site-header nav{gap:1rem}.holopedia-reading p{font-size:1rem}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+/* Liens encyclopédiques et index des mots-clés. */
+.holopedia-reading .wiki-inline-link{color:var(--gold);text-decoration:underline;text-decoration-color:rgba(233,189,120,.5);text-decoration-thickness:1px;text-underline-offset:.24em;border-radius:2px}
+.holopedia-reading .wiki-inline-link:hover,.holopedia-reading .wiki-inline-link:focus-visible{color:#ffe4b5;text-decoration-thickness:2px}
+.holopedia .wiki-keywords{margin:1.6rem 0 2.2rem}
+.holopedia .wiki-keywords h2{font-size:1rem;color:var(--muted);margin:0 0 .7rem}
+.holopedia .wiki-keyword-list{display:flex;gap:.5rem;flex-wrap:wrap}
+.holopedia .wiki-keyword{display:inline-flex;align-items:center;padding:.38rem .75rem;font-size:.85rem;color:var(--gold);border:1px solid var(--line);border-radius:999px;background:#14253b}
+.holopedia .wiki-keyword:hover,.holopedia .wiki-keyword:focus-visible{border-color:var(--gold);background:#1b304a}
