@@ -1,9 +1,0 @@
-# Seuls le serveur et ses manifestes sont envoyés à Cloud Build.
-# Ne pas ignorer le dossier racine "." : l'archiveur gcloud omettrait
-# alors ses fichiers, même réinclus par les règles suivantes.
-/[!.]*
-/.?*
-!/package.json
-!/package-lock.json
-!/src/
-!/src/**

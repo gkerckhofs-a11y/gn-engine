@@ -1,9 +1,0 @@
-rules_version = '2';
-service firebase.storage {
-  match /b/{bucket}/o {
-    // Accès client interdit. L’API contrôle chaque lecture de contenu avant de servir les octets.
-    match /{file=**} {
-      allow read, write: if false;
-    }
-  }
-}

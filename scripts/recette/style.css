@@ -1,2 +1,0 @@
-/* Local test metadata must wrap without permitting inline styles. */
-.recette-toolbar { overflow-wrap: anywhere; }
