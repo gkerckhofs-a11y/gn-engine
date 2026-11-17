@@ -270,7 +270,9 @@ export const worldEncyclopedia = Object.freeze([
     ],
     "imperialRecord": true,
     "archivist": "Bureau impérial des routes et des marchés",
-    "archiveLabel": "Dossier planétaire · édition impériale"
+    "archiveLabel": "Dossier planétaire · édition impériale",
+    "planetImage": "images/planets/ord-mantell.webp",
+    "planetImageAlt": "Illustration de ORD MANTELL, vue orbitale depuis l'espace"
   },
   {
     "id": "planete-corellia",
@@ -284,7 +286,9 @@ export const worldEncyclopedia = Object.freeze([
     ],
     "imperialRecord": true,
     "archivist": "Chroniques provinciales de l'Empire",
-    "archiveLabel": "Dossier planétaire · édition impériale"
+    "archiveLabel": "Dossier planétaire · édition impériale",
+    "planetImage": "images/planets/corellia.webp",
+    "planetImageAlt": "Illustration de CORELLIA, vue orbitale depuis l'espace"
   },
   {
     "id": "planete-tatooine",
@@ -298,7 +302,9 @@ export const worldEncyclopedia = Object.freeze([
     ],
     "imperialRecord": true,
     "archivist": "Service impérial des échanges",
-    "archiveLabel": "Dossier planétaire · édition impériale"
+    "archiveLabel": "Dossier planétaire · édition impériale",
+    "planetImage": "images/planets/tatooine.webp",
+    "planetImageAlt": "Illustration de TATOOINE, vue orbitale depuis l'espace"
   },
   {
     "id": "planete-ryloth",
@@ -312,7 +318,9 @@ export const worldEncyclopedia = Object.freeze([
     ],
     "imperialRecord": true,
     "archivist": "Annales civiles du gouvernorat",
-    "archiveLabel": "Dossier planétaire · édition impériale"
+    "archiveLabel": "Dossier planétaire · édition impériale",
+    "planetImage": "images/planets/ryloth.webp",
+    "planetImageAlt": "Illustration de RYLOTH, vue orbitale depuis l'espace"
   },
   {
     "id": "planete-lothal",
@@ -326,7 +334,9 @@ export const worldEncyclopedia = Object.freeze([
     ],
     "imperialRecord": true,
     "archivist": "Bureau impérial des routes et des marchés",
-    "archiveLabel": "Dossier planétaire · édition impériale"
+    "archiveLabel": "Dossier planétaire · édition impériale",
+    "planetImage": "images/planets/lothal.webp",
+    "planetImageAlt": "Illustration de LOTHAL, vue orbitale depuis l'espace"
   },
   {
     "id": "planete-kessel",
@@ -340,7 +350,9 @@ export const worldEncyclopedia = Object.freeze([
     ],
     "imperialRecord": true,
     "archivist": "Chroniques provinciales de l'Empire",
-    "archiveLabel": "Dossier planétaire · édition impériale"
+    "archiveLabel": "Dossier planétaire · édition impériale",
+    "planetImage": "images/planets/kessel.webp",
+    "planetImageAlt": "Illustration de KESSEL, vue orbitale depuis l'espace"
   },
   {
     "id": "planete-sullust",
@@ -354,7 +366,9 @@ export const worldEncyclopedia = Object.freeze([
     ],
     "imperialRecord": true,
     "archivist": "Service impérial des échanges",
-    "archiveLabel": "Dossier planétaire · édition impériale"
+    "archiveLabel": "Dossier planétaire · édition impériale",
+    "planetImage": "images/planets/sullust.webp",
+    "planetImageAlt": "Illustration de SULLUST, vue orbitale depuis l'espace"
   },
   {
     "id": "planete-mon-cala",
@@ -368,7 +382,9 @@ export const worldEncyclopedia = Object.freeze([
     ],
     "imperialRecord": true,
     "archivist": "Annales civiles du gouvernorat",
-    "archiveLabel": "Dossier planétaire · édition impériale"
+    "archiveLabel": "Dossier planétaire · édition impériale",
+    "planetImage": "images/planets/mon-cala.webp",
+    "planetImageAlt": "Illustration de MON CALA, vue orbitale depuis l'espace"
   },
   {
     "id": "planete-geonosis",
@@ -382,7 +398,9 @@ export const worldEncyclopedia = Object.freeze([
     ],
     "imperialRecord": true,
     "archivist": "Bureau impérial des routes et des marchés",
-    "archiveLabel": "Dossier planétaire · édition impériale"
+    "archiveLabel": "Dossier planétaire · édition impériale",
+    "planetImage": "images/planets/geonosis.webp",
+    "planetImageAlt": "Illustration de GEONOSIS, vue orbitale depuis l'espace"
   },
   {
     "id": "planete-coruscant",
@@ -396,7 +414,9 @@ export const worldEncyclopedia = Object.freeze([
     ],
     "imperialRecord": true,
     "archivist": "Chroniques provinciales de l'Empire",
-    "archiveLabel": "Dossier planétaire · édition impériale"
+    "archiveLabel": "Dossier planétaire · édition impériale",
+    "planetImage": "images/planets/coruscant.webp",
+    "planetImageAlt": "Illustration de CORUSCANT, vue orbitale depuis l'espace"
   },
   {
     "id": "planete-naboo",
@@ -410,7 +430,9 @@ export const worldEncyclopedia = Object.freeze([
     ],
     "imperialRecord": true,
     "archivist": "Service impérial des échanges",
-    "archiveLabel": "Dossier planétaire · édition impériale"
+    "archiveLabel": "Dossier planétaire · édition impériale",
+    "planetImage": "images/planets/naboo.webp",
+    "planetImageAlt": "Illustration de NABOO, vue orbitale depuis l'espace"
   },
   {
     "id": "planete-alderaan",
@@ -424,7 +446,9 @@ export const worldEncyclopedia = Object.freeze([
     ],
     "imperialRecord": true,
     "archivist": "Annales civiles du gouvernorat",
-    "archiveLabel": "Dossier planétaire · édition impériale"
+    "archiveLabel": "Dossier planétaire · édition impériale",
+    "planetImage": "images/planets/alderaan.webp",
+    "planetImageAlt": "Illustration de ALDERAAN, vue orbitale depuis l'espace"
   },
   {
     "id": "planete-kashyyyk",
@@ -438,7 +462,9 @@ export const worldEncyclopedia = Object.freeze([
     ],
     "imperialRecord": true,
     "archivist": "Bureau impérial des routes et des marchés",
-    "archiveLabel": "Dossier planétaire · édition impériale"
+    "archiveLabel": "Dossier planétaire · édition impériale",
+    "planetImage": "images/planets/kashyyyk.webp",
+    "planetImageAlt": "Illustration de KASHYYYK, vue orbitale depuis l'espace"
   },
   {
     "id": "planete-mandalore",
@@ -452,7 +478,9 @@ export const worldEncyclopedia = Object.freeze([
     ],
     "imperialRecord": true,
     "archivist": "Chroniques provinciales de l'Empire",
-    "archiveLabel": "Dossier planétaire · édition impériale"
+    "archiveLabel": "Dossier planétaire · édition impériale",
+    "planetImage": "images/planets/mandalore.webp",
+    "planetImageAlt": "Illustration de MANDALORE, vue orbitale depuis l'espace"
   },
   {
     "id": "planete-rodia",
@@ -662,7 +690,9 @@ export const worldEncyclopedia = Object.freeze([
     ],
     "imperialRecord": true,
     "archivist": "Bureau impérial des routes et des marchés",
-    "archiveLabel": "Dossier planétaire · édition impériale"
+    "archiveLabel": "Dossier planétaire · édition impériale",
+    "planetImage": "images/planets/batuu.webp",
+    "planetImageAlt": "Illustration de BATUU, vue orbitale depuis l'espace"
   },
   {
     "id": "planete-bespin",
@@ -676,7 +706,9 @@ export const worldEncyclopedia = Object.freeze([
     ],
     "imperialRecord": true,
     "archivist": "Chroniques provinciales de l'Empire",
-    "archiveLabel": "Dossier planétaire · édition impériale"
+    "archiveLabel": "Dossier planétaire · édition impériale",
+    "planetImage": "images/planets/bespin.webp",
+    "planetImageAlt": "Illustration de BESPIN, vue orbitale depuis l'espace"
   },
   {
     "id": "lieu-la-maison-du-prefet-et-la-prison",
