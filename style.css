@@ -58,3 +58,15 @@ main{max-width:1140px;min-height:80vh;margin:auto;padding:2.5rem 2rem 5rem}foote
 .holopedia .planet-hero-image{display:block;width:100%;aspect-ratio:1/1;height:auto;object-fit:contain}
 .holopedia .planet-hero figcaption{margin:.6rem auto;color:var(--muted);font-size:.78rem;letter-spacing:.035em;line-height:1.5}
 @media(max-width:620px){.holopedia .planet-card-image{height:175px}.holopedia .planet-hero{margin:1.1rem auto 1.5rem}}
+
+/* Breach Port : vues reconstituées des bâtiments réels, en format paysage. */
+.holopedia .place-card-image{display:block;width:100%;height:182px;object-fit:cover;object-position:center;border-radius:10px;border:1px solid rgba(184,209,232,.22);margin:0 0 .75rem;background:#060c16}
+.holopedia .holopedia-card:has(.place-card-image){padding:1rem}
+.holopedia .place-focus-left{object-position:19% 50%}
+.holopedia .place-focus-right{object-position:80% 50%}
+.holopedia .place-focus-center{object-position:center}
+.holopedia .place-hero{max-width:980px;margin:1.7rem auto 2.1rem;text-align:center}
+.holopedia .place-photo-frame{display:block;overflow:hidden;border:1px solid rgba(174,204,237,.25);border-radius:16px;background:#050b13;box-shadow:0 14px 38px rgba(0,0,0,.25)}
+.holopedia .place-hero-image{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:contain}
+.holopedia .place-hero figcaption{margin:.6rem auto;color:var(--muted);font-size:.78rem;letter-spacing:.03em;line-height:1.5}
+@media(max-width:620px){.holopedia .place-card-image{height:165px}.holopedia .place-hero{margin:1.1rem auto 1.5rem}}
