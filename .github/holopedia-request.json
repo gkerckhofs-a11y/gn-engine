@@ -4,8 +4,8 @@
   "siteId": "holopedia-space-outlaws",
   "sourceRef": "gh-pages",
   "requestedAt": "2026-11-17",
-  "reason": "Nouvelle tentative autorisée après activation manuelle de l'API Google Drive : importer les 16 vues orbitales existantes et publier uniquement hosting:holopedia.",
+  "reason": "Publier sur Holopédia les 17 vues orbitales distinctes après ajout et validation de Rodia, sans déployer GN Engine.",
   "status": "AUTHORIZED_SECONDARY_HOSTING_ONLY",
-  "attempt": 11,
-  "scope": "holopedia-orbital-images-import"
+  "attempt": 12,
+  "scope": "holopedia-orbital-images-17"
 }
