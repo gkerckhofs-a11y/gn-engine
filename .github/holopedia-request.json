@@ -4,8 +4,8 @@
   "siteId": "holopedia-space-outlaws",
   "sourceRef": "gh-pages",
   "requestedAt": "2026-11-16",
-  "reason": "Diagnostic Google Drive 403 lors de l'import image ; uniquement pipeline Holopédia.",
+  "reason": "Validation d'activation de drive.googleapis.com pour l'import des images de planètes Holopédia, sans publication du site principal.",
   "status": "AUTHORIZED_SECONDARY_HOSTING_ONLY",
-  "attempt": 9,
-  "scope": "holopedia-image-import-drive-403-diagnostic"
+  "attempt": 10,
+  "scope": "holopedia-drive-api-activation"
 }
