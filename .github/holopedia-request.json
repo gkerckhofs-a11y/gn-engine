@@ -4,8 +4,8 @@
   "siteId": "holopedia-space-outlaws",
   "sourceRef": "gh-pages",
   "requestedAt": "2026-11-17",
-  "reason": "Publier les trois vues reconstituées (quatre fiches : cantina, spatioport, bureau du préfet et docks) sur le site Holopédia uniquement, sans toucher à GN Engine.",
+  "reason": "Publier l'Holopédia entièrement en rôle-play, au sommaire Wikipédia fixe et avec sections ordonnées : Histoire, Breach Port, Lieux, Culture, Planètes. Site secondaire uniquement, sans toucher à GN Engine.",
   "status": "AUTHORIZED_SECONDARY_HOSTING_ONLY",
-  "attempt": 14,
-  "scope": "holopedia-breach-port-places-4-articles-3-images"
+  "attempt": 15,
+  "scope": "holopedia-full-rp-wiki-sidebar-reorder"
 }
