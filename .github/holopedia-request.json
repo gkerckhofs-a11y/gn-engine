@@ -4,8 +4,8 @@
   "siteId": "holopedia-space-outlaws",
   "sourceRef": "gh-pages",
   "requestedAt": "2026-11-17",
-  "reason": "Afficher les six affiches Histoire de l'accueil en vignettes portrait complètes, cliquables et légères. Conserver strictement l'affichage existant des 30 planètes et des 7 lieux. Tests ciblés, déploiement Holopédia uniquement.",
+  "reason": "Rendre les 43 miniatures (6 affiches historiques, 30 planètes, 7 lieux de Breach Port) cliquables vers leur article, sans modifier cadrage ni textes, exclusivement hosting:holopedia.",
   "status": "AUTHORIZED_SECONDARY_HOSTING_ONLY",
-  "attempt": 20,
-  "scope": "holopedia-history-thumbnail-only"
+  "attempt": 21,
+  "scope": "holopedia-all-43-thumbnails-clickable"
 }
