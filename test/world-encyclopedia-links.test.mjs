@@ -88,7 +88,7 @@ test('Histoire impériale : six archives, six illustrations toutes renouvelées'
   assert.equal(a.poster,'posters/'+slug+'.webp',id);
   assert.match(manifest[slug],/^[A-Za-z0-9_-]{20,100}$/);
   assert.match(holopediaArticleHtml('public',id),/poster-webp/);
-  assert.match(holopediaIndexHtml('public'),new RegExp('posters/'+slug+'\\.webp'));
+  assert.match(holopediaIndexHtml('public'),new RegExp('posters/thumbs/'+slug+'\\.webp'));
  }
  assert.equal(worldEncyclopedia.find(x=>x.id==='histoire-ancienne-republique-et-jedi').poster,'posters/republique-en-declin.webp','La République en déclin doit afficher la nouvelle illustration');
  const posters=new Set(pages.map(x=>x.poster));
@@ -265,4 +265,35 @@ test('Histoire : sept articles en ordre chronologique dans l’accueil et le som
  const sidebarOrder=[...historyGroup[1].matchAll(/<li><a href="#\/holopedia\/public\/([^"]+)"/g)].map(m=>m[1]);
  assert.deepEqual(sidebarOrder,expected,'Menu latéral non chronologique');
  assert.equal(encyclopediaArticlesByCategory('Histoire').length,7);
+});
+
+test('Vignettes optimisées : images légères, entières et cliquables',()=>{
+ const index=holopediaIndexHtml('public');
+ const count=worldEncyclopedia.filter(a=>a.imperialArchive||a.planetImage||a.placeImage).length;
+ assert.equal(count,43);
+ assert.equal((index.match(/class="holopedia-card-media media-/g)||[]).length,count,'Toutes les images de l’accueil doivent être cliquables');
+ for(const a of worldEncyclopedia.filter(a=>a.imperialArchive)){
+   const expected=a.poster.replace('posters/','posters/thumbs/');
+   assert.ok(index.includes(expected),'Vignette d’affiche manquante : '+a.id);
+   assert.ok(holopediaArticleHtml('public',a.id).includes(a.poster),'Affiche HD absente de la fiche : '+a.id);
+ }
+ for(const a of worldEncyclopedia.filter(a=>a.planetImage)){
+   const expected=a.planetImage.replace('images/planets/','images/planets/thumbs/');
+   assert.ok(index.includes(expected),'Vignette planétaire manquante : '+a.id);
+   assert.ok(holopediaArticleHtml('public',a.id).includes(a.planetImage),'Vue orbitale HD absente : '+a.id);
+ }
+ for(const a of worldEncyclopedia.filter(a=>a.placeImage)){
+   const expected=a.placeImage.replace('images/places/','images/places/thumbs/');
+   assert.ok(index.includes(expected),'Vignette de lieu manquante : '+a.id);
+   assert.ok(holopediaArticleHtml('public',a.id).includes(a.placeImage),'Image panoramique HD absente : '+a.id);
+ }
+ const css=readFileSync('style.css','utf8');
+ assert.match(css,/media-history\{aspect-ratio:3\/4/);
+ assert.match(css,/media-planet\{aspect-ratio:1\/1/);
+ assert.match(css,/media-place\{aspect-ratio:16\/10/);
+ assert.match(css,/media-history \.history-poster-thumb\{object-fit:contain/);
+ assert.match(css,/\.holopedia-card-media:focus-visible/);
+ const importer=readFileSync('assets-source/download-planets.py','utf8');
+ for(const key of ['planet_thumbs','place_thumbs','poster_thumbs'])
+   assert.ok(importer.includes(key),'Miniatures non générées : '+key);
 });
