@@ -2101,3 +2101,15 @@ test('HTTP + Auth : accès contextuels, scan local et API native protégée',asy
  assert.equal((await request('revokeLocalPresence',{sessionId:f.sid,characterId:f.cid,requestId:randomUUID()},owner)).status,200);
  assert.equal((await request('buyShopOffer',pay,player)).error,'LOCAL_SCAN_REQUIRED');assert.equal((await f.remaining()).quantity,7);
 });
+
+test('HTTP + Auth : accès contextuels, licences codes et simulateur sans effets',async()=>{
+ const {localFixture}=await import('../support/contextual-access-suite.mjs'),db=getFirestore(),f=await localFixture(()=>firestoreStore(db)),owner=await googleTestAccount(process.env.OWNER_EMAIL),player=await googleTestAccount(`local-grants-${randomUUID()}@example.invalid`),uid=t=>JSON.parse(Buffer.from(t.split('.')[1],'base64url').toString()).sub,base=`sessions/${f.sid}`;
+ const ref=db.doc(`${base}/registrations/${hash(f.player.uid)}`),r=(await ref.get()).data();await ref.delete();await db.doc(`${base}/registrations/${hash(uid(player))}`).set({...r,id:hash(uid(player)),uid:uid(player),minAuthTime:0});await db.doc(`${base}/characters/${f.cid}`).update({assignedUid:uid(player)});await db.doc(base).update({ownerUid:uid(owner),clock:{elapsedMs:0,runningSince:Date.now()}});await db.doc(`campaigns/${f.campaignId}`).update({ownerUid:uid(owner)});
+ const call=async(a,p={},who=owner)=>{const out=await request(a,{sessionId:f.sid,...p},who);assert.equal(out.status,200,JSON.stringify(out));return out.result;},cmd=(a,p={},who=owner)=>call(a,{requestId:randomUUID(),...p},who);
+ const g={terminalId:'desk',revision:0,credential:{id:'code',kind:'CODE',name:'Code confidentiel',active:true,code:'quai-secret'}};
+ assert.equal((await request('saveLocalCredential',{sessionId:f.sid,...g,requestId:randomUUID()})).status,401);assert.equal((await request('saveLocalCredential',{sessionId:f.sid,...g,requestId:randomUUID()},player)).status,403);await cmd('saveLocalCredential',g);
+ await cmd('saveLocalTerminal',{revision:1,terminal:{...f.terminal,operations:f.terminal.operations.map(o=>({...o,credentialIds:['code'],credentialMode:'ALL'}))}});await cmd('scanLocalTerminal',{terminalId:'desk'},player);
+ const input={sessionId:f.sid,...f.purchaseInput({useProtected:false})};assert.equal((await request('prepareShopPurchase',input,player)).error,'LOCAL_CREDENTIAL_REQUIRED');await cmd('unlockLocalCode',{terminalId:'desk',code:'quai-secret'},player);assert.equal((await request('prepareShopPurchase',input,player)).status,200);
+ const before=await f.remaining();assert.equal((await call('simulateLocalAccess',{terminalId:'desk',characterId:f.cid,operation:'prepareShopPurchase',resourceId:'counter',offerId:'supply',quantity:1,useProtected:false,assumePresent:true,code:'quai-secret'})).nativeAllowed,true);assert.deepEqual(await f.remaining(),before);assert.doesNotMatch(JSON.stringify(await call('localAccessAdmin')),/quai-secret|codeDigest/);
+ await cmd('saveLocalCredential',{...g,revision:1,credential:{...g.credential,active:false,code:''}});assert.equal((await request('prepareShopPurchase',input,player)).error,'LOCAL_CREDENTIAL_REQUIRED');
+});
