@@ -169,7 +169,7 @@ Ces paramètres n'empêchent pas de figer la **décision validée** : le MJ choi
 - [CIBLE PROPOSÉE] L'intrusion liée à une cellule/soute/lot peut révéler, **si explicitement préparé par le MJ** : existence de lots, nature/type, quantité, propriétaire, statut douanier ou identifiants fictifs utiles à une mission. Chaque champ est indépendant et peut rester caché même sur réussite ; ne pas exposer les lots privés avant résolution. Le succès n'émet ni code d'administration, ni mandat de stockage, ni opération de retrait.
 - [CIBLE PROPOSÉE] **Vol distinct :** nouvelle commande explicite avec une cible réelle, une quantité et des conditions propres (présence au dock, cible accessible, lot disponible, capacité d'emport ou de réception, éventuelle clé/droit acquis par la fiction, règles de surveillance et validation MJ le cas échéant). Le fait d'avoir espionné peut devenir un prérequis d'un scénario, mais ne suffit **jamais** comme permission de transfert.
 - [CIBLE PROPOSÉE] Une réussite de vol effectue **un seul transfert de garde/propriété selon les règles du scénario**, depuis le lot source vers un emplacement autorisé, de manière transactionnelle : décrément de l'un, attribution unique à l'autre, filiation, événement d'audit et réessais idempotents. Une tentative échouée n'accorde ni contenu ni possibilité d'énumérer les lots secrets.
-- [CIBLE PROPOSÉE] Si les règles existantes ne prévoient **pas** de vol de biens stockés, ne pas détourner `ROG-02` (vol à la tire d'un **personnage**, cible et lieu explicitement réglementés) ni ouvrir la mutation logistique de tiers. Définir un nouveau parcours fictif limité aux biens stockés, dont **coût, durée, niveau de compétence, éventuel jet, quantité maximale, alerte et remise** nécessitent un arbitrage explicite avant implémentation. En première tranche, cibler les **cellules des docks** ; un vol en soute de vaisseau ne doit pas court-circuiter les règles d'abordage/piraterie.
+- [CIBLE PROPOSÉE] Si les règles existantes ne prévoient **pas** de vol de biens stockés, ne pas détourner `ROG-02` (vol à la tire d'un **personnage**, cible et lieu explicitement réglementés) ni ouvrir la mutation logistique de tiers. Définir un nouveau parcours fictif limité aux biens stockés. Le **coût, la durée, la limite de volume, la récupération et le quota de réussite** sont désormais **validés au §10.9**. Le prérequis d'entrée est traité au §10.8 ; la nécessité éventuelle d'une compétence ou d'un jet supplémentaire, ainsi que le protocole de remise physique, restent à définir sans détourner ROG-02. En première tranche, cibler les **cellules des docks** ; un vol en soute de vaisseau ne doit pas court-circuiter les règles d'abordage/piraterie.
 - [CIBLE PROPOSÉE] Journal MJ systématique ; notifications au propriétaire ou à la douane **paramétrables** en fiction, sans révéler instantanément un espion silencieux. Aucun verrou physique ne doit être réellement ouvert par l'application et aucune confrontation réelle risquée n'est exigée.
 
 ### 10.5 Régie MJ — docks [CIBLE PROPOSÉE]
@@ -178,7 +178,7 @@ Depuis **Lieux & Terminaux → Docks**, offrir :
 1. Configuration des quais, terminaux et cellules, capacités, noms, prix d'achat, durées/loyers de location, disponibilités et QR téléchargeables.
 2. Attribution et consultation de la propriété / location ; mandats d'accès séparés pour consulter, déposer, retirer, gérer la cellule, contrôler et autoriser une procédure de vol.
 3. Journal des cargaisons par lot : propriétaire, détenteur/garde, port et emplacement, quantité, statut légal par port, réservation, filiation, preuves et quittances fiscalo-douanières, sans diffusion publique des secrets.
-4. Paramétrage des cibles INF-01, des informations révélables et d'une opération de vol **distincte**, désactivée tant que son protocole n'est pas approuvé.
+4. Paramétrage des cibles INF-01, des informations révélables et de l'opération de vol **distincte** suivant le barème validé du §10.9 ; cette opération reste désactivée dans le moteur tant qu'elle n'a pas été développée et recettée.
 5. Habilitations des agents impériaux, types d'inspection permis, registre des contrôles, retenues, saisies, décisions et recours ; simulateur MJ par personnage et cible.
 6. Gestion des cas bloqués, annulations motivées, droits révoqués et reprise d'épisode sans perte de lots ni paiement en double.
 
@@ -208,7 +208,7 @@ Recette fonctionnelle, refus HTTP/Auth, concurrence transactionnelle, confidenti
 ### 10.7 Arbitrages encore ouverts [NON VALIDÉS]
 
 - **Acquisition des cellules :** prix de vente, transférabilité/revente du titre, propriété individuelle ou collective et éventuel rôle de propriétaire initial.
-- **Vol de stockage :** compétence habilitante, seuils/durée/PA, prérequis physique, quantité emportable, conditions d'échec et d'alerte ; aucun nouveau barème inventé.
+- **Vol de stockage :** durée, PA, récupération, volume et quota **tranchés au §10.9** ; restent à arbitrer une éventuelle compétence ou un jet supplémentaires, les conditions de gardiennage et les modalités de remise physique. Les alarmes sont indépendantes du niveau de sécurité et configurables par cellule.
 - **Douanes dans les cellules :** qui peut autoriser une inspection approfondie ou une saisie en entrepôt ; distinguer l'entreposage ordinaire du stockage sous douane.
 - **Confidentialité de l'accès physique :** informations visibles publiquement sur le numéro de cellule, son occupation et son titulaire.
 
@@ -270,4 +270,65 @@ Un ajustement des paramètres de prix/sécurité n'altère **jamais rétroactive
 
 Les tests devront vérifier en particulier les contrôles serveur d'accès, l'état exact de la cible, la durée de la session, les effets et PA canonisés d'INF-01, ainsi que l'absence de permission implicite sur les lots ou l'administration.
 
-**Arbitrages résiduels [NON VALIDÉS] :** durée précise d'un accès obtenu par forçage (réutilisation de la session locale proposée de 10 min ou autre durée), contenu visible à l'intérieur selon les circonstances, modèle d'alerte ou de gardien, transfert/revente des titres de cellules et règles précises du **vol distinct**. Ne pas figer ces éléments par défaut en code.
+**Arbitrages résiduels [NON VALIDÉS] :** durée précise d'un accès obtenu par forçage (10 min proposées), contenu visible après entrée, réactions des gardiens, transfert/revente des titres, éventuelle compétence ou jet supplémentaires pour le vol et protocole physique de remise. **Le barème de vol et l'indépendance des alarmes sont validés au §10.9** ; ne pas les rouvrir ou inventer des paramètres connexes sans décision.
+
+
+### 10.9 Vol de stockage équilibré et alarmes par cellule — arbitrage définitif du 17/11/2026 [VALIDÉ]
+
+L'organisateur valide la **variante « vol équilibré »**, et choisit que les **alarmes soient configurées pour chaque cellule indépendamment de son niveau de sécurité**. Cette décision complète, sans remplacer, INF-01 (intrusion) et ROG-02 (vol à la tire sur personnage).
+
+#### 10.9.1 Barème opposable du « Vol de stockage » [VALIDÉ]
+
+| Paramètre | Règle définitive |
+|---|---|
+| Type d'action | Vol d'un lot **dans une cellule de dock**, séparé de l'ouverture/piratage |
+| Temps d'action | **3 minutes de jeu** par tentative résolue ; l'horloge de jeu respecte les pauses/STOP |
+| Coût en PA | **1 PA uniquement si le vol réussit**, aucun PA consommé sur échec ; réserver/libérer le PA selon les gardes natives |
+| Volume maximal | **5 unités de volume logistique** au maximum par opération réussie, pas 5 unités de quantité marchande par défaut |
+| Récupération | **10 minutes de jeu après toute tentative résolue**, qu'elle réussisse ou échoue |
+| Quota | **1 vol réussi maximum par personnage et par cellule, par session** |
+| Surveillance et alarmes | **Choisies indépendamment pour chaque cellule**, sans déduction automatique depuis N1–N5 |
+
+**Précisions d'application du barème [CIBLE D'IMPLÉMENTATION] :**
+- Le joueur doit être **présent fictionnellement** au dock, disposer d'un **accès local valable à la cellule** obtenu par code/clé ou par ouverture INF-01 réussie (voir §10.8), puis initier **séparément** un « Vol de stockage » ; une intrusion seule ne déplace rien.
+- L'opération vise un **lot réellement disponible**, avec volume connu, et un emplacement de destination admissible. La limite de 5 porte sur la **somme des volumes des unités volées**, contrôlée avec la capacité native ; ne pas modifier arbitrairement les quantités par volume. En cas de vol partiel, employer le fractionnement et la filiation des lots existants.
+- Une tentative ne peut devenir réussie si le personnage a déjà réussi **dans cette même cellule pendant la session**. Le quota ne s'étend pas automatiquement à toutes les cellules d'un même propriétaire ; les différents personnages possèdent leurs quotas propres, sous réserve des protections de stock et des éventuelles restrictions de surveillance validées.
+- Les préparations, réservations et confirmations doivent être **authentifiées, contrôlées côté serveur, transactionnelles et idempotentes** : aucun double vol sur le dernier exemplaire, aucune création de stock/argent, aucun changement fantôme de propriétaire, aucune consommation répétée du PA. En cas d'abandon **avant résolution**, libérer les réservations selon le moteur natif, sans comptabiliser une tentative réussie.
+- Le vol n'efface ni origine, ni historique, ni caractère interdit/réglementé, ni quittances douanières. L'acquisition illégale d'un lot ne le dédouane jamais.
+- Un accessoire matériel de jeu n'est transféré physiquement que par un protocole sécurisé préparé par le MJ. Le programme ne force jamais une véritable porte ou serrure.
+- **Aucun nouveau jet ou compétence supplémentaire n'est canonisé par ce barème.** La résolution du vol, après ouverture effective, doit être raccordée aux conditions métier et éventuelles circonstances de surveillance ; si le moteur exige une nouvelle règle de réussite/échec, la soumettre à un arbitrage spécifique, sans appliquer ROG-02 hors de son périmètre.
+
+#### 10.9.2 Modes de surveillance et déclenchements [VALIDÉ : CONFIGURABILITÉ ; PROPOSITIONS POUR DÉTAILS]
+
+Le MJ choisit un mode **pour chaque cellule** séparément de \`securityTier\` N1–N5 et peut le faire évoluer explicitement ; aucune alarme n'est imposée automatiquement à un niveau. Trois modes d'éditeur à proposer :
+
+| Mode | Effet de jeu envisagé |
+|---|---|
+| \`SILENT\` — discret | Journal MJ sans avertissement automatique du propriétaire |
+| \`DELAYED\` — différé | Avertissement fictif anonyme après vol réussi ; **10 minutes proposées** par analogie avec ROG-02, délai ajustable par le MJ |
+| \`IMMEDIATE\` — renforcé | Alerte fictive immédiate au MJ, à la sécurité ou aux agents habilités, sur les événements d'effraction/vol configurés |
+
+**Les trois modes et le délai de notification sont des modalités proposées** pour réaliser le choix d'alarmes personnalisables. Ils ne sont pas des obligations universelles imposées aux propriétaires. Le MJ doit pouvoir désigner les destinataires et les événements qui déclenchent chaque alarme, selon les capacités disponibles.
+
+L'alerte est une **information de jeu**, pas un droit de saisir le stock ou de découvrir l'identité de l'intrus. Une alarme active n'ouvre pas automatiquement l'inventaire au surveillant ni le droit d'annuler une action terminée. La surveillance humaine directe et ses effets de blocage ou d'interruption nécessitent toujours une définition séparée.
+
+#### 10.9.3 Contrôles MJ et recette ajoutés [À TESTER — NON EXÉCUTÉS]
+
+Le dashboard **Docks → Cellule** expose : niveau de sécurité N1–N5, prix (configurable), mode d'alarme, destinataires/événements, autorisations et historique des tentatives ; la durée de 3 minutes, le coût conditionnel de 1 PA, la récupération de 10 minutes, la limite de 5 de volume et le quota sont **règles de jeu validées**. Si un Master/une session ne dispose pas encore de l'extension, le parcours de vol reste fermé sans modifier l'historique.
+
+| ID | Cas | Résultat attendu |
+|---|---|---|
+| DOCK-27 | Vol réussi de 3 unités de volume | 3 min de jeu, 1 PA débité, 10 min de récupération, lot déplacé une fois |
+| DOCK-28 | Échec après tentative résolue | 0 PA consommé, 10 min de récupération, aucun stock déplacé |
+| DOCK-29 | Vol dépassant 5 unités de volume | Refus, pas de mutation ni création de lot |
+| DOCK-30 | Nouvelle réussite du même personnage dans la même cellule et session | Refus de seconde réussite, sans attribution de lot |
+| DOCK-31 | Deux personnages dans la même cellule | Quotas distincts ; protections de concurrence conservées |
+| DOCK-32 | Intrusion réussie sans opération de vol | Aucun déplacement et aucun transfert de propriété |
+| DOCK-33 | Cellule N5, alarmes configurées en mode discret | Aucune notification automatique du seul fait de N5 |
+| DOCK-34 | Cellule N2, alarmes configurées en mode renforcé | Alerte selon configuration malgré N2 |
+| DOCK-35 | Mode différé | Aucune identité d'intrus révélée sans règle spécifique ; notification au délai paramétré |
+| DOCK-36 | Coupure/réessai après résolution du vol | Un seul PA, un seul changement de lot, un seul quota consommé |
+| DOCK-37 | Pause/STOP pendant les 3 min | Chronomètre de jeu suspendu conformément à la mécanique de session |
+| DOCK-38 | Lot volé avec justificatifs douaniers | Statut légal et historique conservés, sans régularisation automatique |
+
+**Statut :** seuls les paramètres approuvés par l'organisateur sont figés. Cette rédaction documentaire ne modifie aucun code applicatif, aucun prix canonique, aucune donnée de session, aucune règle Firebase, aucune branche \`main\`, ni aucun déploiement.
