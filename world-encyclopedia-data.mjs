@@ -489,7 +489,7 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "planetImage": "images/planets/rodia.webp",
-    "planetImageAlt": "Reconstitution orbitale de Rodia : vastes zones de jungle, marais et eaux intérieures.",
+    "planetImageAlt": "Reconstitution orbitale de RODIA : vastes zones de jungle, marais et eaux intérieures.",
     "paragraphs": [
       "RELEVÉ DES SYSTÈMES HABITÉS — Rodia se distingue par ses jungles et par les cités protégées de dômes qui permettent à ses habitants de vivre au milieu d'une végétation tenace. Les récits de chasse, d'escorte et de convoyage occupent une place importante dans sa réputation auprès des visiteurs.",
       "Pour les observateurs impériaux, les échanges y demandent une connaissance des risques locaux et des accords d'approvisionnement. Une commande de fournitures peut se transformer en discussion sur la sécurité d'un trajet ; une proposition d'escorte exige un examen des responsabilités. Le chroniqueur recommande de juger les contrats sur leurs termes plutôt que sur les préjugés attachés aux espèces."
