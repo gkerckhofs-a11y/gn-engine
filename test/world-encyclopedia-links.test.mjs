@@ -272,6 +272,7 @@ test('Accueil : six affiches historiques en vignettes cliquables et non recadré
  const history=worldEncyclopedia.filter(a=>a.imperialArchive);
  assert.equal(history.length,6);
  assert.equal((index.match(/class="holopedia-card-media media-history"/g)||[]).length,6);
+ assert.equal((index.match(/class="holopedia-card-media media-/g)||[]).length,43,'Les 43 illustrations de l’accueil doivent être cliquables');
  for(const a of history){
    const expected=a.poster.replace('posters/','posters/thumbs/');
    assert.ok(index.includes(expected),'Vignette manquante : '+a.id);
@@ -286,10 +287,12 @@ test('Accueil : six affiches historiques en vignettes cliquables et non recadré
  assert.equal((index.match(/data-place-image="true"/g)||[]).length,7);
  for(const a of planetes){
    assert.ok(index.includes('src="./'+a.planetImage+'"'),'Vignette planétaire modifiée : '+a.id);
+   assert.ok(index.includes('class="holopedia-card-media media-planet" href="#/holopedia/public/'+a.id+'"'), 'Image planétaire non cliquable : '+a.id);
    assert.ok(!index.includes('thumbs/'+a.planetImage.split('/').pop()),'Vignette planétaire inattendue');
  }
  for(const a of lieux){
    assert.ok(index.includes('src="./'+a.placeImage+'"'),'Vignette de lieu modifiée : '+a.id);
+   assert.ok(index.includes('class="holopedia-card-media media-place" href="#/holopedia/public/'+a.id+'"'), 'Image de lieu non cliquable : '+a.id);
    assert.ok(!index.includes('images/places/thumbs/'),'Vignette de lieu inattendue');
  }
  const css=readFileSync('style.css','utf8');
@@ -297,8 +300,8 @@ test('Accueil : six affiches historiques en vignettes cliquables et non recadré
  assert.match(css,/height:250px/);
  assert.match(css,/media-history \.history-poster-thumb\{/);
  assert.match(css,/object-fit:contain/);
- assert.doesNotMatch(css,/holopedia-card-media\.media-place/);
- assert.doesNotMatch(css,/holopedia-card-media\.media-planet/);
+ assert.match(css,/holopedia-card-media\.media-place/);
+ assert.match(css,/holopedia-card-media\.media-planet/);
  const importer=readFileSync('assets-source/download-planets.py','utf8');
  assert.match(importer,/poster_thumbs/);
  assert.doesNotMatch(importer,/planet_thumbs|place_thumbs/);
