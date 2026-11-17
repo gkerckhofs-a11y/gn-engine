@@ -290,7 +290,7 @@ test('Vignettes optimisées : images légères, entières et cliquables',()=>{
  const css=readFileSync('style.css','utf8');
  assert.match(css,/media-history\{aspect-ratio:3\/4/);
  assert.match(css,/media-planet\{aspect-ratio:1\/1/);
- assert.match(css,/media-place\{aspect-ratio:16\/10/);
+ assert.match(css,/media-place\{aspect-ratio:16\/9/);
  assert.match(css,/media-history \.history-poster-thumb\{object-fit:contain/);
  assert.match(css,/\.holopedia-card-media:focus-visible/);
  const importer=readFileSync('assets-source/download-planets.py','utf8');
