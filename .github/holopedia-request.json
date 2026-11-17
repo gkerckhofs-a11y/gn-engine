@@ -4,8 +4,8 @@
   "siteId": "holopedia-space-outlaws",
   "sourceRef": "gh-pages",
   "requestedAt": "2026-11-17",
-  "reason": "Publier les 5 scènes de Breach Port associées aux 7 fiches (dont Comptoir, Hospice et Atelier), sans modifier GN Engine ni les autres contenus Holopédia.",
+  "reason": "Remplacer les cinq affiches de propagande des archives Histoire par les nouveaux visuels validés, préserver la République en déclin, les 30 planètes et les 7 lieux ; déployer uniquement Holopédia.",
   "status": "AUTHORIZED_SECONDARY_HOSTING_ONLY",
-  "attempt": 16,
-  "scope": "holopedia-breach-port-seven-places-five-images"
+  "attempt": 17,
+  "scope": "holopedia-history-five-new-posters"
 }
