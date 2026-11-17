@@ -213,3 +213,61 @@ Recette fonctionnelle, refus HTTP/Auth, concurrence transactionnelle, confidenti
 - **Confidentialité de l'accès physique :** informations visibles publiquement sur le numéro de cellule, son occupation et son titulaire.
 
 Aucune décision non tranchée ci-dessus n'autorise un changement de code canonique, de taux, de règles de vol, de sécurité ou un déploiement en production.
+
+
+### 10.8 Ouverture de lieux verrouillés, niveaux de sécurité et prix — décision du 17/11/2026
+
+**[VALIDÉ] Principe général :** pour pénétrer dans un lieu verrouillé, un joueur doit **soit disposer d'un code ou d'une clé d'accès valide**, **soit forcer l'accès fictif avec la compétence adaptée**. Les lieux possèdent des **niveaux de sécurité différents**. Les cellules de dock les plus sécurisées doivent être **plus difficiles à forcer et plus chères à l'achat**, toutes choses comparables par ailleurs.
+
+**[CIBLE PROPOSÉE]** Une même règle doit servir aux cellules de docks et, lorsque le MJ le paramètre, à d'autres zones/casiers/coffres/locaux fictivement fermés. L'entrée est un droit **local et temporaire** distinct des permissions de lire la totalité des lots, d'effectuer des mouvements logistiques, de prendre une marchandise ou d'agir en tant que douanier.
+
+#### Échelle de sécurité adossée au canon INF-01
+
+Le Livre des règles Space Outlaws V0.7, chapitre 14, définit :
+- **INF-01 N1 :** serrures et terminaux simples ;
+- **INF-01 N2 :** contrôles d'accès et verrouillages électroniques ordinaires ;
+- **INF-01 N3 :** systèmes avancés ;
+- **INF-01 N4 :** réseaux et dispositifs complexes ;
+- **INF-01 N5 :** systèmes exceptionnels, sans réussite automatique.
+
+**[CIBLE PROPOSÉE]** Exposer sur chaque cellule un champ \`securityTier\` (N1–N5) qui détermine le **niveau minimal d'INF-01** pour une tentative de forçage ; créer des descriptions immersives « simple / renforcé / avancé / complexe / ultra-sécurisé », sans en faire de nouvelles classes ou compétences. Un Rogue ne dispose pas automatiquement d'INF-01 : le Rogue et l'Infiltrateur demeurent distincts ; seul le personnage ayant réellement acquis la compétence peut tenter l'intrusion.
+
+La **difficulté de résolution** (seuil de D6 ordinaire ou mini-jeu préparé) se configure séparément, selon les paramètres et limites **déjà canoniques d'INF-01**, sans barème universel ajouté. Le MJ contrôle la cohérence de difficulté croissante d'une cellule N1 à N5. Un personnage de niveau supérieur ne réussit pas automatiquement.
+
+#### Parcours « code ou forçage »
+
+1. Le joueur se rend physiquement à la cellule ou au terminal de zone et scanne le QR public ; le QR n'expose ni le code ni le contenu privé.
+2. **Code partagé / clé unique valide :** le serveur vérifie la portée exacte, l'état, le titulaire éventuel et la révocation ; ouvre alors l'accès fictionnel selon cette autorisation **sans jet ni PA d'INF-01**. Un code de cellule n'est ni une licence professionnelle ni un mandat global de gestion des stocks.
+3. **Sans code/clé :** afficher une commande « Forcer l'accès » uniquement si la cible est configurée comme forçable ; soumettre le niveau effectif **INF-01 ≥ niveau minimal de la cellule** et les conditions canoniques de lancement/résolution. La compétence n'est pas conférée par la classe Rogue ni par le scan.
+4. Un **forçage réussi** ouvre, pour le personnage qui l'a accompli, un **accès fictionnel temporaire à cette cible précise**. Il n'émet ni mot de passe, ni clé transférable, ni droit permanent ; les conséquences de scénario (journal MJ, alarme, visibilité aux propriétaires) sont paramétrées par le MJ. Un échec ne révèle ni code ni stock et respecte les conséquences/cooldowns natifs INF-01.
+5. L'**entrée** ne produit **aucun mouvement de lot**. Un vol de cargaison exige le parcours distinct du §10.4 et une quantité/une cible effectivement accessibles selon ses règles, une nouvelle confirmation et la transaction métier native. L'entrée ne vaut pas automatiquement permission administrative de lire tous les stocks ni autorisation de vendre/transférer les marchandises. Le MJ choisit explicitement ce qu'une entrée réussie peut faire **voir**, puis quels parcours distincts elle rend **tentables**.
+6. Une inspection impériale conserve son **habilitation douanière** et son protocole de contrôle (§10.3). L'habilitation à inspecter ne fabrique pas automatiquement un code de la cellule, ni un droit de saisir. Une autorisation officielle de pénétrer peut être représentée par une clé/code habilité ou un mécanisme scénarisé explicitement créé par le MJ, sans accès matériel réel.
+
+**Sécurité physique :** le terme « forcer » désigne une interaction **ludique** sur le QR/terminal, jamais l'ouverture ou la dégradation d'une vraie porte, serrure ou installation. Les zones réellement interdites au public restent fermées, quelle que soit la réussite fictionnelle.
+
+#### Prix et configuration MJ
+
+**[VALIDÉ]** À caractéristiques comparables, un niveau de protection plus élevé implique un **prix d'achat plus élevé** et une difficulté de forçage accrue.
+
+**[CIBLE PROPOSÉE]** Le MJ renseigne, pour chaque type de cellule ou cellule individuelle : port, emplacement, capacité, niveau de sécurité N1–N5, type de verrouillage, prix d'achat, éventuel loyer, mode de disponibilité, autorisations/codes/clés, difficulté INF-01 (seuil D6 ou mini-jeu), contenu visible après entrée, options d'alerte. Les tarifs **ne sont pas chiffrés** ici : aucun prix canonique ne doit être inventé. L'éditeur doit permettre de comparer les prix et avertir si, **à capacité et conditions identiques**, une cellule plus sécurisée n'est pas plus chère. Une petite cellule N5 peut néanmoins être moins chère qu'un immense hangar N2 ; ne pas confondre sécurité et capacité.
+
+Un ajustement des paramètres de prix/sécurité n'altère **jamais rétroactivement** un achat, un titre de propriété, un bail, une tentative en cours ou l'état d'un lot sans commande explicite autorisée.
+
+#### Recettes supplémentaires [À EXÉCUTER]
+
+| ID | Cas | Attendu |
+|---|---|---|
+| DOCK-17 | Code de cellule valide, utilisateur sans INF-01 | Entrée fictionnelle autorisée sans test |
+| DOCK-18 | Code correct mais révoqué ou valable pour une autre cellule | Refus de l'accès local |
+| DOCK-19 | N3 avec personnage INF-01 N2 | Tentative de forçage refusée, aucun PA consommé |
+| DOCK-20 | N3 avec personnage INF-01 N3 | Tentative admise, résultat selon résolution canonique et difficulté préparée |
+| DOCK-21 | INF-01 N5 sur N5, test échoué | Pas d'entrée ; aucune réussite automatique |
+| DOCK-22 | Forçage réussi, retrait de stock non autorisé | Retrait interdit sans parcours de vol distinct |
+| DOCK-23 | Prix de cellules de même capacité, niveaux de sécurité différents | Prix croissant et avertissement de cohérence dans la régie |
+| DOCK-24 | QR partagé ou scanné hors présence réelle | Règle de fair-play rappelée ; aucun mécanisme de géolocalisation ajouté |
+| DOCK-25 | Mise à jour d'une sécurité après achat | Aucun recalcul rétroactif ni altération du titre de propriété |
+| DOCK-26 | Forçage fictionnel réussi devant une vraie porte fermée | Aucun déverrouillage/accès physique réel |
+
+Les tests devront vérifier en particulier les contrôles serveur d'accès, l'état exact de la cible, la durée de la session, les effets et PA canonisés d'INF-01, ainsi que l'absence de permission implicite sur les lots ou l'administration.
+
+**Arbitrages résiduels [NON VALIDÉS] :** durée précise d'un accès obtenu par forçage (réutilisation de la session locale proposée de 10 min ou autre durée), contenu visible à l'intérieur selon les circonstances, modèle d'alerte ou de gardien, transfert/revente des titres de cellules et règles précises du **vol distinct**. Ne pas figer ces éléments par défaut en code.
