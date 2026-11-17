@@ -115,3 +115,18 @@ ni stockage sous douane ; aucun droit implicite de revente de biens volés. Dél
 Les configurations locales sont propres à la session : elles devront être préparées
 à nouveau pour un autre épisode. AC-05 et la recette globale AC-06 restent à faire.
 Aucune migration, fusion ou publication Firebase.
+
+### Première CI AC-04 et correctif
+
+Candidat `f89270a`, CI `44127602231` : build et 3311 tests applicatifs complets
+réussis. HTTP/Auth terminé avec succès ; 28 parcours navigateur réussis, le
+nouveau parcours Dock a échoué : le sélecteur du bouton de création trouvait aussi
+le formulaire d'édition d'un entrepôt créé par une recette antérieure. Le sélecteur
+est limité au formulaire de création dans la section dédiée. Aucun succès global
+n'est attribué à cette exécution. Le navigateur local ne peut pas démarrer ici
+(binaire Playwright absent, Chromium système arrêté à son lancement) ; la preuve
+navigateur reste attendue de la CI.
+
+Le raccord INF-01 revérifie aussi le niveau de sécurité de la cellule et sa
+concordance avec la cible publiée à chaque lancement/résolution : une retouche M6
+ne peut pas abaisser silencieusement la protection d'une cellule déjà configurée.

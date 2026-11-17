@@ -40,7 +40,10 @@ export async function dockEntry(tx,ctx,w,at,{forceOnly=false}={}){
 export async function dockIntrusionGuard(tx,ctx,tid,at){
  const cells=(await tx.list(`sessions/${ctx.s.id}/warehouses`)).filter(w=>w.dock?.intrusionTargetId===tid);
  requireThat(cells.length<=1,'INVALID_DOCK');if(!cells.length)return;
- const w=cells[0],b=`localAccess/${ctx.s.id}`,binding=await tx.get(`${b}/bindings/${localBindingId('dockEntry',w.id)}`),t=binding?await tx.get(`${b}/terminals/${binding.terminalId}`):null,p=await tx.get(`${b}/presence/${ctx.c.id}`);
+ const w=cells[0],target=await tx.get(`sessions/${ctx.s.id}/fieldTargets/${tid}`);
+ requireThat(target?.publicationState==='PUBLISHED'&&target.intrusion?.minLevel===w.dock.securityTier,'INVALID_DOCK');
+ const b=`localAccess/${ctx.s.id}`,binding=await tx.get(`${b}/bindings/${localBindingId('dockEntry',w.id)}`),t=binding?await tx.get(`${b}/terminals/${binding.terminalId}`):null,p=await tx.get(`${b}/presence/${ctx.c.id}`);
  requireThat(binding?.active&&t?.active&&t.portId===w.portId&&w.portId===(ctx.c.spacePortId??ctx.s.transportRules?.homePort),'DOCK_NOT_LOCAL');
  requireThat(p?.terminalId===t.id&&p.terminalRevision===t.revision&&p.characterVersion===ctx.version&&p.expiresGameMs>gameTime(ctx.s.clock,at),'LOCAL_SCAN_REQUIRED');
+ requireThat(abilityLevel(ctx.c,'INF-01')>=w.dock.securityTier,'SO_INF01_SKILL');
 }
