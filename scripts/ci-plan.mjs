@@ -26,22 +26,28 @@ export async function makePlan({env=process.env,event,fetchRuns,gitCommand=git}=
   let baseline=null,paths=[],baselineRun=null;
   if(!forceFull&&event.pull_request?.head.repo.full_name===repository){
     try{
-      const runs=await (fetchRuns??(async()=>{
-        const url=`https://api.github.com/repos/${repository}/actions/workflows/check.yml/runs?branch=${encodeURIComponent(branch)}&status=success&per_page=100`;
-        const response=await fetch(url,{headers:{Authorization:`Bearer ${env.GH_TOKEN}`,Accept:'application/vnd.github+json'},signal:AbortSignal.timeout(15000)});
-        if(!response.ok)throw new Error(`GitHub status ${response.status}`);
-        return (await response.json()).workflow_runs;
-      }))();
-      for(const run of eligibleRuns(runs,{repository,branch,runId:env.GITHUB_RUN_ID})){
-        try{
-          // A partial success cannot hide earlier untested changes from later runs.
-          if(isTargetedCommit(gitCommand('log','-1','--format=%B',run.head_sha)))continue;
-          gitCommand('merge-base','--is-ancestor',run.head_sha,checkout);
-          // Compare trees, including the current merge with base. Do not just compare
-          // the latest push: an earlier failing/cancelled commit must remain covered.
-          paths=gitCommand('diff','--no-renames','--name-only','-z',run.head_sha,checkout).split('\0').filter(Boolean);
-          baseline=run.head_sha;baselineRun=run.id;break;
-        }catch{ /* Non-ancestor, unavailable commit or diff: try another successful run. */ }
+      // A fresh dedicated branch may use the PR base only with an explicit
+      // targeted request, a same-repository successful global run, and ancestry.
+      // A failed/partial branch run never becomes a reference.
+      const base=event.pull_request?.base;
+      const refs=[branch,...(target&&base?.repo?.full_name===repository&&base.ref!==branch?[base.ref]:[])];
+      for(const ref of refs){
+        let runs;
+        try{runs=await (fetchRuns??(async selectedBranch=>{
+          const url=`https://api.github.com/repos/${repository}/actions/workflows/check.yml/runs?branch=${encodeURIComponent(selectedBranch)}&status=success&per_page=100`;
+          const response=await fetch(url,{headers:{Authorization:`Bearer ${env.GH_TOKEN}`,Accept:'application/vnd.github+json'},signal:AbortSignal.timeout(15000)});
+          if(!response.ok)throw new Error(`GitHub status ${response.status}`);
+          return (await response.json()).workflow_runs;
+        }))(ref);}catch{continue;}
+        for(const run of eligibleRuns(runs,{repository,branch:ref,runId:env.GITHUB_RUN_ID})){
+          try{
+            if(isTargetedCommit(gitCommand('log','-1','--format=%B',run.head_sha)))continue;
+            gitCommand('merge-base','--is-ancestor',run.head_sha,checkout);
+            paths=gitCommand('diff','--no-renames','--name-only','-z',run.head_sha,checkout).split('\0').filter(Boolean);
+            baseline=run.head_sha;baselineRun=run.id;break;
+          }catch{ /* Non-ancestor, unavailable commit or diff: try another successful run. */ }
+        }
+        if(baseline)break;
       }
     }catch{ /* No trustworthy API history: full validation. */ }
   }

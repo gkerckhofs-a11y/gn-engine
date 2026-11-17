@@ -91,3 +91,21 @@ test('CI : PR prête, commit ci full, push et lancement manuel imposent tous les
 test('CI : une modification étroite après succès produit les quatre lots et HTTP complet',async()=>{
   const p=await makePlan(setup().args);assert.equal(p.profile,'spatial');assert.equal(p.matrix.length,4);assert.equal(p.http,true);assert.equal(p.baselineRun,10);
 });
+
+test('CI : ciblage explicite sur branche neuve accepte seulement une base globale vérifiée du même dépôt',async()=>{
+ const event={...payload,pull_request:{...payload.pull_request,base:{ref:'main',repo:{full_name:'owner/repo'}}}},message='AC-01 [ci targeted:contextual-access]';
+ const {args,calls}=setup({event,message,paths:['src/core/contextual-access.mjs']});const queried=[];
+ args.fetchRuns=async ref=>{queried.push(ref);return ref==='main'?[run({head_branch:'main',event:'push'})]:[run({conclusion:'failure'})];};
+ const p=await makePlan(args);assert.equal(p.profile,'targeted-contextual-access');assert.equal(p.baseline,previous);assert.equal(p.browser,true);assert.deepEqual(queried,['work/test','main']);assert.ok(calls.some(c=>c[0]==='merge-base'));assert.ok(p.suites.includes('contextual-access'));assert.ok(p.suites.includes('sabacc'));
+});
+test('CI : base étrangère, non ancestrale, partielle, échouée ou inaccessible ne valide jamais un ciblage neuf',async()=>{
+ for(const invalid of ['foreign','ancestor','partial','failure','unavailable']){
+  const event={...payload,pull_request:{...payload.pull_request,base:{ref:'main',repo:{full_name:invalid==='foreign'?'foreign/repo':'owner/repo'}}}},message='AC-01 [ci targeted:contextual-access]';
+  const {args}=setup({event,message,ancestor:invalid!=='ancestor',paths:['src/core/contextual-access.mjs']});
+  const original=args.gitCommand;args.gitCommand=(...a)=>a[0]==='log'&&a.at(-1)===previous&&invalid==='partial'?'old [ci targeted:ci]':original(...a);
+  args.fetchRuns=async ref=>{if(invalid==='unavailable')throw Error('API unavailable');return ref==='main'?[run({head_branch:'main',event:'push',conclusion:invalid==='failure'?'failure':'success'})]:[];};
+  await assert.rejects(makePlan(args),/verified global ancestor/);
+ }
+ const {args}=setup({event:{...payload,pull_request:{...payload.pull_request,base:{ref:'main',repo:{full_name:'owner/repo'}}}},paths:['src/core/workflow.mjs'],runs:[]});
+ const p=await makePlan(args);assert.equal(p.profile,'full');assert.equal(p.baseline,null);
+});

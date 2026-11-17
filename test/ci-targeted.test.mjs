@@ -242,3 +242,12 @@ test('CI ciblée : ROG-02 garde la sélection cumulée et refuse les chemins ét
  assert.doesNotThrow(()=>applicationCommand(JSON.stringify(p.applicationTests)));
  assert.throws(()=>targetedScope('rogue-pickpocket',['src/adapters/firestore.mjs'],{reliableBase:true}));
 });
+
+test('CI contextuelle : périmètre fermé, dépendances natives et recette navigateur obligatoires',()=>{
+ const name='contextual-access',p=targetedScope(name,['src/core/contextual-access.mjs','web/sabacc/app.mjs'],{reliableBase:true});assert.equal(p.browser,true);
+ for(const path of ['src/server/index.mjs','src/adapters/firestore.mjs','firestore.rules','package.json','src/core/cargo.mjs'])assert.throws(()=>targetedScope(name,[path],{reliableBase:true}));
+ for(const id of ['contextual-access','item-circuits','space-outlaws-shops','sales','inventory','economy','sabacc','firestore-rules'])assert.ok(p.suites.includes(id));
+ for(const file of p.applicationTests)assert.ok(existsSync(file),file);
+ assert.ok(new RegExp(p.httpPattern).test('HTTP + Auth : accès contextuels, scan local et API native protégée'));
+ const selected=matrixFor(p.suites).flatMap(({shard})=>selectFirestoreSuites({GN_FIRESTORE_SUITES:JSON.stringify(p.suites),GN_FIRESTORE_SHARD:shard}));assert.deepEqual(selected.map(s=>s.id).sort(),[...p.suites].sort());
+});
