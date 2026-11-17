@@ -267,33 +267,39 @@ test('Histoire : sept articles en ordre chronologique dans l’accueil et le som
  assert.equal(encyclopediaArticlesByCategory('Histoire').length,7);
 });
 
-test('Vignettes optimisées : images légères, entières et cliquables',()=>{
+test('Accueil : six affiches historiques en vignettes cliquables et non recadrées',()=>{
  const index=holopediaIndexHtml('public');
- const count=worldEncyclopedia.filter(a=>a.imperialArchive||a.planetImage||a.placeImage).length;
- assert.equal(count,43);
- assert.equal((index.match(/class="holopedia-card-media media-/g)||[]).length,count,'Toutes les images de l’accueil doivent être cliquables');
- for(const a of worldEncyclopedia.filter(a=>a.imperialArchive)){
+ const history=worldEncyclopedia.filter(a=>a.imperialArchive);
+ assert.equal(history.length,6);
+ assert.equal((index.match(/class="holopedia-card-media media-history"/g)||[]).length,6);
+ for(const a of history){
    const expected=a.poster.replace('posters/','posters/thumbs/');
-   assert.ok(index.includes(expected),'Vignette d’affiche manquante : '+a.id);
-   assert.ok(holopediaArticleHtml('public',a.id).includes(a.poster),'Affiche HD absente de la fiche : '+a.id);
+   assert.ok(index.includes(expected),'Vignette manquante : '+a.id);
+   assert.ok(index.includes('href="#/holopedia/public/'+a.id+'"'),'Lien manquant : '+a.id);
+   assert.ok(holopediaArticleHtml('public',a.id).includes(a.poster),'Image HD manquante : '+a.id);
  }
- for(const a of worldEncyclopedia.filter(a=>a.planetImage)){
-   const expected=a.planetImage.replace('images/planets/','images/planets/thumbs/');
-   assert.ok(index.includes(expected),'Vignette planétaire manquante : '+a.id);
-   assert.ok(holopediaArticleHtml('public',a.id).includes(a.planetImage),'Vue orbitale HD absente : '+a.id);
+ const planetes=worldEncyclopedia.filter(a=>a.planetImage);
+ const lieux=worldEncyclopedia.filter(a=>a.placeImage);
+ assert.equal(planetes.length,30);
+ assert.equal(lieux.length,7);
+ assert.equal((index.match(/data-planet-image="true"/g)||[]).length,30);
+ assert.equal((index.match(/data-place-image="true"/g)||[]).length,7);
+ for(const a of planetes){
+   assert.ok(index.includes('src="./'+a.planetImage+'"'),'Vignette planétaire modifiée : '+a.id);
+   assert.ok(!index.includes('thumbs/'+a.planetImage.split('/').pop()),'Vignette planétaire inattendue');
  }
- for(const a of worldEncyclopedia.filter(a=>a.placeImage)){
-   const expected=a.placeImage.replace('images/places/','images/places/thumbs/');
-   assert.ok(index.includes(expected),'Vignette de lieu manquante : '+a.id);
-   assert.ok(holopediaArticleHtml('public',a.id).includes(a.placeImage),'Image panoramique HD absente : '+a.id);
+ for(const a of lieux){
+   assert.ok(index.includes('src="./'+a.placeImage+'"'),'Vignette de lieu modifiée : '+a.id);
+   assert.ok(!index.includes('images/places/thumbs/'),'Vignette de lieu inattendue');
  }
  const css=readFileSync('style.css','utf8');
- assert.match(css,/media-history\{aspect-ratio:3\/4/);
- assert.match(css,/media-planet\{aspect-ratio:1\/1/);
- assert.match(css,/media-place\{aspect-ratio:16\/9/);
- assert.match(css,/media-history \.history-poster-thumb\{object-fit:contain/);
- assert.match(css,/\.holopedia-card-media:focus-visible/);
+ assert.match(css,/holopedia-card-media\.media-history/);
+ assert.match(css,/height:250px/);
+ assert.match(css,/media-history \.history-poster-thumb\{/);
+ assert.match(css,/object-fit:contain/);
+ assert.doesNotMatch(css,/holopedia-card-media\.media-place/);
+ assert.doesNotMatch(css,/holopedia-card-media\.media-planet/);
  const importer=readFileSync('assets-source/download-planets.py','utf8');
- for(const key of ['planet_thumbs','place_thumbs','poster_thumbs'])
-   assert.ok(importer.includes(key),'Miniatures non générées : '+key);
+ assert.match(importer,/poster_thumbs/);
+ assert.doesNotMatch(importer,/planet_thumbs|place_thumbs/);
 });
