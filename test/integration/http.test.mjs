@@ -2087,3 +2087,142 @@ test('HTTP + Auth : événements galactiques, devis réel, accès anonyme et dro
  const {planetMarketsFixture}=await import('../support/planet-markets-suite.mjs'),db=getFirestore(),f=await planetMarketsFixture(()=>firestoreStore(db));await f.configure();const owner=await googleTestAccount(process.env.OWNER_EMAIL),client=await googleTestAccount(`economy-client-${randomUUID()}@example.invalid`),uid=t=>JSON.parse(Buffer.from(t.split('.')[1],'base64url').toString()).sub,old=db.doc(`${f.base}/registrations/${hash(f.player.uid)}`),r=(await old.get()).data();await old.delete();await db.doc(`${f.base}/registrations/${hash(uid(client))}`).set({...r,id:hash(uid(client)),uid:uid(client),minAuthTime:0});await db.doc(`${f.base}/characters/${f.cid}`).update({assignedUid:uid(client)});await db.doc(f.base).update({ownerUid:uid(owner),clock:{elapsedMs:0,runningSince:Date.now()}});await db.doc(`campaigns/${f.campaignId}`).update({ownerUid:uid(owner)});
  const call=async(a,p={},t=owner)=>{const r=await request(a,{sessionId:f.sid,...p},t);assert.equal(r.status,200,JSON.stringify(r));return r.result;};assert.equal((await request('galacticEventsAdmin',{sessionId:f.sid})).status,401);assert.equal((await request('galacticEventsAdmin',{sessionId:f.sid},client)).status,403);const d=await call('galacticEventsAdmin'),p={revision:d.session.revision,recordRevision:0,itemId:'kit_medical-supplies',title:'Hausse locale',description:'Réserves en baisse',percent:15,tradeBlocked:false,enabled:true,portId:'away',announcementId:null,reason:'SECRET_HTTP_REASON'},q=await call('prepareGalacticEvent',p),i={...p,confirmation:q.confirmation,requestId:randomUUID()},saved=await call('saveGalacticEvent',i);assert.deepEqual(await call('saveGalacticEvent',i),saved);const board=await call('galacticMarkets',{},client);assert.equal(board.markets[0].quote.unitPrice,46);assert.doesNotMatch(JSON.stringify(board),/SECRET_HTTP_REASON/);const purchase={shopId:'counter',offerId:'supply',quantity:1,useProtected:false},preview=await call('prepareShopPurchase',purchase,client);assert.equal(preview.amount,46);const sale=await call('buyShopOffer',{...purchase,quoteAt:preview.quoteAt,confirmation:preview.confirmation,requestId:randomUUID()},client);assert.equal(sale.amount,46);await call('revokeAccess',{uid:uid(client),requestId:randomUUID()});assert.equal((await request('galacticMarkets',{sessionId:f.sid},client)).status,403);
 });
+
+test('HTTP + Auth : recharge mécanique, réservation, reçu unique et révocation',async()=>{
+ const {mechanicalProtectionFixture}=await import('../support/space-mechanical-protection-suite.mjs');
+ const f=await mechanicalProtectionFixture(()=>firestoreStore(getFirestore()),{self:true});
+ const {db,base,sessionId,player,outsider,call,cmd,uid}=await towingHttpActors({...f,otherId:f.tid},0);
+ assert.equal((await request('preparePersonAction',{sessionId,...f.input})).status,401);
+ assert.equal((await request('preparePersonAction',{sessionId,...f.input},outsider)).status,403);
+ const p=await call('preparePersonAction',f.input,player),a=await cmd('startPersonAction',{...f.input,confirmation:p.confirmation,present:true},player);
+ assert.equal((await request('finishPersonAction',{sessionId,actionId:a.id,present:true,requestId:randomUUID()},player)).error,'FIELD_TOO_EARLY');
+ const saved=(await db.doc(`${base}/personActions/${a.id}`).get()).data();
+ await db.doc(base).update({clock:{elapsedMs:saved.readyAtGameMs+1000,runningSince:Date.now()}});
+ const input={actionId:a.id,present:true,requestId:randomUUID()},r=await cmd('finishPersonAction',input,player);
+ assert.equal(r.result.protection,1);assert.deepEqual(await cmd('finishPersonAction',input,player),r);
+ assert.equal((await db.doc(`${base}/inventory/cell`).get()).data().quantity,2);
+ await cmd('revokeAccess',{uid:uid(player)});
+ assert.equal((await request('finishPersonAction',{sessionId,...input},player)).status,403);
+});
+
+test('HTTP + Auth : prestation PNJ droïde, crédits réservés et règlement unique',async()=>{
+ const {droidServiceFixture}=await import('../support/space-droid-services-suite.mjs');
+ const f=await droidServiceFixture(()=>firestoreStore(getFirestore()));
+ const {db,base,sessionId,player,outsider,call,cmd,uid}=await towingHttpActors({...f,otherId:f.tid},1000);
+ const input=f.input();
+ assert.equal((await request('preparePersonAction',{sessionId,...input})).status,401);
+ assert.equal((await request('preparePersonAction',{sessionId,...input},outsider)).status,403);
+ const q=await call('preparePersonAction',input,player);assert.equal(q.payment.amount,100);assert.equal(q.payment.protectedAmount,100);assert.equal(q.cost,0);
+ const start={...input,present:true,confirmation:q.confirmation,requestId:randomUUID()},a=await cmd('startPersonAction',start,player);assert.deepEqual(await cmd('startPersonAction',start,player),a);
+ assert.equal((await f.till()).reserved,100);assert.equal((await f.wallet()).protectedCredits,100);
+ const active=(await db.doc(`${base}/personActions/${a.id}`).get()).data();await db.doc(base).update({clock:{elapsedMs:active.readyAtGameMs+1000,runningSince:Date.now()}});
+ const finish={actionId:a.id,present:true,requestId:randomUUID()},r=await cmd('finishPersonAction',finish,player);assert.deepEqual(await cmd('finishPersonAction',finish,player),r);assert.equal(r.payment.status,'PAID');
+ assert.equal((await f.till()).reserved,0);assert.equal((await f.till()).balance,100);assert.equal((await f.profile('INSTALL')).serviceStock.remaining,0);assert.equal((await f.get('inventory/module')).status,'INSTALLED');
+ const mine=await call('myPersonActions',{},player);assert.doesNotMatch(JSON.stringify(mine),/payerAccountId|tillAccountId|serviceStock/);
+ await cmd('revokeAccess',{uid:uid(player)});assert.equal((await request('finishPersonAction',{sessionId,...finish},player)).status,403);
+});
+
+test('HTTP + Auth : module droïde déposé, réparation consentie sans installation et reçu unique',async()=>{
+ const {droidWorkFixture}=await import('../support/space-droid-work-suite.mjs');
+ const f=await droidWorkFixture(()=>firestoreStore(getFirestore()),{damaged:true});
+ await f.edit('inventory/module',l=>({...l,ownerId:f.targetId,holderId:f.targetId,location:{kind:'CHARACTER',id:f.targetId}}));
+ const {db,base,sessionId,player,tech,outsider,call,cmd}=await towingHttpActors({...f,otherId:f.tid},1000);
+ const input={targetId:f.tid,profileId:f.profiles.REPAIR,moduleLotId:'module',supplyLots:{parts25:'parts'}};
+ assert.equal((await request('preparePersonAction',{sessionId,...input})).status,401);
+ assert.equal((await request('preparePersonAction',{sessionId,...input},outsider)).status,403);
+ assert.equal((await request('preparePersonAction',{sessionId,...input},player)).error,'SO_DROID_CONSENT');
+ const permission={technicianId:f.cid,profileId:f.profiles.REPAIR,moduleLotId:'module'},p=await call('prepareDroidConsent',permission,tech);
+ await cmd('consentDroidWork',{...permission,grant:true,present:true,confirmation:p.confirmation},tech);
+ const q=await call('preparePersonAction',input,player),a=await cmd('startPersonAction',{...input,present:true,confirmation:q.confirmation},player);
+ const active=(await db.doc(`${base}/personActions/${a.id}`).get()).data();await db.doc(base).update({clock:{elapsedMs:active.readyAtGameMs+1000,runningSince:Date.now()}});
+ const finish={actionId:a.id,present:true,requestId:randomUUID()},r=await cmd('finishPersonAction',finish,player);assert.deepEqual(await cmd('finishPersonAction',finish,player),r);
+ const lot=(await db.doc(`${base}/inventory/module`).get()).data();assert.equal(lot.moduleState.status,'OPERATIONAL');assert.equal(lot.status,'AVAILABLE');assert.equal(lot.ownerId,f.tid);assert.deepEqual(lot.location,{kind:'CHARACTER',id:f.tid});
+ assert.equal(((await db.doc(`${base}/characters/${f.tid}`).get()).data().droidModules??[]).length,0);assert.equal((await db.doc(`${base}/inventory/parts`).get()).data().quantity,16);
+});
+
+test('HTTP + Auth : modules droïdes, mémoire privée, consentement et retrait révoqué',async()=>{
+ const {droidStorageFixture}=await import('../support/space-droid-storage-suite.mjs');
+ const f=await droidStorageFixture(()=>firestoreStore(getFirestore()));
+ const {db,base,sessionId,player,tech,outsider,call,cmd,uid}=await towingHttpActors({...f,otherId:f.tid},601000);
+ const module=()=>db.doc(`${base}/inventory/module`).get().then(d=>d.data());
+ assert.equal((await request('moveDroidContent',{sessionId,moduleLotId:'module',operation:'STORE',lotId:'content',revision:(await module()).revision,requestId:randomUUID()})).status,401);
+ assert.equal((await request('personTarget',{sessionId,targetId:f.tid},outsider)).status,403);
+ await cmd('moveDroidContent',{moduleLotId:'module',operation:'STORE',lotId:'content',revision:(await module()).revision},tech);
+ const privateView=await call('personTarget',{targetId:f.tid},player);assert.equal(privateView.droidStorage,undefined);assert.doesNotMatch(JSON.stringify(privateView),/Support privé|Texte chiffré/);
+ const a=await cmd('startSoDecryption',{memoryLotId:'module',present:true},player);
+ assert.equal((await request('moveDroidContent',{sessionId,moduleLotId:'module',operation:'TAKE',revision:(await module()).revision,requestId:randomUUID()},tech)).error,'FIELD_TARGET_BUSY');
+ await db.doc(base).update({clock:{elapsedMs:a.readyAtGameMs+1000,runningSince:Date.now()}});
+ const r=await cmd('finishSoDecryption',{actionId:a.id},player);assert.equal(r.memory,true);assert.equal(r.durationSeconds,165);
+ if(r.success){assert.equal(r.memoryResult.body,'Texte chiffré fictif');assert.equal((await call('mySoDecryption',{},player)).memoryReads.length,1);}
+ assert.equal((await call('mySoDecryption',{},tech)).memoryReads.length,0);
+ assert.equal((await db.doc(`${base}/inventory/content`).get()).data().holderId,f.tid);
+ await cmd('moveDroidContent',{moduleLotId:'module',operation:'TAKE',revision:(await module()).revision},tech);
+ await db.doc(base).update({clock:{elapsedMs:1301000,runningSince:Date.now()}});
+ const permission={technicianId:f.cid,profileId:f.profiles.REMOVE,moduleLotId:'module'},p=await call('prepareDroidConsent',permission,tech);
+ await cmd('consentDroidWork',{...permission,grant:true,present:true,confirmation:p.confirmation},tech);
+ const input={targetId:f.tid,profileId:f.profiles.REMOVE,moduleLotId:'module'},preview=await call('preparePersonAction',input,player),work=await cmd('startPersonAction',{...input,present:true,confirmation:preview.confirmation},player);
+ await cmd('revokeAccess',{uid:uid(tech)});const active=(await db.doc(`${base}/personActions/${work.id}`).get()).data();await db.doc(base).update({clock:{elapsedMs:active.readyAtGameMs+1000,runningSince:Date.now()}});
+ assert.equal((await request('finishPersonAction',{sessionId,actionId:work.id,present:true,requestId:randomUUID()},player)).error,'INVALID_RECIPIENT');
+ await cmd('cancelPersonActionMJ',{actionId:work.id,reason:'Révocation de l’accord'});assert.equal((await module()).status,'INSTALLED');
+});
+
+test('HTTP + Auth : diagnostic technique natif, panne modifiée et résultat privé daté',async()=>{
+ const {nativeTechnicalFixture}=await import('../support/space-technical-native-suite.mjs');const f=await nativeTechnicalFixture(()=>firestoreStore(getFirestore()));
+ const {db,base,sessionId,player,outsider,call,cmd,uid}=await towingHttpActors({...f,otherId:f.tid},1300000),input={targetId:'diagnostic',kind:'ANALYZE'};
+ assert.equal((await request('fieldTarget',{sessionId,targetId:'diagnostic'})).status,401);assert.equal((await request('fieldTarget',{sessionId,targetId:'diagnostic'},outsider)).status,403);
+ const scan=await call('fieldTarget',{targetId:'diagnostic'},player);assert.doesNotMatch(JSON.stringify(scan),/SECRET_N3|Observation N2/);
+ const p=await call('prepareFieldAction',input,player),a=await cmd('startFieldAction',{...input,confirmation:p.confirmation,present:true},player);
+ const armor=(await db.doc(`${base}/inventory/armor`).get()).data();await cmd('damageDroidModule',{moduleLotId:'armor',revision:armor.revision,reason:'Incident joué pendant l’observation'});
+ const active=(await db.doc(`${base}/fieldActions/${a.id}`).get()).data();await db.doc(base).update({clock:{elapsedMs:active.readyAtGameMs+1000,runningSince:Date.now()}});
+ assert.equal((await request('finishFieldAction',{sessionId,actionId:a.id,present:true,requestId:randomUUID()},player)).error,'FIELD_STATE_CHANGED');await cmd('cancelFieldAction',{actionId:a.id,reason:'Nouvel état technique'},player);
+ const q=await call('prepareFieldAction',input,player),b=await cmd('startFieldAction',{...input,confirmation:q.confirmation,present:true},player),saved=(await db.doc(`${base}/fieldActions/${b.id}`).get()).data();await db.doc(base).update({clock:{elapsedMs:saved.readyAtGameMs+1000,runningSince:Date.now()}});
+ const finish={actionId:b.id,present:true,requestId:randomUUID()},r=await cmd('finishFieldAction',finish,player);assert.deepEqual(await cmd('finishFieldAction',finish,player),r);assert.equal(r.result.roll,null);assert.ok(r.result.technical.observedAt>0);assert.match(JSON.stringify(r.result.technical.rows),/2 \/ 3 PV/);assert.doesNotMatch(JSON.stringify(r),/SECRET_N3/);
+ assert.equal((await db.doc(`${base}/characters/${f.tid}`).get()).data().protection,0);await cmd('revokeAccess',{uid:uid(player)});assert.equal((await request('finishFieldAction',{sessionId,...finish},player)).status,403);
+});
+
+test('HTTP + Auth : cycle durable du module, retrait puis remontage sans effacer la panne',async()=>{
+ const {moduleRepairFixture}=await import('../support/space-module-repair-suite.mjs'),f=await moduleRepairFixture(()=>firestoreStore(getFirestore()));
+ const {db,base,sessionId,player,tech,outsider,call,cmd}=await towingHttpActors(f,1000000);
+ assert.equal((await request('moduleMandatesAdmin',{sessionId})).status,401);assert.equal((await request('moduleMandatesAdmin',{sessionId},outsider)).status,403);
+ for(const moduleOperation of ['REMOVE','INSTALL']){
+  const input={shipId:'ship',lotId:f.moduleLotId,technicianId:f.otherId,moduleOperation,present:true,workshopConfirmed:true,source:'Atelier préparé',reason:'Conserver la panne et le même exemplaire'};
+  assert.equal((await request('prepareModuleMandateOffer',{sessionId,...input},player)).status,403);
+  const q=await call('prepareModuleMandateOffer',input),r=await cmd('offerModuleMandate',{...input,confirmation:q.confirmation});assert.equal(q.moduleState.status,'DAMAGED');
+  const approval=await call('prepareModuleMandateApproval',{mandateId:r.id},player);await cmd('approveModuleMandate',{mandateId:r.id,confirmation:approval.confirmation,present:true},player);
+  const start=await call('prepareModuleWorkStart',{mandateId:r.id},tech);await cmd('startModuleWork',{mandateId:r.id,confirmation:start.confirmation,present:true,workshopConfirmed:true},tech);
+  const active=(await db.doc(`${base}/shipMaintenance/${r.id}`).get()).data();await db.doc(base).update({clock:{elapsedMs:active.readyAtGameMs+1000,runningSince:Date.now()}});
+  const preview=await call(moduleOperation==='REMOVE'?'prepareModuleRemoval':'prepareModuleInstallation',{mandateId:r.id},tech),finish={mandateId:r.id,confirmation:preview.confirmation,present:true,workshopConfirmed:true,performed:true,requestId:randomUUID()},action=moduleOperation==='REMOVE'?'finishModuleRemoval':'finishModuleInstallation';
+  const result=await cmd(action,finish,tech);assert.deepEqual(await cmd(action,finish,tech),result);
+  const lot=(await db.doc(`${base}/inventory/${f.moduleLotId}`).get()).data();assert.equal(lot.id,f.moduleLotId);assert.equal(lot.moduleState.status,'DAMAGED');assert.equal(lot.status,moduleOperation==='REMOVE'?'AVAILABLE':'INSTALLED');
+ }
+ const ship=(await db.doc(`${base}/ships/ship`).get()).data();assert.equal(ship.modules[0].status,'DAMAGED');assert.equal(ship.soProfile.shieldMax,2);assert.equal((await db.doc(`${base}/inventory/personal-parts`).get()).data().quantity,50);
+});
+
+test('HTTP + Auth : réparation durable de module, pièces uniques, reçu et révocation',async()=>{
+ const {moduleRepairFixture}=await import('../support/space-module-repair-suite.mjs'),f=await moduleRepairFixture(()=>firestoreStore(getFirestore()));
+ const {db,base,sessionId,player,tech,outsider,call,cmd,uid}=await towingHttpActors(f,1000000),input=f.input({supplyLotId:'personal-parts'});
+ assert.equal((await request('spaceMaintenanceAdmin',{sessionId})).status,401);assert.equal((await request('spaceMaintenanceAdmin',{sessionId},outsider)).status,403);
+ assert.equal((await request('damageShipModule',{sessionId,shipId:'ship',moduleLotId:f.moduleLotId,revision:1,reason:'Refus joueur',requestId:randomUUID()},player)).status,403);
+ const q=await call('prepareSpaceMaintenanceOffer',input),r=await cmd('offerSpaceMaintenance',{...input,confirmation:q.confirmation}),p=await call('prepareSpaceMaintenance',{maintenanceId:r.id},player);await cmd('acceptSpaceMaintenance',{maintenanceId:r.id,confirmation:p.confirmation,present:true},player);
+ const j=(await call('spaceMaintenance',{},tech)).jobs.find(j=>j.id===r.id);await cmd('startSpaceMaintenance',{maintenanceId:r.id,confirmation:j.confirmation,present:true},tech);const active=(await db.doc(`${base}/shipMaintenance/${r.id}`).get()).data(),ship=(await db.doc(`${base}/ships/ship`).get()).data();await db.doc(base).update({clock:{elapsedMs:active.readyAtGameMs+1000,runningSince:Date.now()}});
+ const done=(await call('spaceMaintenance',{},tech)).jobs.find(j=>j.id===r.id),finish={maintenanceId:r.id,confirmation:done.confirmation,performed:true,requestId:randomUUID()},result=await cmd('finishSpaceMaintenancePoint',finish,tech);assert.deepEqual(await cmd('finishSpaceMaintenancePoint',finish,tech),result);
+ const after=(await db.doc(`${base}/ships/ship`).get()).data();assert.equal(after.modules[0].status,'OPERATIONAL');assert.equal(after.hull,ship.hull);assert.equal(after.shield,ship.shield);assert.equal((await db.doc(`${base}/inventory/personal-parts`).get()).data().quantity,50-q.unitCost/25);
+ await cmd('revokeAccess',{uid:uid(tech)});assert.equal((await request('finishSpaceMaintenancePoint',{sessionId,...finish},tech)).status,403);
+});
+
+test('HTTP + Auth : installation durable, échec payé puis réparation et reçu privé',async()=>{
+ const {installationRepairFixture}=await import('../support/space-installation-repair-suite.mjs'),f=await installationRepairFixture(()=>firestoreStore(getFirestore()));const {db,base,sessionId,player,outsider,call,cmd,uid}=await towingHttpActors({...f,otherId:f.tid},1000000),input=f.input;
+ assert.equal((await request('fieldTarget',{sessionId,targetId:'generator'})).status,401);assert.equal((await request('configureInstallationRepair',{sessionId,...f.config,requestId:randomUUID()},outsider)).status,403);
+ await cmd('configureInstallationRepair',{...f.config,revision:1,threshold:10000});
+ const run=async()=>{const q=await call('prepareFieldAction',input,player),a=await cmd('startFieldAction',{...input,confirmation:q.confirmation,present:true},player),saved=(await db.doc(`${base}/fieldActions/${a.id}`).get()).data();await db.doc(base).update({clock:{elapsedMs:saved.readyAtGameMs+1000,runningSince:Date.now()}});const p={actionId:a.id,present:true,requestId:randomUUID()},r=await cmd('finishFieldAction',p,player);assert.deepEqual(await cmd('finishFieldAction',p,player),r);return {r,p,ready:saved.readyAtGameMs};};
+ const failed=await run();assert.equal(failed.r.result.success,false);assert.equal((await db.doc(`${base}/inventory/${f.lot.id}`).get()).data().quantity,6);assert.ok((await db.doc(`${base}/fieldStates/generator`).get()).data().durableFailure);
+ await cmd('configureInstallationRepair',{...f.config,revision:2,threshold:1});await db.doc(base).update({clock:{elapsedMs:failed.ready+602000,runningSince:Date.now()}});const success=await run();assert.equal(success.r.result.success,true);assert.equal((await db.doc(`${base}/inventory/${f.lot.id}`).get()).data().quantity,4);assert.equal((await db.doc(`${base}/fieldStates/generator`).get()).data().durableFailure,null);
+ await cmd('revokeAccess',{uid:uid(player)});assert.equal((await request('finishFieldAction',{sessionId,...success.p},player)).status,403);
+});
+
+test('HTTP + Auth : sabotage de module installé, effet temporaire et droits courants',async()=>{
+ const {nativeSabotageFixture}=await import('../support/space-native-sabotage-suite.mjs'),f=await nativeSabotageFixture(()=>firestoreStore(getFirestore()),{threshold:1});const {db,base,sessionId,player,outsider,call,cmd,uid}=await towingHttpActors({...f,otherId:f.tid},1000000),input=f.input();
+ assert.equal((await request('fieldTarget',{sessionId,targetId:'native-console'})).status,401);assert.equal((await request('bindNativeSabotage',{sessionId,...f.bind,revision:1,requestId:randomUUID()},outsider)).status,403);
+ const q=await call('prepareFieldAction',input,player),a=await cmd('startFieldAction',{...input,confirmation:q.confirmation,present:true},player),saved=(await db.doc(`${base}/fieldActions/${a.id}`).get()).data();await db.doc(base).update({clock:{elapsedMs:saved.readyAtGameMs+1000,runningSince:Date.now()}});const finish={actionId:a.id,present:true,requestId:randomUUID()},r=await cmd('finishFieldAction',finish,player);assert.equal(r.result.success,true);assert.deepEqual(await cmd('finishFieldAction',finish,player),r);const c=(await db.doc(`${base}/characters/${f.cid}`).get()).data();assert.ok(c.droidModules[0].neutralizedUntilGameMs>saved.readyAtGameMs);assert.equal((await db.doc(`${base}/inventory/${f.lotId}`).get()).data().status,'INSTALLED');const d=await call('fieldTarget',{targetId:'native-console'},player);assert.equal(d.target.status,'OFFLINE');assert.doesNotMatch(JSON.stringify(d),/SECRET_NATIVE_SCENE/);
+ await cmd('revokeAccess',{uid:uid(player)});assert.equal((await request('finishFieldAction',{sessionId,...finish},player)).status,403);
+});

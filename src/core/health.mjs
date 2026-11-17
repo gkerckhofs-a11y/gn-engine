@@ -1,3 +1,4 @@
+import {effectiveDroidProtection} from './space-droid-protection.mjs';
 import {toxicologyReads,toxicologyWrites,doseCommand} from './space-toxicology.mjs';
 import {acceptsPatientNature} from '../shared/character-nature.mjs';
 import {abilityLevel} from './abilities.mjs';
@@ -65,15 +66,15 @@ export function createHealthService({store,signed,checkSession,checkScenario,now
       requireThat(['ORDINARY','LASER','STEALTH'].includes(input.damageKind)&&input.counted===true,'SO_DAMAGE_CONFIRM');
       requireThat(input.damageKind!=='STEALTH'||c.nature==='HUMANOID','PATIENT_NATURE_MISMATCH');
       requireThat(amount<=100,'INVALID_HEALTH');
-      const protection=c.protection??0;
+      const protection=effectiveDroidProtection(s,c,at);
       hp=input.damageKind==='ORDINARY'?Math.max(0,c.hp-Math.max(0,amount-protection)):0;
-      extra={protection:input.damageKind==='ORDINARY'?Math.max(0,protection-amount):protection};
+      extra={protection:input.damageKind==='ORDINARY'?Math.max(0,(c.protection??0)-Math.min(protection,amount)):(c.protection??0)};
       if(hp===0){whole(input.secondsSinceDown,'SO_DAMAGE_TIME_REQUIRED');requireThat(input.secondsSinceDown<=86400,'SO_DAMAGE_TIME_REQUIRED');}
     }
     const reportedAt=hasSoHealth(s)?input.reportedAt??at:null;
     if(hasSoHealth(s))requireThat(Number.isSafeInteger(reportedAt)&&reportedAt<=at&&reportedAt>=0,'SO_DAMAGE_TIME_REQUIRED');
     const after={...before,...extra,hp,outOfCombat:hp===0||before.outOfCombat,revision:before.revision+1};
-    const confirmation=hash(JSON.stringify([s.id,s.healthRules,c.id,c.public.displayName,r.accessVersion,before,amount,...(hasSoHealth(s)?[c.protection,input.damageKind,input.counted,input.secondsSinceDown,s.safetyStop,s.vitalClock,reportedAt]:[])]));
+    const confirmation=hash(JSON.stringify([s.id,s.healthRules,c.id,c.public.displayName,r.accessVersion,before,amount,...(hasSoHealth(s)?[c.protection,effectiveDroidProtection(s,c,at),input.damageKind,input.counted,input.secondsSinceDown,s.safetyStop,s.vitalClock,reportedAt]:[])]));
     return {characterName:c.public.displayName,before,after,amount,confirmation,...(hasSoHealth(s)?{reportedAt,spaceOutlaws:true}:{})};
   };
   const treatment=(ctx,x,at)=>{

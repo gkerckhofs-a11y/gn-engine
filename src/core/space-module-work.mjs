@@ -19,7 +19,7 @@ const reads=new Set(['prepareModuleRemoval','prepareModuleInstallation','prepare
 const admins=new Set(['moduleWorkAdmin','cancelModuleWorkAdmin']);
 export const hasModuleInstallation=s=>s.spaceOutlaws?.moduleInstallationVersion===1&&hasModuleWork(s);
 export const hasModuleWork=s=>s.spaceOutlaws?.moduleWorkVersion===1&&hasModuleMandates(s);
-const view=(s,r,time,confirmation)=>({...((r.moduleOperation==='REMOVE')?{moduleOperation:'REMOVE'}:{}),id:r.id,status:r.status,shipName:r.shipName,lotId:r.lotId,module:r.module,ownerName:r.ownerName,technicianName:r.technicianName,portName:r.portName,install:r.install,remainingSeconds:r.status==='MODULE_ACTIVE'?Math.max(0,Math.ceil((r.readyAtGameMs-time)/1000)):null,confirmation});
+const view=(s,r,time,confirmation)=>({...((r.moduleState||r.binding?.moduleState)?{moduleCondition:(r.moduleState??r.binding.moduleState).status}:{}),...((r.moduleOperation==='REMOVE')?{moduleOperation:'REMOVE'}:{}),id:r.id,status:r.status,shipName:r.shipName,lotId:r.lotId,module:r.module,ownerName:r.ownerName,technicianName:r.technicianName,portName:r.portName,install:r.install,remainingSeconds:r.status==='MODULE_ACTIVE'?Math.max(0,Math.ceil((r.readyAtGameMs-time)/1000)):null,confirmation});
 
 export function createModuleWorkService({store,signed,checkSession,now,uuid}){
  return async(action,actor,input)=>{
@@ -61,18 +61,18 @@ export function createModuleWorkService({store,signed,checkSession,now,uuid}){
     const reader={get:path=>normalized.has(path)?Promise.resolve(normalized.get(path)):tx.get(path),list:(...args)=>tx.list(...args)};
     let b;try{b=await moduleMandateBinding(reader,s,r,at);}catch(e){if(e instanceof DomainError)requireThat(false,'MODULE_MANDATE_STALE');throw e;}
     requireThat(isDeepStrictEqual(b,r.binding),'MODULE_MANDATE_STALE');
-    const modules=removing?ship.modules.filter(m=>m.lotId!==lot.id):[...ship.modules,{lotId:lot.id,code:r.module.code,size:r.module.size,status:'OPERATIONAL',installationId:r.id}],profile=installedShipProfile(ship.soProfile,modules,{hiddenCargo:hasHiddenCargo(s),towing:hasCompleteTowing(s)});
+    const modules=removing?ship.modules.filter(m=>m.lotId!==lot.id):[...ship.modules,{...(r.binding.moduleState??{}),lotId:lot.id,code:r.module.code,size:r.module.size,status:r.binding.moduleState?.status??'OPERATIONAL',installationId:r.id}],profile=installedShipProfile(ship.soProfile,modules,{rare:s.spaceOutlaws?.sensorJammerVersion===1,regenerative:s.spaceOutlaws?.regenerativeShieldVersion===1,vault:s.spaceOutlaws?.secureVaultVersion===1,durableModules:s.spaceOutlaws?.moduleRepairVersion===1,hiddenCargo:hasHiddenCargo(s),towing:hasCompleteTowing(s)});
     requireThat(profile,'INVALID_MODULE_CALIBRATION');
     const result={...view(s,r,time,confirmation),beforeProfile:ship.soProfile,afterProfile:profile,hull:ship.hull,shield:ship.shield,afterHull:removing?Math.min(ship.hull,profile.hullMax):ship.hull,afterShield:removing?Math.min(ship.shield,profile.shieldMax):ship.shield};
     if(['prepareModuleInstallation','prepareModuleRemoval'].includes(action))return result;
     requireThat(input.confirmation===confirmation,'STALE_REVISION');requireThat(input.present===true&&input.workshopConfirmed===true&&input.performed===true,'FIELD_PRESENCE_REQUIRED');
     tx.set(`${base}/ships/${ship.id}`,{...ship,hull:result.afterHull,shield:result.afterShield,modules,soProfile:profile,moduleInstallationVersion:1,maintenanceId:null,revision:ship.revision+1});
-    const nextLot={...lot,status:removing?'AVAILABLE':'INSTALLED',fieldActionId:null,holderId:removing?r.ownerId:ship.id,location:removing?{kind:'CHARACTER',id:r.ownerId}:{kind:'SHIP_MODULE',id:ship.id},revision:lot.revision+1};
+    const nextLot={...lot,...(removing&&r.binding.moduleState?{moduleState:r.binding.moduleState}:{}),status:removing?'AVAILABLE':'INSTALLED',fieldActionId:null,holderId:removing?r.ownerId:ship.id,location:removing?{kind:'CHARACTER',id:r.ownerId}:{kind:'SHIP_MODULE',id:ship.id},revision:lot.revision+1};
     tx.set(`${base}/inventory/${lot.id}`,nextLot);tx.set(`${base}/inventory/${lot.id}/history/${id}`,{id,kind:action,at,actorUid:actor.uid,mandateId:r.id,shipId:ship.id,before:lotState(lot),after:lotState(nextLot)});
     tx.set(`${base}/characters/${tech.c.id}`,{...tech.c,activeMaintenanceId:null});tx.set(actionPointPath(s.id,tech.c.id),resolveActionPoints(points,1));
     return write({...r,status:removing?'MODULE_REMOVED':'MODULE_INSTALLED',moduleInstallationVersion:1,closedAt:at,revision:r.revision+1},removing?'Retrait personnel confirmé ; même module au propriétaire, 1 PA consommé, maximums réduits sans restitution de points':'Montage personnel confirmé à quai ; 1 PA consommé, points de Coque/Bouclier inchangés');
    }
-   if(removing)requireThat(installedModuleLot(ship,lot),'MODULE_WORK_RESERVATION');
+   if(removing)requireThat(installedModuleLot(ship,lot,{durableModules:s.spaceOutlaws?.moduleRepairVersion===1}),'MODULE_WORK_RESERVATION');
    if(!cancel)return {...view(s,r,time,confirmation),reservedActionPoints:1,canCancel:!s.safetyStop?.active,canFinish:hasModuleInstallation(s)&&c?.id===r.technicianId&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&time>=r.readyAtGameMs};
    requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(input.confirmation===confirmation,'STALE_REVISION');const reason=admissionText(input.reason,500,true),released=releaseActionPoints(points,1,actionPointMaximum(s.actionPointRules,tech.c));
    tx.set(`${base}/ships/${ship.id}`,{...ship,maintenanceId:null,revision:ship.revision+1});

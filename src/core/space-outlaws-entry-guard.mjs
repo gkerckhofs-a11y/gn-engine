@@ -59,6 +59,8 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(scopes.has('TOWING_FLIGHT')&&session.spaceOutlaws.towingFlightVersion===1&&session.spaceOutlaws.towingAttachmentVersion===1&&session.spaceOutlaws.towingWorkVersion===1&&/^(ships\/[^/]+|shipMaintenance\/[^/]+|logisticsHistory\/[^/]+)$/.test(relative))continue;
   if(scopes.has('TOWING_ATTACHMENT')&&session.spaceOutlaws.towingAttachmentVersion===1&&session.spaceOutlaws.towingWorkVersion===1&&/^(ships\/[^/]+|shipMaintenance\/[^/]+|characters\/[^/]+(?:\/resources\/actionPoints)?|logisticsHistory\/[^/]+)$/.test(relative))continue;
   if(scopes.has('TOWING_WORK')&&session.spaceOutlaws.towingWorkVersion===1&&/^(ships\/[^/]+|shipMaintenance\/[^/]+|characters\/[^/]+(?:\/resources\/actionPoints)?|logisticsHistory\/[^/]+)$/.test(relative))continue;
+  if(scopes.has('SENSOR_FABRICATION')&&(session.spaceOutlaws.sensorJammerVersion===1||session.spaceOutlaws.regenerativeShieldVersion===1||session.spaceOutlaws.secureVaultVersion===1)&&/^(shipMaintenance\/[^/]+|logisticsHistory\/[^/]+|ships\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/resources\/actionPoints)?)$/.test(relative))continue;
+  if(scopes.has('VAULT_CARGO')&&session.spaceOutlaws.secureVaultVersion===1&&/^(ships\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|logisticsHistory\/[^/]+)$/.test(relative))continue;
   if(scopes.has('MODULE_WORK')&&session.spaceOutlaws.moduleWorkVersion===1&&/^(shipMaintenance\/[^/]+|logisticsHistory\/[^/]+|ships\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/resources\/actionPoints)?)$/.test(relative))continue;
   if(scopes.has('MODULE_MANDATES')&&session.spaceOutlaws.moduleMandatesVersion===1&&/^(shipMaintenance\/[^/]+|logisticsHistory\/[^/]+)$/.test(relative))continue;
   if(scopes.has('MAINTENANCE')&&/^(ships\/[^/]+|voyages\/[^/]+|shipMaintenance\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+|characters\/[^/]+(?:\/resources\/actionPoints)?|logisticsHistory\/[^/]+)$/.test(relative))continue;
@@ -90,15 +92,21 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(scopes.has('INF01')&&session.spaceOutlaws.inf01Version===1&&/^(aidOffers\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|inf01Actions\/[^/]+|inf01Actors\/[^/]+|fieldStates\/[^/]+|characters\/[^/]+(?:\/(?:fieldCooldowns\/[^/]+|resources\/actionPoints))?)$/.test(relative))continue;
   if(scopes.has('INF02')&&session.spaceOutlaws.inf02Version===1&&/^(inventory\/[^/]+(?:\/history\/[^/]+)?|aidOffers\/[^/]+|inf02Actions\/[^/]+|inf02Actors\/[^/]+|inf02Attempts\/[^/]+|characters\/[^/]+(?:\/(?:knowledge\/[^/]+|fieldCooldowns\/[^/]+|resources\/actionPoints))?)$/.test(relative))continue;
   if(scopes.has('ESCAPE')&&session.spaceOutlaws.escapeVersion===1&&/^(soCaptivities\/[^/]+|soEscapeActions\/[^/]+|soEscapeRogues\/[^/]+|characters\/[^/]+\/resources\/actionPoints)$/.test(relative))continue;
+  if(scopes.has('DROID_CONTENT_LOOT')&&session.spaceOutlaws.nativeSabotageVersion===1&&/^characters\/[^/]+$/.test(relative))continue;
   if(scopes.has('PICKPOCKET')&&session.spaceOutlaws.pickpocketVersion===1&&/^(pickpocketActions\/[^/]+|pickpocketRogues\/[^/]+|pickpocketVictims\/[^/]+|pickpocketAlerts\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+\/resources\/actionPoints)$/.test(relative))continue;
   if(scopes.has('NEGOTIATION_REDEEM')&&session.spaceOutlaws.merchantNegotiationVersion===1&&/^fieldActions\/[^/]+$/.test(relative))continue;
   if(scopes.has('DIAGNOSIS_CONFIG')&&session.spaceOutlaws.medicalDiagnosisVersion===1&&/^medicalDossiers\/[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
   if(scopes.has('CLINIC_CONFIG')&&session.spaceOutlaws.healthVersion===1&&/^personProfiles\/SO-CLINIC-[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
+  if(scopes.has('NATIVE_SABOTAGE')&&session.spaceOutlaws.nativeSabotageVersion===1&&/^(nativeSabotageBindings\/[^/]+|ships\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+)$/.test(relative))continue;
+  if(scopes.has('INSTALLATION_CONFIG')&&session.spaceOutlaws.installationRepairVersion===1&&/^installationRepairProfiles\/[^/]+$/.test(relative))continue;
+  if(scopes.has('TECHNICAL_CONFIG')&&session.spaceOutlaws.nativeTechnicalAnalysisVersion===1&&/^technicalBindings\/[^/]+$/.test(relative))continue;
+  if(scopes.has('DROID_CONFIG')&&session.spaceOutlaws.droidModulesVersion===1&&/^personProfiles\/SO-DROID-[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
   if(scopes.has('PROTECTION_CONFIG')&&session.spaceOutlaws.healthVersion===1&&/^personProfiles\/SO-ARMOR-[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
   if(scopes.has('HEALTH_CORRECTION')&&session.spaceOutlaws.healthVersion===1){
    if(/^(characters\/[^/]+(?:\/healthHistory\/[^/]+)?|healthHistory\/[^/]+)$/.test(relative))continue;
    if(path===base.slice(0,-1)){const next=pending.get(path),strip=({revision,...rest})=>rest;requireThat(next.revision===session.revision+1&&isDeepStrictEqual(strip(session),strip(next)),'SO_GAMEPLAY_NOT_OPEN');continue;}
   }
+  if(scopes.has('DROID_SERVICE')&&session.spaceOutlaws.droidServicesVersion===1&&/^(personProfiles\/SO-DROID-[^/]+|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('CARE')&&/^(personActions\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/(?:resources\/actionPoints|fieldCooldowns\/[^/]+|cooldowns\/field-care|diagnoses\/[^/]+|healthHistory\/[^/]+))?)$/.test(relative))continue;
   if(scopes.has('FICTIONAL_TRACES')&&session.spaceOutlaws.fictionalTracesVersion===1&&/^(fictionalTraces|fictionalTraceHeads|fictionalTraceMasks|fictionalTraceActors|fictionalTraceConsents|fictionalShipTraceBindings|fictionalShipTraceTargets|fictionalPursuits|fictionalTraceAlerts)\/[^/]+$/.test(relative))continue;
   if(scopes.has('TOXICOLOGY')&&session.spaceOutlaws.toxicologyVersion===1&&/^(toxicDoses\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/healthHistory\/[^/]+)?)$/.test(relative))continue;

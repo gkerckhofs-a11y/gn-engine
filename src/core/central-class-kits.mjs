@@ -24,6 +24,7 @@ export function centralClassKitProjection(changes){
    if(!binding)add(c,field,null,'REFERENCE_REQUIRED','Choisir le modèle M1 de cet élément du kit.');
    else if(!item)add(c,field,binding.itemId,'REFERENCE_MISSING','Préparer le modèle dans ce même brouillon M1 ou corriger son identifiant.');
    else if(item.operation!=='UPSERT')add(c,field,binding.itemId,'REFERENCE_ARCHIVED','Restaurer le modèle ou modifier la référence du kit.');
+   else if(item.data.droidModule)add(c,field,binding.itemId,'KIT_MODULE_FORBIDDEN','Aucun module de droïde gratuit dans un kit de création.');
    else if(slot.requiresConsumable&&!item.data.consumable)add(c,field,binding.itemId,'KIT_CONSUMABLE_REQUIRED','Cet élément du kit exige un modèle consommable.');
    return {...slot,itemId:binding?.itemId??null,itemName:item?.data.name??null,archived:item?.operation==='ARCHIVE'};
   });

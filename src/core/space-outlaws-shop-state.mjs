@@ -1,3 +1,4 @@
+import {droidModule} from '../shared/space-droid-modules.mjs';
 import {hasItemCircuits,itemUsages} from './item-circuits.mjs';
 import {negotiationTarget} from './space-merchant-negotiation.mjs';
 import {initialFieldState} from './field-state.mjs';
@@ -12,7 +13,7 @@ export function moduleOfferValid(offer,options={}){
  const item=offer?.item,q=playableShipModuleQuote(item?.shipModule,options);
  return !!q&&Object.keys(item.shipModule).length===2&&item.kind==='INDIVIDUAL'&&item.consumable===false&&offer.unitPrice===q.price;
 }
-export const shopOfferAvailable=(s,o)=>hasItemCircuits(s)&&!itemUsages.includes(o?.item?.usage)?false:o?.item?.usage==='FUEL'&&o.unitPrice!==25?false:o?.item?.shipModule?hasSoModulePurchases(s)&&moduleOfferValid(o,{hiddenCargo:hasHiddenCargo(s),towing:hasCompleteTowing(s)}):hasItemCircuits(s)?itemUsages.includes(o?.item?.usage):o?.item?.consumable===true;
+export const shopOfferAvailable=(s,o)=>hasItemCircuits(s)&&!itemUsages.includes(o?.item?.usage)?false:o?.item?.usage==='FUEL'&&o.unitPrice!==25?false:o?.item?.droidModule?s.spaceOutlaws?.droidModulesVersion===1&&droidModule(o.item.droidModule.code)?.price===o.unitPrice:o?.item?.shipModule?hasSoModulePurchases(s)&&moduleOfferValid(o,{hiddenCargo:hasHiddenCargo(s),towing:hasCompleteTowing(s)}):hasItemCircuits(s)?itemUsages.includes(o?.item?.usage):o?.item?.consumable===true;
 export const shopAccountId=id=>hash(`shop:${id}`);
 export const shopStockId=id=>hash(`shop-stock:${id}`);
 // Definitions only. Stock and a zero-balance till require a separate MJ command.
@@ -34,7 +35,9 @@ export function shopBlockers(changes){
    const item=active.find(x=>x.type==='item'&&x.entityId===c.data.itemId);
    if(classified&&!itemUsages.includes(item?.data.usage))add(c,'itemId','Classer explicitement cet article dans M1 avant une nouvelle publication : personnel, commercial ou voucher carburant.');
    if(item?.data.usage==='FUEL'&&c.data.unitPrice!==25)add(c,'unitPrice','Un voucher représente une unité de réservoir par unité de lot, au tarif de 25 Cr.');
-   if(item?.data.shipModule){
+   if(item?.data.droidModule){
+    if(droidModule(item.data.droidModule.code)?.price!==c.data.unitPrice||c.data.buybackPrice!==null)add(c,'unitPrice','Un module de droïde exige son prix canonique et un stock individuel préparé, sans reprise automatique.');
+   }else if(item?.data.shipModule){
     if(!moduleOfferValid({...c.data,item:item.data},{hiddenCargo:true,towing:true})||c.data.buybackPrice!==null)add(c,c.data.buybackPrice!==null?'buybackPrice':'unitPrice','Un module standard exige le tarif canonique de son gabarit, sans reprise par le comptoir.');
    }else if(!(classified?itemUsages.includes(item?.data.usage):item?.data.consumable)||c.data.buybackPrice!==null)add(c,c.data.buybackPrice!==null?'buybackPrice':'itemId',classified?'Définir le circuit de l’article et une offre sans rachat par le fournisseur.':'Ce parcours ouvre la vente de consommables et de modules standards du comptoir, sans rachat. Préparer les autres offres lors de leur raccordement.');
   }

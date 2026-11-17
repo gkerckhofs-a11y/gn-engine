@@ -29,13 +29,14 @@ const integer=(v,column)=>{if(!/^\d+$/.test(String(v))||!Number.isSafeInteger(Nu
 const revisionKey=type=>type==='character'?'contentRevision':'revision';
 const columns=type=>type==='fieldTarget'?centralFieldColumns:type==='character'?centralCharacterColumns:centralStoryColumns[type]??centralShopColumns[type]??centralSpaceColumns[type]??Object.keys(fields[type]);
 const fields={
- item:{circuit:['usage','text'],transferable:['transferable','bool'],revendable:['resellable','bool'],nom:['name','text'],description:['description','text',''],categorie:['category','text',''],unite:['unit','text'],type:['kind','text'],consommable:['consumable','bool'],volume_unitaire:['unitVolume','number',null],legalite:['legality','text'],prix_reference_unitaire_cr:['referenceUnitValueCr','reference',null],notes_mj:['gmNotes','text',''],pillable:['pillable','bool'],billes_par_recharge:['laserRecharge','laser',null]},
+ item:{module_droide:['droidModule','droid',null],circuit:['usage','text'],transferable:['transferable','bool'],revendable:['resellable','bool'],nom:['name','text'],description:['description','text',''],categorie:['category','text',''],unite:['unit','text'],type:['kind','text'],consommable:['consumable','bool'],volume_unitaire:['unitVolume','number',null],legalite:['legality','text'],prix_reference_unitaire_cr:['referenceUnitValueCr','reference',null],notes_mj:['gmNotes','text',''],pillable:['pillable','bool'],billes_par_recharge:['laserRecharge','laser',null]},
  recipe:{nom:['name','text'],description:['description','text',''],type:['kind','text'],niveau_minimum:['minLevel','number'],competence_id:['skillId','text',null],produit_id:['productItemId','text',null],composants:['components','components',[]],effet_id:['effectId','text',null],laboratoire_lieu_id:['laboratoryTargetId','text',null],connaissance_id:['unlockKnowledgeId','text',null],prix_indicatif:['indicativePrice','number',null],notes_mj:['gmNotes','text','']},
 };
 function cell(value,kind,column){
  if(kind==='bool'){if(!['OUI','NON'].includes(value))fail(column,'Utiliser OUI ou NON.');return value==='OUI';}
  if(kind==='number')return integer(value,column);
  if(kind==='reference'){const n=integer(value,column);if(n===0)fail(column,'Valeur de référence strictement positive attendue.');return n;}
+ if(kind==='droid')return {code:value};
  if(kind==='laser')return {pelletsPerUnit:integer(value,column)};
  if(kind==='components')return value.split(';').map(part=>{const [id,quantity,...extra]=part.trim().split(':');if(extra.length)fail(column,'Utiliser identifiant:quantité ; autre:quantité.');return {itemId:documentId(id.trim()),quantity:integer(quantity?.trim(),column)};});
  return value;
@@ -63,7 +64,7 @@ function exportRow(c){
  const row={id:c.entityId,operation:c.operation==='ARCHIVE'?'ARCHIVER':'MODIFIER',revision:c.data.revision};
  if(c.operation==='ARCHIVE')return row;
  for(const [column,[key,kind]] of Object.entries(fields[c.type])){
-  const v=c.data[key];row[column]=v==null?'':kind==='bool'?(v?'OUI':'NON'):kind==='laser'?v.pelletsPerUnit:kind==='components'?v.map(x=>`${x.itemId}:${x.quantity}`).join(';'):typeof v==='string'&&v.startsWith('!')?`!${v}`:v;
+  const v=c.data[key];row[column]=v==null?'':kind==='bool'?(v?'OUI':'NON'):kind==='droid'?v.code:kind==='laser'?v.pelletsPerUnit:kind==='components'?v.map(x=>`${x.itemId}:${x.quantity}`).join(';'):typeof v==='string'&&v.startsWith('!')?`!${v}`:v;
  }
  return row;
 }

@@ -1,3 +1,4 @@
+import {installationProfiles} from '../../src/shared/space-installation.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
@@ -19,6 +20,10 @@ export async function fieldImportFixture(makeStore){
  return {...f,exportFile,file,prepare,apply,round,inputFor};
 }
 export function centralFieldImportSuite(makeStore,prefix='Excel lieux C2q'){
+ test(`${prefix} : sabotage avancé conserve sa fiche couplée à travers Excel`,async()=>{
+  const f=await fieldImportFixture(makeStore),system={kind:'DROID_MODULE',code:'DR-03',exceptional:true,restore:{mec02:4,mec03:3,seconds:240}},target={...centralTestInstallation,sabotageSystem:system,profiles:installationProfiles({minLevel:5,kitId:'kit',system}),offlineSeconds:900,failureLockSeconds:300,repairProtectionSeconds:900};await f.field({fieldTarget:target});const before=await f.view('M6'),input=await f.round(['fieldTarget_place']);assert.deepEqual(JSON.parse(input.sheets.Lieux[0].sabotage_systeme_json),system);const p=await f.prepare(input);assert.deepEqual(p.errors,[]);assert.ok(p.changes.every(c=>c.operation==='INCHANGE'));assert.equal((await f.apply(input,p)).changed,0);assert.deepEqual(await f.view('M6'),before);
+  const bad=await f.round(['fieldTarget_place']);bad.sheets.Lieux[0].sabotage_systeme_json=JSON.stringify({...system,restore:{mec02:4}});const q=await f.prepare(bad);assert.equal(q.errors[0].column,'sabotage_systeme_json');assert.equal(q.confirmation,null);
+ });
  test(`${prefix} : versions explicites, sélection typée et anciens IDs non réinterprétés`,async()=>{
   const f=await fieldImportFixture(makeStore);await f.info(0,'fieldTarget_place');await f.field({draftRevision:1});const old=await f.exportFile(['fieldTarget_place'],f.owner,1);assert.equal(old.sheets.Meta[0].schema_version,1);assert.deepEqual(Object.keys(old.sheets),['Meta','Informations']);assert.equal(old.sheets.Informations[0].id,'fieldTarget_place');const next=await f.exportFile(['fieldTarget_place','knowledge_fieldTarget_place']);assert.equal(next.sheets.Meta[0].schema_version,2);assert.equal(next.sheets.Lieux[0].id,'place');assert.equal(next.sheets.Informations[0].id,'fieldTarget_place');await assert.rejects(f.exportFile(['place']),{code:'INVALID_CENTRAL_IMPORT'});await assert.rejects(f.exportFile([],f.owner,3),{code:'INVALID_CENTRAL_IMPORT'});
  });

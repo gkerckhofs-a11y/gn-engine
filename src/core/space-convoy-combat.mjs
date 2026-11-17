@@ -7,14 +7,14 @@ import {interposition} from './space-escort-maneuvers.mjs';
 export function resolveConvoyRound(ships,orders,dice,quietRounds=0,activeIds=ships.map(s=>s.id)){
  const count=ships.length;
  requireThat([3,4].includes(count)&&orders.length===count&&dice.length>=4*count+1&&dice.every(n=>Number.isInteger(n)&&n>=1&&n<=6),'INVALID_SPACE_ROUND');
- const before=ships.map(s=>({...s})),after=ships.map(s=>({...s})),used=ships.map(()=>false),fuelSpent=ships.map(()=>0),shots=[],rolls=[],escaped=[];
+ const before=ships.map(s=>({...s})),after=ships.map(s=>({...s})),used=ships.map(()=>false),jammerUsed=ships.map(()=>false),fuelSpent=ships.map(()=>0),shots=[],rolls=[],escaped=[];
  const withdrawn=[];
  const available=(i)=>!withdrawn.includes(ships[i].id)&&activeIds.includes(ships[i].id)&&before[i].hull>0;
  const enemy=(i,j)=>j>=0&&i!==j&&ships[i].team!==ships[j].team&&available(j);
  const target=(i,id)=>{const j=ships.findIndex(s=>s.id===id);return enemy(i,j)?j:-1;};
  const kinds=orders.map((o,i)=>available(i)?o.kind==='SURRENDER'?o.fallback:o.kind:'PASSIVE');
  const active=ships.map((s,i)=>i).filter(available);
- const end=(reason,hostile=false)=>({after,used,fuelSpent,shots,rolls,escaped,withdrawn,hostile,quietRounds:hostile?0:quietRounds+1,closed:true,reason});
+ const end=(reason,hostile=false)=>({after,used,jammerUsed,fuelSpent,shots,rolls,escaped,withdrawn,hostile,quietRounds:hostile?0:quietRounds+1,closed:true,reason});
  if(active.every(i=>orders[i].ceasefire))return end('CEASEFIRE');
  // Partial surrender never ends another allied captain's fight.
  const surrendered=active.filter(i=>orders[i].kind==='SURRENDER'&&active.filter(j=>enemy(i,j)).every(j=>orders[j].acceptSurrender));
@@ -49,13 +49,14 @@ export function resolveConvoyRound(ships,orders,dice,quietRounds=0,activeIds=shi
    if(q.success){escaped.push(before[i].id);continue;}
    cover=orders[protector].escortLevel>=3?1:0;
   }
-  const bonus=Math.max(special?2:0,cover),total=dice[2*count+i]+before[i].maneuverability+bonus,success=total>opposed;
-  rolls.push({kind:'FLEE',shipId:before[i].id,roll:dice[2*count+i],total,opposed,success,...(cover?{coverBonus:cover,specialBonus:bonus}:{})});
+  const jammer=orders[i].sensorJammer===true&&!special&&cover===0;jammerUsed[i]=jammer;
+  const bonus=Math.max(special?2:0,cover,Number(jammer)),total=dice[2*count+i]+before[i].maneuverability+bonus,success=total>opposed;
+  rolls.push({kind:'FLEE',shipId:before[i].id,roll:dice[2*count+i],total,opposed,success,...(jammer?{sensorJammerBonus:1}:{}),...(cover?{coverBonus:cover,specialBonus:bonus}:{})});
   if(special){used[i]=true;fuelSpent[i]=1;after[i].fuel--;if(!success){after[i]=damage(after[i],1);after[i].revisionRequired=true;}}
   if(success)escaped.push(before[i].id);
  }
  const remaining=active.filter(i=>available(i)&&after[i].hull>0&&!escaped.includes(before[i].id));
  if(new Set(remaining.map(i=>ships[i].team)).size<=1)return end(escaped.length?'FLED':'IMMOBILIZED',hostile);
  if(!hostile&&quietRounds+1>=2)return end('QUIET');
- return {after,used,fuelSpent,shots,rolls,escaped,withdrawn,hostile,quietRounds:hostile?0:quietRounds+1,closed:false,reason:null};
+ return {after,used,jammerUsed,fuelSpent,shots,rolls,escaped,withdrawn,hostile,quietRounds:hostile?0:quietRounds+1,closed:false,reason:null};
 }

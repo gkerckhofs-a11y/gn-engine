@@ -1,3 +1,4 @@
+import {sabotageSystemValid} from '../shared/space-installation.mjs';
 import {tracePolicyInput} from './fictional-trace-state.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {createHash} from 'node:crypto';
@@ -113,7 +114,8 @@ function baseFieldTargetInput(v,id,old={}){
  check(rewards.length<=20&&new Set(rewards.map(r=>r.id)).size===rewards.length);check(v.kind==='SEARCH'||analysis?rewards.length>0:rewards.length===0);
  if(analysis)check(rewards.some(r=>!r.bonus&&r.minLevel<=(profiles.ANALYZE.skillId==='COU-03'?profiles.ANALYZE.minLevel:1))&&new Set(rewards.map(r=>r.knowledgeId)).size===rewards.length);
  const dependencyId=v.dependencyId?documentId(v.dependencyId):null;check(!dependencyId||(v.kind==='SEARCH'&&dependencyId!==id));
- return {...(v.laboratory===true?{laboratory:true}:{}),...(v.documentOnly===true?{documentOnly:true}:{}),id,kind:v.kind,title:text(v.title,150,true),description:text(v.description??'',6000),gmNotes:text(v.gmNotes??'',10000),publicationState:v.publicationState,profiles,rewards,dependencyId,
+ check(v.sabotageSystem===undefined||v.kind==='INSTALLATION'&&sabotageSystemValid(v.sabotageSystem,profiles.SABOTAGE?.minLevel)&&v.laboratory!==true);
+ return {...(v.sabotageSystem?{sabotageSystem:v.sabotageSystem}:{}),...(v.laboratory===true?{laboratory:true}:{}),...(v.documentOnly===true?{documentOnly:true}:{}),id,kind:v.kind,title:text(v.title,150,true),description:text(v.description??'',6000),gmNotes:text(v.gmNotes??'',10000),publicationState:v.publicationState,profiles,rewards,dependencyId,
   offlineSeconds:num(v.offlineSeconds??0,604800),failureLockSeconds:num(v.failureLockSeconds??300,86400),repairProtectionSeconds:num(v.repairProtectionSeconds??0,86400),revision:(old.revision??0)+1};
 }
 export function validateFieldReferences(t,records){
@@ -134,6 +136,6 @@ export function validateFieldReferences(t,records){
 }
 export const initialFieldState=t=>({id:t.id,revision:1,status:'ONLINE',offlineUntilGameMs:null,protectedUntilGameMs:0,lockedUntilGameMs:0,activeActionId:null,stock:Object.fromEntries(t.rewards.map(r=>[r.id,r.stock])),claims:{},...(isPlaceSearch(t)?initialSearchState(t):{})});
 export function effectiveFieldState(s,state,at){
- const time=gameTime(s.clock,at);return state.status==='OFFLINE'&&state.offlineUntilGameMs!==null&&time>=state.offlineUntilGameMs?{...state,status:'ONLINE',...(state.protectionAfterExpirySeconds?{protectedUntilGameMs:Math.max(state.protectedUntilGameMs??0,state.offlineUntilGameMs+state.protectionAfterExpirySeconds*1000)}:{}),offlineUntilGameMs:null}:state;
+ const time=gameTime(s.clock,at);const next=state.status==='OFFLINE'&&state.offlineUntilGameMs!==null&&time>=state.offlineUntilGameMs?{...state,status:'ONLINE',...(state.protectionAfterExpirySeconds?{protectedUntilGameMs:Math.max(state.protectedUntilGameMs??0,state.offlineUntilGameMs+state.protectionAfterExpirySeconds*1000)}:{}),offlineUntilGameMs:null}:state;return next.durableFailure?{...next,status:'OFFLINE'}:next;
 }
 export function seedFieldTargets(tx,s,targets){for(const t of targets??[]){tx.set(`sessions/${s.id}/fieldTargets/${t.id}`,t);tx.set(`sessions/${s.id}/fieldStates/${t.id}`,initialFieldState(t));}}

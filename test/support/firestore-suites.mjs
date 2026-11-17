@@ -1,6 +1,14 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {id:"space-droid-services",module:"../support/space-droid-services-suite.mjs",exportName:"droidServiceSuite",label:"Prestations PNJ droïdes sur Firestore",seconds:90},
+  {"id":"space-native-sabotage","module":"../support/space-native-sabotage-suite.mjs","exportName":"nativeSabotageSuite","label":"Sabotages natifs sur Firestore","seconds":85},
+  {"id":"space-installation-repair","module":"../support/space-installation-repair-suite.mjs","exportName":"installationRepairSuite","label":"Pannes durables installations sur Firestore","seconds":65},
+  {"id":"space-module-repair","module":"../support/space-module-repair-suite.mjs","exportName":"moduleRepairSuite","label":"Réparation durable modules vaisseaux sur Firestore","seconds":65},
+  {id:"space-technical-native",module:"../support/space-technical-native-suite.mjs",exportName:"nativeTechnicalSuite",label:"Diagnostic natif Firestore",seconds:100},
+  {id:"space-droid-work",module:"../support/space-droid-work-suite.mjs",exportName:"droidWorkSuite",label:"Atelier droïdes Firestore",seconds:100},
+  {id:"space-droid-storage",module:"../support/space-droid-storage-suite.mjs",exportName:"droidStorageSuite",label:"Contenants droïdes Firestore",seconds:100},
+  {id:"space-mechanical-protection",module:"../support/space-mechanical-protection-suite.mjs",exportName:"mechanicalProtectionSuite",label:"Recharge mécanique sur Firestore",seconds:45},
   {id:"galactic-economy",module:"../support/galactic-economy-suite.mjs",exportName:"galacticEconomySuite",label:"Économie galactique intégrée sur Firestore",seconds:35},
   {id:"galactic-map",module:"../support/galactic-map-suite.mjs",exportName:"galacticMapSuite",label:"Carte galactique sur Firestore",seconds:30},
   {id:"planet-markets",module:"../support/planet-markets-suite.mjs",exportName:"planetMarketsSuite",label:"Marchés planétaires sur Firestore",seconds:30},
@@ -142,6 +150,10 @@ export const firestoreSuites = [
   {"id":"space-stealth","module":"../support/space-stealth-suite.mjs","exportName":"spaceStealthSuite","label":"Neutralisation physique sur Firestore","seconds":30},
   {"id":"space-document-review","module":"../support/space-document-review-suite.mjs","exportName":"spaceDocumentReviewSuite","label":"Documents TRA-03 sur Firestore","seconds":60},
   {"id":"space-outlaws-voyages","module":"../support/space-outlaws-voyages-suite.mjs","exportName":"spaceOutlawsVoyagesSuite","label":"Vols SO sur Firestore","seconds":98},
+  {"id":"space-sensor-fabrication","module":"../support/space-sensor-fabrication-suite.mjs","exportName":"sensorFabricationSuite","label":"Fabrication brouilleur sur Firestore","seconds":45},
+  {"id":"space-regenerative-shield","module":"../support/space-regenerative-shield-suite.mjs","exportName":"regenerativeShieldSuite","label":"Bouclier régénératif sur Firestore","seconds":50},
+  {"id":"space-secure-vault","module":"../support/space-secure-vault-suite.mjs","exportName":"secureVaultSuite","label":"Coffre sécurisé sur Firestore","seconds":45},
+  {"id":"space-sensor-jammer","module":"../support/space-sensor-jammer-suite.mjs","exportName":"sensorJammerSuite","label":"Brouilleur rare sur Firestore","seconds":35},
   {"id":"space-encounters","module":"../support/space-encounters-suite.mjs","exportName":"spaceEncountersSuite","label":"Rencontres spatiales SO sur Firestore","seconds":111},
   {"id":"space-logistics","module":"../support/space-logistics-suite.mjs","exportName":"spaceLogisticsSuite","label":"Entretien et fret SO sur Firestore","seconds":95},
   {"id":"space-missions","module":"../support/space-missions-suite.mjs","exportName":"spaceMissionsSuite","label":"Missions SO sur Firestore","seconds":55},

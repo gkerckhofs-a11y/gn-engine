@@ -1541,3 +1541,33 @@ La CI du commit candidat et les opérations en ligne restent à consigner après
 Nouvelle tranche sur la PR organisateur #35, sans fusion ni déploiement. Classification explicite M1, restrictions modèle/lot cumulées, revente personnelle via le moteur natif, stock commercial fixé au port et centrale Courtier distincte. Voucher d'une unité de réservoir par unité de lot, 25 Cr au fournisseur, utilisation depuis le sac par les aperçus de ravitaillement natifs. Aucun reclassement silencieux d'un ancien lot.
 
 Rapport, matrice d'audit, parcours et limites : [SO-PERSONAL-COMMERCE-CIRCUITS.md](SO-PERSONAL-COMMERCE-CIRCUITS.md). Nouvelle couverture locale : 22 tests ; première exécution Firestore : 12 parcours ; HTTP/Auth : 1 parcours. Les ajouts ultérieurs sont soumis à la CI du candidat. La recette mobile est automatisée et ne remplace pas un appareil réel.
+
+## 15 novembre 2026 — clôture des compétences, candidat PR #45
+
+Voir la [matrice courante](MATRICE-SPACE-OUTLAWS-V3.md#clôture-des-compétences--pr-45-15-novembre-2026) et les rapports C1/C2/C3/C4 liés. Dernière tranche locale C4 : 82 tests applicatifs ciblés, 9 cas Firestore C4, 3 cas de contenants droïdes, 1 cas Excel et 1 HTTP/Auth et compilation réussis. La CI du SHA exact est suivie dans la PR. Les rapports distinguent les tranches déjà ajoutées des exigences encore ouvertes (PNJ droïdes, rares/prototypes, C5, C6). Aucun déploiement, migration ou recette terrain certifiée.
+
+
+## 15 novembre 2026 — C2.2, réparation de module droïde déposé
+
+Base `f6862d85c55a283595fb0786fcab494663866e18` : [CI 43728819222](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/43728819222) entièrement réussie, dix jobs dont six lots Firestore. Nouveau raccord dans le moteur natif : réparation dans le sac du propriétaire droïde, sans installation ni recharge, consentement et révisions conservés.
+
+55 tests applicatifs ciblés, quatre tests Firestore et un parcours HTTP/Auth réussis sur émulateurs `demo-gn-engine` ; compilation et diff-check réussis. [Rapport et limites](SO-CLOTURE-C2-DROIDES-DEPOSES-2026-11-15.md). Les tests de la base ne valident pas le nouveau SHA : état exact dans la [PR #45](https://github.com/gkerckhofs-a11y/gn-engine/pull/45). Prestations PNJ droïdes, modules rares/prototypes, C5, C6 et recette intégrée restent ouverts. Aucun merge ni déploiement Firebase.
+
+
+## 15 novembre 2026 — C2.2 / C3, prestations PNJ droïdes
+
+Base `31b3605592e26ea1a77eddb0c17ca904888e5f21` : [CI 43732238948](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/43732238948) réussie, dix jobs dont six lots Firestore. Pose, retrait et réparation du module personnel par un atelier PNJ : mêmes objets, protocole et durée, capacité finie, paiement natif réservé et remboursement sans conversion des crédits protégés. Nouvelle capacité de publication `droidServicesVersion=1`, aucune migration implicite.
+
+193 tests applicatifs ciblés réussis ; huit scénarios partagés mémoire/Firestore et un HTTP/Auth couvrent notamment concurrence, crédits protégés, révocation, rollback, STOP et continuité d’épisode. Compilation et diff-check réussis. [Rapport détaillé](SO-CLOTURE-C2-C3-PNJ-DROIDES-2026-11-15.md). CI du nouveau commit suivie dans la [PR #45](https://github.com/gkerckhofs-a11y/gn-engine/pull/45), distincte de la base. Rares/prototypes, C5, C6 et recette intégrée restent ouverts. Aucun merge ni déploiement Firebase.
+
+
+## 15 novembre 2026 — C2/C3, retrait et remontage des modules endommagés
+
+Correction du cycle standard avant l'extension rare/prototype : retrait autorisé avec la capacité de panne durable, même lot/calibration/état dans le sac puis au remontage. La finalisation revérifie l'état lié au consentement ; l'annulation libère les réserves sans réparer. Une réparation réelle reste une opération distincte.
+
+192 tests applicatifs ciblés, quatre scénarios Firestore et un HTTP/Auth réussis ; compilation et diff-check réussis. [Rapport et commandes](SO-CLOTURE-C3-CYCLE-MODULES-2026-11-15.md). Base `ae83845c39323b018bd829882180b76e482709c0` : CI 43736632388 encore en cours à la rédaction, application et HTTP réussis. SHA et CI du nouveau candidat suivis dans la PR #45. C3 rares/prototypes, C5, C6 et recette intégrée restent ouverts ; aucun déploiement Firebase.
+
+
+## 15 novembre 2026 — C3, brouilleur R04-01 préparatoire
+
+Base `821b0c14af35606d8f754e00ec49d3cf02ccc256` : [CI 43738212280](https://github.com/gkerckhofs-a11y/gn-engine/actions/runs/43738212280) réussie sur les dix jobs. Le raccord R04-01 calcule le devis canonique et applique +1 au décrochage ou à une fuite annoncée, une fois par voyage, dans les moteurs de duel et convoi. Il refuse la vente standard, l’origine non fabriquée et le technicien sous N4. 152 tests applicatifs ciblés, cinq tests Firestore émulés et compilation réussis ; [rapport et limites](SO-CLOTURE-C3-BROUILLEUR-PREPARATOIRE-2026-11-15.md). La fabrication/pose depuis plan et composants réels reste absente, le marqueur de publication n’est pas émis : C3 demeure non jouable en publication ordinaire. CI du nouveau SHA suivie dans la PR #45.

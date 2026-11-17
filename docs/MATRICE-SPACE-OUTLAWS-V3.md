@@ -971,3 +971,51 @@ Essai solo commun à huit profils, groupe et Sabacc ; alias personnage `ABC123` 
 corbeille des sessions/scénarios ; boutons explicites de suppression d’images ;
 Marché réservé à la classe principale Courtier. Détail, limites et validation :
 [SO-ESSAI-COMMUN.md](SO-ESSAI-COMMUN.md).
+
+## Clôture des compétences — PR #45, 15 novembre 2026
+
+Le cahier des charges de clôture reste en cours. Les rapports suivants décrivent les preuves et limites propres à chaque tranche ; aucune certification terrain ou publication n'en découle.
+
+| Exigence | Implémentation sur la branche | Limite restante |
+| --- | --- | --- |
+| C1 diagnostic natif | [Rapport C1](SO-CLOTURE-C1-DIAGNOSTIC-2026-11-15.md) : droïde, vaisseau, installation, informations préparées privées | Vérifier les nouveaux modules rares quand ils existent |
+| C2 recharge | Barème autorisé dans `docs/source/SO_Decision_Recharge_Mecanique_2026-11-15.md` ; DR-01/protection personnelle distincts des PV | Recette terrain |
+| C2/C3 droïdes | [Rapport droïdes](SO-CLOTURE-C2-C3-DROIDES-2026-11-15.md), [réparation déposée](SO-CLOTURE-C2-DROIDES-DEPOSES-2026-11-15.md) et [prestations PNJ](SO-CLOTURE-C2-C3-PNJ-DROIDES-2026-11-15.md) : six modules, effets et contenus natifs | Négociation PNJ C6 et recette humaine |
+| C2 modules vaisseaux | [Rapport modules](SO-CLOTURE-C2-MODULES-VAISSEAUX-2026-11-15.md) : six standards, atelier, pièces et prestation PNJ | Rares/prototypes |
+| C2 installation durable | [Rapport installations](SO-CLOTURE-C2-INSTALLATIONS-2026-11-15.md) : panne distincte du sabotage | Profils avancés non inventés |
+| C4 sabotage avancé | [Rapport C4](SO-CLOTURE-C4-SABOTAGES-2026-11-15.md) : DR N3, MOD N4, N5 complet sur ces références | Rares C3 et recette sur appareils |
+| C3 rares/prototypes | [R04-01 préparatoire](SO-CLOTURE-C3-BROUILLEUR-PREPARATOIRE-2026-11-15.md) : calcul et effet du brouilleur testés, capacité de publication volontairement fermée | Fabrication réelle/pose unique et trois autres références ; C3 non jouable |
+| C5 soutes/coffres | Non livré par cette tranche | Preuves d'intrusion et mouvements natifs |
+| C6 services/contrats | Non livré par cette tranche | Offres préparées, négociation et paiement natif |
+
+
+### Complément C2.2 — 15 novembre 2026 : modules droïdes déposés
+
+| Périmètre | État démontré | Preuve | Limite |
+| --- | --- | --- | --- |
+| Réparation DR-01–06 dans le sac du propriétaire droïde | Implémenté, identité/contenu/emplacement conservés, pas de pose automatique | 55 tests applicatifs ciblés ; 4 Firestore et 1 HTTP/Auth ; compilation | Prestations PNJ et propriétaires non droïdes hors de ce parcours ; recette humaine manquante |
+
+Détails, commandes et base CI : [rapport C2.2 modules déposés](SO-CLOTURE-C2-DROIDES-DEPOSES-2026-11-15.md). Le dernier SHA et sa CI sont suivis dans la PR #45 ; les validations antérieures ne valent pas preuve du nouveau candidat.
+
+
+### Complément C2.2 / C3 — 15 novembre 2026 : prestations PNJ droïdes
+
+| Périmètre | État démontré | Preuve | Limite |
+| --- | --- | --- | --- |
+| Pose, retrait et réparation DR-01–06 par atelier PNJ préparé | Parcours natif, devis, capacité finie, réservation et restitution des catégories de crédits | 193 tests applicatifs ciblés ; 8 scénarios partagés mémoire/Firestore ; 1 HTTP/Auth ; compilation | Propriétaire droïde actif, module et pièces apportés ; négociation des prestations au lot C6 ; recette humaine manquante |
+
+[Sources, barèmes, validations et limites](SO-CLOTURE-C2-C3-PNJ-DROIDES-2026-11-15.md). Base `31b3605592e26ea1a77eddb0c17ca904888e5f21`, CI 43732238948 entièrement réussie. Le SHA du nouveau candidat et sa CI restent suivis dans PR #45.
+
+
+### Complément C2/C3 — 15 novembre 2026 : cycle des modules de vaisseau endommagés
+
+| Périmètre | État démontré | Preuve | Limite |
+| --- | --- | --- | --- |
+| Retrait et remontage des six modules standards endommagés | Même lot et calibration, panne conservée, aucun effet ni point restauré ; annulation et consentement natifs | 192 tests applicatifs ciblés ; 4 Firestore et 1 HTTP/Auth ; compilation | Rares/prototypes et réparation directement dans le sac non ajoutés ; recette humaine manquante |
+
+[Rapport, sources et commandes](SO-CLOTURE-C3-CYCLE-MODULES-2026-11-15.md). Base `ae83845c39323b018bd829882180b76e482709c0` ; CI exacte du candidat suivie dans la PR #45. Ce correctif préalable ne clôt pas C3.
+
+
+### Complément C3 — 15 novembre 2026 : brouilleur R04-01 préparatoire
+
+Le [rapport R04-01](SO-CLOTURE-C3-BROUILLEUR-PREPARATOIRE-2026-11-15.md) distingue le bonus réel testé sur exemplaire synthétique de la fabrication encore absente. La capacité n’est pas émise dans une nouvelle publication. Aucune recette de C3 en jeu n’est revendiquée.

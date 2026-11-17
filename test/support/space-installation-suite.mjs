@@ -45,3 +45,4 @@ export function installationSuite(makeStore,prefix='Installations A15'){
   for(const change of [x=>x.profiles.SABOTAGE.minLevel=3,x=>x.profiles.SABOTAGE.durationSeconds=1,x=>x.profiles.REPAIR.consumable={itemId:'kit',quantity:1},x=>x.offlineSeconds=901]){const x=structuredClone(t);change(x);assert.equal(validSoInstallation(x),false);assert.ok(soReleaseDefinitionChecks([{id:'fieldTarget_x',entityId:'x',type:'fieldTarget',operation:'UPSERT',data:x}]).definitions.length);}
  });
 }
+export {fixture as installationFixture};
