@@ -125,3 +125,14 @@ main#content{max-width:1460px}
 .holopedia .holopedia-card-media.media-history:hover .history-poster-thumb{transform:scale(1.025)}
 .holopedia .holopedia-card-media.media-history:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
 @media(prefers-reduced-motion:reduce){.holopedia .holopedia-card-media.media-history .history-poster-thumb{transition:none}}
+
+/* Les images des planètes et des lieux restent inchangées ; seule leur surface devient un lien. */
+.holopedia .holopedia-card-media.media-planet,
+.holopedia .holopedia-card-media.media-place{display:block;width:100%;overflow:hidden;border-radius:10px}
+.holopedia .holopedia-card-media.media-planet{margin:0 0 .7rem}
+.holopedia .holopedia-card-media.media-place{margin:0 0 .75rem}
+.holopedia .holopedia-card-media.media-planet .planet-card-image,
+.holopedia .holopedia-card-media.media-place .place-card-image{display:block;width:100%;margin:0}
+.holopedia .holopedia-card-media.media-planet:hover,
+.holopedia .holopedia-card-media.media-place:hover{outline:1px solid var(--gold)}
+.holopedia .holopedia-card-media:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
