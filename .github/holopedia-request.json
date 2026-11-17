@@ -4,8 +4,8 @@
   "siteId": "holopedia-space-outlaws",
   "sourceRef": "gh-pages",
   "requestedAt": "2026-11-17",
-  "reason": "Relancer le déploiement des cinq nouvelles affiches de l'Histoire après correction du validateur de nom d'image (ordre-66.webp), tests ciblés requis et site Holopédia seulement.",
+  "reason": "Publier l'affiche de La République en déclin et ordonner chronologiquement les sept articles Histoire sur l'accueil et dans le sommaire. Tests ciblés; exclusivement hosting:holopedia.",
   "status": "AUTHORIZED_SECONDARY_HOSTING_ONLY",
-  "attempt": 18,
-  "scope": "holopedia-history-posters-corrected"
+  "attempt": 19,
+  "scope": "holopedia-history-chronological-order-plus-republic-poster"
 }
