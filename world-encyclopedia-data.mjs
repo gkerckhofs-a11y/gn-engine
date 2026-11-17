@@ -956,8 +956,8 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Histoire",
     "kind": "histoire",
     "imperialArchive": true,
-    "poster": "posters/republic.svg",
-    "posterAlt": "Affiche du Bureau impérial d’information : le Sénat de Coruscant plongé dans une lumière crépusculaire",
+    "poster": "posters/republique-en-declin.webp",
+    "posterAlt": "Affiche des Archives impériales : Sénat galactique paralysé, représentants de l’ancienne République et bâtiments de Coruscant.",
     "slogan": "Quand les institutions hésitent, le désordre progresse.",
     "paragraphs": [
       "ARCHIVES IMPÉRIALES — En ses dernières années, la République galactique ne parvenait plus à protéger avec la même efficacité tous les mondes dont elle revendiquait l'unité. Les débats du Sénat s'allongeaient, les décisions tardaient et les puissants groupes économiques exerçaient une influence de plus en plus visible.",
