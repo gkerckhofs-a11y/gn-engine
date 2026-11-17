@@ -1,3 +1,5 @@
+Mission #57 du 17 novembre 2026 : [accès contextuels, périmètre et preuves par tranche](SO-CONTEXTUAL-ACCESS-57.md).
+
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
 Connaissances galactiques — nouvelle instruction du 16 novembre : [audit et retrait de l’accès global](SO-GALACTIC-KNOWLEDGE-AUDIT-2026-11-16.md). Remplace les codes automatiques annoncés ci-dessous. Carnet, échanges consentis et répartition professionnelle restent à développer ; aucun déploiement.

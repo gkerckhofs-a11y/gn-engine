@@ -1,3 +1,4 @@
+import {createContextualAccessService,contextualActions,localOperationStore} from './contextual-access.mjs';
 import {galacticEconomyCommands,createGalacticEconomyService} from './galactic-economy.mjs';
 import {commercialStorageCommands,createCommercialStorageService} from './commercial-storage.mjs';
 import {commercialLogisticsActions,createCommercialLogisticsService} from './commercial-logistics.mjs';
@@ -248,6 +249,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const sabaccService=createSabaccService({store,signed,isAdmin,checkSession,now,uuid});
   const recycleService=createRecycleBinService({store:lifecycleStore,admin,now});
   const characterCodeService=createCharacterCodeService({store,signed,isAdmin,checkSession});
+  const contextualService=createContextualAccessService({store,signed,checkSession,now,uuid});
   async function dispatch(action,actor,input={}) {
     if(action==='createSoloDemo'){
       admin(actor);const creationId=documentId(input.creationId),result=await dispatch('createSpaceOutlawsPreparation',actor,{creationId,requestId:documentId(input.requestId),campaignTitle:'ESSAI COMMUN · Port-Brèche',title:'Le convoi disparu · Essai jouable',capacity:8,privacy:'Session privée de démonstration, huit identités fictives contrôlées uniquement par le propriétaire.'});
@@ -275,7 +277,8 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(['recycleBin','trashRecord','restoreRecord'].includes(action))return recycleService(action,actor,input);
     if(['ensureCharacterCode','resolveCharacterCode'].includes(action))return characterCodeService(action,actor,input);
     if(sabaccActions.has(action))return sabaccService(action,actor,input);
-    if(shopActions.includes(action))return shopService(action,actor,input);
+    if(contextualActions.has(action))return contextualService(action,actor,input);
+    if(shopActions.includes(action))return createShopService({store:localOperationStore(store,{actor,input,action,now,uuid,signed}),signed,checkSession,now,uuid})(action,actor,input);
     if(soLearningActions.includes(action))return learningService(action,actor,input);
     if(soPickpocketActions.includes(action))return pickpocketService(action,actor,input);
     if(soEscapeActions.includes(action))return escapeService(action,actor,input);

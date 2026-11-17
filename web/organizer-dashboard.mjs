@@ -5,7 +5,7 @@ import {centralWorkshops} from '../src/shared/central-workshops.mjs';
 const stages={PREPARATION:'Préparation',BRIEFING:'Briefing',EN_JEU:'En jeu',PAUSE:'En pause',FINISHED:'Terminée',ARCHIVED:'Archivée'};
 const eventLabels={setStage:'Rythme de jeu modifié',releaseSpaceOutlaws:'Version publiée',birthSpaceOutlaws:'Personnage attribué',requestSoLaunch:'Décollage demandé',assignSoCockpit:'Poste cockpit attribué',stopSafetyMJ:'STOP SÉCURITÉ',resumeSafety:'Reprise après STOP',decideCustomsAppeal:'Décision sur un recours'};
 const views={prepare:'Préparer',animate:'Animer',supervise:'Superviser'};
-const direct=new Set(['galactic-events-admin','commercial-storage-admin','freight-admin','galactic-map-admin','galactic-admin','session','so-entry','group-admin','admissions-admin','directory-admin','announcements-admin','contracts-admin','contract-admin','bounties-admin','bounty-admin','spaceport-admin','ship-admin','space-combats-admin','space-rescues-admin','boarding-admin','space-maintenance-admin','towing-admin','module-mandates-admin','cargo-admin','cargo-port-admin','warehouses-admin','prices-admin','shops-admin','customs-admin','customs-inspection-admin','customs-detention-admin','intrusion-admin','forgery-inspect-admin','escape-admin','intelligence-admin','learning-admin','succession-admin']);
+const direct=new Set(['local-admin','galactic-events-admin','commercial-storage-admin','freight-admin','galactic-map-admin','galactic-admin','session','so-entry','group-admin','admissions-admin','directory-admin','announcements-admin','contracts-admin','contract-admin','bounties-admin','bounty-admin','spaceport-admin','ship-admin','space-combats-admin','space-rescues-admin','boarding-admin','space-maintenance-admin','towing-admin','module-mandates-admin','cargo-admin','cargo-port-admin','warehouses-admin','prices-admin','shops-admin','customs-admin','customs-inspection-admin','customs-detention-admin','intrusion-admin','forgery-inspect-admin','escape-admin','intelligence-admin','learning-admin','succession-admin']);
 const pathLink=(path,label,extra='')=>`<a href="${path.startsWith('/')?esc(path):`#/${esc(path)}`}" ${extra}>${esc(label)}</a>`;
 const campaignPages=new Set(['central','central-check','central-snapshots','central-snapshot','campaign']);
 export function organizerRoute(page,id,token,sessionHint){
@@ -20,6 +20,7 @@ export function organizerTools(s,sabacc){
  const add=(view,label,path,help,advanced=false)=>items.push({view,label,path,help,advanced});
  add('prepare','Participants et attributions',`session/${sid}/prepare`,'Valider les accès et attribuer les personnages.');
  if(p.content){
+  add('prepare','Lieux & Terminaux',`local-admin/${sid}`,'Configurer les accès temporaires et révoquer les présences.');
   if(s.preparationKind||so)add('prepare','Candidatures et invitations',`admissions-admin/${sid}`,'Examiner les dossiers et préparer l’entrée des joueurs.');
   if(s.campaignId&&s.role==='OWNER')for(const w of centralWorkshops)add('prepare',w.label,`central/${s.campaignId}/${w.id}?session=${sid}`,`${w.id} · Éditer, importer, exporter et vérifier les définitions.`,true);
   if(!so&&s.scenarioId)add('prepare','Scénario et versions',`scenario/${s.scenarioId}?session=${sid}`,'Retrouver les définitions et les versions publiées.');
