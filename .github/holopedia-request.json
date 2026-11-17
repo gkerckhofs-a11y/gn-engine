@@ -4,8 +4,8 @@
   "siteId": "holopedia-space-outlaws",
   "sourceRef": "gh-pages",
   "requestedAt": "2026-11-16",
-  "reason": "Validation ciblée du pipeline des illustrations Holopédia : import en lecture seule d'une image d'Ord Mantell et publication du seul site indépendant.",
+  "reason": "Diagnostic Google Drive 403 lors de l'import image ; uniquement pipeline Holopédia.",
   "status": "AUTHORIZED_SECONDARY_HOSTING_ONLY",
-  "attempt": 8,
-  "scope": "holopedia-image-import-smoke-test"
+  "attempt": 9,
+  "scope": "holopedia-image-import-drive-403-diagnostic"
 }
