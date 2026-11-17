@@ -11,6 +11,8 @@ files = manifest["planet_images"]
 token = os.environ["GOOGLE_DRIVE_ACCESS_TOKEN"]
 out = Path("images/planets")
 out.mkdir(parents=True, exist_ok=True)
+planet_thumbs = out / "thumbs"
+planet_thumbs.mkdir(parents=True, exist_ok=True)
 for slug, file_id in files.items():
     if not re.fullmatch(r"[a-z0-9-]{3,48}", slug) or not re.fullmatch(r"[A-Za-z0-9_-]{20,100}", file_id):
         raise ValueError("Invalid image manifest entry")
@@ -28,6 +30,8 @@ for slug, file_id in files.items():
             raise ValueError(f"Image trop petite: {slug}")
         picture = ImageOps.fit(source.convert("RGB"), (900,900), method=Image.Resampling.LANCZOS)
         picture.save(out / f"{slug}.webp", "WEBP", quality=82, method=6)
+        thumbnail = picture.resize((500, 500), Image.Resampling.LANCZOS)
+        thumbnail.save(planet_thumbs / f"{slug}.webp", "WEBP", quality=77, method=6)
     print(f"{slug}: {len(b)} -> {(out / (slug + '.webp')).stat().st_size} bytes")
 print(f"OK: {len(files)} vue(s) planétaire(s).")
 
@@ -36,6 +40,8 @@ print(f"OK: {len(files)} vue(s) planétaire(s).")
 places = json.loads(Path("assets-source/place-images.json").read_text(encoding="utf-8"))["place_images"]
 place_out = Path("images/places")
 place_out.mkdir(parents=True, exist_ok=True)
+place_thumbs = place_out / "thumbs"
+place_thumbs.mkdir(parents=True, exist_ok=True)
 for slug, file_id in places.items():
     if not re.fullmatch(r"[a-z0-9-]{3,64}", slug) or not re.fullmatch(r"[A-Za-z0-9_-]{20,100}", file_id):
         raise ValueError("Invalid place image manifest entry")
@@ -55,6 +61,8 @@ for slug, file_id in places.items():
             raise ValueError(f"Illustration de lieu trop petite: {slug}")
         picture = ImageOps.fit(source.convert("RGB"), (1600, 900), method=Image.Resampling.LANCZOS)
         picture.save(place_out / f"{slug}.webp", "WEBP", quality=84, method=6)
+        thumbnail = picture.resize((800, 450), Image.Resampling.LANCZOS)
+        thumbnail.save(place_thumbs / f"{slug}.webp", "WEBP", quality=79, method=6)
     print(f"lieu {slug}: {len(raw)} -> {(place_out / (slug + '.webp')).stat().st_size} bytes")
 print(f"OK: {len(places)} illustration(s) de lieux.")
 
@@ -63,6 +71,8 @@ print(f"OK: {len(places)} illustration(s) de lieux.")
 posters = json.loads(Path("assets-source/history-posters.json").read_text(encoding="utf-8"))["history_posters"]
 poster_out = Path("posters")
 poster_out.mkdir(parents=True, exist_ok=True)
+poster_thumbs = poster_out / "thumbs"
+poster_thumbs.mkdir(parents=True, exist_ok=True)
 for slug, file_id in posters.items():
     if not re.fullmatch(r"[a-z0-9-]{3,60}", slug) or not re.fullmatch(r"[A-Za-z0-9_-]{20,100}", file_id):
         raise ValueError("Invalid history poster manifest entry")
@@ -82,5 +92,7 @@ for slug, file_id in posters.items():
             raise ValueError(f"Affiche historique trop petite: {slug}")
         picture = ImageOps.contain(source.convert("RGB"), (1100, 1650), method=Image.Resampling.LANCZOS)
         picture.save(poster_out / f"{slug}.webp", "WEBP", quality=86, method=6)
+        thumbnail = ImageOps.contain(picture, (600, 900), method=Image.Resampling.LANCZOS)
+        thumbnail.save(poster_thumbs / f"{slug}.webp", "WEBP", quality=80, method=6)
     print(f"affiche {slug}: {len(raw)} -> {(poster_out / (slug + '.webp')).stat().st_size} bytes")
 print(f"OK: {len(posters)} affiche(s) historique(s).")
