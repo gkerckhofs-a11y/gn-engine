@@ -2,6 +2,21 @@
   "schema": 1,
   "source": "Images créées pour Space Outlaws et copiées dans un dossier Google Drive dédié ; partagé en lecture avec le compte technique de déploiement",
   "planet_images": {
-    "ord-mantell": "13o3TgRpmohJTHw8zivR2FPppqLaPz2Fv"
+    "ord-mantell": "13o3TgRpmohJTHw8zivR2FPppqLaPz2Fv",
+    "corellia": "1xkwXmWF6D8-WkWMGXP6c9CqqIW9SpNk9",
+    "tatooine": "1AIAtSZ-GIOEe8xkgc6b9mMcHkFoYlZIq",
+    "ryloth": "16YQf2Qt5EGpol7nSeCXVV7YSyWhZk5VS",
+    "lothal": "1g5tcZt_G8AXALGXf9A4I98c4-7YctCBU",
+    "kessel": "1slth-ssFnotioDVyRLh5pUhSNZxDiim6",
+    "sullust": "1Jk3zPFHxFHAhN8TSgOQqiyIBEg-2c_bU",
+    "mon-cala": "1JctvlAvBtc8t92NLKZRN8Ufo9zi-ivrF",
+    "geonosis": "1Y3juVCFPyUvZP69-f2I7Hr-9NF-posUx",
+    "coruscant": "1xZRNdeWH8tnzgoKhKVD9WRVAhBRWg_tx",
+    "naboo": "1Tf0MO6gpk23W0S6PQIq98WHfVQ4HY9Ni",
+    "kashyyyk": "1aKmsqN2N6ZNedYdRlH-MSpIHQF7Zykoe",
+    "mandalore": "1kbUWzb_HYknphYSQrFmD0COhsFoXnziJ",
+    "batuu": "1zK7rib2e56WzZiqOv8xf3OHnwXRlHcuu",
+    "bespin": "1H1ZH-FeKoXKoMtXW5ProiIKlLL9EbARn",
+    "alderaan": "1Drgt5CgGUX8ZEc9myfeIRFs5U3ipyXl5"
   }
 }
