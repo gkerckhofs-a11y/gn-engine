@@ -208,7 +208,7 @@ Recette fonctionnelle, refus HTTP/Auth, concurrence transactionnelle, confidenti
 ### 10.7 Arbitrages encore ouverts [NON VALIDÉS]
 
 - **Acquisition des cellules :** prix de vente, transférabilité/revente du titre, propriété individuelle ou collective et éventuel rôle de propriétaire initial.
-- **Vol de stockage :** durée, PA, récupération, volume et quota **tranchés au §10.9** ; restent à arbitrer une éventuelle compétence ou un jet supplémentaires, les conditions de gardiennage et les modalités de remise physique. Les alarmes sont indépendantes du niveau de sécurité et configurables par cellule.
+- **Vol de stockage :** durée, PA, récupération, volume et quota **tranchés au §10.9** ; **une destination cellule/soute distincte et disponible est obligatoire** (§10.9.4). Restent à arbitrer une éventuelle compétence ou un jet supplémentaires, les conditions de gardiennage et les modalités de remise physique. Les alarmes sont indépendantes du niveau de sécurité et configurables par cellule.
 - **Douanes dans les cellules :** qui peut autoriser une inspection approfondie ou une saisie en entrepôt ; distinguer l'entreposage ordinaire du stockage sous douane.
 - **Confidentialité de l'accès physique :** informations visibles publiquement sur le numéro de cellule, son occupation et son titulaire.
 
@@ -291,12 +291,51 @@ L'organisateur valide la **variante « vol équilibré »**, et choisit que les 
 
 **Précisions d'application du barème [CIBLE D'IMPLÉMENTATION] :**
 - Le joueur doit être **présent fictionnellement** au dock, disposer d'un **accès local valable à la cellule** obtenu par code/clé ou par ouverture INF-01 réussie (voir §10.8), puis initier **séparément** un « Vol de stockage » ; une intrusion seule ne déplace rien.
-- L'opération vise un **lot réellement disponible**, avec volume connu, et un emplacement de destination admissible. La limite de 5 porte sur la **somme des volumes des unités volées**, contrôlée avec la capacité native ; ne pas modifier arbitrairement les quantités par volume. En cas de vol partiel, employer le fractionnement et la filiation des lots existants.
+- L'opération vise un **lot réellement disponible**, avec volume connu, et **une destination logistique distincte de la cellule victime, obligatoire avant le démarrage** : une autre cellule de stockage accessible en dépôt, ou une soute autorisée d'un vaisseau à quai dans le même port. **Le sac du personnage est exclu**. La capacité disponible et les droits de dépôt sont vérifiés et réservés avec la tentative, puis revalidés à la réception. Sans destination admissible, le départ est refusé sans PA ni récupération ; voir §10.9.4. La limite de 5 porte sur la **somme des volumes des unités volées**, contrôlée avec la capacité native ; ne pas modifier arbitrairement les quantités par volume. En cas de vol partiel, employer le fractionnement et la filiation des lots existants.
 - Une tentative ne peut devenir réussie si le personnage a déjà réussi **dans cette même cellule pendant la session**. Le quota ne s'étend pas automatiquement à toutes les cellules d'un même propriétaire ; les différents personnages possèdent leurs quotas propres, sous réserve des protections de stock et des éventuelles restrictions de surveillance validées.
 - Les préparations, réservations et confirmations doivent être **authentifiées, contrôlées côté serveur, transactionnelles et idempotentes** : aucun double vol sur le dernier exemplaire, aucune création de stock/argent, aucun changement fantôme de propriétaire, aucune consommation répétée du PA. En cas d'abandon **avant résolution**, libérer les réservations selon le moteur natif, sans comptabiliser une tentative réussie.
 - Le vol n'efface ni origine, ni historique, ni caractère interdit/réglementé, ni quittances douanières. L'acquisition illégale d'un lot ne le dédouane jamais.
 - Un accessoire matériel de jeu n'est transféré physiquement que par un protocole sécurisé préparé par le MJ. Le programme ne force jamais une véritable porte ou serrure.
 - **Aucun nouveau jet ou compétence supplémentaire n'est canonisé par ce barème.** La résolution du vol, après ouverture effective, doit être raccordée aux conditions métier et éventuelles circonstances de surveillance ; si le moteur exige une nouvelle règle de réussite/échec, la soumettre à un arbitrage spécifique, sans appliquer ROG-02 hors de son périmètre.
+
+
+#### 10.9.4 Destination logistique obligatoire pour tout vol de lot — décision complémentaire [VALIDÉ]
+
+**Nouvelle décision explicite de l'organisateur :** un personnage ne peut **jamais voler un lot de marchandises commerciales** sans disposer **au préalable**, pour la quantité envisagée, d'une **autre cellule de stockage** ou d'une **soute disponible** capable de recevoir le butin. Le lot ne peut pas transiter fictivement ou numériquement par le sac personnel, ni rester dans un état « porté » sans localisation. L'ouverture de la cellule source et la réussite du vol ne dispensent pas de cette règle.
+
+**Conditions préalables au lancement de l'opération :**
+1. **Source** : cellule ciblée dans le même dock/port ; accès fictionnel obtenu conformément au §10.8 ; lot éligible, disponible et non déjà réservé/saisi.
+2. **Destination identifiée et distincte** : (a) une **autre cellule** de stockage, au même port, sur laquelle le personnage possède un droit de dépôt effectif, éventuellement délégué par son propriétaire/groupe ; **ou** (b) la **soute d'un vaisseau à quai** au même port, avec droit de chargement/dépôt, opérations de chargement ouvertes et état du vaisseau compatible. Une simple connaissance d'un QR ou d'un code de la destination ne suffit pas.
+3. **Capacité** : emplacement existant et actif, volume réellement libre **après autres réservations**, et quantité envisagée ne dépassant pas **5 unités de volume logistique** pour cette opération. Les protections du stock et les droits sur le vaisseau/groupe/entrepôt restent applicables.
+4. **Pas de téléportation** : transfert uniquement au **même port** ; aucune soute en vol, à une autre escale ou indisponible, aucun transfert depuis un dock vers une autre planète sans voyage.
+5. **Pas d'inventaire intermédiaire** : le lot commercial reste suivi dans son circuit et sa localisation ; le vol crée un mouvement **source → destination sélectionnée**, sans attribution transitoire au sac \`CHARACTER\`, sans conversion en \`PERSONAL\` et sans création de stock.
+
+**Transaction et résolution [CIBLE D'IMPLÉMENTATION] :**
+- Le joueur choisit explicitement la destination **avant** de confirmer la préparation de la tentative de vol ; le serveur vérifie éligibilité, mandat de dépôt, port, quai, volume, état du stock et quota, puis réserve **le lot source et la capacité destination** avec le mécanisme logistique natif. La règle de 3 minutes, du PA conditionnel, de 10 minutes de récupération et du quota du §10.9.1 reste inchangée.
+- **Aucune destination admissible** : refuser **avant tout lancement**, sans débiter de PA et sans déclencher la récupération d'une tentative résolue. Afficher « Vous devez disposer d'une autre cellule ou d'une soute accessible, avec assez de place. »
+- À la résolution/réception, vérifier que les réservations et droits restent valables ; un succès effectif attribue le **lot à la destination réservée**, en conservant filiation, provenance et historique douanier. La garde et le titre de propriété du lot volé doivent être consignés explicitement sans créer une vente légale ou un dédouanement : les modalités de changement de titre restent à cadrer avec les règles de vol avant codage.
+- Sur échec, abandon avant résolution ou blocage réglementaire, libérer les réservations sans créer ni déplacer de lot. Les conséquences de récupération s'appliquent uniquement à une **tentative effectivement résolue** conformément au §10.9.1 ; un refus préalable ne constitue pas une tentative.
+- Les droits de **dépôt à destination** sont distincts des droits sur la cellule victime. L'extension de vol doit réemployer le service logistique existant sous une commande spéciale et auditée : **ne pas ouvrir la commande de transfert ordinaire** aux propriétaires non autorisés du lot source.
+- Sur transfert physique de caisses réelles, respecter le protocole du MJ : l'application ne confirme pas un déplacement matériel non attesté. Aucun acteur n'ouvre une porte réelle et aucun système n'effectue de manipulation physique.
+
+**Recettes supplémentaires [À TESTER — NON EXÉCUTÉES] :**
+
+| ID | Scénario | Résultat attendu |
+|---|---|---|
+| DOCK-39 | Intrus a réussi l'ouverture, mais ne dispose ni d'une autre cellule ni d'une soute | Vol non démarrable ; 0 PA, 0 lot attribué |
+| DOCK-40 | Destination sélectionnée = même cellule que la source | Refus, aucune mutation |
+| DOCK-41 | Destination = sac personnel | Refus, même si l'objet a une image ou un QR |
+| DOCK-42 | Cellule de destination au même port, capacité et mandat de dépôt valides | Préparation possible, réservation de capacité, réception vers cette cellule si réussite |
+| DOCK-43 | Soute de destination au même port, mais vaisseau non à quai ou chargement fermé | Refus du vol avant lancement |
+| DOCK-44 | Destination soute ou cellule pleine, y compris volume déjà réservé | Refus, aucun débit ni duplication |
+| DOCK-45 | Capacité disparaît ou droit est révoqué après aperçu | Réception refusée ou tentative interrompue de façon cohérente, sans apparition du lot dans un sac |
+| DOCK-46 | Deux vols simultanés visent le dernier volume disponible d'une destination | Une seule réservation compatible, aucun surremplissage |
+| DOCK-47 | Un complice autorise le dépôt dans son entrepôt, mais pas le retrait | Destination utilisable si le dépôt est expressément autorisé ; aucun droit de retrait automatique |
+| DOCK-48 | Source et destination dans deux ports distincts | Refus de téléportation |
+| DOCK-49 | Vol réussi de lot réglementé | Lot transféré sans effacement de son statut, sa provenance ou ses justificatifs |
+| DOCK-50 | Vol interrompu après réservation | Lots et capacité libérés selon la procédure d'annulation, sans déplacement fantôme |
+
+**Aucune nouvelle compétence, taxe, durée, limite de volume, permission globale ou mécanique de vol de soute n'est introduite par cette décision.** Les vols dans les soutes d'autrui restent régis séparément par les parcours d'abordage/piraterie. Ce complément est documentaire, non déployé.
 
 #### 10.9.2 Modes de surveillance et déclenchements [VALIDÉ : CONFIGURABILITÉ ; PROPOSITIONS POUR DÉTAILS]
 
@@ -318,7 +357,7 @@ Le dashboard **Docks → Cellule** expose : niveau de sécurité N1–N5, prix (
 
 | ID | Cas | Résultat attendu |
 |---|---|---|
-| DOCK-27 | Vol réussi de 3 unités de volume | 3 min de jeu, 1 PA débité, 10 min de récupération, lot déplacé une fois |
+| DOCK-27 | Vol réussi de 3 unités de volume vers une cellule ou soute autorisée | 3 min de jeu, 1 PA débité, 10 min de récupération, lot déplacé une fois vers cette destination |
 | DOCK-28 | Échec après tentative résolue | 0 PA consommé, 10 min de récupération, aucun stock déplacé |
 | DOCK-29 | Vol dépassant 5 unités de volume | Refus, pas de mutation ni création de lot |
 | DOCK-30 | Nouvelle réussite du même personnage dans la même cellule et session | Refus de seconde réussite, sans attribution de lot |
