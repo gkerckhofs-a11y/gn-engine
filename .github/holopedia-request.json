@@ -4,8 +4,8 @@
   "siteId": "holopedia-space-outlaws",
   "sourceRef": "gh-pages",
   "requestedAt": "2026-11-17",
-  "reason": "Publier l'Holopédia entièrement en rôle-play, au sommaire Wikipédia fixe et avec sections ordonnées : Histoire, Breach Port, Lieux, Culture, Planètes. Site secondaire uniquement, sans toucher à GN Engine.",
+  "reason": "Publier les 5 scènes de Breach Port associées aux 7 fiches (dont Comptoir, Hospice et Atelier), sans modifier GN Engine ni les autres contenus Holopédia.",
   "status": "AUTHORIZED_SECONDARY_HOSTING_ONLY",
-  "attempt": 15,
-  "scope": "holopedia-full-rp-wiki-sidebar-reorder"
+  "attempt": 16,
+  "scope": "holopedia-breach-port-seven-places-five-images"
 }
