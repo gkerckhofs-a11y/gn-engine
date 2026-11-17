@@ -137,10 +137,10 @@ test('Chroniqueurs : préserver les faits publics et les limites de connaissance
 });
 
 
-test('Images planétaires : 16 photos de géographies différentes associées sans collision',()=>{
+test('Images planétaires : 17 vues orbitales distinctes et cohérentes avec le manifeste',()=>{
  const images=worldEncyclopedia.filter(a=>a.kind==='planète'&&a.planetImage);
- assert.equal(images.length,16);
- assert.equal(new Set(images.map(a=>a.planetImage)).size,16);
+ assert.equal(images.length,17);
+ assert.equal(new Set(images.map(a=>a.planetImage)).size,17);
  const manifest=JSON.parse(readFileSync('assets-source/planet-images.json','utf8'))
  for(const a of images){
    assert.match(a.planetImage,/^images\/planets\/[a-z0-9-]+\.webp$/);
