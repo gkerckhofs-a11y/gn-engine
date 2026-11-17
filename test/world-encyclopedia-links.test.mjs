@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {worldEncyclopedia} from '../world-encyclopedia-data.mjs';
 import {wikiKeywords,wikiReferences,wikiTextHtml,publicWikiTargetIds} from '../world-encyclopedia-links.mjs';
-import {holopediaArticleHtml,holopediaIndexHtml} from '../world-encyclopedia.mjs';
+import {holopediaArticleHtml,holopediaIndexHtml,holopediaSidebarHtml,encyclopediaCategories} from '../world-encyclopedia.mjs';
 
 test('Liens : chaque terme renvoie uniquement vers une page publique existante',()=>{
  const ids=new Set(worldEncyclopedia.map(a=>a.id));
@@ -59,9 +59,9 @@ test('Histoire : République, guerre des Clones, Ordre 66 et Empire en cinq arti
  const html=holopediaArticleHtml('public','histoire-republique-a-empire');
  assert.match(html,/Guerres des Clones|guerre des Clones/);
  assert.match(html,/Ordre 66/);
- assert.match(html,/Références historiques \(hors-jeu\)/i);
- assert.match(html,/starwars.com/);
- assert.match(html,/version officielle/i);
+ assert.doesNotMatch(html,/hors.jeu|starwars\.com|récit historique neutre/i);
+ assert.match(html,/Bureau impérial/i);
+ assert.match(html,/Archives impériales|Bureau impérial/i);
  const link=wikiTextHtml('L’Ordre 66 a suivi la guerre des Clones.','prologue');
  assert.match(link,/histoire-ordre-66-et-disparition-des-jedi/);
  assert.match(link,/histoire-guerre-des-clones/);
@@ -154,7 +154,7 @@ test('Images planétaires : 30 vues orbitales uniques couvrant chaque monde publ
    assert.match(manifest.planet_images[slug],/^[A-Za-z0-9_-]{20,100}$/,'Source Drive manquante : '+a.title);
    const page=holopediaArticleHtml('public',a.id);
    assert.match(page,/planet-hero-image/);
-   assert.match(page,/Reconstitution orbitale/);
+   assert.match(page,/Relevé orbital/);
    assert.ok(page.includes('images/planets/'+slug+'.webp'),'Image absente de la fiche : '+a.title);
  }
 });
@@ -180,11 +180,43 @@ test('Images des lieux de Breach Port : quatre fiches, trois scènes exactes, sa
    assert.match(manifest[slug],/^[A-Za-z0-9_-]{20,100}$/);
    const html=holopediaArticleHtml('public',id);
    assert.match(html,/place-hero-image/);
-   assert.match(html,/Vue d’ambiance reconstituée/);
+   assert.match(html,/Archives visuelles/);
    assert.ok(html.includes('images/places/'+slug+'.webp'));
    assert.doesNotMatch(html,/gmTruth|gmNotes|SECRET_MAP_ROUTE|navigationCode/);
  }
  const index=holopediaIndexHtml('public');
  assert.equal((index.match(/data-place-image="true"/g)||[]).length,4);
  assert.doesNotMatch(holopediaArticleHtml('public','lieu-le-comptoir'),/place-hero/);
+});
+
+test('Accueil et menu latéral : Histoire, Breach Port, Lieux, Culture, Planètes',()=>{
+ const expected=['Histoire','Breach Port','Lieux de Breach Port','Culture et galaxie','Planètes'];
+ assert.deepEqual(encyclopediaCategories,expected);
+ const html=holopediaIndexHtml('public');
+ const actual=[...html.matchAll(/data-holopedia-section="([^"]+)"/g)].map(match=>match[1]);
+ assert.deepEqual(actual,expected,'Ordre des sections modifié');
+ const sidebar=holopediaSidebarHtml('public');
+ assert.match(sidebar,/data-wiki-sidebar/);
+ assert.match(sidebar,/data-wiki-nav-toggle/);
+ assert.deepEqual([...sidebar.matchAll(/<summary>([^<]+)<span class="wiki-side-count">/g)].map(m=>m[1]),['Histoire','Breach Port','Lieux','Culture','Planètes']);
+ assert.match(sidebar,/lieu-la-cantina-de-la-traverse/);
+ assert.match(sidebar,/histoire-ordre-66-et-disparition-des-jedi/);
+ const selected=holopediaSidebarHtml('public','lieu-les-docks');
+ assert.match(selected,/href="#\/holopedia\/public\/lieu-les-docks" aria-current="page"/);
+ const app=readFileSync('app.mjs','utf8');
+ assert.match(app,/class="wiki-layout"/);
+ assert.match(app,/data-wiki-nav-toggle/);
+});
+
+test('Holopédia intégralement RP : aucune référence extérieure visible sur 62 notices',()=>{
+ const html=[holopediaIndexHtml('public'),holopediaSidebarHtml('public'),...worldEncyclopedia.map(a=>holopediaArticleHtml('public',a.id))].join('\n');
+ assert.doesNotMatch(html,/hors.jeu|\ben jeu\b|fictiv(?:e|es)?|reconstitution orbitale|document fictif|récit historique neutre|propagande fictive|starwars\.com|Space Outlaws/i);
+ assert.doesNotMatch(html,/gmTruth|gmNotes|SECRET_MAP_ROUTE|navigationCode/);
+ assert.match(html,/Bureau impérial/);
+ const page=readFileSync('index.html','utf8');
+ assert.doesNotMatch(page,/Space Outlaws|hors.jeu|\ben jeu\b|joueur/i);
+ assert.match(page,/Bureau impérial des archives civiles/);
+ const pageCSS=readFileSync('style.css','utf8');
+ assert.match(pageCSS,/\.wiki-layout/);
+ assert.match(pageCSS,/\.wiki-nav-toggle/);
 });
