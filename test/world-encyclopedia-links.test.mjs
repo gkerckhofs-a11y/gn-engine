@@ -67,7 +67,7 @@ test('Histoire : République, guerre des Clones, Ordre 66 et Empire en cinq arti
  assert.match(link,/histoire-guerre-des-clones/);
 });
 
-test('Histoire impériale : six archives, six illustrations dont cinq affiches renouvelées',()=>{
+test('Histoire impériale : six archives, six illustrations toutes renouvelées',()=>{
  const pages=worldEncyclopedia.filter(x=>x.imperialArchive===true);
  assert.equal(pages.length,6);
  assert.equal(worldEncyclopedia.filter(x=>x.kind==='planète').length,30);
@@ -75,13 +75,14 @@ test('Histoire impériale : six archives, six illustrations dont cinq affiches r
  const manifest=JSON.parse(readFileSync('assets-source/history-posters.json','utf8')).history_posters;
  const expectedPosters={
   'histoire-republique-a-empire':'republique-empire',
+  'histoire-ancienne-republique-et-jedi':'republique-en-declin',
   'histoire-guerre-des-clones':'guerre-clones',
   'histoire-ordre-66-et-disparition-des-jedi':'ordre-66',
   'histoire-naissance-empire':'naissance-empire',
   'histoire-crise-separatiste':'crise-separatiste'
  };
- assert.equal(Object.keys(manifest).length,5);
- assert.equal(new Set(Object.values(manifest)).size,5);
+ assert.equal(Object.keys(manifest).length,6);
+ assert.equal(new Set(Object.values(manifest)).size,6);
  for(const [id,slug] of Object.entries(expectedPosters)){
   const a=worldEncyclopedia.find(x=>x.id===id);
   assert.equal(a.poster,'posters/'+slug+'.webp',id);
@@ -89,7 +90,7 @@ test('Histoire impériale : six archives, six illustrations dont cinq affiches r
   assert.match(holopediaArticleHtml('public',id),/poster-webp/);
   assert.match(holopediaIndexHtml('public'),new RegExp('posters/'+slug+'\\.webp'));
  }
- assert.equal(worldEncyclopedia.find(x=>x.id==='histoire-ancienne-republique-et-jedi').poster,'posters/republic.svg','Préserver la seule affiche ancienne non remplacée');
+ assert.equal(worldEncyclopedia.find(x=>x.id==='histoire-ancienne-republique-et-jedi').poster,'posters/republique-en-declin.webp','La République en déclin doit afficher la nouvelle illustration');
  const posters=new Set(pages.map(x=>x.poster));
  assert.equal(posters.size,6);
  for(const article of pages){
