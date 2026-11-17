@@ -743,6 +743,9 @@ export const worldEncyclopedia = Object.freeze([
     "title": "La maison du préfet et la prison",
     "category": "Lieux de Breach Port",
     "kind": "lieu",
+    "placeImage": "images/places/breach-port-imperial-office-docks.webp",
+    "placeImageAlt": "Vue nocturne du bureau du préfet impérial de Breach Port, avec un stormtrooper de garde devant la porte et les entrepôts voisins.",
+    "placeImageFocus": "left",
     "paragraphs": [
       "GUIDE CIVIL DU DISTRICT — La maison du préfet occupe l'ancien bâtiment du registre, dont les murs portent la mémoire des premières concessions de Breach Port. Les demandes d'autorisation, les actes de propriété, les litiges de taxes et les dossiers d'inspection y sont examinés au nom de l'administration impériale. Les autorités y voient un service de proximité ; les habitants savent que l'attente devant un guichet peut parfois décider du départ d'un cargo.",
       "La prison dépend du même ensemble. Elle compte peu de cellules, mais elles suffisent à rappeler la compétence de la préfecture pour retenir une personne dans le cadre des procédures locales. Les gardiens connaissent souvent ceux dont ils surveillent la porte. Les chroniques impériales célèbrent cette surveillance comme une garantie de tranquillité ; les témoignages du port montrent que la proximité du pouvoir n'en rend pas les décisions moins difficiles à vivre.",
@@ -757,6 +760,9 @@ export const worldEncyclopedia = Object.freeze([
     "title": "La cantina de la Traverse",
     "category": "Lieux de Breach Port",
     "kind": "lieu",
+    "placeImage": "images/places/breach-port-cantina.webp",
+    "placeImageAlt": "Vue nocturne de la cantina de la Traverse à Breach Port, sa terrasse en bois éclairée et les voyageurs réunis sous les étoiles.",
+    "placeImageFocus": "center",
     "paragraphs": [
       "CHRONIQUE DES ÉTABLISSEMENTS CIVILS — La cantina de la Traverse tient lieu de salle commune à un port où les équipages ne demeurent pas longtemps. Les ouvriers y mangent avant leur service, les capitaines y recherchent des contacts et les voyageurs y racontent leurs avaries. La musique couvre parfois des conversations que leurs auteurs préféreraient garder privées ; les archivistes rappellent qu'un lieu animé n'est pas un lieu où personne n'écoute.",
       "Les registres officiels décrivent l'établissement comme une activité de restauration et de rencontre. Son utilité réelle dépasse les tables : un pilote y trouve parfois un employeur, un marchand un partenaire ou deux familles une occasion de danser après une semaine difficile. La cantina ne choisit pas les opinions de ses clients ; elle exige surtout que chacun puisse repartir et qu'elle ouvre encore le lendemain.",
@@ -785,6 +791,9 @@ export const worldEncyclopedia = Object.freeze([
     "title": "Le spatioport",
     "category": "Lieux de Breach Port",
     "kind": "lieu",
+    "placeImage": "images/places/breach-port-spatioport.webp",
+    "placeImageAlt": "Vue nocturne du spatioport de Breach Port, avec un transport décollant de la terrasse en bois.",
+    "placeImageFocus": "center",
     "paragraphs": [
       "GUIDE DES INSTALLATIONS DE TRANSIT — Le spatioport de Breach Port reçoit les demandes de départ, les équipages en quête de contrat et les vaisseaux de dimensions très diverses. Un chasseur léger peut y stationner près d'un transport imposant. Les services impériaux y attendent des identifications correctes et des autorisations correspondant à chaque mouvement.",
       "Les pilotes échangent des indications sur les escales possibles, les délais, l'état des relais et les dangers signalés. Les itinéraires détaillés et les codes de navigation ne font pas partie de la présente notice publique : ils relèvent des compétences et des connaissances particulières des navigateurs.",
@@ -799,6 +808,9 @@ export const worldEncyclopedia = Object.freeze([
     "title": "Les docks",
     "category": "Lieux de Breach Port",
     "kind": "lieu",
+    "placeImage": "images/places/breach-port-imperial-office-docks.webp",
+    "placeImageAlt": "Vue nocturne des docks de stockage de Breach Port, caisses de fret et droïdes au travail à côté du bureau du préfet.",
+    "placeImageFocus": "right",
     "paragraphs": [
       "CHRONIQUE DU FRET — Les docks reçoivent les marchandises et les équipes chargées de les décharger, de les sceller et de les entreposer. Le vrai propriétaire d'un lot n'est pas nécessairement celui qui en pousse le chariot. Les autorités impériales justifient ainsi le contrôle des manifestes et l'identification des destinataires avant toute remise.",
       "Les travailleurs des quais connaissent mieux que personne l'écart possible entre une belle déclaration et la réalité d'une caisse. Des papiers irréguliers peuvent accompagner des biens sans danger ; des documents apparemment parfaits peuvent masquer une propriété discutée. Les chroniqueurs recommandent de vérifier les deux sans confondre contrôle et accusation.",
