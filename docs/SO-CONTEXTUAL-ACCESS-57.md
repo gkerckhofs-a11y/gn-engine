@@ -184,3 +184,9 @@ n'est plus présenté comme vide, ni avec une capacité occupée fictivement nul
 réussis, dix tests Firestore docks/INF-01 et un HTTP/Auth réussis sur émulateurs.
 Ces résultats correspondent aux fichiers avant le commit de fin de revue ; les
 succès CI du parent ne sont pas attribués à ce nouveau candidat.
+
+## AC-04 validé avant AC-05 ; AC-05/06 en intégration
+
+La CI `44135616348` du SHA exact `e9e10de250cf4701772dbd33df3a4d46a9fbd2a3` est terminée avec succès sur tous les jobs requis. AC-05 reprend ensuite les décisions explicites de l'organisateur du [17 novembre](https://github.com/gkerckhofs-a11y/gn-engine/pull/58#issuecomment-6953767214) : réussite automatique après trois minutes sous préconditions, garde distincte du propriétaire légal, remise physique attestée MJ.
+
+Le vol distinct, les réservations source/destination natives, PA conditionnel, quotas, récupération, alarmes anonymes et leurs écrans sont maintenant codés. Rapport intégré, couverture ACT/DOCK, limites et recette : [SO-ACCESS-AC06-VALIDATION.md](SO-ACCESS-AC06-VALIDATION.md). La CI complète du nouveau candidat reste à lire sur son SHA exact dans la description de PR ; aucune recette humaine ni publication déduite.

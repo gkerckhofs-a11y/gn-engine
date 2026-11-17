@@ -100,7 +100,7 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
    const permittedCargo=(p,lot)=>!p.crewLogistics||!lot.boardingCustody&&!lot.hiddenCargo?.concealed&&!lot.transportContractId&&((lot.ownerType??'CHARACTER')==='CHARACTER'&&lot.ownerId===c.id||p.crewOwnerFreight&&sameOwner(ownerOf(lot),p.owner));
    const cargoOwner=(p,lot)=>p.dock?(lot.ownerType??'CHARACTER')==='CHARACTER'&&lot.ownerId===c?.id:sameOwner(ownerOf(lot),p.owner)||p.crewLogistics&&permittedCargo(p,lot);
    const visibleLot=async lot=>{
-    requireThat(lot,'CARGO_UNAVAILABLE');transport=await transportCargoAccess(tx,s,lot,c?.id,admin,at,input.transferId??null);const p=await place(lot.location);
+    requireThat(lot,'CARGO_UNAVAILABLE');requireThat(!lot.dockCustody,'DOCK_CUSTODY_REQUIRED');transport=await transportCargoAccess(tx,s,lot,c?.id,admin,at,input.transferId??null);const p=await place(lot.location);
     requireThat(p.read&&(transport||cargoOwner(p,lot))&&permittedCargo(p,lot),'FORBIDDEN');return p;
    };
    async function destinations(lot){
@@ -147,7 +147,7 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
     const characters=await tx.list(`${base}/characters`),ships=await tx.list(`${base}/ships`),cargoTransfers=await tx.list(`${base}/cargoTransfers`),rows=[];
     for(const ship of ships){const p=await place({kind:'HOLD',id:ship.id});rows.push({...ship,used:p.used,incoming:p.incoming});}
     const boardingCustody=await readBoardingCustody(tx,s,time,{characters,ships,cargoTransfers});
-    return {...(hasHiddenCargo(s)?{customsReady:true}:{}),session:{id:sid,revision:s.revision,stage:s.stage,...(so?{spaceOutlaws:true}:{})},ships:rows,...(boardingCustody?{boardingCustody}:{}),...(hasSoTransport(s)?{deliveryPorts:(await tx.list(`${base}/ports`)).filter(p=>p.versionId===s.spaceOutlaws.versionId).map(p=>({id:p.id,name:p.name}))}:{}),transportRules:s.transportRules??null,items:await tx.list(`${base}/items`),routes:await tx.list(`${base}/routes`),owners:[...characters.map(c=>({type:'CHARACTER',id:c.id,name:c.public.displayName})),...allGroups.map(g=>({type:'GROUP',id:g.id,name:g.name}))],transfers:cargoTransfers.filter(t=>t.status==='LOADING').map(publicTransfer)};
+    return {...(hasHiddenCargo(s)?{customsReady:true}:{}),session:{id:sid,revision:s.revision,stage:s.stage,...(so?{spaceOutlaws:true}:{})},ships:rows,...(boardingCustody?{boardingCustody}:{}),...(hasSoTransport(s)?{deliveryPorts:(await tx.list(`${base}/ports`)).filter(p=>p.versionId===s.spaceOutlaws.versionId).map(p=>({id:p.id,name:p.name}))}:{}),transportRules:s.transportRules??null,items:await tx.list(`${base}/items`),routes:await tx.list(`${base}/routes`),owners:[...characters.map(c=>({type:'CHARACTER',id:c.id,name:c.public.displayName})),...allGroups.map(g=>({type:'GROUP',id:g.id,name:g.name}))],transfers:cargoTransfers.filter(t=>t.status==='LOADING'&&!t.dockTheft).map(publicTransfer)};
    }
    if(action==='saveShip'){
     requireThat(input.revision===s.revision,'STALE_REVISION');const id=input.shipId?documentId(input.shipId):eventId,old=await tx.get(`${base}/ships/${id}`);
@@ -167,7 +167,7 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
    }
    if(action==='myCargo'){
     const holds=[];for(const ship of await tx.list(`${base}/ships`)){const p=await place({kind:'HOLD',id:ship.id});if((!so||p.capacity>0)&&(p.read||p.deposit||p.withdraw||p.pilot))holds.push({...viewPlace(p),docked:ship.docked,enabled:ship.enabled,portId:ship.portId??null,inTransit:!!ship.journey,local:local(ship)});}
-    const transfers=[];for(const t of await tx.list(`${base}/cargoTransfers`)){if(t.status!=='LOADING'||t.destination.kind==='CHARACTER'&&t.destination.id!==c.id)continue;if(t.transportContractId&&t.characterId!==c.id)continue;transport=t.transportContractId?await transportCargoAccess(tx,s,await readLot(tx,sid,t.lotId,at),c.id,false,at,input.transferId??null):null;cargoContinuation=t.characterId===c.id?t.id:null;const p=await place(t.destination);if(p.read)transfers.push(publicTransfer(t));transport=null;cargoContinuation=input.transferId??null;}
+    const transfers=[];for(const t of await tx.list(`${base}/cargoTransfers`)){if(t.dockTheft||t.status!=='LOADING'||t.destination.kind==='CHARACTER'&&t.destination.id!==c.id)continue;if(t.transportContractId&&t.characterId!==c.id)continue;transport=t.transportContractId?await transportCargoAccess(tx,s,await readLot(tx,sid,t.lotId,at),c.id,false,at,input.transferId??null):null;cargoContinuation=t.characterId===c.id?t.id:null;const p=await place(t.destination);if(p.read)transfers.push(publicTransfer(t));transport=null;cargoContinuation=input.transferId??null;}
     return {...(hasHiddenCargo(s)&&c.customsAuthorization?.level>=1?{customsReady:true}:{}),session:{id:sid,stage:s.stage,...(so?{spaceOutlaws:true}:{})},holds,transfers};
    }
    if(action==='shipHold'){

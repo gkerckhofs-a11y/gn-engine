@@ -1,3 +1,4 @@
+import {dockAlarmInput} from './dock-alarms.mjs';
 import {abilityLevel} from './abilities.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {admissionKeys} from './admission-state.mjs';
@@ -7,12 +8,12 @@ import {warehouseAccess,storageGroups} from './storage-state.mjs';
 
 export function dockInput(input,old){
  if(input==null){requireThat(!old,'INVALID_DOCK');return null;}
- admissionKeys(input,['mode','securityTier','intrusionTargetId','revealFields','theftEnabled','physical']);
+ admissionKeys(input,['mode','securityTier','intrusionTargetId','revealFields','theftEnabled','physical','alarm']);
  requireThat(['RENT','OWN'].includes(input.mode)&&Number.isInteger(input.securityTier)&&input.securityTier>=1&&input.securityTier<=5,'INVALID_DOCK');
  requireThat(typeof input.theftEnabled==='boolean'&&typeof input.physical==='boolean'&&Array.isArray(input.revealFields),'INVALID_DOCK');
  const allowed=['name','quantity','legality'];requireThat(input.revealFields.every(x=>allowed.includes(x))&&new Set(input.revealFields).size===input.revealFields.length,'INVALID_DOCK');
  requireThat(!old||old.mode===input.mode,'DOCK_TITLE_LOCKED');
- return {schemaVersion:1,mode:input.mode,securityTier:input.securityTier,intrusionTargetId:input.intrusionTargetId?documentId(input.intrusionTargetId):null,revealFields:input.revealFields,theftEnabled:input.theftEnabled,physical:input.physical};
+ return {schemaVersion:1,mode:input.mode,securityTier:input.securityTier,intrusionTargetId:input.intrusionTargetId?documentId(input.intrusionTargetId):null,revealFields:input.revealFields,theftEnabled:input.theftEnabled,physical:input.physical,alarm:dockAlarmInput(input.alarm===undefined?old?.alarm:input.alarm)};
 }
 export const dockLeaseActive=(w,time)=>!!w.tenantId&&(w.dock?.mode==='OWN'||time<w.expiresAtGameMs);
 export async function dockMandates(tx,s,c,w){

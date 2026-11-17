@@ -22,7 +22,8 @@ try{
   };
   const mainScenario=await seedMissionScenario(call,uids,{pilot:process.env.GN_RECETTE_PILOT_MODE==='1'});
   const galactic=await seedMissionScenario(call,uids,{galactic:true});
-  Object.assign(scenario,{...mainScenario,galactic});
+  const docks=await seedMissionScenario(call,uids,{galactic:true,docks:true});
+  Object.assign(scenario,{...mainScenario,galactic,docks});
   console.log(`Recette locale prête : ${origin}/recette.html · session ${scenario.sessionId} en pause. Aucune recette humaine exécutée.`);
 }catch(error){server.closeAllConnections();server.close();throw error;}
 for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>{server.closeAllConnections();server.close(()=>process.exit(0));});

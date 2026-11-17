@@ -1,3 +1,4 @@
+import {dockTheftDestinations} from './dock-theft.mjs';
 import {inventoryPlayer} from './inventory-transfers.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {dockEntry,dockMandates} from './dock-state.mjs';
@@ -15,7 +16,7 @@ export function createDockService({store,signed,now,uuid}){
    const result={session:{id:s.id},warehouse:{id:w.id,name:w.name,securityTier:w.dock.securityTier},entry,reason,
     intrusionTargetId:reason==='LOCAL_CREDENTIAL_REQUIRED'?w.dock.intrusionTargetId:null,
     canManageStock:!!entry&&access.access,
-    theftEnabled:!!entry&&w.enabled&&w.dock.theftEnabled,
+    theftEnabled:!!entry&&w.enabled&&w.dock.theftEnabled,destinations:entry&&w.enabled&&w.dock.theftEnabled?await dockTheftDestinations(tx,ctx,w,at):[],
     revealed:stock.map(l=>({...(w.dock.theftEnabled?{id:l.id}:{}),...Object.fromEntries(w.dock.revealFields.map(k=>[k,k==='name'?l.item.name:k==='legality'?l.item.legality??'UNKNOWN':l.quantity]))}))};
    tx.set(`localAccess/${s.id}/journal/${eventId}`,{id:eventId,at,action:'dockEntry',warehouseId:w.id,terminalId:entry?.terminalId??null,characterId:c.id,allowed:!!entry,reason});return result;
   });

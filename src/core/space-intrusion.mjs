@@ -1,3 +1,4 @@
+import {recordDockAlarm} from './dock-alarms.mjs';
 import {dockIntrusionGuard} from './dock-state.mjs';
 import {inventoryPlayer} from './inventory-transfers.mjs';
 import {recordFictionalTrace} from './space-fictional-traces.mjs';
@@ -178,6 +179,7 @@ export function createSoIntrusionService({store,signed,checkSession,now,uuid,rol
     total=roll+a.level+(a.bonus??0)+(a.aid?1:0);success=total>=t.intrusion.threshold;
    }
    await recordFictionalTrace(tx,s,c,t,'INTRUSION',a.id,at);
+   if(dockAccess){const cell=await tx.get(`${base(sid)}/warehouses/${dockAccess.warehouseId}`);recordDockAlarm(tx,s,cell,success?'INTRUSION_SUCCESS':'INTRUSION_FAILED',a.id,at);}
    const text=success?t.intrusion.successText:t.intrusion.failureText;
    const ended={...a,status:success?'SUCCESS':'FAILED',finishedAtGameMs:time,
     roll,total,threshold:challenge?null:t.intrusion.threshold,success,text};

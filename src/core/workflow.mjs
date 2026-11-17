@@ -1,3 +1,4 @@
+import {createDockTheftService,dockTheftActions} from './dock-theft.mjs';
 import {createDockService} from './docks.mjs';
 import {createContextualAccessService,contextualActions,localOperationStore} from './contextual-access.mjs';
 import {galacticEconomyCommands,createGalacticEconomyService} from './galactic-economy.mjs';
@@ -207,6 +208,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const cockpitCommand=createCockpitCommandService({store,signed,checkSession,now,uuid,rollD6});
   const voyageService=createVoyageService({store,signed,checkSession,now,uuid,rollD6});
   const hiddenCargoService=createHiddenCargoService({store,signed,checkSession,now,uuid,rollD6});
+  const dockTheftService=createDockTheftService({store,signed,checkSession,now,uuid});
   const dockService=createDockService({store,signed,now,uuid});
   const cargoService=createCargoService({store,signed,checkSession,now,uuid});
   const commercialStorageService=createCommercialStorageService({store,signed,checkSession,now,uuid});
@@ -314,6 +316,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
     if(action==='cockpitCommand')return cockpitCommand(actor,input);
     if(voyageAction(action))return voyageService(action,actor,input);
     if(hiddenCargoActions.includes(action))return hiddenCargoService(action,actor,input);
+    if(dockTheftActions.has(action))return dockTheftService(action,actor,input);
     if(action==='dockEntry')return dockService(action,actor,input);
     if(cargoAction(action))return cargoService(action,actor,input);
     if(Object.hasOwn(commercialStorageCommands,action))return commercialStorageService(action,actor,input);
