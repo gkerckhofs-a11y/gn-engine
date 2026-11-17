@@ -104,3 +104,7 @@ main#content{max-width:1460px}
  .wiki-sidebar.is-open .wiki-sidebar-nav,.wiki-sidebar.is-open .wiki-side-footnote{display:block}
  .wiki-sidebar.is-open .wiki-sidebar-nav{max-height:60vh;overflow-y:auto;padding-right:.2rem}
 }
+
+/* Affiches historiques en portrait 2:3 : conserver les titres imprimés jusqu'au bas. */
+.holopedia .history-poster-thumb.poster-webp{object-fit:contain;object-position:center;background:#240e10}
+.holopedia .history-poster-hero.poster-webp{aspect-ratio:2/3;object-fit:contain;background:#240e10}
