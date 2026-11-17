@@ -9,7 +9,7 @@ const searchText=new Map(worldEncyclopedia.map(a=>[a.id,`${a.title} ${a.subtitle
 const norm=value=>String(value??'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr').trim();
 const href=(sessionId,id)=>`#/holopedia/${encodeURIComponent(sessionId)}${id?'/'+encodeURIComponent(id):''}`;
 const short=a=>a.paragraphs.find(p=>p.length>80)?.slice(0,155)??'';
-const posterSrc=a=>typeof a.poster==='string'&&/^posters\/[a-z-]+\.(?:svg|webp)$/.test(a.poster)?'./'+a.poster:null;
+const posterSrc=a=>typeof a.poster==='string'&&/^posters\/[a-z0-9-]+\.(?:svg|webp)$/.test(a.poster)?'./'+a.poster:null;
 const planetSrc=a=>typeof a.planetImage==='string'&&/^images\/planets\/[a-z0-9-]+\.webp$/.test(a.planetImage)?'./'+a.planetImage:null;
 const placeSrc=a=>typeof a.placeImage==='string'&&/^images\/places\/breach-port-[a-z0-9-]+\.webp$/.test(a.placeImage)?'./'+a.placeImage:null;
 const placeFocus=a=>['left','center','right'].includes(a.placeImageFocus)?a.placeImageFocus:'center';
