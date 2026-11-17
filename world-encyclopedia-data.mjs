@@ -9,10 +9,10 @@ export const worldEncyclopedia = Object.freeze([
     "kind": "thème",
     "paragraphs": [
       "CHRONIQUE DU NOUVEL ORDRE — À Breach Port, les générations se distinguent moins par l'âge que par les souvenirs. Les anciens évoquent encore le Sénat de la République, les batailles de la guerre des Clones et les chevaliers Jedi qui traversaient autrefois les places publiques. Les plus jeunes ont grandi sous les emblèmes de l'Empire ; pour eux, un uniforme au coin de la rue fait partie du paysage ordinaire.",
-      "Les services impériaux présentent la paix actuelle comme le fruit d'un pouvoir enfin capable d'agir. Depuis Coruscant, Palpatine dirige l'Empire ; le Sénat subsiste, mais gouverneurs, garnisons et administrations de sécurité appliquent désormais plus directement les décisions. Les autorités vantent la régularité des contrôles et la sûreté des routes. Les habitants se demandent parfois à quel moment une vérification devient une suspicion.",
+      "La paix impériale résulte de l’autorité restaurée sur l’ensemble des systèmes. Depuis Coruscant, Sa Majesté l’Empereur Palpatine dirige les institutions ; le Sénat subsiste, tandis que gouverneurs, garnisons et administrations assurent l’application des décisions. Les contrôles réguliers et la sécurisation des routes garantissent la continuité du commerce et la protection des citoyens.",
       "L'ISB, dont le nom revient dans certaines conversations, est associé à la protection de l'État contre la subversion. Les rumeurs de groupes opposés à l'Empire voyagent d'un port à l'autre, se déforment et parviennent tard jusqu'à Breach Port. Aucun drapeau rebelle n'y rassemble encore la population ; on y parle plutôt de convois disparus, de restrictions contestées et de différends avec les autorités.",
       "La vie quotidienne révèle mieux que les proclamations ce changement d'époque. Un capitaine présente ses manifestes, un passager justifie sa présence, un commerçant explique ses réserves de cellules énergétiques. Le garde qui prend un repas à la Traverse peut, une heure plus tard, contrôler les documents de ses voisins.",
-      "Les chroniqueurs officiels voient là le prix raisonnable de la stabilité. Les témoignages locaux sont plus nuancés : certains se félicitent de la sécurité retrouvée, d'autres redoutent de perdre leur travail ou de voir un proche retenu. À Breach Port, aucune opinion ne résume à elle seule le rapport des habitants au nouvel ordre."
+      "Les archives impériales rappellent que la stabilité exige vigilance, discipline et coopération civique. À Breach Port, les citoyens sont invités à tenir leurs manifestes à jour, à présenter leurs documents sur demande et à signaler toute irrégularité susceptible de compromettre la sécurité du district."
     ],
     "imperialRecord": true,
     "archivist": "Chroniqueur provincial — Archives impériales",
@@ -217,11 +217,11 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Culture et galaxie",
     "kind": "thème",
     "paragraphs": [
-      "NOTICE SUR LES CONTESTATIONS DE L'ORDRE PUBLIC — Certains habitants de Breach Port expriment leur attachement à l'ancienne République ; d'autres contestent des règlements sans souhaiter un changement de régime. Les services impériaux rangent volontiers ces attitudes sous le terme de dissidence. Le chroniqueur local observe qu'elles recouvrent des motivations bien plus diverses.",
-      "Une réparation offerte permet parfois à une personne recherchée de repartir ; des fournitures médicales peuvent atteindre une famille sans suivre toutes les procédures prévues ; une liste de détenus circule de main en main. Les autorités y voient des infractions possibles. Ceux qui rendent ces services affirment souvent avoir répondu à une situation urgente plutôt qu'à un mot d'ordre.",
-      "Les habitants ne s'accordent pas sur les limites de cette aide. Les commerçants craignent pour leurs contrats, les ouvriers pour leur emploi, les soignants pour leurs patients. Un agent impérial peut lui-même rendre service à quelqu'un dont il ignore la situation administrative et ne pas considérer son geste comme politique.",
-      "Des intermédiaires du Syndicat des Amarres ou de la Ligne Grise rencontrent parfois des cargaisons dont la destination suscite des questions. Certains acceptent un risque par conviction, d'autres facturent plus cher un acheminement devenu délicat. Le préfet sait qu'une fraude ordinaire ne présente pas les mêmes conséquences qu'une affaire susceptible d'attirer l'ISB.",
-      "Dans les rues de Breach Port, aucune organisation rebelle connue n'affiche encore son drapeau. On parle de refus, de nostalgies, d'entraide et de silences. Les services impériaux invitent à la vigilance ; la population continue de distinguer, au cas par cas, la solidarité d'un voisin et l'appel à la révolte."
+      "NOTICE SUR LES CONTESTATIONS DE L'ORDRE PUBLIC — Certains habitants de Breach Port conservent des attaches avec les anciennes institutions républicaines ou contestent l'application des règlements. L'administration distingue les réclamations civiles recevables des actions de dissidence susceptibles de menacer la sécurité du district. Toute organisation clandestine relève des services compétents.",
+      "La dissimulation de personnes recherchées, la distribution de marchandises en dehors des procédures et la circulation non autorisée de documents officiels font l'objet d'une surveillance particulière. Les services impériaux rappellent que les circonstances invoquées ne dispensent pas les citoyens du respect des obligations de déclaration.",
+      "Les commerçants, les ouvriers et les soignants disposent de procédures pour signaler des situations urgentes sans compromettre les opérations de sécurité. Tout agent public doit vérifier la situation administrative des personnes concernées avant de faciliter leur déplacement ou leur prise en charge.",
+      "Des intermédiaires liés au Syndicat des Amarres ou à la Ligne Grise sont parfois mentionnés dans les dossiers de transport irrégulier. Les cargaisons aux destinataires incertains appellent des vérifications renforcées. Lorsqu'une affaire présente un risque pour la sécurité impériale, la préfecture peut transmettre les éléments utiles à l'ISB.",
+      "Aucune organisation rebelle déclarée ne dispose d'une représentation reconnue à Breach Port. Des rumeurs d'entraide clandestine et des refus isolés circulent néanmoins sur les quais. Les services de la préfecture invitent les citoyens à transmettre tout renseignement vérifiable et à ne pas prêter assistance aux réseaux non autorisés."
     ],
     "imperialRecord": true,
     "archivist": "Bureau impérial des relevés civils",
@@ -233,10 +233,10 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Culture et galaxie",
     "kind": "thème",
     "paragraphs": [
-      "NOTICE SUR LES TRADITIONS ANCIENNES — Certains habitants âgés affirment avoir rencontré un Jedi avant la transformation de la République en Empire. Leurs récits évoquent la calme autorité d'un négociateur, une lame lumineuse aperçue pendant la guerre ou des histoires héritées de leurs parents. La préfecture recommande de traiter ces témoignages avec prudence.",
-      "Depuis la dissolution de l'Ordre Jedi, le nom de ses membres ne se prononce pas partout avec la même facilité. La doctrine impériale les présente comme des acteurs d'une crise grave ; dans les ports, d'anciens souvenirs demeurent cependant attachés à leur rôle de protecteurs. L'évocation d'un survivant peut attirer l'attention des services de sécurité, sans que la rumeur constitue une preuve.",
-      "À la cantina circulent aussi des récits de guérisons inexplicables, d'étranges coïncidences et de voyageurs dont la voix aurait fait changer d'avis un garde. Les historiens des archives impériales classent la plupart de ces anecdotes parmi les récits non vérifiés. Une simple lampe dans une ancienne galerie peut devenir l'origine d'une légende.",
-      "Les affaires quotidiennes exigent des soins, du carburant, des réparations et du travail, avec ou sans mystère. Les chroniqueurs officiels invitent les citoyens à ne pas confondre croyance et information attestée. Les habitants continuent pourtant de prêter une oreille attentive aux histoires qui échappent aux explications ordinaires."
+      "NOTICE SUR LES TRADITIONS ANCIENNES — Des habitants âgés rapportent parfois avoir rencontré des membres de l'ancien Ordre Jedi avant sa dissolution. Leurs récits évoquent des négociateurs, des armes à lame lumineuse et des épisodes de la guerre des Clones. Ces témoignages sont classés comme traditions orales et ne sauraient être tenus pour des preuves.",
+      "La dissolution de l'Ordre Jedi a mis fin à l'influence d'une institution dont les dirigeants avaient menacé l'autorité légitime de la République. Les récits populaires qui attribuent encore des exploits aux Jedi doivent être examinés avec prudence. Toute information vérifiable concernant un survivant recherché doit être communiquée aux services de sécurité impériaux.",
+      "À la cantina circulent des récits de guérisons inexplicables, de coïncidences et de voyageurs prétendument capables d'influencer la volonté d'autrui. Les Archives impériales classent ces anecdotes parmi les déclarations non vérifiées. Les citoyens sont invités à s'en remettre aux enquêtes officielles plutôt qu'aux superstitions des quais.",
+      "Les besoins du district restent les mêmes : soins, carburant, réparations et travail. La préfecture rappelle que les croyances personnelles ne remplacent ni l'expertise des services habilités ni les faits établis par les registres impériaux."
     ],
     "imperialRecord": true,
     "archivist": "Chroniques administratives du district",
@@ -489,7 +489,7 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "planetImage": "images/planets/rodia.webp",
-    "planetImageAlt": "Reconstitution orbitale de RODIA : vastes zones de jungle, marais et eaux intérieures.",
+    "planetImageAlt": "Relevé orbital de RODIA : vastes zones de jungle, marais et eaux intérieures.",
     "paragraphs": [
       "RELEVÉ DES SYSTÈMES HABITÉS — Rodia se distingue par ses jungles et par les cités protégées de dômes qui permettent à ses habitants de vivre au milieu d'une végétation tenace. Les récits de chasse, d'escorte et de convoyage occupent une place importante dans sa réputation auprès des visiteurs.",
       "Pour les observateurs impériaux, les échanges y demandent une connaissance des risques locaux et des accords d'approvisionnement. Une commande de fournitures peut se transformer en discussion sur la sécurité d'un trajet ; une proposition d'escorte exige un examen des responsabilités. Le chroniqueur recommande de juger les contrats sur leurs termes plutôt que sur les préjugés attachés aux espèces."
@@ -505,7 +505,7 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "planetImage": "images/planets/nal-hutta.webp",
-    "planetImageAlt": "Reconstitution orbitale de NAL HUTTA : marécages, eaux troubles et brumes épaisses.",
+    "planetImageAlt": "Relevé orbital de NAL HUTTA : marécages, eaux troubles et brumes épaisses.",
     "paragraphs": [
       "CHRONIQUE DES INFLUENCES — Les marais de Nal Hutta, ses pluies et ses établissements installés sur les terres fermes composent un paysage aussi difficile qu'actif. Les Hutts y exercent une influence considérable sur des circuits d'affaires qui dépassent leurs propres ports. Le bazar de Bilbousa attire une foule d'intermédiaires et de vendeurs.",
       "Les autorités impériales considèrent avec prudence les accords conclus sous la seule garantie de relations personnelles. Certains visiteurs apprécient la souplesse des transactions, d'autres en découvrent trop tard les obligations implicites. Sur Nal Hutta, une faveur peut constituer une dette durable ; la signature ne protège que celui qui a compris à quoi il s'engage."
@@ -521,7 +521,7 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "planetImage": "images/planets/cato-neimoidia.webp",
-    "planetImageAlt": "Reconstitution orbitale de CATO NEIMOIDIA : vallées profondes et agglomérations sur les hauteurs.",
+    "planetImageAlt": "Relevé orbital de CATO NEIMOIDIA : vallées profondes et agglomérations sur les hauteurs.",
     "paragraphs": [
       "ANNALES MARCHANDES — Les villes suspendues de Cato Neimoidia dominent des vallées où les palais témoignent de fortunes anciennes. La Fédération du Commerce y a laissé une mémoire visible dans l'architecture et dans les usages des négociants, mémoire que la fin de la guerre n'a pas effacée.",
       "Les chroniques impériales distinguent la prospérité héritée de la confiance réellement méritée. Dans ces cités, l'étiquette et les manifestations de prestige accompagnent les contrats ; un étranger peut ignorer les rivalités qui se déroulent sous les politesses. Le courtier d'Ord Mantell cherchera d'abord à savoir qui décide, avant de s'inquiéter du prix promis."
@@ -537,7 +537,7 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "planetImage": "images/planets/christophsis.webp",
-    "planetImageAlt": "Reconstitution orbitale de CHRISTOPHSIS : formations cristallines turquoise et reliefs minéraux.",
+    "planetImageAlt": "Relevé orbital de CHRISTOPHSIS : formations cristallines turquoise et reliefs minéraux.",
     "paragraphs": [
       "ARCHIVES DE RECONSTRUCTION — Les formations cristallines de Christophsis donnent à ce monde un visage reconnaissable entre tous. La guerre des Clones y provoqua de violents affrontements et des blocus dont de nombreuses familles gardent encore le souvenir.",
       "Les services impériaux présentent le rétablissement du ravitaillement comme une nécessité première. Matériaux, outillage et denrées demeurent des besoins concrets, mais les habitants des villes qui ont connu la pénurie se méfient des promesses trop faciles. Le bon transporteur ne se distingue pas seulement par le prix annoncé : il livre ce qu'il a promis, au quai convenu et à la date possible."
@@ -553,7 +553,7 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "planetImage": "images/planets/raxus.webp",
-    "planetImageAlt": "Reconstitution orbitale de RAXUS : continents tempérés, zones urbaines et paysages ordonnés.",
+    "planetImageAlt": "Relevé orbital de RAXUS : continents tempérés, zones urbaines et paysages ordonnés.",
     "paragraphs": [
       "NOTICE SUR L'HÉRITAGE SÉPARATISTE — Raxus fut l'un des centres politiques de la Confédération des systèmes indépendants. Ses bâtiments officiels et ses quartiers soignés gardent le souvenir d'un Sénat séparatiste désormais disparu. Les archives impériales y voient un avertissement sur le coût de la division.",
       "Les engagements politiques de la guerre continuent d'influencer les relations administratives. Les négociants de passage gagnent à distinguer les maisons de commerce des institutions placées sous contrôle. Une commande industrielle peut être légitime sans que son origine ou son destinataire échappent aux vérifications. Sur Raxus, la prudence documentaire est devenue un usage autant qu'une obligation."
@@ -569,7 +569,7 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "planetImage": "images/planets/dantooine.webp",
-    "planetImageAlt": "Reconstitution orbitale de DANTOOINE : grandes plaines agricoles et vallées verdoyantes.",
+    "planetImageAlt": "Relevé orbital de DANTOOINE : grandes plaines agricoles et vallées verdoyantes.",
     "paragraphs": [
       "CHRONIQUE RURALE — Les vastes plaines de Dantooine accueillent des exploitations agricoles et des communautés plus éloignées des grandes métropoles. Le commerce y dépend d'une circulation modeste mais régulière de machines, de fournitures médicales, de récoltes et de pièces d'entretien.",
       "L'administration impériale célèbre l'apport de ces mondes à l'approvisionnement de la galaxie. Les habitants, moins préoccupés des proclamations que de l'état de leurs outils, jugent les voyageurs à la constance de leurs engagements. Un service rendu sur une exploitation peut établir une relation durable ; une promesse non tenue s'y raconte longtemps."
@@ -585,7 +585,7 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "planetImage": "images/planets/malastare.webp",
-    "planetImageAlt": "Reconstitution orbitale de MALASTARE : terrains ocres et bassins d’extraction de carburant.",
+    "planetImageAlt": "Relevé orbital de MALASTARE : terrains ocres et bassins d’extraction de carburant.",
     "paragraphs": [
       "ANNALES ÉNERGÉTIQUES — Les réserves de carburant de Malastare ont attiré armées, industriels et transporteurs bien avant la paix impériale. Les Dugs connaissent les bénéfices et les risques liés à ces ressources, dont le contrôle fut lui-même un enjeu des combats passés.",
       "Les autorités encouragent la déclaration claire des stocks et des circuits d'approvisionnement. Un capitaine ne doit pas supposer qu'un monde réputé pour ses réserves peut ravitailler à volonté son appareil. Les prix, les autorisations et l'identité du détenteur d'un lot demeurent des questions distinctes. Dans l'énergie comme ailleurs, la réputation ne remplace pas l'inventaire."
@@ -601,7 +601,7 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "planetImage": "images/planets/saleucami.webp",
-    "planetImageAlt": "Reconstitution orbitale de SALEUCAMI : terres arides, zones humides et colonies éparses.",
+    "planetImageAlt": "Relevé orbital de SALEUCAMI : terres arides, zones humides et colonies éparses.",
     "paragraphs": [
       "CHRONIQUE DES COLONIES — Saleucami réunit des étendues sèches, des terrains humides et des établissements de colons dont les activités ont longtemps dépendu de pistes modestes. La guerre a pourtant atteint ces communautés et laissé des besoins que la fin des combats n'a pas fait disparaître.",
       "Les archives impériales insistent sur le retour des transports et de l'administration. Les fermes et les petits comptoirs ont surtout besoin de machines fiables, de médicaments, de réparations et de négociants qui tiennent parole. Là où certains imaginent une place de marché agitée, un contrat utile peut commencer autour d'un moteur en panne et se conclure après plusieurs visites."
@@ -617,7 +617,7 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "planetImage": "images/planets/felucia.webp",
-    "planetImageAlt": "Reconstitution orbitale de FELUCIA : jungles luxuriantes et végétation colorée.",
+    "planetImageAlt": "Relevé orbital de FELUCIA : jungles luxuriantes et végétation colorée.",
     "paragraphs": [
       "NOTICE NATURALISTE — Felucia présente des jungles aux champignons gigantesques et aux végétaux de couleurs saisissantes. La fertilité du monde attire les prospecteurs de produits végétaux ; les chemins y demeurent pourtant difficiles et les ressources ne se laissent pas prélever sans connaissance du terrain.",
       "Les combats de la guerre des Clones y ont interrompu des récoltes et mis certaines communautés à l'épreuve. Les bulletins impériaux privilégient désormais la sécurité des approvisionnements, mais les habitants doivent toujours compter avec la jungle et les pillards. Un capitaine qui promet une cargaison sans connaître les récoltes ni la piste de sortie s'engage sur bien plus qu'un simple délai."
@@ -633,7 +633,7 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "planetImage": "images/planets/utapau.webp",
-    "planetImageAlt": "Reconstitution orbitale de UTAPAU : plateaux désertiques et gouffres géants.",
+    "planetImageAlt": "Relevé orbital de UTAPAU : plateaux désertiques et gouffres géants.",
     "paragraphs": [
       "CHRONIQUE DES HABITATS EXCEPTIONNELS — Utapau est un monde sec, percé de gouffres immenses au fond desquels se trouvent des villes et des réserves d'eau. Pau'ans, Utai et autres habitants y ont développé des savoir-faire adaptés à des infrastructures dont l'entretien ne souffre pas l'improvisation.",
       "Les rapports administratifs soulignent que les ports de ce système ne sont pas interchangeables. Une livraison correctement déclarée doit encore atteindre l'installation concernée, parfois au cœur d'un gouffre. Le pilote prudent distingue toujours la destination planétaire du quai effectivement accessible : une erreur de localisation peut anéantir le bénéfice d'un transport."
@@ -649,7 +649,7 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "planetImage": "images/planets/mygeeto.webp",
-    "planetImageAlt": "Reconstitution orbitale de MYGEETO : terres glacées et massifs cristallins.",
+    "planetImageAlt": "Relevé orbital de MYGEETO : terres glacées et massifs cristallins.",
     "paragraphs": [
       "ANNALES FINANCIÈRES — Mygeeto, monde de glace et de formations cristallines, reste associé à l'influence qu'y exerça jadis le Clan Bancaire Intergalactique. La guerre des Clones a profondément marqué ses paysages et laissé derrière elle des contrats, des dettes et des créances difficiles à démêler.",
       "Les services impériaux rappellent qu'un commerce durable dépend de garanties vérifiables. Un lot peut figurer pour une somme considérable sur un registre sans trouver d'acheteur solvable le jour de la livraison. Les courtiers de Breach Port connaissent cette vérité : les chiffres d'un contrat représentent une promesse, non des crédits déjà disponibles."
@@ -665,7 +665,7 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "planetImage": "images/planets/bracca.webp",
-    "planetImageAlt": "Reconstitution orbitale de BRACCA : cimetières de coques de guerre et installations de recyclage.",
+    "planetImageAlt": "Relevé orbital de BRACCA : cimetières de coques de guerre et installations de recyclage.",
     "paragraphs": [
       "CHRONIQUE DES MATÉRIAUX RÉCUPÉRÉS — Bracca accueille d'immenses accumulations de coques de guerre déclassées. Des ouvriers démontent les anciens vaisseaux pour en retirer moteurs, alliages et composants qui repartiront vers d'autres ateliers. La fin du conflit a fait de ces carcasses une ressource aussi précieuse qu'encombrante.",
       "L'administration impériale surveille les opérations de récupération et les circuits déclarés des pièces. La qualité d'un élément ne se juge pas à son origine prestigieuse : elle dépend de son état réel, de son numéro et de sa traçabilité. Un mécanicien expérimenté reconnaît parfois un trésor dans un débris ; un marchand négligent risque d'acheter un poids mort impossible à transporter."
@@ -681,7 +681,7 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "planetImage": "images/planets/onderon.webp",
-    "planetImageAlt": "Reconstitution orbitale de ONDERON : jungles, chaînes montagneuses et étendues d’eau.",
+    "planetImageAlt": "Relevé orbital de ONDERON : jungles, chaînes montagneuses et étendues d’eau.",
     "paragraphs": [
       "CHRONIQUE DES CITÉS FORTIFIÉES — Onderon est connu pour ses jungles dangereuses et pour les grandes villes protégées qui leur font face. Les conflits politiques et militaires de la guerre y ont laissé des fidélités tenaces. Dans les rues d'Iziz, il arrive que deux témoins racontent la même bataille en termes opposés.",
       "Les autorités impériales présentent la surveillance des approvisionnements comme une mesure de stabilité. Les visiteurs y découvrent que l'achat de matériel ou la conclusion d'un transport peuvent néanmoins être interprétés à travers d'anciennes rivalités. Les chroniqueurs conseillent de distinguer les obligations commerciales des affiliations politiques prêtées aux interlocuteurs."
@@ -697,7 +697,7 @@ export const worldEncyclopedia = Object.freeze([
     "category": "Planètes",
     "kind": "planète",
     "planetImage": "images/planets/eriadu.webp",
-    "planetImageAlt": "Reconstitution orbitale de ERIADU : zones industrialisées, agglomérations et reliefs rocheux.",
+    "planetImageAlt": "Relevé orbital de ERIADU : zones industrialisées, agglomérations et reliefs rocheux.",
     "paragraphs": [
       "ANNALES ADMINISTRATIVES — Les reliefs d'Eriadu abritent des infrastructures liées à d'importants intérêts civils et militaires impériaux. La présence des services officiels y marque la circulation des marchandises et l'organisation des activités locales, parfois à une échelle étrangère aux petits équipages d'Ord Mantell.",
       "Les autorités invoquent la rigueur documentaire pour assurer le bon fonctionnement des approvisionnements. Un capitaine peut rencontrer des prestataires efficaces et, le même jour, devoir patienter devant plusieurs bureaux. La valeur d'une grosse commande se mesure aussi aux vérifications qu'elle impose : mieux vaut comprendre le destinataire et les conditions de remise avant de charger la soute."
@@ -748,7 +748,7 @@ export const worldEncyclopedia = Object.freeze([
     "placeImageFocus": "left",
     "paragraphs": [
       "GUIDE CIVIL DU DISTRICT — La maison du préfet occupe l'ancien bâtiment du registre, dont les murs portent la mémoire des premières concessions de Breach Port. Les demandes d'autorisation, les actes de propriété, les litiges de taxes et les dossiers d'inspection y sont examinés au nom de l'administration impériale. Les autorités y voient un service de proximité ; les habitants savent que l'attente devant un guichet peut parfois décider du départ d'un cargo.",
-      "La prison dépend du même ensemble. Elle compte peu de cellules, mais elles suffisent à rappeler la compétence de la préfecture pour retenir une personne dans le cadre des procédures locales. Les gardiens connaissent souvent ceux dont ils surveillent la porte. Les chroniques impériales célèbrent cette surveillance comme une garantie de tranquillité ; les témoignages du port montrent que la proximité du pouvoir n'en rend pas les décisions moins difficiles à vivre.",
+      "La prison dépend du même ensemble. Elle compte peu de cellules, mais elles suffisent à rappeler la compétence de la préfecture pour retenir une personne dans le cadre des procédures locales. Les gardiens connaissent souvent ceux dont ils surveillent la porte. Les Archives impériales soulignent que cette surveillance garantit la continuité des services publics et le bon ordre du district.",
       "Il est recommandé aux visiteurs de conserver copies de leurs titres et manifestes. À Breach Port, un document ancien peut compter davantage qu'une promesse récente ; mieux vaut ne pas laisser sa seule preuve de propriété sur une table de cantina."
     ],
     "imperialRecord": true,
@@ -876,7 +876,7 @@ export const worldEncyclopedia = Object.freeze([
       "PENDANT LA GUERRE DES CLONES — La demande en minerai et en fret augmente. Les entrepôts s'agrandissent, les quais se développent et des transporteurs indépendants découvrent l'intérêt commercial de cette escale.",
       "APRÈS LA PROCLAMATION DE L'EMPIRE — Plusieurs galeries cessent d'être rentables et ferment. La réparation, la récupération et les échanges prennent le relais de l'extraction. L'ancien bâtiment du registre devient le siège du préfet impérial.",
       "LES ANNÉES IMPÉRIALES — Les familles conservent leurs concessions et de nouveaux habitants s'installent. Les services administratifs se structurent ; corporations, réseaux d'entraide et circuits non déclarés continuent de façonner la vie du port.",
-      "LA SAISON PRÉSENTE — Les contrôles sont renforcés et certains échanges deviennent plus difficiles. Les archives officielles annoncent une remise en ordre. Les habitants, eux, attendent chaque cargo avec une question bien plus immédiate : apportera-t-il du travail, une bonne nouvelle ou une nouvelle complication ?"
+      "LA SAISON PRÉSENTE — Le renforcement des contrôles garantit une meilleure traçabilité des marchandises et des mouvements portuaires. Les services impériaux poursuivent la remise en ordre des échanges afin que chaque cargo contribue à la stabilité et à la prospérité de Breach Port."
     ],
     "imperialRecord": true,
     "archiveLabel": "Annales locales · édition impériale",
@@ -892,7 +892,7 @@ export const worldEncyclopedia = Object.freeze([
       "Les trente mondes présentés dans cette encyclopédie relèvent de la culture galactique commune. Tout citoyen peut apprendre leur nom, leur réputation et leur situation générale. Cette connaissance publique ne constitue cependant ni un code de navigation, ni une autorisation d'escale, ni une preuve de stock disponible.",
       "Les offices impériaux rappellent qu'un transport exige un appareil, du carburant, une destination autorisée et des documents adaptés. Les courtiers doivent également vérifier les acheteurs, les délais et les garanties de règlement. Entre une marchandise achetée et une livraison effectivement reçue, de nombreuses obligations restent à remplir.",
       "Certains opérateurs préfèrent vendre rapidement, d'autres conservent leurs lots dans un entrepôt dans l'espoir d'une évolution favorable du marché. Les cours peuvent changer, les autorisations aussi, et un trajet rentable hier peut ne plus l'être demain. L'administration se félicite de la bonne tenue des échanges ; le chroniqueur rappelle que l'économie résiste toujours aux certitudes.",
-      "Un Pilote et un Courtier peuvent connaître le même monde sans disposer des mêmes renseignements spécialisés. Les connaissances personnelles, les contacts et les itinéraires s'acquièrent en jeu et ne sont pas révélés par cet atlas. La présente édition appartient aux archives publiques : elle informe les habitants sans se substituer aux compétences de leurs professionnels."
+      "Un pilote et un courtier peuvent connaître le même monde sans disposer des mêmes renseignements spécialisés. Les codes d’astrogation, les contacts agréés et les itinéraires commerciaux sont soumis aux réglementations en vigueur. Ce registre civil fournit des repères généraux sans délivrer d’habilitation de navigation ou de négoce."
     ],
     "imperialRecord": true,
     "archiveLabel": "Atlas public · édition impériale",
@@ -906,16 +906,16 @@ export const worldEncyclopedia = Object.freeze([
     "kind": "chronologie",
     "imperialArchive": true,
     "poster": "posters/empire.svg",
-    "posterAlt": "Affiche officielle fictive : une capitale monumentale sous les étendards de l'Empire",
+    "posterAlt": "Affiche officielle impériale : une capitale monumentale sous les étendards de l'Empire",
     "slogan": "L'ordre ouvre la voie à l'avenir.",
     "paragraphs": [
-      "ARCHIVES PUBLIQUES — SERVICE IMPÉRIAL D'INFORMATION. La présente synthèse retrace les crises qui conduisirent à la réorganisation de la République en Empire galactique. Elle constitue la version officielle diffusée aux citoyens et aux équipages. Les témoignages locaux et les archives d'avant-guerre peuvent présenter d'autres interprétations.",
+      "ARCHIVES PUBLIQUES — SERVICE IMPÉRIAL D'INFORMATION. Le présent registre retrace les crises qui conduisirent à l'effondrement de l'ancienne République et au rétablissement de l'unité sous l'autorité de l'Empire galactique. Cette synthèse fait autorité dans les établissements civils du district et des systèmes placés sous administration impériale.",
       "Pendant de nombreuses générations, le Sénat de Coruscant administra une galaxie vaste et diverse. À mesure que s'accumulaient les conflits commerciaux, les intérêts particuliers et les blocages institutionnels, la République s'avéra incapable de garantir partout la sécurité des routes et la protection des citoyens.",
       "Des dirigeants séparatistes profitèrent de cette faiblesse pour rompre les liens entre les systèmes. Avec l'appui d'armées de droïdes et d'importantes ressources industrielles, la crise devint une guerre ouverte : la guerre des Clones. La population en paya le prix : destructions, pénuries, déplacements et insécurité.",
-      "Les soldats de la République combattirent pour préserver l'unité. En temps de guerre, le chancelier Palpatine reçut des pouvoirs exceptionnels afin de coordonner la défense et d'assurer le ravitaillement. Selon la doctrine impériale, cette fermeté permit d'éviter l'effondrement des institutions.",
-      "À la fin du conflit, les autorités accusèrent l'Ordre Jedi d'avoir trahi la République et tenté de renverser son gouvernement. Les forces loyales intervinrent dans le cadre de l'Ordre 66 ; l'organisation fut dissoute et ses membres recherchés. Les archives officielles présentent cette opération comme une mesure de sauvegarde de l'État.",
-      "Devant le Sénat, Palpatine annonça la naissance de l'Empire galactique. Le nouveau régime promit la paix, une administration efficace et des routes sécurisées. Aujourd'hui encore, ces événements sont racontés différemment selon les mondes : ici commence le récit que les services impériaux souhaitent transmettre à tous.",
-      "À Breach Port, sur Ord Mantell, les grandes transformations de Coruscant se traduisent par des règlements, des taxes, des contrôles et des commandes nouvelles. Les citoyens sont invités à connaître cette histoire officielle ; ils continuent, naturellement, à se faire leur propre opinion."
+      "Les soldats de la République combattirent pour préserver l'unité. Durant la guerre, le chancelier Palpatine reçut des pouvoirs exceptionnels pour coordonner la défense et assurer le ravitaillement. Sa fermeté préserva les institutions de l'effondrement et permit de poursuivre la lutte jusqu'à la victoire.",
+      "À la fin du conflit, les dirigeants de l'Ordre Jedi tentèrent de renverser le gouvernement légitime. Les forces loyales exécutèrent l'Ordre 66 pour sauvegarder la continuité de l'État ; l'organisation fut dissoute et ses membres recherchés pour trahison.",
+      "Devant le Sénat, Palpatine proclama la naissance de l'Empire galactique. Le nouvel ordre apporta une administration unifiée, des routes sécurisées et une défense coordonnée. Le Bureau impérial d'information conserve ces événements pour les générations appelées à servir la paix retrouvée.",
+      "À Breach Port, sur Ord Mantell, la restauration de l'autorité galactique se traduit par des règlements communs, des taxes réglementées, des contrôles portuaires et de nouvelles commandes. Tous les citoyens sont tenus de respecter les procédures en vigueur et peuvent ainsi contribuer à la prospérité du district."
     ],
     "sources": [
       {
@@ -948,7 +948,7 @@ export const worldEncyclopedia = Object.freeze([
     "kind": "histoire",
     "imperialArchive": true,
     "poster": "posters/republic.svg",
-    "posterAlt": "Affiche de propagande fictive : le Sénat de Coruscant plongé dans une lumière crépusculaire",
+    "posterAlt": "Affiche du Bureau impérial d’information : le Sénat de Coruscant plongé dans une lumière crépusculaire",
     "slogan": "Quand les institutions hésitent, le désordre progresse.",
     "paragraphs": [
       "ARCHIVES IMPÉRIALES — En ses dernières années, la République galactique ne parvenait plus à protéger avec la même efficacité tous les mondes dont elle revendiquait l'unité. Les débats du Sénat s'allongeaient, les décisions tardaient et les puissants groupes économiques exerçaient une influence de plus en plus visible.",
@@ -980,7 +980,7 @@ export const worldEncyclopedia = Object.freeze([
     "kind": "histoire",
     "imperialArchive": true,
     "poster": "posters/clones.svg",
-    "posterAlt": "Affiche militaire fictive : soldats clones en formation devant une bataille galactique",
+    "posterAlt": "Affiche militaire impériale : soldats clones en formation devant une bataille galactique",
     "slogan": "Le sacrifice des loyaux a sauvé la galaxie.",
     "paragraphs": [
       "ARCHIVES IMPÉRIALES — La guerre des Clones opposa la République aux forces de la Confédération séparatiste. Pendant environ trois ans, les armées de droïdes parcoururent les systèmes, les lignes de ravitaillement furent disputées et des mondes entiers subirent les conséquences du conflit.",
@@ -988,7 +988,7 @@ export const worldEncyclopedia = Object.freeze([
       "De la bataille de Geonosis aux combats sur les mondes éloignés, les fronts se multiplièrent. Des villes furent endommagées, des familles déplacées et des usines mobilisées pour fournir carburant, rations, pièces et équipements. Les grandes victoires dont parlent les communiqués ne sauraient faire oublier le coût humain et matériel de cette période.",
       "À Coruscant, le chancelier Palpatine reçut progressivement les moyens de coordonner la défense. Les services impériaux considèrent que cette autorité permit de maintenir les communications, d'approvisionner les forces loyales et de rapprocher la fin des hostilités.",
       "La victoire sur les chefs séparatistes n'effaça pas immédiatement les blessures de la guerre. De nombreuses épaves durent être démontées, des installations reconstruites et des routes remises en service. À Breach Port, les anciens se souviennent surtout du travail trouvé grâce aux convois militaires — et de ceux qui ne revinrent jamais.",
-      "Les archives de l'Empire concluent que la paix fut rendue possible par les sacrifices des soldats et par le retour d'une autorité capable de prendre des décisions. Les habitants, eux, conservent parfois des souvenirs plus contrastés des années de guerre."
+      "Les Archives impériales honorent les soldats qui ont permis la victoire et rappellent que leur sacrifice a ouvert la voie à une autorité stable. Les travaux de reconstruction, la protection des routes et la remise en service des ports témoignent de la paix conquise."
     ],
     "sources": [
       {
@@ -1013,15 +1013,15 @@ export const worldEncyclopedia = Object.freeze([
     "kind": "histoire",
     "imperialArchive": true,
     "poster": "posters/jedi.svg",
-    "posterAlt": "Affiche officielle fictive : silhouettes d'anciens Jedi sous la surveillance de soldats de la République",
+    "posterAlt": "Affiche officielle impériale : silhouettes d'anciens Jedi sous la surveillance de soldats de la République",
     "slogan": "Nul n'est au-dessus de la paix galactique.",
     "paragraphs": [
       "ARCHIVES IMPÉRIALES — Pendant la guerre des Clones, l'Ordre Jedi exerça un pouvoir considérable au sein des forces républicaines. Ses membres dirigeaient des opérations militaires tout en conservant l'influence politique qu'ils tenaient de leur rôle historique de gardiens de la paix.",
-      "Au terme des hostilités, le gouvernement déclara avoir découvert une tentative de renversement de la chancellerie impliquant des membres de l'Ordre. Cette accusation devint le fondement de la version officielle : les Jedi auraient abandonné leur mission de protection pour menacer l'État qu'ils servaient.",
-      "Selon les communiqués impériaux, les forces loyales furent contraintes d'agir rapidement afin d'empêcher un nouveau conflit. Les opérations de sécurité de cette période, souvent associées au nom d'Ordre 66, entraînèrent la dissolution de l'organisation Jedi et la disparition de ses représentants de la vie publique.",
-      "Les Jedi ne dirigent plus les armées et leurs anciens lieux d'enseignement ne remplissent plus leur fonction d'autrefois. L'administration impériale présente ces mesures comme nécessaires à la sécurité collective. Elle appelle les citoyens à signaler toute activité qu'elle considère comme une résurgence de l'ancien ordre.",
-      "De nombreux habitants ont pourtant connu les Jedi autrement : comme des négociateurs, des protecteurs ou des compagnons d'armes. Leurs souvenirs ne concordent pas toujours avec les proclamations officielles. Dans les ports, la prudence reste de mise lorsqu'on évoque ces événements.",
-      "Les archives impériales rappellent qu'aucune institution ne doit se placer au-dessus de la paix galactique. C'est la doctrine qui justifie officiellement la disparition des Jedi ; elle ne saurait, à elle seule, épuiser les récits de tous ceux qui ont vécu cette période."
+      "Au terme des hostilités, les services de sécurité déjouèrent une tentative de renversement de la chancellerie par les dirigeants de l'Ordre Jedi. Cette trahison mit en péril la paix pour laquelle les soldats de la République avaient combattu.",
+      "Les forces loyales intervinrent sans délai afin de prévenir un nouveau conflit. L'Ordre 66 permit de neutraliser les responsables de la conspiration, entraîna la dissolution de l'organisation Jedi et mit fin à son influence sur les forces de la République.",
+      "Les Jedi ne dirigent plus les armées et leurs anciens lieux d'enseignement sont placés sous contrôle de l'État. Ces mesures assurent la sécurité collective. Les citoyens ont l'obligation de signaler toute activité visant à reconstituer l'ancien ordre.",
+      "Certains récits populaires attribuent encore aux anciens Jedi des services rendus à des particuliers pendant les années républicaines. Aucun de ces témoignages ne saurait effacer la responsabilité de leurs dirigeants. Les services de sécurité invitent la population à transmettre tout renseignement vérifiable sur les fugitifs recherchés.",
+      "Les Archives impériales rappellent qu'aucune institution ne peut s'élever au-dessus de la paix galactique. La dissolution de l'Ordre Jedi demeure une mesure fondamentale de protection de l'État et de la population."
     ],
     "sources": [
       {
@@ -1046,15 +1046,15 @@ export const worldEncyclopedia = Object.freeze([
     "kind": "histoire",
     "imperialArchive": true,
     "poster": "posters/empire.svg",
-    "posterAlt": "Affiche de propagande fictive : une flotte de destroyers survole une capitale impériale monumentale",
+    "posterAlt": "Affiche du Bureau impérial d’information : une flotte de destroyers survole une capitale impériale monumentale",
     "slogan": "Un Empire. Une paix. Un avenir.",
     "paragraphs": [
       "ARCHIVES IMPÉRIALES — À la fin de la guerre des Clones, la galaxie aspirait à la stabilité. Les destructions, les pénuries et les menaces contre les institutions avaient ébranlé la confiance des citoyens. Le chancelier Palpatine entreprit de réorganiser l'État pour répondre à ces attentes.",
       "Devant le Sénat, Palpatine proclama la naissance de l'Empire galactique. Les autorités annoncèrent une administration unifiée, des décisions plus rapides et une capacité accrue à défendre les systèmes. Le nouvel Empereur présenta cette transformation comme la garantie d'une paix durable.",
       "Les institutions anciennes ne disparurent pas immédiatement. Le Sénat continua de siéger, tandis que les gouverneurs, les forces armées et les services impériaux prenaient une place croissante dans la gestion des territoires. Les communiqués insistaient sur la continuité du service public et la sécurité des échanges.",
-      "Dans les mondes qui avaient connu les blocus et les combats, la promesse de routes sûres et d'un approvisionnement régulier fut accueillie avec espoir. Ailleurs, certains habitants accueillirent la réorganisation avec réserve, craignant que l'unité proclamée n'exige une obéissance toujours plus étroite.",
-      "L'Empire présente son avènement comme le passage du désordre à la reconstruction : là où l'ancien système hésitait, le nouvel État agit. Les citoyens sont invités à participer à cette œuvre par leur travail, leur loyauté et leur respect des institutions.",
-      "À Breach Port, cette ère nouvelle se manifeste par l'arrivée de registres, d'autorisations et de contrôles plus stricts, mais aussi par la perspective de marchés reconstruits. Entre la parole officielle et les expériences vécues, chacun apprend à reconnaître la réalité de sa propre vie."
+      "Sur les mondes éprouvés par les blocus et les combats, le rétablissement de routes sûres et d'un approvisionnement régulier a rendu possible la reconstruction. Les administrations locales assurent désormais l'application de règlements communs, indispensables à la sécurité des échanges.",
+      "L'avènement de l'Empire marque le passage du désordre à la reconstruction : là où l'ancien système hésitait, le nouvel État agit. Tous les citoyens participent à cette œuvre par leur travail, leur loyauté et leur respect des institutions.",
+      "À Breach Port, cette ère nouvelle se manifeste par l'harmonisation des registres, des autorisations et des contrôles, ainsi que par la remise en activité des marchés. Les services du district invitent les équipages à respecter les formalités nécessaires à la prospérité commune."
     ],
     "sources": [
       {
@@ -1079,14 +1079,14 @@ export const worldEncyclopedia = Object.freeze([
     "kind": "histoire",
     "imperialArchive": true,
     "poster": "posters/separatists.svg",
-    "posterAlt": "Affiche de propagande fictive : une carte galactique fracturée et des silhouettes de droïdes",
+    "posterAlt": "Affiche du Bureau impérial d’information : une carte galactique fracturée et des silhouettes de droïdes",
     "slogan": "La division affaiblit. L'unité protège.",
     "paragraphs": [
       "ARCHIVES IMPÉRIALES — Les faiblesses de la République offrirent aux partisans de la sécession une occasion de rompre les liens patiemment établis entre les systèmes. Présentant la rupture comme une promesse de liberté, les dirigeants séparatistes contribuèrent à dresser des mondes voisins les uns contre les autres.",
       "Sous la direction publique du comte Dooku, la Confédération des systèmes indépendants rassembla de nombreux gouvernements dissidents. Des consortiums industriels et des intérêts commerciaux fournirent à cette alliance les ressources nécessaires pour produire d'immenses armées de droïdes.",
-      "Les familles et les transporteurs furent rapidement touchés. Des commandes furent annulées, des voies de ravitaillement coupées et des communautés contraintes de choisir un camp. Le discours impérial retient surtout les souffrances causées par cette rupture : lorsque les routes se ferment, les citoyens ordinaires paient le prix des ambitions politiques.",
+      "Les familles et les transporteurs furent durement touchés par la sécession. Des commandes furent annulées, des voies de ravitaillement coupées et des communautés plongées dans l'incertitude. Les citoyens ordinaires payèrent le prix des ambitions de dirigeants qui avaient préféré la division à la stabilité.",
       "Geonosis devint l'un des lieux emblématiques de la crise, où la militarisation des Séparatistes précipita le conflit ouvert. Ailleurs, les conséquences furent moins spectaculaires mais tout aussi durables : hausse du prix des ressources, contrôles supplémentaires et disparition de partenaires de commerce.",
-      "Les autorités impériales présentent aujourd'hui la sécession comme une leçon pour l'avenir : l'unité galactique ne saurait être abandonnée aux intérêts de quelques factions. Les témoignages qui circulent dans les ports rappellent cependant que les causes de la rupture furent débattues bien avant la guerre."
+      "La crise séparatiste démontre la nécessité d'une autorité commune capable de protéger les systèmes et leurs routes. L'unité galactique ne saurait être abandonnée aux ambitions de quelques factions : tel est l'enseignement que les Archives impériales transmettent aux générations futures."
     ],
     "sources": [
       {
