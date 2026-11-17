@@ -159,18 +159,22 @@ test('Images planétaires : 30 vues orbitales uniques couvrant chaque monde publ
  }
 });
 
-test('Images des lieux de Breach Port : quatre fiches, trois scènes exactes, sans révélation',()=>{
+test('Images des lieux de Breach Port : sept fiches, cinq scènes exactes, sans révélation',()=>{
  const manifest=JSON.parse(readFileSync('assets-source/place-images.json','utf8')).place_images;
- assert.equal(Object.keys(manifest).length,3,'Trois fichiers sources attendus');
- assert.equal(new Set(Object.values(manifest)).size,3,'Chaque scène source doit être distincte');
+ assert.equal(Object.keys(manifest).length,5,'Cinq fichiers sources attendus');
+ assert.equal(new Set(Object.values(manifest)).size,5,'Chaque scène source doit être distincte');
  const mapping={
    'lieu-la-cantina-de-la-traverse':['breach-port-cantina','center'],
    'lieu-le-spatioport':['breach-port-spatioport','center'],
    'lieu-la-maison-du-prefet-et-la-prison':['breach-port-imperial-office-docks','left'],
-   'lieu-les-docks':['breach-port-imperial-office-docks','right']
+   'lieu-les-docks':['breach-port-imperial-office-docks','right'],
+   'lieu-le-comptoir':['breach-port-comptoir','center'],
+   'lieu-l-hospice':['breach-port-hospice-workshop','left'],
+   'lieu-l-atelier':['breach-port-hospice-workshop','right']
  };
- const illustrated=worldEncyclopedia.filter(a=>a.placeImage);
- assert.equal(illustrated.length,4);
+ const places=worldEncyclopedia.filter(a=>a.category==='Lieux de Breach Port');
+ assert.equal(places.length,7);
+ assert.equal(places.filter(a=>a.placeImage).length,7);
  for(const [id,[slug,focus]] of Object.entries(mapping)){
    const article=worldEncyclopedia.find(a=>a.id===id);
    assert.ok(article&&article.kind==='lieu',id+' introuvable');
@@ -185,8 +189,7 @@ test('Images des lieux de Breach Port : quatre fiches, trois scènes exactes, sa
    assert.doesNotMatch(html,/gmTruth|gmNotes|SECRET_MAP_ROUTE|navigationCode/);
  }
  const index=holopediaIndexHtml('public');
- assert.equal((index.match(/data-place-image="true"/g)||[]).length,4);
- assert.doesNotMatch(holopediaArticleHtml('public','lieu-le-comptoir'),/place-hero/);
+ assert.equal((index.match(/data-place-image="true"/g)||[]).length,7);
 });
 
 test('Accueil et menu latéral : Histoire, Breach Port, Lieux, Culture, Planètes',()=>{
