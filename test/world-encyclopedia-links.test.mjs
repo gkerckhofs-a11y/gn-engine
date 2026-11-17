@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {worldEncyclopedia} from '../world-encyclopedia-data.mjs';
 import {wikiKeywords,wikiReferences,wikiTextHtml,publicWikiTargetIds} from '../world-encyclopedia-links.mjs';
-import {holopediaArticleHtml,holopediaIndexHtml,holopediaSidebarHtml,encyclopediaCategories} from '../world-encyclopedia.mjs';
+import {holopediaArticleHtml,holopediaIndexHtml,holopediaSidebarHtml,encyclopediaCategories,encyclopediaArticlesByCategory} from '../world-encyclopedia.mjs';
 
 test('Liens : chaque terme renvoie uniquement vers une page publique existante',()=>{
  const ids=new Set(worldEncyclopedia.map(a=>a.id));
@@ -241,4 +241,28 @@ test('Holopédia intégralement RP : aucune référence extérieure visible sur 
  const pageCSS=readFileSync('style.css','utf8');
  assert.match(pageCSS,/\.wiki-layout/);
  assert.match(pageCSS,/\.wiki-nav-toggle/);
+});
+
+test('Histoire : sept articles en ordre chronologique dans l’accueil et le sommaire',()=>{
+ const expected=[
+  'histoire-ancienne-republique-et-jedi',
+  'histoire-crise-separatiste',
+  'histoire-guerre-des-clones',
+  'histoire-ordre-66-et-disparition-des-jedi',
+  'histoire-naissance-empire',
+  'histoire-republique-a-empire',
+  'chronologie'
+ ];
+ assert.deepEqual(encyclopediaArticlesByCategory('Histoire').map(a=>a.id),expected);
+ const index=holopediaIndexHtml('public');
+ const historySection=index.match(/<section class="holopedia-section" data-holopedia-section="Histoire">([\s\S]*?)<\/section>/);
+ assert.ok(historySection,'Rubrique Histoire absente de l’accueil');
+ const indexOrder=[...historySection[1].matchAll(/data-holopedia-article="([^"]+)"/g)].map(m=>m[1]);
+ assert.deepEqual(indexOrder,expected,'Accueil non chronologique');
+ const sidebar=holopediaSidebarHtml('public');
+ const historyGroup=sidebar.match(/<details class="wiki-side-group" open>([\s\S]*?)<\/details>/);
+ assert.ok(historyGroup,'Rubrique Histoire absente du sommaire');
+ const sidebarOrder=[...historyGroup[1].matchAll(/<li><a href="#\/holopedia\/public\/([^"]+)"/g)].map(m=>m[1]);
+ assert.deepEqual(sidebarOrder,expected,'Menu latéral non chronologique');
+ assert.equal(encyclopediaArticlesByCategory('Histoire').length,7);
 });
