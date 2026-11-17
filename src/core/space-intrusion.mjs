@@ -1,3 +1,5 @@
+import {dockIntrusionGuard} from './dock-state.mjs';
+import {inventoryPlayer} from './inventory-transfers.mjs';
 import {recordFictionalTrace} from './space-fictional-traces.mjs';
 import {readLot,personalLot,lotState} from './inventory-state.mjs';
 import {prepareAid,reserveAid,checkAid,finishAid,aidSnapshot,cooldownPath} from './aid-state.mjs';
@@ -69,6 +71,7 @@ export function createSoIntrusionService({store,signed,checkSession,now,uuid,rol
     if(a.status==='RUNNING'){const c=await tx.get(characterPath(sid,a.characterId)),state=await tx.get(actorPath(sid,a.characterId)),field=await tx.get(statePath(sid,a.targetId));authorizeSpaceOutlaws(tx,s,'INF01');result=await cancel(tx,s,c,state,field,a,at,{actorUid:actor.uid,reason:input.reason.trim()});}tx.set(op,{fingerprint,result,at});return result;
    }
    const {s,c,r}=await access(tx,actor,sid);
+   if(['startSoIntrusion','finishSoIntrusion'].includes(action))await dockIntrusionGuard(tx,await inventoryPlayer(tx,actor,{sessionId:sid}),documentId(input.targetId),at);
    const aiding=action==='cancelSoIntrusionAid'?await tx.get(actionPath(sid,documentId(input.actionId))):null;
    if(action==='cancelSoIntrusionAid')requireThat(aiding?.aid?.characterId===c.id&&aiding.aid.uid===actor.uid&&aiding.aid.accessVersion===r.accessVersion,'FORBIDDEN');
    const tid=documentId(aiding?.targetId??input.targetId);

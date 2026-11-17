@@ -152,6 +152,8 @@ export const firestoreSuites = [
   {"id":"space-episodes","module":"../support/space-episodes-suite.mjs","exportName":"spaceEpisodesSuite","label":"Épisodes SO sur Firestore","seconds":166},
   {"id":"space-search","module":"../support/space-search-suite.mjs","exportName":"spaceSearchSuite","label":"Fouilles V3.6 sur Firestore","seconds":91},
   {"id":"space-succession","module":"../support/space-succession-suite.mjs","exportName":"spaceSuccessionSuite","label":"Succession SO sur Firestore","seconds":68},
+  {"id":"docks","module":"../support/docks-suite.mjs","exportName":"docksSuite","label":"Docks sur Firestore","seconds":60},
+  {"id":"dock-intrusion","module":"../support/docks-suite.mjs","exportName":"dockIntrusionSuite","label":"Forçage de cellule sur Firestore","seconds":40},
   {"id":"commercial-storage","module":"../support/commercial-storage-suite.mjs","exportName":"commercialStorageSuite","label":"Entrepôts commerciaux sur Firestore","seconds":100},
   {"id":"commercial-logistics","module":"../support/commercial-logistics-suite.mjs","exportName":"commercialLogisticsSuite","label":"Logistique commerciale sur Firestore","seconds":100},
   {"id":"commercial-transport","module":"../support/commercial-transport-suite.mjs","exportName":"commercialTransportSuite","label":"Transport entre joueurs sur Firestore","seconds":100},

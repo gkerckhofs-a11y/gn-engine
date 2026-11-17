@@ -973,3 +973,12 @@ Essai solo commun à huit profils, groupe et Sabacc ; alias personnage `ABC123` 
 corbeille des sessions/scénarios ; boutons explicites de suppression d’images ;
 Marché réservé à la classe principale Courtier. Détail, limites et validation :
 [SO-ESSAI-COMMUN.md](SO-ESSAI-COMMUN.md).
+
+### Mission #57 — docks, première tranche AC-04 (17 novembre 2026)
+
+- Acquisition RENT/OWN et mandats de cellule : extension du moteur commercial natif.
+- Cellule ↔ soute : réservation/réception cargo native, même port, propriété conservée.
+- Code/clé ou INF-01 natif : entrée dix minutes, informations préparées seulement.
+- Tests partagés `docks` et `dock-intrusion`, HTTP/Auth dédié, parcours Chromium ajouté.
+- Preuves exactes et limites dans `SO-CONTEXTUAL-ACCESS-57.md` et PR #58 ; pas de
+  recette globale, terrain ou publication déduite de cette entrée de matrice.

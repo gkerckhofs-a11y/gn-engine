@@ -66,3 +66,52 @@ Candidat `dc07bfab2ac95aced0204016d2ede3ea2adad88c`, [CI 44080464178](https://gi
 Validation locale : compilation et 433 tests applicatifs ciblés (commerce, inventaire, comptes, contexte, M5/import/normalisation/publication et snapshots) ; huit nouveaux parcours Firestore de livraison ; trois HTTP/Auth contextuels, comprenant livraison numérique/réessai puis livraison physique avec mode figé. Concurrence sur dernier stock, devis périmé, rollback après écritures, ancienne offre, nouvelle publication M5 et refus de droits vérifiés. La fixture de portefeuille contextuel lit maintenant le compte effectivement incarné après naissance, pour vérifier ses soldes réels. Recette navigateur supplémentaire : choix du mode en régie et achat depuis un terminal local, disponibilité dans le sac mobile ; résultat CI à vérifier avant AC-04.
 
 Les annulations/remboursements, les taxes, les montages de modules et le ravitaillement conservent leurs règles natives ; aucune nouvelle règle n'est ajoutée par le mode de livraison. L'adoption d'une future version et un retour logiciel doivent préserver les champs/reçus nouveaux ; aucune rétroconversion d'un achat payé n'est permise.
+
+## Reprise du 17 novembre 2026 — AC-04
+
+Les arbitrages de l'organisateur sont consignés dans le commentaire de PR #58
+`issuecomment-6953767214` : INF-01 ouvre dix minutes de jeu ; vol automatique après
+les trois minutes si toutes les préconditions restent satisfaites ; détention seule,
+propriété légale conservée ; remise physique confirmée par le MJ.
+
+Première tranche docks : extension explicite de `saveCommercialStorage`, sans
+nouveau moteur de paiement. Mode RENT ou OWN, prix saisi par le MJ, titre personnel
+ou collectif indépendant du compte payeur et de la propriété de chaque lot. Un achat
+n'expire pas ; aucun renouvellement, restitution, changement de mode, revente ou
+cession de titre n'est ouvert. Les anciens entrepôts conservent leur contrat.
+La création explicite d'une cellule ouvre `dockStorageVersion=1` dans cette session,
+sous une capacité serveur bornée : le mandat `manageStorage` devient configurable,
+sans l'accorder à aucun membre existant. Les mandats lecture/dépôt/retrait restent
+indépendants ; un dépôt en cellule collective ne cède pas le lot au groupe.
+
+Raccord des cellules au moteur `cargo.mjs` et à ses réservations/réceptions natives,
+par lots de cinq unités de volume et trois minutes de manutention déjà canoniques.
+Soute à quai et cellule du même port ; marchandise personnelle, détention douanière,
+contrat actif, dissimulation et autres réservations refusés pour ce raccord. Aucun
+nouveau prélèvement fiscal. Quantité, filiation et propriété du lot conservées.
+Les contrôles locaux et les mandats sont revalidés avant les reçus idempotents.
+
+Un terminal existant peut maintenant publier `dockEntry` pour une cellule précise.
+Code/clé et présence locale, ou réussite INF-01 native récente sur la cible liée de
+même niveau N1–N5 : dix minutes à partir de la réussite, aucune clé/code créé.
+Le lancement et la résolution INF-01 vérifient aussi le scan ; les durées, PA,
+cooldowns, D6/mini-jeu et conséquences natives restent inchangés. La projection
+d'entrée ne révèle que les champs préparés (nature, quantité, statut légal), sans
+mandat implicite sur les marchandises. QR de terminal réemployé et exports AC-02.
+La régie signale les prix incohérents à capacité/port/mode/période comparables.
+
+Validation locale de la tranche avant commit : build, 143 tests ciblés de premiers
+raccords, puis 38 tests docks/groupes après ajout du mandat collectif. Six cas
+Firestore et un cas HTTP/Auth ont réussi sur émulateurs ; les tests sont rejoués
+sur l'état final avant commit. Les sélections se recouvrent, ne pas additionner.
+État final avant commit : build + 175 tests applicatifs ciblés, huit tests
+Firestore partagés et un test HTTP/Auth docks réussis, zéro échec/ignoré.
+Nouveau parcours Chromium ajouté : configuration PC, achat mobile et refus d'accès
+sans scan/code ; non déclaré réussi avant sa CI. Node local 24.22.1, Java 21.
+
+Limites : pas de protocole nouveau de saisie/inspection approfondie en cellule,
+ni stockage sous douane ; aucun droit implicite de revente de biens volés. Délégation
+à un tiers par mandats de groupe ; pas de nouvelle liste de délégataires personnels.
+Les configurations locales sont propres à la session : elles devront être préparées
+à nouveau pour un autre épisode. AC-05 et la recette globale AC-06 restent à faire.
+Aucune migration, fusion ou publication Firebase.

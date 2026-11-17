@@ -12,5 +12,6 @@ export const hasSoGroupPilot=s=>s.spaceOutlaws?.actionsVersion===1&&
 export const soSessionGroupPermissions=s=>[
  ...(hasSoGroupWallets(s)?walletPermissions:soGroupPermissions),
  ...(hasSoGroupStock(s)?soStockPermissions:[]),
+ ...(hasSoGroupStock(s)&&s.spaceOutlaws.dockStorageVersion===1?['manageStorage']:[]),
  ...(hasSoGroupPilot(s)?['pilotShip']:[])
 ];

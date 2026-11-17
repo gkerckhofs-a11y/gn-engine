@@ -14,7 +14,7 @@ export const stockPermissions=['readStock','depositStock','withdrawStock','manag
 export function storageGroups(s,groups,cid,{factionStock=false}={}){
   if(s.modules?.groups!==true)return [];
   // Space Outlaws warehouse grants do not open the legacy hold and voyage paths.
-  const permissions=s.spaceOutlaws&&factionStock?soStockPermissions:[...stockPermissions,'pilotShip'];
+  const permissions=s.spaceOutlaws&&factionStock?[...soStockPermissions,...(s.spaceOutlaws.dockStorageVersion===1?['manageStorage']:[])]:[...stockPermissions,'pilotShip'];
   const grantsEnabled=!s.spaceOutlaws||factionStock&&hasSoGroupStock(s);
   return groups.filter(g=>groupVisible(g,cid)).map(g=>({
     id:g.id,name:g.name,revision:g.revision,
