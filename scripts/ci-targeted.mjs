@@ -317,3 +317,16 @@ targetedProfiles['contextual-delivery']={
  browser:true,
  files:[...targetedProfiles['contextual-access'].files,'src/core/central-shops.mjs','src/core/central-check.mjs','src/core/central-shop-import.mjs','src/shared/central-import-schema.mjs','src/core/space-outlaws-shop-state.mjs','src/core/shops.mjs','src/core/sales.mjs','src/core/space-outlaws-entry-guard.mjs','web/central-shops.mjs','web/shops.mjs','test/contextual-delivery.test.mjs','test/contextual-delivery-ui.test.mjs','test/support/contextual-delivery-suite.mjs'],
 };
+
+// AC-04 is cumulative with AC-01..03. Native cargo/warehouse/group/INF-01
+// consumers remain selected; HTTP/Auth and browser acceptance are both complete.
+// Unknown files, adapters, rules, packages and server remain outside this profile.
+const dockTests=['docks','docks-ui','cargo','cargo-ui','logistics','logistics-ui','commercial-storage','commercial-storage-ui','commercial-transport','commercial-transport-ui','commercial-logistics','commercial-logistics-ui','space-logistics','space-logistics-ui','space-intrusion','space-intrusion-ui','space-intrusion-completion-ui','action-points','field-actions','field-ui','ship-crew','ship-crew-cargo','group-management','group-management-ui','groups','space-groups','space-group-stock','space-group-pilot','space-episodes','space-episodes-ui','space-outlaws-voyages','space-outlaws-voyages-ui','customs','space-hidden-cargo'].map(id=>`test/${id}.test.mjs`);
+targetedProfiles['contextual-docks']={
+ tests:[...new Set([...targetedProfiles['contextual-delivery'].tests,...dockTests])],
+ suites:[...new Set([...targetedProfiles['contextual-delivery'].suites,'docks','dock-intrusion','commercial-storage','cargo','logistics','space-logistics','space-intrusion','action-points','field','ship-crew','ship-crew-cargo','group-management','groups','space-groups','space-group-stock','space-group-pilot','space-episodes','commercial-transport','commercial-logistics','space-transport','customs','space-hidden-cargo'])],
+ httpPattern:'.',browser:true,
+ files:[...targetedProfiles['contextual-delivery'].files,...dockTests,
+  'src/core/dock-state.mjs','src/core/docks.mjs','src/core/cargo.mjs','src/core/logistics.mjs','src/core/storage-state.mjs','src/core/space-intrusion.mjs','src/shared/space-outlaws-groups.mjs',
+  'web/docks.mjs','web/commercial-storage.mjs','web/logistics.mjs','test/support/docks-suite.mjs']
+};

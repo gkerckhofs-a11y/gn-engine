@@ -34,7 +34,7 @@ export async function dockEntry(tx,ctx,w,at,{forceOnly=false}={}){
  const target=w.dock.intrusionTargetId?await tx.get(`sessions/${s.id}/fieldTargets/${w.dock.intrusionTargetId}`):null;
  const rows=target?.publicationState==='PUBLISHED'&&target.intrusion?.minLevel===w.dock.securityTier?await tx.list(`sessions/${s.id}/inf01Actions`,['characterId',c.id],{limit:1001}):[];
  requireThat(rows.length<=1000,'SO_RELEASE_LIMIT');
- const a=rows.find(a=>a.targetId===target.id&&a.targetRevision===target.revision&&a.accessVersion===ctx.r.accessVersion&&a.status==='SUCCESS'&&a.finishedAtGameMs<=time&&a.finishedAtGameMs+600000>time&&a.level>=w.dock.securityTier);
+ const a=rows.find(a=>a.dockAccess?.sessionId===s.id&&a.dockAccess.warehouseId===w.id&&a.targetId===target.id&&a.targetRevision===target.revision&&a.accessVersion===ctx.r.accessVersion&&a.status==='SUCCESS'&&a.finishedAtGameMs<=time&&a.finishedAtGameMs+600000>time&&a.level>=w.dock.securityTier);
  requireThat(a,'LOCAL_CREDENTIAL_REQUIRED');return {terminalId:t.id,method:'INF01',expiresGameMs:a.finishedAtGameMs+600000};
 }
 export async function dockIntrusionGuard(tx,ctx,tid,at){
@@ -46,4 +46,5 @@ export async function dockIntrusionGuard(tx,ctx,tid,at){
  requireThat(binding?.active&&t?.active&&t.portId===w.portId&&w.portId===(ctx.c.spacePortId??ctx.s.transportRules?.homePort),'DOCK_NOT_LOCAL');
  requireThat(p?.terminalId===t.id&&p.terminalRevision===t.revision&&p.characterVersion===ctx.version&&p.expiresGameMs>gameTime(ctx.s.clock,at),'LOCAL_SCAN_REQUIRED');
  requireThat(abilityLevel(ctx.c,'INF-01')>=w.dock.securityTier,'SO_INF01_SKILL');
+ return {warehouseId:w.id,sessionId:ctx.s.id};
 }

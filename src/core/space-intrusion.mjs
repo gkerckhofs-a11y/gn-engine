@@ -71,7 +71,7 @@ export function createSoIntrusionService({store,signed,checkSession,now,uuid,rol
     if(a.status==='RUNNING'){const c=await tx.get(characterPath(sid,a.characterId)),state=await tx.get(actorPath(sid,a.characterId)),field=await tx.get(statePath(sid,a.targetId));authorizeSpaceOutlaws(tx,s,'INF01');result=await cancel(tx,s,c,state,field,a,at,{actorUid:actor.uid,reason:input.reason.trim()});}tx.set(op,{fingerprint,result,at});return result;
    }
    const {s,c,r}=await access(tx,actor,sid);
-   if(['startSoIntrusion','finishSoIntrusion'].includes(action))await dockIntrusionGuard(tx,await inventoryPlayer(tx,actor,{sessionId:sid}),documentId(input.targetId),at);
+   const dockAccess=['startSoIntrusion','finishSoIntrusion'].includes(action)?await dockIntrusionGuard(tx,await inventoryPlayer(tx,actor,{sessionId:sid}),documentId(input.targetId),at):null;
    const aiding=action==='cancelSoIntrusionAid'?await tx.get(actionPath(sid,documentId(input.actionId))):null;
    if(action==='cancelSoIntrusionAid')requireThat(aiding?.aid?.characterId===c.id&&aiding.aid.uid===actor.uid&&aiding.aid.accessVersion===r.accessVersion,'FORBIDDEN');
    const tid=documentId(aiding?.targetId??input.targetId);
@@ -141,7 +141,7 @@ export function createSoIntrusionService({store,signed,checkSession,now,uuid,rol
     const path=actionPointPath(sid,c.id),points=actionPointState(s,c,await tx.get(path),at),id=uuid();
     const seconds=t.intrusion.challenge?.durationSeconds??durations[level],a={id,characterId:c.id,targetId:tid,targetRevision:t.revision,
      resources,bonus:input.bonusLotId?1:0,aid:aidSnapshot(aid),profile,family,cooldownSeconds:600,actorUid:actor.uid,mode:t.intrusion.challenge?'CODE':'D6',
-     accessVersion:r.accessVersion,status:'RUNNING',durationSeconds:seconds,level,
+     accessVersion:r.accessVersion,status:'RUNNING',durationSeconds:seconds,level,...(dockAccess?{dockAccess}:{}),
      startedAtGameMs:time,readyAtGameMs:time+seconds*1000};
     reserveAid(tx,s,a,aid,'inf01Actions');for(const l of selected)tx.set(base(sid)+'/inventory/'+l.id,{...l,status:'FIELD_RESERVED',fieldActionId:id,revision:l.revision+1});
     tx.set(path,reserveActionPoints(points,1));
@@ -158,6 +158,7 @@ export function createSoIntrusionService({store,signed,checkSession,now,uuid,rol
    const path=actionPointPath(sid,c.id),points=actionPointState(s,c,await tx.get(path),at);
    if(action==='cancelSoIntrusion')return record(await cancel(tx,s,c,state,field,a,at));
    live(s,c,at);if(s.spaceOutlaws.escapeVersion===1){const cap=await tx.get(base(sid)+'/soCaptivities/'+c.id);requireThat(cap?.status!=='ACTIVE','SO_ESCAPE_CAPTIVE');}
+   requireThat(!dockAccess||a.dockAccess?.warehouseId===dockAccess.warehouseId&&a.dockAccess?.sessionId===sid,'SO_INF01_STALE');
    requireThat(time>=a.readyAtGameMs,'SO_INF01_TOO_EARLY');
    requireThat(input.present===true,'SO_INF01_PRESENCE');
    requireThat(t.revision===a.targetRevision&&field.status==='ONLINE','SO_INF01_STALE');

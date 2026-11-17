@@ -130,3 +130,41 @@ navigateur reste attendue de la CI.
 Le raccord INF-01 revérifie aussi le niveau de sécurité de la cellule et sa
 concordance avec la cible publiée à chaque lancement/résolution : une retouche M6
 ne peut pas abaisser silencieusement la protection d'une cellule déjà configurée.
+
+### Preuve d'intrusion bornée à la cellule et à la session
+
+Une recette complémentaire sur les commandes natives a reproduit un défaut :
+réussir INF-01 sur une cible puis rattacher après coup cette cible à une cellule
+ouvrait cette cellule avec l'ancien résultat. La reprise native copie également
+les anciens résultats INF-01 ; ils ne doivent pas constituer une nouvelle entrée
+locale dans un autre épisode.
+
+Le lancement d'une intrusion de dock conserve désormais un marqueur privé
+`dockAccess` (cellule/session) ; la résolution vérifie son identité et l'entrée
+n'accepte que cette preuve ciblée. Aucun ancien résultat n'est converti. Un
+forçage commencé avant la liaison reste annulable par son parcours natif, sans
+accès rétroactif. Test partagé ajouté : ancienne réussite refusée après liaison,
+nouvelle intrusion ciblée admise, ancien accès refusé dans l'épisode suivant.
+Build et 63 tests ciblés réussis ; trois cas Firestore d'intrusion (dont liaison et
+reprise d'épisode réelles) et un HTTP/Auth docks ont réussi sur émulateurs.
+
+Profil CI explicite `contextual-docks` : cumul AC-01..04, 66 fichiers applicatifs,
+42 suites Firestore incluant règles, groupes, comptoir, monnaie, inventaire, fret,
+stockage, INF-01 et reprise. 861 tests applicatifs de cette sélection réussis
+localement ; les 60 tests de sélection CI passent. Filtre HTTP universel (`.`),
+vérifié contre tous les noms du fichier : HTTP/Auth/Storage complet, plus toute
+la recette navigateur. Aucun changement de workflow, serveur, adaptateur, règle
+Firestore ou permission d'infrastructure. Fichier inconnu ou fondation hors liste
+refusé ; ancêtre global réussi et ascendance toujours exigés ; le profil ciblé
+ne devient jamais une référence globale. AC-06 conserve une CI complète finale.
+
+Sur `dab4524`, la CI `44130039529` a confirmé application et 118 HTTP/Auth ainsi
+que les 29 parcours Chromium ; Firestore encore en cours lors de ce correctif.
+Ces succès ne valident pas le nouveau candidat et ne sont pas annoncés globaux.
+
+Recettes complémentaires locales sans modification du candidat : achat définitif
+concurrent unique (DOCK-02), ancien entrepôt sans droits de dock implicites
+(DOCK-16), avertissement de prix (DOCK-23), soute pleine sans mouvement (DOCK-04),
+transfert local sans débit supplémentaire (DOCK-13), titre définitif et biens
+conservés entre épisodes avec présence locale non héritée. Ces observations ne
+remplacent pas les tests CI ou un essai terrain.

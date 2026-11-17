@@ -64,4 +64,12 @@ export function dockIntrusionSuite(makeStore,prefix='Forçage de cellule'){
  test(`${prefix} : absence de scan bloque aussi l’API INF-01 directe`,async()=>{
   const f=await dockFixture(makeStore),targetId='dock-lock';await f.edit(`fieldTargets/${targetId}`,()=>({id:targetId,publicationState:'PUBLISHED',kind:'INTRUSION',revision:1,intrusion:{minLevel:2}}));const w=await f.store.get(`${f.base}/warehouses/${f.wid}`);await f.configure({warehouseId:f.wid,warehouseRevision:w.revision,capacity:10,dock:{...f.dock,intrusionTargetId:targetId}});await assert.rejects(f.cmd('startSoIntrusion',{targetId,present:true}),{code:'LOCAL_SCAN_REQUIRED'});
  });
+ test(`${prefix} : une ancienne intrusion ne donne pas d’accès rétroactif ou inter-session`,async()=>{
+  const {episodeHarness}=await import('./space-episodes-suite.mjs'),f=await dockFixture(makeStore),targetId='prior-lock';
+  await f.edit(`fieldTargets/${targetId}`,()=>({id:targetId,title:'Ancienne serrure',description:'Cible préparée',publicationState:'PUBLISHED',kind:'INTRUSION',revision:1,failureLockSeconds:0,intrusion:{category:'LOCK',minLevel:2,threshold:6,successText:'Ouvert',failureText:'Fermé'}}));await f.edit(`fieldStates/${targetId}`,()=>({id:targetId,status:'ONLINE',revision:1,activeActionId:null,lockedUntilGameMs:0}));await f.edit(`characters/${f.cid}`,c=>({...c,abilityProfile:{...c.abilityProfile,skills:[...c.abilityProfile.skills,{id:'INF-01',kind:'PASSIVE',level:2}]}}));
+  const force=async()=>{const a=await f.cmd('startSoIntrusion',{targetId,present:true});f.advance(a.durationSeconds*1000);f.setDie(6);assert.equal((await f.cmd('finishSoIntrusion',{targetId,actionId:a.id,present:true})).success,true);};await force();
+  const w=await f.store.get(`${f.base}/warehouses/${f.wid}`);await f.configure({warehouseId:f.wid,warehouseRevision:w.revision,capacity:10,dock:{...f.dock,intrusionTargetId:targetId}});await f.cmd('scanLocalTerminal',{terminalId:'dock'});assert.equal((await f.read('dockEntry',{warehouseId:f.wid})).entry,null);
+  f.advance(600000);await force();assert.equal((await f.read('dockEntry',{warehouseId:f.wid})).entry.method,'INF01');const e=await episodeHarness(f);await e.close();await e.resume(await e.begin());await e.cmd('saveLocalTerminal',{terminal:{...f.terminal,operations:f.terminal.operations.map(o=>({...o,credentialIds:[]}))},revision:0});await e.stage('EN_JEU');await e.cmd('scanLocalTerminal',{terminalId:'dock'},f.player);assert.equal((await e.read('dockEntry',{warehouseId:f.wid},f.player)).entry,null);
+ });
+
 }

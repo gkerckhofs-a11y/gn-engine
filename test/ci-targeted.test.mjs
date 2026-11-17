@@ -257,3 +257,12 @@ test('CI livraison : normalisation M5, import, publication, commerce et contexte
  assert.throws(()=>targetedScope(name,['src/core/cargo.mjs'],{reliableBase:true}));assert.throws(()=>targetedScope(name,['src/server/index.mjs'],{reliableBase:true}));for(const f of p.applicationTests)assert.ok(existsSync(f),f);
  for(const title of ['accès contextuels, remise numérique','Master central,','XLSX central,'])assert.ok(new RegExp(p.httpPattern).test(`HTTP + Auth : ${title}`));
 });
+
+test('CI ciblée : docks cumulatifs, consommateurs natifs et HTTP/navigateur complets',()=>{
+ const profile=targetedProfiles['contextual-docks'],p=targetedScope('contextual-docks',['src/core/dock-state.mjs','src/core/storage-state.mjs','src/core/cargo.mjs','src/core/space-intrusion.mjs','src/shared/space-outlaws-groups.mjs'],{reliableBase:true});
+ for(const id of ['contextual-access','contextual-delivery','docks','dock-intrusion','cargo','logistics','space-intrusion','ship-crew-cargo','group-management','space-group-stock','space-episodes','commercial-transport','customs','firestore-rules'])assert.ok(p.suites.includes(id),id);
+ assert.equal(p.browser,true);assert.equal(p.http,true);assert.equal(p.httpPattern,'.');for(const match of readFileSync('test/integration/http.test.mjs','utf8').matchAll(/\btest\(['"]([^'"\n]+)['"],/g))assert.ok(new RegExp(p.httpPattern).test(match[1]),match[1]);
+ for(const path of ['src/server/index.mjs','src/adapters/firestore.mjs','firestore.rules','package.json','src/core/action-point-state.mjs','src/core/economy-state.mjs','src/core/unclassified.mjs'])assert.throws(()=>targetedScope('contextual-docks',[path],{reliableBase:true}));assert.throws(()=>targetedScope('contextual-docks',[],{reliableBase:false}));
+ for(const f of p.applicationTests)assert.ok(existsSync(f),f);assert.ok(p.applicationTests.length<=100);assert.equal(new Set(p.applicationTests).size,p.applicationTests.length);
+ const selected=matrixFor(p.suites).flatMap(({shard})=>selectFirestoreSuites({GN_FIRESTORE_SUITES:JSON.stringify(p.suites),GN_FIRESTORE_SHARD:shard}));assert.deepEqual(selected.map(s=>s.id).sort(),[...p.suites].sort());assert.deepEqual(testCommand('application',{GN_CI_PROFILE:'targeted-contextual-docks',GN_APPLICATION_TESTS:JSON.stringify(profile.tests)}).args,['--test',...profile.tests]);
+});
