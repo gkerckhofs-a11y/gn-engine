@@ -57,3 +57,30 @@ for slug, file_id in places.items():
         picture.save(place_out / f"{slug}.webp", "WEBP", quality=84, method=6)
     print(f"lieu {slug}: {len(raw)} -> {(place_out / (slug + '.webp')).stat().st_size} bytes")
 print(f"OK: {len(places)} illustration(s) de lieux.")
+
+# Affiches historiques officielles — conserver les proportions portrait 2:3 et
+# les titres peints dans les fichiers d'origine. Les anciennes SVG sont préservées.
+posters = json.loads(Path("assets-source/history-posters.json").read_text(encoding="utf-8"))["history_posters"]
+poster_out = Path("posters")
+poster_out.mkdir(parents=True, exist_ok=True)
+for slug, file_id in posters.items():
+    if not re.fullmatch(r"[a-z0-9-]{3,60}", slug) or not re.fullmatch(r"[A-Za-z0-9_-]{20,100}", file_id):
+        raise ValueError("Invalid history poster manifest entry")
+    req = urllib.request.Request(
+        f"https://www.googleapis.com/drive/v3/files/{file_id}?alt=media",
+        headers={"Authorization": "Bearer " + token, "User-Agent": "Space-Outlaws-Holopedia/1.0"}
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=45) as response:
+            raw = response.read(12_000_000)
+    except urllib.error.HTTPError as e:
+        msg = e.read(2000).decode("utf-8", errors="replace")
+        raise RuntimeError(f"Erreur Google Drive pour l'affiche {slug}: HTTP {e.code}: {msg}") from None
+    with Image.open(io.BytesIO(raw)) as source:
+        source.load()
+        if source.width < 750 or source.height < 1100:
+            raise ValueError(f"Affiche historique trop petite: {slug}")
+        picture = ImageOps.contain(source.convert("RGB"), (1100, 1650), method=Image.Resampling.LANCZOS)
+        picture.save(poster_out / f"{slug}.webp", "WEBP", quality=86, method=6)
+    print(f"affiche {slug}: {len(raw)} -> {(poster_out / (slug + '.webp')).stat().st_size} bytes")
+print(f"OK: {len(posters)} affiche(s) historique(s).")
