@@ -137,18 +137,24 @@ test('Chroniqueurs : préserver les faits publics et les limites de connaissance
 });
 
 
-test('Images planétaires : 17 vues orbitales distinctes et cohérentes avec le manifeste',()=>{
- const images=worldEncyclopedia.filter(a=>a.kind==='planète'&&a.planetImage);
- assert.equal(images.length,17);
- assert.equal(new Set(images.map(a=>a.planetImage)).size,17);
- const manifest=JSON.parse(readFileSync('assets-source/planet-images.json','utf8'))
+test('Images planétaires : 30 vues orbitales uniques couvrant chaque monde public',()=>{
+ const planets=worldEncyclopedia.filter(a=>a.kind==='planète');
+ assert.equal(planets.length,30);
+ const images=planets.filter(a=>a.planetImage);
+ assert.equal(images.length,30,'Chaque planète doit posséder sa propre illustration');
+ assert.equal(new Set(images.map(a=>a.planetImage)).size,30);
+ const manifest=JSON.parse(readFileSync('assets-source/planet-images.json','utf8'));
+ const ids=Object.values(manifest.planet_images);
+ assert.equal(ids.length,30,'Manifeste incomplet');
+ assert.equal(new Set(ids).size,30,'Réutilisation non autorisée d’un même fichier Drive');
  for(const a of images){
-   assert.match(a.planetImage,/^images\/planets\/[a-z0-9-]+\.webp$/);
+   const slug=a.id.replace('planete-','');
+   assert.equal(a.planetImage,'images/planets/'+slug+'.webp','Chemin invalide pour '+a.title);
    assert.ok(a.planetImageAlt?.includes(a.title),'Texte alternatif manquant : '+a.title);
-   assert.ok(manifest.planet_images[a.id.replace('planete-','')]);
+   assert.match(manifest.planet_images[slug],/^[A-Za-z0-9_-]{20,100}$/,'Source Drive manquante : '+a.title);
    const page=holopediaArticleHtml('public',a.id);
    assert.match(page,/planet-hero-image/);
    assert.match(page,/Reconstitution orbitale/);
+   assert.ok(page.includes('images/planets/'+slug+'.webp'),'Image absente de la fiche : '+a.title);
  }
- assert.ok(!worldEncyclopedia.find(a=>a.id==='planete-dantooine').planetImage,'Ne pas réutiliser une photo inadaptée');
 });
