@@ -168,3 +168,19 @@ concurrent unique (DOCK-02), ancien entrepôt sans droits de dock implicites
 transfert local sans débit supplémentaire (DOCK-13), titre définitif et biens
 conservés entre épisodes avec présence locale non héritée. Ces observations ne
 remplacent pas les tests CI ou un essai terrain.
+
+### Fin de revue des accès AC-04
+
+Les restrictions nominatives et de compétence du terminal sont vérifiées avant
+le lancement/résolution INF-01, pas seulement lors de l'entrée. Le type réel des
+autorisations est relu : modifier une autorisation CODE en LICENSE ne constitue
+pas une clé ou un code de cellule, même si la licence vise le personnage courant.
+Tests de refus sans dépense de PA ni déplacement ajoutés aux suites partagées.
+Chaque lecture d'entrée de cellule est journalisée côté serveur avec résultat,
+cellule et personnage, sans code clair ni contenu de cargaison. Le stock fermé
+n'est plus présenté comme vide, ni avec une capacité occupée fictivement nulle.
+
+État local final de cette revue : build + 863 tests applicatifs du profil docks
+réussis, dix tests Firestore docks/INF-01 et un HTTP/Auth réussis sur émulateurs.
+Ces résultats correspondent aux fichiers avant le commit de fin de revue ; les
+succès CI du parent ne sont pas attribués à ce nouveau candidat.

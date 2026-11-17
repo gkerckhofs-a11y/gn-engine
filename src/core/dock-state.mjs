@@ -18,6 +18,11 @@ export const dockLeaseActive=(w,time)=>!!w.tenantId&&(w.dock?.mode==='OWN'||time
 export async function dockMandates(tx,s,c,w){
  return warehouseAccess(w,c.id,storageGroups(s,await tx.list(`sessions/${s.id}/groups`),c.id,{factionStock:true}));
 }
+function dockRule(t,c,w){
+ const rule=t.operations.find(o=>o.action==='dockEntry'&&o.resourceId===w.id);requireThat(rule,'FORBIDDEN');
+ requireThat(!rule.characterIds.length||rule.characterIds.includes(c.id),'FORBIDDEN');
+ requireThat(!rule.skillId||abilityLevel(c,rule.skillId)>=rule.minLevel,'LOCAL_SKILL_REQUIRED');return rule;
+}
 // Presence is always required. A successful INF-01 only bypasses the lock,
 // never any native warehouse, lot or vessel mandate.
 export async function dockEntry(tx,ctx,w,at,{forceOnly=false}={}){
@@ -26,10 +31,9 @@ export async function dockEntry(tx,ctx,w,at,{forceOnly=false}={}){
  const binding=await tx.get(`${b}/bindings/${localBindingId('dockEntry',w.id)}`),t=binding?await tx.get(`${b}/terminals/${binding.terminalId}`):null,p=await tx.get(`${b}/presence/${c.id}`);
  requireThat(binding?.active&&t?.active&&t.portId===w.portId,'LOCAL_TERMINAL_CLOSED');
  requireThat(p&&p.terminalId===t.id&&p.terminalRevision===t.revision&&p.characterVersion===version&&p.expiresGameMs>time,'LOCAL_SCAN_REQUIRED');
- const rule=t.operations.find(o=>o.action==='dockEntry'&&o.resourceId===w.id);requireThat(rule,'FORBIDDEN');
- requireThat(!rule.characterIds.length||rule.characterIds.includes(c.id),'FORBIDDEN');requireThat(!rule.skillId||abilityLevel(c,rule.skillId)>=rule.minLevel,'LOCAL_SKILL_REQUIRED');
+ const rule=dockRule(t,c,w);
  if(!forceOnly){
-  try{requireThat(rule.credentialIds?.length>0,'LOCAL_CREDENTIAL_REQUIRED');await localAuthorization(tx,ctx,'dockEntry',w.id,at);return {terminalId:t.id,method:'CREDENTIAL'};}catch(e){if(e.code!=='LOCAL_CREDENTIAL_REQUIRED')throw e;}
+  try{requireThat(rule.credentialIds?.length>0,'LOCAL_CREDENTIAL_REQUIRED');for(const id of rule.credentialIds){const g=await tx.get(`${b}/credentials/${id}`);requireThat(g&&['CODE','KEY'].includes(g.kind),'LOCAL_CREDENTIAL_REQUIRED');}await localAuthorization(tx,ctx,'dockEntry',w.id,at);return {terminalId:t.id,method:'CREDENTIAL'};}catch(e){if(e.code!=='LOCAL_CREDENTIAL_REQUIRED')throw e;}
  }
  const target=w.dock.intrusionTargetId?await tx.get(`sessions/${s.id}/fieldTargets/${w.dock.intrusionTargetId}`):null;
  const rows=target?.publicationState==='PUBLISHED'&&target.intrusion?.minLevel===w.dock.securityTier?await tx.list(`sessions/${s.id}/inf01Actions`,['characterId',c.id],{limit:1001}):[];
@@ -45,6 +49,6 @@ export async function dockIntrusionGuard(tx,ctx,tid,at){
  const b=`localAccess/${ctx.s.id}`,binding=await tx.get(`${b}/bindings/${localBindingId('dockEntry',w.id)}`),t=binding?await tx.get(`${b}/terminals/${binding.terminalId}`):null,p=await tx.get(`${b}/presence/${ctx.c.id}`);
  requireThat(binding?.active&&t?.active&&t.portId===w.portId&&w.portId===(ctx.c.spacePortId??ctx.s.transportRules?.homePort),'DOCK_NOT_LOCAL');
  requireThat(p?.terminalId===t.id&&p.terminalRevision===t.revision&&p.characterVersion===ctx.version&&p.expiresGameMs>gameTime(ctx.s.clock,at),'LOCAL_SCAN_REQUIRED');
- requireThat(abilityLevel(ctx.c,'INF-01')>=w.dock.securityTier,'SO_INF01_SKILL');
+ dockRule(t,ctx.c,w);requireThat(abilityLevel(ctx.c,'INF-01')>=w.dock.securityTier,'SO_INF01_SKILL');
  return {warehouseId:w.id,sessionId:ctx.s.id};
 }

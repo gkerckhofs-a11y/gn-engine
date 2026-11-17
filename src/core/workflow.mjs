@@ -207,7 +207,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const cockpitCommand=createCockpitCommandService({store,signed,checkSession,now,uuid,rollD6});
   const voyageService=createVoyageService({store,signed,checkSession,now,uuid,rollD6});
   const hiddenCargoService=createHiddenCargoService({store,signed,checkSession,now,uuid,rollD6});
-  const dockService=createDockService({store,signed,now});
+  const dockService=createDockService({store,signed,now,uuid});
   const cargoService=createCargoService({store,signed,checkSession,now,uuid});
   const commercialStorageService=createCommercialStorageService({store,signed,checkSession,now,uuid});
   const logisticsService=createLogisticsService({store,signed,checkSession,now,uuid});
