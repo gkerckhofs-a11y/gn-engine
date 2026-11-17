@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
 import {worldEncyclopedia} from '../world-encyclopedia-data.mjs';
 import {wikiKeywords,wikiReferences,wikiTextHtml,publicWikiTargetIds} from '../world-encyclopedia-links.mjs';
 import {holopediaArticleHtml,holopediaIndexHtml} from '../world-encyclopedia.mjs';
@@ -133,4 +134,21 @@ test('Chroniqueurs : préserver les faits publics et les limites de connaissance
  const all=worldEncyclopedia.filter(a=>a.imperialRecord).map(a=>a.paragraphs.join(' ')).join(' ');
  assert.doesNotMatch(all,/Darth Sidious|Darth Vader|Anakin Skywalker|Yoda|Obi-Wan Kenobi|gmTruth|gmNotes|navigationCode/);
  assert.match(holopediaIndexHtml('public'),/chroniqueurs impériaux/);
+});
+
+
+test('Images planétaires : 16 photos de géographies différentes associées sans collision',()=>{
+ const images=worldEncyclopedia.filter(a=>a.kind==='planète'&&a.planetImage);
+ assert.equal(images.length,16);
+ assert.equal(new Set(images.map(a=>a.planetImage)).size,16);
+ const manifest=JSON.parse(readFileSync('assets-source/planet-images.json','utf8'))
+ for(const a of images){
+   assert.match(a.planetImage,/^images\/planets\/[a-z0-9-]+\.webp$/);
+   assert.ok(a.planetImageAlt?.includes(a.title),'Texte alternatif manquant : '+a.title);
+   assert.ok(manifest.planet_images[a.id.replace('planete-','')]);
+   const page=holopediaArticleHtml('public',a.id);
+   assert.match(page,/planet-hero-image/);
+   assert.match(page,/Reconstitution orbitale/);
+ }
+ assert.ok(!worldEncyclopedia.find(a=>a.id==='planete-dantooine').planetImage,'Ne pas réutiliser une photo inadaptée');
 });
