@@ -4,8 +4,8 @@
   "siteId": "holopedia-space-outlaws",
   "sourceRef": "gh-pages",
   "requestedAt": "2026-11-17",
-  "reason": "Publier les 30 vues orbitales uniques sur les 30 fiches planétaires après contrôles visuels et tests ciblés, sans publier l'application GN Engine.",
+  "reason": "Publier les trois vues reconstituées (quatre fiches : cantina, spatioport, bureau du préfet et docks) sur le site Holopédia uniquement, sans toucher à GN Engine.",
   "status": "AUTHORIZED_SECONDARY_HOSTING_ONLY",
-  "attempt": 13,
-  "scope": "holopedia-orbital-images-30-complete"
+  "attempt": 14,
+  "scope": "holopedia-breach-port-places-4-articles-3-images"
 }
