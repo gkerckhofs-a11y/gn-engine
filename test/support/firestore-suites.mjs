@@ -1,6 +1,7 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {id:"contextual-delivery",module:"../support/contextual-delivery-suite.mjs",exportName:"contextualDeliverySuite",label:"Livraison contextuelle Firestore",seconds:50},
   {id:"contextual-credentials",module:"../support/contextual-access-suite.mjs",exportName:"contextualCredentialsSuite",label:"Autorisations contextuelles Firestore",seconds:45},
   {id:"contextual-access",module:"../support/contextual-access-suite.mjs",exportName:"contextualAccessSuite",label:"Accès contextuels Firestore",seconds:35},
   {id:"galactic-economy",module:"../support/galactic-economy-suite.mjs",exportName:"galacticEconomySuite",label:"Économie galactique intégrée sur Firestore",seconds:35},

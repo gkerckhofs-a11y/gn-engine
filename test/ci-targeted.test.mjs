@@ -251,3 +251,9 @@ test('CI contextuelle : périmètre fermé, dépendances natives et recette navi
  assert.ok(new RegExp(p.httpPattern).test('HTTP + Auth : accès contextuels, scan local et API native protégée'));
  const selected=matrixFor(p.suites).flatMap(({shard})=>selectFirestoreSuites({GN_FIRESTORE_SUITES:JSON.stringify(p.suites),GN_FIRESTORE_SHARD:shard}));assert.deepEqual(selected.map(s=>s.id).sort(),[...p.suites].sort());
 });
+
+test('CI livraison : normalisation M5, import, publication, commerce et contexte cumulés',()=>{
+ const name='contextual-delivery',p=targetedScope(name,['src/core/shops.mjs','src/core/sales.mjs','src/core/central-shops.mjs','src/shared/central-import-schema.mjs'],{reliableBase:true});assert.equal(p.browser,true);for(const id of ['contextual-access','contextual-credentials','contextual-delivery','central-shops','central-shop-import','central-check','central-master','sales','inventory'])assert.ok(p.suites.includes(id));
+ assert.throws(()=>targetedScope(name,['src/core/cargo.mjs'],{reliableBase:true}));assert.throws(()=>targetedScope(name,['src/server/index.mjs'],{reliableBase:true}));for(const f of p.applicationTests)assert.ok(existsSync(f),f);
+ for(const title of ['accès contextuels, remise numérique','Master central,','XLSX central,'])assert.ok(new RegExp(p.httpPattern).test(`HTTP + Auth : ${title}`));
+});

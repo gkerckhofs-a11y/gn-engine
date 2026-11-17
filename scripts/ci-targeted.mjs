@@ -307,3 +307,13 @@ export function targetedScope(name,paths,{reliableBase=false}={}){
  for(const path of paths)if(!(path==='AGENTS.md'||path==='README.md'||path.startsWith('docs/')||p.files.includes(path)))throw Error(`File outside targeted CI profile ${name}: ${path}`);
  return {profile:`targeted-${name}`,reason:`Ciblage explicite ${name} ; résultat non global`,applicationTests:[...p.tests],suites:[...p.suites],http:!!p.httpPattern,httpPattern:p.httpPattern,browser:p.browser===true};
 }
+
+// AC-03 adds the M5 delivery contract and native sale settlement; cumulative
+// coverage also checks central normalization/import/publication and old receipts.
+targetedProfiles['contextual-delivery']={
+ tests:[...targetedProfiles['contextual-access'].tests,'test/contextual-delivery.test.mjs','test/contextual-delivery-ui.test.mjs','test/central-shops.test.mjs','test/central-shops-ui.test.mjs','test/central-shop-import.test.mjs','test/central-shop-import-ui.test.mjs','test/central-check.test.mjs','test/central-master.test.mjs','test/central-import.test.mjs','test/central-import-ui.test.mjs','test/central-snapshots.test.mjs'],
+ suites:[...targetedProfiles['contextual-access'].suites,'contextual-delivery','central-shops','central-shop-import','central-check','central-master','central-import','central-snapshots'],
+ httpPattern:targetedProfiles['contextual-access'].httpPattern.replace('boutiques|comptoir)','boutiques|comptoir|Master central,|XLSX central,)'),
+ browser:true,
+ files:[...targetedProfiles['contextual-access'].files,'src/core/central-shops.mjs','src/core/central-check.mjs','src/core/central-shop-import.mjs','src/shared/central-import-schema.mjs','src/core/space-outlaws-shop-state.mjs','src/core/shops.mjs','src/core/sales.mjs','src/core/space-outlaws-entry-guard.mjs','web/central-shops.mjs','web/shops.mjs','test/contextual-delivery.test.mjs','test/contextual-delivery-ui.test.mjs','test/support/contextual-delivery-suite.mjs'],
+};

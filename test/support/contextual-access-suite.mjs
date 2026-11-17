@@ -6,7 +6,7 @@ export async function localFixture(makeStore,options={}){
  const f=await circuitsFixture(makeStore,options),admin=(action,input={})=>f.cmd(action,input,f.owner),terminal={id:'desk',name:'Comptoir',placeId:'scene',portId:null,active:true,durationSeconds:60,operations:['shop','prepareShopPurchase','buyShopOffer'].map(action=>({action,resourceId:'counter',characterIds:[],skillId:null,minLevel:0}))};
  const save=(t=terminal,revision=0)=>admin('saveLocalTerminal',{terminal:t,revision});
  await save();const scan=(who=f.player,id='desk',requestId=randomUUID())=>f.cmd('scanLocalTerminal',{terminalId:id,requestId},who);
- return {...f,admin,terminal,save,scan};
+ return {...f,admin,terminal,save,scan,wallet:async()=>(await f.read('myWallet')).account};
 }
 export function contextualAccessSuite(makeStore,prefix='Accès contextuels'){
  test(`${prefix} ACT-01/17 : scan explicite et refus API direct dans la transaction native`,async()=>{

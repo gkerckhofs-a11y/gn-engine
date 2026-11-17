@@ -19,7 +19,7 @@ export const shopStockId=id=>hash(`shop-stock:${id}`);
 export function soShops(changes){
  const active=changes.filter(c=>c.operation==='UPSERT'),find=(type,id)=>active.find(c=>c.type===type&&c.entityId===id)?.data;
  return active.filter(c=>c.type==='shop').map(({data:s})=>({id:s.id,name:s.name,description:s.description,sellerCharacterId:s.sellerCharacterId,locationTargetId:s.locationTargetId,
-  location:find('fieldTarget',s.locationTargetId)?.title??'',offers:active.filter(c=>c.type==='offer'&&c.data.shopId===s.id).map(({data:o})=>({id:o.id,...(o.negotiationLevel!=null?{negotiationLevel:o.negotiationLevel}:{}),name:o.name,unitPrice:o.unitPrice,conditions:o.conditions,item:publicItem(find('item',o.itemId))}))}));
+  location:find('fieldTarget',s.locationTargetId)?.title??'',offers:active.filter(c=>c.type==='offer'&&c.data.shopId===s.id).map(({data:o})=>({id:o.id,...(o.deliveryMode?{deliverySchemaVersion:1,deliveryMode:o.deliveryMode}:{}),...(o.negotiationLevel!=null?{negotiationLevel:o.negotiationLevel}:{}),name:o.name,unitPrice:o.unitPrice,conditions:o.conditions,item:publicItem(find('item',o.itemId))}))}));
 }
 export function shopBlockers(changes){
  const active=changes.filter(c=>c.operation==='UPSERT'),out=[],classified=active.some(c=>c.type==='item'&&c.data.usage);
