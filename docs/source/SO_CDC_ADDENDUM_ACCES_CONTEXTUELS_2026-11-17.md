@@ -299,6 +299,41 @@ L'organisateur valide la **variante « vol équilibré »**, et choisit que les 
 - **Aucun nouveau jet ou compétence supplémentaire n'est canonisé par ce barème.** La résolution du vol, après ouverture effective, doit être raccordée aux conditions métier et éventuelles circonstances de surveillance ; si le moteur exige une nouvelle règle de réussite/échec, la soumettre à un arbitrage spécifique, sans appliquer ROG-02 hors de son périmètre.
 
 
+#### 10.9.2 Modes de surveillance et déclenchements [VALIDÉ : CONFIGURABILITÉ ; PROPOSITIONS POUR DÉTAILS]
+
+Le MJ choisit un mode **pour chaque cellule** séparément de \`securityTier\` N1–N5 et peut le faire évoluer explicitement ; aucune alarme n'est imposée automatiquement à un niveau. Trois modes d'éditeur à proposer :
+
+| Mode | Effet de jeu envisagé |
+|---|---|
+| \`SILENT\` — discret | Journal MJ sans avertissement automatique du propriétaire |
+| \`DELAYED\` — différé | Avertissement fictif anonyme après vol réussi ; **10 minutes proposées** par analogie avec ROG-02, délai ajustable par le MJ |
+| \`IMMEDIATE\` — renforcé | Alerte fictive immédiate au MJ, à la sécurité ou aux agents habilités, sur les événements d'effraction/vol configurés |
+
+**Les trois modes et le délai de notification sont des modalités proposées** pour réaliser le choix d'alarmes personnalisables. Ils ne sont pas des obligations universelles imposées aux propriétaires. Le MJ doit pouvoir désigner les destinataires et les événements qui déclenchent chaque alarme, selon les capacités disponibles.
+
+L'alerte est une **information de jeu**, pas un droit de saisir le stock ou de découvrir l'identité de l'intrus. Une alarme active n'ouvre pas automatiquement l'inventaire au surveillant ni le droit d'annuler une action terminée. La surveillance humaine directe et ses effets de blocage ou d'interruption nécessitent toujours une définition séparée.
+
+#### 10.9.3 Contrôles MJ et recette ajoutés [À TESTER — NON EXÉCUTÉS]
+
+Le dashboard **Docks → Cellule** expose : niveau de sécurité N1–N5, prix (configurable), mode d'alarme, destinataires/événements, autorisations et historique des tentatives ; la durée de 3 minutes, le coût conditionnel de 1 PA, la récupération de 10 minutes, la limite de 5 de volume et le quota sont **règles de jeu validées**. Si un Master/une session ne dispose pas encore de l'extension, le parcours de vol reste fermé sans modifier l'historique.
+
+| ID | Cas | Résultat attendu |
+|---|---|---|
+| DOCK-27 | Vol réussi de 3 unités de volume vers une cellule ou soute autorisée | 3 min de jeu, 1 PA débité, 10 min de récupération, lot déplacé une fois vers cette destination |
+| DOCK-28 | Échec après tentative résolue | 0 PA consommé, 10 min de récupération, aucun stock déplacé |
+| DOCK-29 | Vol dépassant 5 unités de volume | Refus, pas de mutation ni création de lot |
+| DOCK-30 | Nouvelle réussite du même personnage dans la même cellule et session | Refus de seconde réussite, sans attribution de lot |
+| DOCK-31 | Deux personnages dans la même cellule | Quotas distincts ; protections de concurrence conservées |
+| DOCK-32 | Intrusion réussie sans opération de vol | Aucun déplacement et aucun transfert de propriété |
+| DOCK-33 | Cellule N5, alarmes configurées en mode discret | Aucune notification automatique du seul fait de N5 |
+| DOCK-34 | Cellule N2, alarmes configurées en mode renforcé | Alerte selon configuration malgré N2 |
+| DOCK-35 | Mode différé | Aucune identité d'intrus révélée sans règle spécifique ; notification au délai paramétré |
+| DOCK-36 | Coupure/réessai après résolution du vol | Un seul PA, un seul changement de lot, un seul quota consommé |
+| DOCK-37 | Pause/STOP pendant les 3 min | Chronomètre de jeu suspendu conformément à la mécanique de session |
+| DOCK-38 | Lot volé avec justificatifs douaniers | Statut légal et historique conservés, sans régularisation automatique |
+
+**Statut :** seuls les paramètres approuvés par l'organisateur sont figés. Cette rédaction documentaire ne modifie aucun code applicatif, aucun prix canonique, aucune donnée de session, aucune règle Firebase, aucune branche \`main\`, ni aucun déploiement.
+
 #### 10.9.4 Destination logistique obligatoire pour tout vol de lot — décision complémentaire [VALIDÉ]
 
 **Nouvelle décision explicite de l'organisateur :** un personnage ne peut **jamais voler un lot de marchandises commerciales** sans disposer **au préalable**, pour la quantité envisagée, d'une **autre cellule de stockage** ou d'une **soute disponible** capable de recevoir le butin. Le lot ne peut pas transiter fictivement ou numériquement par le sac personnel, ni rester dans un état « porté » sans localisation. L'ouverture de la cellule source et la réussite du vol ne dispensent pas de cette règle.
@@ -336,38 +371,3 @@ L'organisateur valide la **variante « vol équilibré »**, et choisit que les 
 | DOCK-50 | Vol interrompu après réservation | Lots et capacité libérés selon la procédure d'annulation, sans déplacement fantôme |
 
 **Aucune nouvelle compétence, taxe, durée, limite de volume, permission globale ou mécanique de vol de soute n'est introduite par cette décision.** Les vols dans les soutes d'autrui restent régis séparément par les parcours d'abordage/piraterie. Ce complément est documentaire, non déployé.
-
-#### 10.9.2 Modes de surveillance et déclenchements [VALIDÉ : CONFIGURABILITÉ ; PROPOSITIONS POUR DÉTAILS]
-
-Le MJ choisit un mode **pour chaque cellule** séparément de \`securityTier\` N1–N5 et peut le faire évoluer explicitement ; aucune alarme n'est imposée automatiquement à un niveau. Trois modes d'éditeur à proposer :
-
-| Mode | Effet de jeu envisagé |
-|---|---|
-| \`SILENT\` — discret | Journal MJ sans avertissement automatique du propriétaire |
-| \`DELAYED\` — différé | Avertissement fictif anonyme après vol réussi ; **10 minutes proposées** par analogie avec ROG-02, délai ajustable par le MJ |
-| \`IMMEDIATE\` — renforcé | Alerte fictive immédiate au MJ, à la sécurité ou aux agents habilités, sur les événements d'effraction/vol configurés |
-
-**Les trois modes et le délai de notification sont des modalités proposées** pour réaliser le choix d'alarmes personnalisables. Ils ne sont pas des obligations universelles imposées aux propriétaires. Le MJ doit pouvoir désigner les destinataires et les événements qui déclenchent chaque alarme, selon les capacités disponibles.
-
-L'alerte est une **information de jeu**, pas un droit de saisir le stock ou de découvrir l'identité de l'intrus. Une alarme active n'ouvre pas automatiquement l'inventaire au surveillant ni le droit d'annuler une action terminée. La surveillance humaine directe et ses effets de blocage ou d'interruption nécessitent toujours une définition séparée.
-
-#### 10.9.3 Contrôles MJ et recette ajoutés [À TESTER — NON EXÉCUTÉS]
-
-Le dashboard **Docks → Cellule** expose : niveau de sécurité N1–N5, prix (configurable), mode d'alarme, destinataires/événements, autorisations et historique des tentatives ; la durée de 3 minutes, le coût conditionnel de 1 PA, la récupération de 10 minutes, la limite de 5 de volume et le quota sont **règles de jeu validées**. Si un Master/une session ne dispose pas encore de l'extension, le parcours de vol reste fermé sans modifier l'historique.
-
-| ID | Cas | Résultat attendu |
-|---|---|---|
-| DOCK-27 | Vol réussi de 3 unités de volume vers une cellule ou soute autorisée | 3 min de jeu, 1 PA débité, 10 min de récupération, lot déplacé une fois vers cette destination |
-| DOCK-28 | Échec après tentative résolue | 0 PA consommé, 10 min de récupération, aucun stock déplacé |
-| DOCK-29 | Vol dépassant 5 unités de volume | Refus, pas de mutation ni création de lot |
-| DOCK-30 | Nouvelle réussite du même personnage dans la même cellule et session | Refus de seconde réussite, sans attribution de lot |
-| DOCK-31 | Deux personnages dans la même cellule | Quotas distincts ; protections de concurrence conservées |
-| DOCK-32 | Intrusion réussie sans opération de vol | Aucun déplacement et aucun transfert de propriété |
-| DOCK-33 | Cellule N5, alarmes configurées en mode discret | Aucune notification automatique du seul fait de N5 |
-| DOCK-34 | Cellule N2, alarmes configurées en mode renforcé | Alerte selon configuration malgré N2 |
-| DOCK-35 | Mode différé | Aucune identité d'intrus révélée sans règle spécifique ; notification au délai paramétré |
-| DOCK-36 | Coupure/réessai après résolution du vol | Un seul PA, un seul changement de lot, un seul quota consommé |
-| DOCK-37 | Pause/STOP pendant les 3 min | Chronomètre de jeu suspendu conformément à la mécanique de session |
-| DOCK-38 | Lot volé avec justificatifs douaniers | Statut légal et historique conservés, sans régularisation automatique |
-
-**Statut :** seuls les paramètres approuvés par l'organisateur sont figés. Cette rédaction documentaire ne modifie aucun code applicatif, aucun prix canonique, aucune donnée de session, aucune règle Firebase, aucune branche \`main\`, ni aucun déploiement.
