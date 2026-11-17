@@ -4,6 +4,25 @@ import {wikiKeywords,wikiReferences,wikiTextHtml} from './world-encyclopedia-lin
 
 // Public, read-only world information. Never import M6 secrets, player knowledge or GM records.
 export const encyclopediaCategories=['Histoire','Breach Port','Lieux de Breach Port','Culture et galaxie','Planètes'];
+ // Les cinq périodes sont classées chronologiquement. Les deux synthèses,
+ // transversales à plusieurs périodes, suivent les événements datés.
+const historyOrder=[
+ 'histoire-ancienne-republique-et-jedi',
+ 'histoire-crise-separatiste',
+ 'histoire-guerre-des-clones',
+ 'histoire-ordre-66-et-disparition-des-jedi',
+ 'histoire-naissance-empire',
+ 'histoire-republique-a-empire',
+ 'chronologie'
+];
+const historyRank=new Map(historyOrder.map((id,index)=>[id,index]));
+export const encyclopediaArticlesByCategory=category=>{
+ const articles=worldEncyclopedia.filter(article=>article.category===category);
+ return category==='Histoire'
+  ?articles.sort((a,b)=>(historyRank.get(a.id)??999)-(historyRank.get(b.id)??999))
+  :articles;
+};
+
 const byId=new Map(worldEncyclopedia.map(article=>[article.id,article]));
 const searchText=new Map(worldEncyclopedia.map(a=>[a.id,`${a.title} ${a.subtitle??''} ${a.paragraphs.join(' ')} ${wikiKeywords(a).join(' ')}`.normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr')]));
 const norm=value=>String(value??'').normalize('NFKD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('fr').trim();
@@ -18,7 +37,7 @@ const placeImg=(a,cls)=>placeSrc(a)?`<img class="${cls} place-focus-${placeFocus
 const posterImage=(a,cls)=>posterSrc(a)?`<img class="${cls}${a.poster.endsWith('.webp')?' poster-webp':''}" src="${esc(posterSrc(a))}" width="${a.poster.endsWith('.webp')?1024:760}" height="${a.poster.endsWith('.webp')?1536:1000}" loading="lazy" decoding="async" alt="${esc(a.posterAlt??'Affiche du Bureau impérial d’information')}" />`:'';
 const card=(sid,a)=>`<article class="panel holopedia-card" data-holopedia-article="${esc(a.id)}" data-holopedia-category="${esc(a.category)}">${a.imperialArchive?posterImage(a,'history-poster-thumb'):''}${a.kind==='planète'?planetImg(a,'planet-card-image'):''}${a.kind==='lieu'?placeImg(a,'place-card-image'):''}<p class="eyebrow">${esc(a.category)}</p>${a.imperialRecord?`<p class="archive-card-label">✦ ${esc(a.archiveLabel??'Chronique impériale')}</p>`:''}<h3><a href="${esc(href(sid,a.id))}">${esc(a.title)}</a></h3>${a.subtitle?`<p class="holopedia-subtitle">${esc(a.subtitle)}</p>`:''}<p>${esc(short(a))}…</p></article>`;
 export function holopediaIndexHtml(sessionId){
- const grouped=encyclopediaCategories.map(category=>`<section class="holopedia-section" data-holopedia-section="${esc(category)}"><h2>${esc(indexLabel(category))} <small>(${worldEncyclopedia.filter(a=>a.category===category).length})</small></h2>${category==='Histoire'?'<p class="history-archive-note">Archives homologuées par le Bureau impérial d’information. Diffusion civile autorisée dans le cadre des règlements en vigueur.</p>':''}<div class="holopedia-grid">${worldEncyclopedia.filter(a=>a.category===category).map(a=>card(sessionId,a)).join('')}</div></section>`).join('');
+ const grouped=encyclopediaCategories.map(category=>`<section class="holopedia-section" data-holopedia-section="${esc(category)}"><h2>${esc(indexLabel(category))} <small>(${worldEncyclopedia.filter(a=>a.category===category).length})</small></h2>${category==='Histoire'?'<p class="history-archive-note">Archives homologuées par le Bureau impérial d’information. Diffusion civile autorisée dans le cadre des règlements en vigueur.</p>':''}<div class="holopedia-grid">${encyclopediaArticlesByCategory(category).map(a=>card(sessionId,a)).join('')}</div></section>`).join('');
  return `<div class="holopedia narrow" data-holopedia-root><p class="eyebrow">Réseau holopédique impérial · Registres publics</p><h1>Holopédia</h1><p class="rp lead">Les mondes, les lieux et les récits de Breach Port, consignés par les chroniqueurs impériaux.</p><p><em>Archives civiles agréées par l’administration impériale. Les codes d’astrogation, les registres confidentiels et les renseignements de sécurité sont accessibles uniquement aux personnels habilités.</em></p><div class="panel holopedia-search"><label>Rechercher dans l’encyclopédie<input type="search" data-holopedia-search placeholder="Planète, lieu, famille, événement…" autocomplete="off"></label><label>Rubrique<select data-holopedia-filter><option value="">Toutes les rubriques</option>${encyclopediaCategories.map(c=>`<option value="${esc(c)}">${esc(indexLabel(c))}</option>`).join('')}</select></label></div><p class="muted" role="status" data-holopedia-count>${worldEncyclopedia.length} articles disponibles.</p><p class="panel" data-holopedia-empty hidden>Aucun article ne correspond à cette recherche.</p>${grouped}</div>`;
 }
 
@@ -28,7 +47,7 @@ export function holopediaSidebarHtml(sessionId,currentId=null,selectedCategory='
  const current=byId.get(currentId);
  const activeCategory=current?.category??selectedCategory;
  const groups=encyclopediaCategories.map(category=>{
-  const pages=worldEncyclopedia.filter(a=>a.category===category);
+  const pages=encyclopediaArticlesByCategory(category);
   const expanded=activeCategory===category||(!current&&!selectedCategory&&category==='Histoire');
   return `<details class="wiki-side-group" ${expanded?'open':''}><summary>${esc(indexLabel(category))}<span class="wiki-side-count">${pages.length}</span></summary><div class="wiki-side-group-content"><a class="wiki-side-all" href="${esc(categoryUrl(sessionId,category))}" ${activeCategory===category&&!current?'aria-current="page"':''}>Tous les articles de cette rubrique</a><ul>${pages.map(a=>`<li><a href="${esc(href(sessionId,a.id))}" ${a.id===currentId?'aria-current="page"':''}>${esc(a.title)}</a></li>`).join('')}</ul></div></details>`;
  }).join('');
