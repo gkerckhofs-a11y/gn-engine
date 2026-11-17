@@ -114,7 +114,7 @@ main#content{max-width:1460px}
 .holopedia .holopedia-card-media{display:flex;align-items:center;justify-content:center;width:100%;overflow:hidden;border:1px solid rgba(207,180,146,.28);border-radius:10px;margin:0 0 .9rem;line-height:0;position:relative;background:#07101d}
 .holopedia .holopedia-card-media.media-history{aspect-ratio:3/4;padding:.3rem;background:radial-gradient(ellipse at 50% 40%,#45231b,#1b1016 75%)}
 .holopedia .holopedia-card-media.media-planet{aspect-ratio:1/1;background:#020710}
-.holopedia .holopedia-card-media.media-place{aspect-ratio:16/10;background:#060c16}
+.holopedia .holopedia-card-media.media-place{aspect-ratio:16/9;background:#060c16}
 .holopedia .holopedia-card-media img{display:block;width:100%;height:100%;min-height:0;max-height:none;object-fit:cover;object-position:center;border:0;border-radius:0;margin:0;transition:transform .2s ease}
 .holopedia .holopedia-card-media.media-history .history-poster-thumb{object-fit:contain;object-position:center;background:transparent}
 .holopedia .holopedia-card-media.media-planet .planet-card-image{object-fit:cover}
