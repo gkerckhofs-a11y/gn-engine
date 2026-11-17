@@ -504,6 +504,8 @@ export const worldEncyclopedia = Object.freeze([
     "subtitle": "LES EAUX TROUBLES",
     "category": "Planètes",
     "kind": "planète",
+    "planetImage": "images/planets/nal-hutta.webp",
+    "planetImageAlt": "Reconstitution orbitale de NAL HUTTA : marécages, eaux troubles et brumes épaisses.",
     "paragraphs": [
       "CHRONIQUE DES INFLUENCES — Les marais de Nal Hutta, ses pluies et ses établissements installés sur les terres fermes composent un paysage aussi difficile qu'actif. Les Hutts y exercent une influence considérable sur des circuits d'affaires qui dépassent leurs propres ports. Le bazar de Bilbousa attire une foule d'intermédiaires et de vendeurs.",
       "Les autorités impériales considèrent avec prudence les accords conclus sous la seule garantie de relations personnelles. Certains visiteurs apprécient la souplesse des transactions, d'autres en découvrent trop tard les obligations implicites. Sur Nal Hutta, une faveur peut constituer une dette durable ; la signature ne protège que celui qui a compris à quoi il s'engage."
@@ -518,6 +520,8 @@ export const worldEncyclopedia = Object.freeze([
     "subtitle": "LES PONTS DES MARCHANDS",
     "category": "Planètes",
     "kind": "planète",
+    "planetImage": "images/planets/cato-neimoidia.webp",
+    "planetImageAlt": "Reconstitution orbitale de CATO NEIMOIDIA : vallées profondes et agglomérations sur les hauteurs.",
     "paragraphs": [
       "ANNALES MARCHANDES — Les villes suspendues de Cato Neimoidia dominent des vallées où les palais témoignent de fortunes anciennes. La Fédération du Commerce y a laissé une mémoire visible dans l'architecture et dans les usages des négociants, mémoire que la fin de la guerre n'a pas effacée.",
       "Les chroniques impériales distinguent la prospérité héritée de la confiance réellement méritée. Dans ces cités, l'étiquette et les manifestations de prestige accompagnent les contrats ; un étranger peut ignorer les rivalités qui se déroulent sous les politesses. Le courtier d'Ord Mantell cherchera d'abord à savoir qui décide, avant de s'inquiéter du prix promis."
@@ -532,6 +536,8 @@ export const worldEncyclopedia = Object.freeze([
     "subtitle": "LE MONDE DE CRISTAL",
     "category": "Planètes",
     "kind": "planète",
+    "planetImage": "images/planets/christophsis.webp",
+    "planetImageAlt": "Reconstitution orbitale de CHRISTOPHSIS : formations cristallines turquoise et reliefs minéraux.",
     "paragraphs": [
       "ARCHIVES DE RECONSTRUCTION — Les formations cristallines de Christophsis donnent à ce monde un visage reconnaissable entre tous. La guerre des Clones y provoqua de violents affrontements et des blocus dont de nombreuses familles gardent encore le souvenir.",
       "Les services impériaux présentent le rétablissement du ravitaillement comme une nécessité première. Matériaux, outillage et denrées demeurent des besoins concrets, mais les habitants des villes qui ont connu la pénurie se méfient des promesses trop faciles. Le bon transporteur ne se distingue pas seulement par le prix annoncé : il livre ce qu'il a promis, au quai convenu et à la date possible."
@@ -546,6 +552,8 @@ export const worldEncyclopedia = Object.freeze([
     "subtitle": "LE PASSÉ SÉPARATISTE",
     "category": "Planètes",
     "kind": "planète",
+    "planetImage": "images/planets/raxus.webp",
+    "planetImageAlt": "Reconstitution orbitale de RAXUS : continents tempérés, zones urbaines et paysages ordonnés.",
     "paragraphs": [
       "NOTICE SUR L'HÉRITAGE SÉPARATISTE — Raxus fut l'un des centres politiques de la Confédération des systèmes indépendants. Ses bâtiments officiels et ses quartiers soignés gardent le souvenir d'un Sénat séparatiste désormais disparu. Les archives impériales y voient un avertissement sur le coût de la division.",
       "Les engagements politiques de la guerre continuent d'influencer les relations administratives. Les négociants de passage gagnent à distinguer les maisons de commerce des institutions placées sous contrôle. Une commande industrielle peut être légitime sans que son origine ou son destinataire échappent aux vérifications. Sur Raxus, la prudence documentaire est devenue un usage autant qu'une obligation."
@@ -560,6 +568,8 @@ export const worldEncyclopedia = Object.freeze([
     "subtitle": "LES PLAINES TRANQUILLES",
     "category": "Planètes",
     "kind": "planète",
+    "planetImage": "images/planets/dantooine.webp",
+    "planetImageAlt": "Reconstitution orbitale de DANTOOINE : grandes plaines agricoles et vallées verdoyantes.",
     "paragraphs": [
       "CHRONIQUE RURALE — Les vastes plaines de Dantooine accueillent des exploitations agricoles et des communautés plus éloignées des grandes métropoles. Le commerce y dépend d'une circulation modeste mais régulière de machines, de fournitures médicales, de récoltes et de pièces d'entretien.",
       "L'administration impériale célèbre l'apport de ces mondes à l'approvisionnement de la galaxie. Les habitants, moins préoccupés des proclamations que de l'état de leurs outils, jugent les voyageurs à la constance de leurs engagements. Un service rendu sur une exploitation peut établir une relation durable ; une promesse non tenue s'y raconte longtemps."
@@ -574,6 +584,8 @@ export const worldEncyclopedia = Object.freeze([
     "subtitle": "LE MONDE DU CARBURANT",
     "category": "Planètes",
     "kind": "planète",
+    "planetImage": "images/planets/malastare.webp",
+    "planetImageAlt": "Reconstitution orbitale de MALASTARE : terrains ocres et bassins d’extraction de carburant.",
     "paragraphs": [
       "ANNALES ÉNERGÉTIQUES — Les réserves de carburant de Malastare ont attiré armées, industriels et transporteurs bien avant la paix impériale. Les Dugs connaissent les bénéfices et les risques liés à ces ressources, dont le contrôle fut lui-même un enjeu des combats passés.",
       "Les autorités encouragent la déclaration claire des stocks et des circuits d'approvisionnement. Un capitaine ne doit pas supposer qu'un monde réputé pour ses réserves peut ravitailler à volonté son appareil. Les prix, les autorisations et l'identité du détenteur d'un lot demeurent des questions distinctes. Dans l'énergie comme ailleurs, la réputation ne remplace pas l'inventaire."
@@ -588,6 +600,8 @@ export const worldEncyclopedia = Object.freeze([
     "subtitle": "LES COLONS ET LES PISTES",
     "category": "Planètes",
     "kind": "planète",
+    "planetImage": "images/planets/saleucami.webp",
+    "planetImageAlt": "Reconstitution orbitale de SALEUCAMI : terres arides, zones humides et colonies éparses.",
     "paragraphs": [
       "CHRONIQUE DES COLONIES — Saleucami réunit des étendues sèches, des terrains humides et des établissements de colons dont les activités ont longtemps dépendu de pistes modestes. La guerre a pourtant atteint ces communautés et laissé des besoins que la fin des combats n'a pas fait disparaître.",
       "Les archives impériales insistent sur le retour des transports et de l'administration. Les fermes et les petits comptoirs ont surtout besoin de machines fiables, de médicaments, de réparations et de négociants qui tiennent parole. Là où certains imaginent une place de marché agitée, un contrat utile peut commencer autour d'un moteur en panne et se conclure après plusieurs visites."
@@ -602,6 +616,8 @@ export const worldEncyclopedia = Object.freeze([
     "subtitle": "LES JUNGLES VIVANTES",
     "category": "Planètes",
     "kind": "planète",
+    "planetImage": "images/planets/felucia.webp",
+    "planetImageAlt": "Reconstitution orbitale de FELUCIA : jungles luxuriantes et végétation colorée.",
     "paragraphs": [
       "NOTICE NATURALISTE — Felucia présente des jungles aux champignons gigantesques et aux végétaux de couleurs saisissantes. La fertilité du monde attire les prospecteurs de produits végétaux ; les chemins y demeurent pourtant difficiles et les ressources ne se laissent pas prélever sans connaissance du terrain.",
       "Les combats de la guerre des Clones y ont interrompu des récoltes et mis certaines communautés à l'épreuve. Les bulletins impériaux privilégient désormais la sécurité des approvisionnements, mais les habitants doivent toujours compter avec la jungle et les pillards. Un capitaine qui promet une cargaison sans connaître les récoltes ni la piste de sortie s'engage sur bien plus qu'un simple délai."
@@ -616,6 +632,8 @@ export const worldEncyclopedia = Object.freeze([
     "subtitle": "LES VILLES DANS LES GOUFFRES",
     "category": "Planètes",
     "kind": "planète",
+    "planetImage": "images/planets/utapau.webp",
+    "planetImageAlt": "Reconstitution orbitale de UTAPAU : plateaux désertiques et gouffres géants.",
     "paragraphs": [
       "CHRONIQUE DES HABITATS EXCEPTIONNELS — Utapau est un monde sec, percé de gouffres immenses au fond desquels se trouvent des villes et des réserves d'eau. Pau'ans, Utai et autres habitants y ont développé des savoir-faire adaptés à des infrastructures dont l'entretien ne souffre pas l'improvisation.",
       "Les rapports administratifs soulignent que les ports de ce système ne sont pas interchangeables. Une livraison correctement déclarée doit encore atteindre l'installation concernée, parfois au cœur d'un gouffre. Le pilote prudent distingue toujours la destination planétaire du quai effectivement accessible : une erreur de localisation peut anéantir le bénéfice d'un transport."
@@ -630,6 +648,8 @@ export const worldEncyclopedia = Object.freeze([
     "subtitle": "LE FROID ET LES COMPTES",
     "category": "Planètes",
     "kind": "planète",
+    "planetImage": "images/planets/mygeeto.webp",
+    "planetImageAlt": "Reconstitution orbitale de MYGEETO : terres glacées et massifs cristallins.",
     "paragraphs": [
       "ANNALES FINANCIÈRES — Mygeeto, monde de glace et de formations cristallines, reste associé à l'influence qu'y exerça jadis le Clan Bancaire Intergalactique. La guerre des Clones a profondément marqué ses paysages et laissé derrière elle des contrats, des dettes et des créances difficiles à démêler.",
       "Les services impériaux rappellent qu'un commerce durable dépend de garanties vérifiables. Un lot peut figurer pour une somme considérable sur un registre sans trouver d'acheteur solvable le jour de la livraison. Les courtiers de Breach Port connaissent cette vérité : les chiffres d'un contrat représentent une promesse, non des crédits déjà disponibles."
@@ -644,6 +664,8 @@ export const worldEncyclopedia = Object.freeze([
     "subtitle": "LE CIMETIÈRE DES VAISSEAUX",
     "category": "Planètes",
     "kind": "planète",
+    "planetImage": "images/planets/bracca.webp",
+    "planetImageAlt": "Reconstitution orbitale de BRACCA : cimetières de coques de guerre et installations de recyclage.",
     "paragraphs": [
       "CHRONIQUE DES MATÉRIAUX RÉCUPÉRÉS — Bracca accueille d'immenses accumulations de coques de guerre déclassées. Des ouvriers démontent les anciens vaisseaux pour en retirer moteurs, alliages et composants qui repartiront vers d'autres ateliers. La fin du conflit a fait de ces carcasses une ressource aussi précieuse qu'encombrante.",
       "L'administration impériale surveille les opérations de récupération et les circuits déclarés des pièces. La qualité d'un élément ne se juge pas à son origine prestigieuse : elle dépend de son état réel, de son numéro et de sa traçabilité. Un mécanicien expérimenté reconnaît parfois un trésor dans un débris ; un marchand négligent risque d'acheter un poids mort impossible à transporter."
@@ -658,6 +680,8 @@ export const worldEncyclopedia = Object.freeze([
     "subtitle": "LES MURS ET LA JUNGLE",
     "category": "Planètes",
     "kind": "planète",
+    "planetImage": "images/planets/onderon.webp",
+    "planetImageAlt": "Reconstitution orbitale de ONDERON : jungles, chaînes montagneuses et étendues d’eau.",
     "paragraphs": [
       "CHRONIQUE DES CITÉS FORTIFIÉES — Onderon est connu pour ses jungles dangereuses et pour les grandes villes protégées qui leur font face. Les conflits politiques et militaires de la guerre y ont laissé des fidélités tenaces. Dans les rues d'Iziz, il arrive que deux témoins racontent la même bataille en termes opposés.",
       "Les autorités impériales présentent la surveillance des approvisionnements comme une mesure de stabilité. Les visiteurs y découvrent que l'achat de matériel ou la conclusion d'un transport peuvent néanmoins être interprétés à travers d'anciennes rivalités. Les chroniqueurs conseillent de distinguer les obligations commerciales des affiliations politiques prêtées aux interlocuteurs."
@@ -672,6 +696,8 @@ export const worldEncyclopedia = Object.freeze([
     "subtitle": "L’OMBRE DES UNIFORMES",
     "category": "Planètes",
     "kind": "planète",
+    "planetImage": "images/planets/eriadu.webp",
+    "planetImageAlt": "Reconstitution orbitale de ERIADU : zones industrialisées, agglomérations et reliefs rocheux.",
     "paragraphs": [
       "ANNALES ADMINISTRATIVES — Les reliefs d'Eriadu abritent des infrastructures liées à d'importants intérêts civils et militaires impériaux. La présence des services officiels y marque la circulation des marchandises et l'organisation des activités locales, parfois à une échelle étrangère aux petits équipages d'Ord Mantell.",
       "Les autorités invoquent la rigueur documentaire pour assurer le bon fonctionnement des approvisionnements. Un capitaine peut rencontrer des prestataires efficaces et, le même jour, devoir patienter devant plusieurs bureaux. La valeur d'une grosse commande se mesure aussi aux vérifications qu'elle impose : mieux vaut comprendre le destinataire et les conditions de remise avant de charger la soute."
