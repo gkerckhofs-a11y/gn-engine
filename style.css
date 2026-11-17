@@ -125,4 +125,4 @@ main#content{max-width:1460px}
 .holopedia .holopedia-card-media:hover img{transform:scale(1.025)}
 .holopedia .holopedia-card-media:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
 .holopedia .holopedia-card:has(.holopedia-card-media)>p:last-child{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;line-clamp:4;overflow:hidden;margin-bottom:0}
-@media(max-width:600px){.holopedia .holopedia-card-media.media-history{max-height:420px;aspect-ratio:auto;min-height:320px}.holopedia .holopedia-card-media.media-history img{width:auto;max-width:100%;height:100%;object-fit:contain}}
+@media(max-width:600px){.holopedia .holopedia-card-media.media-history{aspect-ratio:3/4;max-height:420px;min-height:0}.holopedia .holopedia-card-media.media-history img{width:100%;height:100%;object-fit:contain}}
