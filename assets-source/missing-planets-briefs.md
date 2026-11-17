@@ -1,6 +1,6 @@
-# Holopédia — 13 portraits orbitaux restant à produire
+# Holopédia — archives de conception des 13 derniers portraits orbitaux
 
-État vérifié le 17 novembre 2026 : 30 notices de planètes, 17 portraits uniques publiés. Les 13 mondes ci-dessous doivent encore recevoir des visuels distincts. Sources de direction : notices publiques correspondantes dans `world-encyclopedia-data.mjs`.
+**Statut : réalisé le 17 novembre 2026.** Les 13 portraits ci-dessous ont été produits, vérifiés et rattachés à leur notice. Ce document conserve le cahier des charges visuel de leur réalisation. Sources de direction : notices publiques correspondantes dans `world-encyclopedia-data.mjs`.
 
 ## Direction artistique commune
 - Vue spatiale photoréaliste d'un seul globe complet, sans noms, interface, vaisseaux ni éléments graphiques.
