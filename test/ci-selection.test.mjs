@@ -94,7 +94,7 @@ test('CI : une modification étroite après succès produit les quatre lots et H
 
 test('CI : ciblage explicite sur branche neuve accepte seulement une base globale vérifiée du même dépôt',async()=>{
  const event={...payload,pull_request:{...payload.pull_request,base:{ref:'main',repo:{full_name:'owner/repo'}}}},message='AC-01 [ci targeted:contextual-access]';
- const {args,calls}=setup({event,message,paths:['src/core/contextual-access.mjs']});const queried=[];
+ const {args,calls}=setup({event,message,paths:['src/core/contextual-access.mjs','.github/holopedia-request.json']});const queried=[];
  args.fetchRuns=async ref=>{queried.push(ref);return ref==='main'?[run({head_branch:'main',event:'push'})]:[run({conclusion:'failure'})];};
  const p=await makePlan(args);assert.equal(p.profile,'targeted-contextual-access');assert.equal(p.baseline,previous);assert.equal(p.browser,true);assert.deepEqual(queried,['work/test','main']);assert.ok(calls.some(c=>c[0]==='merge-base'));assert.ok(p.suites.includes('contextual-access'));assert.ok(p.suites.includes('sabacc'));
 });

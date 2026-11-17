@@ -284,13 +284,15 @@ targetedProfiles['pilot-recette']={
 };
 // Contextual access: native shop/payment/inventory regressions plus the actual
 // browser acceptance suite, including the QR-rotation failure found by AC-01.
-const contextualTests=['contextual-access','contextual-access-ui','item-circuits','item-circuits-ui','space-outlaws-shops','space-outlaws-shops-ui','sales','economy','inventory','transfers','workflow','space-outlaws-entry','player-spaces','player-terminal','organizer-dashboard','sabacc','sabacc-engine','ci-selection','ci-targeted'].map(id=>`test/${id}.test.mjs`);
+const contextualTests=['contextual-access','contextual-access-ui','item-circuits','item-circuits-ui','space-outlaws-shops','space-outlaws-shops-ui','sales','economy','inventory','transfers','workflow','space-outlaws-entry','player-spaces','player-terminal','organizer-dashboard','sabacc','sabacc-engine','release-ci','ci-selection','ci-targeted'].map(id=>`test/${id}.test.mjs`);
 targetedProfiles['contextual-access']={
  tests:contextualTests,
  suites:['contextual-access','item-circuits','space-outlaws-shops','sales','economy','inventory','transfers','workflow','space-outlaws-entry','sabacc','sabacc-gn','firestore-rules'],
  httpPattern:'^HTTP \\+ Auth : (accès contextuels,|circuits personnels,|Sabacc|boutiques|comptoir)',
  browser:true,
- files:[...infrastructure,...contextualTests,'src/core/contextual-access.mjs','src/core/workflow.mjs','test/support/contextual-access-suite.mjs','test/support/firestore-suites.mjs','test/integration/http.test.mjs','web/contextual-access.mjs','web/app.mjs','web/organizer-dashboard.mjs','web/player-spaces.mjs','web/player-terminal.mjs','web/sabacc/app.mjs'],
+ // Reviewed concurrent base change: static secondary-site deployment request.
+ // Never modified by this branch; production workflow remains main-only.
+ files:['.github/holopedia-request.json',...infrastructure,...contextualTests,'src/core/contextual-access.mjs','src/core/workflow.mjs','test/support/contextual-access-suite.mjs','test/support/firestore-suites.mjs','test/integration/http.test.mjs','web/contextual-access.mjs','web/app.mjs','web/organizer-dashboard.mjs','web/player-spaces.mjs','web/player-terminal.mjs','web/sabacc/app.mjs'],
 };
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
