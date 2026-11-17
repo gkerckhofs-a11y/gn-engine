@@ -109,20 +109,19 @@ main#content{max-width:1460px}
 .holopedia .history-poster-thumb.poster-webp{object-fit:contain;object-position:center;background:#240e10}
 .holopedia .history-poster-hero.poster-webp{aspect-ratio:2/3;object-fit:contain;background:#240e10}
 
-/* Vignettes optimisées par format : affiches, globes et panoramas. */
-.holopedia .holopedia-card:has(.holopedia-card-media){display:flex;flex-direction:column;padding:1rem}
-.holopedia .holopedia-card-media{display:flex;align-items:center;justify-content:center;width:100%;overflow:hidden;border:1px solid rgba(207,180,146,.28);border-radius:10px;margin:0 0 .9rem;line-height:0;position:relative;background:#07101d}
-.holopedia .holopedia-card-media.media-history{aspect-ratio:3/4;padding:.3rem;background:radial-gradient(ellipse at 50% 40%,#45231b,#1b1016 75%)}
-.holopedia .holopedia-card-media.media-planet{aspect-ratio:1/1;background:#020710}
-.holopedia .holopedia-card-media.media-place{aspect-ratio:16/9;background:#060c16}
-.holopedia .holopedia-card-media img{display:block;width:100%;height:100%;min-height:0;max-height:none;object-fit:cover;object-position:center;border:0;border-radius:0;margin:0;transition:transform .2s ease}
-.holopedia .holopedia-card-media.media-history .history-poster-thumb{object-fit:contain;object-position:center;background:transparent}
-.holopedia .holopedia-card-media.media-planet .planet-card-image{object-fit:cover}
-.holopedia .holopedia-card-media.media-place .place-card-image{object-fit:cover}
-.holopedia .holopedia-card-media .place-focus-left{object-position:19% 50%}
-.holopedia .holopedia-card-media .place-focus-right{object-position:80% 50%}
-.holopedia .holopedia-card-media .place-focus-center{object-position:50% 50%}
-.holopedia .holopedia-card-media:hover img{transform:scale(1.025)}
-.holopedia .holopedia-card-media:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
-.holopedia .holopedia-card:has(.holopedia-card-media)>p:last-child{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;line-clamp:4;overflow:hidden;margin-bottom:0}
-@media(max-width:600px){.holopedia .holopedia-card-media.media-history{aspect-ratio:3/4;max-height:420px;min-height:0}.holopedia .holopedia-card-media.media-history img{width:100%;height:100%;object-fit:contain}}
+/* Rubrique Histoire — vignettes d'affiches en entier sur la page d'accueil. */
+.holopedia .holopedia-card:has(.holopedia-card-media.media-history){display:flex;flex-direction:column;padding:1rem}
+.holopedia .holopedia-card-media.media-history{
+ display:flex;align-items:center;justify-content:center;
+ width:100%;height:250px;padding:.4rem;overflow:hidden;line-height:0;
+ border:1px solid rgba(229,188,138,.36);border-radius:10px;
+ margin:0 0 .85rem;background:radial-gradient(ellipse at 50% 40%,#45231b,#1b1016 75%);
+}
+.holopedia .holopedia-card-media.media-history .history-poster-thumb{
+ display:block;width:100%;height:100%;min-height:0;max-height:none;
+ object-fit:contain;object-position:center;background:transparent;
+ border:0;border-radius:3px;margin:0;transition:transform .18s ease;
+}
+.holopedia .holopedia-card-media.media-history:hover .history-poster-thumb{transform:scale(1.025)}
+.holopedia .holopedia-card-media.media-history:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.holopedia .holopedia-card-media.media-history .history-poster-thumb{transition:none}}
