@@ -2,7 +2,7 @@
 """Importer les vues orbitales depuis les fichiers Drive partagés à l'agent de publication.
 Copie uniquement les images autorisées, réencode en WebP et rejette les corps invalides.
 """
-import io, json, os, re, urllib.request
+import io, json, os, re, urllib.request, urllib.error
 from pathlib import Path
 from PIL import Image, ImageOps
 
@@ -16,8 +16,12 @@ for slug, file_id in files.items():
         raise ValueError("Invalid image manifest entry")
     url = f"https://www.googleapis.com/drive/v3/files/{file_id}?alt=media"
     req = urllib.request.Request(url, headers={"Authorization": "Bearer " + token, "User-Agent": "Space-Outlaws-Holopedia/1.0"})
-    with urllib.request.urlopen(req, timeout=45) as response:
-        b = response.read(12_000_000)
+    try:
+        with urllib.request.urlopen(req, timeout=45) as response:
+            b = response.read(12_000_000)
+    except urllib.error.HTTPError as e:
+        msg=e.read(2000).decode("utf-8",errors="replace")
+        raise RuntimeError(f"Erreur Google Drive pour {slug}: HTTP {e.code}: {msg}") from None
     with Image.open(io.BytesIO(b)) as source:
         source.load()
         if source.width < 400 or source.height < 400:
