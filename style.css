@@ -49,3 +49,12 @@ main{max-width:1140px;min-height:80vh;margin:auto;padding:2.5rem 2rem 5rem}foote
 .holopedia .holopedia-card[data-holopedia-category="Planètes"]{border-top:2px solid rgba(207,151,105,.32)}
 .holopedia .holopedia-reading p{font-style:normal}
 @media(max-width:600px){.holopedia .archive-byline{font-size:.77rem;line-height:1.55}.holopedia .archive-card-label{font-size:.63rem}}
+
+/* Portraits orbitaux : images documentaires reconstituées, distinctes des cartes de navigation. */
+.holopedia .planet-card-image{display:block;width:100%;height:184px;object-fit:cover;object-position:50% 50%;border-radius:10px;border:1px solid rgba(184,209,232,.22);margin:0 0 .7rem;background:#020710}
+.holopedia .holopedia-card:has(.planet-card-image){padding:1rem}
+.holopedia .planet-hero{max-width:600px;margin:1.7rem auto 2rem;text-align:center}
+.holopedia .planet-photo-frame{display:block;position:relative;overflow:hidden;border-radius:16px;border:1px solid rgba(174,204,237,.25);background:radial-gradient(circle at 50% 45%,rgba(39,61,82,.4),#050b13 72%);box-shadow:0 14px 38px rgba(0,0,0,.25)}
+.holopedia .planet-hero-image{display:block;width:100%;aspect-ratio:1/1;height:auto;object-fit:contain}
+.holopedia .planet-hero figcaption{margin:.6rem auto;color:var(--muted);font-size:.78rem;letter-spacing:.035em;line-height:1.5}
+@media(max-width:620px){.holopedia .planet-card-image{height:175px}.holopedia .planet-hero{margin:1.1rem auto 1.5rem}}
