@@ -4,8 +4,8 @@
   "siteId": "holopedia-space-outlaws",
   "sourceRef": "gh-pages",
   "requestedAt": "2026-11-16",
-  "reason": "Publication de 56 articles de l'Holopédia réécrits par des chroniqueurs impériaux. Source: gh-pages; tests Wiki ciblés; aucune publication de GN Engine, Functions ou Firestore.",
+  "reason": "Validation ciblée du pipeline des illustrations Holopédia : import en lecture seule d'une image d'Ord Mantell et publication du seul site indépendant.",
   "status": "AUTHORIZED_SECONDARY_HOSTING_ONLY",
-  "attempt": 7,
-  "scope": "holopedia-all-56-imperial-chronicles"
+  "attempt": 8,
+  "scope": "holopedia-image-import-smoke-test"
 }
