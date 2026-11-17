@@ -128,3 +128,88 @@ Tests applicatifs ciblés, refus HTTP/Auth, concurrence transactionnelle et vér
 - Annulation/remboursement d'un achat physique non retiré : ne pas créer de remboursement automatique sans règle métier validée.
 
 Ces paramètres n'empêchent pas de figer la **décision validée** : le MJ choisit le mode numérique ou physique **pour chaque objet**.
+---
+
+## 10. Extension « Docks, cellules, inspections et intrusions » — décision du 17/11/2026
+
+**Décision explicite validée :** les docks rassemblent des cellules de stockage de matières premières et autres lots commerciaux, des mouvements entre soutes de vaisseaux et stockages portuaires, des contrôles impériaux portant sur les marchandises et les taxes, et des tentatives d'espionnage via QR. **Une intrusion donnant des informations et un vol éventuel sont deux opérations séparées, distinctes et conditionnelles.** Aucune réussite de piratage ne donne par elle-même le droit de retirer ou de transférer un lot.
+
+**Statut des détails ci-dessous :** `[VALIDÉ]` désigne uniquement le principe explicitement décidé ; `[CIBLE PROPOSÉE]` décrit l'architecture conseillée avant recette et arbitrages de scénario. Ne pas confondre les intentions avec une fonctionnalité actuellement déployée.
+
+### 10.1 Cellules de stockage [VALIDÉ / CIBLE PROPOSÉE]
+
+- [VALIDÉ] Un joueur peut **acheter ou posséder** une cellule au dock pour y entreposer des matières premières ; les marchandises peuvent passer d'une soute à une cellule et inversement. La capacité est limitée, à l'instar d'une soute.
+- [CIBLE PROPOSÉE] Conserver les **locations d'entrepôts existantes** et ajouter **l'achat définitif** comme mode d'acquisition alternatif, dont le prix, l'offre et la disponibilité sont définis par le MJ. Ne jamais assimiler un paiement par un groupe à une propriété automatique du groupe.
+- [CIBLE PROPOSÉE] Une cellule = `storageId` stable, port/planète, zone/terminal de dock, capacité et volume occupé, état, mode `RENT/OWN`, titulaire (personnage ou groupe), opérateurs habilités, liste de lots **protégée**, QR public, registre d'opérations. L'identité du propriétaire de **la cellule** et celle de chaque **lot** restent indépendantes ; un dépôt n'entraîne pas transfert de propriété du lot.
+- [CIBLE PROPOSÉE] Distinguer les espaces **personnels/de groupe** des **entrepôts commerciaux** du circuit `COMMERCIAL`. Un lot ne change pas de circuit (`PERSONAL`, `FUEL`, `COMMERCIAL`) du seul fait d'être stocké ; conserver les règles d'admission et d'emplacement des services natifs. Les matières premières commerciales appartiennent au stock commercial du port, et non au sac du personnage.
+- [CIBLE PROPOSÉE] Un changement de propriétaire de cellule (vente, cession, prise de contrôle) exige une action explicite avec ses propres droits et consentements. Une propriété de cellule n'autorise pas la lecture des biens de tiers confiés à cette cellule sans mandat correspondant. Préciser le traitement du contenu et des contrats avant de permettre une revente de cellule occupée.
+
+### 10.2 QR des docks et transferts [VALIDÉ / CIBLE PROPOSÉE]
+
+- [VALIDÉ] Un QR de dock ouvre un terminal d'action **local temporaire** et les opérations permises selon les licences, codes, clés, compétences et mandats. La présence réelle relève des règles de fair-play.
+- [CIBLE PROPOSÉE] Prévoir un QR **de terminal de quai** et des QR **de cellule**, **de soute** et **de lot** différents. Les trois derniers identifient les ressources : scanner une étiquette ne confère **aucune permission** ; le contrôle d'action locale se fait à partir de la session du terminal concerné. Exports individuels et en lot au format PNG/SVG/PDF/ZIP, comme décidé en §6.
+- [CIBLE PROPOSÉE] Transfert : `choisir lot + quantité → destination → aperçu capacités/droits/frais → réservation atomique → déplacement physique conventionnel → réception confirmée → état d'emplacement modifié`. Mouvements dans les deux sens ; vaisseau à quai dans le **même port** ; aucun déplacement à distance ou téléportation entre planètes. La destination peut être sélectionnée par QR d'une cellule/soute.
+- [CIBLE PROPOSÉE] Réemployer `logistics.mjs`, `commercial-storage.mjs`, `cargo.mjs`, leurs réservations, gardes, reçus, scissions de lots et protections anti-doublon. Garder propriétaire, filiation, quantité et localisation ; un transfert complet conserve l'identifiant du lot ; un fractionnement suit le mécanisme natif.
+- [CIBLE PROPOSÉE] Pour les groupes, conserver les mandats `readStock`, `depositStock`, `withdrawStock` et `manageStorage` avec leurs limites existantes ; le QR du lieu n'élargit aucun mandat.
+
+### 10.3 État douanier des lots et contrôles impériaux [VALIDÉ / CIBLE PROPOSÉE]
+
+- [VALIDÉ] Soutes et cellules peuvent être soumises à un contrôle impérial destiné à vérifier la nature des biens et le paiement des taxes dues.
+- [CIBLE PROPOSÉE] Séparer **statut légal** de la marchandise (libre, réglementée, interdite, inconnu/non classé), **régime du mouvement** (transit, importation locale, stockage, transfert interne) et **preuves de régularisation** (quittance, licence valide, déclaration, cas de retenue, périmètre port/lot/visite/opération).
+- [CIBLE PROPOSÉE] Conserver les règles économiques validées : transit sans importation locale **0 %**, importation de marchandises libres **5 %**, importation réglementée avec licence **10 %**, marchandise interdite **sans dédouanement ordinaire** ; arrondi global du montant dû au crédit le plus proche avec demi-crédit vers le haut. **Ne pas créer une nouvelle taxe** lors d'un simple déplacement interne après régularisation de la même importation. Les éventuels frais de passage locaux déjà configurés ont un motif distinct et suivent les mécanismes existants ; éviter tout double prélèvement du même droit.
+- [CIBLE PROPOSÉE] Contrôle documentaire : habilitation de l'agent impérial + session locale + lot/vaisseau/cellule ciblé → consultation des **preuves pertinentes**. Le contrôle ordinaire du composant de fret caché ne prouve actuellement ni la taxe ni la licence : prévoir un raccord spécifique, **sans déclarer que ce contrôle existe déjà**.
+- [CIBLE PROPOSÉE] Inspection approfondie : utiliser, lorsque la cible est une soute, le moteur d'inspection existant, ses habilitations, durées, PA et seuils, sans inventer un autre barème ; pour les cellules, créer un raccord dédié et définir précisément son périmètre avant codage. Un agent n'obtient pas de gestion générale du stock par le seul scan.
+- [CIBLE PROPOSÉE] Révéler seulement ce que la procédure autorise : manifeste déclaré ; preuve de paiement ; puis, sur inspection physique légitime, contenu réellement inspecté. Une fraude potentielle exige constat, décision MJ et procédure appropriée. **Contrôler, retenir, saisir, confisquer et restituer sont des actions distinctes**. Les procédures natives de saisie ne couvrent pas encore de manière équivalente les soutes et entrepôts : extension et recette obligatoires.
+- [CIBLE PROPOSÉE] Stockage *sous douane* (marchandises non importées mais retenues en transit) : **règle séparée non encore arbitrée**, aucun dédouanement automatique du seul fait du dépôt, aucun droit de vente implicite.
+
+### 10.4 Intrusion, espionnage et vol [VALIDÉ / CIBLE PROPOSÉE]
+
+- [VALIDÉ] Un Rogue peut tenter d'obtenir des informations de cargaison via QR si les compétences nécessaires lui sont réellement acquises. **Espionnage puis vol éventuel** = deux parcours autonomes et conditionnels. Ce n'est pas un accès général à la logistique d'autrui.
+- [CIBLE PROPOSÉE] Conserver la compétence **INF-01** telle que codifiée, accessible aux personnages qui la possèdent effectivement, indépendamment du simple intitulé de classe « Rogue ». Réutiliser sa cible fictive d'intrusion M6, son D6 ou mini-jeu configuré, sa durée, son PA et son cooldown canoniques. La présence locale au terminal concerné ne doit pas modifier ses barèmes.
+- [CIBLE PROPOSÉE] L'intrusion liée à une cellule/soute/lot peut révéler, **si explicitement préparé par le MJ** : existence de lots, nature/type, quantité, propriétaire, statut douanier ou identifiants fictifs utiles à une mission. Chaque champ est indépendant et peut rester caché même sur réussite ; ne pas exposer les lots privés avant résolution. Le succès n'émet ni code d'administration, ni mandat de stockage, ni opération de retrait.
+- [CIBLE PROPOSÉE] **Vol distinct :** nouvelle commande explicite avec une cible réelle, une quantité et des conditions propres (présence au dock, cible accessible, lot disponible, capacité d'emport ou de réception, éventuelle clé/droit acquis par la fiction, règles de surveillance et validation MJ le cas échéant). Le fait d'avoir espionné peut devenir un prérequis d'un scénario, mais ne suffit **jamais** comme permission de transfert.
+- [CIBLE PROPOSÉE] Une réussite de vol effectue **un seul transfert de garde/propriété selon les règles du scénario**, depuis le lot source vers un emplacement autorisé, de manière transactionnelle : décrément de l'un, attribution unique à l'autre, filiation, événement d'audit et réessais idempotents. Une tentative échouée n'accorde ni contenu ni possibilité d'énumérer les lots secrets.
+- [CIBLE PROPOSÉE] Si les règles existantes ne prévoient **pas** de vol de biens stockés, ne pas détourner `ROG-02` (vol à la tire d'un **personnage**, cible et lieu explicitement réglementés) ni ouvrir la mutation logistique de tiers. Définir un nouveau parcours fictif limité aux biens stockés, dont **coût, durée, niveau de compétence, éventuel jet, quantité maximale, alerte et remise** nécessitent un arbitrage explicite avant implémentation. En première tranche, cibler les **cellules des docks** ; un vol en soute de vaisseau ne doit pas court-circuiter les règles d'abordage/piraterie.
+- [CIBLE PROPOSÉE] Journal MJ systématique ; notifications au propriétaire ou à la douane **paramétrables** en fiction, sans révéler instantanément un espion silencieux. Aucun verrou physique ne doit être réellement ouvert par l'application et aucune confrontation réelle risquée n'est exigée.
+
+### 10.5 Régie MJ — docks [CIBLE PROPOSÉE]
+
+Depuis **Lieux & Terminaux → Docks**, offrir :
+1. Configuration des quais, terminaux et cellules, capacités, noms, prix d'achat, durées/loyers de location, disponibilités et QR téléchargeables.
+2. Attribution et consultation de la propriété / location ; mandats d'accès séparés pour consulter, déposer, retirer, gérer la cellule, contrôler et autoriser une procédure de vol.
+3. Journal des cargaisons par lot : propriétaire, détenteur/garde, port et emplacement, quantité, statut légal par port, réservation, filiation, preuves et quittances fiscalo-douanières, sans diffusion publique des secrets.
+4. Paramétrage des cibles INF-01, des informations révélables et d'une opération de vol **distincte**, désactivée tant que son protocole n'est pas approuvé.
+5. Habilitations des agents impériaux, types d'inspection permis, registre des contrôles, retenues, saisies, décisions et recours ; simulateur MJ par personnage et cible.
+6. Gestion des cas bloqués, annulations motivées, droits révoqués et reprise d'épisode sans perte de lots ni paiement en double.
+
+### 10.6 Recettes complémentaires [À TESTER — NON EXÉCUTÉES]
+
+| ID | Cas | Attendu |
+|---|---|---|
+| DOCK-01 | Création/location ou achat d'une cellule au port | Titulaire et capacité corrects ; paiement unique ; pas de stock gratuit |
+| DOCK-02 | Deux personnages prétendent acquérir la même cellule | Une attribution seulement |
+| DOCK-03 | Soute à quai → cellule au même port | Quantité conservée, réception requise, même propriétaire |
+| DOCK-04 | Cellule → soute, manque de capacité | Refus sans mouvement ni débit |
+| DOCK-05 | Transfert depuis une autre planète | Refus de téléportation |
+| DOCK-06 | Scan d'un QR de cellule par un tiers | Pas de lecture du stock ni de retrait |
+| DOCK-07 | INF-01 réussie, révélation limitée à « nature » | Seule la nature préparée est divulguée |
+| DOCK-08 | INF-01 échouée | Aucun lot, identité, quantité ou secret privé exposé |
+| DOCK-09 | Intrusion réussie puis tentative de retrait sans vol autorisé | Refus serveur de mutation |
+| DOCK-10 | Vol distinct autorisé et réussi | Débit source/crédit destination atomiques et journal unique |
+| DOCK-11 | Vol simultané du même dernier exemplaire | Aucun double vol ; conservation des quantités |
+| DOCK-12 | Agent habilité contrôle une quittance pour le bon lot/port | Preuve et statut projetés selon droits |
+| DOCK-13 | Simple transfert local de lot déjà dédouané | Aucun deuxième paiement du même droit d'importation |
+| DOCK-14 | Transit non importé puis tentative de vente locale | Pas de revente libre sans régime d'importation valide |
+| DOCK-15 | Inspection sans pouvoir de saisie | Aucune saisie ou confiscation par simple contrôle |
+| DOCK-16 | Ancien Master/session | Aucun nouveau droit/vol/QR local implicite |
+
+Recette fonctionnelle, refus HTTP/Auth, concurrence transactionnelle, confidentialité, intégration des compétences et essais terrain sur QR imprimés. Ces scénarios sont des **critères**, pas des tests exécutés.
+
+### 10.7 Arbitrages encore ouverts [NON VALIDÉS]
+
+- **Acquisition des cellules :** prix de vente, transférabilité/revente du titre, propriété individuelle ou collective et éventuel rôle de propriétaire initial.
+- **Vol de stockage :** compétence habilitante, seuils/durée/PA, prérequis physique, quantité emportable, conditions d'échec et d'alerte ; aucun nouveau barème inventé.
+- **Douanes dans les cellules :** qui peut autoriser une inspection approfondie ou une saisie en entrepôt ; distinguer l'entreposage ordinaire du stockage sous douane.
+- **Confidentialité de l'accès physique :** informations visibles publiquement sur le numéro de cellule, son occupation et son titulaire.
+
+Aucune décision non tranchée ci-dessus n'autorise un changement de code canonique, de taux, de règles de vol, de sécurité ou un déploiement en production.
