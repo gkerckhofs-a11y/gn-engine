@@ -158,3 +158,33 @@ test('Images planétaires : 30 vues orbitales uniques couvrant chaque monde publ
    assert.ok(page.includes('images/planets/'+slug+'.webp'),'Image absente de la fiche : '+a.title);
  }
 });
+
+test('Images des lieux de Breach Port : quatre fiches, trois scènes exactes, sans révélation',()=>{
+ const manifest=JSON.parse(readFileSync('assets-source/place-images.json','utf8')).place_images;
+ assert.equal(Object.keys(manifest).length,3,'Trois fichiers sources attendus');
+ assert.equal(new Set(Object.values(manifest)).size,3,'Chaque scène source doit être distincte');
+ const mapping={
+   'lieu-la-cantina-de-la-traverse':['breach-port-cantina','center'],
+   'lieu-le-spatioport':['breach-port-spatioport','center'],
+   'lieu-la-maison-du-prefet-et-la-prison':['breach-port-imperial-office-docks','left'],
+   'lieu-les-docks':['breach-port-imperial-office-docks','right']
+ };
+ const illustrated=worldEncyclopedia.filter(a=>a.placeImage);
+ assert.equal(illustrated.length,4);
+ for(const [id,[slug,focus]] of Object.entries(mapping)){
+   const article=worldEncyclopedia.find(a=>a.id===id);
+   assert.ok(article&&article.kind==='lieu',id+' introuvable');
+   assert.equal(article.placeImage,'images/places/'+slug+'.webp');
+   assert.equal(article.placeImageFocus,focus);
+   assert.ok(article.placeImageAlt?.length>50);
+   assert.match(manifest[slug],/^[A-Za-z0-9_-]{20,100}$/);
+   const html=holopediaArticleHtml('public',id);
+   assert.match(html,/place-hero-image/);
+   assert.match(html,/Vue d’ambiance reconstituée/);
+   assert.ok(html.includes('images/places/'+slug+'.webp'));
+   assert.doesNotMatch(html,/gmTruth|gmNotes|SECRET_MAP_ROUTE|navigationCode/);
+ }
+ const index=holopediaIndexHtml('public');
+ assert.equal((index.match(/data-place-image="true"/g)||[]).length,4);
+ assert.doesNotMatch(holopediaArticleHtml('public','lieu-le-comptoir'),/place-hero/);
+});
