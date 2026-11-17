@@ -67,18 +67,36 @@ test('Histoire : République, guerre des Clones, Ordre 66 et Empire en cinq arti
  assert.match(link,/histoire-guerre-des-clones/);
 });
 
-test('Histoire impériale : six archives, cinq affiches, propagande cadrée et aucun secret',()=>{
+test('Histoire impériale : six archives, six illustrations dont cinq affiches renouvelées',()=>{
  const pages=worldEncyclopedia.filter(x=>x.imperialArchive===true);
  assert.equal(pages.length,6);
  assert.equal(worldEncyclopedia.filter(x=>x.kind==='planète').length,30);
  assert.equal(worldEncyclopedia.filter(x=>x.category==='Histoire').length,7);
+ const manifest=JSON.parse(readFileSync('assets-source/history-posters.json','utf8')).history_posters;
+ const expectedPosters={
+  'histoire-republique-a-empire':'republique-empire',
+  'histoire-guerre-des-clones':'guerre-clones',
+  'histoire-ordre-66-et-disparition-des-jedi':'ordre-66',
+  'histoire-naissance-empire':'naissance-empire',
+  'histoire-crise-separatiste':'crise-separatiste'
+ };
+ assert.equal(Object.keys(manifest).length,5);
+ assert.equal(new Set(Object.values(manifest)).size,5);
+ for(const [id,slug] of Object.entries(expectedPosters)){
+  const a=worldEncyclopedia.find(x=>x.id===id);
+  assert.equal(a.poster,'posters/'+slug+'.webp',id);
+  assert.match(manifest[slug],/^[A-Za-z0-9_-]{20,100}$/);
+  assert.match(holopediaArticleHtml('public',id),/poster-webp/);
+  assert.match(holopediaIndexHtml('public'),new RegExp('posters/'+slug+'\\.webp'));
+ }
+ assert.equal(worldEncyclopedia.find(x=>x.id==='histoire-ancienne-republique-et-jedi').poster,'posters/republic.svg','Préserver la seule affiche ancienne non remplacée');
  const posters=new Set(pages.map(x=>x.poster));
- assert.equal(posters.size,5);
+ assert.equal(posters.size,6);
  for(const article of pages){
   assert.equal(article.category,'Histoire');
   assert.ok(article.slogan&&article.paragraphs.length>=5);
   assert.ok(article.paragraphs[0].startsWith('ARCHIVES'));
-  assert.match(article.poster,/^posters\/[a-z-]+\.svg$/);
+  assert.match(article.poster,/^posters\/[a-z0-9-]+\.(?:svg|webp)$/);
   assert.ok(!/Darth Sidious|Darth Vader|Anakin Skywalker|Yoda|Obi-Wan Kenobi/.test(article.paragraphs.join(' ')));
   const html=holopediaArticleHtml('public',article.id);
   assert.match(html,/history-banner/);
