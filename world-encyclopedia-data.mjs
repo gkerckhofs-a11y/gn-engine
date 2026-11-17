@@ -777,6 +777,9 @@ export const worldEncyclopedia = Object.freeze([
     "title": "Le Comptoir",
     "category": "Lieux de Breach Port",
     "kind": "lieu",
+    "placeImage": "images/places/breach-port-comptoir.webp",
+    "placeImageAlt": "Le Comptoir de Breach Port, commerce galactique illuminé sur sa terrasse en bois, avec des marchandises et des caisses de fret.",
+    "placeImageFocus": "center",
     "paragraphs": [
       "ANNALES DU COMMERCE PORTUAIRE — Le Comptoir de Breach Port réunit maison de négoce, registres de manifestes et espace de marché. On y discute chargements, licences, prix et contrats d'importation ou d'exportation. Les bureaux impériaux apprécient ce point de rassemblement des transactions ; les négociants y apprécient surtout la possibilité de trouver un client avant que la cargaison ne coûte davantage en stockage.",
       "Les biens ordinaires y côtoient les demandes inhabituelles et les propositions d'intermédiaires. Un acheteur peut obtenir une pièce introuvable ailleurs, mais une promesse ne tient lieu ni de stock ni de droit de propriété. Le chroniqueur recommande des contrats clairs, même lorsque les partenaires affirment se connaître depuis toujours.",
@@ -825,6 +828,9 @@ export const worldEncyclopedia = Object.freeze([
     "title": "L'Hospice",
     "category": "Lieux de Breach Port",
     "kind": "lieu",
+    "placeImage": "images/places/breach-port-hospice-workshop.webp",
+    "placeImageAlt": "Vue nocturne de l'Hospice de Breach Port, à gauche d'un bâtiment en bois avec enseignes médicales et fenêtres éclairées.",
+    "placeImageFocus": "left",
     "paragraphs": [
       "NOTICE SUR LES SERVICES DE SOIN — L'Hospice de Breach Port accueille blessés, malades et voyageurs dans un établissement modeste. Ses équipes ménagent les médicaments et prolongent l'usage d'instruments souvent réparés. Les bulletins impériaux soulignent l'importance des services de santé pour la continuité du travail portuaire ; les patients s'intéressent d'abord à la compétence des soignants.",
       "On y reçoit des personnes aux métiers différents, parfois dans le même état d'urgence. Les préparations médicales et les antidotes dépendent d'ingrédients dont les approvisionnements ne sont pas toujours réguliers. Certains produits sont commandés au Comptoir, d'autres arrivent par des routes plus longues et des intermédiaires discrets.",
@@ -839,6 +845,9 @@ export const worldEncyclopedia = Object.freeze([
     "title": "L'Atelier",
     "category": "Lieux de Breach Port",
     "kind": "lieu",
+    "placeImage": "images/places/breach-port-hospice-workshop.webp",
+    "placeImageAlt": "Vue nocturne de l'Atelier de Breach Port, à droite du bâtiment partagé avec l'Hospice, avec outils et équipements techniques.",
+    "placeImageFocus": "right",
     "paragraphs": [
       "ANNALES TECHNIQUES DU PORT — L'Atelier de Breach Port entretient droïdes, moteurs, équipements et vaisseaux que les grands constructeurs jugeraient parfois trop anciens pour mériter une intervention. Les outils portent les marques de longues années de service et les composants ne proviennent pas toujours d'une chaîne d'approvisionnement impeccable.",
       "Les services impériaux souhaitent encourager la fiabilité et l'identification des pièces. Les mécaniciens savent qu'une réparation bien faite peut valoir davantage qu'un appareil neuf et qu'une erreur ruine une réputation en une nuit. Les paiements prennent la forme de crédits, de fournitures ou, dans les périodes difficiles, d'engagements à honorer plus tard.",
