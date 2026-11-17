@@ -3,9 +3,9 @@
   "target": "holopedia",
   "siteId": "holopedia-space-outlaws",
   "sourceRef": "gh-pages",
-  "requestedAt": "2026-11-16",
-  "reason": "Validation d'activation de drive.googleapis.com pour l'import des images de planètes Holopédia, sans publication du site principal.",
+  "requestedAt": "2026-11-17",
+  "reason": "Nouvelle tentative autorisée après activation manuelle de l'API Google Drive : importer les 16 vues orbitales existantes et publier uniquement hosting:holopedia.",
   "status": "AUTHORIZED_SECONDARY_HOSTING_ONLY",
-  "attempt": 10,
-  "scope": "holopedia-drive-api-activation"
+  "attempt": 11,
+  "scope": "holopedia-orbital-images-import"
 }
