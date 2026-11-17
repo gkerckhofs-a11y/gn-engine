@@ -19,3 +19,7 @@ Validation locale : build ; 40 tests ciblés contexte/circuits/espaces/terminal 
 AC-02 : licences/codes/clés, simulateur et exports complets à développer. AC-03 : modes de remise explicites, sans changement des offres historiques. AC-04 : cellules portuaires avec réemploi logistique. AC-05 : garder les mécanismes de vol non arbitrés fermés ; changement de titre et règle de résolution ne sont pas déduits d'INF-01 ou de ROG-02. AC-06 : couverture intégrée et écarts factuels, sans certification terrain implicite.
 
 Aucune fusion, migration, suppression ou publication Firebase autorisée par ce rapport.
+
+## Correction révélée par la première CI
+
+CI `44073317027`, candidat `bdf646d660cc8cafe7158f35fad8f5b774b88781` : application réussie ; 115/115 HTTP/Auth réussis ; 25/26 parcours navigateur réussis. Le parcours Sabacc après rotation du QR reste sur « QR remplacé ». Le relevé navigateur et le code montrent un retour fondé sur le dernier accueil en cache et une actualisation perdue si un polling est déjà actif. Correction limitée : relire l'accueil avant de retrouver sa place et mettre en attente une actualisation demandée pendant un polling. Aucun droit ou résultat de jeu changé. Build et 22 tests ciblés Sabacc/contexte/UI réussis localement ; recette navigateur locale bloquée (socket Chromium refusé, téléchargement du shell invalide). La CI du correctif doit prouver le parcours navigateur ; l'échec initial n'est pas présenté comme un succès.
