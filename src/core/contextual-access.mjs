@@ -122,7 +122,7 @@ export function createContextualAccessService({store,signed,checkSession,now,uui
     const p={id:eventId,terminalId:t.id,terminalRevision:t.revision,characterVersion:version,expiresGameMs:gameTime(s.clock,at)+t.durationSeconds*1000};
     tx.set(`${b}/presence/${c.id}`,p);tx.set(`${b}/journal/${eventId}`,{id:eventId,at,action,terminalId:t.id,characterId:c.id});const result={id:p.id,terminal:terminalView(t),expiresGameMs:p.expiresGameMs};tx.set(op,{fingerprint,guard:version,result});return result;
    }
-   const operations=[];for(const o of t.operations){try{if(['galacticMarkets','preparePlanetSale','sellToPlanetMarket'].includes(o.action))requireThat(isBroker(c),'FORBIDDEN');await localAuthorization(tx,ctx,o.action,o.resourceId,at);operations.push({action:o.action,resourceId:o.resourceId,allowed:true});}catch(e){if(!e.code)throw e;operations.push({action:o.action,resourceId:o.resourceId,allowed:false,reason:e.code});}}
+   const operations=[];for(const o of t.operations){try{if(['galacticMarkets','preparePlanetSale','sellToPlanetMarket'].includes(o.action))requireThat(isBroker(c),'FORBIDDEN');await localAuthorization(tx,ctx,o.action,o.resourceId,at);operations.push({action:o.action,resourceId:o.resourceId,allowed:true,...(o.action==='commodityMarket'&&isBroker(c)?{professionalMarket:true}:{})});}catch(e){if(!e.code)throw e;operations.push({action:o.action,resourceId:o.resourceId,allowed:false,reason:e.code});}}
    const presence=await tx.get(`${b}/presence/${c.id}`);return {terminal:terminalView(t),remainingSeconds:presence?.terminalId===t.id?Math.max(0,Math.ceil((presence.expiresGameMs-gameTime(s.clock,at))/1000)):0,operations};
   });
  };

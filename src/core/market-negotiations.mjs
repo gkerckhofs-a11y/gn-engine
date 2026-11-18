@@ -1,3 +1,4 @@
+import {localAuthorization} from './contextual-policy.mjs';
 import {hasItemCircuits} from './item-circuits.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {isBroker} from '../shared/player-access.mjs';
@@ -30,7 +31,7 @@ export function createNegotiationService({store,signed,now,uuid}){
       canClose:['OPEN','ACCEPTED'].includes(n.status),ownOffer:c.id===n.authorId};
   }
   async function prepare(tx,ctx,input,at){
-    const {s,c,version}=ctx,base=`sessions/${s.id}`;
+    const {s,c,version}=ctx,base=`sessions/${s.id}`;if(!input.negotiationId&&s.spaceOutlaws?.terminalQrVersion===1)await localAuthorization(tx,ctx,'commodityMarket',s.id,at);
     const p=await tx.get(`${base}/marketListings/${documentId(input.listingId)}`);requireThat(p,'NOT_FOUND');
     const x=await marketState(tx,s,p,at),trade=commodityTrade(await readPriceBook(tx,s,at),p.item);
     let n,buyer,status,minutes=null;

@@ -1,3 +1,4 @@
+import {localAuthorization} from './contextual-policy.mjs';
 import {hasItemCircuits,commercialLot,commercialTradeAllowed} from './item-circuits.mjs';
 import {personalTransferActorReady} from './personal-transfer-policy.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
@@ -28,9 +29,12 @@ function project(s,c,p,x,admin=false,book=null){
   return {...view(priced),priceAvailable:priced.priceAvailable,trade:priced.trade,status:x.status,own:!!own,canNegotiate,canBuy:canNegotiate&&priced.priceAvailable,
     ...(manage?{lotId:p.lotId,confirmation:proof(p),canWithdraw:p.status==='ACTIVE',saleId:p.saleId??null}:{})};
 }
+const localCounter=async(tx,ctx,at)=>{if(ctx.s.spaceOutlaws?.terminalQrVersion===1)await localAuthorization(tx,ctx,'commodityMarket',ctx.s.id,at);};
+async function currentMarket(tx,ctx,at){try{await localCounter(tx,ctx,at);return true;}catch(e){if(!['LOCAL_BINDING_REQUIRED','LOCAL_SCAN_REQUIRED','LOCAL_TERMINAL_CLOSED','LOCAL_CREDENTIAL_REQUIRED','LOCAL_SKILL_REQUIRED','FORBIDDEN','SESSION_NOT_RUNNING'].includes(e.code))throw e;return false;}}
+const historicalListing=(p,x)=>({...view(p),status:x.status,priceQuote:null,priceAvailable:false,trade:{blocked:false,effects:[]},own:true,canBuy:false,canNegotiate:false,localRequired:true,lotId:p.lotId,confirmation:proof(p),canWithdraw:p.status==='ACTIVE',saleId:p.saleId??null});
 export function createMarketService({store,signed,checkSession,now,uuid}){
   async function prepare(tx,ctx,input,at){
-    const {s,c,version}=ctx;requireThat(s.economyRules?.enabled,'ECONOMY_DISABLED');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,c,'transfer');
+    const {s,c,version}=ctx;await localCounter(tx,ctx,at);requireThat(s.economyRules?.enabled,'ECONOMY_DISABLED');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,c,'transfer');
     const lot=await readLot(tx,s.id,documentId(input.lotId),at);requireThat(lot&&(hasItemCircuits(s)?commercialTradeAllowed(lot,c.id):personalLot(lot,c.id)),'FORBIDDEN');
     if(hasItemCircuits(s))requireThat(await personalTransferActorReady(tx,s,c),'SO_PERSONAL_TRANSFER_RESTRICTED');
     const quantity=itemQuantity(lot.item,input.quantity);requireThat(lot.status==='AVAILABLE'&&lot.quantity>=quantity,'INSUFFICIENT_STOCK');
@@ -42,7 +46,7 @@ export function createMarketService({store,signed,checkSession,now,uuid}){
     return {lot,result:{...result,confirmation:hash(JSON.stringify([s.id,version,lot.revision,s.healthRules,result]))}};
   }
   async function purchase(tx,ctx,p,from,at,negotiation=null){
-    const {s,c,version}=ctx;requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireThat(p.status==='ACTIVE','LISTING_CLOSED');requireThat(at<p.expiresAt,'LISTING_EXPIRED');
+    const {s,c,version}=ctx;if(!negotiation)await localCounter(tx,ctx,at);requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireThat(p.status==='ACTIVE','LISTING_CLOSED');requireThat(at<p.expiresAt,'LISTING_EXPIRED');
     const x=await state(tx,s,p,at);requireThat(x.valid,'STALE_LISTING');if(hasItemCircuits(s)){requireThat(await personalTransferActorReady(tx,s,c),'SO_PERSONAL_TRANSFER_RESTRICTED');requireThat(x.lot.location.portId!=null&&(c.spacePortId??s.transportRules?.homePort)===x.lot.location.portId,'SHIP_NOT_LOCAL');}
     const book=await readPriceBook(tx,s,at);
     if(negotiation){
@@ -64,16 +68,16 @@ export function createMarketService({store,signed,checkSession,now,uuid}){
       requireThat(!s.spaceOutlaws||admin||isBroker(c),'FORBIDDEN');
       requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');if(hasItemCircuits(s))requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');const base=`sessions/${s.id}`;
       if(action==='market'||action==='sessionMarket'){
-        const book=await readPriceBook(tx,s,at);
+        const local=admin||await currentMarket(tx,ctx,at),book=local?await readPriceBook(tx,s,at):null;
         const all=(await tx.list(`${base}/marketListings`)).sort((a,b)=>b.createdAt-a.createdAt||a.id.localeCompare(b.id)),listings=[];let closed=0;
-        for(const p of all){const x=await state(tx,s,p,at);if(!admin&&p.sellerId!==c.id&&x.status!=='ACTIVE')continue;if(!admin&&x.status!=='ACTIVE'&&p.status!=='ACTIVE'&&closed++>=30)continue;listings.push(project(s,c,p,x,admin,book));}
-        return {session:{id:s.id,stage:s.stage,...(hasItemCircuits(s)?{itemCircuits:true}:{})},admin,economyEnabled:s.economyRules?.enabled===true,currency:s.economyRules?currencyView(s.economyRules):null,storedStock:!admin&&hasItemCircuits(s)?(await tx.list(`${base}/inventory`,['ownerId',c.id])).filter(l=>l.item.usage==='COMMERCIAL'&&['HOLD','WAREHOUSE'].includes(l.location.kind)&&l.quantity>0).map(publicLot):[],stock:!admin&&hasItemCircuits(s)?(await tx.list(`${base}/inventory`,['ownerId',c.id])).map(l=>effectiveLot(l,at)).filter(l=>commercialLot(l,c.id)&&l.quantity>0).map(publicLot):[],prices:priceBoard(book),restrictions:tradeBoard(book),listings};
+        for(const p of all){if(!local&&p.sellerId!==c.id)continue;const x=await state(tx,s,p,at);if(!admin&&p.sellerId!==c.id&&x.status!=='ACTIVE')continue;if(!admin&&x.status!=='ACTIVE'&&p.status!=='ACTIVE'&&closed++>=30)continue;listings.push(local?project(s,c,p,x,admin,book):historicalListing(p,x));}
+        return {session:{id:s.id,stage:s.stage,...(hasItemCircuits(s)?{itemCircuits:true}:{})},admin,economyEnabled:s.economyRules?.enabled===true,currency:s.economyRules?currencyView(s.economyRules):null,storedStock:!admin&&hasItemCircuits(s)?(await tx.list(`${base}/inventory`,['ownerId',c.id])).filter(l=>l.item.usage==='COMMERCIAL'&&['HOLD','WAREHOUSE'].includes(l.location.kind)&&l.quantity>0).map(publicLot):[],stock:!admin&&hasItemCircuits(s)?(await tx.list(`${base}/inventory`,['ownerId',c.id])).map(l=>effectiveLot(l,at)).filter(l=>commercialLot(l,c.id)&&l.quantity>0).map(publicLot):[],localRequired:!local,prices:local?priceBoard(book):[],restrictions:local?tradeBoard(book):[],listings};
       }
       if(action==='prepareMarketListing')return (await prepare(tx,ctx,input,at)).result;
       let p,from,negotiation;
       if(action!=='publishMarketListing'){
         p=await tx.get(`${base}/marketListings/${documentId(input.listingId)}`);requireThat(p,'NOT_FOUND');
-        if(action==='marketListing'){const x=await state(tx,s,p,at);requireThat(c.id===p.sellerId||x.status==='ACTIVE','NOT_FOUND');return project(s,c,p,x,false,await readPriceBook(tx,s,at));}
+        if(action==='marketListing'){const x=await state(tx,s,p,at);requireThat(c.id===p.sellerId||x.status==='ACTIVE','NOT_FOUND');if(!await currentMarket(tx,ctx,at)){requireThat(c.id===p.sellerId,'LOCAL_SCAN_REQUIRED');return historicalListing(p,x);}return project(s,c,p,x,false,await readPriceBook(tx,s,at));}
         if(action==='withdrawMarketListing')requireThat(c.id===p.sellerId,'FORBIDDEN');
         if(['prepareMarketPurchase','buyMarketListing'].includes(action)){
           requireThat(c.id!==p.sellerId,'FORBIDDEN');requireThat(s.economyRules?.enabled,'ECONOMY_DISABLED');from=await accessAccount(tx,{...ctx,guard:version},input.fromAccountId);requireThat(from.spend,'FORBIDDEN');

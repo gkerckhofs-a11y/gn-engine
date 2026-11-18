@@ -35,6 +35,14 @@ export function terminalQrSuite(makeStore,prefix='Terminaux QR'){
   f.advance(61000);assert.deepEqual(await f.cmd('buyShopOffer',pay),sale);assert.equal((await f.wallet()).balance,960);const d=await f.read('shops');assert.ok(d.shops.every(s=>s.offers.length===0));assert.equal(d.orders[0].id,sale.id);
   await f.move('away');await f.pickup(sale);assert.equal((await f.store.get(`${f.base}/inventory/${sale.purchasedLotId}`)).location.kind,'COMMERCIAL');
  });
+ test(`${prefix} TQ-01 : ancien marché sans cours hors comptoir, annonce personnelle retirable partout`,async()=>{
+  const f=await terminalQrFixture(makeStore);await f.configure({portId:'home'});const sale=await f.buy(2);await f.pickup(sale);await f.save();await f.adopt();
+  let d=await f.read('market');assert.equal(d.localRequired,true);assert.deepEqual(d.prices,[]);assert.deepEqual(d.listings,[]);
+  const input={lotId:sale.purchasedLotId,quantity:1,amount:10,minutes:5,pickupPlace:'Quai',conditions:'Remise physique',pricing:'FIXED'};await assert.rejects(f.read('prepareMarketListing',input),{code:'LOCAL_SCAN_REQUIRED'});
+  await f.scan();const q=await f.read('prepareMarketListing',input),listing=await f.cmd('publishMarketListing',{...input,confirmation:q.confirmation});assert.equal((await f.read('market')).localRequired,false);
+  f.advance(61000);d=await f.read('market');assert.equal(d.localRequired,true);assert.deepEqual(d.prices,[]);assert.equal(d.listings.length,1);assert.equal(d.listings[0].id,listing.id);assert.equal(d.listings[0].canBuy,false);
+  const own=await f.read('marketListing',{listingId:listing.id});await f.cmd('withdrawMarketListing',{listingId:listing.id,confirmation:own.confirmation});assert.equal((await f.read('marketListing',{listingId:listing.id})).status,'WITHDRAWN');
+ });
  test(`${prefix} TQ-01 : non-Courtier consulte les cours publics sans recevoir les prix professionnels`,async()=>{
   const f=await terminalQrFixture(makeStore,{classId:'MED',usage:'PERSONAL'});await f.save();await f.adopt();
   await assert.rejects(f.read('commodityMarket'),{code:'LOCAL_SCAN_REQUIRED'});await f.scan();const d=await f.read('commodityMarket');assert.ok(Array.isArray(d.prices));
