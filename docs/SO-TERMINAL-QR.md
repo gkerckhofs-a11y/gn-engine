@@ -40,3 +40,15 @@ L'écran de lieu présente le temps restant, un message d'accès absent/expiré,
 | prepareModuleWorkStart / startModuleWork | Port de l’atelier | Montage/retrait final et annulation |
 
 Un transfert impliquant une cellule conserve le contrôle natif dockEntry de cette cellule, sans ajouter un deuxième QR incompatible avec la présence unique. Le scan ne donne jamais Pilotage, mandat de vaisseau, propriété de fret, qualification MEC ou pièces. Consultation des vaisseaux, carte connue, accords et dossiers permanente selon droits natifs. Pas de scan imposé au cockpit ou au secours déjà engagé.
+
+## TQ-05 — Docks, douanes et services préparés
+
+| Service raccordé | Contrôle local au lancement | Suivi permanent |
+| --- | --- | --- |
+| COU-02 / COU-03 via prepareFieldAction et startFieldAction | merchantService sur la cible M6 préparée | Fin, résultat et carnet M6 |
+| Clinique/atelier droïde via preparePersonAction et startPersonAction | clinicCare sur clinicTargetId pour soins programmés | Action engagée, continuation et fin |
+| prepareIntelligencePurchase / buyIntelligence | Comptoir PNJ lié à l’offre native | Renseignement acquis et reçu |
+| prepareCustomsInspection / startCustomsInspection | Bureau du port de la marchandise/vaisseau | Inspection engagée et clôture |
+| Cellules, manutentions et vol des docks | Contrôles dockEntry existants | Vol engagé, destination réelle, volumes, PA, quotas et reçus natifs |
+
+Urgence : soins de terrain et stabilisation inchangés ; les urgences à zéro PV conservent aussi leur parcours natif de survie. Aucun QR d’hospice ajouté à ces gestes. Les saisies, contestations et restitutions restent des procédures natives séparées ; aucune nouvelle taxe ou permission de saisie. La régie conserve ses commandes administrateur sans scan joueur.

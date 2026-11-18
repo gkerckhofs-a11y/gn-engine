@@ -1,3 +1,5 @@
+import {localAuthorization} from './contextual-policy.mjs';
+import {inventoryParty} from './inventory-transfers.mjs';
 import {tracePursuitOptions,myTraceAlerts,bindShipTracePoint,requireTraceActor,pursuitContinuity,recordFictionalTrace,traceTarget,traceOptions,myTraceConsents,consentTrace,resolveTrace} from './space-fictional-traces.mjs';
 import {documentReviewTarget,myDocumentReviews} from './space-document-review.mjs';
 import {validSoInstallation} from '../shared/space-installation.mjs';
@@ -57,6 +59,7 @@ export function createFieldService({store,signed,checkScenario,checkSession,now,
   const {t,state}=await target(tx,s,input.targetId,at,c,input.documentLotId,input),kind=input.kind,p=Object.hasOwn(t.profiles,kind)?merchantProfile(t,t.profiles[kind],abilityLevel(c,t.profiles[kind].skillId)):null;requireThat(p,'INVALID_FIELD_TARGET');requireTraceActor(s,c,t,at);requireThat(!c.activeFieldActionId&&!c.activePersonActionId,'FIELD_ACTOR_BUSY');
   if(s.spaceOutlaws)requireThat(s.spaceOutlaws.actionsVersion===1&&(t.kind==='ANALYSIS'&&kind==='ANALYZE'||s.spaceOutlaws.searchVersion===1&&isPlaceSearch(t)&&kind==='SEARCH'||s.spaceOutlaws.sabotageVersion===1&&validSoInstallation(t)&&['SABOTAGE','REPAIR'].includes(kind)),'SO_GAMEPLAY_NOT_OPEN');
   const negotiation=p.skillId==='COU-02'?await negotiableOffer(tx,s,c,t,input.tradeQuantity??1,at):null;
+  if(['COU-02','COU-03'].includes(p.skillId))await localAuthorization(tx,{...ctx,version:(await inventoryParty(tx,s.id,c.id)).version},'merchantService',t.id,at);
   const routeAnalysis=isRouteAnalysis(t)?routeAnalysisBinding(s,c,t,await routeAnalysisByCode(tx,s,c,input.navigationCode)):null;
   await dependency(tx,s,t,at);const time=gameTime(s.clock,at);requireThat(!state.activeActionId,'FIELD_TARGET_BUSY');requireThat(time>=state.lockedUntilGameMs,'FIELD_TARGET_LOCKED');
   requireThat(kind==='SEARCH'||kind==='ANALYZE'||(kind==='SABOTAGE'?state.status==='ONLINE':state.status==='OFFLINE'),'FIELD_STATE_CHANGED');

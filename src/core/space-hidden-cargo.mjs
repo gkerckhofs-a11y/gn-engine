@@ -1,3 +1,4 @@
+import {localAuthorization} from './contextual-policy.mjs';
 import {randomInt} from 'node:crypto';
 import {requireThat,documentId,whole} from './validation.mjs';
 import {admissionKeys,admissionText} from './admission-state.mjs';
@@ -384,6 +385,7 @@ export function createHiddenCargoService({store,signed,checkSession,now,uuid,rol
    if(prior)return replay();
    const confirmation=token(ship,r,grant),view=record=>({session,inspection:{id:record.id,shipId:record.shipId,shipName:record.shipName,kind:record.kind,status:record.status,pnj:record.pnj,canFinish:record.status==='ACTIVE'&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&time>=record.readyAtGameMs&&(!admin||record.pnj)&&grant?.level>=1&&grant.revision===record.authorityRevision,canCancel:record.status==='ACTIVE'&&['EN_JEU','PAUSE'].includes(s.stage)&&!s.safetyStop?.active,remainingSeconds:record.status==='ACTIVE'?Math.max(0,Math.ceil((record.readyAtGameMs-time)/1000)):0,...(record.result?{result:record.result}:{})},confirmation});
    if(jobs.includes(action)){
+    if(!admin)await localAuthorization(tx,ctx,action,ship.portId,at);
     running();requireThat(['ORDINARY','DEEP'].includes(input.kind),'INVALID_CUSTOMS_KIND');requireThat(idle(ship),'SPACE_SHIP_BUSY');requireThat((pnj?grant.portId:(agent.spacePortId??s.transportRules?.homePort))===ship.portId,'SHIP_NOT_LOCAL');requireThat(pnj?!agent.activeMaintenanceId:fit(agent,time),'OUT_OF_COMBAT');
     requireThat(!(await tx.list(`${base}/cargoTransfers`)).some(t=>t.status==='LOADING'&&[t.source,t.destination].some(p=>p.kind==='HOLD'&&p.id===ship.id)),'CARGO_TRANSFERS_OPEN');
     requireThat(input.kind!=='DEEP'||ship.customsAttempt?.visitId!==visit(ship)||ship.customsAttempt.retryAuthorized,'CUSTOMS_ATTEMPT_USED');

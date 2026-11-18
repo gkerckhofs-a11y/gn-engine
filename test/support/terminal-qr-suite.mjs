@@ -62,3 +62,36 @@ export function terminalQrPortSuite(makeStore,prefix='Terminaux QR — quai'){
   f.advance(61000);await f.work();await f.cancel();assert.equal((await f.points(f.other)).reserved,0);
  });
 }
+
+import {clinicFixture} from './space-clinic-suite.mjs';
+import {healthFixture} from './space-outlaws-health-suite.mjs';
+import {actionsFixture} from './space-outlaws-actions-suite.mjs';
+import {analysisProfile} from '../../src/shared/space-outlaws-analysis.mjs';
+import {intelligenceFixture} from './intelligence-suite.mjs';
+import {hiddenCargoFixture} from './space-hidden-cargo-suite.mjs';
+const venue=async(f,action,kind='TARGET',who=f.player)=>{
+ const call=f.actionCmd??f.cmd,resourceId=kind==='SHOP'?'counter':'scene';
+ await call('saveLocalTerminal',{revision:0,terminal:{id:'venue',name:'Service préparé',placeId:'scene',portId:null,active:true,durationSeconds:60,operations:(Array.isArray(action)?action:[action]).map(action=>({action,resourceId,characterIds:[],skillId:null,minLevel:0}))}},f.owner);
+ return ()=>call('scanLocalTerminal',{terminalId:'venue'},who);
+};
+export function terminalQrServicesSuite(makeStore,prefix='Terminaux QR — services'){
+ test(`${prefix} TQ-05 : soins programmés au centre, suivi et fin après expiration`,async()=>{
+  const f=await clinicFixture(makeStore);await f.damage(2);await enableQr(f);const before=await f.points();await assert.rejects(f.startClinic(),{code:'LOCAL_BINDING_REQUIRED'});assert.deepEqual(await f.points(),before);
+  const scan=await venue(f,'clinicCare');await assert.rejects(f.startClinic(),{code:'LOCAL_SCAN_REQUIRED'});await scan();const a=await f.startClinic();f.advance(300000);await f.finishCare(a);assert.equal((await f.health()).hp,3);assert.equal((await f.points()).available,before.available-1);
+ });
+ test(`${prefix} TQ-05 : urgence sur le terrain sans QR d’hospice`,async()=>{
+  const f=await healthFixture(makeStore);await enableQr(f);await f.damage(3);const a=await f.startCare();f.advance(120000);await f.finishCare(a);assert.ok((await f.health()).hp>0);
+ });
+ test(`${prefix} TQ-05 : contact préparé au lieu, renseignement acquis conservé`,async()=>{
+  const f=await actionsFixture(makeStore,{classId:'COU',skillId:'COU-03',targetPatch:{profiles:{ANALYZE:analysisProfile('COU-03',{minLevel:1})},rewards:[{id:'reply',kind:'KNOWLEDGE',knowledgeId:'ordinary',quantity:1,stock:1,perCharacter:1,minLevel:1,bonus:false}]}});await f.stage('EN_JEU');await enableQr(f);
+  await assert.rejects(f.prepareAction(),{code:'LOCAL_BINDING_REQUIRED'});const scan=await venue(f,'merchantService');await scan();const a=await f.start();f.advance(300000);await f.finish(a);assert.ok((await f.actionRead('myKnowledge')).items.length>0);
+ });
+ test(`${prefix} TQ-05 : renseignement acheté au comptoir, reçu disponible sans nouveau paiement`,async()=>{
+  const f=await intelligenceFixture(makeStore),r=await f.offer();await enableQr(f);const before=await f.wallet();await assert.rejects(f.buy(r),{code:'LOCAL_BINDING_REQUIRED'});assert.deepEqual(await f.wallet(),before);
+  const scan=await venue(f,['prepareIntelligencePurchase','buyIntelligence'],'SHOP',f.buyer);await scan();await f.buy(r);const paid=await f.wallet();f.advance(61000);assert.equal((await f.receipt('ordinary')).active,true);assert.equal((await f.offers())[0].status,'PURCHASED');assert.deepEqual(await f.wallet(),paid);
+ });
+ test(`${prefix} TQ-05 : contrôle habilité au bureau du port, clôture après expiration`,async()=>{
+  const f=await hiddenCargoFixture(makeStore);await f.grant(2);await enableQr(f);await assert.rejects(f.start(),{code:'LOCAL_BINDING_REQUIRED'});
+  const scan=await portTerminal(f,['prepareCustomsInspection','startCustomsInspection'],f.other);await scan();const r=await f.start();f.advance(120000);await f.close(r);assert.notEqual((await f.inspect(r)).inspection.status,'ACTIVE');
+ });
+}

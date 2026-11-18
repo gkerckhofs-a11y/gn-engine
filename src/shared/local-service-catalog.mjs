@@ -1,5 +1,11 @@
 // Public operation names only. This catalogue grants no native permission.
 export const localServiceCatalog={
+ merchantService:{field:'targetId',kind:'TARGET',label:'Négociation et contacts préparés',route:'field'},
+ clinicCare:{field:'targetId',kind:'TARGET',label:'Soins programmés au centre',route:'action'},
+ prepareIntelligencePurchase:{field:'shopId',kind:'SHOP',label:'Vérifier un renseignement proposé',route:'intelligence'},
+ buyIntelligence:{field:'shopId',kind:'SHOP',label:'Acheter un renseignement proposé',route:'intelligence'},
+ prepareCustomsInspection:{field:'portId',kind:'PORT',label:'Préparer un contrôle douanier habilité',route:'customs'},
+ startCustomsInspection:{field:'portId',kind:'PORT',label:'Engager un contrôle douanier habilité',route:'customs'},
  dockEntry:{field:'warehouseId',kind:'DOCK',label:'Entrer dans une cellule',route:'dock'},
  shop:{field:'shopId',kind:'SHOP',label:'Consulter le comptoir',route:'shop'},
  prepareShopPurchase:{field:'shopId',kind:'SHOP',label:'Vérifier un achat',route:'shop'},

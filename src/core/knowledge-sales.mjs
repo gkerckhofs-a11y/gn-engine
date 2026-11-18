@@ -1,3 +1,4 @@
+import {localAuthorization} from './contextual-policy.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {admissionKeys,admissionText} from './admission-state.mjs';
 import {inventoryPlayer,inventoryParty} from './inventory-transfers.mjs';
@@ -50,6 +51,7 @@ export function createKnowledgeSalesService({store,signed,checkSession,now,uuid,
    requireGameAction(s,c,'pay',at);requireThat(version===r.recipientVersion&&fit(s,c,at),'INTELLIGENCE_UNAVAILABLE');requireThat(!receipt?.active,'INTELLIGENCE_ALREADY_KNOWN');requireThat(receipt?.pendingOfferId===r.id,'INTELLIGENCE_UNAVAILABLE');
    const k=await tx.get(`${base}/knowledge/${r.knowledgeId}`),shop=await tx.get(`${base}/shops/${r.shopId}`),a=await tx.get(`${base}/accounts/${accountId(c.id)}`),b=await tx.get(`${base}/accounts/${shopAccountId(r.shopId)}`);
    requireThat(k?.publicationState==='PUBLISHED'&&k.revision===r.knowledgeRevision&&!k.qrEnabled&&shop?.versionId===s.versionId,'INTELLIGENCE_UNAVAILABLE');requireThat(a?.characterId===c.id&&b?.ownerType==='SHOP'&&b.shopId===r.shopId,'ACCOUNT_UNAVAILABLE');const before=moneyState(a);moneyState(b);requireThat(before.available>=r.price,'INSUFFICIENT_FUNDS');whole(b.balance+r.price,'BALANCE_OVERFLOW');
+   await localAuthorization(tx,ctx,action,r.shopId,at);
    const confirmation=hash(JSON.stringify([proof(r),receipt,knowledgeSnapshot(k),a,b]));if(action==='prepareIntelligencePurchase')return {offer:view(r,proof(r)),before,after:{available:before.available-r.price},confirmation};requireThat(input.confirmation===confirmation,'STALE_REVISION');requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');
    const an={...a,balance:a.balance-r.price,revision:a.revision+1},bn={...b,balance:b.balance+r.price,revision:b.revision+1},next={...r,status:'PURCHASED',revision:r.revision+1,purchasedAt:at};
    tx.set(`${base}/accounts/${a.id}`,an);tx.set(`${base}/accounts/${b.id}`,bn);tx.set(`${base}/knowledgeDeals/${r.id}`,next);
