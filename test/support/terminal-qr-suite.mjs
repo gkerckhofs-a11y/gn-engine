@@ -25,6 +25,12 @@ export function terminalQrSuite(makeStore,prefix='Terminaux QR'){
   f.advance(61000);for(const a of ['commodityMarket','galacticMarkets'])await assert.rejects(f.read(a),{code:'LOCAL_SCAN_REQUIRED'});
   assert.deepEqual(await f.wallet(),before);await f.save({active:false},1);await assert.rejects(f.read('commodityMarket'),{code:'LOCAL_TERMINAL_CLOSED'});
  });
+ test(`${prefix} TQ-01 : catalogues sans cours à distance, achat distant au comptoir et reçu acquis durable`,async()=>{
+  const f=await terminalQrFixture(makeStore);await f.configure();await f.save({operations:[...f.terminal.operations,...['shop','prepareShopPurchase','buyShopOffer'].map(action=>({action,resourceId:'counter',characterIds:[],skillId:null,minLevel:0}))]});await f.adopt();
+  assert.ok((await f.read('shops')).shops.every(s=>s.offers.length===0));await f.scan();const sale=await f.buy(1);assert.equal((await f.wallet()).balance,960);
+  f.advance(61000);const d=await f.read('shops');assert.ok(d.shops.every(s=>s.offers.length===0));assert.equal(d.orders[0].id,sale.id);
+  await f.move('away');await f.pickup(sale);assert.equal((await f.store.get(`${f.base}/inventory/${sale.purchasedLotId}`)).location.kind,'COMMERCIAL');
+ });
  test(`${prefix} TQ-01 : non-Courtier consulte les cours publics sans recevoir les prix professionnels`,async()=>{
   const f=await terminalQrFixture(makeStore,{classId:'MED',usage:'PERSONAL'});await f.save();await f.adopt();
   await assert.rejects(f.read('commodityMarket'),{code:'LOCAL_SCAN_REQUIRED'});await f.scan();const d=await f.read('commodityMarket');assert.ok(Array.isArray(d.prices));
