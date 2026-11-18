@@ -64,7 +64,7 @@ Le simulateur appelle les véritables commandes de lecture/préparation avec le 
 ### Recette MJ guidée avant mise en jeu
 
 1. Dans **Lieux & Terminaux**, consulter **Modules × lieux**. Créer les terminaux et publier uniquement les opérations réellement proposées : comptoir, spatioport/atelier, cellules, bureau habilité et centres/contacts préparés. Pour les opérations de port, renseigner le port concerné ; pour une cible préparée, son ID doit correspondre au lieu. Une ressource/opération ne peut pas être déplacée silencieusement vers un autre terminal.
-2. Au **briefing ou en pause**, confirmer l’adoption du mode QR pour la session. Compléter tous les raccordements indiqués. Le serveur doit refuser un démarrage incomplet. Une fermeture de terminal redevient visible au diagnostic.
+2. Au **briefing ou en pause, hors STOP sécurité**, confirmer l’adoption du mode QR pour la session. Compléter tous les raccordements indiqués. Le serveur doit refuser un démarrage incomplet. Une fermeture de terminal redevient visible au diagnostic.
 3. Exporter les QR depuis la régie. Pour la **Cantina**, utiliser exclusivement le QR natif de chaque table Sabacc : aucun second QR de lieu à scanner pour jouer.
 4. Avec un **non-Courtier**, vérifier le terminal personnel, puis le QR du comptoir : cours publics disponibles, cours professionnels refusés. Après expiration, un favori ou une actualisation ne doit fournir aucun nouveau cours.
 5. Avec un **Courtier**, vérifier les prix professionnels après scan. Acheter au comptoir un lot stocké dans un autre port : le paiement crée le dossier natif ; aucun lot n’est téléporté. Après changement de lieu, consulter et retirer le dossier selon son parcours natif.

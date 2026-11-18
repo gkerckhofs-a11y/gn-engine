@@ -61,7 +61,7 @@ export function createContextualAccessService({store,signed,checkSession,now,uui
     admissionKeys(input,['sessionId','revision','requestId','version']);requireThat(input.version===1,'INVALID_LOCAL_POLICY');
     const op=`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`,fingerprint=hash(JSON.stringify([action,input])),old=await tx.get(op);
     if(old){requireThat(old.fingerprint===fingerprint,'REQUEST_ID_REUSED');return old.result;}
-    requireThat(s.spaceOutlaws?.actionsVersion===1,'SO_GAMEPLAY_NOT_OPEN');requireThat(['BRIEFING','PAUSE'].includes(s.stage),'SESSION_NOT_PAUSED');requireThat(input.revision===s.revision,'STALE_REVISION');
+    requireThat(s.spaceOutlaws?.actionsVersion===1,'SO_GAMEPLAY_NOT_OPEN');requireThat(['BRIEFING','PAUSE'].includes(s.stage),'SESSION_NOT_PAUSED');requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(input.revision===s.revision,'STALE_REVISION');
     authorizeSpaceOutlaws(tx,s,'TERMINAL_QR_CONFIG');const next={...s,revision:s.revision+1,spaceOutlaws:{...s.spaceOutlaws,terminalQrVersion:1}};tx.set(`sessions/${sid}`,next);
     const result={version:1,revision:next.revision};tx.set(op,{fingerprint,result});tx.set(`${b}/journal/${eventId}`,{id:eventId,at,action,actorUid:actor.uid});return result;
    }

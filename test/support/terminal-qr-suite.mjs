@@ -113,6 +113,11 @@ export function terminalQrReadinessSuite(makeStore,prefix='Terminaux QR — rég
   await f.adopt();assert.equal((await f.read('localAccessAdmin',{},f.owner)).readiness.ready,true);await f.stage('PAUSE');await f.save({active:false},1);
   const d=await f.read('localAccessAdmin',{},f.owner);assert.ok(d.readiness.missing.some(r=>r.operation==='commodityMarket'&&r.status==='DISABLED'));await assert.rejects(f.stage('EN_JEU'),{code:'LOCAL_CONFIGURATION_REQUIRED'});
  });
+ test(`${prefix} TQ-06 : adoption refusée pendant STOP, sans contourner le diagnostic à la reprise`,async()=>{
+  const f=await terminalQrFixture(makeStore);await f.cmd('stopSafety',{reason:'Interruption de sécurité de recette'});const s=await f.store.get(`sessions/${f.sid}`);
+  await assert.rejects(f.cmd('setTerminalQrMode',{version:1,revision:s.revision},f.owner),{code:'SO_SAFETY_STOP'});assert.equal((await f.store.get(`sessions/${f.sid}`)).spaceOutlaws.terminalQrVersion,undefined);
+  await f.cmd('resumeSafety',{revision:s.revision,reason:'Reprise validée en régie'},f.owner);assert.equal((await f.store.get(`sessions/${f.sid}`)).stage,'EN_JEU');
+ });
  test(`${prefix} TQ-06 : simulation native de cours sans présence créée ni droit de Courtier inventé`,async()=>{
   const f=await terminalQrFixture(makeStore,{classId:'MED',usage:'PERSONAL'});await f.save();await f.adopt();const presence=`localAccess/${f.sid}/presence/${f.cid}`,before=await f.wallet(),journal=await f.store.list(`localAccess/${f.sid}/journal`);
   const input={terminalId:'bourse',characterId:f.cid,resourceId:f.sid,assumePresent:true};
