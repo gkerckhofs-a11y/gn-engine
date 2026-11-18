@@ -5,7 +5,7 @@ Base : main a59ec255748de8c236f861e6a3ea3f29bbd44088, validation globale réussi
 
 ## TQ-01 — Cours et comptoir
 
-Adoption explicite et irréversible du mode `spaceOutlaws.terminalQrVersion=1` par le MJ via Lieux & Terminaux, en préparation/briefing/pause. Aucun changement implicite des anciennes sessions. Les permissions de modification de session limitent cette écriture à ce seul marqueur et à la révision.
+Adoption explicite et irréversible du mode `spaceOutlaws.terminalQrVersion=1` par le MJ via Lieux & Terminaux, au briefing ou en pause. Aucun changement implicite des anciennes sessions. Les permissions de modification de session limitent cette écriture à ce seul marqueur et à la révision.
 
 | Commande | Présence | Droit natif | Hors contexte |
 | --- | --- | --- | --- |
@@ -22,7 +22,7 @@ Les cours ne sont plus une entrée permanente du terminal personnel en mode QR.
 
 Nouvelle entrée : QR natif `tableId + qrToken`, sans second QR de Cantina. Le mode QR GN autorise la consultation et les tours de la même table avec `sabaccPresence` ET siège ET identité native courante. La rotation du QR ne retire ni siège, ni main, ni mise. La reprise ne fournit aucun token ni catalogue de tables. Une nouvelle entrée exige toujours le QR courant. Révocation d'accès et expulsion restent prioritaires. Le mode LOCAL et les sessions GN historiques gardent leur contrôle QR existant.
 
-Tranches TQ-03 à TQ-06 en cours. Les résultats CI seront consignés dans la PR de code sur le SHA réellement testé. Aucun déploiement ou changement de main autorisé par ce chantier.
+Les tranches suivantes sont décrites ci-dessous. Les résultats CI seront consignés dans la PR de code sur le SHA réellement testé. Aucun déploiement ou changement de main autorisé par ce chantier.
 
 ## TQ-03 — Terminal personnel
 
@@ -52,3 +52,30 @@ Un transfert impliquant une cellule conserve le contrôle natif dockEntry de cet
 | Cellules, manutentions et vol des docks | Contrôles dockEntry existants | Vol engagé, destination réelle, volumes, PA, quotas et reçus natifs |
 
 Urgence : soins de terrain et stabilisation inchangés ; les urgences à zéro PV conservent aussi leur parcours natif de survie. Aucun QR d’hospice ajouté à ces gestes. Les saisies, contestations et restitutions restent des procédures natives séparées ; aucune nouvelle taxe ou permission de saisie. La régie conserve ses commandes administrateur sans scan joueur.
+
+## TQ-06 — Diagnostic et simulation de régie
+
+`contextual-readiness.mjs/localReadiness` construit Modules × lieux depuis les définitions natives : session, ports publiés, comptoirs M5, cellules et cibles commerciales/centres préparés. Les bindings réels et terminaux actifs sont vérifiés. Chaque ligne distingue lecture live/lancement, droits natifs, ressource, lieu et état actif/non raccordé/désactivé. Les exceptions (dossiers, urgence, régie et QR Sabacc natif) sont explicites.
+
+`setStage` refuse EN_JEU en mode QR s’il manque un raccordement requis ; le contrôle appartient à la même transaction que le changement de phase. Un épisode qui hérite du mode QR doit lui aussi préparer ses lieux avant démarrage ; les présences ne sont pas copiées. Les anciennes sessions ne sont pas activées implicitement.
+
+Le simulateur appelle les véritables commandes de lecture/préparation avec le personnage choisi, son incarnation, ses compétences, ses lots et ses permissions actuels. La présence hypothétique reste dans une vue en mémoire ; aucun accès n’est enregistré. Les écritures de jeu sont interdites ; seul le journal technique de consultation est ignoré dans cette vue. Les devis de vente, vaisseau, atelier, patient ou inspection peuvent recevoir leurs arguments natifs dans le champ JSON avancé. Un argument manquant produit le refus natif, sans résultat « autorisé » fictif. En briefing/pause, les restrictions natives de phase restent visibles.
+
+### Recette MJ guidée avant mise en jeu
+
+1. Dans **Lieux & Terminaux**, consulter **Modules × lieux**. Créer les terminaux et publier uniquement les opérations réellement proposées : comptoir, spatioport/atelier, cellules, bureau habilité et centres/contacts préparés. Pour les opérations de port, renseigner le port concerné ; pour une cible préparée, son ID doit correspondre au lieu. Une ressource/opération ne peut pas être déplacée silencieusement vers un autre terminal.
+2. Au **briefing ou en pause**, confirmer l’adoption du mode QR pour la session. Compléter tous les raccordements indiqués. Le serveur doit refuser un démarrage incomplet. Une fermeture de terminal redevient visible au diagnostic.
+3. Exporter les QR depuis la régie. Pour la **Cantina**, utiliser exclusivement le QR natif de chaque table Sabacc : aucun second QR de lieu à scanner pour jouer.
+4. Avec un **non-Courtier**, vérifier le terminal personnel, puis le QR du comptoir : cours publics disponibles, cours professionnels refusés. Après expiration, un favori ou une actualisation ne doit fournir aucun nouveau cours.
+5. Avec un **Courtier**, vérifier les prix professionnels après scan. Acheter au comptoir un lot stocké dans un autre port : le paiement crée le dossier natif ; aucun lot n’est téléporté. Après changement de lieu, consulter et retirer le dossier selon son parcours natif.
+6. Avec le **pilote désigné**, ouvrir le vaisseau à distance, puis tenter un nouveau ravitaillement/départ sans scan : refus. Scanner le spatioport, engager l’opération et vérifier sa fin après expiration. Tester le cockpit et un vol déjà engagé sans nouveau scan du quai.
+7. Avec un **Mécano qualifié**, scanner l’atelier et lancer le travail autorisé avec les pièces et l’accord requis. Vérifier PA, durée et fin/annulation ; le scan seul ne crée ni qualification ni mandat.
+8. Tester une cellule autorisée et une refusée, les droits de dépôt, la destination réelle et la capacité disponible. Pour le vol numérique : quota, PA, volume et récupération restent natifs ; ne pas créer de taxe ou saisir depuis un simple accès au dock.
+9. À Sabacc, rejoindre via QR, lancer une main, tourner le QR en régie puis reprendre le même siège. Aucun autre joueur ne doit entrer avec l’ancien QR. Vérifier siège, cartes et crédits conservés.
+10. Exécuter physiquement les essais **Android, iPhone, QR imprimés et plusieurs utilisateurs réels**. Ces essais restent **NON EXÉCUTÉS** par la validation automatisée.
+
+### Preuves et écarts
+
+Tests partagés mémoire/Firestore : cours, classe principale, expiration, catalogues sans prix, achat distant/retrait, pilote et mandat, fin après expiration, module/PA/annulation, soins programmés/urgence, contact/information, renseignement payé/reçu, douane et diagnostic de démarrage. Sabacc GN : même main après rotation, absence de token/catalogue de découverte, révocation et remboursement natif. HTTP/Auth : scan, refus de classe et expiration par le point d’entrée réel. Chromium : écran mobile et matrice PC, en plus de la recette de régression existante.
+
+L’instantané hors ligne des cours est facultatif et n’est pas ajouté. Aucun GPS, migration de données, changement de main, secret, droit d’infrastructure ou déploiement dans ce chantier. Les SHAs et résultats finaux sont consignés dans la PR de code, sans attribuer au dernier commit les résultats d’un commit antérieur.

@@ -8,7 +8,11 @@ export async function terminalQrFixture(makeStore,options={}){
  const terminal={id:'bourse',name:'Comptoir des marchandises',placeId:'scene',portId:null,active:true,durationSeconds:60,operations};
  const save=(patch={},revision=0)=>f.cmd('saveLocalTerminal',{terminal:{...terminal,...patch},revision},f.owner);
  const scan=()=>f.cmd('scanLocalTerminal',{terminalId:terminal.id});
- const adopt=async()=>{await f.stage('PAUSE');const s=await f.store.get(`sessions/${f.sid}`);await f.cmd('setTerminalQrMode',{version:1,revision:s.revision},f.owner);await f.stage('EN_JEU');};
+ const adopt=async({configure=true}={})=>{await f.stage('PAUSE');const s=await f.store.get(`sessions/${f.sid}`);await f.cmd('setTerminalQrMode',{version:1,revision:s.revision},f.owner);
+  if(!configure)return;
+  const d=await f.read('localAccessAdmin',{},f.owner),groups=new Map();for(const r of d.readiness.missing){const key=`${r.kind}:${r.resourceId}`;if(!groups.has(key))groups.set(key,[]);groups.get(key).push(r);}
+  for(const rows of groups.values()){const r=rows[0];await f.cmd('saveLocalTerminal',{revision:0,terminal:{id:`auto-${randomUUID()}`,name:'Configuration native de recette',placeId:r.kind==='TARGET'?r.resourceId:'scene',portId:r.portId,active:true,durationSeconds:60,operations:rows.map(r=>({action:r.operation,resourceId:r.resourceId,characterIds:[],skillId:null,minLevel:0}))}},f.owner);}
+  await f.stage('EN_JEU');};
  return {...f,terminal,save,scan,adopt};
 }
 export function terminalQrSuite(makeStore,prefix='Terminaux QR'){
@@ -16,7 +20,7 @@ export function terminalQrSuite(makeStore,prefix='Terminaux QR'){
   const f=await terminalQrFixture(makeStore);await f.read('commodityMarket');await f.read('galacticMarkets');
   const s=await f.store.get(`sessions/${f.sid}`);await assert.rejects(f.cmd('setTerminalQrMode',{version:1,revision:s.revision},f.player),{code:'FORBIDDEN'});
   await assert.rejects(f.cmd('setTerminalQrMode',{version:1,revision:s.revision},f.owner),{code:'SESSION_NOT_PAUSED'});
-  await f.adopt();await assert.rejects(f.read('commodityMarket'),{code:'LOCAL_BINDING_REQUIRED'});await assert.rejects(f.read('galacticMarkets'),{code:'LOCAL_BINDING_REQUIRED'});
+  await f.adopt({configure:false});await assert.rejects(f.stage('EN_JEU'),{code:'LOCAL_CONFIGURATION_REQUIRED'});await assert.rejects(f.read('commodityMarket'),{code:'LOCAL_BINDING_REQUIRED'});await assert.rejects(f.read('galacticMarkets'),{code:'LOCAL_BINDING_REQUIRED'});
  });
  test(`${prefix} TQ-01 : Courtier, comptoir courant, expiration et fermeture sans effet économique`,async()=>{
   const f=await terminalQrFixture(makeStore);await f.save();await f.adopt();const before=await f.wallet();
@@ -27,8 +31,8 @@ export function terminalQrSuite(makeStore,prefix='Terminaux QR'){
  });
  test(`${prefix} TQ-01 : catalogues sans cours à distance, achat distant au comptoir et reçu acquis durable`,async()=>{
   const f=await terminalQrFixture(makeStore);await f.configure();await f.save({operations:[...f.terminal.operations,...['shop','prepareShopPurchase','buyShopOffer'].map(action=>({action,resourceId:'counter',characterIds:[],skillId:null,minLevel:0}))]});await f.adopt();
-  assert.ok((await f.read('shops')).shops.every(s=>s.offers.length===0));await f.scan();const sale=await f.buy(1);assert.equal((await f.wallet()).balance,960);
-  f.advance(61000);const d=await f.read('shops');assert.ok(d.shops.every(s=>s.offers.length===0));assert.equal(d.orders[0].id,sale.id);
+  assert.ok((await f.read('shops')).shops.every(s=>s.offers.length===0));await f.scan();const pi=f.purchaseInput({quantity:1,useProtected:false}),quote=await f.read('prepareShopPurchase',pi),pay={...pi,quoteAt:quote.quoteAt,confirmation:quote.confirmation,requestId:randomUUID()},sale=await f.cmd('buyShopOffer',pay);assert.equal((await f.wallet()).balance,960);
+  f.advance(61000);assert.deepEqual(await f.cmd('buyShopOffer',pay),sale);assert.equal((await f.wallet()).balance,960);const d=await f.read('shops');assert.ok(d.shops.every(s=>s.offers.length===0));assert.equal(d.orders[0].id,sale.id);
   await f.move('away');await f.pickup(sale);assert.equal((await f.store.get(`${f.base}/inventory/${sale.purchasedLotId}`)).location.kind,'COMMERCIAL');
  });
  test(`${prefix} TQ-01 : non-Courtier consulte les cours publics sans recevoir les prix professionnels`,async()=>{
@@ -93,5 +97,24 @@ export function terminalQrServicesSuite(makeStore,prefix='Terminaux QR — servi
  test(`${prefix} TQ-05 : contrôle habilité au bureau du port, clôture après expiration`,async()=>{
   const f=await hiddenCargoFixture(makeStore);await f.grant(2);await enableQr(f);await assert.rejects(f.start(),{code:'LOCAL_BINDING_REQUIRED'});
   const scan=await portTerminal(f,['prepareCustomsInspection','startCustomsInspection'],f.other);await scan();const r=await f.start();f.advance(120000);await f.close(r);assert.notEqual((await f.inspect(r)).inspection.status,'ACTIVE');
+ });
+}
+export function terminalQrReadinessSuite(makeStore,prefix='Terminaux QR — régie'){
+ test(`${prefix} TQ-06 : diagnostic réel, démarrage bloqué et fermeture détectée`,async()=>{
+  const f=await terminalQrFixture(makeStore);await f.save();const legacy=await f.read('localAccessAdmin',{},f.owner);assert.equal(legacy.terminalQrVersion,0);assert.ok(legacy.readiness.missing.length>0);
+  await f.adopt();assert.equal((await f.read('localAccessAdmin',{},f.owner)).readiness.ready,true);await f.stage('PAUSE');await f.save({active:false},1);
+  const d=await f.read('localAccessAdmin',{},f.owner);assert.ok(d.readiness.missing.some(r=>r.operation==='commodityMarket'&&r.status==='DISABLED'));await assert.rejects(f.stage('EN_JEU'),{code:'LOCAL_CONFIGURATION_REQUIRED'});
+ });
+ test(`${prefix} TQ-06 : simulation native de cours sans présence créée ni droit de Courtier inventé`,async()=>{
+  const f=await terminalQrFixture(makeStore,{classId:'MED',usage:'PERSONAL'});await f.save();await f.adopt();const presence=`localAccess/${f.sid}/presence/${f.cid}`,before=await f.wallet(),journal=await f.store.list(`localAccess/${f.sid}/journal`);
+  const input={terminalId:'bourse',characterId:f.cid,resourceId:f.sid,assumePresent:true};
+  const publicRead=await f.read('simulateLocalAccess',{...input,operation:'commodityMarket'},f.owner);assert.equal(publicRead.nativeAllowed,true);
+  const professional=await f.read('simulateLocalAccess',{...input,operation:'galacticMarkets'},f.owner);assert.deepEqual(professional,{localAllowed:true,nativeAllowed:false,reason:'FORBIDDEN'});
+  assert.equal(await f.store.get(presence),null);assert.deepEqual(await f.wallet(),before);assert.deepEqual(await f.store.list(`localAccess/${f.sid}/journal`),journal);
+ });
+ test(`${prefix} TQ-06 : simulation de ravitaillement avec vrais lots, sans réserve ou accès temporaire`,async()=>{
+  const f=await soVoyagesFixture(makeStore);await enableQr(f);await portTerminal(f,['prepareRefuel','refuelShip']);const lot=(await f.read('myInventory')).lots.find(l=>l.item.id==='propellant'),ship=await f.ship(),before=await f.points();
+  const r=await f.read('simulateLocalAccess',{terminalId:'port-qr',characterId:f.cid,operation:'refuelShip',resourceId:ship.portId,assumePresent:true,nativeInput:{shipId:'ship',lotId:lot.id,quantity:2}},f.owner);assert.equal(r.nativeAllowed,true);
+  assert.deepEqual(await f.ship(),ship);assert.deepEqual(await f.points(),before);assert.deepEqual((await f.read('myInventory')).lots.find(l=>l.id===lot.id),lot);assert.equal(await f.store.get(`localAccess/${f.sid}/presence/${f.cid}`),null);
  });
 }

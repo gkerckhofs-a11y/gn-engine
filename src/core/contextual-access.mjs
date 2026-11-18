@@ -1,9 +1,10 @@
+import {localNativePreview} from './contextual-preview.mjs';
+import {localReadiness} from './contextual-readiness.mjs';
 import {localServiceCatalog} from '../shared/local-service-catalog.mjs';
 import {isBroker} from '../shared/player-access.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {saveLocalCredential,credentialView,localCodeDigest} from './contextual-credentials.mjs';
 import {inventoryParty} from './inventory-transfers.mjs';
-import {createShopService} from './shops.mjs';
 import {createHash} from 'node:crypto';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {admissionKeys} from './admission-state.mjs';
@@ -43,13 +44,13 @@ export function localOperationStore(store,{actor,input,action,now,uuid,signed}){
   signed(actor);const sid=documentId(input.sessionId),resourceId=documentId(input[resourceField]);
   const binding=await tx.get(`${base(sid)}/bindings/${localBindingId(action,resourceId)}`);
   let audit=null;
-  if(binding||(await tx.get(`sessions/${sid}`))?.spaceOutlaws?.terminalQrVersion===1){const ctx=await inventoryPlayer(tx,actor,input);audit=await localAuthorization(tx,ctx,action,resourceId,now());}
+  if(binding||(await tx.get(`sessions/${sid}`))?.spaceOutlaws?.terminalQrVersion===1){const ctx=await inventoryPlayer(tx,actor,input),paidReceipt=action==='buyShopOffer'&&ctx.s.spaceOutlaws?.terminalQrVersion===1&&input.requestId?await tx.get(`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`):null;if(!paidReceipt)audit=await localAuthorization(tx,ctx,action,resourceId,now());}
   const result=await callback(tx);
   if(audit){const id=uuid();tx.set(`${base(sid)}/journal/${id}`,{id,at:now(),action,...audit});}
   return result;
  })};
 }
-export function createContextualAccessService({store,signed,checkSession,now,uuid}){
+export function createContextualAccessService({store,signed,checkSession,now,uuid,nativePreview}){
  return async(action,actor,input)=>{
   signed(actor);const sid=documentId(input.sessionId),b=base(sid),at=now(),eventId=uuid();
   const admin=['setTerminalQrMode','localAccessAdmin','saveLocalTerminal','revokeLocalPresence','saveLocalCredential','simulateLocalAccess'].includes(action);
@@ -60,7 +61,7 @@ export function createContextualAccessService({store,signed,checkSession,now,uui
     admissionKeys(input,['sessionId','revision','requestId','version']);requireThat(input.version===1,'INVALID_LOCAL_POLICY');
     const op=`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`,fingerprint=hash(JSON.stringify([action,input])),old=await tx.get(op);
     if(old){requireThat(old.fingerprint===fingerprint,'REQUEST_ID_REUSED');return old.result;}
-    requireThat(['DRAFT','BRIEFING','PAUSE'].includes(s.stage),'SESSION_NOT_PAUSED');requireThat(input.revision===s.revision,'STALE_REVISION');
+    requireThat(s.spaceOutlaws?.actionsVersion===1,'SO_GAMEPLAY_NOT_OPEN');requireThat(['BRIEFING','PAUSE'].includes(s.stage),'SESSION_NOT_PAUSED');requireThat(input.revision===s.revision,'STALE_REVISION');
     authorizeSpaceOutlaws(tx,s,'TERMINAL_QR_CONFIG');const next={...s,revision:s.revision+1,spaceOutlaws:{...s.spaceOutlaws,terminalQrVersion:1}};tx.set(`sessions/${sid}`,next);
     const result={version:1,revision:next.revision};tx.set(op,{fingerprint,result});tx.set(`${b}/journal/${eventId}`,{id:eventId,at,action,actorUid:actor.uid});return result;
    }
@@ -69,21 +70,17 @@ export function createContextualAccessService({store,signed,checkSession,now,uui
     requireThat(terminals.length<=100&&credentials.length<=500&&shops.length<=100,'LOCAL_LIMIT');
     const offers=[];for(const shop of shops)for(const o of await tx.list(`sessions/${sid}/shops/${shop.id}/offers`,null,{limit:501}))offers.push({id:o.id,name:o.name,shopId:shop.id});requireThat(offers.length<=500,'LOCAL_LIMIT');
     const docks=(await tx.list(`sessions/${sid}/warehouses`)).filter(w=>w.dock).map(w=>({id:w.id,name:w.name}));
-    return {targets:(await tx.list(`sessions/${sid}/fieldTargets`)).filter(t=>t.publicationState==='PUBLISHED').map(t=>({id:t.id,name:t.title})),ports:(await tx.list(`sessions/${sid}/ports`)).map(p=>({id:p.id,name:p.name})),sessionId:sid,sessionRevision:s.revision,terminalQrVersion:s.spaceOutlaws?.terminalQrVersion??0,docks,credentials:credentials.map(credentialView),characters:(await tx.list(`sessions/${sid}/characters`)).map(c=>({id:c.id,name:c.public.displayName})),shops:shops.map(s=>({id:s.id,name:s.name})),offers,terminals,journal:await tx.list(`${b}/journal`,null,{orderBy:'at',direction:'desc',limit:100}),operations:localOperations};
+    return {readiness:await localReadiness(tx,s),targets:(await tx.list(`sessions/${sid}/fieldTargets`)).filter(t=>t.publicationState==='PUBLISHED').map(t=>({id:t.id,name:t.title})),ports:(await tx.list(`sessions/${sid}/ports`)).map(p=>({id:p.id,name:p.name})),sessionId:sid,sessionRevision:s.revision,terminalQrVersion:s.spaceOutlaws?.terminalQrVersion??0,docks,credentials:credentials.map(credentialView),characters:(await tx.list(`sessions/${sid}/characters`)).map(c=>({id:c.id,name:c.public.displayName})),shops:shops.map(s=>({id:s.id,name:s.name})),offers,terminals,journal:await tx.list(`${b}/journal`,null,{orderBy:'at',direction:'desc',limit:100}),operations:localOperations};
    }
    if(action==='saveLocalCredential')return saveLocalCredential({tx,s,input,actor,at,eventId});
    if(action==='simulateLocalAccess'){
-    admissionKeys(input,['sessionId','terminalId','characterId','operation','resourceId','assumePresent','code','quantity','useProtected','offerId']);
+    admissionKeys(input,['sessionId','terminalId','characterId','operation','resourceId','assumePresent','code','quantity','useProtected','offerId','nativeInput']);
     const party=await inventoryParty(tx,sid,documentId(input.characterId));requireThat(party.active,'LOCAL_CHARACTER_UNAVAILABLE');
     requireThat(typeof input.assumePresent==='boolean'&&Object.hasOwn(localOperations,input.operation),'INVALID_LOCAL_POLICY');
     const t=await tx.get(`${b}/terminals/${documentId(input.terminalId)}`);requireThat(t?.operations.some(o=>o.action===input.operation&&o.resourceId===input.resourceId),'NOT_FOUND');
     const simulated={s,c:party.c,r:party.r,version:party.version};
     try{await localAuthorization(tx,simulated,input.operation,documentId(input.resourceId),at,{assumePresent:input.assumePresent,code:input.code??null});}catch(e){if(!e.code)throw e;return {localAllowed:false,nativeAllowed:false,reason:e.code};}
-    const readOnly={...tx,set:()=>requireThat(false,'SIMULATION_READ_ONLY')};
-    try{const simulatedActor={...actor,uid:party.c.assignedUid,authTime:Math.max(actor.authTime??0,party.r.minAuthTime??0)};
-     requireThat(['shop','prepareShopPurchase','buyShopOffer'].includes(input.operation),'LOCAL_SIMULATION_UNCONNECTED');const native=createShopService({store:{runTransaction:cb=>cb(readOnly)},signed,checkSession,now,uuid});
-     const q=await native(input.operation==='shop'?'shop':'prepareShopPurchase',simulatedActor,{sessionId:sid,shopId:input.resourceId,...(input.operation==='shop'?{}:{offerId:documentId(input.offerId),quantity:input.quantity??1,useProtected:input.useProtected===true})});
-     return {localAllowed:true,nativeAllowed:true,...(q.amount?{amount:q.amount}:{})};
+    try{return await localNativePreview({tx,ctx:simulated,t,input,actor,at,nativePreview});
     }catch(e){if(!e.code)throw e;return {localAllowed:true,nativeAllowed:false,reason:e.code};}
    }
    if(action==='saveLocalTerminal'){

@@ -1,6 +1,7 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {id:"terminal-qr-readiness",module:"../support/terminal-qr-suite.mjs",exportName:"terminalQrReadinessSuite",label:"Terminaux QR régie Firestore",seconds:60},
   {id:"terminal-qr-services",module:"../support/terminal-qr-suite.mjs",exportName:"terminalQrServicesSuite",label:"Terminaux QR services Firestore",seconds:80},
   {id:"terminal-qr-port",module:"../support/terminal-qr-suite.mjs",exportName:"terminalQrPortSuite",label:"Terminaux QR quai Firestore",seconds:45},
   {id:"terminal-qr",module:"../support/terminal-qr-suite.mjs",exportName:"terminalQrSuite",label:"Terminaux QR Firestore",seconds:45},

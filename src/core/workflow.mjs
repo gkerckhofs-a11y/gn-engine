@@ -1,3 +1,4 @@
+import {localReadiness} from './contextual-readiness.mjs';
 import {createDockTheftService,dockTheftActions} from './dock-theft.mjs';
 import {createDockService} from './docks.mjs';
 import {createContextualAccessService,contextualActions,localOperationStore} from './contextual-access.mjs';
@@ -253,7 +254,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const sabaccService=createSabaccService({store,signed,isAdmin,checkSession,now,uuid});
   const recycleService=createRecycleBinService({store:lifecycleStore,admin,now});
   const characterCodeService=createCharacterCodeService({store,signed,isAdmin,checkSession});
-  const contextualService=createContextualAccessService({store,signed,checkSession,now,uuid});
+  const contextualService=createContextualAccessService({store,signed,checkSession,now,uuid,nativePreview:(tx,actor,action,input)=>createWorkflow({store:{...store,get:tx.get,list:tx.list,runTransaction:cb=>cb(tx)},ownerEmail:'simulation-disabled-owner@example.invalid',now,uuid}).dispatch(action,actor,input)});
   async function dispatch(action,actor,input={}) {
     if(action==='createSoloDemo'){
       admin(actor);const creationId=documentId(input.creationId),result=await dispatch('createSpaceOutlawsPreparation',actor,{creationId,requestId:documentId(input.requestId),campaignTitle:'ESSAI COMMUN · Port-Brèche',title:'Le convoi disparu · Essai jouable',capacity:8,privacy:'Session privée de démonstration, huit identités fictives contrôlées uniquement par le propriétaire.'});
@@ -599,6 +600,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
           const transitions={PREPARATION:['BRIEFING'],BRIEFING:['EN_JEU'],EN_JEU:['PAUSE','FINISHED'],PAUSE:['EN_JEU','FINISHED'],FINISHED:['ARCHIVED'],ARCHIVED:[]};
           requireThat(transitions[s.stage].includes(input.stage),'INVALID_TRANSITION');
           if(s.spaceOutlaws){
+            if(input.stage==='EN_JEU'&&s.spaceOutlaws.terminalQrVersion===1)requireThat((await localReadiness(tx,s)).ready,'LOCAL_CONFIGURATION_REQUIRED');
             authorizeSpaceOutlaws(tx,s,'RHYTHM');
             requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
             if(s.stage==='BRIEFING'&&!hasSoHealth(s))requireThat((await tx.list(`sessions/${sid}/fieldTargets`)).some(t=>t.kind==='ANALYSIS'&&t.publicationState==='PUBLISHED'),'SO_ACTION_TARGET_REQUIRED');

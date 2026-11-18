@@ -5,3 +5,5 @@ import {terminalQrPortSuite} from './support/terminal-qr-suite.mjs';
 terminalQrPortSuite(()=>new MemoryStore());
 import {terminalQrServicesSuite} from './support/terminal-qr-suite.mjs';
 terminalQrServicesSuite(()=>new MemoryStore());
+import {terminalQrReadinessSuite} from './support/terminal-qr-suite.mjs';
+terminalQrReadinessSuite(()=>new MemoryStore());
