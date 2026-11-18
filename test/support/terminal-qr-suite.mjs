@@ -1,3 +1,4 @@
+import {maintenanceHtml} from '../../web/space-maintenance.mjs';
 import {spaceLogisticsFixture} from './space-logistics-suite.mjs';
 import {dockFixture} from './docks-suite.mjs';
 import {crewCargoFixture} from './ship-crew-cargo-suite.mjs';
@@ -78,6 +79,12 @@ export function terminalQrPortSuite(makeStore,prefix='Terminaux QR — quai'){
   const f=await crewCargoFixture(makeStore),lot=await f.seed(),base=`sessions/${f.sid}`;await enableQr(f);const wallet=await f.read('myWallet',{},f.other),pa=await f.store.get(`${base}/characters/${f.otherId}/resources/actionPoints`);
   await assert.rejects(f.startCargo(lot),{code:'LOCAL_BINDING_REQUIRED'});const scan=await portTerminal(f,['prepareCargoTransfer','startCargoTransfer'],f.other);await assert.rejects(f.startCargo(lot),{code:'LOCAL_SCAN_REQUIRED'});
   await scan();const transfer=await f.startCargo(lot);f.advance(61000);const r=await f.finishCargo(transfer.id),moved=await f.store.get(`${base}/inventory/${r.lotId}`);assert.equal(moved.location.kind,'HOLD');assert.equal(moved.ownerId,f.otherId);assert.deepEqual(await f.read('myWallet',{},f.other),wallet);assert.deepEqual(await f.store.get(`${base}/characters/${f.otherId}/resources/actionPoints`),pa);
+ });
+ test(`${prefix} TQ-04 : dossier Mécano sans lancement hors atelier, suivi actif après expiration`,async()=>{
+  const f=await spaceLogisticsFixture(makeStore);await f.edit('ships/ship',s=>({...s,hull:1,revision:s.revision+1}));const r=await f.offer({technicianId:f.otherId});await f.accept(r);await enableQr(f);const scan=await portTerminal(f,['startSpaceMaintenance'],f.other);
+  let d=await f.read('spaceMaintenance',{},f.other);assert.equal(d.jobs[0].localStartAllowed,false);assert.doesNotMatch(maintenanceHtml(d),/data-command="startSpaceMaintenance"/);assert.match(maintenanceHtml(d),/Rejoindre l’atelier/);
+  await scan();d=await f.read('spaceMaintenance',{},f.other);assert.equal(d.jobs[0].localStartAllowed,true);assert.match(maintenanceHtml(d),/data-command="startSpaceMaintenance"/);await f.maintain('startSpaceMaintenance',r,{present:true},f.other);
+  f.advance(61000);d=await f.read('spaceMaintenance',{},f.other);assert.match(maintenanceHtml(d),/data-command="cancelSpaceMaintenance"/);assert.doesNotMatch(maintenanceHtml(d),/Rejoindre l’atelier/);await f.maintain('cancelSpaceMaintenance',r,{reason:'Fin de recette'},f.other);assert.equal((await f.points(f.other)).reserved,0);
  });
  test(`${prefix} TQ-04 : atelier, PA natif et annulation du travail après expiration`,async()=>{
   const f=await moduleWorkFixture(makeStore);await enableQr(f);const before=await f.points(f.other);await assert.rejects(f.preview(),{code:'LOCAL_BINDING_REQUIRED'});assert.deepEqual(await f.points(f.other),before);

@@ -46,6 +46,9 @@ export function createSpaceMaintenanceService({store,signed,checkSession,now,uui
    const proof=r=>hash(JSON.stringify([s.id,s.revision,r,version??null]));
    if(action==='spaceMaintenance'||action==='spaceMaintenanceAdmin'){
     const jobs=(await tx.list(`${base}/shipMaintenance`)).filter(r=>r.towingRecoveryVersion===undefined&&r.towingWorkVersion===undefined&&r.customsInspectionVersion===undefined&&r.moduleMandateVersion===undefined&&(admin||[r.ownerId,r.payerId,r.technicianId].includes(c.id))).map(r=>view(r,time,proof(r),c?.id));
+    if(!admin&&s.spaceOutlaws?.terminalQrVersion===1)for(const job of jobs.filter(j=>j.technician&&j.status==='AWAITING_TECH')){
+     const ship=await tx.get(`${base}/ships/${job.shipId}`);if(ship?.docked&&!ship.journey){try{await localAuthorization(tx,ctx,'startSpaceMaintenance',ship.portId,at);job.localStartAllowed=true;}catch(e){if(!e.code)throw e;job.localStartAllowed=false;job.localStartReason=e.code;}}
+    }
     if(!admin)return {session:{id:s.id,stage:s.stage},moduleMandatesReady:s.spaceOutlaws.moduleMandatesVersion===1,admin:false,jobs};
     const supplies=[];for(const shop of await tx.list(`${base}/shops`))for(const o of await tx.list(`${base}/shops/${shop.id}/offers`)){if(o.item.consumable&&o.item.kind==='STACKABLE'&&!o.item.laserRecharge&&o.unitPrice>0){const l=await tx.get(`${base}/inventory/${shopStockId(o.id)}`);supplies.push({shopId:shop.id,offerId:o.id,name:`${shop.name} · ${o.name}`,itemId:o.item.id,unitPrice:o.unitPrice,stock:l?.status==='AVAILABLE'?l.quantity:0});}}
     const fleet=(await tx.list(`${base}/ships`)).map(x=>flightShip(s,x,time)),personalSupplies=[];
