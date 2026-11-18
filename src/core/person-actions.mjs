@@ -1,3 +1,5 @@
+import {localAuthorization} from './contextual-policy.mjs';
+import {inventoryParty} from './inventory-transfers.mjs';
 import {isToxi,toxiProfiles,requireToxi,checkAntidote,makeDose,treatDose} from './space-toxicology.mjs';
 import {nativeLootProfiles,nativeConcealProfiles,currentEncounter,personLootEligible,activeConcealment,concealableLot} from './space-person-loot.mjs';
 import {forgedLotIntegrity} from './space-forgery-evidence.mjs';
@@ -60,6 +62,7 @@ export function createPersonService({store,signed,checkScenario,checkSession,now
   await requireClinic(tx,s,p);
   const target=await activeCharacter(tx,s.id,input.targetId),t=target.c;requireThat(s.stage==='EN_JEU'||(hasSoHealth(s)&&t.hp===0),'SESSION_NOT_RUNNING');requireThat(!t.activePersonActionId&&!t.activeFieldActionId,'FIELD_TARGET_BUSY');
   const level=p.skillId?abilityLevel(c,p.skillId):0;requireThat(!p.skillId||level>=p.minLevel,'FIELD_SKILL_REQUIRED');for(const req of p.prerequisites)requireThat(abilityLevel(c,req.skillId)>=req.minLevel,'FIELD_SKILL_REQUIRED');await eligible(tx,s,c,t,p,level,at);
+  if(isClinic(p)&&t.hp>0)await localAuthorization(tx,{...ctx,version:(await inventoryParty(tx,s.id,c.id)).version},'clinicCare',p.clinicTargetId,at);
   p=clinicForLevel(s,p,level);if(isToxi(p))await requireToxi(tx,s,c,t,p,input,at);
   if(p.kind==='PROTECTION'){const equipment=await tx.list(`sessions/${s.id}/inventory`,['holderId',t.id]);requireThat(equipment.some(l=>personalLot(l,t.id)&&l.item.id===p.protectedItemId&&l.quantity>0&&l.status==='AVAILABLE'),'PROTECTION_EQUIPMENT_REQUIRED');}
   const dossier=p.kind==='DIAGNOSIS'?await patientDossier(tx,s.id,t.id,at):null;

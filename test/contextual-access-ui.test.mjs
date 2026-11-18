@@ -11,3 +11,7 @@ test('Terminal local : confirmation de présence, durée explicite, HTML échapp
  const d={terminal:{id:'desk',name:'<script>',durationSeconds:60},operations:[{action:'shop',resourceId:'counter',allowed:false}]},html=localTerminalHtml(d,'s');assert.match(html,/&lt;script&gt;/);assert.match(html,/name="present" required/);assert.doesNotMatch(html,/href="#\/shop/);assert.match(html,/data-qr/);
  const admin=localAccessAdminHtml({terminals:[],journal:[]});assert.match(admin,/name="durationSeconds" required/);assert.match(admin,/Révoquer sa présence/);
 });
+test('Terminal local QR : matrice réelle et lien public distinct du service professionnel verrouillé',()=>{
+ const d={terminal:{id:'desk',name:'Comptoir',durationSeconds:60},remainingSeconds:0,operations:[{action:'commodityMarket',resourceId:'s',allowed:true},{action:'galacticMarkets',resourceId:'s',allowed:false,reason:'FORBIDDEN'}]},html=localTerminalHtml(d,'s');
+ assert.match(html,/#\/public-prices\/s/);assert.doesNotMatch(html,/href="#\/galactic\/s/);assert.match(html,/Accès expiré ou absent/);assert.match(html,/Retour à mon terminal/);
+});

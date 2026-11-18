@@ -1,3 +1,4 @@
+import {localAuthorization} from './contextual-policy.mjs';
 import {accessAccount,accountParty} from './collective-accounts.mjs';
 import {delegatedCommercialPickup} from './commercial-transport-state.mjs';
 import {planetPurchase,planetOffer,planetMarketQuote,ordinaryPlanetCommodity,ordinaryPlanetTrade,planetCommerceSession} from './planet-market-state.mjs';
@@ -86,7 +87,9 @@ export function createShopService({store,signed,checkSession,now,uuid}){
     const shops=action==='shop'?[await tx.get(`${base}/shops/${documentId(input.shopId)}`)]:await tx.list(`${base}/shops`),result=[];
     for(const shop of shops){
      requireThat(shop?.versionId===s.versionId,'NOT_FOUND');const offers=[];
-     for(const o of await tx.list(`${base}/shops/${shop.id}/offers`)){
+     let catalogue=true;if(!admin&&s.spaceOutlaws?.terminalQrVersion===1){try{await localAuthorization(tx,ctx,'shop',shop.id,at);}catch(e){if(!['LOCAL_BINDING_REQUIRED','LOCAL_SCAN_REQUIRED','LOCAL_TERMINAL_CLOSED','LOCAL_CREDENTIAL_REQUIRED','LOCAL_SKILL_REQUIRED','FORBIDDEN','SESSION_NOT_RUNNING','SO_SAFETY_STOP'].includes(e.code))throw e;catalogue=false;}}
+
+     for(const o of catalogue?await tx.list(`${base}/shops/${shop.id}/offers`):[]){
       if(!shopOfferAvailable(s,o)||!admin&&o.item.usage==='COMMERCIAL'&&!isBroker(c))continue;
       const lot=await tx.get(`${base}/inventory/${shopStockId(o.id)}`),valid=stockValid(lot,shop,o),quantity=valid?lot.quantity:0;
       const item=await tx.get(`${base}/items/${o.item.id}`);

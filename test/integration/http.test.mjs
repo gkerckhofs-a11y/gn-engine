@@ -2142,3 +2142,15 @@ test('HTTP + Auth : vol de stockage, destination réservée, garde et refus API 
  const stored=(await db.doc(`${f.base}/dockThefts/${t.id}`).get()).data();await db.doc(f.base).update({clock:{elapsedMs:stored.readyAtGameMs+1,runningSince:Date.now()}});const resolve={theftId:t.id,requestId:randomUUID()},r=await call('resolveDockTheft',resolve);assert.equal(r.status,'SUCCESS');assert.deepEqual(await call('resolveDockTheft',resolve),r);const lot=(await db.doc(`${f.base}/inventory/${t.id}`).get()).data();assert.equal(lot.ownerId,f.clientId);assert.equal(lot.holderId,f.cid);assert.equal(lot.location.id,f.destId);assert.equal((await call('mySession')).actionPoints.reserved,0);const bag=await call('myInventory',{},victim);assert.equal(bag.storageCustody[0].location,undefined);assert.equal((await request('dockTheft',{sessionId:f.sid,theftId:t.id},victim)).status,403);
  await call('revokeAccess',{uid:uid(thief),requestId:randomUUID()},owner);assert.equal((await request('resolveDockTheft',{sessionId:f.sid,...resolve},thief)).status,403);
 });
+
+test('HTTP + Auth : terminaux QR, cours au comptoir et classe native',async()=>{
+ const {terminalQrFixture}=await import('../support/terminal-qr-suite.mjs'),db=getFirestore(),f=await terminalQrFixture(()=>firestoreStore(db),{classId:'MED',usage:'PERSONAL'});await f.save();await f.adopt();
+ const owner=await googleTestAccount(process.env.OWNER_EMAIL),player=await googleTestAccount(`terminal-qr-${randomUUID()}@example.invalid`),uid=t=>JSON.parse(Buffer.from(t.split('.')[1],'base64url').toString()).sub,base=`sessions/${f.sid}`;
+ const ref=db.doc(`${base}/registrations/${hash(f.player.uid)}`),r=(await ref.get()).data();await ref.delete();await db.doc(`${base}/registrations/${hash(uid(player))}`).set({...r,id:hash(uid(player)),uid:uid(player),minAuthTime:0});await db.doc(`${base}/characters/${f.cid}`).update({assignedUid:uid(player)});
+ await db.doc(base).update({ownerUid:uid(owner),clock:{elapsedMs:0,runningSince:Date.now()}});await db.doc(`campaigns/${f.campaignId}`).update({ownerUid:uid(owner)});
+ const input={sessionId:f.sid};assert.equal((await request('commodityMarket',input)).status,401);assert.equal((await request('commodityMarket',input,player)).error,'LOCAL_SCAN_REQUIRED');
+ assert.equal((await request('setTerminalQrMode',{...input,version:1,revision:1,requestId:randomUUID()},player)).status,403);
+ assert.equal((await request('scanLocalTerminal',{...input,terminalId:'bourse',requestId:randomUUID()},player)).status,200);
+ const board=await request('commodityMarket',input,player);assert.equal(board.status,200,JSON.stringify(board));assert.equal((await request('galacticMarkets',input,player)).status,403);
+ await db.doc(`localAccess/${f.sid}/presence/${f.cid}`).update({expiresGameMs:-1});assert.equal((await request('commodityMarket',input,player)).error,'LOCAL_SCAN_REQUIRED');
+});

@@ -330,3 +330,11 @@ targetedProfiles['contextual-docks']={
   'src/core/dock-state.mjs','src/core/docks.mjs','src/core/cargo.mjs','src/core/logistics.mjs','src/core/storage-state.mjs','src/core/space-intrusion.mjs','src/shared/space-outlaws-groups.mjs',
   'web/docks.mjs','web/commercial-storage.mjs','web/logistics.mjs','test/support/docks-suite.mjs']
 };
+
+// TQ-01..06 build on the fully validated main a59ec255. Keep cumulative coverage.
+targetedProfiles['terminal-qr']={
+ ...targetedProfiles['contextual-docks'],
+ tests:[...new Set([...targetedProfiles['contextual-docks'].tests,'test/terminal-qr.test.mjs','test/prices.test.mjs','test/planet-markets.test.mjs','test/galactic-economy.test.mjs','test/space-outlaws-voyages.test.mjs','test/space-module-work.test.mjs','test/space-module-installation.test.mjs','test/space-clinic.test.mjs','test/space-merchant-contacts.test.mjs','test/space-merchant-negotiation.test.mjs','test/intelligence.test.mjs','test/space-hidden-cargo.test.mjs','test/space-outlaws-health.test.mjs','test/market.test.mjs','test/negotiations.test.mjs','test/market-ui.test.mjs'])],
+ suites:[...new Set([...targetedProfiles['contextual-docks'].suites,'terminal-qr','terminal-qr-readiness','terminal-qr-services','terminal-qr-port','prices','planet-markets','galactic-economy','space-outlaws-voyages','space-module-work','space-module-installation','space-clinic','space-merchant-contacts','space-merchant-negotiation','intelligence','space-outlaws-health','market','negotiations'])],
+ files:[...targetedProfiles['contextual-docks'].files,'src/core/space-outlaws-entry-guard.mjs','src/core/person-actions.mjs','src/core/field-actions.mjs','src/core/knowledge-sales.mjs','src/core/space-hidden-cargo.mjs','src/shared/local-service-catalog.mjs','src/core/space-outlaws-voyages.mjs','src/core/space-maintenance.mjs','src/core/space-module-work.mjs','src/sabacc/service.mjs','test/support/sabacc-suite.mjs','web/space-maintenance.mjs','src/core/market.mjs','src/core/market-negotiations.mjs','web/market.mjs','src/core/contextual-readiness.mjs','src/core/contextual-preview.mjs','src/core/contextual-policy.mjs','src/core/prices.mjs','src/core/planet-markets.mjs','test/terminal-qr.test.mjs','test/support/terminal-qr-suite.mjs','test/prices.test.mjs','test/planet-markets.test.mjs','test/galactic-economy.test.mjs','docs/SO-TERMINAL-QR.md'],
+};

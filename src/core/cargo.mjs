@@ -1,3 +1,4 @@
+import {localAuthorization} from './contextual-policy.mjs';
 import {dockEntry,dockLeaseActive} from './dock-state.mjs';
 import {commercialSource,sameTransportPlace} from './commercial-transport-state.mjs';
 import {crewCargoGrant,shipCrewBase,requireCrewPilot} from './ship-crew-state.mjs';
@@ -191,6 +192,7 @@ export function createCargoService({store,signed,checkSession,now,uuid}){
     const volume=stockVolume([{...lot,quantity}]);if(so){requireThat(volume>0&&volume<=5,'SO_CARGO_BATCH');const pending=await tx.list(`${base}/cargoTransfers`);requireThat(!pending.some(t=>t.status==='LOADING'&&same(t.source,source.location)),'CARGO_TRANSFERS_OPEN');requireThat(source.location.kind==='HOLD'||dest.location.kind==='HOLD','INVALID_DESTINATION');}if(dest.capacity!==null)requireThat(whole(dest.used+dest.incoming+volume,'STORAGE_OVERFLOW')<=dest.capacity,'WAREHOUSE_FULL');
     const clearance=so?null:await quoteCargoFees(tx,s,lot,quantity,source.location,dest.location);
     const view={lotId:lot.id,name:lot.item.name,quantity,volume,source:viewPlace(source),destination:viewPlace(dest),remaining:lot.quantity-quantity,clearance:publicClearance(clearance),...(so?{durationSeconds:180,maxVolume:5}:{})};
+    if(so&&!source.dock&&!dest.dock){const hold=source.location.kind==='HOLD'?source:dest;await localAuthorization(tx,ctx,action,hold.record.portId,at);}
     const confirmation=hash(JSON.stringify([sid,guard,lot,source.record,dest.record,clearance,view,s.healthRules]));
     if(action==='prepareCargoTransfer')return {...view,confirmation};requireThat(input.confirmation===confirmation,'STALE_REVISION');if(so)requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');
     const transfer={id:eventId,status:'LOADING',revision:1,name:lot.item.name,quantity,volume,source:source.location,destination:dest.location,sourceName:source.name,destinationName:dest.name,owner:ownerOf(lot),at,actorUid:actor.uid,characterId:c.id,clearance,...(transport?{transportContractId:transport.c.id}:{}),...(so?{actorVersion:ctx.version,readyAtGameMs:time+180000}:{} )};

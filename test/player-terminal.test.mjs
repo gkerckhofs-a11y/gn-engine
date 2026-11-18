@@ -49,3 +49,20 @@ test('Terminal : carte accessible avec Navigation, quelle que soit la classe',()
   o.session.spaceOutlaws.navigationVersion=0;assert.equal(ids(o,{}).includes('galactic-map'),false);
  }
 });
+
+test('Terminal QR : pas de lobby Sabacc, reprise limitée à ma table de cette session',()=>{
+ const o=own();o.session.spaceOutlaws.terminalQrVersion=1;
+ assert.ok(!ids(o,{sabacc:{enabled:true}}).includes('sabacc'));
+ const d={sabacc:{enabled:true,ownTable:{id:'table',sessionId:'s',mode:'GN',resume:true}}};assert.ok(ids(o,d).includes('sabacc-resume'));assert.match(personalTerminalHtml(o,d),/Reprendre ma table/);assert.doesNotMatch(personalTerminalHtml(o,d),/key=/);
+ d.sabacc.ownTable.sessionId='other';assert.ok(!ids(o,d).includes('sabacc-resume'));
+});
+test('Terminal QR : trois familles, huit classes, dossiers conservés et services locaux séparés',()=>{
+ for(const cl of ['COM','MED','MEC','PIL','COU','INF','ROG','TRA']){
+  const o=own(cl);o.session.spaceOutlaws={...o.session.spaceOutlaws,terminalQrVersion:1,merchantContactsVersion:1,merchantNegotiationVersion:1};o.character.abilities.skills=[{id:'COU-02',level:3},{id:'COU-03',level:3}];o.groups=[{id:'g',permissions:{}}];
+  const d={shops:{shops:[{id:'new',offers:[]}],orders:[{id:'order',status:'PAID'}]},contracts:{contracts:[{id:'contract',status:'ACTIVE'}]},sabacc:{enabled:true},ships:{ships:[{id:'ship',name:'Mon bâtiment'}]}};
+  const html=personalTerminalHtml(o,d);for(const family of ['Mon activité','Mes ressources','Mes informations'])assert.match(html,new RegExp(`<h2>${family}</h2>`));
+  for(const id of ['public-prices','galactic','sabacc','merchant-contacts','merchant-negotiation'])assert.ok(!ids(o,d).includes(id));
+  assert.match(html,/Mes commandes/);assert.match(html,/#\/ship\/s\/ship/);assert.match(html,/Scanner un terminal de lieu/);assert.match(html,/#\/infos\/s/);assert.match(html,/#\/groups\/s/);
+  o.session.stage='PAUSE';assert.ok(terminalItems(o,d).some(i=>i.state==='BLOCKED'));o.health={safetyStopped:true};assert.match(personalTerminalHtml(o,d),/STOP sécurité/);
+ }
+});

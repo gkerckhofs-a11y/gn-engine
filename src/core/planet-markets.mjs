@@ -1,3 +1,4 @@
+import {localAuthorization} from './contextual-policy.mjs';
 import {announcementReadable} from './announcements.mjs';
 // Extension of native prices, shops, sales and stock. No independent inventory or wallet.
 import {spaceCommodities,planetMarketStates} from '../shared/space-outlaws-commodities.mjs';
@@ -27,11 +28,12 @@ export function createPlanetMarketService({store,signed,checkSession,now,uuid}){
   return store.runTransaction(async tx=>{
    const ctx=admin?{s:await checkSession(tx,actor,documentId(input.sessionId))}:await inventoryPlayer(tx,actor,input),{s,c,version}=ctx,base=`sessions/${s.id}`;
    requireThat(hasItemCircuits(s)&&hasSoShops(s),'SO_GAMEPLAY_NOT_OPEN');requireThat(s.stage!=='ARCHIVED'&&!s.campaignSealed,'SESSION_CLOSED');
-   if(!admin)requireThat(isBroker(c),'FORBIDDEN');
+   if(!admin){requireThat(isBroker(c),'FORBIDDEN');if(action!=='sellToPlanetMarket')await localAuthorization(tx,ctx,action,s.id,at);}
    const markets=await tx.list(`${base}/planetMarkets`),ports=await tx.list(`${base}/ports`),items=await tx.list(`${base}/items`),book=await readPriceBook(tx,s,at);
    const history=await tx.list(`${base}/planetPriceHistory`);
    const op=writes.has(action)?`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`:null,fingerprint=hash(JSON.stringify([action,input]));
    if(op){const old=await tx.get(op);if(old){requireThat(old.fingerprint===fingerprint,'REQUEST_ID_REUSED');requireThat(admin||old.guard===version,'FORBIDDEN');return old.result;}}
+   if(action==='sellToPlanetMarket')await localAuthorization(tx,ctx,action,s.id,at);
    if(action==='galacticMarkets'||action==='galacticEconomyAdmin'){
     const rows=[];for(const m of markets){
      if(!admin&&!m.enabled)continue;

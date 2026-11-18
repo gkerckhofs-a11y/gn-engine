@@ -1,3 +1,4 @@
+import {localAuthorization} from './contextual-policy.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {hasItemCircuits} from './item-circuits.mjs';
 import {planetMarketQuote} from './planet-market-state.mjs';
@@ -16,6 +17,7 @@ export function createPriceService({store,signed,checkSession,now,uuid,spaceEcon
   return store.runTransaction(async tx=>{
    const player=action==='commodityMarket',ctx=player?await inventoryPlayer(tx,actor,input):null,s=player?ctx.s:await checkSession(tx,actor,sid);
    requireThat(s.stage!=='ARCHIVED','SESSION_CLOSED');if(spaceEconomy)requireThat(hasItemCircuits(s)&&!s.campaignSealed,'SO_GAMEPLAY_NOT_OPEN');
+   if(player)await localAuthorization(tx,ctx,action,s.id,at);
    const book=await readPriceBook(tx,s,at);if(spaceEconomy)book.items=book.items.filter(i=>i.versionId===s.versionId).map(i=>({...i,publicationState:'PUBLISHED'}));const currency=s.economyRules?currencyView(s.economyRules):null;
    if(player)return {session:{id:sid,stage:s.stage},currency,enabled:s.economyRules?.enabled===true,prices:priceBoard(book),restrictions:tradeBoard(book)};
    const routes=await tx.list(`${base}/routes`),targets=await tx.list(`${base}/fieldTargets`),markets=spaceEconomy?await tx.list(`${base}/planetMarkets`):[],ports=spaceEconomy?await tx.list(`${base}/ports`):[],bulletins=spaceEconomy?(await tx.list(`${base}/announcements`)).filter(a=>a.mode==='BULLETIN'&&a.audience?.kind==='ALL'):[];
