@@ -1,3 +1,5 @@
+Mission #57 du 17 novembre 2026 : [accès contextuels, périmètre et preuves par tranche](SO-CONTEXTUAL-ACCESS-57.md).
+
 # Matrice SPACE OUTLAWS V3.2 / V0.7
 
 Connaissances galactiques — nouvelle instruction du 16 novembre : [audit et retrait de l’accès global](SO-GALACTIC-KNOWLEDGE-AUDIT-2026-11-16.md). Remplace les codes automatiques annoncés ci-dessous. Carnet, échanges consentis et répartition professionnelle restent à développer ; aucun déploiement.
@@ -971,3 +973,20 @@ Essai solo commun à huit profils, groupe et Sabacc ; alias personnage `ABC123` 
 corbeille des sessions/scénarios ; boutons explicites de suppression d’images ;
 Marché réservé à la classe principale Courtier. Détail, limites et validation :
 [SO-ESSAI-COMMUN.md](SO-ESSAI-COMMUN.md).
+
+### Mission #57 — docks, première tranche AC-04 (17 novembre 2026)
+
+- Acquisition RENT/OWN et mandats de cellule : extension du moteur commercial natif.
+- Cellule ↔ soute : réservation/réception cargo native, même port, propriété conservée.
+- Code/clé ou INF-01 natif : entrée dix minutes, informations préparées seulement.
+- Tests partagés `docks` et `dock-intrusion`, HTTP/Auth dédié, parcours Chromium ajouté.
+- Preuves exactes et limites dans `SO-CONTEXTUAL-ACCESS-57.md` et PR #58 ; pas de
+  recette globale, terrain ou publication déduite de cette entrée de matrice.
+
+### Mission #57 — vol distinct et validation intégrée AC-05/06 (17 novembre 2026)
+
+- Vol de stockage : destination préalable, réservations/logistique natives, trois minutes, PA conditionnel, garde distincte du titre, quotas et récupération.
+- Alarmes privées configurables par cellule ; projections anonymes et aucune permission implicite.
+- Remise physique MJ, refus API/Auth, concurrence, interruptions, pause/STOP et reprise d'épisode testés dans les suites partagées.
+- Couverture ACT-01..18 / DOCK-01..50 et écarts explicites : [rapport AC-06](SO-ACCESS-AC06-VALIDATION.md).
+- CI complète demandée au candidat d'intégration ; verdict exact dans PR #58. Inspection douanière dédiée et recette humaine restent non exécutées. Aucune publication.

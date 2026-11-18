@@ -22,10 +22,10 @@ import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {admissionKeys} from './admission-state.mjs';
 import {shopMissionRewards} from './space-outlaws-mission-rewards.mjs';
 
-const admins=new Set(['shopAdmin','prepareShopProvision','provisionShop','offerShopPickup']);
+const admins=new Set(['shopAdmin','prepareShopProvision','provisionShop','offerShopPickup','setShopDelivery']);
 const reads=new Set(['shops','shop','shopAdmin','prepareShopProvision','prepareShopPurchase']);
-export const shopActions=[...reads,'provisionShop','buyShopOffer','offerShopPickup','confirmShopPickup'];
-const fields={shops:[],shop:['shopId'],shopAdmin:[],prepareShopProvision:['shopId','offerId','provisionId','quantity','restricted','source','reason'],provisionShop:['shopId','offerId','provisionId','quantity','restricted','source','reason','confirmation'],prepareShopPurchase:['shopId','offerId','quantity','useProtected','discountActionId','fromAccountId'],buyShopOffer:['shopId','offerId','quantity','useProtected','quoteAt','confirmation','discountActionId','fromAccountId'],offerShopPickup:['saleId','confirmation'],confirmShopPickup:['saleId','confirmation','received']};
+export const shopActions=[...reads,'provisionShop','buyShopOffer','offerShopPickup','confirmShopPickup','setShopDelivery'];
+const fields={setShopDelivery:['shopId','offerId','offerRevision','deliveryMode','reason'],shops:[],shop:['shopId'],shopAdmin:[],prepareShopProvision:['shopId','offerId','provisionId','quantity','restricted','source','reason'],provisionShop:['shopId','offerId','provisionId','quantity','restricted','source','reason','confirmation'],prepareShopPurchase:['shopId','offerId','quantity','useProtected','discountActionId','fromAccountId'],buyShopOffer:['shopId','offerId','quantity','useProtected','quoteAt','confirmation','discountActionId','fromAccountId'],offerShopPickup:['saleId','confirmation'],confirmShopPickup:['saleId','confirmation','received']};
 const active=s=>{requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');};
 const stockValid=(l,s,o)=>l?.ownerType==='SHOP'&&l.ownerId===s.id&&l.holderId===s.id&&l.location.kind==='SHOP'&&l.location.id===s.id&&l.item.id===o.item.id&&l.item.revision===o.item.revision&&l.status==='AVAILABLE'&&(!o.item.shipModule||l.item.shipModule?.code===o.item.shipModule.code&&l.item.shipModule?.size===o.item.shipModule.size&&l.item.kind==='INDIVIDUAL'&&l.item.consumable===false&&l.quantity<=1);
 const movement=l=>({...lotState(l),ownerType:l.ownerType,ownerId:l.ownerId,holderId:l.holderId,location:l.location});
@@ -62,9 +62,11 @@ export function createShopService({store,signed,checkSession,now,uuid}){
   const amount=discountAction?discountAction.result.discount.amount:whole((planet?.quote.unitPrice??offer.unitPrice)*quantity,'BALANCE_OVERFLOW'),protectedAmount=input.useProtected?Math.min(before.protectedCredits??0,amount):0,ordinaryAmount=amount-protectedAmount;
   requireThat(amount>0&&before.available>=ordinaryAmount,'INSUFFICIENT_FUNDS');whole(b.balance+amount,'BALANCE_OVERFLOW');
   const quoteAt=input.quoteAt??at;requireThat(Number.isSafeInteger(quoteAt)&&quoteAt<=at&&at-quoteAt<=300000,'SHOP_QUOTE_EXPIRED');
-  const sale={...(stockPortId?{stockPortId}:{}),...(planet?{planetMarketId:planet.market.id,planetPortName:planet.portName}:{}),id:uuid(),shopId:shop.id,sellerKind:'SHOP',sellerId:shop.id,sellerName:shop.name,buyerId:c.id,buyerName:c.public.displayName,buyerVersion:version,status:'PENDING',revision:1,createdAt:at,expiresAt:quoteAt+300000,lotId:lot.id,item:offer.item,quantity,amount,protectedAmount,currency:currencyView(s.economyRules),conditions:offer.conditions,pickupPlace:shop.location};
+  requireThat(offer.deliveryMode===undefined||offer.deliverySchemaVersion===1&&['DIGITAL','PHYSICAL'].includes(offer.deliveryMode),'INVALID_SHOP_DELIVERY');
+  const delivery=offer.deliveryMode?{deliverySchemaVersion:1,deliveryMode:offer.deliveryMode}:{};
+  const sale={...delivery,...(stockPortId?{stockPortId}:{}),...(planet?{planetMarketId:planet.market.id,planetPortName:planet.portName}:{}),id:uuid(),shopId:shop.id,sellerKind:'SHOP',sellerId:shop.id,sellerName:shop.name,buyerId:c.id,buyerName:c.public.displayName,buyerVersion:version,status:'PENDING',revision:1,createdAt:at,expiresAt:quoteAt+300000,lotId:lot.id,item:offer.item,quantity,amount,protectedAmount,currency:currencyView(s.economyRules),conditions:offer.conditions,pickupPlace:shop.location};
   const after=moneyState({...a,balance:a.balance-ordinaryAmount,...(a.protectedCredits!==undefined?{protectedCredits:a.protectedCredits-protectedAmount}:{}),revision:a.revision+1});
-  const result={...(planet?{planetMarket:{id:planet.market.id,portId:stockPortId,portName:planet.portName,guard:planet.quote.guard,unitPrice:planet.quote.unitPrice}}:{}),...(stockPortId?{stockPortId}:{}),shop:{id:shop.id,name:shop.name,location:shop.location},offer:{id:offer.id,name:offer.name,item:offer.item,unitPrice:planet?.quote.unitPrice??offer.unitPrice,conditions:offer.conditions},quantity,amount,protectedAmount,ordinaryAmount,restricted:eligible,source:accountParty(from),sourceCanRead:from.read,...(from.read?{before,after}:{}),quoteAt,expiresAt:quoteAt+300000};
+  const result={...(planet?{planetMarket:{id:planet.market.id,portId:stockPortId,portName:planet.portName,guard:planet.quote.guard,unitPrice:planet.quote.unitPrice}}:{}),...(stockPortId?{stockPortId}:{}),shop:{id:shop.id,name:shop.name,location:shop.location},offer:{...delivery,id:offer.id,name:offer.name,item:offer.item,unitPrice:planet?.quote.unitPrice??offer.unitPrice,conditions:offer.conditions},quantity,amount,protectedAmount,ordinaryAmount,restricted:eligible,source:accountParty(from),sourceCanRead:from.read,...(from.read?{before,after}:{}),quoteAt,expiresAt:quoteAt+300000};
   return {...x,discountAction,sale,from,to:{a:b,name:shop.name},result:{...result,confirmation:hash(JSON.stringify([s.id,s.revision,version,from.guard,a.revision,lot.revision,b.revision,result]))}};
  }
  async function order(tx,s,p,at){
@@ -102,7 +104,7 @@ export function createShopService({store,signed,checkSession,now,uuid}){
    }
    const op=reads.has(action)?null:`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`,fingerprint=hash(JSON.stringify([action,input]));
    // Recheck the extension before old receipts as well as before new effects.
-   if(['prepareShopProvision','provisionShop','prepareShopPurchase','buyShopOffer'].includes(action))await definition(tx,s,input);
+   if(['prepareShopProvision','provisionShop','prepareShopPurchase','buyShopOffer','setShopDelivery'].includes(action))await definition(tx,s,input);
    else if(['offerShopPickup','confirmShopPickup'].includes(action)){
     const sale=await tx.get(`${base}/lotSales/${documentId(input.saleId)}`);
     if(sale?.shopId&&sale.item?.shipModule)requireThat(hasSoModulePurchases(s),'SO_GAMEPLAY_NOT_OPEN');
@@ -110,7 +112,12 @@ export function createShopService({store,signed,checkSession,now,uuid}){
    let replayFrom=null;if(action==='buyShopOffer'&&input.fromAccountId&&input.fromAccountId!==accountId(c.id)){const definitionNow=await definition(tx,s,input);requireThat(definitionNow.offer.item.usage==='COMMERCIAL'&&await planetOffer(tx,s,definitionNow.offer.id),'FORBIDDEN');replayFrom=await accessAccount(tx,{...ctx,guard:version},input.fromAccountId,{allowSoGroup:true});requireThat(replayFrom.spend,'FORBIDDEN');}
    if(op){const prev=await tx.get(op);if(prev){requireThat(prev.fingerprint===fingerprint,'REQUEST_ID_REUSED');requireThat(admin||prev.guard===version,'FORBIDDEN');requireThat(!prev.sourceGuard||replayFrom?.guard===prev.sourceGuard,'FORBIDDEN');return prev.result;}}
    let result,sourceGuard=null;
-   if(action==='prepareShopProvision'||action==='provisionShop'){
+   if(action==='setShopDelivery'){
+    requireThat(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)&&!s.safetyStop?.active,'SESSION_NOT_RUNNING');requireThat(['DIGITAL','PHYSICAL'].includes(input.deliveryMode),'INVALID_SHOP_DELIVERY');
+    const {shop,offer}=await definition(tx,s,input);requireThat(offer.revision===input.offerRevision,'STALE_REVISION');const reason=moneyText(input.reason);
+    const next={...offer,deliverySchemaVersion:1,deliveryMode:input.deliveryMode,revision:offer.revision+1};authorizeSpaceOutlaws(tx,s,'SHOP_DELIVERY');
+    tx.set(`${base}/shops/${shop.id}/offers/${offer.id}`,next);tx.set(`${base}/shops/${shop.id}/offers/${offer.id}/history/${eventId}`,{id:eventId,at,actorUid:actor.uid,reason,before:offer,after:next});result={id:offer.id,deliveryMode:next.deliveryMode,revision:next.revision};
+   }else if(action==='prepareShopProvision'||action==='provisionShop'){
     const provisionId=documentId(input.provisionId),source=moneyText(input.source),reason=moneyText(input.reason),x=await definition(tx,s,input),{shop,offer,lot}=x;
     const quantity=itemQuantity(offer.item,input.quantity);requireThat(quantity<=10000&&typeof input.restricted==='boolean','INVALID_QUANTITY');
     if(offer.item.shipModule||offer.item.usage==='COMMERCIAL')requireThat(!input.restricted,'SO_MODULE_STOCK_RESTRICTED');
@@ -131,7 +138,7 @@ export function createShopService({store,signed,checkSession,now,uuid}){
    }else if(action==='prepareShopPurchase'||action==='buyShopOffer'){
     const x=await purchase(tx,ctx,input,at);if(action==='prepareShopPurchase')return x.result;
     requireThat(x.result.confirmation===input.confirmation,'STALE_REVISION');
-    result=settleLotSale(tx,s,c,x.sale,x,x.from,at,eventId,actor);sourceGuard=x.from.a.ownerType==='GROUP'?x.from.guard:null;
+    result=settleLotSale(tx,s,c,x.sale,x,x.from,at,eventId,actor,{digitalDelivery:x.sale.deliveryMode==='DIGITAL'});sourceGuard=x.from.a.ownerType==='GROUP'?x.from.guard:null;
     if(x.discountAction){authorizeSpaceOutlaws(tx,s,'NEGOTIATION_REDEEM');tx.set(`${base}/fieldActions/${x.discountAction.id}`,{...x.discountAction,result:{...x.discountAction.result,discount:{...x.discountAction.result.discount,usedAt:at,saleId:x.sale.id}}});}
    }else{
     active(s);const p=await tx.get(`${base}/lotSales/${documentId(input.saleId)}`);requireThat(p?.shopId&&(admin||p.buyerId===c.id),'FORBIDDEN');requireThat(p.status==='SOLD'&&p.pickupStatus!=='RECEIVED','SALE_CLOSED');

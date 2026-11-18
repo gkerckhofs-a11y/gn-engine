@@ -2,7 +2,16 @@
   "project": "gn-engine",
   "sourceRef": "main",
   "version": "0.39.2",
-  "requestedAt": "2026-11-16",
-  "reason": "Autorisation explicite de Guillaume le 16 novembre 2026 : publier le lien Holopédia depuis le Terminal de tous les personnages. CI complète requise sur le SHA main exact. Aucun changement de données de jeu.",
-  "status": "AUTHORIZED_AFTER_FULL_CI"
+  "requestedAt": "2026-11-18",
+  "reason": "Autorisation explicite de Guillaume le 18 novembre 2026 : publier les accès contextuels de la PR #58 après validation complète. Publication du code ; configuration des cellules par la régie. Aucune migration ni activation automatique des nouveaux droits dans les sessions existantes.",
+  "status": "AUTHORIZED_AFTER_FULL_CI",
+  "approvedSourceSha": "3e843efbb5abb6a8e1f66c7b4b470186c0f5aee3",
+  "verifiedMergeCheckout": "dd8d955c1cfa67fe136b78d9ef9cb7b0b9a98ac0",
+  "verifiedRunId": 44255927875,
+  "previousMainSha": "e1474ddc4f9d2f80f76ccb43c4eef0605939e338",
+  "previousPublishedSha": "67a2b76ca75b1206738a8c8924322f1a0eee4f1f",
+  "previousApiRevision": "api-00056-pic",
+  "expectedAppSha256": "df677b71f8f58e3becad0d33751994fa0ad1592b77be0c9636c18847d5983333",
+  "previousAppSha256": "b01285888bfa3be9d7dcd20341563593a0ba9338745418c194ca33b5741b613e",
+  "dataMigration": false
 }

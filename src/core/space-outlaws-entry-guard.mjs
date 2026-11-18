@@ -24,6 +24,9 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(!path.startsWith(base)&&path!==base.slice(0,-1))continue;
   if(path.startsWith(`${base}audit/`))continue;
   const relative=path.slice(base.length);
+  if(scopes.has('DOCK_ALARM')&&session.spaceOutlaws.dockStorageVersion===1&&/^(dockAlerts\/[^/]+|characters\/[^/]+\/dockAlerts\/[^/]+)$/.test(relative))continue;
+  if(scopes.has('DOCK_THEFT')&&session.spaceOutlaws.dockStorageVersion===1&&/^(dockThefts\/[^/]+|dockTheftActors\/[^/]+|dockTheftQuotas\/[^/]+|cargoTransfers\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/resources\/actionPoints)?|warehouses\/[^/]+|ships\/[^/]+|logisticsHistory\/[^/]+)$/.test(relative))continue;
+  if(scopes.has('DOCK_CONFIG')&&path===base.slice(0,-1)){const next=pending.get(path),strip=({revision,spaceOutlaws,...rest})=>({...rest,spaceOutlaws:Object.fromEntries(Object.entries(spaceOutlaws).filter(([k])=>k!=='dockStorageVersion'))});requireThat(next.spaceOutlaws?.dockStorageVersion===1&&next.revision===session.revision+1&&isDeepStrictEqual(strip(session),strip(next)),'SO_GAMEPLAY_NOT_OPEN');continue;}
   if(scopes.has('ECONOMIC_EVENT')&&session.spaceOutlaws.itemCircuitsVersion===1&&/^(priceEvents\/[^/]+|priceHistory\/[^/]+)$/.test(relative))continue;
   if(scopes.has('COMMERCIAL_STORAGE')&&session.spaceOutlaws.itemCircuitsVersion===1&&session.spaceOutlaws.logisticsVersion===1&&/^(warehouses\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|logisticsHistory\/[^/]+|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('PLANET_MARKET')&&session.spaceOutlaws.itemCircuitsVersion===1&&/^(planetMarkets\/[^/]+|planetPriceHistory\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
@@ -65,6 +68,7 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(scopes.has('CUSTOMS_SHIP_CONSENT')&&session.spaceOutlaws.hiddenCargoVersion===1&&/^customsShipConsents\/[A-Za-z0-9_-]{1,128}$/.test(relative))continue;
   if(scopes.has('CUSTOMS_CONSENT')&&session.spaceOutlaws.hiddenCargoVersion===1&&/^customsConsents\/[A-Za-z0-9_-]{1,128}$/.test(relative))continue;
   if(scopes.has('HIDDEN_CARGO')&&session.spaceOutlaws.hiddenCargoVersion===1&&/^(ships\/[^/]+|shipMaintenance\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/resources\/actionPoints)?|logisticsHistory\/[^/]+)$/.test(relative))continue;
+  if(scopes.has('SO_CARGO')&&/^warehouses\/[^/]+$/.test(relative)&&pending.get(path)?.dock?.schemaVersion===1)continue;
   if(scopes.has('SO_CARGO')&&/^(ships\/[^/]+|cargoTransfers\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+|logisticsHistory\/[^/]+)$/.test(relative))continue;
   if(scopes.has('SPACE_COMBAT')&&session.spaceOutlaws.boardingVersion===1&&/^spaceCombats\/[^/]+\/boardings\/[^/]+$/.test(relative))continue;
   if(scopes.has('SPACE_COMBAT')&&/^(ships\/[^/]+|voyages\/[^/]+|spaceAmbushes\/[^/]+|spaceCombats\/[^/]+(?:\/rounds\/[^/]+)?|characters\/[^/]+\/resources\/actionPoints|logisticsHistory\/[^/]+)$/.test(relative))continue;
@@ -72,6 +76,7 @@ export function guardSpaceOutlawsEntry(session,pending,authorized,scopes=new Set
   if(scopes.has('COCKPIT')&&(/^(cockpitStations\/[^/]+|cockpitSettings\/main)$/.test(relative)))continue;
   if(scopes.has('NAVIGATION')&&/^(shipCrews\/[^/]+\/(?:members|history)\/[^/]+|ships\/[^/]+|voyages\/[^/]+|logisticsHistory\/[^/]+|inventory\/[^/]+(?:\/history\/[^/]+)?|characters\/[^/]+(?:\/resources\/actionPoints)?)$/.test(relative))continue;
   if(scopes.has('NAVIGATION_CONFIG')&&path===base.slice(0,-1)){const next=pending.get(path),strip=({transportRules,revision,...rest})=>rest;requireThat(!session.transportRules&&next.transportRules?.homePort&&next.revision===session.revision+1&&isDeepStrictEqual(strip(session),strip(next)),'SO_GAMEPLAY_NOT_OPEN');continue;}
+  if(scopes.has('SHOP_DELIVERY')&&session.spaceOutlaws.shopsVersion===1&&/^shops\/[^/]+\/offers\/[^/]+(?:\/history\/[^/]+)?$/.test(relative))continue;
   if(scopes.has('SHOP')&&/^(inventory\/[^/]+(?:\/history\/[^/]+)?|accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+|lotSales\/[^/]+|shopProvisions\/[^/]+)$/.test(relative))continue;
   if(scopes.has('SABACC_WALLET')&&/^(accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;
   if(scopes.has('PAYMENT')&&/^(accounts\/[^/]+(?:\/history\/[^/]+)?|ledger\/[^/]+)$/.test(relative))continue;

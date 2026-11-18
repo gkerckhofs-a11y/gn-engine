@@ -282,6 +282,18 @@ targetedProfiles['pilot-recette']={
   'test/recette.test.mjs','test/support/space-search-suite.mjs',
   'test/support/space-pilot-journey-suite.mjs','test/support/firestore-suites.mjs']
 };
+// Contextual access: native shop/payment/inventory regressions plus the actual
+// browser acceptance suite, including the QR-rotation failure found by AC-01.
+const contextualTests=['contextual-access','contextual-access-ui','contextual-qr','item-circuits','item-circuits-ui','space-outlaws-shops','space-outlaws-shops-ui','sales','economy','inventory','transfers','workflow','space-outlaws-entry','player-spaces','player-terminal','organizer-dashboard','sabacc','sabacc-engine','release-ci','ci-selection','ci-targeted'].map(id=>`test/${id}.test.mjs`);
+targetedProfiles['contextual-access']={
+ tests:contextualTests,
+ suites:['contextual-access','contextual-credentials','item-circuits','space-outlaws-shops','sales','economy','inventory','transfers','workflow','space-outlaws-entry','sabacc','sabacc-gn','firestore-rules'],
+ httpPattern:'^HTTP \\+ Auth : (accès contextuels,|circuits personnels,|Sabacc|boutiques|comptoir)',
+ browser:true,
+ // Reviewed concurrent base change: static secondary-site deployment request.
+ // Never modified by this branch; production workflow remains main-only.
+ files:['.github/holopedia-request.json',...infrastructure,...contextualTests,'src/core/contextual-access.mjs','src/core/contextual-credentials.mjs','src/core/workflow.mjs','test/support/contextual-access-suite.mjs','test/support/firestore-suites.mjs','test/integration/http.test.mjs','web/contextual-access.mjs','web/contextual-qr.mjs','web/app.mjs','web/organizer-dashboard.mjs','web/player-spaces.mjs','web/player-terminal.mjs','web/sabacc/app.mjs','test/browser/recette.spec.mjs'],
+};
 export const isTargetedCommit=message=>typeof message==='string'&&message.includes('[ci targeted:');
 export function requestedTarget(message){
  if(!isTargetedCommit(message))return null;
@@ -293,5 +305,28 @@ export function targetedScope(name,paths,{reliableBase=false}={}){
  const p=Object.hasOwn(targetedProfiles,name)?targetedProfiles[name]:null;
  if(!p||!reliableBase)throw Error('Targeted CI requires a verified global ancestor');
  for(const path of paths)if(!(path==='AGENTS.md'||path==='README.md'||path.startsWith('docs/')||p.files.includes(path)))throw Error(`File outside targeted CI profile ${name}: ${path}`);
- return {profile:`targeted-${name}`,reason:`Ciblage explicite ${name} ; résultat non global`,applicationTests:[...p.tests],suites:[...p.suites],http:!!p.httpPattern,httpPattern:p.httpPattern,browser:false};
+ return {profile:`targeted-${name}`,reason:`Ciblage explicite ${name} ; résultat non global`,applicationTests:[...p.tests],suites:[...p.suites],http:!!p.httpPattern,httpPattern:p.httpPattern,browser:p.browser===true};
 }
+
+// AC-03 adds the M5 delivery contract and native sale settlement; cumulative
+// coverage also checks central normalization/import/publication and old receipts.
+targetedProfiles['contextual-delivery']={
+ tests:[...targetedProfiles['contextual-access'].tests,'test/contextual-delivery.test.mjs','test/contextual-delivery-ui.test.mjs','test/central-shops.test.mjs','test/central-shops-ui.test.mjs','test/central-shop-import.test.mjs','test/central-shop-import-ui.test.mjs','test/central-check.test.mjs','test/central-master.test.mjs','test/central-import.test.mjs','test/central-import-ui.test.mjs','test/central-snapshots.test.mjs'],
+ suites:[...targetedProfiles['contextual-access'].suites,'contextual-delivery','central-shops','central-shop-import','central-check','central-master','central-import','central-snapshots'],
+ httpPattern:targetedProfiles['contextual-access'].httpPattern.replace('boutiques|comptoir)','boutiques|comptoir|Master central,|XLSX central,)'),
+ browser:true,
+ files:[...targetedProfiles['contextual-access'].files,'src/core/central-shops.mjs','src/core/central-check.mjs','src/core/central-shop-import.mjs','src/shared/central-import-schema.mjs','src/core/space-outlaws-shop-state.mjs','src/core/shops.mjs','src/core/sales.mjs','src/core/space-outlaws-entry-guard.mjs','web/central-shops.mjs','web/shops.mjs','test/contextual-delivery.test.mjs','test/contextual-delivery-ui.test.mjs','test/support/contextual-delivery-suite.mjs'],
+};
+
+// AC-04 is cumulative with AC-01..03. Native cargo/warehouse/group/INF-01
+// consumers remain selected; HTTP/Auth and browser acceptance are both complete.
+// Unknown files, adapters, rules, packages and server remain outside this profile.
+const dockTests=['docks','docks-ui','cargo','cargo-ui','logistics','logistics-ui','commercial-storage','commercial-storage-ui','commercial-transport','commercial-transport-ui','commercial-logistics','commercial-logistics-ui','space-logistics','space-logistics-ui','space-intrusion','space-intrusion-ui','space-intrusion-completion-ui','action-points','field-actions','field-ui','ship-crew','ship-crew-cargo','group-management','group-management-ui','groups','space-groups','space-group-stock','space-group-pilot','space-episodes','space-episodes-ui','space-outlaws-voyages','space-outlaws-voyages-ui','customs','space-hidden-cargo'].map(id=>`test/${id}.test.mjs`);
+targetedProfiles['contextual-docks']={
+ tests:[...new Set([...targetedProfiles['contextual-delivery'].tests,...dockTests])],
+ suites:[...new Set([...targetedProfiles['contextual-delivery'].suites,'docks','dock-intrusion','commercial-storage','cargo','logistics','space-logistics','space-intrusion','action-points','field','ship-crew','ship-crew-cargo','group-management','groups','space-groups','space-group-stock','space-group-pilot','space-episodes','commercial-transport','commercial-logistics','space-transport','customs','space-hidden-cargo'])],
+ httpPattern:'.',browser:true,
+ files:[...targetedProfiles['contextual-delivery'].files,...dockTests,
+  'src/core/dock-state.mjs','src/core/docks.mjs','src/core/cargo.mjs','src/core/logistics.mjs','src/core/storage-state.mjs','src/core/space-intrusion.mjs','src/shared/space-outlaws-groups.mjs',
+  'web/docks.mjs','web/commercial-storage.mjs','web/logistics.mjs','test/support/docks-suite.mjs']
+};

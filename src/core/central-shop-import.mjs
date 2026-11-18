@@ -2,10 +2,10 @@ import {centralShopInput,centralOfferInput} from './central-shops.mjs';
 
 const fields={
  shop:{nom:['name'],description:['description','text',''],vendeur_personnage_id:['sellerCharacterId','text',null],lieu_id:['locationTargetId','text',null],notes_mj:['gmNotes','text','']},
- offer:{nom:['name'],boutique_id:['shopId','text',null],objet_id:['itemId','text',null],prix_vente_cr:['unitPrice','number',null],prix_rachat_cr:['buybackPrice','number',null],conditions:['conditions','text',''],notes_mj:['gmNotes','text','']},
+ offer:{mode_livraison:['deliveryMode','text'],nom:['name'],boutique_id:['shopId','text',null],objet_id:['itemId','text',null],prix_vente_cr:['unitPrice','number',null],prix_rachat_cr:['buybackPrice','number',null],conditions:['conditions','text',''],notes_mj:['gmNotes','text','']},
 };
 const validate=(type,v,id,old)=>type==='shop'?centralShopInput(v,id,old):centralOfferInput(v,id,old);
-const editable=(type,data)=>Object.fromEntries(Object.values(fields[type]).filter(([key])=>Object.hasOwn(data,key)).map(([key])=>[key,data[key]]));
+const editable=(type,data)=>({...Object.fromEntries(Object.values(fields[type]).filter(([key])=>Object.hasOwn(data,key)).map(([key])=>[key,data[key]])),...(type==='offer'&&data.negotiationLevel!=null?{negotiationLevel:data.negotiationLevel}:{})});
 export function importedShop(type,row,old){
  const data=old?editable(type,old.data):{};
  for(const [column,[key,kind='text',cleared]] of Object.entries(fields[type])){

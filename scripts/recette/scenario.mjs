@@ -1,3 +1,4 @@
+import {prepareDockMaster,openDockScenario} from './docks.mjs';
 import {prepareGalacticMaster,openGalacticMarkets} from './galactic.mjs';
 import {randomUUID,randomBytes,createHash} from 'node:crypto';
 import {admissionClasses} from '../../src/shared/admission-rules.mjs';
@@ -7,7 +8,7 @@ import {preparePilotMaster,provisionPilotShip,fundPilotFinds} from './pilot.mjs'
 
 // All changes go through native commands. No database writes, clock overrides,
 // canned confirmations, free wallet credits or authentication bypass here.
-export async function seedMissionScenario(call,uids,{pilot=false,galactic=false}={}){
+export async function seedMissionScenario(call,uids,{pilot=false,galactic=false,docks=false}={}){
   const command=(action,input={},role='owner')=>call(action,{requestId:randomUUID(),...input},role);
   const created=await command('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'RECETTE LOCALE · obligations de mission',title:'Épisode fictif',capacity:4,privacy:'Identités et fiction synthétiques, émulateurs locaux uniquement.'});
   const {id:sessionId,campaignId}=created;
@@ -44,6 +45,7 @@ export async function seedMissionScenario(call,uids,{pilot=false,galactic=false}
   await central('saveCentralShop',{shopId:'counter',shopRevision:0,draftRevision:revision++,shop:{name:'Dispensaire de recette',description:'Comptoir fictif',sellerCharacterId:'merchant',locationTargetId:'counter-place',gmNotes:'SECRET_RECETTE_M5'},reason:'Comptoir fictif'});
   await central('saveCentralOffer',{offerId:'supply',offerRevision:0,draftRevision:revision++,offer:{name:'Trousse de soin de recette',shopId:'counter',itemId:'kit_medical-supplies',unitPrice:30,buybackPrice:null,conditions:'Retrait physique',gmNotes:'Prix de fixture, pas un barème général'},reason:'Offre fictive'});
   if(galactic)revision=await prepareGalacticMaster(central,revision);
+  if(docks)revision=await prepareDockMaster(central,revision);
   if(pilot)revision=await preparePilotMaster(central,revision);
   const mission={title:'Mission de recette',description:'Rencontrer le comptoir puis remettre le rapport.',gmNotes:'SECRET_RECETTE_M7',steps:[{id:'meet',title:'Rencontrer le contact',description:'SECRET_RECETTE_ETAPE : code ORION'},{id:'report',title:'Remettre le rapport',description:'Présenter le résultat au MJ'}],giverCharacterId:'merchant',requiredKnowledgeIds:[],rewardItems:[{itemId:'kit_medical-supplies',quantity:3}],conditions:'Présence et rapport',proofExpected:'Rapport examiné par le MJ'};
   await central('saveCentralMission',{missionId:'courier',missionRevision:0,draftRevision:revision++,mission,reason:'Mission fictive'});
@@ -71,8 +73,9 @@ export async function seedMissionScenario(call,uids,{pilot=false,galactic=false}
   const contract=await confirm('prepareMissionContract','proposeMissionContract',{applicationId:application.id,amount:100,durationMinutes:60,funding:'ACCOUNT',sourceAccountId:source.id,advance:0,guarantee:0,conditions:mission.conditions,proofExpected:mission.proofExpected,confidentiality:'Réservé au titulaire',failureTerms:'Examen contradictoire MJ',rewardSources:[{itemId:'kit_medical-supplies',offerId:'supply'}],reason:'Budget sur caisse réelle du comptoir'});
   await confirm('prepareContractAcceptance','acceptContract',{contractId:contract.id},'player');
   if(galactic)await openGalacticMarkets(read,cmd,confirm);
-  await cmd('setStage',{stage:'PAUSE',revision:(await read('session')).revision});
+  const dockScope=docks?await openDockScenario(read,cmd,confirm):null;
+  if(!docks)await cmd('setStage',{stage:'PAUSE',revision:(await read('session')).revision});
   if(pilot)await fundPilotFinds(read,cmd);
   const other=await command('createSpaceOutlawsPreparation',{creationId:randomUUID(),campaignTitle:'RECETTE LOCALE · autre session',title:'Isolation sans participant',capacity:2,privacy:'Aucune identité réelle.'});
-  return {sessionId,campaignId,contractId:contract.id,otherSessionId:other.id,stage:'PAUSE',source:'NATIVE_COMMANDS',humanAcceptance:'NOT_EXECUTED',...(pilot?{pilot:true,pilotScope:{fieldTargetId:'pilot-cache',shipId:'pilot-cargo',fromPort:'home',toPort:'away',routeId:'out',fundedFindIds:['item','cash']}}:{})};
+  return {sessionId,campaignId,contractId:contract.id,otherSessionId:other.id,stage:docks?'EN_JEU':'PAUSE',...(dockScope?{dockScope}:{}),source:'NATIVE_COMMANDS',humanAcceptance:'NOT_EXECUTED',...(pilot?{pilot:true,pilotScope:{fieldTargetId:'pilot-cache',shipId:'pilot-cargo',fromPort:'home',toPort:'away',routeId:'out',fundedFindIds:['item','cash']}}:{})};
 }

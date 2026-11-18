@@ -1,3 +1,4 @@
+import {dockInput,dockLeaseActive,dockEntry} from './dock-state.mjs';
 import {hasItemCircuits} from './item-circuits.mjs';
 import {planetLotOriginPort,planetCommerceSession} from './planet-market-state.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
@@ -19,9 +20,9 @@ const warehouseActions=new Set([...stockActions,'prepareWarehouseRent','rentWare
 const stockLot=lot=>lot.transferable!==false&&!lot.boardingCustody;
 const positive=(v,code)=>{whole(v,code);requireThat(v>0,code);return v;};
 const movement=l=>({...lotState(l),location:l.location,ownerType:l.ownerType??'CHARACTER',ownerId:l.ownerId,holderId:l.holderId});
-const publicWarehouse=(w,access,time)=>({...(w.commercialStorage?{commercialStorage:true,portId:w.portId}:{}),id:w.id,name:w.name,description:w.description,capacity:w.capacity,rent:w.rent,periodMinutes:w.periodMinutes,enabled:w.enabled,revision:w.revision,
-  rented:!!w.tenantId,mine:access.access,remainingMs:access.access?Math.max(0,w.expiresAtGameMs-time):null,
-  ...(w.groupStock?{groupStock:true,remainingMs:null}:{}),expired:!w.groupStock&&access.access&&time>=w.expiresAtGameMs,receivesRent:!!w.rentAccountId,...(access.access?{tenantType:w.tenantType??'CHARACTER',group:access.group?{id:access.group.id,name:access.group.name}:null}:{})});
+const publicWarehouse=(w,access,time)=>({...(w.commercialStorage?{commercialStorage:true,portId:w.portId}:{}),id:w.id,name:w.name,description:w.description,capacity:w.capacity,rent:w.rent,periodMinutes:w.periodMinutes,...(w.dock?{dock:{mode:w.dock.mode,securityTier:w.dock.securityTier},owned:w.dock.mode==='OWN'&&!!w.tenantId}:{}),enabled:w.enabled,revision:w.revision,
+  rented:!!w.tenantId,mine:access.access,remainingMs:access.access&&w.dock?.mode!=='OWN'?Math.max(0,w.expiresAtGameMs-time):null,
+  ...(w.groupStock?{groupStock:true,remainingMs:null}:{}),expired:!w.groupStock&&w.dock?.mode!=='OWN'&&access.access&&time>=w.expiresAtGameMs,receivesRent:!!w.rentAccountId,...(access.access?{tenantType:w.tenantType??'CHARACTER',group:access.group?{id:access.group.id,name:access.group.name}:null}:{})});
 
 export function createLogisticsService({store,signed,checkSession,now,uuid,commercialStorage=false}){
   return async(action,actor,input)=>{
@@ -40,8 +41,10 @@ export function createLogisticsService({store,signed,checkSession,now,uuid,comme
           requireThat(admin?['BRIEFING','EN_JEU','PAUSE'].includes(s.stage):s.stage==='EN_JEU','SESSION_NOT_RUNNING');
         }
       }
-      const groups=admin?[]:storageGroups(s,await tx.list(`${base}/groups`),c.id,{factionStock});
+      const groups=admin?[]:storageGroups(s,await tx.list(`${base}/groups`),c.id,{factionStock:factionStock||commercialStorage});
+      if(!admin)ctx.localVersion=ctx.version;
       if(!admin)ctx.version=hash(JSON.stringify([ctx.version,s.modules?.groups===true,groups]));
+      if(commercialStorage&&['prepareWarehouseMove','moveWarehouseStock'].includes(action)){const local=await tx.get(`${base}/warehouses/${documentId(input.warehouseId)}`);if(local?.dock)await dockEntry(tx,{...ctx,version:ctx.localVersion},local,at);}
       let op,fingerprint;
       if(writes.includes(action)){
         op=`operations/${hash(`${actor.uid}:${documentId(input.requestId)}`)}`;fingerprint=hash(JSON.stringify([...(commercialStorage?['COMMERCIAL_STORAGE']:[]),action,input]));const old=await tx.get(op);
@@ -57,7 +60,7 @@ export function createLogisticsService({store,signed,checkSession,now,uuid,comme
         const visibleWarehouses=commercialStorage?warehouses.filter(w=>w.commercialStorage):factionStock?warehouses.filter(w=>w.groupStock):warehouses;
         const groupOptions=factionStock?allGroups.filter(g=>g.roster&&!g.roster.archived).map(g=>({id:g.id,name:g.name})):null;
         const ports=commercialStorage?(await tx.list(`${base}/ports`)).filter(p=>p.versionId===s.versionId&&(awaitedMarkets.some(m=>m.portId===p.id)||warehouses.some(w=>w.commercialStorage&&w.portId===p.id))):[];
-        return {session:{id:sid,stage:s.stage,revision:s.revision},...(commercialStorage?{commercialStorage:true,canConfigure:!s.campaignSealed&&!s.safetyStop?.active&&['BRIEFING','EN_JEU','PAUSE'].includes(s.stage),ports:ports.map(p=>({id:p.id,name:p.name}))}:{}),...(factionStock?{factionStock:true,groupOptions,canConfigure:!s.campaignSealed&&!s.safetyStop?.active&&['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)}:{}),currency:s.economyRules?currencyView(s.economyRules):null,
+        return {session:{id:sid,stage:s.stage,revision:s.revision},...(commercialStorage?{commercialStorage:true,canConfigure:!s.campaignSealed&&!s.safetyStop?.active&&['BRIEFING','EN_JEU','PAUSE'].includes(s.stage),dockCharacters:characters.filter(c=>c.publicationState==='PUBLISHED').map(c=>({id:c.id,name:c.public.displayName})),priceWarnings:visibleWarehouses.filter(w=>w.dock).flatMap(w=>visibleWarehouses.filter(other=>other.dock&&other.id!==w.id&&other.portId===w.portId&&other.capacity===w.capacity&&other.dock.mode===w.dock.mode&&other.periodMinutes===w.periodMinutes&&other.dock.securityTier<w.dock.securityTier&&other.rent>=w.rent).map(other=>`${w.name} (N${w.dock.securityTier}) doit être plus chère que ${other.name} (N${other.dock.securityTier}) à conditions comparables.`)),intrusionTargets:(await tx.list(`${base}/fieldTargets`)).filter(t=>t.kind==='INTRUSION'&&t.publicationState==='PUBLISHED').map(t=>({id:t.id,name:t.title,minLevel:t.intrusion.minLevel})),ports:ports.map(p=>({id:p.id,name:p.name}))}:{}),...(factionStock?{factionStock:true,groupOptions,canConfigure:!s.campaignSealed&&!s.safetyStop?.active&&['BRIEFING','EN_JEU','PAUSE'].includes(s.stage)}:{}),currency:s.economyRules?currencyView(s.economyRules):null,
           warehouses:visibleWarehouses.map(w=>({...w,used:stockVolume(inventory.filter(l=>storedIn(l,w.id)&&l.quantity>0&&!['CONSUMED','DESTROYED'].includes(l.status))),tenantName:(w.tenantType==='GROUP'?allGroups.find(g=>g.id===w.tenantId)?.name:characters.find(c=>c.id===w.tenantId)?.public.displayName)??null,remainingMs:w.tenantId&&!w.groupStock?Math.max(0,w.expiresAtGameMs-time):null})),
           accounts:accounts.filter(a=>a.ownerType==='GROUP'&&a.status==='ACTIVE').map(a=>({id:a.id,name:a.label})),events:factionStock?events.filter(e=>visibleWarehouses.some(w=>w.id===e.warehouseId)):events};
       }
@@ -73,14 +76,17 @@ export function createLogisticsService({store,signed,checkSession,now,uuid,comme
           requireThat(group?.roster&&!group.roster.archived,'INVALID_GROUP_ROSTER');
           requireThat(!old||old.groupStock===true&&old.tenantId===groupId,'INVALID_WAREHOUSE');
         }
-        const config=warehouseInput(input,id,old??{},{assigned:factionStock});
+        const dock=commercialStorage?dockInput(input.dock,old?.dock):null;requireThat(!dock||old?.dock||!old?.tenantId,'DOCK_TITLE_LOCKED');
+        if(dock?.alarm)for(const cid of dock.alarm.recipientIds){const recipient=await tx.get(`${base}/characters/${cid}`);requireThat(recipient?.publicationState==='PUBLISHED','INVALID_DOCK_ALARM');}
+        if(dock?.intrusionTargetId){const target=await tx.get(`${base}/fieldTargets/${dock.intrusionTargetId}`);requireThat(target?.publicationState==='PUBLISHED'&&target.kind==='INTRUSION'&&target.intrusion?.minLevel===dock.securityTier,'INVALID_DOCK');const siblings=await tx.list(`${base}/warehouses`);requireThat(!siblings.some(w=>w.id!==id&&w.dock?.intrusionTargetId===dock.intrusionTargetId),'INVALID_DOCK');}
+        const config=warehouseInput(dock?.mode==='OWN'?{...input,periodMinutes:1}:input,id,old??{},{assigned:factionStock});if(dock?.mode==='OWN')config.periodMinutes=null;
         const rentAccountId=input.rentAccountId?documentId(input.rentAccountId):null;
         if(rentAccountId){const a=await tx.get(`${base}/accounts/${rentAccountId}`);requireThat(a?.sessionId===sid&&a.ownerType==='GROUP','INVALID_ACCOUNT');moneyState(a);}
         requireThat(stockVolume(await warehouseStock(tx,sid,id))+await incomingVolume(tx,sid,id)<=config.capacity,'WAREHOUSE_FULL');
         const next=factionStock?{...config,groupStock:true,tenantType:'GROUP',tenantId:groupId,expiresAtGameMs:null}:
-          {...config,...(commercialStorage?{commercialStorage:true,portId}:{}),rentAccountId,tenantType:old?.tenantType??'CHARACTER',tenantId:old?.tenantId??null,expiresAtGameMs:old?.expiresAtGameMs??null};
+          {...config,...(commercialStorage?{commercialStorage:true,portId,...(dock?{dock}:{})}:{}),rentAccountId,tenantType:old?.tenantType??'CHARACTER',tenantId:old?.tenantId??null,expiresAtGameMs:old?.expiresAtGameMs??null};
         if(factionStock)authorizeSpaceOutlaws(tx,s,'GROUP_STOCK_CONFIG');
-        const reason=moneyText(input.reason);tx.set(`${base}/warehouses/${id}`,next);tx.set(base,{...s,revision:s.revision+1});
+        const reason=moneyText(input.reason);tx.set(`${base}/warehouses/${id}`,next);if(dock&&s.spaceOutlaws)authorizeSpaceOutlaws(tx,s,'DOCK_CONFIG');tx.set(base,{...s,...(dock&&s.spaceOutlaws?{spaceOutlaws:{...s.spaceOutlaws,dockStorageVersion:1}}:{}),revision:s.revision+1});
         tx.set(`${base}/logisticsHistory/${eventId}`,{id:eventId,at,kind:'CONFIGURE',warehouseId:id,name:next.name,actorUid:actor.uid,reason,before:old,after:next});
         return audit({id,revision:next.revision},{warehouseId:id,reason});
       }
@@ -106,23 +112,25 @@ export function createLogisticsService({store,signed,checkSession,now,uuid,comme
       }
 
       const wid=documentId(input.warehouseId),w=await tx.get(`${base}/warehouses/${wid}`);
-      requireThat(w,factionStock?'FORBIDDEN':'WAREHOUSE_UNAVAILABLE');if(commercialStorage)requireThat(w.commercialStorage===true&&w.tenantType==='CHARACTER','FORBIDDEN');
+      requireThat(w,factionStock?'FORBIDDEN':'WAREHOUSE_UNAVAILABLE');if(commercialStorage)requireThat(w.commercialStorage===true&&(w.tenantType==='CHARACTER'||!!w.dock),'FORBIDDEN');
       const access=warehouseAccess(w,c.id,groups),viewWarehouse={...publicWarehouse(w,access,time),...(commercialStorage?{portName:commercialPorts.find(p=>p.id===w.portId)?.name??w.name}:{})};
       if(factionStock)requireThat(w.groupStock===true&&access.access,'FORBIDDEN');
       if(action==='warehouseDetail'){
+        let entryOpen=true;if(w.dock){try{await dockEntry(tx,{...ctx,version:ctx.localVersion},w,at);}catch(e){if(!['LOCAL_CREDENTIAL_REQUIRED','LOCAL_SCAN_REQUIRED','LOCAL_TERMINAL_CLOSED','DOCK_NOT_LOCAL','LOCAL_SKILL_REQUIRED'].includes(e.code))throw e;entryOpen=false;}}
         requireThat(w.enabled||access.access,'WAREHOUSE_UNAVAILABLE');
-        const stock=(factionStock?access.read:access.access)?await warehouseStock(tx,sid,wid):[];
+        const stock=entryOpen&&(factionStock||w.dock?access.read:access.access)?await warehouseStock(tx,sid,wid):[];
         const bag=access.deposit?(await tx.list(`${base}/inventory`,['ownerId',c.id])).map(l=>effectiveLot(l,at)).filter(l=>(commercialStorage?l.ownerType==='CHARACTER'&&l.ownerId===c.id&&l.location.kind==='COMMERCIAL'&&l.location.id===c.id&&l.location.portId===w.portId&&l.item.usage==='COMMERCIAL'&&!l.transportContractId&&!l.cargoTransferId&&!l.boardingCustody&&!l.hiddenCargo?.concealed&&!l.customsDetention:personalLot(l,c.id))&&l.status==='AVAILABLE'&&l.quantity>0&&(!factionStock||stockLot(l))).map(publicLot):[];
-        const rentChoices=factionStock?[]:w.tenantId?(access.manage?[{type:w.tenantType??'CHARACTER',id:w.tenantId,name:access.group?.name??c.public.displayName}]:[]):[{type:'CHARACTER',id:c.id,name:c.public.displayName},...groups.filter(g=>g.permissions.manageStorage).map(g=>({type:'GROUP',id:g.id,name:g.name}))];
-        return {session:{id:sid,stage:s.stage},...(commercialStorage?{commercialStorage:true}:{}),currency:s.economyRules?currencyView(s.economyRules):null,warehouse:viewWarehouse,used:(factionStock?access.read:access.access)?stockVolume(stock):null,incoming:(factionStock?access.read:access.access)?await incomingVolume(tx,sid,wid):null,stock:access.read?stock.map(publicLot):[],bag,canReadStock:access.read,rentChoices,
-          canMove:access.withdraw&&canMove,canDeposit:access.deposit&&canMove&&w.enabled&&(factionStock||time<w.expiresAtGameMs),canRelease:access.manage&&canMove&&stock.length===0&&(await incomingTransfers(tx,sid,wid)).length===0,canRent:!factionStock&&canMove&&canGameAction(s,c,'pay')&&s.economyRules?.enabled===true&&w.enabled&&rentChoices.length>0};
+        const rentChoices=factionStock?[]:w.tenantId?(access.manage?[{type:w.tenantType??'CHARACTER',id:w.tenantId,name:access.group?.name??c.public.displayName}]:[]):[{type:'CHARACTER',id:c.id,name:c.public.displayName},...groups.filter(g=>(!commercialStorage||w.dock)&&g.permissions.manageStorage).map(g=>({type:'GROUP',id:g.id,name:g.name}))];
+        return {session:{id:sid,stage:s.stage},...(commercialStorage?{commercialStorage:true}:{}),currency:s.economyRules?currencyView(s.economyRules):null,warehouse:viewWarehouse,used:entryOpen&&(factionStock||w.dock?access.read:access.access)?stockVolume(stock):null,incoming:entryOpen&&(factionStock||w.dock?access.read:access.access)?await incomingVolume(tx,sid,wid):null,stock:access.read?stock.filter(l=>!w.dock||l.ownerType==='CHARACTER'&&l.ownerId===c.id).map(publicLot):[],bag,canReadStock:access.read&&entryOpen,...(w.dock?{entryOpen}:{}),rentChoices,
+          canMove:entryOpen&&access.withdraw&&canMove,canDeposit:entryOpen&&access.deposit&&canMove&&w.enabled&&(factionStock||dockLeaseActive(w,time)),canRelease:entryOpen&&w.dock?.mode!=='OWN'&&access.manage&&canMove&&stock.length===0&&(await incomingTransfers(tx,sid,wid)).length===0,canRent:!(w.dock?.mode==='OWN'&&w.tenantId)&&!factionStock&&canMove&&canGameAction(s,c,'pay')&&s.economyRules?.enabled===true&&w.enabled&&rentChoices.length>0};
       }
       requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireGameAction(s,c,'transfer');
       if(['prepareWarehouseRent','rentWarehouse'].includes(action)){
         requireThat(s.economyRules?.enabled,'ECONOMY_DISABLED');requireGameAction(s,c,'pay');
-        const tenantType=input.tenantType??'CHARACTER';if(commercialStorage)requireThat(tenantType==='CHARACTER','FORBIDDEN');requireThat(['CHARACTER','GROUP'].includes(tenantType),'INVALID_WAREHOUSE');
+        const tenantType=input.tenantType??'CHARACTER';if(commercialStorage&&!w.dock)requireThat(tenantType==='CHARACTER','FORBIDDEN');requireThat(['CHARACTER','GROUP'].includes(tenantType),'INVALID_WAREHOUSE');
         const tenantId=tenantType==='GROUP'?documentId(input.groupId):c.id,group=tenantType==='GROUP'?groups.find(g=>g.id===tenantId):null;
         if(tenantType==='GROUP')requireThat(group?.permissions.manageStorage,'FORBIDDEN');
+        requireThat(w.dock?.mode!=='OWN'||!w.tenantId,'DOCK_ALREADY_OWNED');
         requireThat(w.enabled&&(!w.tenantId||(w.tenantId===tenantId&&(w.tenantType??'CHARACTER')===tenantType)),'WAREHOUSE_UNAVAILABLE');
         const from=await accessAccount(tx,{...ctx,guard:ctx.version},input.fromAccountId,{allowSoGroup:commercialStorage});requireThat(from.spend,'FORBIDDEN');
         const recipient=w.rentAccountId?await tx.get(`${base}/accounts/${w.rentAccountId}`):null;
@@ -133,37 +141,38 @@ export function createLogisticsService({store,signed,checkSession,now,uuid,comme
         // Time is deliberately excluded: consent binds the tariff and paid duration, not a moving countdown.
         const confirmation=hash(JSON.stringify([sid,ctx.version,w,tenant,from.guard,from.a.revision,recipient?.revision??null,s.healthRules,s.economyRules]));
         if(action==='prepareWarehouseRent')return {...view,confirmation};requireThat(input.confirmation===confirmation,'STALE_REVISION');
-        const expiresAtGameMs=whole(Math.max(time,w.expiresAtGameMs??time)+w.periodMinutes*60000,'STORAGE_OVERFLOW');
+        const expiresAtGameMs=w.dock?.mode==='OWN'?null:whole(Math.max(time,w.expiresAtGameMs??time)+w.periodMinutes*60000,'STORAGE_OVERFLOW');
         const next={...w,tenantType,tenantId,expiresAtGameMs,revision:w.revision+1};
         if(w.rent>0){
           const paid={...from.a,balance:from.a.balance-w.rent,revision:from.a.revision+1},entries=[accountEntry(from.a,-w.rent,paid)];
           tx.set(`${base}/accounts/${paid.id}`,paid);
           if(recipient){const credited={...recipient,balance:recipient.balance+w.rent,revision:recipient.revision+1};entries.push(accountEntry(recipient,w.rent,credited));tx.set(`${base}/accounts/${credited.id}`,credited);}
-          writeLedger(tx,sid,{id:eventId,at,kind:'WAREHOUSE_RENT',actorUid:actor.uid,memo:`Location · ${w.name}`,createdCurrency:0,removedCurrency:recipient?0:w.rent,source:accountParty(from),recipient:recipient?{id:recipient.id,kind:'GROUP',name:'Exploitant de l’entrepôt'}:null,warehouseId:wid,entries});
+          writeLedger(tx,sid,{id:eventId,at,kind:w.dock?.mode==='OWN'?'DOCK_PURCHASE':'WAREHOUSE_RENT',actorUid:actor.uid,memo:`Location · ${w.name}`,createdCurrency:0,removedCurrency:recipient?0:w.rent,source:accountParty(from),recipient:recipient?{id:recipient.id,kind:'GROUP',name:'Exploitant de l’entrepôt'}:null,warehouseId:wid,entries});
         }
-        tx.set(`${base}/warehouses/${wid}`,next);tx.set(`${base}/logisticsHistory/${eventId}`,{id:eventId,at,kind:'RENT',warehouseId:wid,name:w.name,tenant,characterId:c.id,characterName:c.public.displayName,amount:w.rent,periodMinutes:w.periodMinutes,expiresAtGameMs,actorUid:actor.uid});
+        tx.set(`${base}/warehouses/${wid}`,next);tx.set(`${base}/logisticsHistory/${eventId}`,{id:eventId,at,kind:w.dock?.mode==='OWN'?'PURCHASE':'RENT',warehouseId:wid,name:w.name,tenant,characterId:c.id,characterName:c.public.displayName,amount:w.rent,periodMinutes:w.periodMinutes,expiresAtGameMs,actorUid:actor.uid});
         return audit({id:wid,expiresAtGameMs},{warehouseId:wid,characterId:c.id,amount:w.rent});
       }
       requireThat(access.access,'FORBIDDEN');
       const stock=await warehouseStock(tx,sid,wid);
       if(['prepareWarehouseRelease','releaseWarehouse'].includes(action)){
-        requireThat(access.manage,'FORBIDDEN');
+        requireThat(access.manage,'FORBIDDEN');requireThat(w.dock?.mode!=='OWN','DOCK_TITLE_LOCKED');
         requireThat(stock.length===0&&(await incomingTransfers(tx,sid,wid)).length===0,'WAREHOUSE_NOT_EMPTY');const confirmation=hash(JSON.stringify([sid,ctx.version,w]));
         if(action==='prepareWarehouseRelease')return {name:w.name,confirmation};requireThat(input.confirmation===confirmation,'STALE_REVISION');
         tx.set(`${base}/warehouses/${wid}`,{...w,tenantType:'CHARACTER',tenantId:null,expiresAtGameMs:null,revision:w.revision+1});
         tx.set(`${base}/logisticsHistory/${eventId}`,{id:eventId,at,kind:'RELEASE',warehouseId:wid,name:w.name,characterId:c.id,characterName:c.public.displayName,actorUid:actor.uid});
         return audit({id:wid},{warehouseId:wid,characterId:c.id});
       }
+      if(w.dock)await dockEntry(tx,{...ctx,version:ctx.localVersion},w,at);
       requireThat(['DEPOSIT','WITHDRAW'].includes(input.direction),'INVALID_WAREHOUSE');
       const deposit=input.direction==='DEPOSIT',lot=await readLot(tx,sid,documentId(input.lotId),at);
       requireThat(deposit?access.deposit:access.withdraw,'FORBIDDEN');
-      const collective=w.tenantType==='GROUP';
-      if(commercialStorage){requireThat(lot?.ownerType==='CHARACTER'&&lot.ownerId===c.id&&lot.item.usage==='COMMERCIAL'&&!lot.transportContractId&&!lot.cargoTransferId&&!lot.boardingCustody&&!lot.hiddenCargo?.concealed&&!lot.customsDetention&&!lot.fieldActionId,'FORBIDDEN');if(deposit)requireThat(lot.location.kind==='COMMERCIAL'&&lot.location.id===c.id&&lot.location.portId===w.portId&&await planetLotOriginPort(tx,s,lot)===w.portId,'PLANET_IMPORT_REQUIRED');}
+      const collective=w.tenantType==='GROUP'&&!w.dock;
+      if(commercialStorage){requireThat(lot?.ownerType==='CHARACTER'&&lot.ownerId===c.id&&lot.item.usage==='COMMERCIAL'&&!lot.dockCustody&&!lot.transportContractId&&!lot.cargoTransferId&&!lot.boardingCustody&&!lot.hiddenCargo?.concealed&&!lot.customsDetention&&!lot.fieldActionId,'FORBIDDEN');if(deposit)requireThat(lot.location.kind==='COMMERCIAL'&&lot.location.id===c.id&&lot.location.portId===w.portId&&await planetLotOriginPort(tx,s,lot)===w.portId,'PLANET_IMPORT_REQUIRED');}
       requireThat(lot&&(deposit?(commercialStorage?lot.location.kind==='COMMERCIAL'&&lot.location.portId===w.portId:personalLot(lot,c.id)):storedIn(lot,wid)&&(collective?lot.ownerType==='GROUP'&&lot.ownerId===w.tenantId&&lot.holderId===null:lot.ownerType!=='GROUP'&&lot.ownerId===c.id&&lot.holderId===c.id)),'FORBIDDEN');
       if(factionStock)requireThat(stockLot(lot),'FORBIDDEN');
       requireThat(lot.status==='AVAILABLE','INSUFFICIENT_STOCK');const quantity=itemQuantity(lot.item,input.quantity);requireThat(lot.quantity>=quantity,'INSUFFICIENT_STOCK');
       const volume=stockVolume([{...lot,quantity}]),used=stockVolume(stock),afterVolume=deposit?whole(used+volume,'STORAGE_OVERFLOW'):used-volume;
-      if(deposit){requireThat(w.enabled,'WAREHOUSE_UNAVAILABLE');requireThat(factionStock||time<w.expiresAtGameMs,'WAREHOUSE_EXPIRED');requireThat(afterVolume+await incomingVolume(tx,sid,wid)<=w.capacity,'WAREHOUSE_FULL');}
+      if(deposit){requireThat(w.enabled,'WAREHOUSE_UNAVAILABLE');requireThat(factionStock||dockLeaseActive(w,time),'WAREHOUSE_EXPIRED');requireThat(afterVolume+await incomingVolume(tx,sid,wid)<=w.capacity,'WAREHOUSE_FULL');}
       const view={warehouseName:w.name,lotId:lot.id,name:lot.item.name,quantity,direction:input.direction,volume,...(factionStock&&!access.read?{}:{used,afterVolume}),capacity:w.capacity,ownershipTransfer:collective?{from:deposit?c.public.displayName:access.group.name,to:deposit?access.group.name:c.public.displayName}:null};
       const confirmation=hash(JSON.stringify([sid,ctx.version,w,lot,view,s.healthRules]));
       if(action==='prepareWarehouseMove')return {...view,confirmation};requireThat(input.confirmation===confirmation,'STALE_REVISION');
