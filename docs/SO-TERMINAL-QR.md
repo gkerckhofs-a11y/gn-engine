@@ -28,3 +28,15 @@ Tranches TQ-03 à TQ-06 en cours. Les résultats CI seront consignés dans la PR
 
 En mode QR : Mon activité / Mes ressources / Mes informations, suivis et commandes conservés, informations et messages permanents, scanner unique avec saisie manuelle et caméra native. Les nouvelles négociations et recherches de contacts ne sont plus proposées comme des actions libres à distance. Navigation principale Identité / Action / Terminal / News préservée. Les sessions historiques conservent leur classement.
 L'écran de lieu présente le temps restant, un message d'accès absent/expiré, les refus et le retour au terminal personnel. Le Courtier est vérifié avant de proposer le lien professionnel.
+
+## TQ-04 — Spatioport et atelier
+
+| Lancement natif | Ressource locale | Continuité sans nouveau scan |
+| --- | --- | --- |
+| prepareRefuel / refuelShip | Port du vaisseau | finishSoRefuel |
+| prepareVoyage / departShip (manifeste inclus) | Port du vaisseau | Cockpit, préparation engagée, vol et arrivée |
+| prepareCargoTransfer / startCargoTransfer | Port de la soute | Préparation de réception, réception et annulation |
+| prepareSpaceMaintenance / acceptSpaceMaintenance / startSpaceMaintenance | Port, uniquement à quai | Points engagés, intervention dans un voyage suspendu, annulation |
+| prepareModuleWorkStart / startModuleWork | Port de l’atelier | Montage/retrait final et annulation |
+
+Un transfert impliquant une cellule conserve le contrôle natif dockEntry de cette cellule, sans ajouter un deuxième QR incompatible avec la présence unique. Le scan ne donne jamais Pilotage, mandat de vaisseau, propriété de fret, qualification MEC ou pièces. Consultation des vaisseaux, carte connue, accords et dossiers permanente selon droits natifs. Pas de scan imposé au cockpit ou au secours déjà engagé.

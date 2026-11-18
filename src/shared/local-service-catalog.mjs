@@ -1,0 +1,22 @@
+// Public operation names only. This catalogue grants no native permission.
+export const localServiceCatalog={
+ dockEntry:{field:'warehouseId',kind:'DOCK',label:'Entrer dans une cellule',route:'dock'},
+ shop:{field:'shopId',kind:'SHOP',label:'Consulter le comptoir',route:'shop'},
+ prepareShopPurchase:{field:'shopId',kind:'SHOP',label:'Vérifier un achat',route:'shop'},
+ buyShopOffer:{field:'shopId',kind:'SHOP',label:'Confirmer un achat',route:'shop'},
+ commodityMarket:{field:'sessionId',kind:'SESSION',label:'Cours publics au comptoir',route:'public-prices'},
+ galacticMarkets:{field:'sessionId',kind:'SESSION',label:'Cours professionnels (Courtier)',route:'galactic'},
+ preparePlanetSale:{field:'sessionId',kind:'SESSION',label:'Préparer une vente professionnelle',route:'galactic'},
+ sellToPlanetMarket:{field:'sessionId',kind:'SESSION',label:'Confirmer une vente professionnelle',route:'galactic'},
+ prepareRefuel:{field:'portId',kind:'PORT',label:'Préparer un ravitaillement',route:'spaceport'},
+ refuelShip:{field:'portId',kind:'PORT',label:'Engager un ravitaillement',route:'spaceport'},
+ prepareVoyage:{field:'portId',kind:'PORT',label:'Préparer un départ',route:'spaceport'},
+ departShip:{field:'portId',kind:'PORT',label:'Engager un départ',route:'spaceport'},
+ prepareCargoTransfer:{field:'portId',kind:'PORT',label:'Préparer une manutention à quai',route:'cargo'},
+ startCargoTransfer:{field:'portId',kind:'PORT',label:'Engager une manutention à quai',route:'cargo'},
+ prepareSpaceMaintenance:{field:'portId',kind:'PORT',label:'Vérifier une intervention à quai',route:'space-maintenance'},
+ acceptSpaceMaintenance:{field:'portId',kind:'PORT',label:'Engager une intervention à quai',route:'space-maintenance'},
+ startSpaceMaintenance:{field:'portId',kind:'PORT',label:'Commencer une réparation à quai',route:'space-maintenance'},
+ prepareModuleWorkStart:{field:'portId',kind:'PORT',label:'Préparer un travail de module',route:'module-mandates'},
+ startModuleWork:{field:'portId',kind:'PORT',label:'Commencer un travail de module',route:'module-mandates'},
+};

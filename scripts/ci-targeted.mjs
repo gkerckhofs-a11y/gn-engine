@@ -334,7 +334,7 @@ targetedProfiles['contextual-docks']={
 // TQ-01..06 build on the fully validated main a59ec255. Keep cumulative coverage.
 targetedProfiles['terminal-qr']={
  ...targetedProfiles['contextual-docks'],
- tests:[...new Set([...targetedProfiles['contextual-docks'].tests,'test/terminal-qr.test.mjs','test/prices.test.mjs','test/planet-markets.test.mjs','test/galactic-economy.test.mjs'])],
- suites:[...new Set([...targetedProfiles['contextual-docks'].suites,'terminal-qr','prices','planet-markets','galactic-economy'])],
- files:[...targetedProfiles['contextual-docks'].files,'src/core/space-outlaws-entry-guard.mjs','src/sabacc/service.mjs','test/support/sabacc-suite.mjs','src/core/contextual-policy.mjs','src/core/prices.mjs','src/core/planet-markets.mjs','test/terminal-qr.test.mjs','test/support/terminal-qr-suite.mjs','test/prices.test.mjs','test/planet-markets.test.mjs','test/galactic-economy.test.mjs','docs/SO-TERMINAL-QR.md'],
+ tests:[...new Set([...targetedProfiles['contextual-docks'].tests,'test/terminal-qr.test.mjs','test/prices.test.mjs','test/planet-markets.test.mjs','test/galactic-economy.test.mjs','test/space-outlaws-voyages.test.mjs','test/space-module-work.test.mjs','test/space-module-installation.test.mjs'])],
+ suites:[...new Set([...targetedProfiles['contextual-docks'].suites,'terminal-qr','terminal-qr-port','prices','planet-markets','galactic-economy','space-outlaws-voyages','space-module-work','space-module-installation'])],
+ files:[...targetedProfiles['contextual-docks'].files,'src/core/space-outlaws-entry-guard.mjs','src/shared/local-service-catalog.mjs','src/core/space-outlaws-voyages.mjs','src/core/space-maintenance.mjs','src/core/space-module-work.mjs','src/sabacc/service.mjs','test/support/sabacc-suite.mjs','src/core/contextual-policy.mjs','src/core/prices.mjs','src/core/planet-markets.mjs','test/terminal-qr.test.mjs','test/support/terminal-qr-suite.mjs','test/prices.test.mjs','test/planet-markets.test.mjs','test/galactic-economy.test.mjs','docs/SO-TERMINAL-QR.md'],
 };

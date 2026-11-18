@@ -1,3 +1,4 @@
+import {localAuthorization} from './contextual-policy.mjs';
 import {shipCrewAccess,requireCrewPilot,shipPilot,shipCrewBase} from './ship-crew-state.mjs';
 import {recordShipDeparture,myTraceAlerts} from './space-fictional-traces.mjs';
 import {malaiseAt} from './space-toxicology-state.mjs';
@@ -287,7 +288,7 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
     requireThat(ship.docked&&!ship.journey&&!ship.operation&&characterPort(s,c)===ship.portId&&!c.activeNavigationId&&!c.activeVoyageId,'SHIP_NOT_LOCAL');
     const lot=await tx.get(`${base}/inventory/${documentId(input.lotId)}`);requireThat(lot&&fuelAllowed(lot),'INVALID_FUEL');const quantity=itemQuantity(lot.item,input.quantity);requireThat(quantity<=lot.quantity,'INSUFFICIENT_STOCK');requireThat(ship.fuel+quantity<=ship.navigation.tankCapacity,'TANK_FULL');
     const consent=hash(JSON.stringify([confirmation,lot,quantity])),result={shipName:ship.name,quantity,fuelName:lot.item.name,before:ship.fuel,after:ship.fuel+quantity,capacity:ship.navigation.tankCapacity,durationSeconds:120,confirmation:consent};
-    if(action==='prepareRefuel')return result;requireThat(input.confirmation===consent,'STALE_REVISION');requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');
+    await localAuthorization(tx,ctx,action,ship.portId,at);if(action==='prepareRefuel')return result;requireThat(input.confirmation===consent,'STALE_REVISION');requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');
     const operation={id,kind:'REFUEL',...(grant?{groupPilotGrant:grant}:{}),pilotId:c.id,pilotVersion:version,lotId:lot.id,quantity,readyAtGameMs:time+120000},next={...ship,operation,revision:ship.revision+1};
     tx.set(`${base}/ships/${ship.id}`,next);tx.set(`${base}/inventory/${lot.id}`,{...lot,status:'FIELD_RESERVED',fieldActionId:id,revision:lot.revision+1});tx.set(`${base}/characters/${c.id}`,{...c,activeNavigationId:id});return audit({id:ship.id,status:'REFUELING'},ship,next);
    }
@@ -307,7 +308,7 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
     requireThat(ship.fuel>=routeFuelRequired(ship,route),'INSUFFICIENT_FUEL');await transportDeparture(tx,s,ship,route,null,at);const stock=await warehouseStock(tx,s.id,ship.id,'HOLD');requireThat(stockVolume(stock)<=ship.capacity&&stock.every(l=>l.status==='AVAILABLE'||l.status==='SEIZED'),'CARGO_TRANSFERS_OPEN');requireThat(!(await tx.list(`${base}/cargoTransfers`)).some(t=>t.status==='LOADING'&&[t.source,t.destination].some(l=>l.kind==='HOLD'&&l.id===ship.id)),'CARGO_TRANSFERS_OPEN');
     const points=actionPointState(s,c,await tx.get(actionPointPath(s.id,c.id)),at);requireThat(points.available>=1,'NOT_ENOUGH_ACTION_POINTS');
     const consent=hash(JSON.stringify([confirmation,manifest,route,stock,points,...(cockpitSettings?.enabled?[true]:[])])),durationSeconds=[0,180,150,120,90,60][level];
-    if(action==='prepareVoyage')return {cockpitAvailable:!ship.convoy,shipName:ship.name,route,manifest:manifest.map(m=>({id:m.id,name:m.name})),remainingFuel:ship.fuel-route.fuelCost,durationSeconds,cost:1,confirmation:consent};
+    await localAuthorization(tx,ctx,action,ship.portId,at);if(action==='prepareVoyage')return {cockpitAvailable:!ship.convoy,shipName:ship.name,route,manifest:manifest.map(m=>({id:m.id,name:m.name})),remainingFuel:ship.fuel-route.fuelCost,durationSeconds,cost:1,confirmation:consent};
     requireThat(input.confirmation===consent,'STALE_REVISION');requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');
     const operation={id,kind:'PREPARE',...(cockpitRequired?{cockpit:true}:{}),...(grant?{groupPilotGrant:grant}:{}),...(ship.convoy?{convoyId:ship.convoy.id}:{}),pilotId:c.id,pilotVersion:version,level,route,manifest:manifest.map(({character,...m})=>m),readyAtGameMs:time+durationSeconds*1000},next={...ship,cockpit:null,operation,revision:ship.revision+1};
     for(const m of manifest)tx.set(`${base}/characters/${m.id}`,{...m.character,activeNavigationId:id});tx.set(actionPointPath(s.id,c.id),reserveActionPoints(points,1));tx.set(`${base}/ships/${ship.id}`,next);return audit({id:ship.id,status:'PREPARING'},ship,next);

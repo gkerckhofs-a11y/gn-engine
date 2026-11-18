@@ -1,3 +1,4 @@
+import {localAuthorization} from './contextual-policy.mjs';
 import {malaiseAt} from './space-toxicology-state.mjs';
 import {flightShip} from './space-module-flight.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
@@ -83,7 +84,7 @@ export function createSpaceMaintenanceService({store,signed,checkSession,now,uui
     requireThat(c.id===r.payerId&&r.status==='OFFERED'&&!ship.maintenanceId,'FORBIDDEN');requireThat(c.hp>0&&!c.outOfCombat,'OUT_OF_COMBAT');if(personal)requireThat(fit(c,time)&&accessible(s,ship,c),'SHIP_NOT_LOCAL');requireThat(!(await tx.list(`${base}/cargoTransfers`)).some(t=>t.status==='LOADING'&&[t.source,t.destination].some(l=>l.kind==='HOLD'&&l.id===ship.id)),'CARGO_TRANSFERS_OPEN');if(tech)requireThat(tech.active&&tech.version===r.technicianVersion&&fit(tech.c,time)&&accessible(s,ship,tech.c)&&navigationSkill(tech.c,'MEC-02')>=2,'MAINTENANCE_TECH_REQUIRED');
     requireThat(lots.every(l=>(personal?l&&personalLot(l,c.id)&&!l.transportContractId:l?.ownerType==='SHOP'&&l.ownerId===r.shopId&&l.location.kind==='SHOP')&&l.item.id===r.supplyItemId&&l.status==='AVAILABLE'&&l.quantity>0)&&supplyQuantity(lots)>=r.unitsPerPoint*r.points,'INSUFFICIENT_STOCK');requireThat(lots.every(l=>l.transferable!==false)||ship.ownerId===c.id,'SO_PROTECTED_PURCHASE');
     if(charged){requireThat(a?.characterId===c.id&&b?.ownerType==='SHOP'&&b.shopId===r.shopId,'ACCOUNT_UNAVAILABLE');const before=moneyState(a);moneyState(b);requireThat(before.available>=r.amount,'INSUFFICIENT_FUNDS');whole(b.balance+r.amount,'BALANCE_OVERFLOW');}
-    const confirmation=hash(JSON.stringify([proof(r),ship,r.supplyLotIds?lots:lot,a,b])),result={...view(r,time,confirmation,c.id),before:charged?moneyState(a):null,after:charged?{available:moneyState(a).available-r.amount}:null,units:r.unitsPerPoint*r.points,...(r.supplyLotIds?{sourceLots:sourceLots(lots)}:{})};if(action==='prepareSpaceMaintenance')return result;
+    const confirmation=hash(JSON.stringify([proof(r),ship,r.supplyLotIds?lots:lot,a,b])),result={...view(r,time,confirmation,c.id),before:charged?moneyState(a):null,after:charged?{available:moneyState(a).available-r.amount}:null,units:r.unitsPerPoint*r.points,...(r.supplyLotIds?{sourceLots:sourceLots(lots)}:{})};if(ship.docked&&!ship.journey)await localAuthorization(tx,ctx,action,ship.portId,at);if(action==='prepareSpaceMaintenance')return result;
     requireThat(input.confirmation===confirmation,'STALE_REVISION');requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');
     const next={...r,status:tech?'AWAITING_TECH':'ACTIVE',readyAtGameMs:tech?null:time+r.secondsPerPoint*1000,revision:r.revision+1};tx.set(`${base}/shipMaintenance/${r.id}`,next);tx.set(`${base}/ships/${ship.id}`,{...ship,maintenanceId:r.id,revision:ship.revision+1});if(charged)tx.set(`${base}/accounts/${a.id}`,{...a,reserved:a.reserved+r.amount,revision:a.revision+1});for(const l of lots)tx.set(`${base}/inventory/${l.id}`,{...l,status:'FIELD_RESERVED',fieldActionId:r.id,revision:l.revision+1});return audit({id:r.id,status:next.status},r,next);
    }
@@ -91,6 +92,7 @@ export function createSpaceMaintenanceService({store,signed,checkSession,now,uui
    let points=tech?actionPointState(s,tech.c,await tx.get(actionPointPath(s.id,tech.c.id)),at):null;
    if(action==='startSpaceMaintenance'){
     requireThat(r.status==='AWAITING_TECH'&&c.id===r.technicianId&&tech.active&&tech.version===r.technicianVersion,'FORBIDDEN');requireThat(navigationSkill(c,'MEC-02')>=2&&fit(c,time)&&accessible(s,ship,c),'MAINTENANCE_TECH_REQUIRED');requireThat(input.present===true,'FIELD_PRESENCE_REQUIRED');
+    if(ship.docked&&!ship.journey)await localAuthorization(tx,ctx,action,ship.portId,at);
     const next={...r,status:'ACTIVE',readyAtGameMs:time+r.secondsPerPoint*1000,revision:r.revision+1};tx.set(actionPointPath(s.id,c.id),reserveActionPoints(points,1));tx.set(`${base}/characters/${c.id}`,{...c,activeMaintenanceId:r.id});tx.set(`${base}/shipMaintenance/${r.id}`,next);return audit({id:r.id,status:next.status},r,next);
    }
    if(r.status==='OFFERED'){requireThat(cancel,'MAINTENANCE_CLOSED');const next={...r,status:'CANCELLED',revision:r.revision+1,closedAt:at};tx.set(`${base}/shipMaintenance/${r.id}`,next);return audit({id:r.id,status:next.status},r,next,{reason:moneyText(input.reason)});}

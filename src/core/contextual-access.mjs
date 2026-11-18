@@ -1,3 +1,4 @@
+import {localServiceCatalog} from '../shared/local-service-catalog.mjs';
 import {isBroker} from '../shared/player-access.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {saveLocalCredential,credentialView,localCodeDigest} from './contextual-credentials.mjs';
@@ -14,7 +15,7 @@ import {requireGameAction} from './health-state.mjs';
 
 const hash=x=>createHash('sha256').update(x).digest('hex');
 // Only operations actually connected to a native service can be published.
-export const localOperations={dockEntry:'warehouseId',shop:'shopId',prepareShopPurchase:'shopId',buyShopOffer:'shopId',commodityMarket:'sessionId',galacticMarkets:'sessionId',preparePlanetSale:'sessionId',sellToPlanetMarket:'sessionId'};
+export const localOperations=Object.fromEntries(Object.entries(localServiceCatalog).map(([a,v])=>[a,v.field]));
 export const contextualActions=new Set(['setTerminalQrMode','localAccessAdmin','saveLocalTerminal','scanLocalTerminal','localTerminal','revokeLocalPresence','saveLocalCredential','unlockLocalCode','simulateLocalAccess']);
 const base=sid=>`localAccess/${sid}`;
 const text=(v,max=160)=>{requireThat(typeof v==='string'&&v.trim().length>0&&v.length<=max,'INVALID_TEXT');return v.trim();};
@@ -68,7 +69,7 @@ export function createContextualAccessService({store,signed,checkSession,now,uui
     requireThat(terminals.length<=100&&credentials.length<=500&&shops.length<=100,'LOCAL_LIMIT');
     const offers=[];for(const shop of shops)for(const o of await tx.list(`sessions/${sid}/shops/${shop.id}/offers`,null,{limit:501}))offers.push({id:o.id,name:o.name,shopId:shop.id});requireThat(offers.length<=500,'LOCAL_LIMIT');
     const docks=(await tx.list(`sessions/${sid}/warehouses`)).filter(w=>w.dock).map(w=>({id:w.id,name:w.name}));
-    return {sessionId:sid,sessionRevision:s.revision,terminalQrVersion:s.spaceOutlaws?.terminalQrVersion??0,docks,credentials:credentials.map(credentialView),characters:(await tx.list(`sessions/${sid}/characters`)).map(c=>({id:c.id,name:c.public.displayName})),shops:shops.map(s=>({id:s.id,name:s.name})),offers,terminals,journal:await tx.list(`${b}/journal`,null,{orderBy:'at',direction:'desc',limit:100}),operations:localOperations};
+    return {ports:(await tx.list(`sessions/${sid}/ports`)).map(p=>({id:p.id,name:p.name})),sessionId:sid,sessionRevision:s.revision,terminalQrVersion:s.spaceOutlaws?.terminalQrVersion??0,docks,credentials:credentials.map(credentialView),characters:(await tx.list(`sessions/${sid}/characters`)).map(c=>({id:c.id,name:c.public.displayName})),shops:shops.map(s=>({id:s.id,name:s.name})),offers,terminals,journal:await tx.list(`${b}/journal`,null,{orderBy:'at',direction:'desc',limit:100}),operations:localOperations};
    }
    if(action==='saveLocalCredential')return saveLocalCredential({tx,s,input,actor,at,eventId});
    if(action==='simulateLocalAccess'){
@@ -80,7 +81,7 @@ export function createContextualAccessService({store,signed,checkSession,now,uui
     try{await localAuthorization(tx,simulated,input.operation,documentId(input.resourceId),at,{assumePresent:input.assumePresent,code:input.code??null});}catch(e){if(!e.code)throw e;return {localAllowed:false,nativeAllowed:false,reason:e.code};}
     const readOnly={...tx,set:()=>requireThat(false,'SIMULATION_READ_ONLY')};
     try{const simulatedActor={...actor,uid:party.c.assignedUid,authTime:Math.max(actor.authTime??0,party.r.minAuthTime??0)};
-     requireThat(input.operation!=='dockEntry','LOCAL_SIMULATION_UNCONNECTED');const native=createShopService({store:{runTransaction:cb=>cb(readOnly)},signed,checkSession,now,uuid});
+     requireThat(['shop','prepareShopPurchase','buyShopOffer'].includes(input.operation),'LOCAL_SIMULATION_UNCONNECTED');const native=createShopService({store:{runTransaction:cb=>cb(readOnly)},signed,checkSession,now,uuid});
      const q=await native(input.operation==='shop'?'shop':'prepareShopPurchase',simulatedActor,{sessionId:sid,shopId:input.resourceId,...(input.operation==='shop'?{}:{offerId:documentId(input.offerId),quantity:input.quantity??1,useProtected:input.useProtected===true})});
      return {localAllowed:true,nativeAllowed:true,...(q.amount?{amount:q.amount}:{})};
     }catch(e){if(!e.code)throw e;return {localAllowed:true,nativeAllowed:false,reason:e.code};}
@@ -92,7 +93,7 @@ export function createContextualAccessService({store,signed,checkSession,now,uui
     requireThat((old?.revision??0)===input.revision,'STALE_REVISION');
     // Binding ownership cannot silently be stolen from another terminal.
     const bindings=[];for(const o of t.operations){const id=localBindingId(o.action,o.resourceId),prior=await tx.get(`${b}/bindings/${id}`);requireThat(!prior||prior.terminalId===t.id,'LOCAL_BINDING_CONFLICT');bindings.push([id,o]);
-     if(localOperations[o.action]==='sessionId'){requireThat(o.resourceId===sid,'NOT_FOUND');}else{const resource=await tx.get(`sessions/${sid}/${o.action==='dockEntry'?'warehouses':'shops'}/${o.resourceId}`);requireThat(o.action==='dockEntry'?resource?.dock?.schemaVersion===1&&resource.portId===t.portId:resource?.versionId===s.versionId,'NOT_FOUND');}
+     if(localServiceCatalog[o.action].kind==='PORT'){const port=await tx.get(`sessions/${sid}/ports/${o.resourceId}`);requireThat(port?.versionId===s.versionId&&t.portId===port.id,'NOT_FOUND');}else if(localOperations[o.action]==='sessionId'){requireThat(o.resourceId===sid,'NOT_FOUND');}else{const resource=await tx.get(`sessions/${sid}/${o.action==='dockEntry'?'warehouses':'shops'}/${o.resourceId}`);requireThat(o.action==='dockEntry'?resource?.dock?.schemaVersion===1&&resource.portId===t.portId:resource?.versionId===s.versionId,'NOT_FOUND');}
      for(const cid of o.characterIds)requireThat(await tx.get(`sessions/${sid}/characters/${cid}`),'NOT_FOUND');
     }
     const all=await tx.list(`${b}/terminals`,null,{limit:101});requireThat(old||all.length<100,'LOCAL_LIMIT');

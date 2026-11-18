@@ -37,3 +37,28 @@ export function terminalQrSuite(makeStore,prefix='Terminaux QR'){
   await assert.rejects(f.read('galacticMarkets'),{code:'FORBIDDEN'});assert.doesNotMatch(JSON.stringify(d),/assignedUid|gmNotes|SECRET/);
  });
 }
+
+import {soVoyagesFixture} from './space-outlaws-voyages-suite.mjs';
+import {moduleWorkFixture} from './space-module-work-suite.mjs';
+const enableQr=async f=>f.store.runTransaction(async tx=>{const p=`sessions/${f.sid}`,s=await tx.get(p);tx.set(p,{...s,spaceOutlaws:{...s.spaceOutlaws,terminalQrVersion:1}});});
+const portTerminal=async(f,actions,actor=f.player)=>{
+ const ship=await f.ship(),terminal={id:'port-qr',name:'Spatioport et atelier',placeId:'scene',portId:ship.portId,active:true,durationSeconds:60,operations:actions.map(action=>({action,resourceId:ship.portId,characterIds:[],skillId:null,minLevel:0}))};
+ await f.cmd('saveLocalTerminal',{terminal,revision:0},f.owner);return ()=>f.cmd('scanLocalTerminal',{terminalId:terminal.id},actor);
+};
+export function terminalQrPortSuite(makeStore,prefix='Terminaux QR — quai'){
+ test(`${prefix} TQ-04 : pilotage natif, nouveaux départs fermés et opérations engagées terminables`,async()=>{
+  const f=await soVoyagesFixture(makeStore);await enableQr(f);const before=await f.ship(),pa=await f.points();
+  await assert.rejects(f.refuel(2),{code:'LOCAL_BINDING_REQUIRED'});assert.deepEqual(await f.ship(),before);assert.deepEqual(await f.points(),pa);
+  const scan=await portTerminal(f,['prepareRefuel','refuelShip','prepareVoyage','departShip']);await assert.rejects(f.refuel(2),{code:'LOCAL_SCAN_REQUIRED'});await scan();await f.refuel(2);
+  assert.equal((await f.ship()).fuel,2);await f.navigation();await assert.rejects(f.startFlight(),{code:'LOCAL_SCAN_REQUIRED'});await scan();await f.startFlight();f.advance(180000);await f.navCommand('finishSoPreparation');
+  assert.ok((await f.ship()).journey);assert.equal((await f.points()).available,pa.available-1);await f.navigation();
+ });
+ test(`${prefix} TQ-04 : le scan n’accorde pas le mandat de pilote`,async()=>{
+  const f=await soVoyagesFixture(makeStore);await enableQr(f);const scan=await portTerminal(f,['prepareVoyage','departShip'],f.other);await scan();await assert.rejects(f.startFlight({},f.other),{code:'FORBIDDEN'});assert.equal((await f.ship()).operation,null);
+ });
+ test(`${prefix} TQ-04 : atelier, PA natif et annulation du travail après expiration`,async()=>{
+  const f=await moduleWorkFixture(makeStore);await enableQr(f);const before=await f.points(f.other);await assert.rejects(f.preview(),{code:'LOCAL_BINDING_REQUIRED'});assert.deepEqual(await f.points(f.other),before);
+  const scan=await portTerminal(f,['prepareModuleWorkStart','startModuleWork'],f.other);await assert.rejects(f.preview(),{code:'LOCAL_SCAN_REQUIRED'});await scan();await f.start();assert.equal((await f.points(f.other)).reserved,1);
+  f.advance(61000);await f.work();await f.cancel();assert.equal((await f.points(f.other)).reserved,0);
+ });
+}

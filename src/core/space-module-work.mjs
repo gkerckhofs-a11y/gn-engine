@@ -1,3 +1,4 @@
+import {localAuthorization} from './contextual-policy.mjs';
 import {activeMalaise} from './space-toxicology-state.mjs';
 import {hasCompleteTowing} from './space-module-flight.mjs';
 import {hasHiddenCargo} from './space-hidden-cargo.mjs';
@@ -43,6 +44,7 @@ export function createModuleWorkService({store,signed,checkSession,now,uuid}){
     requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');requireThat(r.status==='MODULE_APPROVED'&&r.moduleWorkVersion===undefined,'MODULE_WORK_CLOSED');
     let b;try{b=await moduleMandateBinding(tx,s,r,at);}catch(e){if(e instanceof DomainError)requireThat(false,'MODULE_MANDATE_STALE');throw e;}
     requireThat(isDeepStrictEqual(b,r.binding),'MODULE_MANDATE_STALE');
+    await localAuthorization(tx,ctx,action,ship.portId,at);
     const reserved=reserveActionPoints(points,1),result={...view(s,r,time,confirmation),before:points,after:reserved,install:b.install};
     if(action==='prepareModuleWorkStart')return result;
     requireThat(input.confirmation===confirmation,'STALE_REVISION');requireThat(input.present===true&&input.workshopConfirmed===true,'FIELD_PRESENCE_REQUIRED');
