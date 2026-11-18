@@ -18,4 +18,8 @@ Adoption explicite et irréversible du mode `spaceOutlaws.terminalQrVersion=1` p
 L’achat distant reste natif : la présence au comptoir ne téléporte aucune marchandise et n’impose pas la planète du vendeur au joueur.
 Les cours ne sont plus une entrée permanente du terminal personnel en mode QR.
 
-Tranches TQ-02 à TQ-06 en cours. Les résultats CI seront consignés dans la PR de code sur le SHA réellement testé. Aucun déploiement ou changement de main autorisé par ce chantier.
+## TQ-02 — Sabacc
+
+Nouvelle entrée : QR natif `tableId + qrToken`, sans second QR de Cantina. Le mode QR GN autorise la consultation et les tours de la même table avec `sabaccPresence` ET siège ET identité native courante. La rotation du QR ne retire ni siège, ni main, ni mise. La reprise ne fournit aucun token ni catalogue de tables. Une nouvelle entrée exige toujours le QR courant. Révocation d'accès et expulsion restent prioritaires. Le mode LOCAL et les sessions GN historiques gardent leur contrôle QR existant.
+
+Tranches TQ-03 à TQ-06 en cours. Les résultats CI seront consignés dans la PR de code sur le SHA réellement testé. Aucun déploiement ou changement de main autorisé par ce chantier.

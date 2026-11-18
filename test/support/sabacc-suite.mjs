@@ -62,6 +62,22 @@ export function sabaccSuite(makeStore,prefix='Sabacc'){
 import {spaceGroupsFixture} from './space-groups-suite.mjs';
 import {accountId} from '../../src/core/economy-state.mjs';
 export function sabaccGnSuite(makeStore,prefix='Sabacc GN'){
+ test(`${prefix} TQ-02 : même siège sans QR après rotation, aucune découverte ni nouvelle entrée`,async()=>{
+  const f=await spaceGroupsFixture(makeStore);await f.edit('',s=>({...s,spaceOutlaws:{...s.spaceOutlaws,terminalQrVersion:1}}));
+  for(const cid of [f.cid,f.otherId])await f.edit(`accounts/${accountId(cid)}`,a=>({...a,balance:1000,reserved:0}));
+  const w=createWorkflow({store:f.store,ownerEmail:f.owner.email}),read=(a,i={},actor=f.owner)=>w.dispatch(a,actor,i),cmd=(a,i={},actor=f.owner)=>read(a,{requestId:randomUUID(),...i},actor);
+  const settings=(await read('sabaccAdmin')).settings;await cmd('sabaccSettings',{settingsRevision:settings.revision,enabled:true,adminEmails:[]});
+  const t=await cmd('sabaccCreate',{name:'Table QR',location:'Cantina',tier:1,seatCount:8,mode:'GN',sessionId:f.sid}),get=()=>f.store.get(`sabaccTables/${t.id}`),send=async(a,i={},actor=f.owner)=>cmd(a,{tableId:t.id,revision:(await get()).revision,...i},actor);
+  await send('sabaccStatus',{status:'OPEN'});await assert.rejects(send('sabaccJoin',{seat:0},f.player),{code:'SABACC_QR'});
+  for(const [seat,actor] of [[0,f.player],[1,f.other]])await send('sabaccJoin',{seat,qrToken:t.qrToken},actor);
+  await send('sabaccReady',{ready:true},f.player);await send('sabaccReady',{ready:true},f.other);
+  const before=await read('sabaccTable',{tableId:t.id},f.player),balance=(await f.get(`accounts/${accountId(f.cid)}`)).balance;
+  await send('sabaccRotateQR');const after=await read('sabaccTable',{tableId:t.id,qrToken:t.qrToken},f.player);assert.deepEqual(after.cards,before.cards);assert.equal(after.hand.id,before.hand.id);assert.equal((await f.get(`accounts/${accountId(f.cid)}`)).balance,balance);
+  const home=await read('sabaccHome',{},f.player);assert.equal(home.ownTable.id,t.id);assert.equal(home.ownTable.resume,true);assert.ok(!('qrToken' in home.ownTable));assert.ok(!('tables' in home));
+  const other=await cmd('sabaccCreate',{name:'Autre table',location:'Cantina',tier:1,seatCount:8,mode:'GN',sessionId:f.sid});await assert.rejects(read('sabaccTable',{tableId:other.id},f.player),{code:'SABACC_QR'});
+  await f.cmd('revokeAccess',{uid:f.player.uid});assert.equal((await read('sabaccHome',{},f.player)).ownTable,null);await assert.rejects(read('sabaccTable',{tableId:t.id},f.player),{code:'FORBIDDEN'});
+  await send('sabaccCancel',{reason:'Fin de test sans perte de mise'});assert.equal((await f.get(`accounts/${accountId(f.cid)}`)).balance,1000);
+ });
  test(`${prefix} : identité native, pot séquestre, crédits protégés et remboursement`,async()=>{
   const f=await spaceGroupsFixture(makeStore);for(const cid of [f.cid,f.otherId])await f.edit(`accounts/${accountId(cid)}`,a=>({...a,balance:1000,reserved:0}));
   const before=await f.get(`accounts/${accountId(f.cid)}`),w=createWorkflow({store:f.store,ownerEmail:f.owner.email}),read=(a,i={},actor=f.owner)=>w.dispatch(a,actor,i),cmd=(a,i={},actor=f.owner)=>read(a,{requestId:randomUUID(),...i},actor);

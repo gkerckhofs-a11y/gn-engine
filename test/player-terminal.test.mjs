@@ -49,3 +49,10 @@ test('Terminal : carte accessible avec Navigation, quelle que soit la classe',()
   o.session.spaceOutlaws.navigationVersion=0;assert.equal(ids(o,{}).includes('galactic-map'),false);
  }
 });
+
+test('Terminal QR : pas de lobby Sabacc, reprise limitée à ma table de cette session',()=>{
+ const o=own();o.session.spaceOutlaws.terminalQrVersion=1;
+ assert.ok(!ids(o,{sabacc:{enabled:true}}).includes('sabacc'));
+ const d={sabacc:{enabled:true,ownTable:{id:'table',sessionId:'s',mode:'GN',resume:true}}};assert.ok(ids(o,d).includes('sabacc-resume'));assert.match(personalTerminalHtml(o,d),/Reprendre ma table/);assert.doesNotMatch(personalTerminalHtml(o,d),/key=/);
+ d.sabacc.ownTable.sessionId='other';assert.ok(!ids(o,d).includes('sabacc-resume'));
+});

@@ -25,9 +25,10 @@ export function createSabaccService({store,signed,isAdmin,checkSession,now,uuid}
    const adminOnly=()=>need(admin,'FORBIDDEN');
    if(action==='sabaccHome'||action==='sabaccAdmin'){
     if(action==='sabaccAdmin')adminOnly();const rows=admin?await tx.list('sabaccTables'):[];
-    const own=lock?.tableId?await tx.get(`sabaccTables/${lock.tableId}`):null;
+    let own=lock?.tableId?await tx.get(`sabaccTables/${lock.tableId}`):null;
+    let resume=false;if(own?.mode==='GN'&&(await tx.get(`sessions/${own.sessionId}`))?.spaceOutlaws?.terminalQrVersion===1){try{const identity=await identityProvider(tx,actor,own,profile);need(own.seats.some(s=>s.id===identity.id&&s.actorId===meKey),'FORBIDDEN');resume=true;}catch(e){if(!e.code)throw e;own=null;}}
     const local=profile?await walletSnapshot(tx,{mode:'LOCAL',accountId:meKey}):null;
-    return {admin,enabled:settings.enabled,profile:profile?{id:profile.id,name:profile.name,balance:local.available}:null,ownTable:own?{...publicTable(own),qrToken:own.qrToken}:null,...(admin?{settings,tables:rows.map(t=>({...publicTable(t),qrToken:t.qrToken,seats:t.seats.map(s=>({seat:s.seat,name:s.name,ready:s.ready,playerId:s.id})),access:t.access.kind==='LIST'?{kind:'LIST',allowedIds:t.access.allowedIds}:{kind:t.access.kind}}))}:{} )};
+    return {admin,enabled:settings.enabled,profile:profile?{id:profile.id,name:profile.name,balance:local.available}:null,ownTable:own?{...publicTable(own),...(resume?{resume:true}:{qrToken:own.qrToken})}:null,...(admin?{settings,tables:rows.map(t=>({...publicTable(t),qrToken:t.qrToken,seats:t.seats.map(s=>({seat:s.seat,name:s.name,ready:s.ready,playerId:s.id})),access:t.access.kind==='LIST'?{kind:'LIST',allowedIds:t.access.allowedIds}:{kind:t.access.kind}}))}:{} )};
    }
    if(['sabaccSettings','sabaccProfile','sabaccCreate'].includes(action))need(!input.tableId,'SABACC_CONFIG');
    let t=input.tableId?await tx.get(`sabaccTables/${documentId(input.tableId)}`):null;
@@ -35,9 +36,13 @@ export function createSabaccService({store,signed,isAdmin,checkSession,now,uuid}
    const wasActive=active(h);
    let who=null;
    const playerRead=async(spending=false)=>{need(t,'NOT_FOUND');who=await identityProvider(tx,actor,t,profile,{spending});return who;};
-   const checkQR=()=>need(t&&input.qrToken===t.qrToken,'SABACC_QR');
+   const checkQR=async()=>{
+    if(t&&input.qrToken===t.qrToken)return;
+    const strict=t?.mode==='GN'&&(await tx.get(`sessions/${t.sessionId}`))?.spaceOutlaws?.terminalQrVersion===1;
+    need(strict&&action!=='sabaccJoin'&&lock?.tableId===t.id&&who&&t.seats.some(s=>s.id===who.id&&s.actorId===meKey),'SABACC_QR');
+   };
    if(action==='sabaccTable'){
-    need(t,'NOT_FOUND');if(!admin)checkQR();
+    need(t,'NOT_FOUND');if(!admin){await playerRead();await checkQR();}
     // Non-members can inspect stakes but cannot receive hidden state or history.
     try{await playerRead();}catch(e){if(!admin)throw e;}
     const seat=who?t.seats.find(s=>s.id===who.id&&s.actorId===meKey):null;
@@ -55,7 +60,7 @@ export function createSabaccService({store,signed,isAdmin,checkSession,now,uuid}
    const adminCommands=['sabaccSettings','sabaccCreate','sabaccConfigure','sabaccStatus','sabaccRotateQR','sabaccCancel','sabaccExpel','sabaccRefundPot','sabaccGrant'];
    if(adminCommands.includes(action)){adminOnly();if(t?.mode==='GN')await checkSession(tx,actor,t.sessionId);}
    if(['sabaccJoin','sabaccLeave','sabaccReady','sabaccPlay','sabaccTick'].includes(action)){
-    checkQR();await playerRead(['sabaccJoin','sabaccReady','sabaccPlay','sabaccTick'].includes(action));
+    await playerRead(['sabaccJoin','sabaccReady','sabaccPlay','sabaccTick'].includes(action));await checkQR();
     need(settings.enabled&&t.status!=='PAUSED','SABACC_PAUSED');
     if(action!=='sabaccJoin')need(t.seats.some(s=>s.id===who.id&&s.actorId===meKey),'FORBIDDEN');
    }
