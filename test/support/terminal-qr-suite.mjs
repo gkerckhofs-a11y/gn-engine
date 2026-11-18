@@ -1,3 +1,6 @@
+import {spaceLogisticsFixture} from './space-logistics-suite.mjs';
+import {dockFixture} from './docks-suite.mjs';
+import {crewCargoFixture} from './ship-crew-cargo-suite.mjs';
 import {createWorkflow} from '../../src/core/workflow.mjs';
 import {localNativePreview} from '../../src/core/contextual-preview.mjs';
 import {inventoryParty} from '../../src/core/inventory-transfers.mjs';
@@ -71,6 +74,11 @@ export function terminalQrPortSuite(makeStore,prefix='Terminaux QR — quai'){
  test(`${prefix} TQ-04 : le scan n’accorde pas le mandat de pilote`,async()=>{
   const f=await soVoyagesFixture(makeStore);await enableQr(f);const scan=await portTerminal(f,['prepareVoyage','departShip'],f.other);await scan();await assert.rejects(f.startFlight({},f.other),{code:'FORBIDDEN'});assert.equal((await f.ship()).operation,null);
  });
+ test(`${prefix} TQ-04 : manutention avec scan puis réception après expiration, sans coût supplémentaire`,async()=>{
+  const f=await crewCargoFixture(makeStore),lot=await f.seed(),base=`sessions/${f.sid}`;await enableQr(f);const wallet=await f.read('myWallet',{},f.other),pa=await f.store.get(`${base}/characters/${f.otherId}/resources/actionPoints`);
+  await assert.rejects(f.startCargo(lot),{code:'LOCAL_BINDING_REQUIRED'});const scan=await portTerminal(f,['prepareCargoTransfer','startCargoTransfer'],f.other);await assert.rejects(f.startCargo(lot),{code:'LOCAL_SCAN_REQUIRED'});
+  await scan();const transfer=await f.startCargo(lot);f.advance(61000);const r=await f.finishCargo(transfer.id),moved=await f.store.get(`${base}/inventory/${r.lotId}`);assert.equal(moved.location.kind,'HOLD');assert.equal(moved.ownerId,f.otherId);assert.deepEqual(await f.read('myWallet',{},f.other),wallet);assert.deepEqual(await f.store.get(`${base}/characters/${f.otherId}/resources/actionPoints`),pa);
+ });
  test(`${prefix} TQ-04 : atelier, PA natif et annulation du travail après expiration`,async()=>{
   const f=await moduleWorkFixture(makeStore);await enableQr(f);const before=await f.points(f.other);await assert.rejects(f.preview(),{code:'LOCAL_BINDING_REQUIRED'});assert.deepEqual(await f.points(f.other),before);
   const scan=await portTerminal(f,['prepareModuleWorkStart','startModuleWork'],f.other);await assert.rejects(f.preview(),{code:'LOCAL_SCAN_REQUIRED'});await scan();await f.start();assert.equal((await f.points(f.other)).reserved,1);
@@ -133,6 +141,21 @@ export function terminalQrReadinessSuite(makeStore,prefix='Terminaux QR — rég
   const s=await f.store.get(`sessions/${f.sid}`),t=await f.store.get(`localAccess/${f.sid}/terminals/bourse`),at=s.clock.runningSince;
   const run=delay=>f.store.runTransaction(async tx=>{const party=await inventoryParty(tx,f.sid,f.cid),ctx={s,c:party.c,r:party.r,version:party.version};return localNativePreview({tx,ctx,t,input:{operation:'commodityMarket',resourceId:f.sid,assumePresent:true},actor:f.owner,at,nativePreview:(view,actor,action,input)=>createWorkflow({store:{get:view.get,list:view.list,runTransaction:cb=>cb(view)},ownerEmail:'disabled-preview@example.invalid',now:()=>at+delay}).dispatch(action,actor,input)});});
   assert.equal((await run(59000)).nativeAllowed,true);await assert.rejects(run(61000),{code:'LOCAL_SCAN_REQUIRED'});assert.equal(await f.store.get(`localAccess/${f.sid}/presence/${f.cid}`),null);
+ });
+ test(`${prefix} TQ-06 : simulation du démarrage réservée au Mécano, sans appliquer ses écritures`,async()=>{
+  const f=await spaceLogisticsFixture(makeStore);await f.edit('ships/ship',s=>({...s,hull:1,revision:s.revision+1}));const r=await f.offer({technicianId:f.otherId});await f.accept(r);await enableQr(f);await portTerminal(f,['startSpaceMaintenance'],f.other);
+  const before={ship:await f.ship(),job:await f.get(`shipMaintenance/${r.id}`),pa:await f.points(f.other),wallet:await f.wallet(),stock:await f.store.list(`sessions/${f.sid}/inventory`)},tech=await f.job(r,f.other),owner=await f.job(r,f.player);
+  const input={terminalId:'port-qr',operation:'startSpaceMaintenance',resourceId:(await f.ship()).portId,assumePresent:true};
+  const yes=await f.read('simulateLocalAccess',{...input,characterId:f.otherId,nativeInput:{maintenanceId:r.id,confirmation:tech.confirmation}},f.owner);assert.equal(yes.nativeAllowed,true);
+  const no=await f.read('simulateLocalAccess',{...input,characterId:f.cid,nativeInput:{maintenanceId:r.id,confirmation:owner.confirmation}},f.owner);assert.deepEqual(no,{localAllowed:true,nativeAllowed:false,reason:'FORBIDDEN'});
+  assert.deepEqual({ship:await f.ship(),job:await f.get(`shipMaintenance/${r.id}`),pa:await f.points(f.other),wallet:await f.wallet(),stock:await f.store.list(`sessions/${f.sid}/inventory`)},before);assert.equal(await f.store.get(`localAccess/${f.sid}/presence/${f.otherId}`),null);
+ });
+ test(`${prefix} TQ-06 : refus natif du dock conservé, même quand la règle locale seule est satisfaite`,async()=>{
+  const f=await dockFixture(makeStore);await f.cmd('saveLocalTerminal',{terminal:{...f.terminal,operations:f.terminal.operations.map(o=>({...o,credentialIds:[]}))},revision:2},f.owner);const journal=await f.store.list(`localAccess/${f.sid}/journal`);
+  const input={terminalId:'dock',operation:'dockEntry',resourceId:f.wid,assumePresent:true};
+  const no=await f.read('simulateLocalAccess',{...input,characterId:f.cid},f.owner);assert.deepEqual(no,{localAllowed:true,nativeAllowed:false,reason:'LOCAL_CREDENTIAL_REQUIRED'});
+  assert.deepEqual(await f.store.list(`localAccess/${f.sid}/journal`),journal);await f.cmd('saveLocalTerminal',{terminal:f.terminal,revision:3},f.owner);const afterConfig=await f.store.list(`localAccess/${f.sid}/journal`);
+  const yes=await f.read('simulateLocalAccess',{...input,characterId:f.clientId,code:'cell-secret'},f.owner);assert.equal(yes.nativeAllowed,true);assert.deepEqual(await f.store.list(`localAccess/${f.sid}/journal`),afterConfig);
  });
  test(`${prefix} TQ-06 : simulation de ravitaillement avec vrais lots, sans réserve ou accès temporaire`,async()=>{
   const f=await soVoyagesFixture(makeStore);await enableQr(f);await portTerminal(f,['prepareRefuel','refuelShip']);const lot=(await f.read('myInventory')).lots.find(l=>l.item.id==='propellant'),ship=await f.ship(),before=await f.points();

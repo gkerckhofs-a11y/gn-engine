@@ -1,12 +1,14 @@
+import {randomUUID} from 'node:crypto';
 import {localServiceCatalog} from '../shared/local-service-catalog.mjs';
 import {localCodeDigest} from './contextual-credentials.mjs';
 import {requireThat} from './validation.mjs';
 import {gameTime} from './clock.mjs';
-const previews={buyShopOffer:'prepareShopPurchase',sellToPlanetMarket:'preparePlanetSale',refuelShip:'prepareRefuel',departShip:'prepareVoyage',startCargoTransfer:'prepareCargoTransfer',acceptSpaceMaintenance:'prepareSpaceMaintenance',startSpaceMaintenance:'prepareSpaceMaintenance',startModuleWork:'prepareModuleWorkStart',buyIntelligence:'prepareIntelligencePurchase',startCustomsInspection:'prepareCustomsInspection',merchantService:'prepareFieldAction',clinicCare:'preparePersonAction'};
+const previews={buyShopOffer:'prepareShopPurchase',sellToPlanetMarket:'preparePlanetSale',refuelShip:'prepareRefuel',departShip:'prepareVoyage',startCargoTransfer:'prepareCargoTransfer',acceptSpaceMaintenance:'prepareSpaceMaintenance',startSpaceMaintenance:'startSpaceMaintenance',startModuleWork:'prepareModuleWorkStart',buyIntelligence:'prepareIntelligencePurchase',startCustomsInspection:'prepareCustomsInspection',merchantService:'prepareFieldAction',clinicCare:'preparePersonAction'};
 export async function localNativePreview({tx,ctx,t,input,actor,at,nativePreview}){
  const action=previews[input.operation]??input.operation,meta=localServiceCatalog[input.operation],sid=ctx.s.id;
  const args=input.nativeInput??{};requireThat(args&&typeof args==='object'&&!Array.isArray(args)&&JSON.stringify(args).length<=10000,'INVALID_LOCAL_POLICY');
  const payload={...args,sessionId:sid};
+ if(action==='startSpaceMaintenance')Object.assign(payload,{requestId:randomUUID(),present:args.present??input.assumePresent});
  if(meta.kind==='SHOP'&&['shop','prepareShopPurchase'].includes(action))Object.assign(payload,{shopId:input.resourceId,...(action==='prepareShopPurchase'?{offerId:args.offerId??input.offerId,quantity:args.quantity??input.quantity??1,useProtected:args.useProtected??input.useProtected===true}:{})});
  if(input.operation==='dockEntry')payload.warehouseId=input.resourceId;
  if(input.operation==='merchantService')Object.assign(payload,{targetId:input.resourceId,kind:'ANALYZE'});
@@ -21,8 +23,9 @@ export async function localNativePreview({tx,ctx,t,input,actor,at,nativePreview}
  // A hypothetical presence is scoped to this read-only preview. No native right,
  // balance, stock, character or actual presence is manufactured or persisted.
  const presence={terminalId:t.id,terminalRevision:t.revision,characterVersion:ctx.version,expiresGameMs:gameTime(ctx.s.clock,at)+t.durationSeconds*1000,codeProofs};
- const readOnly={...tx,get:p=>p===path&&input.assumePresent?Promise.resolve(presence):tx.get(p),set:p=>requireThat(p.startsWith(`localAccess/${sid}/journal/`),'SIMULATION_READ_ONLY'),delete:()=>requireThat(false,'SIMULATION_READ_ONLY')};
+ const planned=new Map();
+ const readOnly={...tx,get:p=>planned.has(p)?Promise.resolve(structuredClone(planned.get(p))):p===path&&input.assumePresent?Promise.resolve(presence):tx.get(p),set:(p,v)=>{if(action==='startSpaceMaintenance'){requireThat(p.startsWith(`sessions/${sid}/`)||p.startsWith('operations/'),'SIMULATION_READ_ONLY');planned.set(p,structuredClone(v));return;}requireThat(p.startsWith(`localAccess/${sid}/journal/`),'SIMULATION_READ_ONLY');},delete:()=>requireThat(false,'SIMULATION_READ_ONLY')};
  const simulated={...actor,uid:ctx.c.assignedUid,email:'native-preview@example.invalid',authTime:Math.max(actor.authTime??0,ctx.r.minAuthTime??0)};
- const result=await nativePreview(readOnly,simulated,action,payload);requireThat(result?.allowed!==false,result?.reason??'FORBIDDEN');
+ const result=await nativePreview(readOnly,simulated,action,payload);if(input.operation==='dockEntry')requireThat(!!result?.entry,result?.reason??'FORBIDDEN');requireThat(result?.allowed!==false,result?.reason??'FORBIDDEN');
  return {localAllowed:true,nativeAllowed:true,...(result?.amount?{amount:result.amount}:{})};
 }
