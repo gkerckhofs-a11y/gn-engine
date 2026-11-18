@@ -1,0 +1,21 @@
+# Terminaux joueurs et QR de lieu — réalisation PR #59
+
+Source : cahier des charges PR #59, commit fe172a20c6ce558ca86961c024240d53558ceb14 (18 novembre 2026).
+Base : main a59ec255748de8c236f861e6a3ea3f29bbd44088, validation globale réussie 44266765944.
+
+## TQ-01 — Cours et comptoir
+
+Adoption explicite et irréversible du mode `spaceOutlaws.terminalQrVersion=1` par le MJ via Lieux & Terminaux, en préparation/briefing/pause. Aucun changement implicite des anciennes sessions. Les permissions de modification de session limitent cette écriture à ce seul marqueur et à la révision.
+
+| Commande | Présence | Droit natif | Hors contexte |
+| --- | --- | --- | --- |
+| commodityMarket | Comptoir, ressource = session | Joueur actif | Refus, aucun cours renvoyé |
+| galacticMarkets | Comptoir, ressource = session | Courtier principal | Refus, aucun prix professionnel |
+| preparePlanetSale / sellToPlanetMarket | Comptoir | Courtier et propriété/stock/prix natifs | Refus avant mutation |
+| shop / prepareShopPurchase / buyShopOffer | Comptoir lié | Achat natif et conditions M5 | Raccordement historique conservé |
+| Retraits et reçus déjà acquis | Suivi natif | Propriété/consentements natifs | Pas de nouveau contrôle local |
+
+L’achat distant reste natif : la présence au comptoir ne téléporte aucune marchandise et n’impose pas la planète du vendeur au joueur.
+Les cours ne sont plus une entrée permanente du terminal personnel en mode QR.
+
+Tranches TQ-02 à TQ-06 en cours. Les résultats CI seront consignés dans la PR de code sur le SHA réellement testé. Aucun déploiement ou changement de main autorisé par ce chantier.

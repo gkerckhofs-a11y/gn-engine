@@ -25,9 +25,9 @@ export function terminalItems(own,d={}){
  // Published on a separate Hosting site; lore edits do not require a GN Engine redeploy.
  add('holopedia','Holopédia',port,'Explorer les planètes, les lieux et l’histoire de Breach Port.',[],{url:`https://holopedia-space-outlaws.web.app/?session=${encodeURIComponent(sid)}`});
  if(f.shopsVersion===1&&count(d.shops,'shops','orders'))add('shops','Boutiques d’objets personnels',port,'Acheter des fournitures et retirer mes commandes.',d.shops.orders);
- if(own.economyEnabled)add('public-prices','Cours publics',port,'Consulter gratuitement les cours publiés.');
+ if(own.economyEnabled&&own.session.spaceOutlaws?.terminalQrVersion!==1)add('public-prices','Cours publics',port,'Consulter gratuitement les cours publiés.');
  if(own.economyEnabled)add('wallet','Mes crédits',port,`${own.wallet?.account?.available??'—'} crédits disponibles · paiements et historique.`);
- if(isBroker(own.character)&&d.market?.economyEnabled){if(f.itemCircuitsVersion===1)add('galactic','Bourse galactique',port,'Comparer les planètes, acheter à distance et revendre les lots livrés.');else add('market','Centrale commerciale',port,'Cours, achats, ventes et négociations.');}
+ if(own.session.spaceOutlaws?.terminalQrVersion!==1&&isBroker(own.character)&&d.market?.economyEnabled){if(f.itemCircuitsVersion===1)add('galactic','Bourse galactique',port,'Comparer les planètes, acheter à distance et revendre les lots livrés.');else add('market','Centrale commerciale',port,'Cours, achats, ventes et négociations.');}
  if(f.missionsVersion===1&&count(d.missions,'announcements'))add('missions','Missions proposées',port,'Consulter les offres qui me sont accessibles.');
  if(count(d.contracts,'contracts'))add('contracts','Mes contrats',port,'Mes engagements personnels et collectifs.',d.contracts.contracts);
  if(f.intelligenceVersion===1&&count(d.intelligence,'offers'))add('intelligence','Réseau d’informateurs',port,'Consulter les offres et mes renseignements achetés.',d.intelligence.offers);

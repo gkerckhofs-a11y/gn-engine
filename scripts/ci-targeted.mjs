@@ -330,3 +330,11 @@ targetedProfiles['contextual-docks']={
   'src/core/dock-state.mjs','src/core/docks.mjs','src/core/cargo.mjs','src/core/logistics.mjs','src/core/storage-state.mjs','src/core/space-intrusion.mjs','src/shared/space-outlaws-groups.mjs',
   'web/docks.mjs','web/commercial-storage.mjs','web/logistics.mjs','test/support/docks-suite.mjs']
 };
+
+// TQ-01..06 build on the fully validated main a59ec255. Keep cumulative coverage.
+targetedProfiles['terminal-qr']={
+ ...targetedProfiles['contextual-docks'],
+ tests:[...new Set([...targetedProfiles['contextual-docks'].tests,'test/terminal-qr.test.mjs','test/prices.test.mjs','test/planet-markets.test.mjs','test/galactic-economy.test.mjs'])],
+ suites:[...new Set([...targetedProfiles['contextual-docks'].suites,'terminal-qr','prices','planet-markets','galactic-economy'])],
+ files:[...targetedProfiles['contextual-docks'].files,'src/core/space-outlaws-entry-guard.mjs','src/core/contextual-policy.mjs','src/core/prices.mjs','src/core/planet-markets.mjs','test/terminal-qr.test.mjs','test/support/terminal-qr-suite.mjs','test/prices.test.mjs','test/planet-markets.test.mjs','test/galactic-economy.test.mjs','docs/SO-TERMINAL-QR.md'],
+};
