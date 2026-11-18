@@ -20,7 +20,7 @@ export async function localNativePreview({tx,ctx,t,input,actor,at,nativePreview}
  if(input.code)for(const g of await tx.list(`localAccess/${sid}/credentials`))if(g.terminalId===t.id&&g.kind==='CODE'&&g.active&&g.codeDigest===localCodeDigest(t.id,input.code))codeProofs[g.id]=g.revision;
  // A hypothetical presence is scoped to this read-only preview. No native right,
  // balance, stock, character or actual presence is manufactured or persisted.
- const presence={terminalId:t.id,terminalRevision:t.revision,characterVersion:ctx.version,expiresGameMs:gameTime(ctx.s.clock,at)+1000,codeProofs};
+ const presence={terminalId:t.id,terminalRevision:t.revision,characterVersion:ctx.version,expiresGameMs:gameTime(ctx.s.clock,at)+t.durationSeconds*1000,codeProofs};
  const readOnly={...tx,get:p=>p===path&&input.assumePresent?Promise.resolve(presence):tx.get(p),set:p=>requireThat(p.startsWith(`localAccess/${sid}/journal/`),'SIMULATION_READ_ONLY'),delete:()=>requireThat(false,'SIMULATION_READ_ONLY')};
  const simulated={...actor,uid:ctx.c.assignedUid,email:'native-preview@example.invalid',authTime:Math.max(actor.authTime??0,ctx.r.minAuthTime??0)};
  const result=await nativePreview(readOnly,simulated,action,payload);requireThat(result?.allowed!==false,result?.reason??'FORBIDDEN');

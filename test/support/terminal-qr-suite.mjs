@@ -1,3 +1,6 @@
+import {createWorkflow} from '../../src/core/workflow.mjs';
+import {localNativePreview} from '../../src/core/contextual-preview.mjs';
+import {inventoryParty} from '../../src/core/inventory-transfers.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
@@ -124,6 +127,12 @@ export function terminalQrReadinessSuite(makeStore,prefix='Terminaux QR — rég
   const publicRead=await f.read('simulateLocalAccess',{...input,operation:'commodityMarket'},f.owner);assert.equal(publicRead.nativeAllowed,true);
   const professional=await f.read('simulateLocalAccess',{...input,operation:'galacticMarkets'},f.owner);assert.deepEqual(professional,{localAllowed:true,nativeAllowed:false,reason:'FORBIDDEN'});
   assert.equal(await f.store.get(presence),null);assert.deepEqual(await f.wallet(),before);assert.deepEqual(await f.store.list(`localAccess/${f.sid}/journal`),journal);
+ });
+ test(`${prefix} TQ-06 : simulation valable pendant la durée configurée, expirée au-delà`,async()=>{
+  const f=await terminalQrFixture(makeStore,{classId:'MED',usage:'PERSONAL'});await f.save();await f.adopt();
+  const s=await f.store.get(`sessions/${f.sid}`),t=await f.store.get(`localAccess/${f.sid}/terminals/bourse`),at=s.clock.runningSince;
+  const run=delay=>f.store.runTransaction(async tx=>{const party=await inventoryParty(tx,f.sid,f.cid),ctx={s,c:party.c,r:party.r,version:party.version};return localNativePreview({tx,ctx,t,input:{operation:'commodityMarket',resourceId:f.sid,assumePresent:true},actor:f.owner,at,nativePreview:(view,actor,action,input)=>createWorkflow({store:{get:view.get,list:view.list,runTransaction:cb=>cb(view)},ownerEmail:'disabled-preview@example.invalid',now:()=>at+delay}).dispatch(action,actor,input)});});
+  assert.equal((await run(59000)).nativeAllowed,true);await assert.rejects(run(61000),{code:'LOCAL_SCAN_REQUIRED'});assert.equal(await f.store.get(`localAccess/${f.sid}/presence/${f.cid}`),null);
  });
  test(`${prefix} TQ-06 : simulation de ravitaillement avec vrais lots, sans réserve ou accès temporaire`,async()=>{
   const f=await soVoyagesFixture(makeStore);await enableQr(f);await portTerminal(f,['prepareRefuel','refuelShip']);const lot=(await f.read('myInventory')).lots.find(l=>l.item.id==='propellant'),ship=await f.ship(),before=await f.points();
