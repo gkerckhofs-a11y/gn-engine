@@ -124,6 +124,10 @@ export function terminalQrReadinessSuite(makeStore,prefix='Terminaux QR — rég
   await f.adopt();assert.equal((await f.read('localAccessAdmin',{},f.owner)).readiness.ready,true);await f.stage('PAUSE');await f.save({active:false},1);
   const d=await f.read('localAccessAdmin',{},f.owner);assert.ok(d.readiness.missing.some(r=>r.operation==='commodityMarket'&&r.status==='DISABLED'));await assert.rejects(f.stage('EN_JEU'),{code:'LOCAL_CONFIGURATION_REQUIRED'});
  });
+ test(`${prefix} TQ-06 : cellule désactivée distinguée d’un raccordement actif manquant`,async()=>{
+  const f=await dockFixture(makeStore),w=await f.store.get(`${f.base}/warehouses/${f.wid}`);await f.configure({warehouseId:f.wid,warehouseRevision:w.revision,enabled:false,dock:f.dock});
+  const d=await f.read('localAccessAdmin',{},f.owner),row=d.readiness.rows.find(r=>r.operation==='dockEntry'&&r.resourceId===f.wid);assert.equal(row.status,'DISABLED');assert.equal(row.required,false);assert.ok(!d.readiness.missing.some(r=>r.operation==='dockEntry'&&r.resourceId===f.wid));
+ });
  test(`${prefix} TQ-06 : adoption refusée pendant STOP, sans contourner le diagnostic à la reprise`,async()=>{
   const f=await terminalQrFixture(makeStore);await f.cmd('stopSafety',{reason:'Interruption de sécurité de recette'});const s=await f.store.get(`sessions/${f.sid}`);
   await assert.rejects(f.cmd('setTerminalQrMode',{version:1,revision:s.revision},f.owner),{code:'SO_SAFETY_STOP'});assert.equal((await f.store.get(`sessions/${f.sid}`)).spaceOutlaws.terminalQrVersion,undefined);
