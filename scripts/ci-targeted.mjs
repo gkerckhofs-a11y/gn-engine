@@ -344,3 +344,10 @@ targetedProfiles['starfighter-training']={
  tests:trainingTests,suites:[],httpPattern:null,
  files:[...trainingTests,'scripts/ci-targeted.mjs','web/cockpit/starfighter.html','web/cockpit/flight.mjs','scripts/starfighter-demo.mjs','web/cockpit/flight-ui.mjs','web/cockpit/gunnery.mjs','web/cockpit/index.html']
 };
+
+targetedProfiles['starfighter-navigation']={
+ tests:[...new Set([...targetedProfiles['starfighter-training'].tests,...["test/starfighter-navigation.test.mjs", "test/cockpit-launch.test.mjs", "test/galactic-map.test.mjs", "test/space-outlaws-voyages.test.mjs", "test/ship-crew.test.mjs", "test/space-group-pilot.test.mjs", "test/space-towing-flight.test.mjs"]])],
+ suites:[...new Set([...targetedProfiles['starfighter-training'].suites,...["starfighter-navigation", "cockpit-launch", "galactic-map", "space-outlaws-voyages", "ship-crew", "space-group-pilot", "space-towing-flight"]])],
+ httpPattern:'^HTTP \\+ Auth : (vol équipé,|duel privé,|convoi consenti,)',browser:false,
+ files:[...targetedProfiles['starfighter-training'].files,...["test/starfighter-navigation.test.mjs", "web/space-outlaws-voyages.mjs", "web/app.mjs", "test/support/firestore-suites.mjs", "test/support/starfighter-navigation-suite.mjs", "web/cockpit/flight-plan.mjs", "web/cockpit/cockpit.mjs", "web/cockpit/connected.mjs", "src/core/starfighter-stations.mjs", "src/core/cockpit-command.mjs", "src/core/space-outlaws-voyages.mjs"]]
+};

@@ -20,3 +20,9 @@ Les destinations du réseau sont celles de la projection personnelle. Les ports 
 Référence locale ciblée : cockpit, cockpit-launch, galactic-map, space-outlaws-voyages, space-combat-state. Étendre à space-convoy-combat, space-towing-flight, space-group-stock, knowledge et navigateur. Tester deux identités et rejouer les réservations sur émulateur isolé. Consigner séparément les résultats mémoire, émulateur, navigateur et matériel. CI sur le SHA de chaque lot selon AGENTS.md.
 
 La démonstration a son propre point d'entrée. Les options connectées absentes signifient cockpit historique. Aucun rétro-remplissage des documents ni migration nécessaire. Le retour au cockpit historique doit préserver voyages, réservations, reçus et ordres en cours. M2 et consoles spécialisées restent hors périmètre.
+
+## Décisions du 22 novembre, après l’audit
+
+Guillaume demande un départ automatique et confirme l’interception automatique avec négociation avant combat. La régie choisit une fois le nombre de postes disponibles. Le serveur réserve un poste libre dans la transaction de préparation. Le pilote confirme sa présence et le décollage dès que le délai natif est atteint. À l’escale, il peut examiner et préparer le prochain trajet depuis le poste encore attribué. Les conditions de présence requises par le mode QR restent applicables. L’affectation manuelle reste utilisable dans les sessions historiques ou après révocation.
+
+Pour les interceptions automatiques, la cible doit être admissible à une embuscade native. Le prototype retient 90 secondes de temps de jeu pour la négociation. Les accords unanimes et les manœuvres précombat natives gardent la priorité. Les décisions ultérieures doivent distinguer la durée de négociation de la durée canonique du round.

@@ -1,3 +1,4 @@
+import {createGalacticMapService} from './galactic-map.mjs';
 import {createSoVoyageService} from './space-outlaws-voyages.mjs';
 import {createSpaceCombatService} from './space-combat.mjs';
 import {admissionKeys} from './admission-state.mjs';
@@ -5,6 +6,7 @@ import {randomInt} from 'node:crypto';
 import {requireThat} from './validation.mjs';
 
 const navigation=new Set(['finishSoPreparation','arriveShip']);
+const planning=new Set(['galacticMap','prepareVoyage','departShip']);
 const ambush=new Set(['armSpaceAmbush','cancelSpaceAmbush']);
 const combat=new Set(['submitSpaceOrder','resolveSpaceRound','consentSpacePeace','spaceBreakaway','spaceEscortInterpose','dropTowedWreck']);
 // The station check and native command share one transaction: a concurrent
@@ -12,7 +14,7 @@ const combat=new Set(['submitSpaceOrder','resolveSpaceRound','consentSpacePeace'
 export function createCockpitCommandService(deps){
  return async(actor,input)=>{
   deps.signed(actor);admissionKeys(input,['sessionId','stationId','command','payload','requestId']);
-  requireThat(navigation.has(input.command)||combat.has(input.command)||ambush.has(input.command),'COCKPIT_COMMAND');
+  requireThat(navigation.has(input.command)||planning.has(input.command)||combat.has(input.command)||ambush.has(input.command),'COCKPIT_COMMAND');
   requireThat(input.payload&&typeof input.payload==='object'&&!Array.isArray(input.payload),'COCKPIT_COMMAND');
   const at=deps.now(),id=deps.uuid(),dice=[];
   return deps.store.runTransaction(async tx=>{
@@ -21,6 +23,16 @@ export function createCockpitCommandService(deps){
    const voyage=createSoVoyageService(stable);
    const view=await voyage('cockpitStation',actor,{sessionId:input.sessionId,stationId:input.stationId});
    requireThat(input.payload.shipId===view.ship.shipId&&input.payload.sessionId===input.sessionId,'COCKPIT_COMMAND');
+   if(planning.has(input.command)){
+    requireThat(view.starfighter?.navigation,'COCKPIT_COMMAND');
+    const {payload}=input;
+    if(input.command==='galacticMap'){
+     const map=await createGalacticMapService(stable)('galacticMap',actor,payload);
+     return {ports:map.ports,routes:map.routes,origin:map.origin,destinationId:map.destinationId,itineraries:map.itineraries,shipId:map.shipId};
+    }
+    requireThat(view.canAct && !view.ship.operation && !view.ship.journey,'SHIP_UNAVAILABLE');
+    return input.command==='prepareVoyage'?voyage('prepareVoyage',actor,payload):voyage('departShip',actor,{...payload,cockpit:true,requestId:input.requestId});
+   }
    if(combat.has(input.command))requireThat(input.payload.combatId===view.ship.combatId,'COCKPIT_COMMAND');
    const payload={...input.payload,requestId:input.requestId};
    if(input.command==='finishSoPreparation')payload.stationId=input.stationId;
