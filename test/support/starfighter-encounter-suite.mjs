@@ -48,4 +48,19 @@ test('Un accord pendant la négociation clôt la rencontre avant tout round',asy
  }
  const returned=await consoleFor();assert.equal(returned.d.ship.combatId,null);assert.ok(returned.d.starfighter.previousCombatId);
 });
+test('STOP, révocation, pilote remplacé et archive ferment un ancien poste',async()=>{
+ const {f,consoleFor}=await pair();const p=await consoleFor();
+ await f.cmd('stopSafety',{reason:'Essai isolé de STOP'});
+ await assert.rejects(p.pulse());assert.equal((await f.get('ships/ship')).combatId??null,null);
+ const session=await f.store.get('sessions/'+f.sid);
+ await f.cmd('resumeSafety',{revision:session.revision,reason:'Reprise isolée'},f.owner);
+ const admin=await f.read('spaceportAdmin',{},f.owner),row=admin.ships.find(s=>s.shipId==='ship');
+ await f.cmd('revokeSoCockpit',{shipId:'ship',confirmation:row.confirmation},f.owner);
+ await assert.rejects(p.pulse(),{code:'COCKPIT_UNAVAILABLE'});
+ const b=await consoleFor(true);
+ await f.edit('ships/second',s=>({...s,pilotId:f.cid}));
+ await assert.rejects(b.pulse());
+ await f.store.runTransaction(async tx=>{const key='sessions/'+f.sid;const s=await tx.get(key);tx.set(key,{...s,stage:'ARCHIVED'});});
+ await assert.rejects(f.read('cockpitStation',{stationId:'cockpit-2'},f.other));
+});
 }

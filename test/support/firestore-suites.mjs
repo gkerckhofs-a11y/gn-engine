@@ -1,6 +1,7 @@
 // One entry per shared suite. Seconds are scheduling hints measured on ce0fb20 CI (2026-10-27).
 // They only balance workers: no duration or count ever determines test inclusion.
 export const firestoreSuites = [
+  {id:"starfighter-fleet",module:"../support/starfighter-fleet-suite.mjs",exportName:"starfighterFleetSuite",label:"STARFIGHTER fleet sur Firestore",seconds:20},
   {id:"starfighter-encounter",module:"../support/starfighter-encounter-suite.mjs",exportName:"starfighterEncounterSuite",label:"STARFIGHTER encounter sur Firestore",seconds:20},
   {id:"starfighter-navigation",module:"../support/starfighter-navigation-suite.mjs",exportName:"starfighterNavigationSuite",label:"STARFIGHTER navigation sur Firestore",seconds:20},
   {id:"terminal-qr-readiness",module:"../support/terminal-qr-suite.mjs",exportName:"terminalQrReadinessSuite",label:"Terminaux QR régie Firestore",seconds:60},

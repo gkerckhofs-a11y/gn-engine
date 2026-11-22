@@ -356,5 +356,12 @@ targetedProfiles['starfighter-encounter']={
  tests:[...new Set([...targetedProfiles['starfighter-navigation'].tests,...["test/starfighter-encounter.test.mjs", "test/space-encounters.test.mjs", "test/space-convoy-combat.test.mjs", "test/space-alliance-duels.test.mjs", "test/space-escort-maneuvers.test.mjs"]])],
  suites:[...new Set([...targetedProfiles['starfighter-navigation'].suites,...["starfighter-encounter", "space-encounters", "space-alliance-duels", "space-escort-maneuvers"]])],
  httpPattern:'^HTTP \\+ Auth : (vol équipé,|duel privé,|convoi consenti,)',browser:false,
- files:[...targetedProfiles['starfighter-navigation'].files,...["test/starfighter-encounter.test.mjs", "web/space-encounters.mjs", "test/support/firestore-suites.mjs", "test/support/starfighter-encounter-suite.mjs", "web/cockpit/gunnery.mjs", "web/cockpit/cockpit.mjs", "web/cockpit/connected.mjs", "src/core/cockpit-command.mjs", "src/core/space-combat.mjs"]]
+ files:[...targetedProfiles['starfighter-navigation'].files,...["test/starfighter-encounter.test.mjs", "web/space-encounters.mjs", "web/cockpit/state.mjs", "test/support/firestore-suites.mjs", "test/support/starfighter-encounter-suite.mjs", "web/cockpit/gunnery.mjs", "web/cockpit/cockpit.mjs", "web/cockpit/connected.mjs", "src/core/cockpit-command.mjs", "src/core/space-combat.mjs"]]
+};
+
+targetedProfiles['starfighter-fleet']={
+ tests:[...new Set([...targetedProfiles['starfighter-encounter'].tests,...["test/starfighter-fleet.test.mjs", "test/cargo.test.mjs", "test/space-group-stock.test.mjs", "test/galactic-economy.test.mjs", "test/knowledge.test.mjs"]])],
+ suites:[...new Set([...targetedProfiles['starfighter-encounter'].suites,...["starfighter-fleet", "cargo", "space-group-stock", "galactic-economy", "knowledge"]])],
+ httpPattern:'^HTTP \\+ Auth : (STARFIGHTER,|vol équipé,|duel privé,|convoi consenti,)',browser:true,
+ files:[...targetedProfiles['starfighter-encounter'].files,...["test/starfighter-fleet.test.mjs", "test/support/firestore-suites.mjs", "test/support/starfighter-fleet-suite.mjs", "web/cockpit/connected.mjs", "test/browser/recette.spec.mjs","test/integration/http.test.mjs"]]
 };

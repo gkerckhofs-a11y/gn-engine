@@ -1,4 +1,4 @@
-import {initialState,applyVisualEvent,phases} from './state.mjs';
+import {initialState,applyVisualEvent,phases,confirmedRoundCue} from './state.mjs';
 const connected=document.body.dataset.connected==='true';
 const $=id=>document.getElementById(id),canvas=$('space'),ctx=canvas.getContext('2d');
 let volumeLimit=1,effectIntensity=1;
@@ -49,7 +49,8 @@ function draw(now){const dt=Math.min((now-previous)/1000,.05);previous=now;if(!s
  const ex=cx+Math.sin(t*.5)*width*.07,ey=cy+Math.cos(t*.7)*15;if((phase==='contact'||phase==='combat')&&!armed)enemy(ex,ey,Math.min(width/600,1.6));
  const age=elapsed-effectTime;if(effectIntensity>0&&age>=0&&age<.6&&phase==='combat'){
  if(lastEffect==='shot'){ctx.strokeStyle='#8ee9cf';ctx.lineWidth=3;for(const side of [-1,1]){ctx.beginPath();const start=cx+side*width*.36;ctx.moveTo(start+(ex-start)*age, height*.9+(ey-height*.9)*age);ctx.lineTo(ex,ey);ctx.stroke();}}
- if(['impact','shield','hull'].includes(lastEffect)){ctx.strokeStyle=lastEffect==='shield'?'#82d9e8':'#e8b476';ctx.lineWidth=state.reducedMotion?2:2+3*effectIntensity;ctx.beginPath();ctx.ellipse(cx,cy,width*.38,height*.35,0,0,Math.PI*2);ctx.stroke();}
+ if(lastEffect==='miss'){ctx.strokeStyle='#e7b784';ctx.beginPath();ctx.moveTo(width*.08,height*.75);ctx.lineTo(width*.18,height*.52);ctx.stroke();}
+ if(['impact','shield','hull','defended'].includes(lastEffect)){ctx.strokeStyle=lastEffect==='shield'?'#82d9e8':'#e8b476';ctx.lineWidth=state.reducedMotion?2:2+3*effectIntensity;ctx.beginPath();ctx.ellipse(cx,cy,width*.38,height*.35,0,0,Math.PI*2);ctx.stroke();}
  }
  guns?.draw(ctx,width,height,state.paused?0:dt,state.reducedMotion||effectIntensity===0);
  requestAnimationFrame(draw);
@@ -91,16 +92,12 @@ export function combatTelemetry(d,c){
  if(!c){lastShip=null;return;}
  const own=c.ships.find(s=>s.id===c.ownShipId),round=c.lastRound;
  if(round && seenRound!==c.id+'/'+round.round){
-  const fresh=lastShip?.id===c.id && lastShip.round===round.round;
   seenRound=c.id+'/'+round.round;
-  const shots=round.shots.filter(s=>s.targetId===c.ownShipId);
+  const cue=confirmedRoundCue(lastShip,c,c.ownShipId);
   let result='Round '+round.round+' confirmé';
-  const confirmed=round.after?.find(s=>s.id===c.ownShipId);
-  if(fresh && confirmed && d.canAct){
-   if(confirmed.hull<lastShip.hull)result+=' · coque touchée';
-   else if(confirmed.shield<lastShip.shield)result+=' · bouclier touché';
-   else if(shots.length)result+=shots.some(s=>s.defended)?' · tir défendu':' · aucun dégât';
-   if(confirmed.hull<lastShip.hull||confirmed.shield<lastShip.shield){lastEffect=confirmed.hull<lastShip.hull?'hull':'shield';effectTime=elapsed;tone('impact');}
+  if(cue){
+   result+=' · '+cue.label;
+   if(d.canAct){lastEffect=cue.effect;effectTime=elapsed;if(['hull','shield'].includes(cue.effect))tone('impact');}
   }
   log(result);
  }

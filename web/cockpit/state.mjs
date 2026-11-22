@@ -24,3 +24,17 @@ export function applyVisualEvent(state,event){
  }
  return next;
 }
+
+// Compare the previous observed round to its confirmed result, never to a local shot.
+export function confirmedRoundCue(previous,combat,shipId){
+ const round=combat.lastRound;
+ if(!round || previous?.id!==combat.id || previous.round!==round.round)return null;
+ const after=round.after?.find(s=>s.id===shipId);
+ if(!after)return null;
+ if(after.hull<previous.hull)return {effect:'hull',label:'coque touchée'};
+ if(after.shield<previous.shield)return {effect:'shield',label:'bouclier touché'};
+ const incoming=round.shots.filter(s=>s.targetId===shipId);
+ if(incoming.some(s=>s.hit&&s.defended))return {effect:'defended',label:'tir défendu'};
+ if(incoming.length&&incoming.every(s=>!s.hit))return {effect:'miss',label:'tir adverse manqué'};
+ return null;
+}

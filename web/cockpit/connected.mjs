@@ -40,7 +40,7 @@ function showRound(c){
 }
 const guns=document.createElement('section');guns.hidden=true;orders.before(guns);
 connectGunnery(guns);
-let nextScan=0,lastCombatId=null,reportedCombatId=null;
+let nextScan=0,lastCombatId=null,reportedCombatId=null,orderPhase='';
 async function pulse(d,combat){
  if(!d.starfighter?.combat||!d.canAct)return;
  const s=d.ship,j=s.journey;
@@ -52,7 +52,7 @@ async function pulse(d,combat){
  catch(e){if(!['STALE_REVISION','COCKPIT_COMMAND','SPACE_INTERCEPTION_USED','SPACE_ALLIANCE_UNAVAILABLE','TOWING_ACTION_NOT_OPEN'].includes(e.code))throw e;}
 }
 const status=text=>{$('connection-status').textContent=text;};
-function fail(error){showRound(null);combatTelemetry(null,null);plan.reset();main.hidden=true;current=null;lockCockpit();orders.replaceChildren();status(uiErrorMessage(error,{...soNavigationErrors,...spaceEncounterErrors}));}
+function fail(error){orderPhase='';$('journal').replaceChildren();showRound(null);combatTelemetry(null,null);plan.reset();main.hidden=true;current=null;lockCockpit();orders.replaceChildren();status(uiErrorMessage(error,{...soNavigationErrors,...spaceEncounterErrors}));}
 async function api(action,input){
  if(!auth.currentUser)throw new Error('Connexion requise');
  const token=await auth.currentUser.getIdToken();
@@ -61,10 +61,12 @@ async function api(action,input){
 }
 async function mutate(action,input){
  const key=JSON.stringify([action,input]);const requestId=pending.get(key)??crypto.randomUUID();pending.set(key,requestId);
- const result=await api(action,{...input,requestId});pending.delete(key);return result;
+ try{
+  const result=await api(action,{...input,requestId});pending.delete(key);return result;
+ }catch(error){if(error.code)pending.delete(key);throw error;}
 }
 async function refresh(){
- clearTimeout(timer);if(!auth.currentUser||busy)return;const ticket=generation;
+ clearTimeout(timer);if(!auth.currentUser||busy)return;const ticket=++generation;
  try{
   const d=await api('cockpitStation',{sessionId,stationId});if(ticket!==generation)return;
   current=d;main.hidden=false;projectCockpit(d);plan.update(d);document.querySelector('.connection').textContent=d.starfighter?'SESSION CONNECTÉE':'COCKPIT · CONNECTÉ';
@@ -81,11 +83,14 @@ async function refresh(){
    if(d.starfighter?.combat){lastCombatId=combat.combat.id;combatTelemetry(d,combat.combat);}
    await pulse(d,combat.combat);if(ticket!==generation)return;
    // Keep an order being entered intact. Server confirmations reject stale submissions.
-   if(!orders.contains(document.activeElement)){
+   const phaseKey=[combat.combat.id,combat.combat.round,combat.combat.status,combat.combat.canOrder,combat.combat.remainingSeconds===0].join('/');
+   if(orderPhase!==phaseKey||!orders.contains(document.activeElement)){
+    orderPhase=phaseKey;
     orders.innerHTML=spaceCombatsHtml(combat);
     for(const a of orders.querySelectorAll('a'))a.remove();
    }
   }else{
+   orderPhase='';
    showRound(null);
    const previous=lastCombatId??d.starfighter?.previousCombatId;
    if(previous&&previous!==reportedCombatId&&d.starfighter?.combat){
@@ -100,12 +105,12 @@ async function refresh(){
 }
 async function execute(action,input){
  previewing=false;
- if(busy)return;busy=true;clearTimeout(timer);$('next').disabled=true;
+ if(busy)return;const ticket=++generation;busy=true;clearTimeout(timer);$('next').disabled=true;
  for(const b of orders.querySelectorAll('button'))b.disabled=true;
  try{
   // Revocation is checked again before each command; native services recheck the pilot.
   const live=await api('cockpitStation',{sessionId,stationId});
-  if(live.ship.shipId!==input.shipId||!live.canAct)throw new Error('Poste indisponible');
+  if(ticket!==generation||live.ship.shipId!==input.shipId||!live.canAct)throw new Error('Poste indisponible');
   await mutate('cockpitCommand',{sessionId,stationId,command:action,payload:input});status('Commande enregistrée.');orders.replaceChildren();
  }catch(e){fail(e);}finally{busy=false;await refresh();}
 }
@@ -127,5 +132,7 @@ orders.addEventListener('submit',async e=>{
 orders.addEventListener('click',e=>{if(e.target.closest('[data-action="refresh"]')){previewing=false;orders.replaceChildren();refresh();}});
 $('pilot-login').onclick=async()=>{try{await setPersistence(auth,browserSessionPersistence);await signInWithPopup(auth,new GoogleAuthProvider());}catch(e){fail(e);}};
 $('pilot-logout').onclick=()=>signOut(auth);
-onAuthStateChanged(auth,user=>{plan.reset();showRound(null);combatTelemetry(null,null);lastCombatId=null;reportedCombatId=null;nextScan=0;pending.clear();generation++;clearTimeout(timer);current=null;main.hidden=true;lockCockpit();orders.replaceChildren();$('pilot-login').hidden=!!user;$('pilot-logout').hidden=!user;if(user)refresh();else status('Connectez le pilote mandaté pour ce vaisseau. Le compte MJ ne commande pas à sa place.');});
+onAuthStateChanged(auth,user=>{$('journal').replaceChildren();plan.reset();showRound(null);combatTelemetry(null,null);lastCombatId=null;reportedCombatId=null;nextScan=0;pending.clear();generation++;clearTimeout(timer);current=null;main.hidden=true;lockCockpit();orders.replaceChildren();$('pilot-login').hidden=!!user;$('pilot-logout').hidden=!user;if(user)refresh();else status('Connectez le pilote mandaté pour ce vaisseau. Le compte MJ ne commande pas à sa place.');});
+window.addEventListener('offline',()=>{generation++;clearTimeout(timer);fail(new Error('Connexion perdue'));status('Connexion perdue · commandes suspendues.');});
+window.addEventListener('online',()=>refresh());
 window.addEventListener('pagehide',()=>{generation++;clearTimeout(timer);});

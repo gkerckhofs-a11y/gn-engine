@@ -289,15 +289,16 @@ test('Cockpit connecté : pilote, départ serveur, poste révoqué et petit écr
   b.onLoad({filter:/.*/,namespace:'fake-auth'},({path})=>({contents:path==='client'?"export default {currentUser:{getIdToken:async()=> 'isolated-test-token'}};":"export class GoogleAuthProvider{};export const browserSessionPersistence={};export const setPersistence=async()=>{};export const signInWithPopup=async()=>{};export const signOut=async()=>{};export const onAuthStateChanged=(auth,fn)=>queueMicrotask(()=>fn(auth.currentUser));",loader:'js'}));
  }}]});
  const html=(await readFile('web/cockpit/index.html','utf8')).replace('<body>','<body data-connected="true">').replace('src="./cockpit.mjs"','src="./connected.js"');
- const calls=[],errors=[];let revoked=false,departed=false;
+ const calls=[],errors=[];let revoked=false,departed=false,battle=false;
  page.on('pageerror',e=>errors.push(e.message));page.on('dialog',dialog=>dialog.accept());
- const projection=()=>({session:{id:'test-session',stage:'EN_JEU',stopped:false},stationId:'cockpit-1',pilotName:'Pilote test',canAct:true,confirmation:departed?'flight-proof':'ready-proof',ship:{shipId:'ship',name:'Vaisseau connecté',portId:'home',profile:{label:'Cargo',hullMax:4,shieldMax:2},hull:4,shield:2,fuel:departed?2:4,tankCapacity:12,operation:departed?null:{kind:'PREPARE',remainingSeconds:0},journey:departed?{fromPort:'home',toPort:'away',departedAt:Date.now()-10000,remainingSeconds:300,suspended:false,event:{label:'Route libre'}}:null}});
+ const projection=()=>({session:{id:'test-session',stage:'EN_JEU',stopped:false},stationId:'cockpit-1',pilotName:'Pilote test',canAct:true,...(battle?{starfighter:{navigation:true,combat:true,canReadMap:true}}:{}),confirmation:departed?'flight-proof':'ready-proof',ship:{shipId:'ship',combatId:battle?'orbite':null,name:'Vaisseau connecté',portId:'home',profile:{label:'Cargo',hullMax:4,shieldMax:2},hull:4,shield:2,fuel:departed?2:4,tankCapacity:12,operation:departed?null:{kind:'PREPARE',remainingSeconds:0},journey:departed?{fromPort:'home',toPort:'away',departedAt:Date.now()-10000,remainingSeconds:300,suspended:false,event:{label:'Route libre'}}:null}});
  await page.route('**/*',async route=>{
   const u=new URL(route.request().url());
   if(u.pathname==='/api/command'){
    const req=route.request().postDataJSON();calls.push(req);
    if(revoked)return route.fulfill({status:403,json:{error:'COCKPIT_UNAVAILABLE'}});
    if(req.action==='cockpitStation')return route.fulfill({json:{result:projection()}});
+   if(req.action==='spaceCombat'&&battle)return route.fulfill({json:{result:{session:{id:'test-session'},admin:false,combat:{id:'orbite',status:'ROUND',round:1,remainingSeconds:81,confirmation:'round-proof',ownShipId:'ship',canOrder:true,skillLevel:1,surrenderOffers:[],targets:[],ships:[{id:'ship',name:'Vaisseau connecté',hull:4,shield:2,fuel:2,maneuverability:1},{id:'pirate',name:'Contact',hull:4,shield:2}]}}}});
    expect(req.action).toBe('cockpitCommand');expect(req.input.command).toBe('finishSoPreparation');expect(req.input.stationId).toBe('cockpit-1');expect(req.input.payload.present).toBe(true);departed=true;return route.fulfill({json:{result:{status:'DEPARTED'}}});
   }
   if(u.pathname==='/cockpit/live.html')return route.fulfill({contentType:'text/html',body:html});
@@ -311,6 +312,14 @@ test('Cockpit connecté : pilote, départ serveur, poste révoqué et petit écr
  await page.locator('#next').click();await expect(page.locator('#fuel')).toHaveText('2 / 12');await expect(page.locator('#next')).toBeDisabled();
  expect(calls.filter(x=>x.action==='cockpitCommand')).toHaveLength(1);await capture(page,testInfo,'cockpit-connecte');
  await page.setViewportSize({width:390,height:844});expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ battle=true;await expect(page.locator('.connection')).toHaveText('SESSION CONNECTÉE');
+ await expect(page.getByText('Round 1 · 81 s de jeu · ordre à transmettre')).toBeVisible();
+ await page.locator('#space').focus();await page.keyboard.press('Space');await expect(page.getByText('Salve libre émise')).toBeVisible();
+ expect(calls.filter(x=>x.action==='cockpitCommand')).toHaveLength(1);
+ await page.context().setOffline(true);await expect(page.locator('main')).toBeHidden();
+ await expect(page.locator('#connection-status')).toContainText('Connexion perdue');
+ await page.context().setOffline(false);await expect(page.getByText('Round 1 · 81 s de jeu · ordre à transmettre')).toBeVisible();
+ await capture(page,testInfo,'starfighter-poste-reconnecte');
  revoked=true;await expect(page.locator('main')).toBeHidden();await expect(page.locator('#connection-status')).toContainText('plus disponibles');expect(errors).toEqual([]);
 });
 
@@ -585,4 +594,32 @@ test('Terminaux QR : dossiers sur mobile, cours fermés et matrice de régie PC'
  await page.locator('#app').evaluate((el,html)=>el.innerHTML=html,terminalUi.personalTerminalHtml(own,services));await expect(page.getByRole('heading',{name:'Mes informations',exact:true})).toBeVisible();await expect(page.locator('[data-terminal="public-prices"]')).toHaveCount(0);await expect(page.locator('[data-terminal="sabacc"]')).toHaveCount(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await capture(page,info,'terminal-qr-mobile');
  const place=await f.read('localTerminal',{terminalId:'bourse'});await page.locator('#app').evaluate((el,html)=>el.innerHTML=html,localUi.localTerminalHtml(place,f.sid));await expect(page.locator('#app')).toContainText('Accès expiré ou absent');await expect(page.locator('[data-qr]')).toBeVisible();await page.locator('[name="present"]').focus();await page.keyboard.press('Space');await expect(page.locator('[name="present"]')).toBeChecked();await capture(page,info,'terminal-qr-saisie-mobile');
  await page.setViewportSize({width:1440,height:1000});await page.locator('#app').evaluate((el,html)=>el.innerHTML=html,localUi.localReadinessHtml(regie));await expect(page.getByRole('heading',{name:'Modules × lieux'})).toBeVisible();await expect(page.locator('#app')).toContainText('Configuration locale prête');await expect(page.locator('[data-local-status="ACTIVE"]')).not.toHaveCount(0);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await capture(page,info,'terminal-qr-matrice-pc');await page.close();
+});
+
+test('STARFIGHTER : navigation, négociation et visée au clavier sans accès GN',async({page},info)=>{
+ const allowed=new Set(['starfighter.html','flight.mjs','flight-ui.mjs','gunnery.mjs']);
+ const unexpected=[],errors=[];
+ page.on('pageerror',e=>errors.push(e.message));
+ await page.route('**/*',async route=>{
+  const u=new URL(route.request().url()),name=u.pathname.split('/').pop();
+  if(u.origin!=='http://127.0.0.1:4173'||u.pathname!=='/cockpit/'+name||!allowed.has(name)){
+   unexpected.push(u.pathname);return route.abort();
+  }
+  await route.fulfill({contentType:name.endsWith('html')?'text/html':'text/javascript',body:await readFile('web/cockpit/'+name)});
+ });
+ await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/cockpit/starfighter.html');
+ await expect(page.locator('#training')).toHaveText('SIMULATION – données fictives');
+ await page.locator('#mode').selectOption({index:1});await expect(page.locator('#plans')).toContainText('Balise Orme');
+ for(const phase of ['Manifeste confirmé','Décollage','Hyperespace','Contact radar','Rencontre simulée']){
+  await page.locator('#step').click();await expect(page.locator('#phase')).toHaveText(phase);
+ }
+ await page.locator('canvas').focus();await page.keyboard.press('ArrowDown');await page.keyboard.press('Space');
+ await expect(page.locator('#combat output')).toContainText('Salve');
+ await page.locator('#pause').click();await expect(page.locator('#step')).toBeDisabled();
+ await page.locator('#pause').click();await capture(page,info,'starfighter-combat');
+ await page.locator('#step').click();await page.locator('#step').click();
+ await expect(page.locator('#systems')).toContainText('Quai Nacre');
+ await page.setViewportSize({width:800,height:640});await capture(page,info,'starfighter-escale');
+ await page.locator('#shortage').click();await expect(page.locator('#step')).toBeDisabled();
+ expect(unexpected).toEqual([]);expect(errors).toEqual([]);
 });

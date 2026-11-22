@@ -990,3 +990,7 @@ Marché réservé à la classe principale Courtier. Détail, limites et validati
 - Remise physique MJ, refus API/Auth, concurrence, interruptions, pause/STOP et reprise d'épisode testés dans les suites partagées.
 - Couverture ACT-01..18 / DOCK-01..50 et écarts explicites : [rapport AC-06](SO-ACCESS-AC06-VALIDATION.md).
 - CI complète demandée au candidat d'intégration ; verdict exact dans PR #58. Inspection douanière dédiée et recette humaine restent non exécutées. Aucune publication.
+
+## STARFIGHTER · voyages et rencontres au cockpit
+
+[Plan et autorisations](SO-STARFIGHTER-TECHNICAL-PLAN.md), [guide du cockpit et de l’entraînement hors ligne](SO-STARFIGHTER-COCKPIT.md), [recette AC-01 à AC-20](SO-STARFIGHTER-RECETTE.md). Attribution transactionnelle d’un poste, négociation avant combat et visée locale. La PR en brouillon rassemble les exécutions par commit. Recette sur les ordinateurs physiques à effectuer avant toute décision de publication.
