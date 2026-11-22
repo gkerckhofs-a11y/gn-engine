@@ -15,3 +15,9 @@ Dans une session de test, la régie configure le nombre d’ordinateurs physique
 Le premier vol se prépare au spatioport natif. L’attribution du poste se fait avec la réservation du PA. Si tous les postes sont occupés, la transaction refuse toute la préparation. Le pilote ouvre le lien indiqué, s’authentifie sur le poste, vérifie le manifeste et confirme le décollage à la fin de la préparation. Le moteur vérifie à nouveau présence, mandat et ressources.
 
 Sur le poste, ouvrir « Carte et plan de vol », saisir les codes personnellement connus, puis choisir une planète pour comparer les itinéraires. Une analyse acquise peut déjà rendre une liaison visible. La carte nécessite PIL-01. Le serveur vérifie séparément le droit de piloter. La réservation du prochain tronçon se fait à quai. Les stocks, réservations et éventuelles obligations de présence au terminal local gardent leur fonctionnement habituel.
+
+## Rencontre automatique
+
+Avec le combat immersif activé, le cockpit en vol recherche une embuscade admissible à intervalles de quinze secondes. Les pilotes négocient pendant 90 secondes de jeu. Un accord de paix doit être accepté par tous les pilotes concernés. Sans accord, le premier poste actif constatant l’échéance demande au serveur d’ouvrir le round. Un poste actif résout également le round arrivé à échéance. Le serveur fixe les délais, contrôle l’état et journalise la résolution unique. Une pause fige le temps de jeu.
+
+Le viseur, le verrouillage et les salves illustrent le pilotage. Pour participer au round, sélectionner et enregistrer son ordre dans les commandes natives. Le résultat confirmé figure au journal de round. Revenir d’une coupure réaffiche l’état actuel. Si tous les postes sont fermés, le serveur traite la transition à la prochaine actualisation autorisée. Les incidents scénarisés exigeant une décision de régie, le dépannage et les effets hors combat gardent leurs procédures natives.

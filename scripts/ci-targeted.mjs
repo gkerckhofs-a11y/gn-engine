@@ -351,3 +351,10 @@ targetedProfiles['starfighter-navigation']={
  httpPattern:'^HTTP \\+ Auth : (vol équipé,|duel privé,|convoi consenti,)',browser:false,
  files:[...targetedProfiles['starfighter-training'].files,...["test/starfighter-navigation.test.mjs", "web/space-outlaws-voyages.mjs", "web/app.mjs", "test/support/firestore-suites.mjs", "test/support/starfighter-navigation-suite.mjs", "web/cockpit/flight-plan.mjs", "web/cockpit/cockpit.mjs", "web/cockpit/connected.mjs", "src/core/starfighter-stations.mjs", "src/core/cockpit-command.mjs", "src/core/space-outlaws-voyages.mjs"]]
 };
+
+targetedProfiles['starfighter-encounter']={
+ tests:[...new Set([...targetedProfiles['starfighter-navigation'].tests,...["test/starfighter-encounter.test.mjs", "test/space-encounters.test.mjs", "test/space-convoy-combat.test.mjs", "test/space-alliance-duels.test.mjs", "test/space-escort-maneuvers.test.mjs"]])],
+ suites:[...new Set([...targetedProfiles['starfighter-navigation'].suites,...["starfighter-encounter", "space-encounters", "space-alliance-duels", "space-escort-maneuvers"]])],
+ httpPattern:'^HTTP \\+ Auth : (vol équipé,|duel privé,|convoi consenti,)',browser:false,
+ files:[...targetedProfiles['starfighter-navigation'].files,...["test/starfighter-encounter.test.mjs", "web/space-encounters.mjs", "test/support/firestore-suites.mjs", "test/support/starfighter-encounter-suite.mjs", "web/cockpit/gunnery.mjs", "web/cockpit/cockpit.mjs", "web/cockpit/connected.mjs", "src/core/cockpit-command.mjs", "src/core/space-combat.mjs"]]
+};

@@ -2,7 +2,7 @@ import {cockpitFlightPlan} from './flight-plan.mjs';
 import {uiErrorMessage} from '../ui-language.mjs';
 import auth from '../firebase-client.mjs';
 import {GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut,browserSessionPersistence,setPersistence} from 'firebase/auth';
-import {projectCockpit,lockCockpit} from './cockpit.mjs';
+import {projectCockpit,lockCockpit,connectGunnery,combatTelemetry} from './cockpit.mjs';
 import {spaceCombatsHtml,spaceArmHtml,spaceConfirmHtml,spaceFormInput,spaceEncounterErrors} from '../space-encounters.mjs';
 import {soNavigationErrors} from '../space-outlaws-voyages.mjs';
 
@@ -30,8 +30,29 @@ const plan=cockpitFlightPlan(chart,async (command,fields,d)=>{
  }
  return api('cockpitCommand',input);
 });
+const roundStatus=document.createElement('p');roundStatus.hidden=true;orders.before(roundStatus);
+function showRound(c){
+ roundStatus.hidden=!c;
+ if(!c){roundStatus.textContent='';return;}
+ roundStatus.textContent=c.status==='ENCOUNTER'?
+  (c.negotiationSeconds==null?'Négociation ouverte':'Négociation · '+c.negotiationSeconds+' s de jeu') :
+  'Round '+c.round+' · '+c.remainingSeconds+' s de jeu · '+(c.ownOrder?'ordre enregistré':'ordre à transmettre');
+}
+const guns=document.createElement('section');guns.hidden=true;orders.before(guns);
+connectGunnery(guns);
+let nextScan=0,lastCombatId=null,reportedCombatId=null;
+async function pulse(d,combat){
+ if(!d.starfighter?.combat||!d.canAct)return;
+ const s=d.ship,j=s.journey;
+ if(combat ? !combat.canOrder || !(combat.status==='ROUND'&&combat.remainingSeconds===0 || combat.status==='ENCOUNTER'&&combat.negotiationSeconds===0)
+    : !j||j.suspended||j.intercepted||j.interceptionCovered||j.remainingSeconds<=0||s.groupShip||Date.now()<nextScan)return;
+ if(!combat)nextScan=Date.now()+15000;
+ const payload={sessionId,shipId:s.shipId,confirmation:d.confirmation,...(combat?{combatId:combat.id,roundConfirmation:combat.confirmation}:{})};
+ try{await mutate('cockpitCommand',{sessionId,stationId,command:'starfighterPulse',payload});}
+ catch(e){if(!['STALE_REVISION','COCKPIT_COMMAND','SPACE_INTERCEPTION_USED','SPACE_ALLIANCE_UNAVAILABLE','TOWING_ACTION_NOT_OPEN'].includes(e.code))throw e;}
+}
 const status=text=>{$('connection-status').textContent=text;};
-function fail(error){plan.reset();main.hidden=true;current=null;lockCockpit();orders.replaceChildren();status(uiErrorMessage(error,{...soNavigationErrors,...spaceEncounterErrors}));}
+function fail(error){showRound(null);combatTelemetry(null,null);plan.reset();main.hidden=true;current=null;lockCockpit();orders.replaceChildren();status(uiErrorMessage(error,{...soNavigationErrors,...spaceEncounterErrors}));}
 async function api(action,input){
  if(!auth.currentUser)throw new Error('Connexion requise');
  const token=await auth.currentUser.getIdToken();
@@ -56,12 +77,24 @@ async function refresh(){
   if(s.combatId){
    const combat=await api('spaceCombat',{sessionId,combatId:s.combatId});if(ticket!==generation)return;
    if(!combat.combat||combat.combat.ownShipId!==s.shipId)throw new Error('Vaisseau différent');
+   showRound(d.starfighter?.combat?combat.combat:null);
+   if(d.starfighter?.combat){lastCombatId=combat.combat.id;combatTelemetry(d,combat.combat);}
+   await pulse(d,combat.combat);if(ticket!==generation)return;
    // Keep an order being entered intact. Server confirmations reject stale submissions.
    if(!orders.contains(document.activeElement)){
     orders.innerHTML=spaceCombatsHtml(combat);
     for(const a of orders.querySelectorAll('a'))a.remove();
    }
-  }else if(!previewing&&!orders.contains(document.activeElement)){orders.innerHTML=d.canAct&&s.journey&&!s.groupShip&&!s.journey.suspended&&!s.journey.intercepted&&!s.journey.interceptionCovered&&!s.ambushId&&!s.convoy&&!s.towingAttached&&s.journey.remainingSeconds>0?spaceArmHtml(sessionId,s.shipId):'';}
+  }else{
+   showRound(null);
+   const previous=lastCombatId??d.starfighter?.previousCombatId;
+   if(previous&&previous!==reportedCombatId&&d.starfighter?.combat){
+    const ended=await api('spaceCombat',{sessionId,combatId:previous});if(ticket!==generation)return;
+    if(ended.combat?.ownShipId===s.shipId)combatTelemetry(d,ended.combat);reportedCombatId=previous;lastCombatId=null;
+   }else combatTelemetry(d,null);
+   await pulse(d,null);if(ticket!==generation)return;
+  }
+  if(!s.combatId&&!previewing&&!orders.contains(document.activeElement)){orders.innerHTML=d.canAct&&s.journey&&!s.groupShip&&!s.journey.suspended&&!s.journey.intercepted&&!s.journey.interceptionCovered&&!s.ambushId&&!s.convoy&&!s.towingAttached&&s.journey.remainingSeconds>0?spaceArmHtml(sessionId,s.shipId,false,[],d.starfighter?.combat):'';}
  }catch(e){if(ticket===generation)fail(e);}
  finally{if(ticket===generation&&!busy&&auth.currentUser)timer=setTimeout(refresh,3000);}
 }
@@ -94,5 +127,5 @@ orders.addEventListener('submit',async e=>{
 orders.addEventListener('click',e=>{if(e.target.closest('[data-action="refresh"]')){previewing=false;orders.replaceChildren();refresh();}});
 $('pilot-login').onclick=async()=>{try{await setPersistence(auth,browserSessionPersistence);await signInWithPopup(auth,new GoogleAuthProvider());}catch(e){fail(e);}};
 $('pilot-logout').onclick=()=>signOut(auth);
-onAuthStateChanged(auth,user=>{plan.reset();pending.clear();generation++;clearTimeout(timer);current=null;main.hidden=true;lockCockpit();orders.replaceChildren();$('pilot-login').hidden=!!user;$('pilot-logout').hidden=!user;if(user)refresh();else status('Connectez le pilote mandaté pour ce vaisseau. Le compte MJ ne commande pas à sa place.');});
+onAuthStateChanged(auth,user=>{plan.reset();showRound(null);combatTelemetry(null,null);lastCombatId=null;reportedCombatId=null;nextScan=0;pending.clear();generation++;clearTimeout(timer);current=null;main.hidden=true;lockCockpit();orders.replaceChildren();$('pilot-login').hidden=!!user;$('pilot-logout').hidden=!user;if(user)refresh();else status('Connectez le pilote mandaté pour ce vaisseau. Le compte MJ ne commande pas à sa place.');});
 window.addEventListener('pagehide',()=>{generation++;clearTimeout(timer);});

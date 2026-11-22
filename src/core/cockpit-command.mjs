@@ -14,15 +14,34 @@ const combat=new Set(['submitSpaceOrder','resolveSpaceRound','consentSpacePeace'
 export function createCockpitCommandService(deps){
  return async(actor,input)=>{
   deps.signed(actor);admissionKeys(input,['sessionId','stationId','command','payload','requestId']);
-  requireThat(navigation.has(input.command)||planning.has(input.command)||combat.has(input.command)||ambush.has(input.command),'COCKPIT_COMMAND');
+  requireThat(navigation.has(input.command)||planning.has(input.command)||input.command==='starfighterPulse'||combat.has(input.command)||ambush.has(input.command),'COCKPIT_COMMAND');
   requireThat(input.payload&&typeof input.payload==='object'&&!Array.isArray(input.payload),'COCKPIT_COMMAND');
-  const at=deps.now(),id=deps.uuid(),dice=[];
+  const at=deps.now(),id=deps.uuid(),dice=[],ambushChoices=new Map();
+  const chooseAmbush=(key,size)=>{if(!ambushChoices.has(key))ambushChoices.set(key,randomInt(size));return ambushChoices.get(key);};
   return deps.store.runTransaction(async tx=>{
    const store={get:path=>tx.get(path),runTransaction:callback=>callback(tx)};
-   let index=0;const stable={...deps,store,now:()=>at,uuid:()=>id,rollD6:()=>{const n=index++;return dice[n]??(dice[n]=deps.rollD6?deps.rollD6():randomInt(1,7));}};
+   let index=0;const stable={...deps,store,chooseAmbush,now:()=>at,uuid:()=>id,rollD6:()=>{const n=index++;return dice[n]??(dice[n]=deps.rollD6?deps.rollD6():randomInt(1,7));}};
    const voyage=createSoVoyageService(stable);
    const view=await voyage('cockpitStation',actor,{sessionId:input.sessionId,stationId:input.stationId});
    requireThat(input.payload.shipId===view.ship.shipId&&input.payload.sessionId===input.sessionId,'COCKPIT_COMMAND');
+   if(input.command==='starfighterPulse'){
+    admissionKeys(input.payload,['sessionId','shipId','confirmation','combatId','roundConfirmation']);
+    requireThat(view.starfighter?.combat&&view.canAct&&input.payload.confirmation===view.confirmation,'COCKPIT_COMMAND');
+    const service=createSpaceCombatService(stable);
+    const payload={sessionId:input.sessionId,shipId:view.ship.shipId,requestId:input.requestId};
+    if(view.ship.combatId){
+     requireThat(input.payload.combatId===view.ship.combatId,'COCKPIT_COMMAND');
+     const d=(await service('spaceCombat',actor,{sessionId:input.sessionId,combatId:view.ship.combatId})).combat;
+     requireThat(d.ownShipId===view.ship.shipId&&d.canOrder&&input.payload.roundConfirmation===d.confirmation,'STALE_REVISION');
+     const round={...payload,combatId:d.id,confirmation:d.confirmation};
+     if(d.status==='ENCOUNTER'&&d.negotiationSeconds===0)return service('startSpaceCombat',actor,{...round,reason:'Fin de la négociation automatique',briefed:true},true);
+     if(d.status==='ROUND'&&d.remainingSeconds===0)return service('resolveSpaceRound',actor,round);
+     return {status:'WAIT'};
+    }
+    const j=view.ship.journey;
+    requireThat(!input.payload.combatId&&j&&!j.suspended&&!j.intercepted&&!j.interceptionCovered&&j.remainingSeconds>0,'COCKPIT_COMMAND');
+    return service('triggerSpaceInterception',actor,{...payload,reason:'Interception automatique sur une liaison admissible'},true);
+   }
    if(planning.has(input.command)){
     requireThat(view.starfighter?.navigation,'COCKPIT_COMMAND');
     const {payload}=input;
