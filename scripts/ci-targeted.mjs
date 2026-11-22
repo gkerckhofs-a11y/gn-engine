@@ -342,5 +342,5 @@ targetedProfiles['terminal-qr']={
 const trainingTests=['starfighter-training','cockpit','ci-selection','ci-targeted'].map(n=>'test/'+n+'.test.mjs');
 targetedProfiles['starfighter-training']={
  tests:trainingTests,suites:[],httpPattern:null,
- files:[...trainingTests,'scripts/ci-targeted.mjs','web/cockpit/starfighter.html','web/cockpit/flight.mjs','web/cockpit/flight-ui.mjs','web/cockpit/gunnery.mjs','web/cockpit/index.html']
+ files:[...trainingTests,'scripts/ci-targeted.mjs','web/cockpit/starfighter.html','web/cockpit/flight.mjs','scripts/starfighter-demo.mjs','web/cockpit/flight-ui.mjs','web/cockpit/gunnery.mjs','web/cockpit/index.html']
 };

@@ -1,11 +1,26 @@
+import {mountGunnery} from './gunnery.mjs';
 import {ports,itinerary,training,advance,refuel} from './flight.mjs';
 const $=id=>document.getElementById(id);
 let ship=training(), paused=false, reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let elapsed=0, previous=performance.now(), phaseTime=0;
 const labels={map:'Carte galactique',ready:'Manifeste confirmé',launch:'Décollage',hyperspace:'Hyperespace',contact:'Contact radar',combat:'Rencontre simulée',approach:'Approche finale'};
-const actions={map:'Préparer le tronçon',ready:'Confirmer le décollage',launch:'Engager le saut',hyperspace:'Rejoindre le contact',contact:'Identifier le contact',combat:'Rompre le contact',approach:'Confirmer l’amarrage'};
+const actions={map:'Préparer le tronçon',ready:'Confirmer le décollage',launch:'Engager le saut',hyperspace:'Rejoindre le contact',contact:'Clore la négociation',combat:'Rompre le contact',approach:'Confirmer l’amarrage'};
+let sound=false,audio,combatSeconds=0,shield=2,hull=4;
+const gunnery=mountGunnery($('combat'),$('screen'),()=>{
+  if(sound && audio){
+    const osc=audio.createOscillator(),gain=audio.createGain();osc.connect(gain);gain.connect(audio.destination);
+    osc.frequency.setValueAtTime(420,audio.currentTime);osc.frequency.exponentialRampToValueAtTime(80,audio.currentTime+.14);
+    gain.gain.value=.045;osc.start();osc.stop(audio.currentTime+.15);
+  }
+});
+$('audio').onclick=async()=>{try{audio??=new AudioContext();await audio.resume();sound=!sound;$('audio').textContent=sound?'Couper le son':'Activer le son';}catch{$('audio').textContent='Audio indisponible';}};
+$('peace').onclick=()=>{if(ship.phase==='contact'&&!paused){ship={...ship,phase:'approach'};phaseTime=0;render();}};
 const fmt=r=>ports[r.from]+' → '+ports[r.to]+' · '+r.seconds+' s · '+r.cost+' unités (minimum '+r.min+')';
 function render() {
+  gunnery.enable(!paused&&ship.phase==='combat');
+  $('combat').hidden=paused||ship.phase!=='combat';
+  $('peace').hidden=ship.phase!=='contact';$('peace').disabled=paused;
+  $('tactics').hidden=ship.phase!=='combat';$('tactic').disabled=paused;
   const map=ship.phase==='map', plans=itinerary(ship.port,ship.destination,ship.economy);
   $('phase').textContent=labels[ship.phase]+(paused?' · PAUSE':'');
   $('planning').hidden=!map;
@@ -17,12 +32,12 @@ function render() {
   $('step').textContent=actions[ship.phase];
   $('step').disabled=paused || (map && (!plans.length || ship.fuel<plans[0].min));
   $('supply').disabled=paused || refuel(ship)===ship;
-  $('radio').textContent=map?(plans.length?(ship.fuel<plans[0].min?'Carburant insuffisant. ':'')+'Stock au quai : '+ship.stock[ship.port]:'Exercice terminé. Amarrage confirmé.'):'Canal de bord · '+labels[ship.phase];
+  $('radio').textContent=map?(plans.length?(ship.fuel<plans[0].min?'Carburant insuffisant. ':'')+'Stock au quai : '+ship.stock[ship.port]:'Exercice terminé. Amarrage confirmé.'):ship.phase==='contact'?'Interception fictive · négociez une paix avant l’ouverture automatique du combat dans 12 secondes d’exercice.':'Canal de bord · '+labels[ship.phase];
   $('pause').textContent=paused?'Reprendre':'Pause';
   $('motion').setAttribute('aria-pressed',String(reduced));
   for(const id of ['dest','mode']) $(id).disabled=paused;
 }
-function step(){if(!paused){ship=advance(ship);phaseTime=0;render();}}
+function step(){if(ship.phase==='contact'){shield=2;hull=4;combatSeconds=0;$('outcome').textContent='Contact hostile. Boucliers fictifs : 2 · coque fictive : 4';}if(!paused){ship=advance(ship);phaseTime=0;render();}}
 $('step').onclick=step;
 $('dest').onchange=e=>{ship.destination=Number(e.target.value);render();};
 $('mode').onchange=e=>{ship.economy=!!e.target.selectedIndex;render();};
@@ -36,6 +51,19 @@ const points=[[.24,.66],[.39,.30],[.57,.59],[.75,.33]];
 function draw(now){
   const dt=Math.min(.1,(now-previous)/1000);previous=now;
   if(!paused&&!document.hidden){phaseTime+=dt;if(!reduced)elapsed+=dt;}
+  if(!paused && !document.hidden && ship.phase==='combat'){
+    combatSeconds+=dt;
+    if(combatSeconds>=6){
+      combatSeconds=0;const maneuver=$('tactic').value;
+      if(maneuver==='Fuir'){step();$('radio').textContent='Exercice · fuite confirmée, cap repris.';}
+      else if(maneuver==='Défendre')$('outcome').textContent='Résolution fictive · attaque adverse repoussée.';
+      else{if(shield>0)shield--;else hull=Math.max(0,hull-1);
+        $('outcome').textContent='Résolution fictive · impact adverse. Boucliers : '+shield+' · coque : '+hull;
+        if(!hull){step();$('radio').textContent='Exercice · assistance fictive, retour en approche.';}
+      }
+    }
+  }
+  if(ship.phase==='contact'&&phaseTime>=12)step();
   if(ship.phase==='launch'&&phaseTime>=2 || ship.phase==='hyperspace'&&phaseTime>=ship.leg.seconds) step();
   const w=canvas.clientWidth,h=canvas.clientHeight,scale=Math.min(devicePixelRatio,2);
   if(canvas.width!==Math.round(w*scale)||canvas.height!==Math.round(h*scale)){canvas.width=Math.round(w*scale);canvas.height=Math.round(h*scale);}
@@ -60,6 +88,7 @@ function draw(now){
   }else if(ship.phase==='approach'){
     const r=h*.34,g=ctx.createRadialGradient(w*.62,h*.45,0,w*.7,h*.52,r);g.addColorStop(0,'#aae5ce');g.addColorStop(.7,'#406b86');g.addColorStop(1,'#101c35');ctx.fillStyle=g;ctx.beginPath();ctx.arc(w*.7,h*.52,r,0,7);ctx.fill();
   }
+  gunnery.draw(ctx,w,h,paused?0:dt,reduced);
   requestAnimationFrame(draw);
 }
 render();requestAnimationFrame(draw);
