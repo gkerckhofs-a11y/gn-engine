@@ -1,0 +1,21 @@
+<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Starfighter · Poste d’entraînement</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#08121b;color:#e3edf1;font:16px system-ui}main{max-width:1080px;margin:auto;padding:2vw}header,section,nav{display:flex;align-items:center;gap:14px;flex-wrap:wrap}header{justify-content:space-between;border-bottom:1px solid #456170}h1{font-size:clamp(24px,4vw,48px);letter-spacing:-.05em;margin:.4em 0}strong,output{color:#8ce9e0}figure{position:relative;margin:1rem 0;background:#030a13;border:2px solid #425762;border-radius:20px;overflow:hidden}canvas{width:100%;height:clamp(240px,45vh,510px);display:block;touch-action:none}.canopy{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.86}figcaption{position:absolute;left:15%;top:10%;color:#a6e9e5;pointer-events:none}button,select{background:#152c39;color:white;border:1px solid #64838e;padding:.7rem 1rem;border-radius:5px;font:inherit}button:enabled{cursor:pointer}button:disabled{opacity:.5}#step{background:#146664}button:focus-visible,canvas:focus-visible,select:focus-visible{outline:3px solid #ffcc78}nav{margin:1rem 0}#plans{line-height:1.55}small{display:block;color:#abc1ca}#training{border:1px solid #627e85;padding:.5rem}label{display:inline-grid;gap:.2em}p{max-width:75ch}[hidden]{display:none}
+</style><main><header><h1>STARFIGHTER</h1><b id="training">SIMULATION – données fictives</b></header>
+<figure><canvas id="screen" tabindex="0" aria-label="Champ de vol et visée"></canvas><svg aria-hidden="true" class="canopy" viewBox="0 0 1400 600" preserveAspectRatio="none">
+<defs><linearGradient id="metal" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#607078"/><stop offset=".1" stop-color="#29363e"/><stop offset=".48" stop-color="#121b23"/><stop offset=".9" stop-color="#34414a"/><stop offset="1" stop-color="#080e13"/></linearGradient><linearGradient id="beam"><stop stop-color="#0a1016"/><stop offset=".3" stop-color="#36444e"/><stop offset=".5" stop-color="#48565e"/><stop offset=".58" stop-color="#17222c"/><stop offset="1" stop-color="#080e14"/></linearGradient></defs>
+<path d="M0 0H1400V54L1150 30H250L0 54Z" fill="url(#metal)" stroke="#78868b" stroke-width="2"/>
+<path d="M0 0H180L325 600H252L116 67H0Z M1400 0H1220L1075 600H1148L1284 67H1400Z" fill="url(#beam)" stroke="#53636e" stroke-width="2"/>
+<path d="M0 0H35V600H0Z M1400 0H1365V600H1400Z" fill="url(#beam)"/>
+<path d="M0 555L240 522L410 562H990L1160 522L1400 555V600H0Z" fill="url(#metal)" stroke="#68777f" stroke-width="2"/>
+<path d="M184 55L301 535 M1216 55L1099 535" stroke="#050b10" stroke-width="8"/>
+<path d="M188 55L305 535 M1212 55L1095 535" stroke="#637881" stroke-width="1"/>
+<g fill="#111a20" stroke="#72818a" stroke-width="2"><circle cx="150" cy="35" r="7"/><circle cx="1250" cy="35" r="7"/><circle cx="278" cy="560" r="7"/><circle cx="1122" cy="560" r="7"/><circle cx="50" cy="575" r="7"/><circle cx="1350" cy="575" r="7"/></g>
+<path d="M145 35H155 M1245 35H1255 M273 560H283 M1117 560H1127 M45 575H55 M1345 575H1355" stroke="#a1a8a8" stroke-width="2"/>
+<path d="M440 583H610 M790 583H960" stroke="#dfb56a" stroke-width="3"/>
+</svg><figcaption id="phase"></figcaption></figure>
+<section id="planning"><label>Destination<select id="dest"></select></label><label>Itinéraire<select id="mode"><option>Rapide</option><option>Économe</option></select></label><button id="supply">Charger 1 unité</button></section>
+<p id="plans"></p><section><strong id="systems"></strong><button id="step"></button></section>
+<p role="status" id="radio"></p><div id="combat" hidden></div>
+<nav><button id="pause">Pause</button><button id="motion">Mouvement réduit</button><button id="reset">Nouvel exercice</button><button id="shortage">Essayer une pénurie</button></nav>
+<script type="module" src="./flight-ui.mjs"></script></main></html>

@@ -338,3 +338,9 @@ targetedProfiles['terminal-qr']={
  suites:[...new Set([...targetedProfiles['contextual-docks'].suites,'terminal-qr','terminal-qr-readiness','terminal-qr-services','terminal-qr-port','prices','planet-markets','galactic-economy','space-outlaws-voyages','space-module-work','space-module-installation','space-clinic','space-merchant-contacts','space-merchant-negotiation','intelligence','space-outlaws-health','market','negotiations'])],
  files:[...targetedProfiles['contextual-docks'].files,'src/core/space-outlaws-entry-guard.mjs','src/core/person-actions.mjs','src/core/field-actions.mjs','src/core/knowledge-sales.mjs','src/core/space-hidden-cargo.mjs','src/shared/local-service-catalog.mjs','src/core/space-outlaws-voyages.mjs','src/core/space-maintenance.mjs','src/core/space-module-work.mjs','src/sabacc/service.mjs','test/support/sabacc-suite.mjs','web/space-maintenance.mjs','src/core/market.mjs','src/core/market-negotiations.mjs','web/market.mjs','src/core/contextual-readiness.mjs','src/core/contextual-preview.mjs','src/core/contextual-policy.mjs','src/core/prices.mjs','src/core/planet-markets.mjs','test/terminal-qr.test.mjs','test/support/terminal-qr-suite.mjs','test/prices.test.mjs','test/planet-markets.test.mjs','test/galactic-economy.test.mjs','docs/SO-TERMINAL-QR.md'],
 };
+
+const trainingTests=['starfighter-training','cockpit','ci-selection','ci-targeted'].map(n=>'test/'+n+'.test.mjs');
+targetedProfiles['starfighter-training']={
+ tests:trainingTests,suites:[],httpPattern:null,
+ files:[...trainingTests,'scripts/ci-targeted.mjs','web/cockpit/starfighter.html','web/cockpit/flight.mjs','web/cockpit/flight-ui.mjs','web/cockpit/gunnery.mjs','web/cockpit/index.html']
+};
