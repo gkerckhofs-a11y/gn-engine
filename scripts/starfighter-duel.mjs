@@ -5,7 +5,7 @@ import {randomBytes} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import {duel,step,controls,decision,STEP} from '../web/cockpit/duel-model.mjs';
 const room=duel(), seats=[0,1].map(()=>({key:randomBytes(24).toString('hex'), input:{}, stream:null, updated:0}));
-const files=new Set(['duel.html','duel-ui.mjs','duel-model.mjs','duel-visuals.mjs','duel-instruments.mjs','duel-sky.mjs','duel-canopy.mjs']);
+const files=new Set(['duel.html','duel-ui.mjs','duel-model.mjs','duel-visuals.mjs','duel-instruments.mjs','duel-sky.mjs','duel-canopy.mjs','duel-destruction.mjs','duel-throttle.mjs']);
 function send(seat,type,data) {seat.stream?.write(JSON.stringify({type,data})+'\n');}
 function resetCall() { room.linked.fill(false); for (const seat of seats) send(seat,'hangup',null); }
 async function handle(req,res) {
@@ -38,10 +38,17 @@ async function handle(req,res) {
 const tls=process.env.DUEL_CERT && process.env.DUEL_KEY;
 const listener=(req,res)=>handle(req,res).catch(()=>{if(!res.headersSent)res.writeHead(400);res.end();});
 const server=tls?createTLS({cert:await readFile(process.env.DUEL_CERT),key:await readFile(process.env.DUEL_KEY)},listener):createServer(listener);
+let endedAt = null;
 setInterval(()=>{
   const ready=seats.every(s=>s.stream);
   if(ready)step(room,seats.map(s=>Date.now()-s.updated<450?s.input:{}));
-  for(const s of seats)send(s,'frame',{room,ready});
+  const frame={room,ready};
+  if(room.phase==='fin'){
+    const now=performance.now();
+    endedAt??=now;
+    frame.secondsSinceEnd=(now-endedAt)/1000;
+  }
+  for(const s of seats)send(s,'frame',frame);
 },STEP*1000).unref();
 server.listen(Number(process.env.PORT||8787),process.env.DUEL_HOST||'127.0.0.1',()=>{
   const base=process.env.DUEL_ORIGIN||((tls?'https':'http')+'://localhost:'+server.address().port);

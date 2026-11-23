@@ -1,14 +1,17 @@
 // Fixed 50 ms steps shared by the training relay and the solo exercise.
 export const STEP = 0.05;
+export const MAX_SPEED = 120;
+const SPEED_STEP = 55 * STEP;
 const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
 const axis = value => Number.isFinite(value) ? clamp(value, -1, 1) : 0;
 export function controls(raw = {}) {
   return {turn:axis(raw.turn), pitch:axis(raw.pitch), roll:axis(raw.roll),
-    throttle:axis(raw.throttle), fire:raw.fire === true};
+    throttle:axis(raw.throttle), fire:raw.fire === true,
+    targetSpeed:Number.isFinite(raw.targetSpeed) ? clamp(raw.targetSpeed,0,MAX_SPEED) : null};
 }
 export function duel() {
   const ships = [-1,1].map((sign,i) => ({x:0,y:0,z:sign*240,yaw:i*Math.PI,
-    pitch:0,bank:0,speed:0,shield:3,hull:4,cooldown:0}));
+    pitch:0,bank:0,speed:0,targetSpeed:null,shield:3,hull:4,cooldown:0}));
   return {ships, shots:[], phase:'appel', seconds:30, agreement:[false,false], linked:[false,false]};
 }
 export function decision(state, seat, action) {
@@ -48,7 +51,13 @@ export function step(state, inputs) {
     s.bank+=c.roll*2*STEP;
     s.yaw+=(c.turn*1.65+Math.sin(s.bank)*c.pitch*1.25)*STEP;
     s.pitch=clamp(s.pitch+c.pitch*Math.cos(s.bank)*1.25*STEP,-1.48,1.48);
-    s.speed=clamp(s.speed+c.throttle*55*STEP,0,120);
+    if(c.throttle!==0){
+      s.targetSpeed=null;
+      s.speed=clamp(s.speed+c.throttle*SPEED_STEP,0,MAX_SPEED);
+    }else{
+      s.targetSpeed=c.targetSpeed ?? s.targetSpeed ?? null;
+      if(s.targetSpeed!==null)s.speed+=clamp(s.targetSpeed-s.speed,-SPEED_STEP,SPEED_STEP);
+    }
     const f=forward(s);
     for(const k of ['x','y','z']) s[k]+=f[k]*s.speed*STEP;
     s.cooldown=Math.max(0,s.cooldown-STEP);

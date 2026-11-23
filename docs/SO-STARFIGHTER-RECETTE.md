@@ -72,3 +72,9 @@ La page autonome `dist/starfighter/duel.html`, générée avec `node scripts/sta
 L’horizon artificiel suit le tangage et le roulis. Le cap, la vitesse et le radar se lisent depuis le siège occupé. Les trois anneaux autour du plan de coque indiquent la charge globale des boucliers ; les quatre segments mesurent l’intégrité de la coque. L’optique ×4 agrandit le contact lorsqu’il apparaît dans la verrière. Les salves orange suivent les projectiles de la simulation.
 
 Dans le test Chromium à deux postes, contrôler la rotation de l’horizon, le rendu du vaisseau sous deux angles, le tir orange dans l’axe, puis le passage de trois boucliers à zéro avant le premier dégât de coque. La visio est exercée avec des périphériques simulés.
+
+### Élimination et réglage de la vitesse
+
+À la perte du dernier point de coque, le vaisseau disparaît de la verrière et du radar. Depuis l’autre poste, l’explosion apparaît à sa dernière position et dans l’optique si le contact est en vue. Le cockpit éliminé montre la lueur de l’impact et les fissures sur la verrière. L’effet s’éteint après 2,2 secondes. Avec la préférence de mouvement réduit, le résultat final apparaît immédiatement. Une reconnexion reprend l’état du duel et son temps écoulé.
+
+Pendant les pourparlers et le combat, utiliser la manette de poussée pour fixer la vitesse voulue entre 0 et 120 m/s. Vérifier la vitesse mesurée pendant l’accélération, le freinage jusqu’à l’arrêt, la reprise manuelle avec Z ou S et la remise à zéro sur un nouvel exercice.

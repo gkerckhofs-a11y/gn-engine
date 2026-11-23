@@ -58,6 +58,7 @@ export function drawRadar(ctx,contact,distance) {
   ctx.strokeStyle='#3d5d50';ctx.beginPath();
   ctx.moveTo(x-rad,y);ctx.lineTo(x+rad,y);ctx.moveTo(x,y-rad);ctx.lineTo(x,y+rad);ctx.stroke();
   ctx.fillStyle='#91dcb3';ctx.beginPath();ctx.moveTo(x,y-4);ctx.lineTo(x+3,y+3);ctx.lineTo(x-3,y+3);ctx.closePath();ctx.fill();
+  if(!contact)return;
   const bearing=Math.atan2(contact.x,contact.z),range=rad*Math.min(.92,distance/550);
   const bx=x+Math.sin(bearing)*range,by=y-Math.cos(bearing)*range;
   ctx.shadowColor='#ffad64';ctx.shadowBlur=6;ctx.fillStyle='#ffc38c';
