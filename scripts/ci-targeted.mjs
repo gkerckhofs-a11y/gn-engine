@@ -365,3 +365,11 @@ targetedProfiles['starfighter-fleet']={
  httpPattern:'^HTTP \\+ Auth : (STARFIGHTER,|vol équipé,|duel privé,|convoi consenti,)',browser:true,
  files:[...targetedProfiles['starfighter-encounter'].files,...["test/starfighter-fleet.test.mjs", "test/support/firestore-suites.mjs", "test/support/starfighter-fleet-suite.mjs", "web/cockpit/connected.mjs", "test/browser/recette.spec.mjs","test/integration/http.test.mjs"]]
 };
+
+targetedProfiles['starfighter-duel'] = {
+ ...targetedProfiles['starfighter-fleet'],
+ tests:[...targetedProfiles['starfighter-fleet'].tests,'test/starfighter-duel.test.mjs'],
+ files:[...targetedProfiles['starfighter-fleet'].files,'test/starfighter-duel.test.mjs',
+   'scripts/starfighter-duel.mjs','scripts/test-starfighter-duel-browser.mjs',
+   'web/cockpit/duel-model.mjs','web/cockpit/duel-ui.mjs','web/cockpit/duel.html']
+};

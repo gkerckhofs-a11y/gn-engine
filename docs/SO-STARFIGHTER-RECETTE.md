@@ -51,3 +51,18 @@ Statuts fondés sur les essais du moteur avec données synthétiques. Le matéri
 Une recherche automatique d’embuscade est déclenchée par un poste actif. Si tous les navigateurs sont fermés, aucune tâche d’arrière-plan ne joue à la place des pilotes. Le prochain poste autorisé fait constater l’échéance par le serveur. Le mode QR peut exiger une nouvelle présence physique au terminal du spatioport. Aucune destination ni liaison n’est fabriquée : la carte native actuelle exploite les codes présentés et les analyses acquises. La dotation narrative en dossiers des 30 planètes dépend des données et des modules de connaissance de la session.
 
 Pour revenir au fonctionnement historique, désactiver les nouveaux départs automatiques dans la session de test et décocher le combat immersif. Les réservations et voyages en cours doivent être terminés ou annulés par les mécanismes natifs. Toute mise en service réelle demande une décision distincte.
+
+## Duel arcade à deux postes
+
+Depuis la branche de la PR, lancer `node scripts/starfighter-duel.mjs` (Node 22+, aucune dépendance). Ouvrir les deux invitations affichées dans deux navigateurs. Chaque lien donne le contrôle d’un seul cockpit. Le serveur calcule mouvements, collisions et dégâts à 20 Hz. Une déconnexion suspend la simulation et les anciennes entrées expirent. Relancer le processus pour créer une autre paire d’invitations.
+
+Pour deux ordinateurs sur le même LAN, fournir un certificat TLS reconnu par les deux postes et son fichier de clé au serveur de test. Exemple de lancement sous bash, avec le nom DNS local correspondant au certificat :
+
+```bash
+DUEL_HOST=0.0.0.0 DUEL_ORIGIN=https://cockpit.example.test:8787 \
+DUEL_CERT=cert.pem DUEL_KEY=key.pem node scripts/starfighter-duel.mjs
+```
+
+Le navigateur demande la caméra et le micro au décrochage. Liaison WebRTC directe sur le LAN. Pas de relais TURN. À deux liaisons confirmées, le délai de parole est de 90 secondes. Sans liaison, le délai de réponse est de 30 secondes. Une rupture explicite ouvre le feu, une paix bilatérale termine la rencontre. Les valeurs d’exercice (3 boucliers, 4 coque) concernent uniquement cette simulation. Les voyages et combats persistants de la session GN utilisent encore le moteur natif par rounds.
+
+La page autonome `dist/starfighter/duel.html`, générée avec `node scripts/starfighter-demo.mjs`, permet de tester le pilotage contre un adversaire simulé. Le test à deux navigateurs est reproductible avec `node scripts/test-starfighter-duel-browser.mjs` après installation du Chromium Playwright ; CHROMIUM_PATH peut désigner un exécutable local.

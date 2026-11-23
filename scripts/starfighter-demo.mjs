@@ -4,3 +4,6 @@ const script=await build({entryPoints:['web/cockpit/flight-ui.mjs'],bundle:true,
 const template=await readFile('web/cockpit/starfighter.html','utf8');
 await mkdir('dist/starfighter',{recursive:true});
 await writeFile('dist/starfighter/STARFIGHTER.html',template.replace('<script type="module" src="./flight-ui.mjs"></script>',()=>'<script>'+script.outputFiles[0].text.replaceAll('</script','<\\/script')+'</script>'));
+const duelScript=await build({entryPoints:['web/cockpit/duel-ui.mjs'],bundle:true,format:'iife',write:false});
+const duelPage=await readFile('web/cockpit/duel.html','utf8');
+await writeFile('dist/starfighter/duel.html',duelPage.replace('<script type="module" src="./duel-ui.mjs"></script>',()=>'<script>'+duelScript.outputFiles[0].text.replaceAll('</script','<\\/script')+'</script>'));
