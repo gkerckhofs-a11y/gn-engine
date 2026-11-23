@@ -7,7 +7,7 @@ import {commercialStorageCommands,createCommercialStorageService} from './commer
 import {commercialLogisticsActions,createCommercialLogisticsService} from './commercial-logistics.mjs';
 import {commercialTransportActions,createCommercialTransportService} from './commercial-transport.mjs';
 import {createGalacticMapService,galacticMapCommands} from './galactic-map.mjs';
-import {demoActors,resolveDemoActor} from './solo-demo.mjs';
+import {demoActors,prepareCommerceSolo,resolveDemoActor} from './solo-demo.mjs';
 import {recycleBinStore,createRecycleBinService} from './recycle-bin.mjs';
 import {createCharacterCodeService} from './character-codes.mjs';
 import {primaryClass} from '../shared/player-access.mjs';
@@ -256,6 +256,10 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const characterCodeService=createCharacterCodeService({store,signed,isAdmin,checkSession});
   const contextualService=createContextualAccessService({store,signed,checkSession,now,uuid,nativePreview:(tx,actor,action,input)=>createWorkflow({store:{...store,get:tx.get,list:tx.list,runTransaction:cb=>cb(tx)},ownerEmail:'simulation-disabled-owner@example.invalid',now,uuid}).dispatch(action,actor,input)});
   async function dispatch(action,actor,input={}) {
+    if(action==='prepareCommerceSolo'){
+      admin(actor);
+      return prepareCommerceSolo(store,actor,input,now);
+    }
     if(action==='createSoloDemo'){
       admin(actor);const creationId=documentId(input.creationId),result=await dispatch('createSpaceOutlawsPreparation',actor,{creationId,requestId:documentId(input.requestId),campaignTitle:'ESSAI COMMUN · Port-Brèche',title:'Le convoi disparu · Essai jouable',capacity:8,privacy:'Session privée de démonstration, huit identités fictives contrôlées uniquement par le propriétaire.'});
       const path=`soloDemos/${result.id}`,profiles=demoActors(creationId);

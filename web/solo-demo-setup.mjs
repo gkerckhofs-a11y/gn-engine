@@ -5,6 +5,29 @@ import {initialClassKit} from '../src/shared/initial-class-kit.mjs';
 import {analysisProfile} from '../src/shared/space-outlaws-analysis.mjs';
 import {preparePilotMaster,provisionPilotShip} from './solo-demo-pilot.mjs';
 
+export async function prepareSoloAdmissions({created,read,cmd,confirm,draft,policyRevision,speciesId,background,hours=4,invitationLabel='Recette solo'}){
+  const token=created.profiles[0].uid.slice(5,48);
+  await cmd('issueAdmissionInvitation',{tokenHash:await tokenHash(token),hours,maxUses:8,label:invitationLabel});
+  for(const {id:role,firstName,lastName,label,uid} of created.profiles){
+    const sessionRevision=(await read('session')).revision,draftRevision=await draft();
+    await cmd('beginAdmission',{token,sessionRevision,policyRevision,draftRevision,consent:true},role);
+    await cmd('saveAdmissionProposal',{revision:1,sessionRevision,policyRevision,draftRevision,proposal:{firstName,lastName,speciesId,classId:role,secondaryId:role==='COM'?'MED-02':'COM-03',background:background(firstName,label),friends:''},submit:true,consent:true},role);
+    await cmd('reviewAdmission',{uid,revision:2,policyRevision,draftRevision,decision:'APPROVE',reason:'Personnage fictif de recette'});
+    await confirm('previewAdmissionM2','prepareAdmissionM2',{uid,reason:'Fiction approuvée de recette'});
+  }
+}
+export function soloSessionCommands(call,sessionId){
+  const command=(action,input={},role='owner')=>call(action,{requestId:randomUUID(),...input},role);
+  const read=(action,input={},role='owner')=>call(action,{sessionId,...input},role);
+  const cmd=(action,input={},role='owner')=>command(action,{sessionId,...input},role);
+  const confirm=async(prep,action,input={},role='owner')=>{
+    const {reason,...previewInput}=input;
+    const preview=await read(prep,prep.startsWith('preview')?previewInput:input,role);
+    return cmd(action,{...input,confirmation:preview.confirmation},role);
+  };
+  return {command,read,cmd,confirm};
+}
+
 // All changes go through native commands. No database writes, clock overrides,
 // canned confirmations, free wallet credits or authentication bypass here.
 export async function seedSoloDemo(call){
@@ -14,22 +37,14 @@ export async function seedSoloDemo(call){
   const uids=Object.fromEntries(created.profiles.map(p=>[p.id,p.uid]));
   const participants=created.profiles;
   const {id:sessionId,campaignId}=created;
-  const read=(action,input={},role='owner')=>call(action,{sessionId,...input},role);
-  const cmd=(action,input={},role='owner')=>command(action,{sessionId,...input},role);
-  const confirm=async(prep,action,input={},role='owner')=>{const {reason,...previewInput}=input,p=await read(prep,prep.startsWith('preview')?previewInput:input,role);return cmd(action,{...input,confirmation:p.confirmation},role);};
+  const {read,cmd,confirm}=soloSessionCommands(call,sessionId);
   const draft=async()=>(await call('centralMaster',{campaignId,workshop:'M2'},'owner')).draft.revision;
   const central=(action,input)=>command(action,{campaignId,...input});
   await cmd('saveAdmissionSettings',{policyRevision:0,draftRevision:0,settings:{open:true,instructions:'Session de découverte de Space Outlaws.',quotas:Object.fromEntries(admissionClasses.map(c=>[c.id,2])),species:[{id:'human-test',label:'Humanoïde fictif',description:'Sans bonus',nature:'HUMANOID',available:true}]},reason:'Préparation de recette'});
-  const token=created.profiles[0].uid.slice(5,48);
-  await cmd('issueAdmissionInvitation',{tokenHash:await tokenHash(token),hours:1,maxUses:8,label:'Recette locale'});
-  for(const profile of participants){
-    const {id:role,firstName:name,lastName,label}=profile,classId=role;
-    const revision=(await read('session')).revision,draftRevision=await draft();
-    await cmd('beginAdmission',{token,sessionRevision:revision,policyRevision:1,draftRevision,consent:true},role);
-    await cmd('saveAdmissionProposal',{revision:1,sessionRevision:revision,policyRevision:1,draftRevision,proposal:{firstName:name,lastName,speciesId:'human-test',classId,secondaryId:classId==='COM'?'MED-02':'COM-03',background:`${name} est ${label.toLowerCase()} à Port-Brèche. Vous êtes venu au Comptoir des Confins pour enquêter sur la disparition d’un convoi. Votre objectif : examiner la balise abandonnée, rencontrer le marchand et préparer une expédition. Personnage fictif pour découvrir les écrans du jeu.`,friends:''},submit:true,consent:true},role);
-    await cmd('reviewAdmission',{uid:uids[role],revision:2,policyRevision:1,draftRevision,decision:'APPROVE',reason:'Personnage fictif de recette'});
-    await confirm('previewAdmissionM2','prepareAdmissionM2',{uid:uids[role],reason:'Fiction approuvée de recette'});
-  }
+  await prepareSoloAdmissions({
+    created,read,cmd,confirm,draft,policyRevision:1,speciesId:'human-test',hours:1,invitationLabel:'Recette locale',
+    background:(name,label)=>`${name} est ${label.toLowerCase()} à Port-Brèche. Vous êtes venu au Comptoir des Confins pour enquêter sur la disparition d’un convoi. Votre objectif : examiner la balise abandonnée, rencontrer le marchand et préparer une expédition. Personnage fictif pour découvrir les écrans du jeu.`,
+  });
   let revision=await draft();const createdItems=new Set();
   for(const classId of participants.map(p=>p.id)){
    const bindings=[];

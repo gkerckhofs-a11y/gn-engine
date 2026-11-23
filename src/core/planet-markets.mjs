@@ -52,7 +52,7 @@ export function createPlanetMarketService({store,signed,checkSession,now,uuid}){
    if(action==='preparePlanetMarket'||action==='savePlanetMarket'){
     requireThat(['BRIEFING','EN_JEU','PAUSE'].includes(s.stage),'SESSION_CLOSED');requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
     const portId=documentId(input.portId),itemId=documentId(input.itemId),id=planetMarketId(portId,itemId),old=markets.find(m=>m.id===id),port=ports.find(p=>p.id===portId),item=items.find(i=>i.id===itemId);
-    requireThat(port?.versionId===s.versionId&&item?.usage==='COMMERCIAL'&&item.kind==='STACKABLE'&&item.versionId===s.versionId&&item.unitVolume===1,'PLANET_MARKET_INVALID');
+    requireThat(port?.versionId===s.versionId&&item?.usage==='COMMERCIAL'&&item.kind==='STACKABLE'&&item.versionId===s.versionId&&Number.isSafeInteger(item.unitVolume)&&item.unitVolume>0,'PLANET_MARKET_INVALID');
     const reference=spaceCommodities.find(x=>x.id===input.commodityCode);requireThat(reference&&(reference.legality==='ILLEGAL'?item.legality==='ILLEGAL':item.legality==='LEGAL')&&planetMarketStates[input.marketState]&&typeof input.enabled==='boolean','PLANET_MARKET_INVALID');
     requireThat((old?.revision??0)===input.recordRevision,'STALE_REVISION');
     const shopId=documentId(input.shopId),offerId=documentId(input.offerId),offer=await tx.get(`${base}/shops/${shopId}/offers/${offerId}`),shop=await tx.get(`${base}/shops/${shopId}`);

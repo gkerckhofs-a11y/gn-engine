@@ -1,4 +1,5 @@
-import {hasSoShops} from './space-outlaws-shop-state.mjs';
+import {commerceCounters} from '../shared/commerce-solo.mjs';
+import {hasSoShops,shopAccountId} from './space-outlaws-shop-state.mjs';
 import {authorizeSpaceOutlaws} from './space-outlaws-entry-guard.mjs';
 import {documentId,requireThat,whole} from './validation.mjs';
 import {inventoryHash as hash} from './inventory-state.mjs';
@@ -66,22 +67,31 @@ export function createEconomyService({store,signed,checkSession,checkScenario,no
       tx.set(`${base}/economyHistory/${newId}`,{id:newId,at,actorUid:actor.uid,reason,before:parent.economyRules??null,after:rules});
     }else{
       requireThat(!!parent.economyRules,'ECONOMY_DISABLED');
-      const collective=!scenario&&!!input.groupId,c=collective?null:await tx.get(`${base}/characters/${documentId(input.characterId)}`);if(!collective)requireThat(c,'NOT_FOUND');
+      const collective=!scenario&&!!input.groupId,shopId=input.shopId===undefined?null:documentId(input.shopId);
+      let shopAccount=null;
+      if(shopId){
+        const demo=await tx.get(`soloDemos/${id}`);
+        requireThat(!scenario&&!collective&&!input.characterId&&demo?.kind==='COMMERCE'&&!demo.completed&&demo.ownerUid===actor.uid&&parent.ownerUid===actor.uid&&parent.stage==='BRIEFING'&&commerceCounters.some(c=>c.shopId===shopId),'FORBIDDEN');
+        shopAccount=await tx.get(`${base}/accounts/${shopAccountId(shopId)}`);
+        requireThat(shopAccount?.ownerType==='SHOP'&&shopAccount.shopId===shopId&&shopAccount.sessionId===id,'ACCOUNT_UNAVAILABLE');
+      }
+      const c=collective||shopAccount?null:await tx.get(`${base}/characters/${documentId(input.characterId)}`);
+      if(!collective&&!shopAccount)requireThat(c,'NOT_FOUND');
       if(scenario){
         const amount=whole(input.amount,'INVALID_AMOUNT'),before=c.startingCredits??{amount:0,revision:0},after={amount,revision:before.revision+1};
         const prepared={character:partyName(c),currency:currencyView(parent.economyRules),before,after,confirmation:hash(JSON.stringify([parent.revision,c.id,c.public.displayName,parent.economyRules,before,after]))};
         if(preparing)return prepared;requireThat(input.confirmation===prepared.confirmation,'STALE_REVISION');
         tx.set(`${base}/characters/${c.id}`,{...c,startingCredits:after});tx.set(`${base}/characters/${c.id}/creditHistory/${newId}`,{id:newId,at,actorUid:actor.uid,reason,before,after});result={id:c.id,amount};
       }else{
-        requireThat(parent.economyRules.enabled,'ECONOMY_DISABLED');const a=await administrativeWallet(tx,id,input),before=moneyState(a),amount=amountInput(input.amount),memo=moneyText(input.memo);
+        requireThat(parent.economyRules.enabled,'ECONOMY_DISABLED');const a=shopAccount??await administrativeWallet(tx,id,input),before=moneyState(a),amount=amountInput(input.amount),memo=moneyText(input.memo);
         requireThat(['CREDIT','DEBIT'].includes(input.mode),'INVALID_ECONOMY');const delta=input.mode==='CREDIT'?amount:-amount;
         requireThat(delta>0||before.available>=amount,'INSUFFICIENT_FUNDS');const balance=whole(a.balance+delta,'BALANCE_OVERFLOW'),next={...a,balance,revision:a.revision+1},after=moneyState(next);
-        const subject=collective?{id:a.id,name:a.label}:partyName(c);
+        const subject=collective||shopAccount?{id:a.id,name:a.label}:partyName(c);
         const prepared={character:subject,currency:currencyView(parent.economyRules),amount,delta,memo,before,after,confirmation:hash(JSON.stringify([parent.revision,subject,before,after,memo,reason]))};
         if(preparing)return prepared;requireThat(input.confirmation===prepared.confirmation,'STALE_REVISION');
         if(parent.spaceOutlaws){
           const demo=await tx.get(`soloDemos/${id}`);
-          requireThat(demo?.ownerUid===actor.uid&&parent.ownerUid===actor.uid&&!collective&&demo.profiles.some(p=>p.uid===c.assignedUid),'FORBIDDEN');
+          requireThat(demo?.ownerUid===actor.uid&&parent.ownerUid===actor.uid&&!collective&&(shopAccount||demo.profiles.some(p=>p.uid===c.assignedUid)),'FORBIDDEN');
           authorizeSpaceOutlaws(tx,parent,'PAYMENT');
         }
         tx.set(`${base}/accounts/${a.id}`,next);
@@ -89,7 +99,7 @@ export function createEconomyService({store,signed,checkSession,checkScenario,no
       }
       tx.set(base,{...parent,revision:parent.revision+1});
     }
-    if(!scenario)tx.set(`${base}/audit/${newId}`,{id:newId,action,at,actorUid:actor.uid,reason,characterId:input.characterId??null,groupId:input.groupId??null});
+    if(!scenario)tx.set(`${base}/audit/${newId}`,{id:newId,action,at,actorUid:actor.uid,reason,characterId:input.characterId??null,groupId:input.groupId??null,...(input.shopId?{shopId:input.shopId}:{})});
     tx.set(op,{fingerprint,result,at});return result;
   }
   return async(action,actor,input)=>{

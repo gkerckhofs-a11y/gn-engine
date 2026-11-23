@@ -1,4 +1,8 @@
 import {escapeHtml as esc} from './groups.mjs';
+export function commerceSoloButton(session,resume=false){
+ if(session.role!=='OWNER'||(!resume&&!(session.preparationKind&&/^Essai commerce\b/i.test(session.title))))return '';
+ return `<button type="button" class="quiet" data-action="prepareCommerceSolo" data-sid="${esc(session.id)}">${resume?'Reprendre':'Préparer'} l’essai solo de commerce</button>`;
+}
 export const demoAdministrationPath=sid=>`#/session/${encodeURIComponent(sid)}`;
 export const demoPlayerPath=(sid,role)=>`#/play/${encodeURIComponent(sid)}${role?`?${new URLSearchParams({demoRole:role})}`:''}`;
 export function selectDemoRole(context,query,storage,sid){
