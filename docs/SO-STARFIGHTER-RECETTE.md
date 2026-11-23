@@ -66,3 +66,9 @@ DUEL_CERT=cert.pem DUEL_KEY=key.pem node scripts/starfighter-duel.mjs
 Le navigateur demande la caméra et le micro au décrochage. Liaison WebRTC directe sur le LAN. Pas de relais TURN. À deux liaisons confirmées, le délai de parole est de 90 secondes. Sans liaison, le délai de réponse est de 30 secondes. Une rupture explicite ouvre le feu, une paix bilatérale termine la rencontre. Les valeurs d’exercice (3 boucliers, 4 coque) concernent uniquement cette simulation. Les voyages et combats persistants de la session GN utilisent encore le moteur natif par rounds.
 
 La page autonome `dist/starfighter/duel.html`, générée avec `node scripts/starfighter-demo.mjs`, permet de tester le pilotage contre un adversaire simulé. Le test à deux navigateurs est reproductible avec `node scripts/test-starfighter-duel-browser.mjs` après installation du Chromium Playwright ; CHROMIUM_PATH peut désigner un exécutable local.
+
+### Lecture des instruments dans le duel
+
+L’horizon artificiel suit le tangage et le roulis. Le cap, la vitesse et le radar se lisent depuis le siège occupé. Les trois anneaux autour du plan de coque indiquent la charge globale des boucliers ; les quatre segments mesurent l’intégrité de la coque. L’optique ×4 agrandit le contact lorsqu’il apparaît dans la verrière. Les salves orange suivent les projectiles de la simulation.
+
+Dans le test Chromium à deux postes, contrôler la rotation de l’horizon, le rendu du vaisseau sous deux angles, le tir orange dans l’axe, puis le passage de trois boucliers à zéro avant le premier dégât de coque. La visio est exercée avec des périphériques simulés.

@@ -371,5 +371,6 @@ targetedProfiles['starfighter-duel'] = {
  tests:[...targetedProfiles['starfighter-fleet'].tests,'test/starfighter-duel.test.mjs'],
  files:[...targetedProfiles['starfighter-fleet'].files,'test/starfighter-duel.test.mjs',
    'scripts/starfighter-duel.mjs','scripts/test-starfighter-duel-browser.mjs',
-   'web/cockpit/duel-model.mjs','web/cockpit/duel-ui.mjs','web/cockpit/duel.html']
+   'web/cockpit/duel-model.mjs','web/cockpit/duel-ui.mjs','web/cockpit/duel.html',
+   'web/cockpit/duel-visuals.mjs','web/cockpit/duel-instruments.mjs','web/cockpit/duel-sky.mjs','web/cockpit/duel-canopy.mjs']
 };

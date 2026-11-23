@@ -5,7 +5,7 @@ import {randomBytes} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import {duel,step,controls,decision,STEP} from '../web/cockpit/duel-model.mjs';
 const room=duel(), seats=[0,1].map(()=>({key:randomBytes(24).toString('hex'), input:{}, stream:null, updated:0}));
-const files=new Set(['duel.html','duel-ui.mjs','duel-model.mjs']);
+const files=new Set(['duel.html','duel-ui.mjs','duel-model.mjs','duel-visuals.mjs','duel-instruments.mjs','duel-sky.mjs','duel-canopy.mjs']);
 function send(seat,type,data) {seat.stream?.write(JSON.stringify({type,data})+'\n');}
 function resetCall() { room.linked.fill(false); for (const seat of seats) send(seat,'hangup',null); }
 async function handle(req,res) {

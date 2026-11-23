@@ -1,4 +1,8 @@
-import {duel,step,relative,forward,decision,STEP} from './duel-model.mjs';
+import {duel,step,relative,decision,STEP} from './duel-model.mjs';
+import {drawDuelShip,drawDuelLasers} from './duel-visuals.mjs';
+import {mountDuelInstruments} from './duel-instruments.mjs';
+import {initDuelSky} from './duel-sky.mjs';
+import {drawRadar,mountCanopy,fitDisplay} from './duel-canopy.mjs';
 const $=id=>document.getElementById(id);
 const token=location.hash.slice(1), online=/^[0-9a-f]{48}$/.test(token);
 let state=duel(),seat=0,ready=!online,rtc=null,media=null,callVersion=0,peerReady=false,offering=false;
@@ -95,50 +99,73 @@ setInterval(()=>{
   }else if(ready&&!sending){sending=true;command('input',c).catch(e=>notice(e.message)).finally(()=>sending=false);}
 },STEP*1000);
 const canvas=$('glass'),ctx=canvas.getContext('2d');
-const stars=Array.from({length:460},(_,i)=>{
-  const angle=i*2.399963, y=1-2*(i+.5)/460,r=Math.sqrt(1-y*y);
-  return {x:r*Math.sin(angle),y,z:r*Math.cos(angle)};
-});
+const avionics=mountDuelInstruments($('attitude'),$('systems'));
+const drawSky=initDuelSky(), drawCanopy=mountCanopy();
+const scope=$('radar').getContext('2d');
+const optic=$('optic').getContext('2d');
+function drawOptic(self,foe,project,pixel,w,h){
+  const panel=fitDisplay(optic);
+  const midX=panel.w/2,midY=panel.h/2;
+  optic.clearRect(0,0,panel.w,panel.h);
+  if(!pixel || pixel[0]<0 || pixel[0]>w || pixel[1]<0 || pixel[1]>h){
+    optic.fillStyle='#849f94';optic.font='11px monospace';optic.textAlign='center';
+    optic.fillText('HORS CHAMP',midX,midY+4);return;
+  }
+  // Stabilised crop of the same perspective and pose as the forward view.
+  const cropped=p=>{
+    const point=project(p);return point && [midX+(point[0]-pixel[0])*4,midY+(point[1]-pixel[1])*4];
+  };
+  drawDuelShip(optic,self,foe,cropped);
+  optic.strokeStyle='#62877a';optic.lineWidth=1;optic.beginPath();
+  for(const x of [5,panel.w-5]){
+    const sign=x===5?1:-1;optic.moveTo(x,midY-5);optic.lineTo(x,midY+5);
+    optic.moveTo(x,midY);optic.lineTo(x+sign*5,midY);
+  }
+  optic.stroke();
+}
+const degrees=radians=>(Math.round(radians*180/Math.PI)%360+360)%360;
+const setValue=(element,value)=>{if(element.value!==value)element.value=value;};
+const phaseLabels={appel:'Contact · appel entrant',parole:'Négociation',combat:'Combat libre',paix:'Accord conclu · passage libre'};
 function draw(){
-  const w=canvas.clientWidth,h=canvas.clientHeight;
-  if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
+  const {w,h}=fitDisplay(ctx);
   const self=state.ships[seat],foe=state.ships[1-seat];
   const focal=Math.min(w*.64,h*.95);
   const project=p=>p.z>.05?[w/2+p.x/p.z*focal,h/2-p.y/p.z*focal]:null;
-  const line=(a,b,color,width=1)=>{ctx.strokeStyle=color;ctx.lineWidth=width;ctx.beginPath();ctx.moveTo(...a);ctx.lineTo(...b);ctx.stroke();};
-  const sky=ctx.createLinearGradient(0,0,w,h);sky.addColorStop(0,'#030914');sky.addColorStop(.6,'#132436');sky.addColorStop(1,'#080e19');
-  ctx.fillStyle=sky;ctx.fillRect(0,0,w,h);
-  const orientation={...self,x:0,y:0,z:0};
-  ctx.fillStyle='#cee1ed';for(const s of stars){const pixel=project(relative(orientation,s));if(pixel)ctx.fillRect(...pixel,1.6,1.6);}
+  drawSky(ctx,self,project,w,h,focal);
   const contact=relative(self,foe),pixel=project(contact);
-  if(pixel){
-    const nose=forward(foe),right={x:Math.cos(foe.yaw),z:-Math.sin(foe.yaw)};
-    const points=[[0,15],[-11,-8],[-3,-5],[0,-9],[3,-5],[11,-8]].map(([side,ahead])=>
-      project(relative(self,{x:foe.x+ahead*nose.x+side*right.x,y:foe.y+ahead*nose.y+side*Math.sin(foe.bank),z:foe.z+ahead*nose.z+side*right.z})));
-    if(points.every(Boolean)){ctx.fillStyle='#ac8064';ctx.strokeStyle='#ffcb85';ctx.beginPath();
-      points.forEach(([x,y])=>ctx.lineTo(x,y));ctx.closePath();ctx.fill();ctx.stroke();}
-    ctx.fillStyle='#ffce9c';ctx.font='13px monospace';ctx.fillText(Math.round(Math.hypot(contact.x,contact.y,contact.z))+' m',pixel[0]+12,pixel[1]-10);
+  const distance=Math.round(Math.hypot(contact.x,contact.y,contact.z));
+  drawDuelShip(ctx,self,foe,project);
+  drawDuelLasers(ctx,self,state.shots,seat,project);
+  if(pixel && pixel[0]>28 && pixel[0]<w-28 && pixel[1]>45 && pixel[1]<h-16){
+    const gap=Math.min(90,Math.max(14,18*focal/contact.z));
+    ctx.strokeStyle='#e6b98eaa';ctx.lineWidth=1;ctx.beginPath();
+    for(const side of [-1,1]){
+      const x=pixel[0]+side*gap,y=pixel[1]-gap*.65;
+      ctx.moveTo(x-side*5,y);ctx.lineTo(x,y);ctx.lineTo(x,y+5);
+    }
+    ctx.stroke();ctx.fillStyle='#edc8a9';ctx.font='12px monospace';
+    ctx.fillText(distance+' m',pixel[0]+gap+5,pixel[1]+4);
   }
-  for(const p of state.shots){
-    const a=project(relative(self,p));
-    const b=project(relative(self,{x:p.x-p.velocity.x*12,y:p.y-p.velocity.y*12,z:p.z-p.velocity.z*12}));
-    if(a&&b)line(a,b,p.owner===seat?'#a1ffd4':'#ff9675',3);
-  }
+  ctx.strokeStyle='#9ce1bf';ctx.lineWidth=1;ctx.beginPath();
   const cx=w/2,cy=h/2;
-  for(const side of [-1,1]){line([cx+side*8,cy],[cx+side*24,cy],'#82e1c4');line([cx,cy+side*8],[cx,cy+side*16],'#82e1c4');}
-  // Canopy spars frame the forward view; the radar covers both hemispheres.
-  for(const side of [-1,1]){const edge=side<0?0:w;
-    line([edge,h*.08],[edge-side*w*.17,h],'#43525a',12);line([edge,h*.08],[edge-side*w*.17,h],'#17222a',7);}
-  const rx=60,ry=h-56,rad=36;
-  ctx.fillStyle='#092121';ctx.beginPath();ctx.arc(rx,ry,rad,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#538e83';ctx.stroke();
-  line([rx-rad,ry],[rx+rad,ry],'#30594e');line([rx,ry-rad],[rx,ry+rad],'#30594e');
-  const bearing=Math.atan2(contact.x,contact.z),range=rad*Math.min(.92,Math.hypot(contact.z,contact.x)/550);
-  ctx.fillStyle='#ffba79';ctx.beginPath();ctx.arc(rx+Math.sin(bearing)*range,ry-Math.cos(bearing)*range,3.8,0,7);ctx.fill();
-  $('speed').value=Math.round(self.speed)+' m/s';$('shield').value=self.shield+' / 3';$('hull').value=self.hull+' / 4';
-  $('guns').value=state.phase==='combat'?'ARMÉ':'VERROUILLÉ';
+  for(const side of [-1,1]){
+    ctx.moveTo(cx+side*7,cy);ctx.lineTo(cx+side*20,cy);ctx.lineTo(cx+side*20,cy-3);
+    ctx.moveTo(cx,cy+side*9);ctx.lineTo(cx,cy+side*15);
+  }
+  ctx.stroke();drawCanopy(ctx,w,h);drawOptic(self,foe,project,pixel,w,h);
+  drawRadar(scope,contact,distance);
+  avionics.update(self);
+  setValue($('heading'),String(degrees(self.yaw)).padStart(3,'0')+'°');
+  setValue($('range'),distance+' m');
+  setValue($('bearing'),contact.z>=0?'AVANT':'ARRIÈRE');
+  setValue($('speed'),Math.round(self.speed)+' m/s');
+  $('thrust').style.setProperty('--fill',Math.round(self.speed/120*100)+'%');
+  const armed=state.phase==='combat';
+  setValue($('guns'),armed?'ARMÉ':'VERROUILLÉ');$('guns').dataset.armed=String(armed);
   const talking=['appel','parole'].includes(state.phase);
-  const phase={appel:'Contact · appel entrant',parole:'Négociation',combat:'Combat libre',paix:'Accord conclu · passage libre',fin:!self.hull?'Vaisseau neutralisé':'Contact neutralisé'};
-  $('phase').textContent=ready?phase[state.phase]+(talking?' · '+Math.ceil(state.seconds)+' s':''):'En attente du second cockpit';
+  const phase=phaseLabels[state.phase]??(!self.hull?'Vaisseau neutralisé':'Contact neutralisé');
+  const status=ready?phase+(talking?' · '+Math.ceil(state.seconds)+' s':''):'En attente du second cockpit';
+  if($('phase').textContent!==status)$('phase').textContent=status;
   $('peace').disabled=!ready||!talking||state.agreement[seat];$('break').disabled=!ready||!talking;
   $('call').disabled=!online||!ready||!talking;$('restart').hidden=online;
   requestAnimationFrame(draw);
