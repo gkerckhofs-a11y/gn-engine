@@ -99,7 +99,7 @@ export function createShopService({store,signed,checkSession,now,uuid}){
       offers.push({...o,...(planet?{unitPrice:quote?.unitPrice??null,planetMarket:{id:planet.id,portId:planet.portId,enabled:planet.enabled}}:{}),...(!admin&&o.negotiationLevel&&s.spaceOutlaws.merchantNegotiationVersion===1&&abilityLevel(c,'COU-02')>=o.negotiationLevel?{negotiationTargetId:negotiationTargetId(o.id)}:{}),...(discounts.length?{discount:{id:discounts[0].id,...discounts[0].result.discount}}:{}),item:{...o.item,...mediaFields(item,['illustration'])},stock:quantity,restricted:valid&&lot.transferable===false,canBuy:planetBuyerReady&&(!planet||planet.enabled&&ordinaryPlanetTrade(planet,o.item,port,s)&&!commodityTrade(await readPriceBook(tx,s,at),o.item,planet.portId).blocked)&&quantity>0&&s.stage==='EN_JEU'&&!s.safetyStop?.active&&canGameAction(s,c,'pay',at)});
      }
      const a=admin?await tx.get(`${base}/accounts/${shopAccountId(shop.id)}`):null;
-     result.push({id:shop.id,name:shop.name,description:shop.description,location:shop.location,offers,...(admin?{account:a?moneyState(a):null}:{})});
+     result.push({id:shop.id,name:shop.name,description:shop.description,location:shop.location,offers,...(admin?{account:a?moneyState(a):null,locationTargetId:shop.locationTargetId}:{})});
     }
     const sales=await tx.list(`${base}/lotSales`,admin?null:['buyerId',c.id]),orders=[];
     for(const p of sales.filter(p=>p.shopId&&(!p.item?.shipModule||hasSoModulePurchases(s))&&(action!=='shop'||p.shopId===input.shopId)).sort((a,b)=>b.createdAt-a.createdAt))orders.push((await order(tx,s,p,at)).view);

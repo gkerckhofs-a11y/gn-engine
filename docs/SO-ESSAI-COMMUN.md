@@ -52,3 +52,29 @@ classes, même avec compétence COU secondaire.
 
 La réussite automatisée ne certifie pas une recette humaine sur Android/iOS.
 La publication et les changements de données réels doivent être constatés séparément.
+
+## Essai solo du Master commerce
+
+Ouvrir la préparation « Essai commerce » qui contient le Master commerce,
+son cargo et l’offre de carburant. Le propriétaire peut préparer l’essai solo
+depuis la régie. Les huit dossiers fictifs sont créés avant la publication du
+Master. La préparation exige une session sans autre inscription ni invitation
+d’admission active. En cas de coupure réseau, reprendre dans le même onglet.
+
+L’essai met en jeu les douze marchés, les stocks et demandes du classeur, quatre
+cellules, les terminaux QR, un équipage avec un cargo et une table de Sabacc.
+Chaque personnage reçoit 500 crédits ordinaires de recette et chaque comptoir
+400 crédits fictifs de rachat. Le code des cellules est `RECETTE-QUAI`. Le
+carburant se retire au comptoir de Breach Port.
+
+Depuis la régie, ouvrir **Tester comme joueur** et changer de profil avec le
+sélecteur. Scanner la Bourse pour les cours, le comptoir pour l’achat et le quai
+pour le chargement ou le départ. La vente à destination exige les opérations
+natives de transport et la quittance d’importation. Le Courtier achète et vend,
+le Pilote prépare le trajet et le Mécano peut accéder au cargo avec son mandat.
+Le poids des lots reste appliqué en soute et dans les cellules.
+
+La validation automatisée couvre notamment l’achat et le retrait de quatre
+lots de minerai, le refus dans la Petite consigne, puis le dépôt, le retrait
+et la revente à Breach Port. La traversée sur la session publiée et les scans
+sur téléphone relèvent de la recette en ligne.
