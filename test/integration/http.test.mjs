@@ -1,3 +1,4 @@
+import {ticketFixture} from '../support/tickets-suite.mjs';
 import {legacyHoldStock} from '../support/legacy-hold-stock.mjs';
 import {spaceGroupPilotFixture} from '../support/space-group-pilot-suite.mjs';
 import {spaceGroupStockFixture} from '../support/space-group-stock-suite.mjs';
@@ -77,6 +78,30 @@ const request=async(action,input={},token)=>{
   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify({action,input})});
   return {status:response.status,...await response.json()};
 };
+
+test('HTTP + Auth : billetterie sur session fictive, paiement et contrôle du titulaire',async()=>{
+ const original=process.env.FUNCTIONS_EMULATOR;
+ try{
+  delete process.env.FUNCTIONS_EMULATOR;
+  assert.deepEqual((await request('ticketCatalogue')).result,[]);
+  assert.equal((await request('ticketPage',{sessionId:'inconnue'})).error,'TICKET_SANDBOX_ONLY');
+  process.env.FUNCTIONS_EMULATOR='true';
+  const f=await ticketFixture(()=>firestoreStore(getFirestore()));await f.open(2);
+  const a=await googleTestAccount(`billet-${randomUUID()}@example.invalid`),b=await googleTestAccount(`autre-${randomUUID()}@example.invalid`);
+  const sessionId=f.sid,call=(action,input,token)=>request(action,{sessionId,...input},token);
+  const {result:e}=await call('ticketPage',{});assert.equal(e.remaining,2);
+  const form={requestId:randomUUID(),price:e.price,revision:e.revision,policyVersion:e.policyVersion,consent:true,name:'Joueuse de recette'};
+  assert.equal((await call('ticketReserve',form)).status,401);
+  const {result:o}=await call('ticketReserve',form,a);assert.ok(o?.attempt);
+  assert.equal((await call('ticketSync',{attempt:o.attempt,status:'PAID'},a)).status,400);
+  assert.equal((await call('ticketMockCheckout',{attempt:o.attempt,outcome:'SUCCESS'},b)).status,403);
+  assert.equal((await call('ticketMockCheckout',{attempt:o.attempt,outcome:'SUCCESS'},a)).result.payment,'PAID');
+  const {result:g}=await call('ticketGallery',{},a);
+  assert.equal((await call('ticketSelect',{requestId:randomUUID(),roleId:'vigie',confirm:true,revision:g.revision,orderRevision:g.orderRevision},a)).status,200);
+  assert.equal((await call('ticketPreparation',{},a)).result.name,'Nora Venn');
+  assert.equal((await call('ticketPreparation',{},b)).status,400);assert.equal((await call('ticketDesk',{},a)).status,403);
+ }finally{if(original===undefined)delete process.env.FUNCTIONS_EMULATOR;else process.env.FUNCTIONS_EMULATOR=original;}
+});
 
 test('HTTP + Auth : groupes centraux M2, références privées, archive et révocation',async()=>{
  const owner=await googleTestAccount(process.env.OWNER_EMAIL),email=`central-group-${randomUUID()}@example.invalid`,editor=await googleTestAccount(email);

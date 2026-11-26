@@ -1,3 +1,4 @@
+import {ticketActions,createTicketService} from './tickets.mjs';
 import {localReadiness} from './contextual-readiness.mjs';
 import {createDockTheftService,dockTheftActions} from './dock-theft.mjs';
 import {createDockService} from './docks.mjs';
@@ -117,7 +118,7 @@ const ownRegistration = r => r ? ({name:r.name, email:r.email, answers:r.answers
 
 
 /** Authenticated actor is supplied by the HTTP adapter, never by input JSON. */
-export function createWorkflow({store, ownerEmail, now = Date.now, uuid = randomUUID, images=null, processImage=null,rollD6,rollD12}) {
+export function createWorkflow({store, ownerEmail, now = Date.now, uuid = randomUUID, images=null, processImage=null,ticketSandbox=false,rollD6,rollD12}) {
   const lifecycleStore=store;
   store=mediaTrackedStore(campaignGuardStore(recycleBinStore(store)));
   const isAdmin = actor => !!actor && actor.emailVerified === true && actor.provider === 'google.com'
@@ -255,7 +256,9 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const recycleService=createRecycleBinService({store:lifecycleStore,admin,now});
   const characterCodeService=createCharacterCodeService({store,signed,isAdmin,checkSession});
   const contextualService=createContextualAccessService({store,signed,checkSession,now,uuid,nativePreview:(tx,actor,action,input)=>createWorkflow({store:{...store,get:tx.get,list:tx.list,runTransaction:cb=>cb(tx)},ownerEmail:'simulation-disabled-owner@example.invalid',now,uuid}).dispatch(action,actor,input)});
+  const tickets=createTicketService({store,signed,checkSession,sessionAccess,now,uuid,ticketSandbox});
   async function dispatch(action,actor,input={}) {
+    if(ticketActions.has(action))return tickets(action,actor,input);
     if(action==='prepareCommerceSolo'){
       admin(actor);
       return prepareCommerceSolo(store,actor,input,now);
@@ -404,7 +407,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         permissions.content?tx.list(`sessions/${sid}/skills`):[],permissions.content?tx.list(`sessions/${sid}/classes`):[],permissions.content?tx.list(`sessions/${sid}/items`):[],permissions.content?tx.list(`sessions/${sid}/inventory`):[],permissions.content?tx.list(`sessions/${sid}/accounts`):[]]);
       const ap=permissions.content&&s.actionPointRules?.enabled?await Promise.all(characters.map(c=>tx.get(actionPointPath(sid,c.id)))):null;
       if(ap)characters.forEach((c,i)=>c.actionPoints=actionPointSummary(s,c,ap[i],at));
-      return {...privateSession(s),role,permissions,characters:permissions.content?characters:characters.map(receptionCharacter),registrations:(isPreparation(s)&&!permissions.content?[]:registrations).map(r=>({...r,previousCharacterId:s.campaignId?characters.find(c=>c.previousAssignedUid===r.uid)?.id??null:null})),
+      return {...privateSession(s),...(ticketSandbox&&(isPreparation(s)||await tx.get('ticketEvents/'+sid))?{ticketingAvailable:true}:{}),role,permissions,characters:permissions.content?characters:characters.map(receptionCharacter),registrations:(isPreparation(s)&&!permissions.content?[]:registrations).map(r=>({...r,previousCharacterId:s.campaignId?characters.find(c=>c.previousAssignedUid===r.uid)?.id??null:null})),
         ...(permissions.content?{campaignId:s.campaignId??null,campaignEpisode:s.campaignEpisode??null,campaignSealed:s.campaignSealed===true,previousSessionId:s.previousSessionId??null,groups,groupsEnabled:s.modules?.groups===true,knowledge,skills,classes,items,inventory:inventory.map(l=>effectiveLot(l,now())),accounts,actionPointRules:s.actionPointRules??null,economyRules:s.economyRules??null,healthRules:s.healthRules??null}:{}),
         audit:audit.sort((a,b)=>b.at-a.at).slice(0,50),staff:staff.map(g=>({email:g.email,role:g.role,active:g.active,updatedAt:g.updatedAt}))};
     });
@@ -604,6 +607,8 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
           const transitions={PREPARATION:['BRIEFING'],BRIEFING:['EN_JEU'],EN_JEU:['PAUSE','FINISHED'],PAUSE:['EN_JEU','FINISHED'],FINISHED:['ARCHIVED'],ARCHIVED:[]};
           requireThat(transitions[s.stage].includes(input.stage),'INVALID_TRANSITION');
           if(s.spaceOutlaws){
+            if(s.stage==='BRIEFING'&&input.stage==='EN_JEU'&&await tx.get('ticketEvents/'+sid))
+              requireThat(!(await tx.list('ticketEvents/'+sid+'/orders')).some(o=>o.participation==='CONFIRMED'&&o.access!=='LIVE'),'TICKET_ACTIVATION_PENDING');
             if(input.stage==='EN_JEU'&&s.spaceOutlaws.terminalQrVersion===1)requireThat((await localReadiness(tx,s)).ready,'LOCAL_CONFIGURATION_REQUIRED');
             authorizeSpaceOutlaws(tx,s,'RHYTHM');
             requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');

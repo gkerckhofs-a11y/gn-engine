@@ -34,7 +34,7 @@ export const api=onRequest({region:'europe-west1',serviceAccount:environment.ser
       actor={uid:claims.uid,email:claims.email,emailVerified:claims.email_verified,
         provider:claims.firebase?.sign_in_provider,authTime:claims.auth_time};
     }
-    const workflow=createWorkflow({store,ownerEmail:ownerEmail.value(),images,processImage});
+    const workflow=createWorkflow({store,ticketSandbox:process.env.FUNCTIONS_EMULATOR==='true'&&process.env.GCLOUD_PROJECT==='demo-gn-engine'&&!!process.env.FIRESTORE_EMULATOR_HOST&&!!process.env.FIREBASE_AUTH_EMULATOR_HOST,ownerEmail:ownerEmail.value(),images,processImage});
     const result=await workflow.dispatch(req.body.action,actor,req.body.input ?? {});
     return res.json({result});
   } catch(error) {

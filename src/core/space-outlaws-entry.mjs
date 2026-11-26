@@ -267,6 +267,13 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
    if(plan.alreadyBorn)return {characterId:plan.characterId,alreadyBorn:true,accessActive:plan.accessActive};
    if(read)return {characterId:plan.characterId,name:plan.definition.public.displayName,profile:plan.profile,hp:plan.profile.classId==='COM'?4:3,protection:plan.profile.classId==='COM'?1:0,actionPoints:5,protectedCredits:200,kit:plan.lots.map(l=>({name:l.item.name,quantity:l.quantity})),options,confirmation:plan.confirmation};
    const reason=admissionText(input.reason,500,true);requireThat(plan.confirmation===input.confirmation,'SO_ENTRY_STALE');
+   return finishSoBirth({tx,sid,c,s,version,plan,options,actor,at,uuid,reason,action,op,fingerprint,uid});
+  });
+ };
+}
+
+// Both entry paths share the native assets, published session data and first-episode transition.
+export function finishSoBirth({tx,sid,c,s,version,plan,options,actor,at,uuid,reason,action,op,fingerprint,uid}){
    const id=plan.characterId,eventId=uuid(),base=`sessions/${sid}`;
    const character=soBornCharacter({definition:plan.definition,sid,uid,profile:plan.profile,options,version,at,actor,uuid});
    const {preparationKind,preparationVersion,...prior}=s;
@@ -313,6 +320,4 @@ export function createSpaceOutlawsEntryService({store,signed,isAdmin,checkSessio
    writeSoBirthAssets({tx,s:nextSession,character,lots:plan.lots,version,at,actor,reason,eventId});
    tx.set(`${base}/audit/${eventId}`,{id:eventId,action,at,actorUid:actor.uid,reason,characterId:id,versionId:version.header.id});
    const result={characterId:id,accessActive:true};tx.set(op,{fingerprint,result,at});return result;
-  });
- };
 }
