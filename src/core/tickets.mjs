@@ -1,10 +1,11 @@
+import {testCheckout} from './ticket-provider.mjs';
 import {ticketUserKey,myOrder,reserveTicket} from './ticket-orders.mjs';
 import {admissionKeys,admissionText} from './admission-state.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {isPreparation} from './preparation-state.mjs';
 import {readSoEntryVersion,planSoBirthAssets,soBirthOptions} from './space-outlaws-entry.mjs';
 
-export const ticketActions=new Set(['ticketMine','ticketReserve','ticketAccount','ticketCatalogue','ticketPage','ticketDesk','ticketPublish','ticketRole']);
+export const ticketActions=new Set(['ticketMockCheckout','ticketSync','ticketMine','ticketReserve','ticketAccount','ticketCatalogue','ticketPage','ticketDesk','ticketPublish','ticketRole']);
 
 const text=(v,max=1000,required=true)=>admissionText(v??'',max,required);
 const integer=(v,min,max)=>{requireThat(Number.isSafeInteger(v)&&v>=min&&v<=max,'TICKET_VALUE');return v;};
@@ -62,6 +63,10 @@ export function createTicketService({store,signed,checkSession,now,uuid,ticketSa
    if(action==='ticketPage'){
     admissionKeys(input,['sessionId']);requireThat(e?.published&&active(s),'TICKET_UNAVAILABLE');
     return publicEvent(e,s,inventory(await tx.list(base+'/roles'),await tx.list(base+'/orders'),at));
+   }
+   if(['ticketMockCheckout','ticketSync'].includes(action)){
+    signed(actor);requireThat(e&&s,'TICKET_UNAVAILABLE');const stock=inventory(await tx.list(base+'/roles'),await tx.list(base+'/orders'),at);
+    return testCheckout({action,actor,input,tx,base,e,s,at,stock});
    }
    if(['ticketMine','ticketReserve'].includes(action)){
     signed(actor);requireThat(e&&active(s),'TICKET_UNAVAILABLE');const order=await tx.get(base+'/orders/'+ticketUserKey(actor.uid));

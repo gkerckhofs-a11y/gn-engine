@@ -26,7 +26,9 @@ export async function ticketFixture(makeStore){
  const configure=async(settings=rehearsal)=>cmd('ticketPublish',{settings,revision:(await call('ticketDesk')).event?.revision??0});
  const role=async(id,extra={})=>cmd('ticketRole',{roleId:id,revision:(await call('ticketDesk')).event.revision,teaser:'Une rencontre au port avec '+id,style:'Enquête',early:'Pour votre préparation uniquement : '+id,enabled:true,options:{weaponApplicable:true,startingInformation:''},...extra});
  const open=async(capacity=2)=>{await configure({...rehearsal,capacity});for(const id of ['vigie','guide','courrier'])await role(id);await configure({...rehearsal,capacity,published:true,sale:'OPEN'});};
- return {...f,call,cmd,wf,configure,role,open,advance:ms=>{at+=ms;}};
+ const reserve=async(actor=f.player)=>{const e=await call('ticketPage',{},null);return cmd('ticketReserve',{revision:e.revision,policyVersion:e.policyVersion,price:e.price,name:'Joueur fictif',consent:true},actor);};
+ const pay=(actor,attempt,outcome='SUCCESS')=>call('ticketMockCheckout',{attempt,outcome},actor);
+ return {...f,call,cmd,wf,configure,role,open,reserve,pay,advance:ms=>{at+=ms;}};
 }
 export function ticketSuite(makeStore){
  test('Catalogue : publication volontaire, profil M2 validé, rôles indisponibles écartés et projections sans secrets',async()=>{
@@ -48,6 +50,20 @@ export function ticketSuite(makeStore){
   assert.equal((await f.wf.dispatch('ticketAccount',winner,{}))[0].attempt,o.attempt);
   f.advance(16*60000);assert.equal((await f.call('ticketMine',{},winner)).payment,'EXPIRED');assert.equal((await f.call('ticketPage',{},null)).remaining,1);
   assert.equal((await f.cmd('ticketReserve',p,other)).payment,'CHECKOUT_PENDING');
+ });
+
+ test('Prestataire test : retour forgé, paiement sans retour navigateur, double notification, montant erroné et arrivée tardive',async()=>{
+  const f=await ticketFixture(makeStore);await f.open(1);const old=await f.reserve();
+  assert.equal((await f.call('ticketSync',{attempt:old.attempt},f.player)).payment,'CHECKOUT_PENDING');
+  await assert.rejects(f.call('ticketSync',{attempt:old.attempt,status:'PAID'},f.player));
+  await assert.rejects(f.pay(f.other,old.attempt));
+  f.advance(16*60000);const current=await f.reserve(f.other);const p=await f.pay(f.other,current.attempt);
+  assert.equal(p.payment,'PAID');assert.deepEqual(await f.pay(f.other,current.attempt),p);assert.equal((await f.call('ticketPage',{},null)).remaining,0);
+  assert.equal((await f.pay(f.player,old.attempt)).payment,'PAID_NEEDS_RECONCILIATION');
+  assert.equal((await f.store.list('ticketEvents/'+f.sid+'/outbox')).length,1);
+  const g=await ticketFixture(makeStore);await g.open();const a=await g.reserve();await g.store.runTransaction(async tx=>tx.set('ticketProviderTest/'+a.attempt,{id:a.attempt,sessionId:g.sid,outcome:'SUCCESS',amount:1,currency:'EUR',at:10}));
+  assert.equal((await g.call('ticketSync',{attempt:a.attempt},g.player)).payment,'PAID_NEEDS_RECONCILIATION');
+  const b=await g.reserve(g.other);assert.equal((await g.pay(g.other,b.attempt,'FAILURE')).payment,'FAILED');
  });
 
 }

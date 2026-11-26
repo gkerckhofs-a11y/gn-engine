@@ -25,6 +25,11 @@ export function mountTickets({api,login,logged,logout}){
    else if(page==='reserver'){
     const e=await api('ticketPage',{sessionId:sid}),o=await api('ticketMine',{sessionId:sid});
     html=wrap(`<h1>${esc(e.title)}</h1>${o?.participation==='CONFIRMED'||o?.payment==='CHECKOUT_PENDING'?orderCard(o):`<form data-form="reserve" data-rev="${e.revision}" data-policy="${esc(e.policyVersion)}" data-price="${e.price}"><p>${meta(e)} · ${eur(e.price)} TTC</p>${field('name','Votre nom civil ou usuel')}<details open><summary>Conditions · ${esc(e.policyVersion)}</summary><p>${esc(e.terms)}</p><p>${esc(e.privacy)}</p><p>${esc(e.guidance)}</p><p>${esc(e.cancellation)}</p></details><label><input type="checkbox" name="consent" required> J’accepte les consignes, les conditions et la notice de confidentialité indiquées.</label><button>${e.status==='WAITLIST'?'M’inscrire en liste d’attente':'Réserver et continuer vers le paiement'}</button></form>`}`);
+   }else if(page==='payer'){
+    const o=await api('ticketMine',{sessionId:sid});if(!o)throw Error('TICKET_UNAVAILABLE');
+    html=wrap(`<h1>Paiement de test</h1><p>${esc(o.title)} · ${eur(o.price)} TTC</p>${o.payment==='CHECKOUT_PENDING'?`<p>Votre place est gardée jusqu’à ${esc(new Date(o.expiresAt).toLocaleTimeString('fr-BE'))}. Choisissez le résultat du paiement simulé.</p><form data-form="checkout" data-attempt="${esc(o.attempt)}"><button name="outcome" value="SUCCESS">Simuler le paiement accepté</button> <button name="outcome" value="FAILURE">Simuler un refus</button> <button name="outcome" value="CANCEL">Annuler</button></form>`:orderCard(o)}`);
+   }else if(page==='retour'){
+    const o=await api('ticketSync',{sessionId:sid,attempt:ref});html=wrap('<h1>Suivi du paiement</h1>'+orderCard(o)+a('moi','Mes inscriptions'));
    }else if(page==='moi'){
     const orders=await api('ticketAccount',{});html=wrap('<h1>Mes inscriptions</h1>'+ (orders.map(orderCard).join('')||'<p>Vous n’avez pas encore de billet.</p>')+a('sessions','Voir les aventures'));
    }else if(page==='regie'){
@@ -45,6 +50,7 @@ export function mountTickets({api,login,logged,logout}){
  root.addEventListener('submit',async ev=>{
   ev.preventDefault();if(busy)return;busy=true;const f=ev.target,v=Object.fromEntries(new FormData(f)),sid=decodeURIComponent(location.hash.split('/')[2]);
   try{const p={sessionId:sid,revision:Number(f.dataset.rev),requestId:crypto.randomUUID()};
+   if(f.dataset.form==='checkout'){await api('ticketMockCheckout',{sessionId:sid,attempt:f.dataset.attempt,outcome:ev.submitter.value});location.hash='/retour/'+routeId(sid)+'/'+routeId(f.dataset.attempt);}
    if(f.dataset.form==='reserve'){await api('ticketReserve',{...p,name:v.name,consent:!!v.consent,price:Number(f.dataset.price),policyVersion:f.dataset.policy});location.hash='/moi';}
    if(f.dataset.form==='settings'){const settings={...v,price:Number(v.price),capacity:Number(v.capacity),holdMinutes:Number(v.holdMinutes),published:!!v.published};await api('ticketPublish',{...p,settings});}
    if(f.dataset.form==='role')await api('ticketRole',{...p,roleId:f.dataset.role,teaser:v.teaser,early:v.early,style:v.style,enabled:!!v.enabled,options:{weaponApplicable:!!v.weaponApplicable,startingInformation:v.startingInformation}});
