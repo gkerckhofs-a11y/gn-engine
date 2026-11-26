@@ -991,6 +991,13 @@ Marché réservé à la classe principale Courtier. Détail, limites et validati
 - Couverture ACT-01..18 / DOCK-01..50 et écarts explicites : [rapport AC-06](SO-ACCESS-AC06-VALIDATION.md).
 - CI complète demandée au candidat d'intégration ; verdict exact dans PR #58. Inspection douanière dédiée et recette humaine restent non exécutées. Aucune publication.
 
+## STARFIGHTER · voyages et rencontres au cockpit
+
+[Plan et autorisations](SO-STARFIGHTER-TECHNICAL-PLAN.md), [guide du cockpit et de l’entraînement hors ligne](SO-STARFIGHTER-COCKPIT.md), [recette AC-01 à AC-20](SO-STARFIGHTER-RECETTE.md). Attribution transactionnelle d’un poste, négociation avant combat et visée locale. La PR en brouillon rassemble les exécutions par commit. Recette sur les ordinateurs physiques à effectuer avant toute décision de publication.
+
+| STARFIGHTER · duel arcade d’entraînement | Deux postes de pilotage synchronisés, joystick, visio, tirs et esquive. Résultat limité à l’exercice. | [Recette](SO-STARFIGHTER-RECETTE.md#duel-arcade-à-deux-postes) |
+| STARFIGHTER · pilotage de campagne | Poste du pilote, négociation en visio, dégâts laser sur bouclier renforcé, immobilisation du voyage et reprise sur incident. | [Recette de pilotage](SO-STARFIGHTER-RECETTE.md#pilotage-dans-gn-engine--26-novembre-2026) |
+
 ### Parcours de réservation avec personnages préécrits — 26 novembre 2026
 
 Mode volontaire d'une nouvelle préparation. La vitrine, la réservation, le paiement simulé, le choix exclusif dans M2, la préparation privée puis la naissance native sont exercés sur données fictives. La régie existante accueille les corrections et l'export. Le guide détaille les scénarios R01 à R28 et les conditions avant toute vente réelle. [Parcours et recette](SO-BILLETTERIE.md).

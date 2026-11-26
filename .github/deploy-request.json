@@ -3,14 +3,18 @@
   "sourceRef": "main",
   "version": "0.39.2",
   "requestedAt": "2026-11-26",
-  "reason": "Publication autorisée du parcours joueur et de la billetterie de test de la PR #63. Les paiements réels et les sessions réelles demeurent désactivés pour ce module.",
+  "reason": "Publication conjointe de STARFIGHTER et du parcours joueur explicitement autorisée le 26 novembre. Entraînement public, billetterie en test et réglages par session conservés.",
   "status": "AUTHORIZED_AFTER_FULL_CI",
-  "approvedSourceSha": "af854aeadfd8eacbfbe14dae8888b5e3f1f606c6",
-  "pullRequest": 63,
-  "candidateRunId": 45827431451,
-  "previousMainSha": "b188779920b77b981908e26bfe7dca8119115700",
-  "previousPublishedSha": "0ef741457992230f7fe374a9dfc6a7dc547bd8ed",
-  "expectedAppSha256": "07631fb7772306951ef7f367da31a70d35b8d002c19f0671803cf353a24e37a7",
-  "previousAppSha256": "d332bdd983a88e1585f06c66d0a458187f25ae40031efe482ef8da4ad2d691f1",
+  "pullRequest": 61,
+  "includedPullRequests": [
+    63,
+    61
+  ],
+  "approvedSourceSha": "6bade92506251d3a1114a183486c0a64f1288c6a",
+  "candidateRunId": 45807208709,
+  "billetterieSourceSha": "af854aeadfd8eacbfbe14dae8888b5e3f1f606c6",
+  "billetterieCandidateRunId": 45827431451,
+  "previousMainSha": "292aea546ed1350fd1d16ace0fc9dfef82a905e0",
+  "expectedAppSha256": "8c242440e29a762a468c56cb03f6918dbb066939c06a891ee7e4917741697c83",
   "dataMigration": false
 }

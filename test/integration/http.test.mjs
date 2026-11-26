@@ -2179,3 +2179,26 @@ test('HTTP + Auth : terminaux QR, cours au comptoir et classe native',async()=>{
  const board=await request('commodityMarket',input,player);assert.equal(board.status,200,JSON.stringify(board));assert.equal((await request('galacticMarkets',input,player)).status,403);
  await db.doc(`localAccess/${f.sid}/presence/${f.cid}`).update({expiresGameMs:-1});assert.equal((await request('commodityMarket',input,player)).error,'LOCAL_SCAN_REQUIRED');
 });
+
+test('HTTP + Auth : STARFIGHTER, poste automatique et carte privée sous identité courante',async()=>{
+ const f=await soVoyagesFixture(()=>firestoreStore(getFirestore()));
+ await f.cmd('configureStarfighter',{stationCount:1,combat:true,revision:0},f.owner);
+ await f.refuel(4);await f.startFlight();
+ const db=getFirestore(),sessionId=f.sid,stationId='cockpit-1';
+ const token=await googleTestAccount('starfighter-'+randomUUID()+'@example.invalid');
+ const stranger=await googleTestAccount('visiteur-'+randomUUID()+'@example.invalid');
+ const uid=JSON.parse(Buffer.from(token.split('.')[1],'base64url').toString()).sub;
+ const root=db.doc('sessions/'+sessionId);
+ const reg=(await root.collection('registrations').doc(hash(f.player.uid)).get()).data();
+ await root.collection('registrations').doc(hash(uid)).set({...reg,uid,minAuthTime:0});
+ await root.collection('characters').doc(f.cid).update({assignedUid:uid});
+ assert.equal((await request('cockpitStation',{sessionId,stationId})).status,401);
+ assert.equal((await request('cockpitStation',{sessionId,stationId},stranger)).status,403);
+ const station=await request('cockpitStation',{sessionId,stationId},token);
+ assert.equal(station.status,200);assert.equal(station.result.ship.shipId,'ship');
+ const map=await request('cockpitCommand',{sessionId,stationId,command:'galacticMap',payload:{sessionId,shipId:'ship',codes:[]}},token);
+ assert.equal(map.status,200);assert.deepEqual(map.result.routes,[]);
+ assert.doesNotMatch(JSON.stringify(map.result),/OUT-SECRET|BACK-SECRET/);
+ const setting=await request('configureStarfighter',{sessionId,stationCount:5,combat:true,revision:1,requestId:randomUUID()},token);
+ assert.equal(setting.status,403);
+});

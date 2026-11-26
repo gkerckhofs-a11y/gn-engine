@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#101819"><title>STARFIGHTER · Cockpit de duel</title>
+<link rel="stylesheet" href="./duel.css"><link rel="stylesheet" href="./duel-instruments.css"></head>
+<body><main>
+<header class="bridge"><div class="brand"><i class="wingmark" aria-hidden="true"></i><div><small>SPACE OUTLAWS</small><h1>STARFIGHTER</h1></div></div><b id="station" class="station">Entraînement solo</b></header>
+<div class="viewport"><canvas id="glass" aria-label="Verrière avant et contact spatial"></canvas><div class="visor"></div><div class="hud-top">CAP <output id="heading">000°</output><i class="scale" aria-hidden="true"></i></div><figure class="optic"><figcaption>OPTIQUE ×4</figcaption><canvas id="optic" aria-label="Vue agrandie du vaisseau dans la verrière"></canvas></figure><video id="remote" autoplay playsinline hidden></video></div>
+<div class="deck">
+<div class="instruments">
+<section class="panel radar-panel" aria-label="Radar de proximité"><span class="face-label">Radar</span><div class="scope"><canvas id="radar" aria-label="Position relative du contact"></canvas><div class="range-data"><span>CONTACT</span><output id="bearing"></output><span>PORTÉE</span><output id="range"></output></div></div></section>
+<section class="panel" id="attitude"></section><section class="panel" id="systems"></section>
+<section class="panel prop"><span class="face-label">Propulsion</span><div class="drive"><output id="speed" aria-label="Vitesse atteinte"></output></div><i class="meter" id="thrust" aria-hidden="true"></i>
+<div><div class="throttle-label"><label for="speed-lever">Vitesse cible</label><output id="target-speed" for="speed-lever">Manuel</output></div><input id="speed-lever" type="range" min="0" max="120" step="1" value="0" aria-valuetext="0 m/s"></div><div class="armament"><span class="face-label">Lasers</span><output id="guns" class="lamp">VERROUILLÉ</output></div></section>
+</div>
+<section class="comms"><div><span class="face-label">Communications</span><h2 id="phase" role="status"></h2></div><div class="actions"><button id="call">Ouvrir la visio</button><button id="peace">Proposer la paix</button><button id="break">Rompre les pourparlers</button><button id="restart" hidden>Rejouer</button></div></section>
+<div id="notice" role="status"></div></div>
+<details><summary>Commandes de vol et réglage du joystick</summary>
+<p><kbd>← →</kbd> virer · <kbd>↑ ↓</kbd> piquer / cabrer · <kbd>A / E</kbd> roulis · <kbd>Z / S</kbd> accélérer / ralentir · <kbd>Espace</kbd> tirer.</p><p>Appuie sur un bouton du joystick pour le détecter.</p>
+<p id="device"></p><div id="axes" class="axes"></div></details>
+</main><script type="module" src="./duel-ui.mjs"></script></body></html>

@@ -339,6 +339,42 @@ targetedProfiles['terminal-qr']={
  files:[...targetedProfiles['contextual-docks'].files,'src/core/space-outlaws-entry-guard.mjs','src/core/person-actions.mjs','src/core/field-actions.mjs','src/core/knowledge-sales.mjs','src/core/space-hidden-cargo.mjs','src/shared/local-service-catalog.mjs','src/core/space-outlaws-voyages.mjs','src/core/space-maintenance.mjs','src/core/space-module-work.mjs','src/sabacc/service.mjs','test/support/sabacc-suite.mjs','web/space-maintenance.mjs','src/core/market.mjs','src/core/market-negotiations.mjs','web/market.mjs','src/core/contextual-readiness.mjs','src/core/contextual-preview.mjs','src/core/contextual-policy.mjs','src/core/prices.mjs','src/core/planet-markets.mjs','test/terminal-qr.test.mjs','test/support/terminal-qr-suite.mjs','test/prices.test.mjs','test/planet-markets.test.mjs','test/galactic-economy.test.mjs','docs/SO-TERMINAL-QR.md'],
 };
 
+const trainingTests=['starfighter-training','cockpit','ci-selection','ci-targeted'].map(n=>'test/'+n+'.test.mjs');
+targetedProfiles['starfighter-training']={
+ tests:trainingTests,suites:[],httpPattern:null,
+ files:[...trainingTests,'scripts/ci-targeted.mjs','web/cockpit/starfighter.html','web/cockpit/starfighter.css','web/cockpit/flight.mjs','scripts/starfighter-demo.mjs','web/cockpit/flight-ui.mjs','web/cockpit/gunnery.mjs','web/cockpit/index.html']
+};
+
+targetedProfiles['starfighter-navigation']={
+ tests:[...new Set([...targetedProfiles['starfighter-training'].tests,...["test/starfighter-navigation.test.mjs", "test/cockpit-launch.test.mjs", "test/galactic-map.test.mjs", "test/space-outlaws-voyages.test.mjs", "test/ship-crew.test.mjs", "test/space-group-pilot.test.mjs", "test/space-towing-flight.test.mjs"]])],
+ suites:[...new Set([...targetedProfiles['starfighter-training'].suites,...["starfighter-navigation", "cockpit-launch", "galactic-map", "space-outlaws-voyages", "ship-crew", "space-group-pilot", "space-towing-flight"]])],
+ httpPattern:'^HTTP \\+ Auth : (vol équipé,|duel privé,|convoi consenti,)',browser:false,
+ files:[...targetedProfiles['starfighter-training'].files,...["test/starfighter-navigation.test.mjs", "web/space-outlaws-voyages.mjs", "web/app.mjs", "test/support/firestore-suites.mjs", "test/support/starfighter-navigation-suite.mjs", "web/cockpit/flight-plan.mjs", "web/cockpit/cockpit.mjs", "web/cockpit/connected.mjs", "src/core/starfighter-stations.mjs", "src/core/cockpit-command.mjs", "src/core/space-outlaws-voyages.mjs"]]
+};
+
+targetedProfiles['starfighter-encounter']={
+ tests:[...new Set([...targetedProfiles['starfighter-navigation'].tests,...["test/starfighter-encounter.test.mjs", "test/space-encounters.test.mjs", "test/space-convoy-combat.test.mjs", "test/space-alliance-duels.test.mjs", "test/space-escort-maneuvers.test.mjs"]])],
+ suites:[...new Set([...targetedProfiles['starfighter-navigation'].suites,...["starfighter-encounter", "space-encounters", "space-alliance-duels", "space-escort-maneuvers"]])],
+ httpPattern:'^HTTP \\+ Auth : (vol équipé,|duel privé,|convoi consenti,)',browser:false,
+ files:[...targetedProfiles['starfighter-navigation'].files,...["test/starfighter-encounter.test.mjs", "web/space-encounters.mjs", "web/cockpit/state.mjs", "test/support/firestore-suites.mjs", "test/support/starfighter-encounter-suite.mjs", "web/cockpit/gunnery.mjs", "web/cockpit/cockpit.mjs", "web/cockpit/connected.mjs", "src/core/cockpit-command.mjs", "src/core/space-combat.mjs"]]
+};
+
+targetedProfiles['starfighter-fleet']={
+ tests:[...new Set([...targetedProfiles['starfighter-encounter'].tests,...["test/starfighter-fleet.test.mjs", "test/cargo.test.mjs", "test/space-group-stock.test.mjs", "test/galactic-economy.test.mjs", "test/knowledge.test.mjs"]])],
+ suites:[...new Set([...targetedProfiles['starfighter-encounter'].suites,...["starfighter-fleet", "cargo", "space-group-stock", "galactic-economy", "knowledge"]])],
+ httpPattern:'^HTTP \\+ Auth : (STARFIGHTER,|vol équipé,|duel privé,|convoi consenti,)',browser:true,
+ files:[...targetedProfiles['starfighter-encounter'].files,...["test/starfighter-fleet.test.mjs", "test/support/firestore-suites.mjs", "test/support/starfighter-fleet-suite.mjs", "web/cockpit/connected.mjs", "test/browser/recette.spec.mjs","test/integration/http.test.mjs"]]
+};
+
+targetedProfiles['starfighter-duel'] = {
+ ...targetedProfiles['starfighter-fleet'],
+ tests:[...targetedProfiles['starfighter-fleet'].tests,'test/starfighter-duel.test.mjs'],
+ files:[...targetedProfiles['starfighter-fleet'].files,'test/starfighter-duel.test.mjs',
+   'scripts/starfighter-duel.mjs','scripts/test-starfighter-duel-browser.mjs',
+   'web/cockpit/duel-model.mjs','web/cockpit/duel-ui.mjs','web/cockpit/duel.html',
+   'web/cockpit/duel-visuals.mjs','web/cockpit/duel-instruments.mjs','web/cockpit/duel-sky.mjs','web/cockpit/duel-canopy.mjs','web/cockpit/duel-destruction.mjs','web/cockpit/duel-throttle.mjs']
+};
+
 targetedProfiles.ticketing={
  tests:['test/tickets.test.mjs','test/admissions.test.mjs','test/space-outlaws-entry.test.mjs','test/ci-targeted.test.mjs'],
  suites:['ticketing','admissions','space-outlaws-entry','firestore-rules'],
