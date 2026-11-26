@@ -68,7 +68,7 @@ try {
   }
 
   await pilot.keyboard.down('Space');
-  await target.waitForFunction(() => document.querySelector('#shield').value === '2 / 3'
+  await target.waitForFunction(() => document.querySelector('#shield').value === '20 / 30'
     && document.querySelectorAll('[data-shield-ring][data-active="true"]').length === 2
     && document.querySelectorAll('[data-hull-segment][data-active="true"]').length === 4);
   await target.waitForFunction(() => document.querySelector('#hull').value === '3 / 4'

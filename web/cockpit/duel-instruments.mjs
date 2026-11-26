@@ -8,35 +8,7 @@ const signed = degrees => {
   const value = Math.round(degrees);
   return (value > 0 ? '+' : '') + value + '°';
 };
-const style = `
-.sf-instrument {
-  --phosphor:#8ee4da; --amber:#ffbd75;
-  position:relative; isolation:isolate; display:grid; grid-template-rows:auto 1fr auto;
-  min-width:0; overflow:hidden; padding:9px 13px 10px;
-  color:#bcd8d7; background:radial-gradient(ellipse at 50% 20%,#122b30,#08171d 72%);
-  font-family:ui-monospace,SFMono-Regular,Consolas,monospace;
-  border:1px solid #334c53; border-radius:4px;
-  box-shadow:inset 0 2px 6px #000b,0 1px #ffffff12;
-}
-.sf-instrument header.sf-legend {
-  position:static; display:flex; flex-flow:row nowrap; align-items:center; justify-content:space-between;
-  min-height:0; gap:5px; background:none; border:none; padding:0; margin:0;
-  color:#b7cecd; letter-spacing:.12em; font:600 0.75rem/1.2 ui-monospace,monospace;
-}
-.sf-legend i {width:6px; height:6px; border-radius:50%; background:var(--phosphor); box-shadow:0 0 7px #8ee4da66}
-.sf-instrument[data-critical="true"] .sf-legend i {background:var(--amber);box-shadow:0 0 7px #ffbd7566}
-.sf-instrument .sf-scope {display:block; position:static; width:100%; height:clamp(6.6rem,14vh,10.5rem); margin:0 auto}
-.sf-instrument .sf-values {display:flex; align-items:flex-start; justify-content:space-between; gap:6px; padding-top:5px; border-top:1px solid #375258}
-.sf-instrument .sf-values > span {display:grid; gap:3px; white-space:nowrap; text-align:left}
-.sf-instrument .sf-values > span:last-child {text-align:right}
-.sf-instrument .sf-values small {display:block; color:#a3b8ba; letter-spacing:.055em; font:500 .68rem/1.2 ui-monospace,monospace; text-transform:uppercase}
-.sf-instrument .sf-values output {font:600 .94rem/1.1 ui-monospace,monospace; color:#bdf8ea; font-variant-numeric:tabular-nums}
-.sf-instrument [data-active="false"] {stroke:#30464b}
-.sf-instrument [data-shield-ring][data-active="true"] {stroke:#6fdfda}
-.sf-instrument [data-hull-segment][data-active="true"] {fill:#8be3c6}
-.sf-instrument [data-hull-segment][data-active="false"] {fill:#23383d}
-.sf-instrument .sf-values [data-low="true"] {color:var(--amber)}
-`;
+
 
 function attitudeMarkup() {
   const ladder = [];
@@ -103,7 +75,7 @@ function systemsMarkup() {
 export function mountDuelInstruments(attitudeElement, systemsElement) {
   attitudeElement.classList.add('sf-instrument');
   systemsElement.classList.add('sf-instrument');
-  attitudeElement.innerHTML = `<style>${style}</style>${attitudeMarkup()}`;
+  attitudeElement.innerHTML = `${attitudeMarkup()}`;
   systemsElement.innerHTML = systemsMarkup();
   const bankGroup = attitudeElement.querySelector('[data-attitude-bank]');
   const pitchGroup = attitudeElement.querySelector('[data-attitude-pitch]');
@@ -115,7 +87,7 @@ export function mountDuelInstruments(attitudeElement, systemsElement) {
   const hullShape = systemsElement.querySelector('[data-hull-outline]');
   const rings = systemsElement.querySelectorAll('[data-shield-ring]');
   const hullSegments = systemsElement.querySelectorAll('[data-hull-segment]');
-  let lastBank, lastPitch, lastShield, lastHull;
+  let lastBank, lastPitch, lastShield, lastHull, lastShieldMax, lastHullMax;
 
   function update(ship) {
     if (ship.bank !== lastBank) {
@@ -133,15 +105,17 @@ export function mountDuelInstruments(attitudeElement, systemsElement) {
       pitchText.value = signed(pitch);
       lastPitch = ship.pitch;
     }
-    if (ship.shield !== lastShield || ship.hull !== lastHull) {
-      rings.forEach((ring,i) => { ring.dataset.active = String(i < ship.shield); });
-      hullSegments.forEach((cell,i) => { cell.dataset.active = String(i < ship.hull); });
-      shields.value = ship.shield + ' / ' + SHIELD_MAX;
-      hull.value = ship.hull + ' / ' + HULL_MAX;
+    const shieldMax=ship.shieldMax??SHIELD_MAX, hullMax=ship.hullMax??HULL_MAX;
+    if (ship.shield !== lastShield || ship.hull !== lastHull || shieldMax !== lastShieldMax || hullMax !== lastHullMax) {
+      lastShieldMax=shieldMax;lastHullMax=hullMax;
+      rings.forEach((ring,i) => { ring.dataset.active = String(i < ship.shield * rings.length / (shieldMax || 1)); });
+      hullSegments.forEach((cell,i) => { cell.dataset.active = String(i < ship.hull * hullSegments.length / (hullMax || 1)); });
+      shields.value = ship.shield + ' / ' + shieldMax;
+      hull.value = ship.hull + ' / ' + hullMax;
       hull.dataset.low = String(ship.hull <= 1);
       shields.dataset.low = String(ship.shield === 0);
       systemsElement.dataset.critical = String(ship.shield === 0 || ship.hull <= 1);
-      hullShape.setAttribute('stroke',ship.hull === 0 ? '#de8b74' : ship.hull < HULL_MAX ? '#f6bc82' : '#a8d7d2');
+      hullShape.setAttribute('stroke',ship.hull === 0 ? '#de8b74' : ship.hull < hullMax ? '#f6bc82' : '#a8d7d2');
       lastShield = ship.shield;
       lastHull = ship.hull;
     }

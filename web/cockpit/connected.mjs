@@ -1,3 +1,4 @@
+import {pilotConsole} from './pilot-console.mjs';
 import {cockpitFlightPlan} from './flight-plan.mjs';
 import {uiErrorMessage} from '../ui-language.mjs';
 import auth from '../firebase-client.mjs';
@@ -30,11 +31,24 @@ const plan=cockpitFlightPlan(chart,async (command,fields,d)=>{
  }
  return api('cockpitCommand',input);
 });
+const bridge=document.createElement('section');bridge.hidden=true;bridge.setAttribute('aria-label','Pilotage manuel');
+document.querySelector('.viewport').before(bridge);
+const helm=pilotConsole(bridge,{
+ exchange(command,d,c,fields){
+  if(current?.ship.shipId!==d.ship.shipId||current?.ship.combatId!==c.id||!current.canAct)throw Error('Poste indisponible');
+  return api('cockpitCommand',{sessionId,stationId,command,payload:{sessionId,shipId:d.ship.shipId,combatId:c.id,...fields}});
+ },
+ peace(d,c){return execute('consentSpacePeace',{sessionId,shipId:d.ship.shipId,combatId:c.id,confirmation:c.confirmation,agree:true});}
+});
+async function displayHelm(d,c){
+ await helm.update(d,c);
+ document.querySelector('.viewport').hidden=!bridge.hidden;
+}
 const roundStatus=document.createElement('p');roundStatus.hidden=true;orders.before(roundStatus);
 function showRound(c){
  roundStatus.hidden=!c;
  if(!c){roundStatus.textContent='';return;}
- roundStatus.textContent=c.status==='ENCOUNTER'?
+ roundStatus.textContent=c.status==='DOGFIGHT'?'Combat de pilotage en temps réel':c.status==='ENCOUNTER'?
   (c.negotiationSeconds==null?'Négociation ouverte':'Négociation · '+c.negotiationSeconds+' s de jeu') :
   'Round '+c.round+' · '+c.remainingSeconds+' s de jeu · '+(c.ownOrder?'ordre enregistré':'ordre à transmettre');
 }
@@ -52,7 +66,7 @@ async function pulse(d,combat){
  catch(e){if(!['STALE_REVISION','COCKPIT_COMMAND','SPACE_INTERCEPTION_USED','SPACE_ALLIANCE_UNAVAILABLE','TOWING_ACTION_NOT_OPEN'].includes(e.code))throw e;}
 }
 const status=text=>{$('connection-status').textContent=text;};
-function fail(error){orderPhase='';$('journal').replaceChildren();showRound(null);combatTelemetry(null,null);plan.reset();main.hidden=true;current=null;lockCockpit();orders.replaceChildren();status(uiErrorMessage(error,{...soNavigationErrors,...spaceEncounterErrors}));}
+function fail(error){helm.reset();orderPhase='';$('journal').replaceChildren();showRound(null);combatTelemetry(null,null);plan.reset();main.hidden=true;current=null;lockCockpit();orders.replaceChildren();status(uiErrorMessage(error,{...soNavigationErrors,...spaceEncounterErrors}));}
 async function api(action,input){
  if(!auth.currentUser)throw new Error('Connexion requise');
  const token=await auth.currentUser.getIdToken();
@@ -73,14 +87,15 @@ async function refresh(){
   status(`Poste ${stationId} · pilote : ${d.pilotName}`);
   const s=d.ship,ready=d.canAct&&s.operation?.kind==='PREPARE'&&s.operation.remainingSeconds===0;
   const arrived=d.canAct&&s.journey&&!s.journey.suspended&&!s.combatId&&!s.rescueId&&s.journey.remainingSeconds===0;
-  $('next').textContent=ready?'Décoller':arrived?'Confirmer l’amarrage':s.journey?'Voyage en cours':'En attente du MJ';
+  $('next').textContent=ready?'Décoller':arrived?'Confirmer l’amarrage':s.journey?'Voyage en cours':'Préparation en cours';
   $('next').disabled=!(ready||arrived);$('next').dataset.command=ready?'finishSoPreparation':'arriveShip';
-  $('hint').textContent=ready?'Confirmez que le pilote et l’équipage sont installés. Le départ consommera les ressources prévues.':arrived?'Confirmez l’arrivée pour libérer l’équipage à destination.':'Le MJ contrôle l’affectation de ce poste. La pause du jeu suspend les commandes.';
+  $('hint').textContent=ready?'Confirmez que le pilote et l’équipage sont installés. Le départ consommera les ressources prévues.':arrived?'Confirmez l’arrivée pour libérer l’équipage à destination.':'La pause du jeu suspend les commandes de ce poste.';
   if(s.combatId){
    const combat=await api('spaceCombat',{sessionId,combatId:s.combatId});if(ticket!==generation)return;
    if(!combat.combat||combat.combat.ownShipId!==s.shipId)throw new Error('Vaisseau différent');
+   await displayHelm(d,combat.combat);if(ticket!==generation)return;
    showRound(d.starfighter?.combat?combat.combat:null);
-   if(d.starfighter?.combat){lastCombatId=combat.combat.id;combatTelemetry(d,combat.combat);}
+   if(d.starfighter?.combat){lastCombatId=combat.combat.id;combatTelemetry(d,combat.combat.flightDuel?null:combat.combat);}
    await pulse(d,combat.combat);if(ticket!==generation)return;
    // Keep an order being entered intact. Server confirmations reject stale submissions.
    const phaseKey=[combat.combat.id,combat.combat.round,combat.combat.status,combat.combat.canOrder,combat.combat.remainingSeconds===0].join('/');
@@ -92,11 +107,13 @@ async function refresh(){
   }else{
    orderPhase='';
    showRound(null);
+   let result=null;
    const previous=lastCombatId??d.starfighter?.previousCombatId;
    if(previous&&previous!==reportedCombatId&&d.starfighter?.combat){
     const ended=await api('spaceCombat',{sessionId,combatId:previous});if(ticket!==generation)return;
-    if(ended.combat?.ownShipId===s.shipId)combatTelemetry(d,ended.combat);reportedCombatId=previous;lastCombatId=null;
+    if(ended.combat?.ownShipId===s.shipId){result=ended.combat;combatTelemetry(d,result.flightDuel?null:result);}reportedCombatId=previous;lastCombatId=null;
    }else combatTelemetry(d,null);
+   await displayHelm(d,result);if(ticket!==generation)return;
    await pulse(d,null);if(ticket!==generation)return;
   }
   if(!s.combatId&&!previewing&&!orders.contains(document.activeElement)){orders.innerHTML=d.canAct&&s.journey&&!s.groupShip&&!s.journey.suspended&&!s.journey.intercepted&&!s.journey.interceptionCovered&&!s.ambushId&&!s.convoy&&!s.towingAttached&&s.journey.remainingSeconds>0?spaceArmHtml(sessionId,s.shipId,false,[],d.starfighter?.combat):'';}
@@ -132,7 +149,7 @@ orders.addEventListener('submit',async e=>{
 orders.addEventListener('click',e=>{if(e.target.closest('[data-action="refresh"]')){previewing=false;orders.replaceChildren();refresh();}});
 $('pilot-login').onclick=async()=>{try{await setPersistence(auth,browserSessionPersistence);await signInWithPopup(auth,new GoogleAuthProvider());}catch(e){fail(e);}};
 $('pilot-logout').onclick=()=>signOut(auth);
-onAuthStateChanged(auth,user=>{$('journal').replaceChildren();plan.reset();showRound(null);combatTelemetry(null,null);lastCombatId=null;reportedCombatId=null;nextScan=0;pending.clear();generation++;clearTimeout(timer);current=null;main.hidden=true;lockCockpit();orders.replaceChildren();$('pilot-login').hidden=!!user;$('pilot-logout').hidden=!user;if(user)refresh();else status('Connectez le pilote mandaté pour ce vaisseau. Le compte MJ ne commande pas à sa place.');});
+onAuthStateChanged(auth,user=>{helm.reset();$('journal').replaceChildren();plan.reset();showRound(null);combatTelemetry(null,null);lastCombatId=null;reportedCombatId=null;nextScan=0;pending.clear();generation++;clearTimeout(timer);current=null;main.hidden=true;lockCockpit();orders.replaceChildren();$('pilot-login').hidden=!!user;$('pilot-logout').hidden=!user;if(user)refresh();else status('Connectez le pilote mandaté pour ce vaisseau. Le compte MJ ne commande pas à sa place.');});
 window.addEventListener('offline',()=>{generation++;clearTimeout(timer);fail(new Error('Connexion perdue'));status('Connexion perdue · commandes suspendues.');});
 window.addEventListener('online',()=>refresh());
-window.addEventListener('pagehide',()=>{generation++;clearTimeout(timer);});
+window.addEventListener('pagehide',()=>{helm.reset();generation++;clearTimeout(timer);});

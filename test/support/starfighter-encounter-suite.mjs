@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import {encountersFixture,order} from './space-encounters-suite.mjs';
 
 export function starfighterEncounterSuite(makeStore){
-async function pair(){
+async function pair(settings={}){
  const f=await encountersFixture(makeStore,{encounter:false});
- await f.cmd('configureStarfighter',{stationCount:2,combat:true,revision:0},f.owner);
+ await f.cmd('configureStarfighter',{stationCount:2,combat:true,revision:0,...settings},f.owner);
  for(const [id,stationId] of [['ship','cockpit-1'],['second','cockpit-2']]){
   const sh=await f.get('ships/'+id);
   await f.edit('ships/'+id,s=>({...s,cockpit:{status:'ASSIGNED',starfighter:true,pilotId:sh.pilotId,stationId,operationId:id}}));
@@ -63,4 +63,65 @@ test('STOP, révocation, pilote remplacé et archive ferment un ancien poste',as
  await f.store.runTransaction(async tx=>{const key='sessions/'+f.sid;const s=await tx.get(key);tx.set(key,{...s,stage:'ARCHIVED'});});
  await assert.rejects(f.read('cockpitStation',{stationId:'cockpit-2'},f.other));
 });
+test('Duel connecté : deux postes pilotent, le serveur arbitre les impacts, la coque n’absorbe rien avant les boucliers',async()=>{
+ const {f,consoleFor}=await pair({flightDuel:true,shieldFactor:10});
+ for(const id of ['ship','second'])await f.edit('ships/'+id,s=>({...s,shield:1,hull:2}));
+ await (await consoleFor()).pulse();
+ const a=await consoleFor(),b=await consoleFor(true);
+ assert.equal(a.c.shieldFactor,10);
+ const frame=(post,seq,controls={})=>post.cmd('starfighterFrame',{combatId:a.c.id,seq,controls});
+ const msg=(post,message)=>post.cmd('starfighterSignal',{combatId:a.c.id,message});
+ assert.equal((await frame(a,null)).room.ships[1].shield,10);
+ await frame(a,1,{fire:true});await frame(b,1);
+ f.advance(500);
+ const talk=await frame(a,2,{fire:true});assert.equal(talk.room.shots.length,0);
+ await msg(b,{type:'ready'});assert.equal((await frame(a,null)).signal.type,'ready');
+ await msg(a,{type:'offer',sdp:'SDP privé de test'});
+ assert.equal((await frame(b,null)).signal.sdp,'SDP privé de test');
+ assert.ok(!JSON.stringify((await consoleFor()).c).includes('SDP privé'));
+ await assert.rejects(msg(b,{type:'offer',sdp:'mauvais siège'}));
+ await assert.rejects(frame(b,2,{hull:0}));
+ await assert.rejects(f.cmd('cockpitCommand',{stationId:'cockpit-2',command:'starfighterFrame',payload:{sessionId:f.sid,shipId:'ship',combatId:a.c.id}},f.player));
+ await f.stage('PAUSE');await assert.rejects(frame(a,3,{fire:true}));
+ f.advance(50000);await f.stage('EN_JEU');f.advance(90000);
+ await (await consoleFor()).pulse();assert.equal((await consoleFor()).c.status,'DOGFIGHT');
+ await assert.rejects(msg(a,{type:'ready'}));
+ const active=await consoleFor();
+ await assert.rejects(active.cmd('submitSpaceOrder',{combatId:a.c.id,confirmation:active.c.confirmation,order:order('ATTACK')}));
+ let seqA=3,seqB=2,shieldHit=false,seenHull=false,final;
+ await frame(a,seqA++,{fire:true});const launch=await frame(b,seqB++);
+ assert.equal(launch.room.shots.length,0);
+ for(let i=0;i<42;i++){
+  f.advance(250);
+  const x=await frame(a,seqA++,{fire:true});final=x;
+  const target=x.room.ships[1];
+  if(target.shield<10&&target.shield>0){assert.equal(target.hull,2);shieldHit=true;}
+  if(target.hull<2){assert.equal(target.shield,0);seenHull=true;}
+  if(x.room.phase==='fin')break;
+  const retry=await frame(a,seqA-1,{turn:1});assert.deepEqual(retry.room,x.room);
+  await frame(b,seqB++);
+ }
+ assert.ok(shieldHit&&seenHull);assert.equal(final.room.phase,'fin');
+ const result=await f.get('spaceCombats/'+a.c.id),loser=await f.get('ships/second'),winner=await f.get('ships/ship');
+ assert.equal(result.reason,'IMMOBILIZED');assert.equal(result.lastRound.after[1].hull,0);
+ assert.equal(loser.journey.immobilized,true);assert.equal(loser.combatId,null);assert.equal(winner.combatId,null);
+ assert.equal(winner.revisionRequired,true);assert.equal(loser.shield,0);assert.equal(loser.hull,0);
+ await assert.rejects(frame(a,seqA,{fire:true}));
+});
+test('Duel connecté : perte du second poste, capacité de tir suspendue et reprise de secours par la régie',async()=>{
+ const {f,consoleFor}=await pair({flightDuel:true,shieldFactor:3});
+ await (await consoleFor()).pulse();const a=await consoleFor(),b=await consoleFor(true);
+ f.advance(90000);await (await consoleFor()).pulse();
+ const frame=(p,seq,controls)=>p.cmd('starfighterFrame',{combatId:a.c.id,seq,controls});
+ await frame(a,1,{fire:true});await frame(b,1,{turn:1});
+ f.advance(250);const online=await frame(a,2,{fire:true});assert.ok(online.room.ships[1].yaw>Math.PI);
+ f.advance(12000);const offline=await frame(a,3,{fire:true});assert.equal(offline.ready,false);
+ f.advance(1000);assert.deepEqual((await frame(a,4,{fire:true})).room,offline.room);
+ await f.edit('cockpitStations/cockpit-2',s=>({...s,operationId:'remplace'}));
+ await assert.rejects(frame(a,5,{}),{code:'COCKPIT_UNAVAILABLE'});
+ const admin=(await f.read('spaceCombatAdmin',{},f.owner)).combats.find(e=>e.id===a.c.id);
+ await f.cmd('restoreSpaceRounds',{combatId:a.c.id,confirmation:admin.confirmation,reason:'Poste hors service'},f.owner);
+ assert.equal((await consoleFor()).c.status,'ROUND');await assert.rejects(frame(a,5,{}));
+});
+
 }

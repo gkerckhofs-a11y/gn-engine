@@ -996,3 +996,4 @@ Marché réservé à la classe principale Courtier. Détail, limites et validati
 [Plan et autorisations](SO-STARFIGHTER-TECHNICAL-PLAN.md), [guide du cockpit et de l’entraînement hors ligne](SO-STARFIGHTER-COCKPIT.md), [recette AC-01 à AC-20](SO-STARFIGHTER-RECETTE.md). Attribution transactionnelle d’un poste, négociation avant combat et visée locale. La PR en brouillon rassemble les exécutions par commit. Recette sur les ordinateurs physiques à effectuer avant toute décision de publication.
 
 | STARFIGHTER · duel arcade d’entraînement | Deux postes de pilotage synchronisés, joystick, visio, tirs et esquive. Résultat limité à l’exercice. | [Recette](SO-STARFIGHTER-RECETTE.md#duel-arcade-à-deux-postes) |
+| STARFIGHTER · pilotage de campagne | Poste du pilote, négociation en visio, dégâts laser sur bouclier renforcé, immobilisation du voyage et reprise sur incident. | [Recette de pilotage](SO-STARFIGHTER-RECETTE.md#pilotage-dans-gn-engine--26-novembre-2026) |

@@ -3,9 +3,9 @@ import {createServer} from 'node:http';
 import {createServer as createTLS} from 'node:https';
 import {randomBytes} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
-import {duel,step,controls,decision,STEP} from '../web/cockpit/duel-model.mjs';
-const room=duel(), seats=[0,1].map(()=>({key:randomBytes(24).toString('hex'), input:{}, stream:null, updated:0}));
-const files=new Set(['duel.html','duel-ui.mjs','duel-model.mjs','duel-visuals.mjs','duel-instruments.mjs','duel-sky.mjs','duel-canopy.mjs','duel-destruction.mjs','duel-throttle.mjs']);
+import {duel,step,controls,decision,STEP,DEFAULT_SHIELD_FACTOR} from '../web/cockpit/duel-model.mjs';
+const room=duel(DEFAULT_SHIELD_FACTOR), seats=[0,1].map(()=>({key:randomBytes(24).toString('hex'), input:{}, stream:null, updated:0}));
+const files=new Set(['duel.html','duel-ui.mjs','duel-console.mjs','duel.css','duel-instruments.css','duel-model.mjs','duel-visuals.mjs','duel-instruments.mjs','duel-sky.mjs','duel-canopy.mjs','duel-destruction.mjs','duel-throttle.mjs']);
 function send(seat,type,data) {seat.stream?.write(JSON.stringify({type,data})+'\n');}
 function resetCall() { room.linked.fill(false); for (const seat of seats) send(seat,'hangup',null); }
 async function handle(req,res) {
@@ -13,8 +13,8 @@ async function handle(req,res) {
   const path=req.url.split('?')[0];
   const file=path==='/'?'duel.html':path.slice(1);
   if(req.method==='GET' && files.has(file)) {
-    res.setHeader('Content-Type',file.endsWith('html')?'text/html; charset=utf-8':'application/javascript');
-    return res.end(await readFile(new URL('../web/cockpit/'+file,import.meta.url)));
+    res.setHeader('Content-Type',file.endsWith('html')?'text/html; charset=utf-8':file.endsWith('.css')?'text/css':'application/javascript');
+    return res.end(await readFile(new URL(file==='duel-model.mjs'?'../src/shared/starfighter-duel.mjs':'../web/cockpit/'+file,import.meta.url)));
   }
   const i=seats.findIndex(s=>req.headers.authorization==='Bearer '+s.key);
   if(i<0){res.writeHead(403);return res.end();}

@@ -1,8 +1,8 @@
 // The range selects an absolute speed. Keyboard and moving joystick axes take
 // over as acceleration inputs, retaining the original flight controls.
-export function mountThrottle() {
-  const lever = document.getElementById('speed-lever');
-  const readout = document.getElementById('target-speed');
+export function mountThrottle(root=document) {
+  const lever = root.getElementById('speed-lever');
+  const readout = root.getElementById('target-speed');
   let selected = null;
   let axisAnchor = null;
   let lastAxis = 0;

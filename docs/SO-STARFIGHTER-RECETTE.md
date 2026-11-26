@@ -63,7 +63,7 @@ DUEL_HOST=0.0.0.0 DUEL_ORIGIN=https://cockpit.example.test:8787 \
 DUEL_CERT=cert.pem DUEL_KEY=key.pem node scripts/starfighter-duel.mjs
 ```
 
-Le navigateur demande la caméra et le micro au décrochage. Liaison WebRTC directe sur le LAN. Pas de relais TURN. À deux liaisons confirmées, le délai de parole est de 90 secondes. Sans liaison, le délai de réponse est de 30 secondes. Une rupture explicite ouvre le feu, une paix bilatérale termine la rencontre. Les valeurs d’exercice (3 boucliers, 4 coque) concernent uniquement cette simulation. Les voyages et combats persistants de la session GN utilisent encore le moteur natif par rounds.
+Le navigateur demande la caméra et le micro au décrochage. Liaison WebRTC directe sur le LAN. Pas de relais TURN. À deux liaisons confirmées, le délai de parole est de 90 secondes. Sans liaison, le délai de réponse est de 30 secondes. Une rupture explicite ouvre le feu, une paix bilatérale termine la rencontre. L’exercice démarre avec 30 points de protection et 4 points de coque.
 
 La page autonome `dist/starfighter/duel.html`, générée avec `node scripts/starfighter-demo.mjs`, permet de tester le pilotage contre un adversaire simulé. Le test à deux navigateurs est reproductible avec `node scripts/test-starfighter-duel-browser.mjs` après installation du Chromium Playwright ; CHROMIUM_PATH peut désigner un exécutable local.
 
@@ -80,3 +80,16 @@ Dans le test Chromium à deux postes, contrôler la rotation de l’horizon, le 
 Pendant les pourparlers et le combat, utiliser la manette de poussée pour fixer la vitesse voulue entre 0 et 120 m/s. Vérifier la vitesse mesurée pendant l’accélération, le freinage jusqu’à l’arrêt, la reprise manuelle avec Z ou S et la remise à zéro sur un nouvel exercice.
 
 Essai du 23 novembre sur le commit `1cffab1` : build et 258 tests applicatifs ciblés réussis. Dans Chromium, deux postes ont vérifié la commande indépendante de vitesse, le passage par zéro, l’impact fatal depuis chaque siège et la reconnexion après la dissipation de l’effet. Le parcours solo a vérifié la paix, le rejeu pendant l’explosion et la préférence de mouvement réduit. Le HTML autonome a également répondu au toucher simulé à 390 px.
+
+
+## Pilotage dans GN Engine · 26 novembre 2026
+
+Depuis le vaisseau, ouvrir **Navigation**, puis **Prendre les commandes** sur le poste attribué au pilote. La consigne de vitesse, le roulis et le cap agissent sur les manœuvres locales. La durée du voyage galactique et son prix en carburant suivent la liaison choisie.
+
+Pour préparer une recette fictive à deux pilotes, activer les rencontres automatiques et **Duels de pilotage en temps réel entre deux postes** dans les réglages STARFIGHTER du spatioport. Armer une embuscade sur une liaison commune. Les deux pilotes peuvent ouvrir la visio et conclure la paix pendant les 90 secondes de négociation. À leur expiration, le serveur ouvre le duel. Les projectiles, positions, boucliers et coques viennent de la même simulation pour les deux sièges. Le MJ peut reprendre par rounds après un incident.
+
+Le réglage initial est de 10 points de protection par point de bouclier. La régie peut choisir un facteur de 1 à 30 pour les rencontres suivantes. Avec 2 points de bouclier sur la fiche, le cadran affiche 20 points disponibles à pleine charge. Un impact standard retire 1 point, un impact lourd en retire 2. Le reliquat de bouclier est conservé pendant les reconnexions. Une coque à zéro immobilise le voyage et laisse les suites techniques et l’abordage au moteur GN. La révision après tir suit la règle de campagne. Les rencontres en convoi, en alliance, avec remorquage et les sessions sans option de duel conservent leurs rounds.
+
+La boucle autoritaire utilise des pas de 50 ms et les navigateurs échangent leurs commandes environ toutes les 300 ms. La simulation suspend le duel à l’expiration de la présence d’un siège. Les essais locaux couvrent une paire de postes. La latence et la charge au nombre de postes prévu sur le site restent à mesurer. La visio utilise une liaison WebRTC directe avec consentement caméra et micro, à essayer sur le réseau des équipages.
+
+Recette navigateur reproductible avec `npm run build` puis `node scripts/test-starfighter-pilot-browser.mjs` (Chromium Playwright ou `CHROMIUM_PATH`). Deux identités de test pilotent le véritable service de campagne en mémoire. La suite Firestore `starfighter-encounter` rejoue les transactions sur émulateur.

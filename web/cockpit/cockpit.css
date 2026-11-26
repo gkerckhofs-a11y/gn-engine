@@ -20,3 +20,5 @@ main{padding:0 28px 22px;background:linear-gradient(90deg,#0b1218,#253038 2%,#13
 #live-orders{padding:20px;background:#0a151b;border:1px solid var(--line);margin:16px 0}#live-orders:empty{display:none}
 #live-orders h1{font-size:20px}#live-orders label{display:block;margin:12px 0}#live-orders select,#live-orders input:not([type=checkbox]){display:block;max-width:100%;padding:10px;background:#10232b;color:#e4eef2;border:1px solid #486064}#live-orders p{line-height:1.5}#live-orders button{margin:6px 8px 6px 0}
 body[data-connected] [hidden]{display:none!important}
+
+body[data-connected] .viewport[hidden]{display:none}

@@ -1,3 +1,4 @@
+import {DEFAULT_SHIELD_FACTOR} from '../shared/starfighter-duel.mjs';
 import {availableStation} from './starfighter-stations.mjs';
 import {localAuthorization} from './contextual-policy.mjs';
 import {shipCrewAccess,requireCrewPilot,shipPilot,shipCrewBase} from './ship-crew-state.mjs';
@@ -34,7 +35,7 @@ const admins=new Set(['configureStarfighter','enableSoCockpits','assignSoCockpit
 const reads=new Set(['cockpitStation','prepareSoShipName','prepareSoPilot','prepareSoDetour','prepareSoConvoy','spaceportAdmin','mySpaceport','prepareSoShip','shipNavigation','prepareRefuel','prepareVoyage']);
 const provisionFields=['shipId','modelId','name','ownerId','groupId','pilotId','homePort','fuelItemId','source','reason'];
 const flightFields=['shipId','navigationCode','passengerCodes'];
-const fields={configureStarfighter:['stationCount','combat','revision','volume','intensity'],enableSoCockpits:[],cockpitStation:['stationId'],requestSoLaunch:['shipId','confirmation','present'],assignSoCockpit:['shipId','confirmation','stationId'],revokeSoCockpit:['shipId','confirmation'],prepareSoShipName:['shipId','name'],renameSoShip:['shipId','name','confirmation','present'],prepareSoPilot:['shipId','pilotId','reason'],changeSoPilot:['shipId','pilotId','reason','confirmation','present'],...detourFields,...convoyFields,spaceportAdmin:[],mySpaceport:[],prepareSoShip:provisionFields,provisionSoShip:[...provisionFields,'confirmation'],shipNavigation:['shipId'],prepareRefuel:['shipId','lotId','quantity'],refuelShip:['shipId','lotId','quantity','confirmation','present'],finishSoRefuel:['shipId','confirmation','present'],prepareVoyage:[...flightFields,'cockpit'],departShip:[...flightFields,'confirmation','present','cockpit'],finishSoPreparation:['shipId','confirmation','present','stationId'],cancelSoNavigation:['shipId','confirmation','reason'],cancelSoNavigationAdmin:['shipId','confirmation','reason'],arriveShip:['shipId','confirmation'],arriveSoShipAdmin:['shipId','confirmation','reason'],continueSoVoyage:['shipId','confirmation','reason']};
+const fields={configureStarfighter:['stationCount','combat','revision','volume','intensity','flightDuel','shieldFactor'],enableSoCockpits:[],cockpitStation:['stationId'],requestSoLaunch:['shipId','confirmation','present'],assignSoCockpit:['shipId','confirmation','stationId'],revokeSoCockpit:['shipId','confirmation'],prepareSoShipName:['shipId','name'],renameSoShip:['shipId','name','confirmation','present'],prepareSoPilot:['shipId','pilotId','reason'],changeSoPilot:['shipId','pilotId','reason','confirmation','present'],...detourFields,...convoyFields,spaceportAdmin:[],mySpaceport:[],prepareSoShip:provisionFields,provisionSoShip:[...provisionFields,'confirmation'],shipNavigation:['shipId'],prepareRefuel:['shipId','lotId','quantity'],refuelShip:['shipId','lotId','quantity','confirmation','present'],finishSoRefuel:['shipId','confirmation','present'],prepareVoyage:[...flightFields,'cockpit'],departShip:[...flightFields,'confirmation','present','cockpit'],finishSoPreparation:['shipId','confirmation','present','stationId'],cancelSoNavigation:['shipId','confirmation','reason'],cancelSoNavigationAdmin:['shipId','confirmation','reason'],arriveShip:['shipId','confirmation'],arriveSoShipAdmin:['shipId','confirmation','reason'],continueSoVoyage:['shipId','confirmation','reason']};
 export const soVoyageCommands=Object.keys(fields);
 const active=s=>{requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');requireThat(s.stage==='EN_JEU','SESSION_NOT_RUNNING');};
 const available=(s,c,time)=>c.hp>0&&!c.outOfCombat&&!c.survival?.dead&&!c.activeMaintenanceId&&!c.activeCargoId&&!c.activeAidId&&!c.activeFieldActionId&&!c.activePersonActionId&&!(c.convalescentUntilGameMs>time)&&!malaiseAt(c,time);
@@ -76,7 +77,10 @@ export function createSoVoyageService({store,signed,checkSession,now,uuid,rollD6
     requireThat(Number.isInteger(input.stationCount)&&input.stationCount>=0&&input.stationCount<=20&&typeof input.combat==='boolean','INVALID_INPUT');
     const volume=input.volume??60,intensity=input.intensity??70;
     requireThat([volume,intensity].every(n=>Number.isInteger(n)&&n>=0&&n<=100),'INVALID_INPUT');
-    const config={stationCount:input.stationCount,combat:input.combat,volume,intensity};
+    const shieldFactor=input.shieldFactor??cockpitSettings?.starfighter?.shieldFactor??DEFAULT_SHIELD_FACTOR;
+    requireThat((input.flightDuel===undefined||typeof input.flightDuel==='boolean')&&Number.isInteger(shieldFactor)&&shieldFactor>=1&&shieldFactor<=30,'INVALID_INPUT');
+    const flightDuel=input.flightDuel??cockpitSettings?.starfighter?.flightDuel??false;
+    const config={...(flightDuel||input.shieldFactor!==undefined||cockpitSettings?.starfighter?.shieldFactor?{flightDuel,shieldFactor}:{}),stationCount:input.stationCount,combat:input.combat,volume,intensity};
     const key='operations/'+hash(actor.uid+':'+input.requestId);
     const signature=hash(JSON.stringify([action,input])),previous=await tx.get(key);
     if(previous){requireThat(previous.fingerprint===signature,'REQUEST_ID_REUSED');return previous.result;}
