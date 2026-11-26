@@ -24,3 +24,20 @@ export async function selection({tx,base,e,s,at,actor,input,action,version,uuid}
  recordOrder(tx,base,e,next);const log=uuid();tx.set(base+'/history/'+log,{id:log,kind:action,actor:actor.uid,roleId:id,at});
  return myOrder(next,at);
 }
+
+export async function ticketPreparation({tx,base,e,s,at,actor,input,action}){
+ admissionKeys(input,['sessionId',...(action==='ticketReadBrief'?['requestId']:[])]);
+ const key=ticketUserKey(actor.uid),o=await tx.get(base+'/orders/'+key);
+ requireThat(o?.payment==='PAID'&&o.participation==='CONFIRMED'&&o.roleId,'TICKET_UNPAID');
+ const r=await tx.get(base+'/roles/'+o.roleId);
+ requireThat(r?.holder===key&&o.versionId===e.versionId,'FORBIDDEN');
+ if(o.access==='LIVE'){
+  const reg=await tx.get('sessions/'+s.id+'/registrations/'+key);
+  const c=await tx.get('sessions/'+s.id+'/characters/'+o.roleId);
+  requireThat(reg?.accessActive&&reg.status==='ACCEPTED'&&reg.characterId===o.roleId&&reg.minAuthTime<=actor.authTime&&c?.assignedUid===actor.uid,'FORBIDDEN');
+ }
+ requireThat(!s.safetyStop?.active,'TICKET_CLOSED');
+ if(action==='ticketReadBrief'&&!o.readAt)tx.set(base+'/orders/'+key,{...o,readAt:at,revision:o.revision+1});
+ return {name:r.name,profession:r.profession,portrait:r.portrait,early:r.early,guidance:e.guidance,practical:e.practical,date:e.date,time:e.time,place:e.place,
+  readAt:o.readAt??(action==='ticketReadBrief'?at:null),live:o.access==='LIVE',stage:s.stage};
+}

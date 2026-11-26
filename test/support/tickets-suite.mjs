@@ -78,4 +78,19 @@ export function ticketSuite(makeStore){
   await assert.rejects(f.cmd('ticketSelect',{...p,roleId:'courrier'},loser));await assert.rejects(f.cmd('ticketSelect',{...p,uid:f.player.uid},loser));
  });
 
+ test('Pré-jeu limité et naissance au briefing, réessais sans deuxième kit ni droits d’un autre compte',async()=>{
+  const f=await ticketFixture(makeStore);await f.open();const a=await f.reserve();await f.pay(f.player,a.attempt);
+  const g=await f.call('ticketGallery',{},f.player);await f.cmd('ticketSelect',{roleId:'vigie',confirm:true,revision:g.revision,orderRevision:g.orderRevision},f.player);
+  const pre=await f.call('ticketPreparation',{},f.player);assert.equal(pre.live,false);assert.equal(pre.name,'Nora Venn');
+  assert.doesNotMatch(JSON.stringify(pre),/gmNotes|playerSecrets|Note M2|objectif/i);await assert.rejects(f.call('ticketPreparation',{},f.other));
+  await assert.rejects(f.cmd('ticketActivate',{},f.player));await assert.rejects(f.cmd('ticketBriefing',{confirm:true},f.player));
+  assert.equal((await f.store.list('sessions/'+f.sid+'/accounts')).length,0);
+  assert.ok((await f.cmd('ticketReadBrief',{},f.player)).readAt);
+  await f.cmd('ticketBriefing',{confirm:true});await f.cmd('ticketBriefing',{confirm:true});
+  assert.equal((await f.cmd('ticketActivate',{},f.player)).alreadyBorn,true);
+  const me=await f.call('mySession',{},f.player);assert.equal(me.character.id,'vigie');assert.equal(me.character.hp,4);assert.equal(me.actionPoints.available,5);
+  assert.equal((await f.store.list('sessions/'+f.sid+'/characters')).length,1);const accounts=await f.store.list('sessions/'+f.sid+'/accounts');assert.equal(accounts.filter(x=>x.protectedCredits===200).length,1);
+  assert.equal((await f.store.get('sessions/'+f.sid)).accepted,1);assert.equal((await f.call('ticketPreparation',{},f.player)).live,true);
+ });
+
 }

@@ -1,12 +1,12 @@
-import {selection} from './ticket-selection.mjs';
+import {selection,ticketPreparation} from './ticket-selection.mjs';
 import {testCheckout} from './ticket-provider.mjs';
 import {ticketUserKey,myOrder,reserveTicket} from './ticket-orders.mjs';
 import {admissionKeys,admissionText} from './admission-state.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {isPreparation} from './preparation-state.mjs';
-import {readSoEntryVersion,planSoBirthAssets,soBirthOptions} from './space-outlaws-entry.mjs';
+import {readSoEntryVersion,planSoBirthAssets,soBirthOptions,finishSoBirth} from './space-outlaws-entry.mjs';
 
-export const ticketActions=new Set(['ticketGallery','ticketSelect','ticketMockCheckout','ticketSync','ticketMine','ticketReserve','ticketAccount','ticketCatalogue','ticketPage','ticketDesk','ticketPublish','ticketRole']);
+export const ticketActions=new Set(['ticketPreparation','ticketReadBrief','ticketActivate','ticketBriefing','ticketGallery','ticketSelect','ticketMockCheckout','ticketSync','ticketMine','ticketReserve','ticketAccount','ticketCatalogue','ticketPage','ticketDesk','ticketPublish','ticketRole']);
 
 const text=(v,max=1000,required=true)=>admissionText(v??'',max,required);
 const integer=(v,min,max)=>{requireThat(Number.isSafeInteger(v)&&v>=min&&v<=max,'TICKET_VALUE');return v;};
@@ -59,11 +59,28 @@ export function createTicketService({store,signed,checkSession,now,uuid,ticketSa
    }return out;});
   }
   const sid=documentId(input.sessionId),base='ticketEvents/'+sid;
+  if(action==='ticketBriefing'){
+   admissionKeys(input,['sessionId','requestId','confirm']);requireThat(input.confirm===true,'TICKET_CONSENT');
+   const uids=await store.runTransaction(async tx=>{const s=await checkSession(tx,actor,sid,'content',true);editable(s);
+    requireThat(['PREPARATION','BRIEFING'].includes(s.stage)&&await tx.get(base),'TICKET_CLOSED');
+    return (await tx.list(base+'/orders')).filter(o=>o.participation==='CONFIRMED'&&o.roleId&&o.access!=='LIVE').map(o=>o.uid);
+   });
+   for(const uid of uids)await store.runTransaction(async tx=>{const s=await checkSession(tx,actor,sid,'content',true);editable(s);
+    const e=await tx.get(base);await activate({tx,base,e,s,actor,uid,at:now(),uuid,input});});
+   return {activated:uids.length};
+  }
   return store.runTransaction(async tx=>{
    const at=now(),s=await tx.get('sessions/'+sid),e=await tx.get(base);
    if(action==='ticketPage'){
     admissionKeys(input,['sessionId']);requireThat(e?.published&&active(s),'TICKET_UNAVAILABLE');
     return publicEvent(e,s,inventory(await tx.list(base+'/roles'),await tx.list(base+'/orders'),at));
+   }
+   if(['ticketPreparation','ticketReadBrief','ticketActivate'].includes(action)){
+    signed(actor);requireThat(e&&active(s),'TICKET_UNAVAILABLE');
+    if(action==='ticketActivate'){
+     admissionKeys(input,['sessionId','requestId']);requireThat(s.stage==='BRIEFING'&&!s.safetyStop?.active,'TICKET_CLOSED');
+     return activate({tx,base,e,s,actor,uid:actor.uid,at,uuid,input});
+    }return ticketPreparation({tx,base,e,s,at,actor,input,action});
    }
    if(['ticketGallery','ticketSelect'].includes(action)){
     signed(actor);requireThat(e&&active(s),'TICKET_UNAVAILABLE');
@@ -112,4 +129,27 @@ export function createTicketService({store,signed,checkSession,now,uuid,ticketSa
    requireThat(false,'INVALID_ACTION');
   });
  };
+}
+
+async function activate({tx,base,e,s,actor,uid,at,uuid,input}){
+ const key=ticketUserKey(uid),o=await tx.get(base+'/orders/'+key);
+ requireThat(o?.uid===uid&&o.payment==='PAID'&&o.participation==='CONFIRMED'&&o.roleId,'TICKET_UNPAID');
+ const r=await tx.get(base+'/roles/'+o.roleId),reg=await tx.get('sessions/'+s.id+'/registrations/'+key);
+ requireThat(r?.enabled&&r.holder===key&&o.versionId===e.versionId,'FORBIDDEN');
+ const prior=await tx.get('sessions/'+s.id+'/characters/'+o.roleId);
+ if(o.access==='LIVE'){
+  requireThat(reg?.accessActive&&prior?.assignedUid===uid&&reg.characterId===o.roleId,'FORBIDDEN');
+  return {characterId:o.roleId,alreadyBorn:true};
+ }
+ requireThat(['PREPARATION','BRIEFING'].includes(s.stage)&&!s.safetyStop?.active&&!reg&&!prior&&s.accepted<s.capacity,'TICKET_CLOSED');
+ requireThat(!(await tx.list('sessions/'+s.id+'/characters',['assignedUid',uid],{limit:1})).length,'SO_BIRTH_CONFLICT');
+ const version=await ticketVersion(tx,s,e),def=characters(version).find(x=>x.entityId===o.roleId)?.data;
+ requireThat(def?.creationPlan,'TICKET_MASTER');
+ const c=await tx.get('campaigns/'+s.campaignId),options=soBirthOptions(r.options);
+ const {profile,lots}=await planSoBirthAssets(tx,s,version,o.roleId,def.creationPlan.classId,def.creationPlan.secondaryId,options);
+ const registration={id:key,uid,sessionId:s.id,name:o.name,email:o.email,answers:{},createdAt:o.consentedAt,ticketAttempt:o.attempt};
+ const plan={profile,lots,definition:def,characterId:o.roleId,r:registration};
+ const op=base+'/activations/'+key;
+ tx.set(base+'/orders/'+key,{...o,access:'LIVE',revision:o.revision+1});
+ return finishSoBirth({tx,sid:s.id,c,s:{...s,accepted:s.accepted+1},version,plan,options,actor,at,uuid,reason:'Activation du billet au briefing',action:'ticketActivate',op,fingerprint:e.versionId+'/'+o.roleId,uid});
 }

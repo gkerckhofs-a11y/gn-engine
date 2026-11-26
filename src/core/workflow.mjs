@@ -607,6 +607,8 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
           const transitions={PREPARATION:['BRIEFING'],BRIEFING:['EN_JEU'],EN_JEU:['PAUSE','FINISHED'],PAUSE:['EN_JEU','FINISHED'],FINISHED:['ARCHIVED'],ARCHIVED:[]};
           requireThat(transitions[s.stage].includes(input.stage),'INVALID_TRANSITION');
           if(s.spaceOutlaws){
+            if(s.stage==='BRIEFING'&&input.stage==='EN_JEU'&&await tx.get('ticketEvents/'+sid))
+              requireThat(!(await tx.list('ticketEvents/'+sid+'/orders')).some(o=>o.participation==='CONFIRMED'&&o.access!=='LIVE'),'TICKET_ACTIVATION_PENDING');
             if(input.stage==='EN_JEU'&&s.spaceOutlaws.terminalQrVersion===1)requireThat((await localReadiness(tx,s)).ready,'LOCAL_CONFIGURATION_REQUIRED');
             authorizeSpaceOutlaws(tx,s,'RHYTHM');
             requireThat(!s.safetyStop?.active,'SO_SAFETY_STOP');
