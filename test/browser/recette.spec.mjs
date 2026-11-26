@@ -597,7 +597,7 @@ test('Terminaux QR : dossiers sur mobile, cours fermés et matrice de régie PC'
 });
 
 test('STARFIGHTER : navigation, négociation et visée au clavier sans accès GN',async({page},info)=>{
- const allowed=new Set(['starfighter.html','flight.mjs','flight-ui.mjs','gunnery.mjs']);
+ const allowed=new Set(['starfighter.html','starfighter.css','flight.mjs','flight-ui.mjs','gunnery.mjs']);
  const unexpected=[],errors=[];
  page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/*',async route=>{
@@ -605,10 +605,11 @@ test('STARFIGHTER : navigation, négociation et visée au clavier sans accès GN
   if(u.origin!=='http://127.0.0.1:4173'||u.pathname!=='/cockpit/'+name||!allowed.has(name)){
    unexpected.push(u.pathname);return route.abort();
   }
-  await route.fulfill({contentType:name.endsWith('html')?'text/html':'text/javascript',body:await readFile('web/cockpit/'+name)});
+  await route.fulfill({contentType:name.endsWith('.html')?'text/html':name.endsWith('.css')?'text/css':'text/javascript',body:await readFile('web/cockpit/'+name)});
  });
  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/cockpit/starfighter.html');
  await expect(page.locator('#training')).toHaveText('SIMULATION – données fictives');
+ await expect(page.locator('body')).toHaveCSS('background-color','rgb(8, 18, 27)');
  await page.locator('#mode').selectOption({index:1});await expect(page.locator('#plans')).toContainText('Balise Orme');
  for(const phase of ['Manifeste confirmé','Décollage','Hyperespace','Contact radar','Rencontre simulée']){
   await page.locator('#step').click();await expect(page.locator('#phase')).toHaveText(phase);
