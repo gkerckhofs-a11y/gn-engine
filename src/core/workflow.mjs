@@ -1,3 +1,4 @@
+import {ticketActions,createTicketService} from './tickets.mjs';
 import {localReadiness} from './contextual-readiness.mjs';
 import {createDockTheftService,dockTheftActions} from './dock-theft.mjs';
 import {createDockService} from './docks.mjs';
@@ -117,7 +118,7 @@ const ownRegistration = r => r ? ({name:r.name, email:r.email, answers:r.answers
 
 
 /** Authenticated actor is supplied by the HTTP adapter, never by input JSON. */
-export function createWorkflow({store, ownerEmail, now = Date.now, uuid = randomUUID, images=null, processImage=null,rollD6,rollD12}) {
+export function createWorkflow({store, ownerEmail, now = Date.now, uuid = randomUUID, images=null, processImage=null,ticketSandbox=false,rollD6,rollD12}) {
   const lifecycleStore=store;
   store=mediaTrackedStore(campaignGuardStore(recycleBinStore(store)));
   const isAdmin = actor => !!actor && actor.emailVerified === true && actor.provider === 'google.com'
@@ -255,7 +256,9 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const recycleService=createRecycleBinService({store:lifecycleStore,admin,now});
   const characterCodeService=createCharacterCodeService({store,signed,isAdmin,checkSession});
   const contextualService=createContextualAccessService({store,signed,checkSession,now,uuid,nativePreview:(tx,actor,action,input)=>createWorkflow({store:{...store,get:tx.get,list:tx.list,runTransaction:cb=>cb(tx)},ownerEmail:'simulation-disabled-owner@example.invalid',now,uuid}).dispatch(action,actor,input)});
+  const tickets=createTicketService({store,signed,checkSession,now,uuid,ticketSandbox});
   async function dispatch(action,actor,input={}) {
+    if(ticketActions.has(action))return tickets(action,actor,input);
     if(action==='prepareCommerceSolo'){
       admin(actor);
       return prepareCommerceSolo(store,actor,input,now);
