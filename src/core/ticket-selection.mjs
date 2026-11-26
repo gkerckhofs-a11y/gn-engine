@@ -1,3 +1,4 @@
+import {acquired} from './ticket-admin.mjs';
 import {admissionKeys} from './admission-state.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {myOrder,recordOrder,ticketUserKey} from './ticket-orders.mjs';
@@ -6,7 +7,7 @@ export const teaser=r=>({id:r.id,name:r.name,profession:r.profession,teaser:r.te
  status:r.holder?'RESERVED':r.enabled?'AVAILABLE':'BLOCKED'});
 export async function selection({tx,base,e,s,at,actor,input,action,version,uuid}){
  const key=ticketUserKey(actor.uid),o=await tx.get(base+'/orders/'+key);
- requireThat(o?.uid===actor.uid&&o.payment==='PAID'&&o.participation==='CONFIRMED','TICKET_UNPAID');
+ requireThat(o?.uid===actor.uid&&acquired(o),'TICKET_UNPAID');
  if(action==='ticketGallery'){
   admissionKeys(input,['sessionId']);const roles=await tx.list(base+'/roles');
   return {roles:roles.map(teaser),revision:e.revision,orderRevision:o.revision,selected:o.roleId};
@@ -28,7 +29,7 @@ export async function selection({tx,base,e,s,at,actor,input,action,version,uuid}
 export async function ticketPreparation({tx,base,e,s,at,actor,input,action}){
  admissionKeys(input,['sessionId',...(action==='ticketReadBrief'?['requestId']:[])]);
  const key=ticketUserKey(actor.uid),o=await tx.get(base+'/orders/'+key);
- requireThat(o?.payment==='PAID'&&o.participation==='CONFIRMED'&&o.roleId,'TICKET_UNPAID');
+ requireThat(acquired(o)&&o.roleId,'TICKET_UNPAID');
  const r=await tx.get(base+'/roles/'+o.roleId);
  requireThat(r?.holder===key&&o.versionId===e.versionId,'FORBIDDEN');
  if(o.access==='LIVE'){
@@ -37,7 +38,7 @@ export async function ticketPreparation({tx,base,e,s,at,actor,input,action}){
   requireThat(reg?.accessActive&&reg.status==='ACCEPTED'&&reg.characterId===o.roleId&&reg.minAuthTime<=actor.authTime&&c?.assignedUid===actor.uid,'FORBIDDEN');
  }
  requireThat(!s.safetyStop?.active,'TICKET_CLOSED');
- if(action==='ticketReadBrief'&&!o.readAt)tx.set(base+'/orders/'+key,{...o,readAt:at,revision:o.revision+1});
+ if(!o.exposedAt||action==='ticketReadBrief'&&!o.readAt)tx.set(base+'/orders/'+key,{...o,exposedAt:o.exposedAt??at,readAt:o.readAt??(action==='ticketReadBrief'?at:null),revision:o.revision+1});
  return {name:r.name,profession:r.profession,portrait:r.portrait,early:r.early,guidance:e.guidance,practical:e.practical,date:e.date,time:e.time,place:e.place,
   readAt:o.readAt??(action==='ticketReadBrief'?at:null),live:o.access==='LIVE',stage:s.stage};
 }

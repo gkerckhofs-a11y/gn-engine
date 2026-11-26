@@ -256,7 +256,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
   const recycleService=createRecycleBinService({store:lifecycleStore,admin,now});
   const characterCodeService=createCharacterCodeService({store,signed,isAdmin,checkSession});
   const contextualService=createContextualAccessService({store,signed,checkSession,now,uuid,nativePreview:(tx,actor,action,input)=>createWorkflow({store:{...store,get:tx.get,list:tx.list,runTransaction:cb=>cb(tx)},ownerEmail:'simulation-disabled-owner@example.invalid',now,uuid}).dispatch(action,actor,input)});
-  const tickets=createTicketService({store,signed,checkSession,now,uuid,ticketSandbox});
+  const tickets=createTicketService({store,signed,checkSession,sessionAccess,now,uuid,ticketSandbox});
   async function dispatch(action,actor,input={}) {
     if(ticketActions.has(action))return tickets(action,actor,input);
     if(action==='prepareCommerceSolo'){
@@ -407,7 +407,7 @@ export function createWorkflow({store, ownerEmail, now = Date.now, uuid = random
         permissions.content?tx.list(`sessions/${sid}/skills`):[],permissions.content?tx.list(`sessions/${sid}/classes`):[],permissions.content?tx.list(`sessions/${sid}/items`):[],permissions.content?tx.list(`sessions/${sid}/inventory`):[],permissions.content?tx.list(`sessions/${sid}/accounts`):[]]);
       const ap=permissions.content&&s.actionPointRules?.enabled?await Promise.all(characters.map(c=>tx.get(actionPointPath(sid,c.id)))):null;
       if(ap)characters.forEach((c,i)=>c.actionPoints=actionPointSummary(s,c,ap[i],at));
-      return {...privateSession(s),role,permissions,characters:permissions.content?characters:characters.map(receptionCharacter),registrations:(isPreparation(s)&&!permissions.content?[]:registrations).map(r=>({...r,previousCharacterId:s.campaignId?characters.find(c=>c.previousAssignedUid===r.uid)?.id??null:null})),
+      return {...privateSession(s),...(ticketSandbox&&(isPreparation(s)||await tx.get('ticketEvents/'+sid))?{ticketingAvailable:true}:{}),role,permissions,characters:permissions.content?characters:characters.map(receptionCharacter),registrations:(isPreparation(s)&&!permissions.content?[]:registrations).map(r=>({...r,previousCharacterId:s.campaignId?characters.find(c=>c.previousAssignedUid===r.uid)?.id??null:null})),
         ...(permissions.content?{campaignId:s.campaignId??null,campaignEpisode:s.campaignEpisode??null,campaignSealed:s.campaignSealed===true,previousSessionId:s.previousSessionId??null,groups,groupsEnabled:s.modules?.groups===true,knowledge,skills,classes,items,inventory:inventory.map(l=>effectiveLot(l,now())),accounts,actionPointRules:s.actionPointRules??null,economyRules:s.economyRules??null,healthRules:s.healthRules??null}:{}),
         audit:audit.sort((a,b)=>b.at-a.at).slice(0,50),staff:staff.map(g=>({email:g.email,role:g.role,active:g.active,updatedAt:g.updatedAt}))};
     });

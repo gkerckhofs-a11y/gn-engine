@@ -1,3 +1,4 @@
+import {acquired,correctTicket,ticketReport,welcomeExport} from './ticket-admin.mjs';
 import {selection,ticketPreparation} from './ticket-selection.mjs';
 import {testCheckout} from './ticket-provider.mjs';
 import {ticketUserKey,myOrder,reserveTicket} from './ticket-orders.mjs';
@@ -6,7 +7,7 @@ import {documentId,requireThat} from './validation.mjs';
 import {isPreparation} from './preparation-state.mjs';
 import {readSoEntryVersion,planSoBirthAssets,soBirthOptions,finishSoBirth} from './space-outlaws-entry.mjs';
 
-export const ticketActions=new Set(['ticketPreparation','ticketReadBrief','ticketActivate','ticketBriefing','ticketGallery','ticketSelect','ticketMockCheckout','ticketSync','ticketMine','ticketReserve','ticketAccount','ticketCatalogue','ticketPage','ticketDesk','ticketPublish','ticketRole']);
+export const ticketActions=new Set(['ticketCorrect','ticketExport','ticketPreparation','ticketReadBrief','ticketActivate','ticketBriefing','ticketGallery','ticketSelect','ticketMockCheckout','ticketSync','ticketMine','ticketReserve','ticketAccount','ticketCatalogue','ticketPage','ticketDesk','ticketPublish','ticketRole']);
 
 const text=(v,max=1000,required=true)=>admissionText(v??'',max,required);
 const integer=(v,min,max)=>{requireThat(Number.isSafeInteger(v)&&v>=min&&v<=max,'TICKET_VALUE');return v;};
@@ -22,11 +23,12 @@ export async function ticketVersion(tx,s,e){
 const characters=v=>v.changes.filter(x=>x.type==='character'&&x.operation==='UPSERT'&&x.data.creationPlan&&x.source!=='ADMISSION'&&!x.entityId.startsWith('admission_'));
 const fields=['title','story','date','time','place','duration','practical','guidance','terms','privacy','cancellation','contact','seller','faq'];
 function metadata(v){
- admissionKeys(v,[...fields,'price','capacity','holdMinutes','policyVersion','sale','published']);
+ admissionKeys(v,[...fields,'image','price','capacity','holdMinutes','policyVersion','sale','published']);
  const m=Object.fromEntries(fields.map(k=>[k,text(v[k],k==='title'?150:3000,!['faq'].includes(k))]));
  requireThat(/^\d{4}-\d{2}-\d{2}$/.test(m.date)&&Number.isFinite(Date.parse(m.date)),'TICKET_VALUE');
  requireThat(['OPEN','WAITLIST','CLOSED'].includes(v.sale)&&typeof v.published==='boolean','TICKET_VALUE');
- return {...m,sale:v.sale,published:v.published,price:integer(v.price,1,10000000),capacity:integer(v.capacity,1,100),holdMinutes:integer(v.holdMinutes,1,1440),policyVersion:text(v.policyVersion,90),currency:'EUR'};
+ const image=text(v.image,500,false);requireThat(!image||/^https:\/\/[^\s]+$/.test(image)||image==='/aventures/port.webp','TICKET_VALUE');
+ return {...m,image,sale:v.sale,published:v.published,price:integer(v.price,1,10000000),capacity:integer(v.capacity,1,100),holdMinutes:integer(v.holdMinutes,1,1440),policyVersion:text(v.policyVersion,90),currency:'EUR'};
 }
 function inventory(roles,orders,time){
  const usable=roles.filter(r=>r.enabled),occupied=orders.filter(o=>o.participation==='CONFIRMED'||o.payment==='CHECKOUT_PENDING'&&o.expiresAt>time);
@@ -35,10 +37,10 @@ function inventory(roles,orders,time){
 function publicEvent(e,s,stock){
  const {id,title,story,date,time,place,duration,price,currency,capacity,practical,guidance,terms,privacy,cancellation,contact,seller,faq,policyVersion,revision}=e;
  const remaining=stock.free(Math.min(capacity,s.capacity));
- return {id,title,story,date,time,place,duration,price,currency,capacity,remaining,practical,guidance,terms,privacy,cancellation,contact,seller,faq,policyVersion,revision,
+ return {image:e.image??'',id,title,story,date,time,place,duration,price,currency,capacity,remaining,practical,guidance,terms,privacy,cancellation,contact,seller,faq,policyVersion,revision,
  status:!saleStage(s)||e.sale==='CLOSED'?'CLOSED':e.sale==='WAITLIST'?'WAITLIST':remaining?'OPEN':'FULL'};
 }
-export function createTicketService({store,signed,checkSession,now,uuid,ticketSandbox=false}){
+export function createTicketService({store,signed,checkSession,sessionAccess,now,uuid,ticketSandbox=false}){
  return async(action,actor,input)=>{
   if(action==='ticketCatalogue'){
    admissionKeys(input,[]);
@@ -93,13 +95,29 @@ export function createTicketService({store,signed,checkSession,now,uuid,ticketSa
    if(['ticketMine','ticketReserve'].includes(action)){
     signed(actor);requireThat(e&&active(s),'TICKET_UNAVAILABLE');const order=await tx.get(base+'/orders/'+ticketUserKey(actor.uid));
     if(action==='ticketMine'){admissionKeys(input,['sessionId']);return myOrder(order,at);}
+    requireThat(!await tx.get(base+'/activations/'+ticketUserKey(actor.uid)),'TICKET_CLOSED');
     const stock=inventory(await tx.list(base+'/roles'),await tx.list(base+'/orders'),at);
     return reserveTicket({tx,base,e,s,actor,at,input,stock,uuid,order});
    }
-   await checkSession(tx,actor,sid,'content',true);editable(s);
+   const staff=await sessionAccess(tx,actor,sid);editable(s);
+   if(['ticketDesk','ticketExport','ticketCorrect'].includes(action)){
+    const roles=await tx.list(base+'/roles'),orders=await tx.list(base+'/orders'),stock=inventory(roles,orders,at);
+    const report=ticketReport({orders,roles,stock,at,e,s});
+    if(action==='ticketExport'){admissionKeys(input,['sessionId']);return {csv:welcomeExport(report.rows)};}
+    if(action==='ticketCorrect'){
+     requireThat(staff.permissions.staff,'FORBIDDEN');return correctTicket({tx,base,e,s,actor,input,roles,orders,stock,at});
+    }
+    admissionKeys(input,['sessionId']);
+    const desk={...report,session:{id:sid,title:s.title,stage:s.stage,capacity:s.capacity},edit:staff.permissions.content,correct:staff.permissions.staff};
+    if(!desk.edit)return {...desk,rows:report.rows.map(({name,character,participation,read})=>({name,character,participation,read}))};
+    const v=await ticketVersion(tx,s,e);
+    return {...desk,event:e,roles,definitions:characters(v).map(x=>({id:x.entityId,name:x.data.public.displayName})),
+      exceptions:desk.correct?(await tx.list(base+'/exceptions',['status','OPEN'])).map(x=>({id:x.id,key:ticketUserKey(x.uid),reason:x.reason})):[],
+      history:(await tx.list(base+'/history')).sort((a,b)=>b.at-a.at).slice(0,30)};
+   }
+   requireThat(staff.permissions.content,'FORBIDDEN');
    const v=await ticketVersion(tx,s,e);
    const roles=await tx.list(base+'/roles'),orders=await tx.list(base+'/orders'),stock=inventory(roles,orders,at);
-   if(action==='ticketDesk')return {event:e,session:{id:sid,title:s.title,stage:s.stage,capacity:s.capacity},roles,definitions:characters(v).map(x=>({id:x.entityId,name:x.data.public.displayName})),available:e?stock.free(Math.min(e.capacity,s.capacity)):0};
    requireThat(saleStage(s)&&isPreparation(s),'TICKET_CLOSED');
    requireThat(input.revision===(e?.revision??0),'STALE_REVISION');
    const audit=(kind,detail)=>{const id=uuid();tx.set(base+'/history/'+id,{id,kind,at,actor:actor.uid,...detail});};
@@ -114,17 +132,20 @@ export function createTicketService({store,signed,checkSession,now,uuid,ticketSa
     tx.set(base,next);audit(action,{revision:next.revision});return {revision:next.revision};
    }
    if(action==='ticketRole'){
-    admissionKeys(input,['sessionId','revision','roleId','teaser','early','style','portrait','enabled','options','requestId']);
+    admissionKeys(input,['sessionId','revision','roleId','teaser','early','style','portrait','enabled','options','requestId','reason','confirm']);
     requireThat(e,'TICKET_UNAVAILABLE');const id=documentId(input.roleId),d=characters(v).find(x=>x.entityId===id)?.data;
     requireThat(d&&typeof input.enabled==='boolean','TICKET_MASTER');
     const opts=soBirthOptions(input.options);
     await planSoBirthAssets(tx,s,v,id,d.creationPlan.classId,d.creationPlan.secondaryId,opts);
     const old=roles.find(x=>x.id===id);requireThat(!old?.holder,'TICKET_TAKEN');
+    const changed=old&&old.enabled!==input.enabled;
+    const reason=changed?text(input.reason,360):null;
+    if(changed)requireThat(input.confirm===true,'TICKET_CONSENT');
     const portrait=input.portrait??null;requireThat(portrait===null||[0,1,2].includes(portrait),'TICKET_VALUE');
     const role={id,portrait,name:d.public.displayName,profession:d.public.profession,teaser:text(input.teaser),early:text(input.early,4000,false),style:text(input.style,120,false),options:opts,enabled:input.enabled};
     const count=stock.usable.length-Number(!!old?.enabled)+Number(role.enabled);
     requireThat(count>=stock.occupied.length,'TICKET_CAPACITY');
-    tx.set(base+'/roles/'+id,role);tx.set(base,{...e,revision:e.revision+1});audit(action,{roleId:id,enabled:role.enabled});return {revision:e.revision+1};
+    tx.set(base+'/roles/'+id,role);tx.set(base,{...e,revision:e.revision+1});audit(action,{roleId:id,enabled:role.enabled,reason});return {revision:e.revision+1};
    }
    requireThat(false,'INVALID_ACTION');
   });
@@ -133,7 +154,7 @@ export function createTicketService({store,signed,checkSession,now,uuid,ticketSa
 
 async function activate({tx,base,e,s,actor,uid,at,uuid,input}){
  const key=ticketUserKey(uid),o=await tx.get(base+'/orders/'+key);
- requireThat(o?.uid===uid&&o.payment==='PAID'&&o.participation==='CONFIRMED'&&o.roleId,'TICKET_UNPAID');
+ requireThat(o?.uid===uid&&acquired(o)&&o.roleId,'TICKET_UNPAID');
  const r=await tx.get(base+'/roles/'+o.roleId),reg=await tx.get('sessions/'+s.id+'/registrations/'+key);
  requireThat(r?.enabled&&r.holder===key&&o.versionId===e.versionId,'FORBIDDEN');
  const prior=await tx.get('sessions/'+s.id+'/characters/'+o.roleId);
