@@ -38,4 +38,16 @@ export function ticketSuite(makeStore){
   assert.doesNotMatch(JSON.stringify(d),/gmNotes|biography|secret|"uid"|early|options|versionId|startingInformation/i);
   await assert.rejects(f.call('ticketDesk',{},f.player));await assert.rejects(f.cmd('ticketPublish',{revision:4,settings:rehearsal},f.player));
  });
+ test('Dernière place, reprise sur un autre appareil, prix périmé, garde expirée et compte isolé',async()=>{
+  const f=await ticketFixture(makeStore);await f.open(1);const e=await f.call('ticketPage',{},null),p={revision:e.revision,price:e.price,policyVersion:e.policyVersion,name:'Participant fictif',consent:true};
+  await assert.rejects(f.cmd('ticketReserve',{...p,price:1},f.player));await assert.rejects(f.cmd('ticketReserve',{...p,consent:false},f.player));
+  const result=await Promise.allSettled([f.cmd('ticketReserve',p,f.player),f.cmd('ticketReserve',p,f.other)]);
+  assert.equal(result.filter(x=>x.status==='fulfilled').length,1);const [winner,other]=result[0].status==='fulfilled'?[f.player,f.other]:[f.other,f.player];
+  assert.equal((await f.call('ticketMine',{},other)),null);const o=await f.call('ticketMine',{},winner);assert.equal((await f.cmd('ticketReserve',p,winner)).attempt,o.attempt);
+  assert.equal((await f.wf.dispatch('ticketAccount',winner,[]).catch(()=>null)),null);
+  assert.equal((await f.wf.dispatch('ticketAccount',winner,{}))[0].attempt,o.attempt);
+  f.advance(16*60000);assert.equal((await f.call('ticketMine',{},winner)).payment,'EXPIRED');assert.equal((await f.call('ticketPage',{},null)).remaining,1);
+  assert.equal((await f.cmd('ticketReserve',p,other)).payment,'CHECKOUT_PENDING');
+ });
+
 }

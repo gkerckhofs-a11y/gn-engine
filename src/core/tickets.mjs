@@ -1,11 +1,11 @@
-import {createHash} from 'node:crypto';
+import {ticketUserKey,myOrder,reserveTicket} from './ticket-orders.mjs';
 import {admissionKeys,admissionText} from './admission-state.mjs';
 import {documentId,requireThat} from './validation.mjs';
 import {isPreparation} from './preparation-state.mjs';
 import {readSoEntryVersion,planSoBirthAssets,soBirthOptions} from './space-outlaws-entry.mjs';
 
-export const ticketActions=new Set(['ticketCatalogue','ticketPage','ticketDesk','ticketPublish','ticketRole']);
-export const ticketUserKey=uid=>createHash('sha256').update(uid).digest('hex');
+export const ticketActions=new Set(['ticketMine','ticketReserve','ticketAccount','ticketCatalogue','ticketPage','ticketDesk','ticketPublish','ticketRole']);
+
 const text=(v,max=1000,required=true)=>admissionText(v??'',max,required);
 const integer=(v,min,max)=>{requireThat(Number.isSafeInteger(v)&&v>=min&&v<=max,'TICKET_VALUE');return v;};
 const active=s=>!!s&&!s.campaignSealed&&!['ARCHIVED','FINISHED'].includes(s.stage);
@@ -50,12 +50,24 @@ export function createTicketService({store,signed,checkSession,now,uuid,ticketSa
    });
   }
   requireThat(ticketSandbox,'TICKET_SANDBOX_ONLY');
+  if(action==='ticketAccount'){
+   signed(actor);admissionKeys(input,[]);const key=ticketUserKey(actor.uid);
+   return store.runTransaction(async tx=>{const out=[];for(const entry of await tx.list('ticketAccounts/'+key+'/sessions')){
+    const o=await tx.get('ticketEvents/'+entry.id+'/orders/'+key);if(o?.uid===actor.uid)out.push(myOrder(o,now()));
+   }return out;});
+  }
   const sid=documentId(input.sessionId),base='ticketEvents/'+sid;
   return store.runTransaction(async tx=>{
    const at=now(),s=await tx.get('sessions/'+sid),e=await tx.get(base);
    if(action==='ticketPage'){
     admissionKeys(input,['sessionId']);requireThat(e?.published&&active(s),'TICKET_UNAVAILABLE');
     return publicEvent(e,s,inventory(await tx.list(base+'/roles'),await tx.list(base+'/orders'),at));
+   }
+   if(['ticketMine','ticketReserve'].includes(action)){
+    signed(actor);requireThat(e&&active(s),'TICKET_UNAVAILABLE');const order=await tx.get(base+'/orders/'+ticketUserKey(actor.uid));
+    if(action==='ticketMine'){admissionKeys(input,['sessionId']);return myOrder(order,at);}
+    const stock=inventory(await tx.list(base+'/roles'),await tx.list(base+'/orders'),at);
+    return reserveTicket({tx,base,e,s,actor,at,input,stock,uuid,order});
    }
    await checkSession(tx,actor,sid,'content',true);editable(s);
    const v=await ticketVersion(tx,s,e);
