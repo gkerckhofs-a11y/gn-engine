@@ -5,20 +5,21 @@ import {centralWorkshops} from '../src/shared/central-workshops.mjs';
 const stages={PREPARATION:'Préparation',BRIEFING:'Briefing',EN_JEU:'En jeu',PAUSE:'En pause',FINISHED:'Terminée',ARCHIVED:'Archivée'};
 const eventLabels={setStage:'Rythme de jeu modifié',releaseSpaceOutlaws:'Version publiée',birthSpaceOutlaws:'Personnage attribué',requestSoLaunch:'Décollage demandé',assignSoCockpit:'Poste cockpit attribué',stopSafetyMJ:'STOP SÉCURITÉ',resumeSafety:'Reprise après STOP',decideCustomsAppeal:'Décision sur un recours'};
 const views={prepare:'Préparer',animate:'Animer',supervise:'Superviser'};
-const direct=new Set(['dock-thefts-admin','local-admin','galactic-events-admin','commercial-storage-admin','freight-admin','galactic-map-admin','galactic-admin','session','so-entry','group-admin','admissions-admin','directory-admin','announcements-admin','contracts-admin','contract-admin','bounties-admin','bounty-admin','spaceport-admin','ship-admin','space-combats-admin','space-rescues-admin','boarding-admin','space-maintenance-admin','towing-admin','module-mandates-admin','cargo-admin','cargo-port-admin','warehouses-admin','prices-admin','shops-admin','customs-admin','customs-inspection-admin','customs-detention-admin','intrusion-admin','forgery-inspect-admin','escape-admin','intelligence-admin','learning-admin','succession-admin']);
+const direct=new Set(['billetterie-admin','dock-thefts-admin','local-admin','galactic-events-admin','commercial-storage-admin','freight-admin','galactic-map-admin','galactic-admin','session','so-entry','group-admin','admissions-admin','directory-admin','announcements-admin','contracts-admin','contract-admin','bounties-admin','bounty-admin','spaceport-admin','ship-admin','space-combats-admin','space-rescues-admin','boarding-admin','space-maintenance-admin','towing-admin','module-mandates-admin','cargo-admin','cargo-port-admin','warehouses-admin','prices-admin','shops-admin','customs-admin','customs-inspection-admin','customs-detention-admin','intrusion-admin','forgery-inspect-admin','escape-admin','intelligence-admin','learning-admin','succession-admin']);
 const pathLink=(path,label,extra='')=>`<a href="${path.startsWith('/')?esc(path):`#/${esc(path)}`}" ${extra}>${esc(label)}</a>`;
 const campaignPages=new Set(['central','central-check','central-snapshots','central-snapshot','campaign']);
 export function organizerRoute(page,id,token,sessionHint){
  if(/^[A-Za-z0-9_-]{1,128}$/.test(sessionHint??'')&&(campaignPages.has(page)||page==='scenario'))return {page,sessionId:sessionHint,home:false,view:'prepare',...(page==='scenario'?{scenarioId:id}:{campaignId:id})};
  const sessionId=direct.has(page)?id:['field-admin','person-admin','media'].includes(page)&&id==='session'?token:null;
  if(!/^[A-Za-z0-9_-]{1,128}$/.test(sessionId??''))return null;
- return {page,sessionId,home:page==='session'||page==='so-entry',view:views[token]?token:page==='so-entry'||['admissions-admin','group-admin'].includes(page)?'prepare':null};
+ return {page,sessionId,home:page==='session'||page==='so-entry',view:views[token]?token:page==='so-entry'||['billetterie-admin','admissions-admin','group-admin'].includes(page)?'prepare':null};
 }
 export function organizerView(route,s){return route.view??(route.home&&(!s.permissions?.content||['PREPARATION','BRIEFING'].includes(s.stage))?'prepare':route.home&&['FINISHED','ARCHIVED'].includes(s.stage)?'supervise':'animate');}
 export function organizerTools(s,sabacc){
  const sid=s.id,so=s.spaceOutlaws??(s.preparationKind?{}:null),p=s.permissions??{},items=[];
  const add=(view,label,path,help,advanced=false)=>items.push({view,label,path,help,advanced});
  add('prepare','Participants et attributions',`session/${sid}/prepare`,'Valider les accès et attribuer les personnages.');
+ if(s.ticketingAvailable&&p.reception)add('prepare','Inscriptions & Billetterie',`billetterie-admin/${sid}`,'Suivre les places et accueillir les participants.');
  if(p.content){
   add('prepare','Lieux & Terminaux',`local-admin/${sid}`,'Configurer les accès temporaires et révoquer les présences.');
   if(s.preparationKind||so)add('prepare','Candidatures et invitations',`admissions-admin/${sid}`,'Examiner les dossiers et préparer l’entrée des joueurs.');

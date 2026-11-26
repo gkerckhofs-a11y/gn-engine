@@ -374,3 +374,10 @@ targetedProfiles['starfighter-duel'] = {
    'web/cockpit/duel-model.mjs','web/cockpit/duel-ui.mjs','web/cockpit/duel.html',
    'web/cockpit/duel-visuals.mjs','web/cockpit/duel-instruments.mjs','web/cockpit/duel-sky.mjs','web/cockpit/duel-canopy.mjs','web/cockpit/duel-destruction.mjs','web/cockpit/duel-throttle.mjs']
 };
+
+targetedProfiles.ticketing={
+ tests:['test/tickets.test.mjs','test/admissions.test.mjs','test/space-outlaws-entry.test.mjs','test/ci-targeted.test.mjs'],
+ suites:['ticketing','admissions','space-outlaws-entry','firestore-rules'],
+ httpPattern:'^HTTP \\+ Auth : (admission vers M2|fiches centrales M2|candidature, naissance|billetterie)',browser:true,
+ files:[...infrastructure,'docs/SO-BILLETTERIE.md','web/app.mjs','web/organizer-dashboard.mjs','test/support/firestore-suites.mjs','test/support/tickets-suite.mjs','test/tickets.test.mjs','src/core/tickets.mjs','src/core/ticket-orders.mjs','src/core/ticket-admin.mjs','src/core/ticket-selection.mjs','src/core/ticket-provider.mjs','src/core/workflow.mjs','src/core/admissions.mjs','src/server/index.mjs','src/core/space-outlaws-entry.mjs','web/preparations.mjs','web/aventures/index.html','web/aventures/billets.css','web/aventures/client.mjs','web/aventures/ui.mjs','web/aventures/port.webp','web/aventures/equipage.webp','scripts/build.mjs','package.json','scripts/ticket-demo.mjs','scripts/package-ticket-demo.mjs','scripts/test-ticket-browser.mjs','test/integration/http.test.mjs','docs/MATRICE-SPACE-OUTLAWS-V3.md']
+};

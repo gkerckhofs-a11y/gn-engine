@@ -997,3 +997,7 @@ Marché réservé à la classe principale Courtier. Détail, limites et validati
 
 | STARFIGHTER · duel arcade d’entraînement | Deux postes de pilotage synchronisés, joystick, visio, tirs et esquive. Résultat limité à l’exercice. | [Recette](SO-STARFIGHTER-RECETTE.md#duel-arcade-à-deux-postes) |
 | STARFIGHTER · pilotage de campagne | Poste du pilote, négociation en visio, dégâts laser sur bouclier renforcé, immobilisation du voyage et reprise sur incident. | [Recette de pilotage](SO-STARFIGHTER-RECETTE.md#pilotage-dans-gn-engine--26-novembre-2026) |
+
+### Parcours de réservation avec personnages préécrits — 26 novembre 2026
+
+Mode volontaire d'une nouvelle préparation. La vitrine, la réservation, le paiement simulé, le choix exclusif dans M2, la préparation privée puis la naissance native sont exercés sur données fictives. La régie existante accueille les corrections et l'export. Le guide détaille les scénarios R01 à R28 et les conditions avant toute vente réelle. [Parcours et recette](SO-BILLETTERIE.md).

@@ -48,6 +48,7 @@ export function createAdmissionService({store,signed,isAdmin,checkSession,now,uu
    const at=now(),staff=['checkAdmissionM2','admissionAdmin','reviewAdmission','saveAdmissionSettings','issueAdmissionInvitation','revokeAdmissionInvitation',...m2Actions].includes(action)||(action==='admissionHistory'&&input.uid!==undefined);
    if(staff)await checkSession(tx,actor,sid,'content',true);
    const ctx=await context(tx,sid),{s,c,policy,draft,settings}=ctx;
+   if(!isRead)requireThat(!await tx.get('ticketEvents/'+sid),'TICKET_LEGACY');
    if(action==='checkAdmissionM2'){
     admissionKeys(input,['sessionId']);const authority=await centralAuthority(tx,actor,c,isAdmin);
     requireThat(authority.rights?.readWorkshops.includes('M2'),'FORBIDDEN');requireCentralPreparation(c,s,draft);
