@@ -24,5 +24,5 @@ for(const file of ['index.html','sabacc.css','sw.js'])await copyFile(`web/sabacc
 await build({entryPoints:['web/sabacc/app.mjs'],outfile:'public/sabacc/app.js',bundle:true,minify:true,format:'esm',target:'es2022'});
 
 await mkdir('public/aventures',{recursive:true});
-for(const f of ['index.html','billets.css','port.webp'])await copyFile('web/aventures/'+f,'public/aventures/'+f);
+for(const f of ['index.html','billets.css','port.webp','equipage.webp'])await copyFile('web/aventures/'+f,'public/aventures/'+f);
 await build({entryPoints:['web/aventures/client.mjs'],outfile:'public/aventures/billets.js',bundle:true,minify:true,format:'esm',target:'es2022'});

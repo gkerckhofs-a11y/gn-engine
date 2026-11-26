@@ -1,3 +1,4 @@
+import {selection} from './ticket-selection.mjs';
 import {testCheckout} from './ticket-provider.mjs';
 import {ticketUserKey,myOrder,reserveTicket} from './ticket-orders.mjs';
 import {admissionKeys,admissionText} from './admission-state.mjs';
@@ -5,7 +6,7 @@ import {documentId,requireThat} from './validation.mjs';
 import {isPreparation} from './preparation-state.mjs';
 import {readSoEntryVersion,planSoBirthAssets,soBirthOptions} from './space-outlaws-entry.mjs';
 
-export const ticketActions=new Set(['ticketMockCheckout','ticketSync','ticketMine','ticketReserve','ticketAccount','ticketCatalogue','ticketPage','ticketDesk','ticketPublish','ticketRole']);
+export const ticketActions=new Set(['ticketGallery','ticketSelect','ticketMockCheckout','ticketSync','ticketMine','ticketReserve','ticketAccount','ticketCatalogue','ticketPage','ticketDesk','ticketPublish','ticketRole']);
 
 const text=(v,max=1000,required=true)=>admissionText(v??'',max,required);
 const integer=(v,min,max)=>{requireThat(Number.isSafeInteger(v)&&v>=min&&v<=max,'TICKET_VALUE');return v;};
@@ -64,6 +65,10 @@ export function createTicketService({store,signed,checkSession,now,uuid,ticketSa
     admissionKeys(input,['sessionId']);requireThat(e?.published&&active(s),'TICKET_UNAVAILABLE');
     return publicEvent(e,s,inventory(await tx.list(base+'/roles'),await tx.list(base+'/orders'),at));
    }
+   if(['ticketGallery','ticketSelect'].includes(action)){
+    signed(actor);requireThat(e&&active(s),'TICKET_UNAVAILABLE');
+    return selection({tx,base,e,s,at,actor,input,action,version:()=>ticketVersion(tx,s,e),uuid});
+   }
    if(['ticketMockCheckout','ticketSync'].includes(action)){
     signed(actor);requireThat(e&&s,'TICKET_UNAVAILABLE');const stock=inventory(await tx.list(base+'/roles'),await tx.list(base+'/orders'),at);
     return testCheckout({action,actor,input,tx,base,e,s,at,stock});
@@ -92,13 +97,14 @@ export function createTicketService({store,signed,checkSession,now,uuid,ticketSa
     tx.set(base,next);audit(action,{revision:next.revision});return {revision:next.revision};
    }
    if(action==='ticketRole'){
-    admissionKeys(input,['sessionId','revision','roleId','teaser','early','style','enabled','options','requestId']);
+    admissionKeys(input,['sessionId','revision','roleId','teaser','early','style','portrait','enabled','options','requestId']);
     requireThat(e,'TICKET_UNAVAILABLE');const id=documentId(input.roleId),d=characters(v).find(x=>x.entityId===id)?.data;
     requireThat(d&&typeof input.enabled==='boolean','TICKET_MASTER');
     const opts=soBirthOptions(input.options);
     await planSoBirthAssets(tx,s,v,id,d.creationPlan.classId,d.creationPlan.secondaryId,opts);
     const old=roles.find(x=>x.id===id);requireThat(!old?.holder,'TICKET_TAKEN');
-    const role={id,name:d.public.displayName,profession:d.public.profession,teaser:text(input.teaser),early:text(input.early,4000,false),style:text(input.style,120,false),options:opts,enabled:input.enabled};
+    const portrait=input.portrait??null;requireThat(portrait===null||[0,1,2].includes(portrait),'TICKET_VALUE');
+    const role={id,portrait,name:d.public.displayName,profession:d.public.profession,teaser:text(input.teaser),early:text(input.early,4000,false),style:text(input.style,120,false),options:opts,enabled:input.enabled};
     const count=stock.usable.length-Number(!!old?.enabled)+Number(role.enabled);
     requireThat(count>=stock.occupied.length,'TICKET_CAPACITY');
     tx.set(base+'/roles/'+id,role);tx.set(base,{...e,revision:e.revision+1});audit(action,{roleId:id,enabled:role.enabled});return {revision:e.revision+1};

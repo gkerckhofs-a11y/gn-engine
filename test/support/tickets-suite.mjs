@@ -24,7 +24,7 @@ export async function ticketFixture(makeStore){
  const q=await call('previewSpaceOutlawsRelease');assert.deepEqual(q.blockers,[]);
  await cmd('releaseSpaceOutlaws',{confirmation:q.confirmation,reason:'Master fictif'});
  const configure=async(settings=rehearsal)=>cmd('ticketPublish',{settings,revision:(await call('ticketDesk')).event?.revision??0});
- const role=async(id,extra={})=>cmd('ticketRole',{roleId:id,revision:(await call('ticketDesk')).event.revision,teaser:'Une rencontre au port avec '+id,style:'Enquête',early:'Pour votre préparation uniquement : '+id,enabled:true,options:{weaponApplicable:true,startingInformation:''},...extra});
+ const role=async(id,extra={})=>cmd('ticketRole',{roleId:id,revision:(await call('ticketDesk')).event.revision,teaser:'Une rencontre au port avec '+id,style:'Enquête',early:'Pour votre préparation uniquement : '+id,portrait:['vigie','guide','courrier'].indexOf(id),enabled:true,options:{weaponApplicable:true,startingInformation:''},...extra});
  const open=async(capacity=2)=>{await configure({...rehearsal,capacity});for(const id of ['vigie','guide','courrier'])await role(id);await configure({...rehearsal,capacity,published:true,sale:'OPEN'});};
  const reserve=async(actor=f.player)=>{const e=await call('ticketPage',{},null);return cmd('ticketReserve',{revision:e.revision,policyVersion:e.policyVersion,price:e.price,name:'Joueur fictif',consent:true},actor);};
  const pay=(actor,attempt,outcome='SUCCESS')=>call('ticketMockCheckout',{attempt,outcome},actor);
@@ -64,6 +64,18 @@ export function ticketSuite(makeStore){
   const g=await ticketFixture(makeStore);await g.open();const a=await g.reserve();await g.store.runTransaction(async tx=>tx.set('ticketProviderTest/'+a.attempt,{id:a.attempt,sessionId:g.sid,outcome:'SUCCESS',amount:1,currency:'EUR',at:10}));
   assert.equal((await g.call('ticketSync',{attempt:a.attempt},g.player)).payment,'PAID_NEEDS_RECONCILIATION');
   const b=await g.reserve(g.other);assert.equal((await g.pay(g.other,b.attempt,'FAILURE')).payment,'FAILED');
+ });
+
+ test('Galerie payée : collision atomique, conservation du billet, contrôle du stock et confidentialité',async()=>{
+  const f=await ticketFixture(makeStore);await f.open();await assert.rejects(f.call('ticketGallery',{},f.player),{code:'TICKET_UNPAID'});
+  for(const actor of [f.player,f.other]){const o=await f.reserve(actor);await f.pay(actor,o.attempt);}
+  await f.role('courrier',{enabled:false});await assert.rejects(f.role('guide',{enabled:false}),{code:'TICKET_CAPACITY'});
+  const g=await f.call('ticketGallery',{},f.player);assert.doesNotMatch(JSON.stringify(g),/startingInformation|préparation uniquement|gmNotes|biography|holder/);
+  const p={roleId:'vigie',revision:g.revision,orderRevision:g.orderRevision,confirm:true};
+  const results=await Promise.allSettled([f.cmd('ticketSelect',p,f.player),f.cmd('ticketSelect',p,f.other)]);
+  assert.equal(results.filter(x=>x.status==='fulfilled').length,1);const loser=results[0].status==='fulfilled'?f.other:f.player;
+  const o=await f.call('ticketMine',{},loser);assert.equal(o.roleId,null);assert.equal(o.payment,'PAID');
+  await assert.rejects(f.cmd('ticketSelect',{...p,roleId:'courrier'},loser));await assert.rejects(f.cmd('ticketSelect',{...p,uid:f.player.uid},loser));
  });
 
 }
