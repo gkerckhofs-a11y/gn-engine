@@ -30,8 +30,15 @@ function metadata(v){
  const image=text(v.image,500,false);requireThat(!image||/^https:\/\/[^\s]+$/.test(image)||image==='/aventures/port.webp','TICKET_VALUE');
  return {...m,image,sale:v.sale,published:v.published,price:integer(v.price,1,10000000),capacity:integer(v.capacity,1,100),holdMinutes:integer(v.holdMinutes,1,1440),policyVersion:text(v.policyVersion,90),currency:'EUR'};
 }
-function inventory(roles,orders,time){
- const usable=roles.filter(r=>r.enabled),occupied=orders.filter(o=>o.participation==='CONFIRMED'||o.payment==='CHECKOUT_PENDING'&&o.expiresAt>time);
+async function inventory(tx,roles,orders,time){
+ const usable=roles.filter(r=>r.enabled),occupied=[];
+ for(const o of orders){
+  if(o.participation==='CONFIRMED'){occupied.push(o);continue;}
+  if(o.payment!=='CHECKOUT_PENDING')continue;
+  if(o.expiresAt>time){occupied.push(o);continue;}
+  const receipt=await tx.get('ticketProviderTest/'+o.attempt);
+  if(receipt?.outcome==='SUCCESS'&&receipt.sessionId===o.sessionId&&receipt.currency===o.currency&&receipt.amount===o.price)occupied.push(o);
+ }
  return {usable,occupied,free:capacity=>Math.max(0,Math.min(capacity,usable.length)-occupied.length)};
 }
 function publicEvent(e,s,stock){
@@ -48,7 +55,7 @@ export function createTicketService({store,signed,checkSession,sessionAccess,now
    return store.runTransaction(async tx=>{
     const rows=[];for(const e of await tx.list('ticketEvents',['published',true])){
      const s=await tx.get('sessions/'+e.id);if(!active(s))continue;
-     const base='ticketEvents/'+e.id,stock=inventory(await tx.list(base+'/roles'),await tx.list(base+'/orders'),now());
+     const base='ticketEvents/'+e.id,stock=await inventory(tx,await tx.list(base+'/roles'),await tx.list(base+'/orders'),now());
      rows.push(publicEvent(e,s,stock));
     }return rows.sort((a,b)=>a.date.localeCompare(b.date)||a.title.localeCompare(b.title));
    });
@@ -75,7 +82,7 @@ export function createTicketService({store,signed,checkSession,sessionAccess,now
    const at=now(),s=await tx.get('sessions/'+sid),e=await tx.get(base);
    if(action==='ticketPage'){
     admissionKeys(input,['sessionId']);requireThat(e?.published&&active(s),'TICKET_UNAVAILABLE');
-    return publicEvent(e,s,inventory(await tx.list(base+'/roles'),await tx.list(base+'/orders'),at));
+    return publicEvent(e,s,await inventory(tx,await tx.list(base+'/roles'),await tx.list(base+'/orders'),at));
    }
    if(['ticketPreparation','ticketReadBrief','ticketActivate'].includes(action)){
     signed(actor);requireThat(e&&active(s),'TICKET_UNAVAILABLE');
@@ -89,19 +96,19 @@ export function createTicketService({store,signed,checkSession,sessionAccess,now
     return selection({tx,base,e,s,at,actor,input,action,version:()=>ticketVersion(tx,s,e),uuid});
    }
    if(['ticketMockCheckout','ticketSync'].includes(action)){
-    signed(actor);requireThat(e&&s,'TICKET_UNAVAILABLE');const stock=inventory(await tx.list(base+'/roles'),await tx.list(base+'/orders'),at);
+    signed(actor);requireThat(e&&s,'TICKET_UNAVAILABLE');const stock=await inventory(tx,await tx.list(base+'/roles'),await tx.list(base+'/orders'),at);
     return testCheckout({action,actor,input,tx,base,e,s,at,stock});
    }
    if(['ticketMine','ticketReserve'].includes(action)){
     signed(actor);requireThat(e&&active(s),'TICKET_UNAVAILABLE');const order=await tx.get(base+'/orders/'+ticketUserKey(actor.uid));
     if(action==='ticketMine'){admissionKeys(input,['sessionId']);return myOrder(order,at);}
     requireThat(!await tx.get(base+'/activations/'+ticketUserKey(actor.uid)),'TICKET_CLOSED');
-    const stock=inventory(await tx.list(base+'/roles'),await tx.list(base+'/orders'),at);
+    const stock=await inventory(tx,await tx.list(base+'/roles'),await tx.list(base+'/orders'),at);
     return reserveTicket({tx,base,e,s,actor,at,input,stock,uuid,order});
    }
    const staff=await sessionAccess(tx,actor,sid);editable(s);
    if(['ticketDesk','ticketExport','ticketCorrect'].includes(action)){
-    const roles=await tx.list(base+'/roles'),orders=await tx.list(base+'/orders'),stock=inventory(roles,orders,at);
+    const roles=await tx.list(base+'/roles'),orders=await tx.list(base+'/orders'),stock=await inventory(tx,roles,orders,at);
     const report=ticketReport({orders,roles,stock,at,e,s});
     if(action==='ticketExport'){admissionKeys(input,['sessionId']);return {csv:welcomeExport(report.rows)};}
     if(action==='ticketCorrect'){
@@ -112,12 +119,13 @@ export function createTicketService({store,signed,checkSession,sessionAccess,now
     if(!desk.edit)return {...desk,rows:report.rows.map(({name,character,participation,read})=>({name,character,participation,read}))};
     const v=await ticketVersion(tx,s,e);
     return {...desk,event:e,roles,definitions:characters(v).map(x=>({id:x.entityId,name:x.data.public.displayName})),
+      outbox:(await tx.list(base+'/outbox')).map(x=>({kind:x.kind,at:x.at,state:x.state})),
       exceptions:desk.correct?(await tx.list(base+'/exceptions',['status','OPEN'])).map(x=>({id:x.id,key:ticketUserKey(x.uid),reason:x.reason})):[],
       history:(await tx.list(base+'/history')).sort((a,b)=>b.at-a.at).slice(0,30)};
    }
    requireThat(staff.permissions.content,'FORBIDDEN');
    const v=await ticketVersion(tx,s,e);
-   const roles=await tx.list(base+'/roles'),orders=await tx.list(base+'/orders'),stock=inventory(roles,orders,at);
+   const roles=await tx.list(base+'/roles'),orders=await tx.list(base+'/orders'),stock=await inventory(tx,roles,orders,at);
    requireThat(saleStage(s)&&isPreparation(s),'TICKET_CLOSED');
    requireThat(input.revision===(e?.revision??0),'STALE_REVISION');
    const audit=(kind,detail)=>{const id=uuid();tx.set(base+'/history/'+id,{id,kind,at,actor:actor.uid,...detail});};
@@ -159,7 +167,7 @@ async function activate({tx,base,e,s,actor,uid,at,uuid,input}){
  requireThat(r?.enabled&&r.holder===key&&o.versionId===e.versionId,'FORBIDDEN');
  const prior=await tx.get('sessions/'+s.id+'/characters/'+o.roleId);
  if(o.access==='LIVE'){
-  requireThat(reg?.accessActive&&prior?.assignedUid===uid&&reg.characterId===o.roleId,'FORBIDDEN');
+  requireThat(reg?.accessActive&&(actor.uid!==uid||actor.authTime>=reg.minAuthTime)&&prior?.assignedUid===uid&&reg.characterId===o.roleId,'FORBIDDEN');
   return {characterId:o.roleId,alreadyBorn:true};
  }
  requireThat(['PREPARATION','BRIEFING'].includes(s.stage)&&!s.safetyStop?.active&&!reg&&!prior&&s.accepted<s.capacity,'TICKET_CLOSED');

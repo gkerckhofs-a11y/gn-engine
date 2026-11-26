@@ -24,6 +24,7 @@ export async function reserveTicket({tx,base,e,s,actor,at,input,stock,uuid,order
  requireThat(e.sale!=='CLOSED'&&input.consent===true,'TICKET_CONSENT');
  const name=admissionText(input.name,120,true);
  if(order?.payment==='CHECKOUT_PENDING'&&order.expiresAt>at)return myOrder(order,at);
+ if(order?.payment==='CHECKOUT_PENDING'&&stock.occupied.some(row=>row.uid===actor.uid))requireThat(false,'TICKET_PROVIDER_PENDING');
  requireThat(order?.payment!=='PAID_NEEDS_RECONCILIATION','TICKET_RECONCILE');
  const wait=e.sale==='WAITLIST';requireThat(wait||stock.free(Math.min(e.capacity,s.capacity))>0,'TICKET_CAPACITY');
  const attempt=wait?null:uuid(),o={sessionId:e.id,title:e.title,uid:actor.uid,email:actor.email,name,price:e.price,currency:'EUR',policyVersion:e.policyVersion,consentedAt:at,

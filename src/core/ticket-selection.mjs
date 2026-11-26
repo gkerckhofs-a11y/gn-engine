@@ -8,6 +8,7 @@ export const teaser=r=>({id:r.id,name:r.name,profession:r.profession,teaser:r.te
 export async function selection({tx,base,e,s,at,actor,input,action,version,uuid}){
  const key=ticketUserKey(actor.uid),o=await tx.get(base+'/orders/'+key);
  requireThat(o?.uid===actor.uid&&acquired(o),'TICKET_UNPAID');
+ if(o.access==='LIVE'){const reg=await tx.get('sessions/'+s.id+'/registrations/'+key);requireThat(reg?.accessActive&&reg.characterId===o.roleId&&reg.minAuthTime<=actor.authTime,'FORBIDDEN');}
  if(action==='ticketGallery'){
   admissionKeys(input,['sessionId']);const roles=await tx.list(base+'/roles');
   return {roles:roles.map(teaser),revision:e.revision,orderRevision:o.revision,selected:o.roleId};

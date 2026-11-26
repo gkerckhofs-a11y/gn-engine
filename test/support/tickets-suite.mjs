@@ -15,7 +15,7 @@ export async function ticketFixture(makeStore){
  const cmd=(action,input={},actor=f.owner)=>call(action,{requestId:randomUUID(),...input},actor);
  const cc=(action,input)=>wf.dispatch(action,f.owner,{campaignId:f.campaignId,requestId:randomUUID(),...input});
  let rev=1;
- for(const [id,name,profession] of [['vigie','Nora Venn','Vigie'],['guide','Sol Barde','Guide des dunes'],['courrier','Ivo Marne','Courrier']]){
+ for(const [id,name,profession] of [['vigie','Nora Venn','Vigie'],['guide','Sol Barde','Guide des dunes'],['courrier','Ivo Marne','Courrier'],['vigile','Mara Tull','Vigile'],['escorte','Lio Tarn','Escorte']]){
   await cc('saveCentralCharacter',{characterId:id,characterRevision:0,draftRevision:rev++,character:{...centralTestCharacter,displayName:name,profession,creationPlan:{classId:'COM',speciesId:'species-test',secondaryId:'MED-02'},relations:[]},reason:'Distribution fictive'});
  }
  const bindings=[];
@@ -24,8 +24,8 @@ export async function ticketFixture(makeStore){
  const q=await call('previewSpaceOutlawsRelease');assert.deepEqual(q.blockers,[]);
  await cmd('releaseSpaceOutlaws',{confirmation:q.confirmation,reason:'Master fictif'});
  const configure=async(settings=rehearsal)=>cmd('ticketPublish',{settings,revision:(await call('ticketDesk')).event?.revision??0});
- const role=async(id,extra={})=>cmd('ticketRole',{roleId:id,confirm:true,reason:'Paramétrage synthétique',revision:(await call('ticketDesk')).event.revision,teaser:'Une rencontre au port avec '+id,style:'Enquête',early:'Pour votre préparation uniquement : '+id,portrait:['vigie','guide','courrier'].indexOf(id),enabled:true,options:{weaponApplicable:true,startingInformation:''},...extra});
- const open=async(capacity=2)=>{await configure({...rehearsal,capacity});for(const id of ['vigie','guide','courrier'])await role(id);await configure({...rehearsal,capacity,published:true,sale:'OPEN'});};
+ const role=async(id,extra={})=>cmd('ticketRole',{roleId:id,confirm:true,reason:'Paramétrage synthétique',revision:(await call('ticketDesk')).event.revision,teaser:'Une rencontre au port avec '+id,style:'Enquête',early:'Pour votre préparation uniquement : '+id,portrait:Math.max(0,['vigie','guide','courrier'].indexOf(id)),enabled:true,options:{weaponApplicable:true,startingInformation:''},...extra});
+ const open=async(capacity=2,ids=['vigie','guide','courrier'])=>{await configure({...rehearsal,capacity});for(const id of ids)await role(id);await configure({...rehearsal,capacity,published:true,sale:'OPEN'});};
  const reserve=async(actor=f.player)=>{const e=await call('ticketPage',{},null);return cmd('ticketReserve',{revision:e.revision,policyVersion:e.policyVersion,price:e.price,name:'Joueur fictif',consent:true},actor);};
  const pay=(actor,attempt,outcome='SUCCESS')=>call('ticketMockCheckout',{attempt,outcome},actor);
  return {...f,call,cmd,wf,configure,role,open,reserve,pay,advance:ms=>{at+=ms;}};
@@ -116,6 +116,33 @@ export function ticketSuite(makeStore){
   await f.cmd('ticketBriefing',{confirm:true});await correction('REFUND',{acknowledgeExposure:true});
   assert.equal((await f.call('ticketMine',{},f.player)).payment,'REFUNDED');await assert.rejects(f.call('ticketPreparation',{},f.player));
   assert.ok(!(await f.call('mySession',{},f.player)).character);assert.equal((await f.store.get('sessions/'+f.sid)).accepted,1);
+ });
+
+ test('Garde expirée et capture déjà connue, attente, isolement entre deux sessions et STOP',async()=>{
+  const store=makeStore(),f=await ticketFixture(()=>store),g=await ticketFixture(()=>store);
+  await f.open(1);await g.open(1);const o=await f.reserve();
+  f.advance(16*60000);await store.runTransaction(async tx=>tx.set('ticketProviderTest/'+o.attempt,{id:o.attempt,sessionId:f.sid,outcome:'SUCCESS',amount:o.price,currency:'EUR',at:10}));
+  assert.equal((await f.call('ticketPage',{},null)).remaining,0);await assert.rejects(f.reserve(f.other),{code:'TICKET_CAPACITY'});
+  assert.equal((await f.call('ticketSync',{attempt:o.attempt},f.player)).payment,'PAID');
+  await g.configure({...rehearsal,capacity:1,published:true,sale:'WAITLIST'});const wait=await g.reserve(f.player);
+  assert.equal(wait.participation,'WAITLISTED');assert.equal(wait.attempt,null);
+  assert.deepEqual(new Set((await f.wf.dispatch('ticketAccount',f.player,{})).map(x=>x.sessionId)),new Set([f.sid,g.sid]));
+  await assert.rejects(g.call('ticketGallery',{},f.player));
+  await store.runTransaction(async tx=>{const s=await tx.get('sessions/'+f.sid);tx.set('sessions/'+f.sid,{...s,safetyStop:{active:true}});});
+  await assert.rejects(f.cmd('ticketSelect',{roleId:'vigie'},f.player),{code:'TICKET_CLOSED'});
+  await assert.rejects(f.cmd('ticketBriefing',{confirm:true}),{code:'TICKET_CLOSED'});
+  await store.runTransaction(async tx=>{const s=await tx.get('sessions/'+f.sid);tx.set('sessions/'+f.sid,{...s,stage:'ARCHIVED'});});
+  await assert.rejects(f.call('ticketGallery',{},f.player));await assert.rejects(f.call('ticketPage',{},null));
+ });
+ test('Réconciliation tardive libérée, remise en vente et version M2 périmée',async()=>{
+  const f=await ticketFixture(makeStore);await f.open(1);const a=await f.reserve();f.advance(16*60000);const b=await f.reserve(f.other);
+  await f.pay(f.player,a.attempt);let desk=await f.call('ticketDesk');const exc=desk.exceptions[0],row=desk.rows.find(x=>x.key===exc.key);
+  const arg={key:row.key,orderRevision:row.revision,operation:'ACCEPT_EXCEPTION',exceptionId:exc.id,confirm:true,reason:'Contrôle de la capacité'};
+  await assert.rejects(f.cmd('ticketCorrect',arg),{code:'TICKET_CAPACITY'});await f.pay(f.other,b.attempt,'CANCEL');
+  await f.cmd('ticketCorrect',arg);desk=await f.call('ticketDesk');assert.equal(desk.stats.paid,1);assert.equal(desk.available,0);
+  const gallery=await f.call('ticketGallery',{},f.player);await f.store.runTransaction(async tx=>{const e=await tx.get('ticketEvents/'+f.sid);tx.set('ticketEvents/'+f.sid,{...e,versionId:'version-incorrecte'});});
+  await assert.rejects(f.cmd('ticketSelect',{roleId:'vigie',confirm:true,revision:gallery.revision,orderRevision:gallery.orderRevision},f.player),{code:'TICKET_MASTER'});
+  assert.equal((await f.call('ticketMine',{},f.player)).roleId,null);
  });
 
 }

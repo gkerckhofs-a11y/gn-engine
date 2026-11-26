@@ -23,7 +23,9 @@ export async function testCheckout({action,actor,input,tx,base,e,s,at,stock}){
  requireThat(charge.id===id&&charge.sessionId===e.id,'TICKET_PROVIDER');
  const matches=charge.amount===attempt.price&&charge.currency==='EUR'&&attempt.currency==='EUR';
  const same=o.attempt===id,paid=charge.outcome==='SUCCESS',held=same&&o.payment==='CHECKOUT_PENDING'&&o.expiresAt>at;
- const capacity=held||stock.free(Math.min(e.capacity,s.capacity))>0;
+ const limit=Math.min(e.capacity,s.capacity,stock.usable.length);
+ const ownGuard=stock.occupied.some(row=>row.uid===o.uid)&&stock.occupied.length<=limit;
+ const capacity=held||ownGuard||stock.free(limit)>0;
  const allowed=s.stage==='PREPARATION'&&!s.campaignSealed&&!s.safetyStop?.active;
  const confirmed=paid&&same&&matches&&capacity&&allowed&&o.participation!=='CANCELLED';
  const status=!paid?(charge.outcome==='CANCEL'?'CANCELLED':'FAILED'):confirmed?'PAID':'PAID_NEEDS_RECONCILIATION';

@@ -990,3 +990,7 @@ Marché réservé à la classe principale Courtier. Détail, limites et validati
 - Remise physique MJ, refus API/Auth, concurrence, interruptions, pause/STOP et reprise d'épisode testés dans les suites partagées.
 - Couverture ACT-01..18 / DOCK-01..50 et écarts explicites : [rapport AC-06](SO-ACCESS-AC06-VALIDATION.md).
 - CI complète demandée au candidat d'intégration ; verdict exact dans PR #58. Inspection douanière dédiée et recette humaine restent non exécutées. Aucune publication.
+
+### Parcours de réservation avec personnages préécrits — 26 novembre 2026
+
+Mode volontaire d'une nouvelle préparation. La vitrine, la réservation, le paiement simulé, le choix exclusif dans M2, la préparation privée puis la naissance native sont exercés sur données fictives. La régie existante accueille les corrections et l'export. Le guide détaille les scénarios R01 à R28 et les conditions avant toute vente réelle. [Parcours et recette](SO-BILLETTERIE.md).
