@@ -32,6 +32,8 @@ test('Poste affecté, jet avant départ, reprise après annulation, collision, e
  await assert.rejects(cockpit('steerFlightHazard',{wave:0,choice:'PORT'}),{code:'FLIGHT_WINDOW_CLOSED'});
  f.advance(30000);let radar=(await station()).ship.radar;
  assert.equal(radar.phase,'ACTIVE');
+ await assert.rejects(cockpit('steerFlightHazard',{wave:0,choice:radar.clearLane}),{code:'FLIGHT_WINDOW_CLOSED'});
+ f.advance(15000);
  const first={sessionId:f.sid,shipId:'ship',wave:0,choice:radar.clearLane,confirmation:(await station()).confirmation};
  const packet={stationId:'cockpit-1',command:'steerFlightHazard',requestId:'same-maneuver',payload:first};
  await f.cmd('cockpitCommand',packet);await f.cmd('cockpitCommand',packet);
@@ -48,6 +50,38 @@ test('Poste affecté, jet avant départ, reprise après annulation, collision, e
  assert.equal((await f.store.get('sessions/'+f.sid+'/voyages/'+j.id)).event.delaySeconds,120);
 });
 
+test('Avarie en vol : mécano embarqué, réparation atomique, esquive suivante et traversée sans mécano',async()=>{
+ const f=await soVoyagesFixture(makeStore),base='sessions/'+f.sid;
+ await f.store.runTransaction(async tx=>{
+  const path=base+'/characters/'+f.otherId,ch=await tx.get(path);
+  tx.set(path,{...ch,abilityProfile:{...ch.abilityProfile,skills:[...ch.abilityProfile.skills.filter(s=>s.id!=='MEC-02'),{id:'MEC-02',level:1}]}});
+ });
+ const station=async actor=>(await f.read('flightEngineering',{},actor)).station;
+ assert.equal(await station(f.other),null);
+ await enable(f);await f.refuel(4);await f.startFlight({passengerCodes:[f.otherId]});
+ f.setDie(1);await command(f,'rollFlightRisk');f.advance(180000);f.setDice([6,4,1,1]);await f.navCommand('finishSoPreparation');
+ const before=await f.ship(),j=before.journey;
+ assert.equal(await station(f.player),null);
+ assert.deepEqual((await station(f.other)).pending,[]);
+ const repair=(patch,actor=f.other)=>f.cmd('repairFlightImpact',{journeyId:j.id,wave:0,system:'THRUST',...patch},actor);
+ await assert.rejects(repair({}),{code:'FLIGHT_REPAIR_CLOSED'});
+ // Ignore the first wave, then repair while the pilot tackles the second.
+ f.advance(51000);const fault=(await station(f.other)).pending[0];assert.equal(fault.wave,0);
+ await assert.rejects(repair({system:'UNKNOWN'}),{code:'FLIGHT_REPAIR_SYSTEM'});
+ await assert.rejects(repair({},f.player),{code:'FORBIDDEN'});
+ await f.stage('PAUSE');await assert.rejects(repair({}),{code:'FLIGHT_REPAIR_CLOSED'});await f.stage('EN_JEU');
+ const receipt={requestId:'impact-repair',system:fault.system};
+ assert.equal((await repair(receipt)).recoveredSeconds,30);await repair(receipt);
+ await assert.rejects(repair({system:fault.system}),{code:'FLIGHT_REPAIR_CLOSED'});
+ f.advance(15000);const wave=(await f.navigation()).ship.radar;
+ await command(f,'steerFlightHazard',{wave:1,choice:wave.clearLane});
+ assert.equal((await f.ship()).journey.event.delaySeconds,90);
+ f.advance(25000);
+ const remaining=await station(f.other);assert.deepEqual(remaining.pending.map(f=>f.wave),[2]);
+ const after=await f.ship();assert.equal(after.shield,before.shield);assert.equal(after.hull,before.hull);
+ f.advance(600000);await command(f,'arriveShip');
+ assert.equal(await station(f.other),null);await assert.rejects(repair(receipt),{code:'FORBIDDEN'});
+});
 test('Un convoi partage le dé du meneur, le contact pirate et sa résolution',async()=>{
  const f=await convoyFixture(makeStore);
  await enable(f);await f.startFlight();await f.startFlight({shipId:'escort'},f.other);

@@ -1,3 +1,5 @@
+import {circuitNames} from './cockpit/asteroid-faults.mjs';
+export {bindHazardHelm} from './cockpit/asteroid-helm.mjs';
 import {escapeHtml as esc} from './groups.mjs';
 
 export const exercises={VOYAGE:['Voyage et navigation','starfighter'],DUEL:['Duel contre le pilote automatique','duel'],ASTEROIDS:['Slalom dans les astéroïdes','asteroids']};
@@ -22,33 +24,13 @@ export function hazardHtml(d,command){
  let text={APPROACH:`Contact dans ${r.seconds} s.`,OVERRIDDEN:'Radar réservé à l’interception en cours.',WAIT:`Prochain écho dans ${r.seconds} s.`,DONE:rocks?`Champ traversé. Retard total : ${r.delaySeconds} s.`:'Le patrouilleur s’éloigne.'}[r.phase];
  if(r.phase==='ACTIVE')text=rocks?`Vague ${r.wave+1}/${r.count} · trajectoire libre à ${names[r.clearLane].toLowerCase()} · ${r.seconds} s pour virer.`:`« Cargo en approche, identifiez-vous. » · ${r.seconds} s pour répondre au capitaine pirate.`;
  const choices=rocks?['PORT','CENTER','STARBOARD']:['HAIL','EVADE'];
- const plot=rocks&&r.phase==='ACTIVE'?`<div class="travel-scan" aria-hidden="true">${choices.map(lane=>`<span class="${r.clearLane===lane?'clear':'echo'}">${names[lane]}</span>`).join('')}</div>`:'';
- return `<section class="panel" aria-label="Radar de traversée"><h2>${rocks?'Pluie d’astéroïdes':'Transmission pirate PNJ'}</h2>${plot}<p>${esc(text)}</p>${r.lastResult?`<p>${esc(r.lastResult)}</p>`:''}${r.phase==='ACTIVE'&&d.canAct&&leader?`<div class="row" data-flight-controls="${rocks?'lanes':'radio'}">${choices.map(choice=>command('steerFlightHazard',{...p,wave:r.wave,choice},names[choice])).join('')}</div>${rocks?'<small>Flèches ← ↑ → ou joystick. Gâchette au neutre pour le centre.</small>':''}`:''}</section>`;
+ const orders=choices.map(choice=>command('steerFlightHazard',{...p,wave:r.wave,choice},names[choice])).join('');
+ const pilot=r.phase==='ACTIVE'&&d.canAct&&leader;
+ const helm=pilot&&rocks?`<asteroid-helm data-journey="${esc(ship.journey?.id)}" data-wave="${r.wave}" data-clear="${esc(r.clearLane)}" data-seconds="${r.seconds}"><canvas width="900" height="420" aria-label="Vue avant du champ d’astéroïdes"></canvas><output></output><div class="row">${choices.map((choice,i)=>`<button type="button" data-lane="${i}">${names[choice]}</button>`).join('')}</div><small>Changez de cap avec ← ou →, le joystick ou les boutons. ↑ ou la gâchette au neutre ramène au centre. La position est enregistrée à l’approche de l’impact.</small><div hidden data-flight-submit>${orders}</div></asteroid-helm>`:'';
+ return `<section class="panel" aria-label="Radar de traversée"><h2>${rocks?'Pluie d’astéroïdes':'Transmission pirate PNJ'}</h2><p>${esc(text)}</p>${helm}${r.lastResult?`<p>${esc(r.lastResult)}</p>`:''}${pilot&&!rocks?`<div class="row">${orders}</div>`:''}</section>`;
 }
 
-// A held control must return to neutral between waves. Buttons also work by touch.
-export function bindHazardHelm(){
- let held=false;
- const connectedPad=()=>{try{return Array.from(navigator.getGamepads?.()??[]).find(Boolean);}catch{return null;}};
- const panel=()=>document.querySelector('[data-flight-controls="lanes"]');
- const steer=index=>panel()?.querySelectorAll('button')[index]?.click();
- window.addEventListener('keydown',e=>{
-  const index=['ArrowLeft','ArrowUp','ArrowRight'].indexOf(e.key);
-  if(index<0||!panel()||e.repeat||e.target.closest('input,textarea,select'))return;
-  e.preventDefault();steer(index);
- });
- let poll;
- function startJoystick(){
-  if(poll)return;
-  poll=setInterval(()=>{
-   const pad=connectedPad();
-   if(!pad){clearInterval(poll);poll=null;held=false;return;}
-   const x=pad.axes[0]??0,press=pad.buttons[0]?.pressed||Math.abs(x)>.55;
-   if(press&&!held&&!document.hidden&&panel())steer(x<-.55?0:x>.55?2:1);
-   held=!!press;
-  },100);
- }
- window.addEventListener('gamepadconnected',startJoystick);
- if(connectedPad())startJoystick();
- window.addEventListener('pagehide',e=>{if(!e.persisted)clearInterval(poll);});
+export function engineeringHtml(data,sid){
+ const s=data.station;if(!s)return '<section class="panel"><h2>Poste mécano</h2><p>Aucune avarie de traversée à traiter à bord.</p></section>';
+ return `<section class="panel"><h2>Poste mécano · ${esc(s.shipName)}</h2><p>Temps de trajet récupéré : ${s.recoveredSeconds} s.</p>${s.pending.map(f=>`<article><h3>Impact ${f.wave+1} · ${circuitNames[f.system][0]}</h3>${s.canRepair?`<form data-form="flightRepair" data-journey="${esc(s.journeyId)}" data-wave="${f.wave}" data-session="${esc(sid)}"><label>Intervention<select name="system" required><option value="">Choisir le circuit</option>${Object.entries(circuitNames).map(([v,[,label]])=>`<option value="${v}">${label}</option>`).join('')}</select></label><button>Réparer et récupérer ${s.secondsPerRepair} s</button></form>`:'<p>Intervention suspendue.</p>'}</article>`).join('')||'<p>Circuits opérationnels. Les impacts apparaîtront ici.</p>'}</section>`;
 }

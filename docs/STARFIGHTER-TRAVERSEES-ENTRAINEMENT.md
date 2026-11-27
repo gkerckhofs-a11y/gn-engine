@@ -14,10 +14,16 @@ Le pilote lance son D6 pendant la préparation, depuis son vaisseau ou son cockp
 
 Un résultat inférieur ou égal au seuil déclenche le D6 de la table de voyage native. Deux entrées donnent un contact jouable après 30 secondes de temps de jeu.
 
-- **4 — Astéroïdes.** Le radar indique le couloir dégagé pour chacune des trois vagues de 20 secondes. Une esquive retire un tiers du retard initial. Un passage manqué ou une collision conserve ce tiers. Le retard maximal est de trois minutes sur route sécurisée et de cinq minutes ailleurs. Les touches gauche, haut, droite, les boutons et le joystick commandent le vaisseau.
+- **4 — Astéroïdes.** La vue avant montre les rochers qui se rapprochent. Le pilote déplace son vaisseau autant de fois qu’il le souhaite pendant chacune des trois vagues de 20 secondes. À trois secondes de l’impact, le poste transmet la position du vaisseau au serveur. Une esquive retire un tiers du retard initial. Un passage manqué ou une collision conserve ce tiers. Le retard maximal est de trois minutes sur route sécurisée et de cinq minutes ailleurs. Les touches gauche, haut, droite, les boutons et le joystick commandent le vaisseau.
 - **6 — Pirates PNJ.** Un patrouilleur émet une sommation. Le pilote dispose de 20 secondes pour s’identifier ou brouiller le signal. S’il garde le silence, la patrouille s’éloigne. Ce contact radio autonome se termine sans échange de tirs, rançon ni récompense. Les combats entre équipages restent gérés par le module existant et prennent la priorité lors d’une interception.
 
 Sur une liaison longue et hostile, la probabilité d’une pluie d’astéroïdes est de 5/6 × 1/6 = 5/36. Celle du contact pirate est également de 5/36. Un détour conserve le résultat du trajet.
+
+## Poste du mécano en vol
+
+Le personnage embarqué avec **MEC-02 Réparation N1** rejoint **Terminal → Poste mécano en vol**. Sur un vaisseau doté d’un équipage géré, le mandat d’entretien s’applique également. Un choc ou une vague manquée signale une avarie de propulsion, de radar ou de stabilisation. Le mécano lit le symptôme et intervient sur le circuit correspondant, y compris pendant que le pilote négocie le passage suivant.
+
+Le barème de cette version accorde **la moitié du retard de cet impact** pour une réparation réussie, soit 30 secondes sur une liaison sécurisée ou 50 secondes ailleurs. Une esquive rapporte le double et laisse le circuit intact. Chaque impact ouvre une seule réparation pour le vaisseau ou son convoi. L’intervention remet en état un circuit de vol fictif et conserve la coque, les boucliers, les PA et les stocks. Sans mécano, le trajet se termine avec le retard accumulé.
 
 ## Programmer un exercice
 

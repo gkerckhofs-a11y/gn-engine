@@ -1,0 +1,1 @@
+export const circuitNames={THRUST:['Poussée asymétrique','Resynchroniser les propulseurs'],RADAR:['Échos dédoublés','Réaligner l’antenne radar'],STABILITY:['Vibrations en lacet','Recaler les stabilisateurs']};

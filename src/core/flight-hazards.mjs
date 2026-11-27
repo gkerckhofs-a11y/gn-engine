@@ -30,14 +30,20 @@ export function hazardRadar(ship,time){
   ...(phase==='ACTIVE'&&h.kind==='ASTEROIDS'?{clearLane:lanes[patterns[h.pattern-1][wave]]}:{})};
 }
 
+export function wavePenalty(j){
+ const h=j.event.hazard;
+ return (j.event.delaySeconds+h.savedSeconds+(h.recoveredSeconds??0))/3;
+}
+
 export function steerHazard(ship,time,input){
  const radar=hazardRadar(ship,time),j=ship.journey;
  requireThat(!j?.suspended&&radar?.phase==='ACTIVE'&&radar.wave===input.wave,'FLIGHT_WINDOW_CLOSED');
  const rocks=radar.kind==='ASTEROIDS';
  requireThat((rocks?lanes:['HAIL','EVADE']).includes(input.choice),'INVALID_INPUT');
+ if(rocks)requireThat(radar.seconds<=6,'FLIGHT_WINDOW_CLOSED');
  const cleared=rocks&&input.choice===radar.clearLane;
- const saved=cleared?(j.event.delaySeconds+j.event.hazard.savedSeconds)/3:0;
+ const saved=cleared?wavePenalty(j):0;
  const result=rocks?(cleared?'Couloir franchi':'Collision · manœuvre de dégagement'):input.choice==='HAIL'?'Transpondeur reconnu. Le capitaine pirate vous laisse passer.':'Silence radio. Le patrouilleur perd votre trace.';
- const hazard={...j.event.hazard,wave:radar.wave,savedSeconds:j.event.hazard.savedSeconds+saved,lastResult:result};
+ const hazard={...j.event.hazard,...(rocks?{outcomes:{...j.event.hazard.outcomes,[input.wave]:cleared?'CLEAR':'HIT'}}:{}),wave:radar.wave,savedSeconds:j.event.hazard.savedSeconds+saved,lastResult:result};
  return {...j,arrivesAtGameMs:j.arrivesAtGameMs-saved*1000,event:{...j.event,delaySeconds:j.event.delaySeconds-saved,hazard}};
 }
