@@ -1,4 +1,4 @@
-import {engineeringHtml,trainingHtml,bindHazardHelm} from './flight-activities.mjs';
+import {engineeringHtml,trainingHtml,bindHazardHelm,updateHazardPanel} from './flight-activities.mjs';
 import {navigationRadarHtml} from './space-outlaws-voyages.mjs';
 import {mountTickets} from './aventures/ui.mjs';
 import {dockTheftsHtml,bindDockTheft} from './dock-theft.mjs';
@@ -375,7 +375,7 @@ function watchTravelRadar(sid,shipId){
   try{
    const fresh=await api('shipNavigation',{sessionId:sid,shipId});
    if(version!==routeVersion||!target.isConnected)return;
-   target.outerHTML=navigationRadarHtml(fresh);
+   updateHazardPanel(target,navigationRadarHtml(fresh),true);
   }catch(e){if(version===routeVersion&&target.isConnected)target.textContent=e.message;}
   if(version===routeVersion)cockpitTimer=setTimeout(refresh,3000);
  }

@@ -1,1 +1,1 @@
-asteroid-helm{display:block;max-width:52rem}asteroid-helm canvas{display:block;width:100%;height:auto;background:#06121d;border:1px solid #546c76;border-radius:.5rem}asteroid-helm output{display:block;margin:.5rem 0;color:inherit;font-weight:bold}asteroid-helm button[aria-pressed=true]{outline:2px solid #6ab995}asteroid-helm small{display:block;margin:.6rem 0}asteroid-helm [hidden]{display:none}
+asteroid-helm{display:block;width:100%;min-width:0}asteroid-helm [hidden]{display:none}

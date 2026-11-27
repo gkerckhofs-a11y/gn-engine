@@ -31,3 +31,15 @@ test('Le radar donne priorité à une interception et réserve les commandes au 
 });
 
 flightActivitiesSuite(()=>new MemoryStore());
+
+test('Le cockpit et le serveur rejouent les quatre axes à 50 ms et testent le volume balayé',async()=>{
+ const {asteroidRun,recordFlight,replayFlight,FLIGHT_TICKS}=await import('../src/shared/starfighter-asteroids.mjs');
+ const straight=replayFlight(997,[FLIGHT_TICKS,0,0,0,0,-1]);
+ assert.equal(straight.hit,true);
+ const flight=asteroidRun(997);
+ for(let i=0;i<FLIGHT_TICKS;i++)recordFlight(flight,i<27?{pitch:.45,roll:.1,throttle:.25}:{targetSpeed:86});
+ const replay=replayFlight(997,flight.trace);
+ assert.equal(flight.hit,false);assert.equal(replay.hit,flight.hit);
+ assert.deepEqual(replay.ship,flight.ship);assert.notEqual(flight.ship.bank,0);assert.notEqual(flight.ship.y,0);assert.equal(flight.ship.speed,86);
+ for(const trace of [[],[301,0,0,0,0,-1],[299,0,0,0,0,-1],[300,101,0,0,0,-1],[300,0,0,0,0,121]])assert.equal(replayFlight(997,trace),null);
+});

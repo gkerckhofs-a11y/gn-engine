@@ -14,10 +14,16 @@ Le pilote lance son D6 pendant la préparation, depuis son vaisseau ou son cockp
 
 Un résultat inférieur ou égal au seuil déclenche le D6 de la table de voyage native. Deux entrées donnent un contact jouable après 30 secondes de temps de jeu.
 
-- **4 — Astéroïdes.** La vue avant montre les rochers qui se rapprochent. Le pilote déplace son vaisseau autant de fois qu’il le souhaite pendant chacune des trois vagues de 20 secondes. À trois secondes de l’impact, le poste transmet la position du vaisseau au serveur. Une esquive retire un tiers du retard initial. Un passage manqué ou une collision conserve ce tiers. Le retard maximal est de trois minutes sur route sécurisée et de cinq minutes ailleurs. Les touches gauche, haut, droite, les boutons et le joystick commandent le vaisseau.
+- **4 — Astéroïdes.** Le pilote traverse le champ depuis la verrière STARFIGHTER. Le radar indique le rocher le plus proche. Chaque front laisse quinze secondes de vol et cinq secondes pour transmettre les commandes. Le serveur rejoue la trajectoire et vérifie si le vaisseau a touché un rocher. Chacun des trois fronts traversés sans impact retire un tiers du retard initial. Un passage manqué ou une collision conserve ce tiers. Le retard maximal est de trois minutes sur route sécurisée et de cinq minutes ailleurs.
 - **6 — Pirates PNJ.** Un patrouilleur émet une sommation. Le pilote dispose de 20 secondes pour s’identifier ou brouiller le signal. S’il garde le silence, la patrouille s’éloigne. Ce contact radio autonome se termine sans échange de tirs, rançon ni récompense. Les combats entre équipages restent gérés par le module existant et prennent la priorité lors d’une interception.
 
 Sur une liaison longue et hostile, la probabilité d’une pluie d’astéroïdes est de 5/6 × 1/6 = 5/36. Celle du contact pirate est également de 5/36. Un détour conserve le résultat du trajet.
+
+## Piloter dans le champ
+
+Le duel et le champ partagent la verrière, les instruments, les commandes et la physique du vaisseau. Une pression sur un bouton du joystick le rend détectable par le navigateur. Dans **Commandes de vol et réglage du joystick**, le pilote peut affecter les axes de virage, tangage, roulis et poussée. Le navigateur conserve ces affectations pour les deux activités sur la même origine. Au clavier, les flèches contrôlent le virage et le tangage, A/E le roulis et Z/S la poussée. Le levier permet aussi de choisir une vitesse cible. Sur écran tactile, le pilote peut virer et cabrer par glissement sur la verrière.
+
+L’exercice individuel propose six fronts et un poste de réparation d’entraînement. Les trois fronts de campagne utilisent les mêmes commandes et le poste mécano de l’équipage.
 
 ## Poste du mécano en vol
 

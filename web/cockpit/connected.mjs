@@ -1,4 +1,4 @@
-import {hazardHtml,bindHazardHelm} from '../flight-activities.mjs';
+import {hazardHtml,bindHazardHelm,updateHazardPanel} from '../flight-activities.mjs';
 import {pilotConsole} from './pilot-console.mjs';
 import {cockpitFlightPlan} from './flight-plan.mjs';
 import {uiErrorMessage} from '../ui-language.mjs';
@@ -48,6 +48,9 @@ const helm=pilotConsole(bridge,{
  peace(d,c){return execute('consentSpacePeace',{sessionId,shipId:d.ship.shipId,combatId:c.id,confirmation:c.confirmation,agree:true});}
 });
 async function displayHelm(d,c){
+ const evasion=!!radar.querySelector('asteroid-helm');
+ if(evasion){helm.reset();if(radar.nextElementSibling!==bridge)bridge.before(radar);document.querySelector('.viewport').hidden=true;return;}
+ if(radar.nextElementSibling===bridge)orders.before(radar);
  await helm.update(d,c);
  document.querySelector('.viewport').hidden=!bridge.hidden;
 }
@@ -92,7 +95,8 @@ async function refresh(){
   const d=await api('cockpitStation',{sessionId,stationId});if(ticket!==generation)return;
   current=d;main.hidden=false;projectCockpit(d);plan.update(d);document.querySelector('.connection').textContent=d.starfighter?'SESSION CONNECTÉE':'COCKPIT · CONNECTÉ';
   status(`Poste ${stationId} · pilote : ${d.pilotName}`);
-  radar.innerHTML=hazardHtml(d,(action,input,label)=>`<button data-helm-command="${action}" data-payload="${encodeURIComponent(JSON.stringify(input))}">${label}</button>`);
+  if(d.ship.radar?.kind==='ASTEROIDS'&&d.ship.radar.phase==='ACTIVE'&&radar.nextElementSibling!==bridge)bridge.before(radar);
+  updateHazardPanel(radar,hazardHtml(d,(action,input,label)=>`<button data-helm-command="${action}" data-payload="${encodeURIComponent(JSON.stringify(input))}">${label}</button>`));
   const s=d.ship,ready=d.canAct&&(!s.operation?.risk?.leader||s.operation.risk.roll)&&s.operation?.kind==='PREPARE'&&s.operation.remainingSeconds===0;
   const arrived=d.canAct&&s.journey&&!s.journey.suspended&&!s.combatId&&!s.rescueId&&s.journey.remainingSeconds===0;
   $('next').textContent=ready?'Décoller':arrived?'Confirmer l’amarrage':s.journey?'Voyage en cours':'Préparation en cours';

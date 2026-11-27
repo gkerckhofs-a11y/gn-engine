@@ -1,6 +1,6 @@
 import {duel,step,relative,decision,STEP,MAX_SPEED,DEFAULT_SHIELD_FACTOR} from './duel-model.mjs';
 import {drawDuelShip,drawDuelLasers} from './duel-visuals.mjs';
-import {mountThrottle} from './duel-throttle.mjs';
+import {mountFlightControls} from './flight-controls.mjs';
 import {mountDuelInstruments} from './duel-instruments.mjs';
 import {initDuelSky} from './duel-sky.mjs';
 import {drawRadar,mountCanopy,fitDisplay} from './duel-canopy.mjs';
@@ -13,33 +13,8 @@ const viewport=root.querySelector('.viewport');
 const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
 let endedAt=null;
 let notice=t=>{$('notice').textContent=t;};
-const keys=new Set();
-const propulsion=mountThrottle(root);
+const flightControls=mountFlightControls(root,!!campaign),{input,propulsion}=flightControls;
 let closed=false,frame=0,campaignStatus='',hasContact=!campaign,intensity=1,reduce=false;
-const listener=campaign?root:window;
-const keydown=e=>{
-  if(e.target.matches('input[type="range"], select') && ['ArrowLeft','ArrowRight','ArrowUp','ArrowDown','Home','End','PageUp','PageDown'].includes(e.key))return;
-  if(e.target.matches('select,input,button') && e.code==='Space')return;
-  if(['Space','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.code))e.preventDefault();
-  keys.add(e.key.toLowerCase());};
-const keyup=e=>keys.delete(e.key.toLowerCase()),blur=()=>keys.clear();
-listener.addEventListener('keydown',keydown);listener.addEventListener('keyup',keyup);
-window.addEventListener('blur',blur);root.addEventListener('focusout',blur);
-const bindings={turn:['Virage',0],pitch:['Tangage',1],roll:['Roulis',2],throttle:['Poussée',3]};
-for(const [id,[label,index]] of Object.entries(bindings)){
-  const wrap=document.createElement('label'),select=document.createElement('select');
-  wrap.textContent=label+' ';select.id=id;
-  for(let n=-1;n<8;n++)select.add(new Option(n<0?'Aucun':'Axe '+(n+1),n));
-  select.value=index;wrap.append(select);$('axes').append(wrap);
-}
-function input(){
-  let pad;try{pad=Array.from(navigator.getGamepads?.()||[]).find(Boolean);}catch{}
-  $('device').textContent=pad?.id||'Clavier actif';
-  const axis=id=>{const n=pad?.axes[Number($(id).value)]||0;return Math.abs(n)<.12?0:n;};
-  const key=(a,b)=>Number(keys.has(a))-Number(keys.has(b));
-  return {turn:key('arrowright','arrowleft')||axis('turn'),pitch:key('arrowdown','arrowup')||axis('pitch'),
-    roll:key('e','a')||axis('roll'),...propulsion.controls(key('z','s'),-axis('throttle')),fire:keys.has(' ')||!!pad?.buttons[0]?.pressed};
-}
 async function command(type,data){
   if(campaign)return campaign.command(type,data);
   if(!online){decision(state,seat,type);if(type==='accord')decision(state,1,type);return;}
@@ -218,13 +193,13 @@ return {
   update(view){
     const wasReady=ready;state=view.room;seat=view.seat??0;ready=view.ready;hasContact=view.contact;
     campaignStatus=view.status;intensity=view.intensity;reduce=view.reduce;$('station').textContent=view.station;
-    if(!ready && wasReady){keys.clear();propulsion.reset();}
+    if(!ready && wasReady){flightControls.clear();propulsion.reset();}
     if(!ready || !['negotiating','parole','appel'].includes(state.phase)){
       if(media||rtc)hangup();
     }
     if(state.phase==='fin')endedAt??=performance.now();else endedAt=null;
   },
   signal(message){if(message.type==='hangup')hangup();else signal(message.type==='ready'?{ready:true}:{description:message}).catch(e=>notice(e.message));},
-  close(){closed=true;cancelAnimationFrame(frame);clearInterval(interval);hangup();keys.clear();listener.removeEventListener('keydown',keydown);listener.removeEventListener('keyup',keyup);window.removeEventListener('blur',blur);root.removeEventListener('focusout',blur);}
+  close(){closed=true;cancelAnimationFrame(frame);clearInterval(interval);hangup();flightControls.close();}
 };
 }

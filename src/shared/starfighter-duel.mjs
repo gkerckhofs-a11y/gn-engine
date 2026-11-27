@@ -40,6 +40,20 @@ export function relative(s,p) {
   return {x:lateral*Math.cos(s.bank)+up*Math.sin(s.bank),
     y:up*Math.cos(s.bank)-lateral*Math.sin(s.bank),z:ahead*Math.cos(s.pitch)+dy*Math.sin(s.pitch)};
 }
+export function flyShip(s,c){
+  s.bank+=c.roll*2*STEP;
+  s.yaw+=(c.turn*1.65+Math.sin(s.bank)*c.pitch*1.25)*STEP;
+  s.pitch=clamp(s.pitch+c.pitch*Math.cos(s.bank)*1.25*STEP,-1.48,1.48);
+  if(c.throttle!==0){
+    s.targetSpeed=null;
+    s.speed=clamp(s.speed+c.throttle*SPEED_STEP,0,MAX_SPEED);
+  }else{
+    s.targetSpeed=c.targetSpeed ?? s.targetSpeed ?? null;
+    if(s.targetSpeed!==null)s.speed+=clamp(s.targetSpeed-s.speed,-SPEED_STEP,SPEED_STEP);
+  }
+  const f=forward(s);
+  for(const k of ['x','y','z']) s[k]+=f[k]*s.speed*STEP;
+}
 export function step(state, inputs) {
   if (['paix','fin'].includes(state.phase)) return;
   if (['appel','parole'].includes(state.phase)) {
@@ -49,18 +63,8 @@ export function step(state, inputs) {
   const before=state.ships.map(s=>({...s}));
   for (const [i,s] of state.ships.entries()) {
     const c=controls(inputs[i]);
-    s.bank+=c.roll*2*STEP;
-    s.yaw+=(c.turn*1.65+Math.sin(s.bank)*c.pitch*1.25)*STEP;
-    s.pitch=clamp(s.pitch+c.pitch*Math.cos(s.bank)*1.25*STEP,-1.48,1.48);
-    if(c.throttle!==0){
-      s.targetSpeed=null;
-      s.speed=clamp(s.speed+c.throttle*SPEED_STEP,0,MAX_SPEED);
-    }else{
-      s.targetSpeed=c.targetSpeed ?? s.targetSpeed ?? null;
-      if(s.targetSpeed!==null)s.speed+=clamp(s.targetSpeed-s.speed,-SPEED_STEP,SPEED_STEP);
-    }
+    flyShip(s,c);
     const f=forward(s);
-    for(const k of ['x','y','z']) s[k]+=f[k]*s.speed*STEP;
     s.cooldown=Math.max(0,s.cooldown-STEP);
     if(c.fire && !s.cooldown && state.phase==='combat') {
       s.salvos=(s.salvos??0)+1;

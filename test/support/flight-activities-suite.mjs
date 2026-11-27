@@ -32,9 +32,10 @@ test('Poste affecté, jet avant départ, reprise après annulation, collision, e
  await assert.rejects(cockpit('steerFlightHazard',{wave:0,choice:'PORT'}),{code:'FLIGHT_WINDOW_CLOSED'});
  f.advance(30000);let radar=(await station()).ship.radar;
  assert.equal(radar.phase,'ACTIVE');
- await assert.rejects(cockpit('steerFlightHazard',{wave:0,choice:radar.clearLane}),{code:'FLIGHT_WINDOW_CLOSED'});
+ await assert.rejects(cockpit('steerFlightHazard',{wave:0,trace:[27,0,45,0,0,-1,273,0,0,0,0,-1]}),{code:'FLIGHT_WINDOW_CLOSED'});
  f.advance(15000);
- const first={sessionId:f.sid,shipId:'ship',wave:0,choice:radar.clearLane,confirmation:(await station()).confirmation};
+ await assert.rejects(cockpit('steerFlightHazard',{wave:0,choice:'PORT'}),{code:'INVALID_INPUT'});
+ const first={sessionId:f.sid,shipId:'ship',wave:0,trace:[27,0,45,0,0,-1,273,0,0,0,0,-1],confirmation:(await station()).confirmation};
  const packet={stationId:'cockpit-1',command:'steerFlightHazard',requestId:'same-maneuver',payload:first};
  await f.cmd('cockpitCommand',packet);await f.cmd('cockpitCommand',packet);
  assert.equal((await f.ship()).journey.event.delaySeconds,120);
@@ -42,7 +43,7 @@ test('Poste affecté, jet avant départ, reprise après annulation, collision, e
  f.advance(20000);await f.stage('PAUSE');f.advance(600000);
  radar=(await station()).ship.radar;assert.equal(radar.wave,1);
  await assert.rejects(cockpit('steerFlightHazard',{wave:1,choice:radar.clearLane}),{code:'SESSION_NOT_RUNNING'});
- await f.stage('EN_JEU');await cockpit('steerFlightHazard',{wave:1,choice:radar.clearLane==='PORT'?'CENTER':'PORT'});
+ await f.stage('EN_JEU');await cockpit('steerFlightHazard',{wave:1,trace:[300,0,0,0,0,-1]});
  assert.match((await station()).ship.radar.lastResult,/Collision/);
  f.advance(40000);assert.equal((await station()).ship.radar.phase,'DONE');
  const after=(await f.ship()).journey;
@@ -74,7 +75,7 @@ test('Avarie en vol : mécano embarqué, réparation atomique, esquive suivante 
  assert.equal((await repair(receipt)).recoveredSeconds,30);await repair(receipt);
  await assert.rejects(repair({system:fault.system}),{code:'FLIGHT_REPAIR_CLOSED'});
  f.advance(15000);const wave=(await f.navigation()).ship.radar;
- await command(f,'steerFlightHazard',{wave:1,choice:wave.clearLane});
+ await command(f,'steerFlightHazard',{wave:1,trace:[27,0,45,0,0,-1,273,0,0,0,0,-1]});
  assert.equal((await f.ship()).journey.event.delaySeconds,90);
  f.advance(25000);
  const remaining=await station(f.other);assert.deepEqual(remaining.pending.map(f=>f.wave),[2]);

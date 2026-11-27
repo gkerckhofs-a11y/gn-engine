@@ -1,9 +1,9 @@
 import {circuitNames} from './cockpit/asteroid-faults.mjs';
-export {bindHazardHelm} from './cockpit/asteroid-helm.mjs';
+export {bindHazardHelm,updateHazardPanel} from './cockpit/asteroid-helm.mjs';
 import {escapeHtml as esc} from './groups.mjs';
 
 export const exercises={VOYAGE:['Voyage et navigation','starfighter'],DUEL:['Duel contre le pilote automatique','duel'],ASTEROIDS:['Slalom dans les astéroïdes','asteroids']};
-const names={PORT:'Bâbord',CENTER:'Centre',STARBOARD:'Tribord',HAIL:'Répondre à la sommation',EVADE:'Brouiller le signal et fuir'};
+const names={HAIL:'Répondre à la sommation',EVADE:'Brouiller le signal et fuir'};
 const date=n=>new Date(n).toLocaleString('fr-BE',{dateStyle:'short',timeStyle:'short'});
 
 export function trainingHtml(training,sid,command,role){
@@ -22,12 +22,12 @@ export function hazardHtml(d,command){
  if(!r)return ship.journey?.event.riskFaces?`<p>Jet de traversée · ${ship.journey.event.roll}/6 · seuil ${ship.journey.event.riskFaces}/6.</p>`:'';
  const rocks=r.kind==='ASTEROIDS',leader=!ship.convoy||ship.convoy.leaderShipId===ship.shipId;
  let text={APPROACH:`Contact dans ${r.seconds} s.`,OVERRIDDEN:'Radar réservé à l’interception en cours.',WAIT:`Prochain écho dans ${r.seconds} s.`,DONE:rocks?`Champ traversé. Retard total : ${r.delaySeconds} s.`:'Le patrouilleur s’éloigne.'}[r.phase];
- if(r.phase==='ACTIVE')text=rocks?`Vague ${r.wave+1}/${r.count} · trajectoire libre à ${names[r.clearLane].toLowerCase()} · ${r.seconds} s pour virer.`:`« Cargo en approche, identifiez-vous. » · ${r.seconds} s pour répondre au capitaine pirate.`;
- const choices=rocks?['PORT','CENTER','STARBOARD']:['HAIL','EVADE'];
- const orders=choices.map(choice=>command('steerFlightHazard',{...p,wave:r.wave,choice},names[choice])).join('');
- const pilot=r.phase==='ACTIVE'&&d.canAct&&leader;
- const helm=pilot&&rocks?`<asteroid-helm data-journey="${esc(ship.journey?.id)}" data-wave="${r.wave}" data-clear="${esc(r.clearLane)}" data-seconds="${r.seconds}"><canvas width="900" height="420" aria-label="Vue avant du champ d’astéroïdes"></canvas><output></output><div class="row">${choices.map((choice,i)=>`<button type="button" data-lane="${i}">${names[choice]}</button>`).join('')}</div><small>Changez de cap avec ← ou →, le joystick ou les boutons. ↑ ou la gâchette au neutre ramène au centre. La position est enregistrée à l’approche de l’impact.</small><div hidden data-flight-submit>${orders}</div></asteroid-helm>`:'';
- return `<section class="panel" aria-label="Radar de traversée"><h2>${rocks?'Pluie d’astéroïdes':'Transmission pirate PNJ'}</h2><p>${esc(text)}</p>${helm}${r.lastResult?`<p>${esc(r.lastResult)}</p>`:''}${pilot&&!rocks?`<div class="row">${orders}</div>`:''}</section>`;
+ if(r.phase==='ACTIVE')text=rocks?`Front d’astéroïdes ${r.wave+1}/${r.count} · ${r.seconds} s.`:`« Cargo en approche, identifiez-vous. » · ${r.seconds} s pour répondre au capitaine pirate.`;
+ const orders=rocks?'':['HAIL','EVADE'].map(choice=>command('steerFlightHazard',{...p,wave:r.wave,choice},names[choice])).join('');
+ const pilot=r.phase==='ACTIVE'&&d.canAct&&leader&&!ship.journey?.suspended&&!ship.combatId&&!ship.rescueId;
+ const systems={hull:ship.hull,shield:ship.shield,hullMax:ship.profile?.hullMax,shieldMax:ship.profile?.shieldMax};
+ const helm=pilot&&rocks?`<asteroid-helm data-key="${esc(d.session.id)}/${esc(ship.shipId)}/${esc(ship.journey?.id)}/${r.wave}" data-seconds="${r.seconds}" data-seed="${r.seed}" data-wave="${r.wave+1}" data-name="${esc(ship.name)} · Champ d’astéroïdes" data-systems="${esc(JSON.stringify(systems))}"><div hidden data-flight-submit>${command('steerFlightHazard',{...p,wave:r.wave},'Transmettre le vol')}</div></asteroid-helm>`:'';
+ return `<section class="panel" aria-label="Radar de traversée"><h2>${rocks?'Pluie d’astéroïdes':'Transmission pirate PNJ'}</h2><p data-radar-status>${esc(text)}</p>${helm}${r.lastResult?`<p>${esc(r.lastResult)}</p>`:''}${pilot&&!rocks?`<div class="row">${orders}</div>`:''}</section>`;
 }
 
 export function engineeringHtml(data,sid){
