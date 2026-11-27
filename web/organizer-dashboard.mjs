@@ -31,7 +31,7 @@ export function organizerTools(s,sabacc){
    ['missionsVersion','Annonces et missions','announcements-admin','Publier une annonce et suivre les candidatures.'],
    ['missionsVersion','Contrats et arbitrages','contracts-admin','Examiner les preuves et régler les missions.'],
    ['bountyVersion','Primes et preuves','bounties-admin','Suivre les primes et leurs demandes de récompense.'],
-   ['navigationVersion','Décollages et cockpits','spaceport-admin','Traiter les demandes, affecter un poste et suivre plusieurs vols.'],
+   ['navigationVersion','Décollages, cockpits et simulateur','spaceport-admin','Programmer les entraînements, régler les rencontres et suivre les vols.'],
    ['logisticsVersion','Entretien des vaisseaux','space-maintenance-admin','Suivre les réparations et les fournitures.'],
    ['logisticsVersion','Soutes et fret','cargo-admin','Suivre les cargaisons et les opérations de fret.'],
    ['combatVersion','Dépannage spatial','space-rescues-admin','Suivre les interventions et les vaisseaux immobilisés.'],

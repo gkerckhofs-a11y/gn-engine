@@ -6,7 +6,7 @@ import {randomInt} from 'node:crypto';
 import {requireThat} from './validation.mjs';
 
 const flight=new Set(['starfighterFrame','starfighterSignal']);
-const navigation=new Set(['finishSoPreparation','arriveShip']);
+const navigation=new Set(['rollFlightRisk','steerFlightHazard','finishSoPreparation','arriveShip']);
 const planning=new Set(['galacticMap','prepareVoyage','departShip']);
 const ambush=new Set(['armSpaceAmbush','cancelSpaceAmbush']);
 const combat=new Set(['submitSpaceOrder','resolveSpaceRound','consentSpacePeace','spaceBreakaway','spaceEscortInterpose','dropTowedWreck']);

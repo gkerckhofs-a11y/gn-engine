@@ -29,3 +29,10 @@ await build({entryPoints:['web/sabacc/app.mjs'],outfile:'public/sabacc/app.js',b
 await mkdir('public/aventures',{recursive:true});
 for(const f of ['index.html','billets.css','port.webp','equipage.webp'])await copyFile('web/aventures/'+f,'public/aventures/'+f);
 await build({entryPoints:['web/aventures/client.mjs'],outfile:'public/aventures/billets.js',bundle:true,minify:true,format:'esm',target:'es2022'});
+
+await build({entryPoints:['web/cockpit/training-access.mjs'],outfile:'public/cockpit/training-access.js',bundle:true,minify:true,format:'esm',target:'es2022'});
+for(const [kind,page,module] of [['VOYAGE','starfighter','flight-ui'],['DUEL','duel','duel-ui'],['ASTEROIDS','asteroids','asteroids']]){
+ const original=await readFile('web/cockpit/'+page+'.html','utf8');
+ const scheduled=original.replace('<body',`<body hidden data-exercise="${kind}"`).replace(`src="./${module}.mjs"`,'src="./training-access.js"');
+ await writeFile('public/cockpit/exercise-'+page+'.html',scheduled);
+}

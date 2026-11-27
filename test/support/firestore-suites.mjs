@@ -3,6 +3,7 @@
 export const firestoreSuites = [
   {id:"starfighter-fleet",module:"../support/starfighter-fleet-suite.mjs",exportName:"starfighterFleetSuite",label:"STARFIGHTER fleet sur Firestore",seconds:20},
   {id:"starfighter-encounter",module:"../support/starfighter-encounter-suite.mjs",exportName:"starfighterEncounterSuite",label:"STARFIGHTER encounter sur Firestore",seconds:20},
+  {id:"flight-activities",module:"../support/flight-activities-suite.mjs",exportName:"flightActivitiesSuite",label:"Traversées et créneaux de vol sur Firestore",seconds:35},
   {id:"starfighter-navigation",module:"../support/starfighter-navigation-suite.mjs",exportName:"starfighterNavigationSuite",label:"STARFIGHTER navigation sur Firestore",seconds:20},
   {id:"ticketing",module:"../support/tickets-suite.mjs",exportName:"ticketSuite",label:"Billetterie de test",seconds:75},
   {id:"terminal-qr-readiness",module:"../support/terminal-qr-suite.mjs",exportName:"terminalQrReadinessSuite",label:"Terminaux QR régie Firestore",seconds:60},
