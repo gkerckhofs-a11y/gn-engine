@@ -27,4 +27,4 @@ figure{margin:0;position:relative;overflow:hidden;background:#050a14}.viewport{p
 @media(max-width:890px){.instruments{grid-template-columns:repeat(2,minmax(0,1fr))}.scope{height:113px}.prop{min-height:110px}.comms{align-items:flex-start}}
 @media(max-width:480px){.bridge{padding:9px 12px}.brand{gap:7px}.station{font-size:11px}.wingmark{width:23px}.instruments{gap:5px}.radar-panel,.prop{padding:9px 8px}.scope{gap:4px;height:106px}.scope canvas{width:87px;height:87px}.range-data output{font-size:12px}.actions{gap:5px}.actions button{padding:8px 9px;font-size:13px}#glass{height:clamp(275px,42vh,520px)}}
 
-:host{display:block}
+:host{display:block}#glass{touch-action:none}

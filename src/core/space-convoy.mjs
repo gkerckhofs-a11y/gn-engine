@@ -1,10 +1,11 @@
+import {riskFaces,voyageEvent} from './flight-hazards.mjs';
 import {recordShipDeparture} from './space-fictional-traces.mjs';
 import {flightShip,eligibleFlightModules,validateModuleFlight,neutralizeVoyageModule} from './space-module-flight.mjs';
 import {resumeSpaceJourney} from './space-combat-state.mjs';
 import {requireThat,documentId} from './validation.mjs';
 import {inventoryHash as hash} from './inventory-state.mjs';
 import {inventoryParty} from './inventory-transfers.mjs';
-import {navigationSkill,soRoute,soVoyageEvent} from './space-outlaws-navigation-state.mjs';
+import {navigationSkill,soRoute} from './space-outlaws-navigation-state.mjs';
 import {actionPointPath,actionPointState,resolveActionPoints} from './action-point-state.mjs';
 import {transportDeparture} from './space-transport.mjs';
 import {gameTime} from './clock.mjs';
@@ -69,9 +70,13 @@ export async function finishConvoy(tx,s,ship,at,id,dice,available){
   const pilot=manifest.find(c=>c.id===a.pilotId);requireThat(x.pilotId===a.pilotId&&pilot&&navigationSkill(pilot,'PIL-02')>=a.level&&g.pilots.some(p=>p.id===a.pilotId&&p.version===a.pilotVersion),'INVALID_MANIFEST');
   const points=actionPointState(s,pilot,await tx.get(actionPointPath(s.id,pilot.id)),at),transportManifest=await transportDeparture(tx,s,x,a.route,`${id}_${all.length}`,at);all.push({x,a,manifest,pilot,points,transportManifest});
  }
- const moduleEvent=dice[0]<=all[0].a.route.eventFaces&&dice[1]===5&&all[0].a.route.riskId!=='SECURED',eligible=moduleEvent?all.filter(v=>eligibleFlightModules(s,v.x,time).length):[],pool=eligible.length?eligible:all,chosen=pool[(dice[2]-1)%pool.length],selected=all.indexOf(chosen),modules=eligibleFlightModules(s,chosen.x,time),event=soVoyageEvent(chosen.a.route,dice[0],dice[1],chosen.x.fuel-chosen.a.route.fuelCost,modules.length?modules[((dice[3]??1)-1)%modules.length]:null),suspended=event.needsMJ||event.fuelDebt>0,duration=chosen.a.route.durationSeconds+event.delaySeconds;
+ const leader=rows.find(x=>x.id===g.leaderShipId),enabled=leader.operation.flightRisks===true;
+ if(enabled){requireThat(leader.riskDie,'FLIGHT_ROLL_REQUIRED');dice=[leader.riskDie,...dice.slice(1)];}
+ const faces=enabled?riskFaces(all[0].a.route):all[0].a.route.eventFaces;
+ const moduleEvent=dice[0]<=faces&&dice[1]===5&&all[0].a.route.riskId!=='SECURED',eligible=moduleEvent?all.filter(v=>eligibleFlightModules(s,v.x,time).length):[],pool=eligible.length?eligible:all,chosen=pool[(dice[2]-1)%pool.length],selected=all.indexOf(chosen),modules=eligibleFlightModules(s,chosen.x,time),event=voyageEvent(chosen.a.route,dice,chosen.x.fuel-chosen.a.route.fuelCost,modules.length?modules[((dice[3]??1)-1)%modules.length]:null,enabled),suspended=event.needsMJ||event.fuelDebt>0,duration=chosen.a.route.durationSeconds+event.delaySeconds;
  for(let i=0;i<all.length;i++){const {x,a,manifest,pilot,points,transportManifest}=all[i],jid=`${id}_${i}`,e={...event,fuelCost:i===selected?event.fuelCost:0,fuelDebt:i===selected?event.fuelDebt:0,affectedShipId:chosen.x.id,selectionRoll:dice[2]},j={...a.route,id:jid,routeId:a.route.id,convoyId:g.id,convoyShipIds:g.shipIds,convoyLeaderId:g.leaderShipId,manifest:a.manifest.map(({id,name})=>({id,name})),missionManifest:a.manifest.map(({id,version})=>({id,version})),...(transportManifest.length?{transportManifest}:{}),pilotId:a.pilotId,departedAt:at,departedAtGameMs:time,arrivesAtGameMs:time+duration*1000,event:e,suspended,remainingMs:suspended?duration*1000:null};
-  tx.set(`${base}/ships/${x.id}`,{...neutralizeVoyageModule(s,x,i===selected?event:{},time,jid),operation:null,docked:false,fuel:x.fuel-a.route.fuelCost-e.fuelCost,journey:j,revision:x.revision+1});tx.set(`${base}/voyages/${jid}`,{...j,shipId:x.id,status:suspended?'SUSPENDED':'IN_TRANSIT'});await recordShipDeparture(tx,s,x,pilot,j,at);tx.set(actionPointPath(s.id,pilot.id),resolveActionPoints(points,1));for(const m of manifest)tx.set(`${base}/characters/${m.id}`,{...m,activeNavigationId:null,activeVoyageId:jid});
+  const launched=neutralizeVoyageModule(s,x,i===selected?event:{},time,jid);const {riskDie,...launchedShip}=launched;
+  tx.set(`${base}/ships/${x.id}`,{...launchedShip,operation:null,docked:false,fuel:x.fuel-a.route.fuelCost-e.fuelCost,journey:j,revision:x.revision+1});tx.set(`${base}/voyages/${jid}`,{...j,shipId:x.id,status:suspended?'SUSPENDED':'IN_TRANSIT'});await recordShipDeparture(tx,s,x,pilot,j,at);tx.set(actionPointPath(s.id,pilot.id),resolveActionPoints(points,1));for(const m of manifest)tx.set(`${base}/characters/${m.id}`,{...m,activeNavigationId:null,activeVoyageId:jid});
  }
  return {id:g.id,status:'DEPARTED'};
 }

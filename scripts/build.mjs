@@ -16,10 +16,13 @@ console.log('Interface compilée dans public/');
 await cp('web/cockpit','public/cockpit',{recursive:true});
 
 await copyFile('src/shared/starfighter-duel.mjs','public/cockpit/duel-model.mjs');
-const bridge=await readFile('web/cockpit/duel.html','utf8');
-await writeFile('public/cockpit/console.html',bridge.match(/<body>([\s\S]*?)<script/)[1]);
+const bridge=(await readFile('web/cockpit/duel.html','utf8')).match(/<body>([\s\S]*?)<script/)[1];
+await writeFile('public/cockpit/console.html',bridge);
+const asteroidPage=(await readFile('web/cockpit/asteroids.html','utf8')).replace('<!-- STARFIGHTER_DECK -->',bridge);
+await writeFile('public/cockpit/asteroids.html',asteroidPage);
+await writeFile('public/cockpit/asteroid-model.mjs',(await readFile('src/shared/starfighter-asteroids.mjs','utf8')).replace("'./starfighter-duel.mjs'","'./duel-model.mjs'"));
 const cockpitTemplate=await readFile('web/cockpit/index.html','utf8');
-await writeFile('public/cockpit/live.html',cockpitTemplate.replace('<body>','<body data-connected="true">').replace('src="./cockpit.mjs"','src="./connected.js"'));
+await writeFile('public/cockpit/live.html',cockpitTemplate.replace('</head>','<link rel="stylesheet" href="./travel-radar.css"></head>').replace('<body>','<body data-connected="true">').replace('src="./cockpit.mjs"','src="./connected.js"'));
 await build({entryPoints:['web/cockpit/connected.mjs'],outfile:'public/cockpit/connected.js',bundle:true,minify:true,format:'esm',target:'es2022'});
 
 await mkdir('public/sabacc',{recursive:true});
@@ -29,3 +32,10 @@ await build({entryPoints:['web/sabacc/app.mjs'],outfile:'public/sabacc/app.js',b
 await mkdir('public/aventures',{recursive:true});
 for(const f of ['index.html','billets.css','port.webp','equipage.webp'])await copyFile('web/aventures/'+f,'public/aventures/'+f);
 await build({entryPoints:['web/aventures/client.mjs'],outfile:'public/aventures/billets.js',bundle:true,minify:true,format:'esm',target:'es2022'});
+
+await build({entryPoints:['web/cockpit/training-access.mjs'],outfile:'public/cockpit/training-access.js',bundle:true,minify:true,format:'esm',target:'es2022'});
+for(const [kind,page,module] of [['VOYAGE','starfighter','flight-ui'],['DUEL','duel','duel-ui'],['ASTEROIDS','asteroids','asteroids']]){
+ const original=await readFile('public/cockpit/'+page+'.html','utf8');
+ const scheduled=original.replace('<body',`<body hidden data-exercise="${kind}"`).replace(`src="./${module}.mjs"`,'src="./training-access.js"');
+ await writeFile('public/cockpit/exercise-'+page+'.html',scheduled);
+}

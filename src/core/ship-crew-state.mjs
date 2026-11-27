@@ -48,7 +48,7 @@ export async function requireCrewPilot(tx,s,ship,c,action,at){
  if(!ship||shipPilot(ship)!==c.id||ship.ownerType==='CHARACTER'&&ship.ownerId===c.id)return;
  const access=await shipCrewAccess(tx,s,ship,c,at);if(!access.member)return;
  if(access.active&&['PILOT','CAPTAIN'].includes(access.member.role))return;
- const continuation=new Set(['shipNavigation','cockpitStation','requestSoLaunch','finishSoPreparation','finishSoRefuel','cancelSoNavigation','arriveShip','submitSpaceOrder','resolveSpaceRound','spaceBreakaway','spaceEscortInterpose','consentSpacePeace','dropTowedWreck','prepareSpaceRescue','startSpaceRescue','finishSpaceRescue','cancelSpaceRescue']);
+ const continuation=new Set(['shipNavigation','cockpitStation','requestSoLaunch','rollFlightRisk','steerFlightHazard','finishSoPreparation','finishSoRefuel','cancelSoNavigation','arriveShip','submitSpaceOrder','resolveSpaceRound','spaceBreakaway','spaceEscortInterpose','consentSpacePeace','dropTowedWreck','prepareSpaceRescue','startSpaceRescue','finishSpaceRescue','cancelSpaceRescue']);
  const committed=ship.journey?.pilotId===c.id||ship.operation?.pilotId===c.id;
  requireThat(committed&&continuation.has(action),'SHIP_CREW_REVOKED');
 }

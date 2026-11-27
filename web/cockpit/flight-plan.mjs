@@ -53,7 +53,7 @@ export function cockpitFlightPlan(host,call) {
     run(async current=>{
       const result=await call('prepareVoyage',proposed,view);if(!current()||request!==selection)return;
       flight=proposed;quote=result;const b=host.querySelector('[data-depart]');b.hidden=false;b.disabled=false;
-      host.querySelector('[data-info]').textContent=result.manifest.map(m=>m.name).join(' · ')+' · préparation '+result.durationSeconds+' s · carburant après trajet '+result.remainingFuel;
+      host.querySelector('[data-info]').textContent=result.manifest.map(m=>m.name).join(' · ')+' · préparation '+result.durationSeconds+' s · carburant après trajet '+result.remainingFuel+(result.riskFaces?' · jet de traversée, seuil '+result.riskFaces+'/6':'');
     });
   });
   return {update,reset};

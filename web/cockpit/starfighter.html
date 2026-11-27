@@ -1,5 +1,5 @@
-<!doctype html><html lang="fr"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Starfighter · Poste d’entraînement</title>
-<link rel="stylesheet" href="./starfighter.css"><main><header><h1>STARFIGHTER</h1><b id="training">SIMULATION – données fictives</b></header>
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Starfighter · Poste d’entraînement</title>
+<link rel="stylesheet" href="./starfighter.css"></head><body><main><header><h1>STARFIGHTER</h1><b id="training">SIMULATION – données fictives</b></header>
 <figure><canvas id="screen" tabindex="0" aria-label="Champ de vol et visée"></canvas><svg aria-hidden="true" class="canopy" viewBox="0 0 1400 600" preserveAspectRatio="none">
 <defs><linearGradient id="metal" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#607078"/><stop offset=".1" stop-color="#29363e"/><stop offset=".48" stop-color="#121b23"/><stop offset=".9" stop-color="#34414a"/><stop offset="1" stop-color="#080e13"/></linearGradient><linearGradient id="beam"><stop stop-color="#0a1016"/><stop offset=".3" stop-color="#36444e"/><stop offset=".5" stop-color="#48565e"/><stop offset=".58" stop-color="#17222c"/><stop offset="1" stop-color="#080e14"/></linearGradient></defs>
 <path d="M0 0H1400V54L1150 30H250L0 54Z" fill="url(#metal)" stroke="#78868b" stroke-width="2"/>
@@ -16,4 +16,4 @@
 <p id="plans"></p><section><strong id="systems"></strong><button id="step"></button></section>
 <p role="status" id="radio"></p><button id="peace" hidden>Conclure une paix fictive</button><section id="tactics" hidden><label>Manœuvre fictive<select id="tactic"><option>Attaquer</option><option>Défendre</option><option>Fuir</option></select></label><p id="outcome" role="status"></p></section><div id="combat" hidden></div>
 <nav><a href="./duel.html">Simulateur de duel au joystick</a><button id="pause">Pause</button><button id="audio">Activer le son</button><button id="motion">Mouvement réduit</button><button id="reset">Nouvel exercice</button><button id="shortage">Essayer une pénurie</button></nav>
-<script type="module" src="./flight-ui.mjs"></script></main></html>
+<script type="module" src="./flight-ui.mjs"></script></main></body></html>

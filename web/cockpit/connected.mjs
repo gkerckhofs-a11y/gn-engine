@@ -1,3 +1,4 @@
+import {hazardHtml,bindHazardHelm,updateHazardPanel} from '../flight-activities.mjs';
 import {pilotConsole} from './pilot-console.mjs';
 import {cockpitFlightPlan} from './flight-plan.mjs';
 import {uiErrorMessage} from '../ui-language.mjs';
@@ -21,6 +22,12 @@ const account=document.createElement('section');account.className='cockpit-accou
 account.innerHTML='<button id="pilot-login">Connecter le pilote désigné</button><button id="pilot-logout" hidden>Déconnecter le pilote</button><p id="connection-status" role="status"></p>';
 document.querySelector('header').after(account);
 const orders=document.createElement('section');orders.id='live-orders';document.querySelector('footer').before(orders);
+const radar=document.createElement('section');orders.before(radar);
+radar.addEventListener('click',e=>{
+ const button=e.target.closest('[data-helm-command]');
+ if(!button||!current?.canAct)return;
+ execute(button.dataset.helmCommand,JSON.parse(decodeURIComponent(button.dataset.payload)));
+});
 const chart=document.createElement('section');orders.before(chart);
 const plan=cockpitFlightPlan(chart,async (command,fields,d)=>{
  if(!current||current.confirmation!==d.confirmation||busy)throw new Error('Actualisez le poste.');
@@ -41,6 +48,9 @@ const helm=pilotConsole(bridge,{
  peace(d,c){return execute('consentSpacePeace',{sessionId,shipId:d.ship.shipId,combatId:c.id,confirmation:c.confirmation,agree:true});}
 });
 async function displayHelm(d,c){
+ const evasion=!!radar.querySelector('asteroid-helm');
+ if(evasion){helm.reset();if(radar.nextElementSibling!==bridge)bridge.before(radar);document.querySelector('.viewport').hidden=true;return;}
+ if(radar.nextElementSibling===bridge)orders.before(radar);
  await helm.update(d,c);
  document.querySelector('.viewport').hidden=!bridge.hidden;
 }
@@ -66,7 +76,7 @@ async function pulse(d,combat){
  catch(e){if(!['STALE_REVISION','COCKPIT_COMMAND','SPACE_INTERCEPTION_USED','SPACE_ALLIANCE_UNAVAILABLE','TOWING_ACTION_NOT_OPEN'].includes(e.code))throw e;}
 }
 const status=text=>{$('connection-status').textContent=text;};
-function fail(error){helm.reset();orderPhase='';$('journal').replaceChildren();showRound(null);combatTelemetry(null,null);plan.reset();main.hidden=true;current=null;lockCockpit();orders.replaceChildren();status(uiErrorMessage(error,{...soNavigationErrors,...spaceEncounterErrors}));}
+function fail(error){radar.replaceChildren();helm.reset();orderPhase='';$('journal').replaceChildren();showRound(null);combatTelemetry(null,null);plan.reset();main.hidden=true;current=null;lockCockpit();orders.replaceChildren();status(uiErrorMessage(error,{...soNavigationErrors,...spaceEncounterErrors}));}
 async function api(action,input){
  if(!auth.currentUser)throw new Error('Connexion requise');
  const token=await auth.currentUser.getIdToken();
@@ -85,7 +95,9 @@ async function refresh(){
   const d=await api('cockpitStation',{sessionId,stationId});if(ticket!==generation)return;
   current=d;main.hidden=false;projectCockpit(d);plan.update(d);document.querySelector('.connection').textContent=d.starfighter?'SESSION CONNECTÉE':'COCKPIT · CONNECTÉ';
   status(`Poste ${stationId} · pilote : ${d.pilotName}`);
-  const s=d.ship,ready=d.canAct&&s.operation?.kind==='PREPARE'&&s.operation.remainingSeconds===0;
+  if(d.ship.radar?.kind==='ASTEROIDS'&&d.ship.radar.phase==='ACTIVE'&&radar.nextElementSibling!==bridge)bridge.before(radar);
+  updateHazardPanel(radar,hazardHtml(d,(action,input,label)=>`<button data-helm-command="${action}" data-payload="${encodeURIComponent(JSON.stringify(input))}">${label}</button>`));
+  const s=d.ship,ready=d.canAct&&(!s.operation?.risk?.leader||s.operation.risk.roll)&&s.operation?.kind==='PREPARE'&&s.operation.remainingSeconds===0;
   const arrived=d.canAct&&s.journey&&!s.journey.suspended&&!s.combatId&&!s.rescueId&&s.journey.remainingSeconds===0;
   $('next').textContent=ready?'Décoller':arrived?'Confirmer l’amarrage':s.journey?'Voyage en cours':'Préparation en cours';
   $('next').disabled=!(ready||arrived);$('next').dataset.command=ready?'finishSoPreparation':'arriveShip';
@@ -153,3 +165,5 @@ onAuthStateChanged(auth,user=>{helm.reset();$('journal').replaceChildren();plan.
 window.addEventListener('offline',()=>{generation++;clearTimeout(timer);fail(new Error('Connexion perdue'));status('Connexion perdue · commandes suspendues.');});
 window.addEventListener('online',()=>refresh());
 window.addEventListener('pagehide',()=>{helm.reset();generation++;clearTimeout(timer);});
+
+bindHazardHelm();

@@ -5,7 +5,7 @@ import {randomBytes} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import {duel,step,controls,decision,STEP,DEFAULT_SHIELD_FACTOR} from '../web/cockpit/duel-model.mjs';
 const room=duel(DEFAULT_SHIELD_FACTOR), seats=[0,1].map(()=>({key:randomBytes(24).toString('hex'), input:{}, stream:null, updated:0}));
-const files=new Set(['duel.html','duel-ui.mjs','duel-console.mjs','duel.css','duel-instruments.css','duel-model.mjs','duel-visuals.mjs','duel-instruments.mjs','duel-sky.mjs','duel-canopy.mjs','duel-destruction.mjs','duel-throttle.mjs']);
+const files=new Set(['duel.html','duel-ui.mjs','duel-console.mjs','duel.css','duel-instruments.css','duel-model.mjs','duel-visuals.mjs','duel-instruments.mjs','duel-sky.mjs','duel-canopy.mjs','duel-destruction.mjs','duel-throttle.mjs','flight-controls.mjs']);
 function send(seat,type,data) {seat.stream?.write(JSON.stringify({type,data})+'\n');}
 function resetCall() { room.linked.fill(false); for (const seat of seats) send(seat,'hangup',null); }
 async function handle(req,res) {
